@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f0f23">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Expense Tracker">
+    <title>Expense Tracker - Reimbursement Helper</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Expense Tracker</h1>
+            <p>Automate your reimbursement submissions</p>
+        </header>
+
+        <main>
+            <!-- Bill OCR Section -->
+            <section id="ocrSection" class="ocr-section">
+                <h2>📷 Scan Your Bill</h2>
+                <p>Upload bill images to automatically extract expense details</p>
+
+                <div class="form-group">
+                    <label for="billImages">Upload Bill Images:</label>
+                    <input type="file" id="billImages" name="billImages" accept="image/*" multiple>
+                    <small>Select one or more bill images to scan</small>
+                </div>
+
+                <div id="imagePreview" class="image-preview-container"></div>
+
+                <button type="button" id="scanBills" class="btn-primary" style="display: none;">
+                    <span id="scanText">🔍 Scan Bills</span>
+                    <span id="scanProgress" style="display: none;">Processing... <span id="progressText">0%</span></span>
+                </button>
+            </section>
+
+            <!-- Expense Entry Form -->
+            <section class="expense-form-section" id="expenseFormSection" style="display: none;">
+                <h2>✏️ Review & Edit Details</h2>
+                <p>Verify the extracted information and make corrections if needed</p>
+                <form id="expenseForm">
+                    <div class="form-group">
+                        <label for="date">Date:</label>
+                        <input type="date" id="date" name="date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="category">Category:</label>
+                        <select id="category" name="category" required>
+                            <option value="">Select Category</option>
+                            <option value="Transportation">Transportation</option>
+                            <option value="Accommodation">Accommodation</option>
+                            <option value="Meals">Meals</option>
+                            <option value="Fuel">Fuel</option>
+                            <option value="Miscellaneous">Miscellaneous</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Description:</label>
+                        <input type="text" id="description" name="description" placeholder="Brief description of expense" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="amount">Amount (₹):</label>
+                        <input type="number" id="amount" name="amount" step="0.01" placeholder="0.00" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="vendor">Vendor/Merchant:</label>
+                        <input type="text" id="vendor" name="vendor" placeholder="Name of vendor or merchant">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="receipt">Receipt/Bill Image:</label>
+                        <input type="file" id="receipt" name="receipt" accept="image/*" multiple>
+                        <small>You can select multiple images for one expense</small>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" id="backToScan" class="btn-secondary">← Back to Scan</button>
+                        <button type="submit" class="btn-primary">✅ Confirm & Add Expense</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Expenses List -->
+            <section class="expenses-list-section">
+                <div class="section-header">
+                    <h2>Your Expenses</h2>
+                    <div class="action-buttons">
+                        <button id="configureTemplate" class="btn-secondary">⚙️ Configure Excel Template</button>
+                        <button id="generateExcel" class="btn-secondary">Download Excel</button>
+                        <button id="generatePDF" class="btn-secondary">Download PDF</button>
+                        <button id="clearAll" class="btn-danger">Clear All</button>
+                    </div>
+                </div>
+
+                <div id="expensesList" class="expenses-container">
+                    <!-- Expenses will be displayed here -->
+                </div>
+
+                <div id="totalAmount" class="total-section">
+                    <strong>Total Amount: ₹0.00</strong>
+                </div>
+            </section>
+        </main>
+
+        <!-- Image Viewer Modal -->
+        <div id="imageModal" class="modal" style="display: none;">
+            <div class="image-modal-content">
+                <span class="close-image">&times;</span>
+                <img id="modalImage" src="" alt="Receipt Image">
+                <div class="image-info">
+                    <span id="imageTitle">Receipt Image</span>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Template Configuration Modal -->
+        <div id="templateModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>⚙️ Excel Template Configuration</h2>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="config-section">
+                        <h3>Company Information</h3>
+                        <div class="form-group">
+                            <label for="companyName">Company Name:</label>
+                            <input type="text" id="companyName" placeholder="Your Company Name">
+                        </div>
+                        <div class="form-group">
+                            <label for="reportTitle">Report Title:</label>
+                            <input type="text" id="reportTitle" value="EXPENSE REIMBURSEMENT FORM">
+                        </div>
+                    </div>
+
+                    <div class="config-section">
+                        <h3>Employee Fields</h3>
+                        <div class="checkbox-group">
+                            <label><input type="checkbox" id="includeEmployeeId" checked> Employee ID</label>
+                            <label><input type="checkbox" id="includeDepartment" checked> Department</label>
+                            <label><input type="checkbox" id="includeManager" checked> Manager</label>
+                            <label><input type="checkbox" id="includePeriod" checked> Period Dates</label>
+                        </div>
+                    </div>
+
+                    <div class="config-section">
+                        <h3>Expense Columns</h3>
+                        <div class="checkbox-group">
+                            <label><input type="checkbox" id="includeSerialNo" checked> Serial Number</label>
+                            <label><input type="checkbox" id="includeDate" checked> Date</label>
+                            <label><input type="checkbox" id="includeCategory" checked> Category/Type</label>
+                            <label><input type="checkbox" id="includeDescription" checked> Description</label>
+                            <label><input type="checkbox" id="includeVendor" checked> Vendor</label>
+                            <label><input type="checkbox" id="includeAmount" checked> Amount</label>
+                            <label><input type="checkbox" id="includeReceipt" checked> Receipt Status</label>
+                            <label><input type="checkbox" id="includePurpose" checked> Business Purpose</label>
+                        </div>
+                    </div>
+
+                    <div class="config-section">
+                        <h3>Approval Section</h3>
+                        <div class="checkbox-group">
+                            <label><input type="checkbox" id="includeEmployeeSignature" checked> Employee Signature</label>
+                            <label><input type="checkbox" id="includeManagerApproval" checked> Manager Approval</label>
+                            <label><input type="checkbox" id="includeFinanceSection" checked> Finance Section</label>
+                        </div>
+                    </div>
+
+                    <div class="config-section">
+                        <h3>Upload Your Template</h3>
+                        <div class="form-group">
+                            <label for="templateFile">Upload Excel Template (.xlsx):</label>
+                            <input type="file" id="templateFile" accept=".xlsx">
+                            <small>Upload your existing template to automatically configure the format</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="saveTemplate" class="btn-primary">Save Configuration</button>
+                    <button id="resetTemplate" class="btn-secondary">Reset to Default</button>
+                    <button id="closeModal" class="btn-danger">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
