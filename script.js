@@ -3,6 +3,7 @@ class ExpenseTracker {
         this.expenses = this.loadExpenses();
         this.scannedImages = [];
         this.extractedData = {};
+        this.lastSyncedIndex = this.loadLastSyncedIndex(); // Track last synced expense
         this.initializeEventListeners();
         this.displayExpenses();
         this.updateTotal();
@@ -14,17 +15,19 @@ class ExpenseTracker {
         document.getElementById('scanBills').addEventListener('click', () => this.scanBills());
         document.getElementById('backToScan').addEventListener('click', () => this.backToScan());
         document.getElementById('expenseForm').addEventListener('submit', (e) => this.handleSubmit(e));
-        document.getElementById('generateExcel').addEventListener('click', () => this.generateExcel());
         document.getElementById('generatePDF').addEventListener('click', () => this.generatePDF());
         document.getElementById('clearAll').addEventListener('click', () => this.clearAllExpenses());
 
-        // Template configuration
-        document.getElementById('configureTemplate').addEventListener('click', () => this.openTemplateModal());
-        document.getElementById('closeModal').addEventListener('click', () => this.closeTemplateModal());
-        document.querySelector('.close').addEventListener('click', () => this.closeTemplateModal());
-        document.getElementById('saveTemplate').addEventListener('click', () => this.saveTemplateConfig());
-        document.getElementById('resetTemplate').addEventListener('click', () => this.resetTemplateConfig());
-        document.getElementById('templateFile').addEventListener('change', (e) => this.handleTemplateUpload(e));
+        // Google Sheets configuration
+        document.getElementById('configureGoogleSheets').addEventListener('click', () => this.openGoogleSheetsModal());
+        document.getElementById('closeGoogleModal').addEventListener('click', () => this.closeGoogleSheetsModal());
+        document.querySelector('.close-google-sheets').addEventListener('click', () => this.closeGoogleSheetsModal());
+        document.getElementById('saveGoogleConfig').addEventListener('click', () => this.saveGoogleSheetsConfig());
+        document.getElementById('initializeApis').addEventListener('click', () => this.initializeGoogleApis());
+        document.getElementById('authorizeGoogle').addEventListener('click', () => this.authorizeGoogle());
+        document.getElementById('signOutGoogle').addEventListener('click', () => this.signOutGoogle());
+        document.getElementById('testConnection').addEventListener('click', () => this.testGoogleConnection());
+        document.getElementById('exportToGoogleSheets').addEventListener('click', () => this.exportToGoogleSheets());
 
 
         // Image modal
@@ -34,6 +37,9 @@ class ExpenseTracker {
         window.addEventListener('click', (e) => {
             if (e.target === document.getElementById('templateModal')) {
                 this.closeTemplateModal();
+            }
+            if (e.target === document.getElementById('googleSheetsModal')) {
+                this.closeGoogleSheetsModal();
             }
             if (e.target === document.getElementById('imageModal')) {
                 this.closeImageModal();
@@ -450,12 +456,25 @@ class ExpenseTracker {
     addExpense(expense) {
         console.log('Adding expense to list:', expense); // Debug log
         this.expenses.push(expense);
+
+        // Sort expenses by date (oldest first)
+        this.sortExpensesByDate();
+
         this.saveExpenses();
         this.displayExpenses();
         this.updateTotal();
         this.resetForm();
         this.showNotification('✅ Expense added successfully!');
         console.log('Total expenses now:', this.expenses.length); // Debug log
+    }
+
+    sortExpensesByDate() {
+        // Sort expenses by date in ascending order (oldest first)
+        this.expenses.sort((a, b) => {
+            const dateA = new Date(a.date);
+            const dateB = new Date(b.date);
+            return dateA - dateB;
+        });
     }
 
     deleteExpense(id) {
@@ -485,8 +504,10 @@ class ExpenseTracker {
                 <div class="expense-details">
                     <div><strong>Date:</strong> ${new Date(expense.date).toLocaleDateString()}</div>
                     <div><strong>Category:</strong> ${expense.category}</div>
-                    <div><strong>Description:</strong> ${expense.description}</div>
                     <div><strong>Vendor:</strong> ${expense.vendor}</div>
+                </div>
+                <div style="margin-top: 8px; padding: 6px 8px; background: rgba(255, 255, 255, 0.03); border-radius: 6px; font-size: 13px;">
+                    <strong>Description:</strong> ${expense.description}
                 </div>
                 ${expense.images.length > 0 ? `
                     <div class="expense-images">
@@ -518,7 +539,26 @@ class ExpenseTracker {
 
     loadExpenses() {
         const saved = localStorage.getItem('expenses');
-        return saved ? JSON.parse(saved) : [];
+        const expenses = saved ? JSON.parse(saved) : [];
+
+        // Sort by date when loading
+        expenses.sort((a, b) => {
+            const dateA = new Date(a.date);
+            const dateB = new Date(b.date);
+            return dateA - dateB;
+        });
+
+        return expenses;
+    }
+
+    loadLastSyncedIndex() {
+        const saved = localStorage.getItem('lastSyncedIndex');
+        return saved ? parseInt(saved) : -1;
+    }
+
+    saveLastSyncedIndex(index) {
+        localStorage.setItem('lastSyncedIndex', index.toString());
+        this.lastSyncedIndex = index;
     }
 
     generateExcel() {
@@ -650,86 +690,43 @@ class ExpenseTracker {
 
         const pageWidth = 210; // A4 width in mm
         const pageHeight = 297; // A4 height in mm
-        const margin = 15;
+        const margin = 10;
         const availableWidth = pageWidth - (2 * margin);
-        const availableHeight = pageHeight - (2 * margin) - 40; // Reserve 40mm for header
+        const availableHeight = pageHeight - (2 * margin);
 
-        // Card layout: 2x2 grid (4 cards per page)
-        const imagesPerRow = 2;
+        // Simple 3x2 grid layout (6 images per page)
+        const imagesPerRow = 3;
         const imagesPerColumn = 2;
-        const cardWidth = (availableWidth / imagesPerRow) - 15; // 15mm gap between cards
-        const cardHeight = (availableHeight / imagesPerColumn) - 20; // 20mm gap between cards
-        const imageWidth = cardWidth - 6; // Image fits inside card with padding
-        const imageHeight = cardHeight - 8; // Image height minus header space
+        const imagesPerPage = imagesPerRow * imagesPerColumn;
+        const imageWidth = (availableWidth / imagesPerRow) - 5; // Small gap between images
+        const imageHeight = (availableHeight / imagesPerColumn) - 15; // Gap between rows
 
-        let currentPage = 1;
-        let imageCount = 0;
-
-        // Add professional header to first page
-        pdf.setFillColor(45, 55, 72); // Dark blue background
-        pdf.rect(0, 0, pageWidth, 35, 'F');
-
-        pdf.setFontSize(20);
-        pdf.setFont('helvetica', 'bold');
-        pdf.setTextColor(255, 255, 255); // White text
-        pdf.text('RECEIPT IMAGES - EXPENSE REIMBURSEMENT', pageWidth / 2, 15, { align: 'center' });
-
-        pdf.setFontSize(12);
-        pdf.setFont('helvetica', 'normal');
-        pdf.text(`Generated on: ${new Date().toLocaleDateString('en-GB')}`, pageWidth / 2, 25, { align: 'center' });
-
-        pdf.setFontSize(10);
-        pdf.text(`Total Images: ${allImages.length}`, pageWidth / 2, 32, { align: 'center' });
-
-        pdf.setTextColor(0, 0, 0); // Reset to black text
-        let startY = 50; // Start below header
+        let imageIndex = 0;
+        let needNewPage = false;
 
         allImages.forEach((imageItem, index) => {
-            // Calculate position in grid
-            const row = Math.floor(imageCount / imagesPerRow);
-            const col = imageCount % imagesPerRow;
+            // Add new page if needed
+            if (needNewPage || index === 0) {
+                if (index > 0) {
+                    pdf.addPage();
+                }
+                needNewPage = false;
+                imageIndex = 0;
+            }
 
-            // Calculate card position
-            const cardX = margin + (col * (cardWidth + 15));
-            const cardY = startY + (row * (cardHeight + 20));
+            // Calculate position in 3x2 grid
+            const row = Math.floor(imageIndex / imagesPerRow);
+            const col = imageIndex % imagesPerRow;
 
-            // Calculate image position within card
-            const x = cardX + 3;
-            const y = cardY + 8;
+            // Calculate image position
+            const x = margin + (col * (imageWidth + 5));
+            const y = margin + (row * (imageHeight + 15));
 
             try {
-                // Add card background
-                pdf.setFillColor(248, 250, 252); // Light gray background
-                pdf.rect(cardX, cardY, cardWidth, cardHeight, 'F');
+                // Add the image directly without styling
+                pdf.addImage(imageItem.data, 'JPEG', x, y, imageWidth, imageHeight);
 
-                // Add card border
-                pdf.setDrawColor(203, 213, 225); // Light border
-                pdf.setLineWidth(0.5);
-                pdf.rect(cardX, cardY, cardWidth, cardHeight);
-
-                // Add blue header bar
-                pdf.setFillColor(59, 130, 246); // Blue header
-                pdf.rect(cardX, cardY, cardWidth, 8, 'F');
-
-                // Add receipt title in header
-                pdf.setFontSize(10);
-                pdf.setFont('helvetica', 'bold');
-                pdf.setTextColor(255, 255, 255);
-                pdf.text(imageItem.label, cardX + (cardWidth / 2), cardY + 5, { align: 'center' });
-
-                // Add image with shadow effect
-                pdf.setFillColor(200, 200, 200); // Shadow
-                pdf.rect(x + 2, y + 2, imageWidth, imageHeight, 'F');
-
-                // Add the actual image
-                pdf.addImage(imageItem.data, 'JPEG', x, y, imageWidth, imageHeight, '', 'MEDIUM');
-
-                // Add image border
-                pdf.setDrawColor(156, 163, 175);
-                pdf.setLineWidth(1);
-                pdf.rect(x, y, imageWidth, imageHeight);
-
-                pdf.setTextColor(0, 0, 0); // Reset color
+                // No styling - just the image
 
             } catch (error) {
                 console.error('Error adding image to PDF:', error);
@@ -807,6 +804,59 @@ class ExpenseTracker {
         pdf.save(fileName);
 
         this.showNotification(`PDF with ${allImages.length} receipt images downloaded!`);
+    }
+
+    exportJSON() {
+        if (this.expenses.length === 0) {
+            alert('No expenses to export!');
+            return;
+        }
+
+        // Create JSON data in the exact format needed for Python script
+        const data = {
+            EmployeeName: "[Employee Name]",
+            ExpensePeriod: this.getExpensePeriod(),
+            EmployeeCode: "[Employee Code]",
+            FromDate: this.getFromDate(),
+            ToDate: this.getToDate(),
+            BusinessPurpose: "[Business Purpose]",
+            CashAdvance: 0,
+            items: this.expenses.map(expense => ({
+                Date: expense.date,
+                VendorName_Description: `${expense.vendor} - ${expense.description}`,
+                Category: expense.category,
+                Cost: expense.amount
+            }))
+        };
+
+        // Download as JSON file
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `expense_data_${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+
+        this.showNotification('📋 JSON exported! Use with Python script to fill your template.');
+    }
+
+    getExpensePeriod() {
+        if (this.expenses.length === 0) return new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+        const dates = this.expenses.map(e => new Date(e.date)).sort((a, b) => a - b);
+        return dates[0].toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    }
+
+    getFromDate() {
+        if (this.expenses.length === 0) return new Date().toISOString().split('T')[0];
+        const dates = this.expenses.map(e => new Date(e.date)).sort((a, b) => a - b);
+        return dates[0].toISOString().split('T')[0];
+    }
+
+    getToDate() {
+        if (this.expenses.length === 0) return new Date().toISOString().split('T')[0];
+        const dates = this.expenses.map(e => new Date(e.date)).sort((a, b) => a - b);
+        return dates[dates.length - 1].toISOString().split('T')[0];
     }
 
     clearAllExpenses() {
@@ -990,6 +1040,199 @@ class ExpenseTracker {
                 notification.remove();
             }, 300);
         }, 4000);
+    }
+
+    // Google Sheets Integration Methods
+
+    openGoogleSheetsModal() {
+        const modal = document.getElementById('googleSheetsModal');
+        modal.style.display = 'block';
+
+        // Load configuration (now hardcoded in service)
+        document.getElementById('clientId').value = googleSheetsService.CLIENT_ID;
+        document.getElementById('apiKey').value = googleSheetsService.API_KEY;
+        document.getElementById('sheetId').value = googleSheetsService.SHEET_ID;
+        document.getElementById('sheetName').value = googleSheetsService.SHEET_NAME;
+
+        // Disable credential fields since they're hardcoded
+        document.getElementById('clientId').readOnly = true;
+        document.getElementById('apiKey').readOnly = true;
+
+        // Debug information
+        console.log('Google Sheets Service State:');
+        console.log('- gapiInited:', googleSheetsService.gapiInited);
+        console.log('- gisInited:', googleSheetsService.gisInited);
+        console.log('- isAuthenticated:', googleSheetsService.isAuthenticated);
+        console.log('- isReady():', googleSheetsService.isReady());
+
+        // Force show the connect button for now to test
+        const authorizeBtn = document.getElementById('authorizeGoogle');
+        if (authorizeBtn) {
+            authorizeBtn.style.display = 'block';
+            console.log('Forcing connect button to show');
+        }
+
+        // Update auth status
+        googleSheetsService.updateAuthStatus();
+    }
+
+    closeGoogleSheetsModal() {
+        document.getElementById('googleSheetsModal').style.display = 'none';
+    }
+
+    async saveGoogleSheetsConfig() {
+        const sheetId = document.getElementById('sheetId').value.trim();
+        const sheetName = document.getElementById('sheetName').value.trim();
+
+        if (!sheetId || !sheetName) {
+            this.showNotification('⚠️ Please fill in sheet ID and name');
+            return;
+        }
+
+        try {
+            // Save sheet config (credentials are hardcoded)
+            googleSheetsService.setSheetConfig(sheetId, sheetName);
+
+            // Try to initialize APIs if not ready
+            let gapiReady = googleSheetsService.gapiInited;
+            let gisReady = googleSheetsService.gisInited;
+
+            if (!gapiReady) {
+                gapiReady = await googleSheetsService.initializeGapi();
+            }
+            if (!gisReady) {
+                gisReady = googleSheetsService.initializeGis();
+            }
+
+            if (gapiReady && gisReady) {
+                this.showNotification('✅ Google Sheets configuration saved successfully!');
+            } else {
+                this.showNotification('⚠️ Configuration saved but Google APIs are still loading...');
+            }
+
+            googleSheetsService.updateAuthStatus();
+        } catch (error) {
+            console.error('Error saving Google Sheets config:', error);
+            this.showNotification('❌ Error saving configuration: ' + error.message);
+        }
+    }
+
+    async initializeGoogleApis() {
+        const button = document.getElementById('initializeApis');
+        const originalText = button.textContent;
+        button.textContent = '⏳ Initializing...';
+        button.disabled = true;
+
+        try {
+            console.log('Manual API initialization started');
+            console.log('Current URL:', window.location.href);
+            console.log('Is HTTPS?', window.location.protocol === 'https:');
+            console.log('Is localhost?', window.location.hostname === 'localhost');
+
+            // Check if we're using file:// protocol
+            if (window.location.protocol === 'file:') {
+                this.showNotification('⚠️ Google APIs may not work with file:// URLs. Try using a local server (http://localhost).');
+            }
+
+            // Initialize both APIs
+            const gapiSuccess = await googleSheetsService.initializeGapi();
+            const gisSuccess = googleSheetsService.initializeGis();
+
+            console.log('Manual init results - GAPI:', gapiSuccess, 'GIS:', gisSuccess);
+
+            if (gapiSuccess && gisSuccess) {
+                this.showNotification('✅ Google APIs initialized successfully!');
+                googleSheetsService.updateAuthStatus();
+            } else {
+                let errorMsg = '⚠️ Some APIs failed to initialize:\n';
+                if (!gapiSuccess) errorMsg += '- Google API (gapi) failed\n';
+                if (!gisSuccess) errorMsg += '- Google Identity Services failed\n';
+                errorMsg += 'Check browser console for details.';
+                this.showNotification(errorMsg);
+            }
+        } catch (error) {
+            console.error('Manual initialization error:', error);
+            this.showNotification('❌ Failed to initialize APIs: ' + error.message);
+        } finally {
+            button.textContent = originalText;
+            button.disabled = false;
+        }
+    }
+
+    async authorizeGoogle() {
+        console.log('authorizeGoogle() called');
+        try {
+            if (!googleSheetsService.isReady()) {
+                this.showNotification('⚠️ Please initialize Google APIs first!');
+                return;
+            }
+
+            await googleSheetsService.authenticate();
+            this.showNotification('🔐 Google authentication initiated!');
+        } catch (error) {
+            console.error('Authentication error:', error);
+            this.showNotification('❌ Authentication failed: ' + error.message);
+        }
+    }
+
+    signOutGoogle() {
+        googleSheetsService.signOut();
+        this.showNotification('🔓 Signed out from Google successfully');
+    }
+
+    async testGoogleConnection() {
+        try {
+            const result = await googleSheetsService.testConnection();
+            if (result.success) {
+                this.showNotification('✅ ' + result.message);
+            } else {
+                this.showNotification('❌ ' + result.message);
+            }
+        } catch (error) {
+            console.error('Connection test error:', error);
+            this.showNotification('❌ Connection test failed: ' + error.message);
+        }
+    }
+
+    async exportToGoogleSheets() {
+        if (this.expenses.length === 0) {
+            this.showNotification('⚠️ No expenses to export to Google Sheets');
+            return;
+        }
+
+        // Get only new expenses that haven't been synced
+        const newExpenses = this.expenses.slice(this.lastSyncedIndex + 1);
+
+        if (newExpenses.length === 0) {
+            this.showNotification('ℹ️ All expenses are already synced to Google Sheets');
+            return;
+        }
+
+        try {
+            const button = document.getElementById('exportToGoogleSheets');
+            const originalText = button.textContent;
+            button.textContent = '📊 Exporting...';
+            button.disabled = true;
+
+            console.log(`Exporting ${newExpenses.length} new expenses (from index ${this.lastSyncedIndex + 1})`);
+            const result = await googleSheetsService.exportExpenses(newExpenses);
+
+            if (result.success) {
+                // Update sync index to current last expense
+                this.saveLastSyncedIndex(this.expenses.length - 1);
+                this.showNotification(`✅ Exported ${newExpenses.length} new expenses to Google Sheets`);
+                console.log(`Data exported to rows ${result.startRow} to ${result.endRow}`);
+            } else {
+                this.showNotification(`❌ ${result.message}`);
+            }
+        } catch (error) {
+            console.error('Export error:', error);
+            this.showNotification('❌ Export failed: ' + error.message);
+        } finally {
+            const button = document.getElementById('exportToGoogleSheets');
+            button.textContent = '📊 Export to Google Sheets';
+            button.disabled = false;
+        }
     }
 }
 
