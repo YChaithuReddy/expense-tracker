@@ -12,6 +12,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+    <script src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
 </head>
 <body>
     <div class="container">
@@ -95,10 +97,22 @@
                 <div class="section-header">
                     <h2>Your Expenses</h2>
                     <div class="action-buttons">
-                        <button id="configureTemplate" class="btn-secondary">⚙️ Configure Excel Template</button>
-                        <button id="generateExcel" class="btn-secondary">Download Excel</button>
-                        <button id="generatePDF" class="btn-secondary">Download PDF</button>
-                        <button id="clearAll" class="btn-danger">Clear All</button>
+                        <button id="configureGoogleSheets" class="btn-config">
+                            <span class="btn-icon">📊</span>
+                            <span class="btn-text">Configure Google Sheets</span>
+                        </button>
+                        <button id="exportToGoogleSheets" class="btn-primary" style="display: none;">
+                            <span class="btn-icon">☁️</span>
+                            <span class="btn-text">Export to Google Sheets</span>
+                        </button>
+                        <button id="generatePDF" class="btn-secondary">
+                            <span class="btn-icon">📄</span>
+                            <span class="btn-text">Download PDF</span>
+                        </button>
+                        <button id="clearAll" class="btn-danger">
+                            <span class="btn-icon">🗑️</span>
+                            <span class="btn-text">Clear All</span>
+                        </button>
                     </div>
                 </div>
 
@@ -124,77 +138,73 @@
         </div>
 
 
-        <!-- Template Configuration Modal -->
-        <div id="templateModal" class="modal" style="display: none;">
+        <!-- Google Sheets Configuration Modal -->
+        <div id="googleSheetsModal" class="modal" style="display: none;">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2>⚙️ Excel Template Configuration</h2>
-                    <span class="close">&times;</span>
+                    <h2>📊 Google Sheets Configuration</h2>
+                    <span class="close-google-sheets">&times;</span>
                 </div>
                 <div class="modal-body">
                     <div class="config-section">
-                        <h3>Company Information</h3>
+                        <h3>Google API Credentials</h3>
                         <div class="form-group">
-                            <label for="companyName">Company Name:</label>
-                            <input type="text" id="companyName" placeholder="Your Company Name">
+                            <label for="clientId">Google Client ID:</label>
+                            <input type="text" id="clientId" placeholder="Your Google Client ID">
+                            <small>Get this from Google Cloud Console</small>
                         </div>
                         <div class="form-group">
-                            <label for="reportTitle">Report Title:</label>
-                            <input type="text" id="reportTitle" value="EXPENSE REIMBURSEMENT FORM">
+                            <label for="apiKey">Google API Key:</label>
+                            <input type="text" id="apiKey" placeholder="Your Google API Key">
+                            <small>Get this from Google Cloud Console</small>
                         </div>
                     </div>
 
                     <div class="config-section">
-                        <h3>Employee Fields</h3>
-                        <div class="checkbox-group">
-                            <label><input type="checkbox" id="includeEmployeeId" checked> Employee ID</label>
-                            <label><input type="checkbox" id="includeDepartment" checked> Department</label>
-                            <label><input type="checkbox" id="includeManager" checked> Manager</label>
-                            <label><input type="checkbox" id="includePeriod" checked> Period Dates</label>
-                        </div>
-                    </div>
-
-                    <div class="config-section">
-                        <h3>Expense Columns</h3>
-                        <div class="checkbox-group">
-                            <label><input type="checkbox" id="includeSerialNo" checked> Serial Number</label>
-                            <label><input type="checkbox" id="includeDate" checked> Date</label>
-                            <label><input type="checkbox" id="includeCategory" checked> Category/Type</label>
-                            <label><input type="checkbox" id="includeDescription" checked> Description</label>
-                            <label><input type="checkbox" id="includeVendor" checked> Vendor</label>
-                            <label><input type="checkbox" id="includeAmount" checked> Amount</label>
-                            <label><input type="checkbox" id="includeReceipt" checked> Receipt Status</label>
-                            <label><input type="checkbox" id="includePurpose" checked> Business Purpose</label>
-                        </div>
-                    </div>
-
-                    <div class="config-section">
-                        <h3>Approval Section</h3>
-                        <div class="checkbox-group">
-                            <label><input type="checkbox" id="includeEmployeeSignature" checked> Employee Signature</label>
-                            <label><input type="checkbox" id="includeManagerApproval" checked> Manager Approval</label>
-                            <label><input type="checkbox" id="includeFinanceSection" checked> Finance Section</label>
-                        </div>
-                    </div>
-
-                    <div class="config-section">
-                        <h3>Upload Your Template</h3>
+                        <h3>Sheet Configuration</h3>
                         <div class="form-group">
-                            <label for="templateFile">Upload Excel Template (.xlsx):</label>
-                            <input type="file" id="templateFile" accept=".xlsx">
-                            <small>Upload your existing template to automatically configure the format</small>
+                            <label for="sheetId">Google Sheet ID:</label>
+                            <input type="text" id="sheetId" placeholder="Sheet ID from URL" value="1LDdO1WPcYjeDh8uMn3myxQXjN3CTPrf9">
+                            <small>Extracted from your sheet URL</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="sheetName">Sheet Name/Tab:</label>
+                            <input type="text" id="sheetName" placeholder="Sheet1" value="Sheet1">
+                            <small>Name of the tab in your Google Sheet</small>
+                        </div>
+                    </div>
+
+                    <div class="config-section">
+                        <h3>Cell Mapping (Pre-configured for your template)</h3>
+                        <div class="mapping-info">
+                            <p><strong>SL NO:</strong> A13:A66 (Auto-incrementing)</p>
+                            <p><strong>DATE:</strong> B13:B66 (From bill dates)</p>
+                            <p><strong>VENDOR NAME & DESCRIPTION:</strong> C13:C66 (Combined vendor + description)</p>
+                            <p><strong>CATEGORY:</strong> D13:D66 (Expense category)</p>
+                            <p><strong>COST:</strong> E13:E66 (Bill amounts)</p>
+                        </div>
+                    </div>
+
+                    <div class="config-section">
+                        <h3>Authentication Status</h3>
+                        <div id="authStatus" class="auth-status">
+                            <span class="status-indicator" id="statusIndicator">⚪ Not connected</span>
+                            <button id="initializeApis" class="btn-secondary">🔄 Initialize Google APIs</button>
+                            <button id="authorizeGoogle" class="btn-primary" style="display: none;">🔐 Connect to Google</button>
+                            <button id="signOutGoogle" class="btn-secondary" style="display: none;">🔓 Disconnect</button>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button id="saveTemplate" class="btn-primary">Save Configuration</button>
-                    <button id="resetTemplate" class="btn-secondary">Reset to Default</button>
-                    <button id="closeModal" class="btn-danger">Close</button>
+                    <button id="testConnection" class="btn-secondary">🧪 Test Connection</button>
+                    <button id="saveGoogleConfig" class="btn-primary">💾 Save Configuration</button>
+                    <button id="closeGoogleModal" class="btn-danger">❌ Close</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <script src="google-sheets-service.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
