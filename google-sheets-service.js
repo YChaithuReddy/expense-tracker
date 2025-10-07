@@ -19,11 +19,10 @@ class GoogleSheetsService {
         this.isAuthenticated = false;
 
         this.cellMapping = {
-            slNoRange: 'A13:A66',
-            dateRange: 'B13:B66',
-            vendorRange: 'C13:C66',
-            categoryRange: 'D13:D66',
-            costRange: 'E13:E66'
+            dateRange: 'B14:B66',      // DATE column
+            vendorRange: 'C14:D66',     // VENDOR NAME column (spans C-D)
+            categoryRange: 'E14:E66',   // CATEGORY column
+            costRange: 'F14:F66'        // COST column
         };
     }
 
@@ -277,13 +276,13 @@ class GoogleSheetsService {
     }
 
     /**
-     * Get existing data from sheet to find next empty row
+     * Get existing data from sheet to find next empty row (checking column B for dates)
      */
     async getExistingData() {
         try {
             const response = await gapi.client.sheets.spreadsheets.values.get({
                 spreadsheetId: this.SHEET_ID,
-                range: `${this.SHEET_NAME}!A13:E66`,
+                range: `${this.SHEET_NAME}!B14:B66`, // Check DATE column from row 14
             });
 
             return response.result.values || [];
@@ -294,17 +293,17 @@ class GoogleSheetsService {
     }
 
     /**
-     * Find the next empty row in the data range
+     * Find the next empty row in the data range (starting from row 14)
      */
     findNextEmptyRow(existingData) {
-        let nextRow = 13; // Starting row
+        let nextRow = 14; // Starting row (changed from 13 to 14)
 
         if (existingData && existingData.length > 0) {
             // Find the last row with data
             for (let i = existingData.length - 1; i >= 0; i--) {
                 const row = existingData[i];
-                if (row && row.some(cell => cell && cell.toString().trim() !== '')) {
-                    nextRow = 13 + i + 1;
+                if (row && row.length > 0 && row[0] && row[0].toString().trim() !== '') {
+                    nextRow = 14 + i + 1;
                     break;
                 }
             }
@@ -396,24 +395,24 @@ class GoogleSheetsService {
                 throw new Error(`Not enough empty rows. Available rows: ${66 - startRow + 1}, Required: ${expenses.length}`);
             }
 
-            // Prepare data arrays for ONLY the 5 required columns
+            // Prepare data arrays for columns A, B, C, E, F (starting from row 14)
             const updates = [];
 
-            // Column A: SL NO (Serial numbers - auto-increment)
-            const slNumbers = expenses.map((_, index) => [(startRow - 13 + index + 1).toString()]);
+            // Column A: S.NO (serial numbers)
+            const serialNumbers = expenses.map((expense, index) => [startRow + index - 13]);
             updates.push({
                 range: `${this.SHEET_NAME}!A${startRow}:A${startRow + expenses.length - 1}`,
-                values: slNumbers
+                values: serialNumbers
             });
 
-            // Column B: DATE
+            // Column B: DATE (format: dd-MMM-yyyy like 20-Mar-2025)
             const dates = expenses.map(expense => [this.formatDate(expense.date)]);
             updates.push({
                 range: `${this.SHEET_NAME}!B${startRow}:B${startRow + expenses.length - 1}`,
                 values: dates
             });
 
-            // Column C: VENDOR NAME (only vendor name, no description)
+            // Column C: VENDOR NAME (only vendor name - no category or description)
             const vendors = expenses.map(expense => [
                 expense.vendor || 'Unknown Vendor'
             ]);
@@ -422,22 +421,22 @@ class GoogleSheetsService {
                 values: vendors
             });
 
-            // Column D: CATEGORY (map to valid categories from Categories tab)
+            // Column E: CATEGORY (exact category entered by user)
             const categories = expenses.map(expense => [
-                this.mapToValidCategory(expense.category || 'Miscellaneous')
+                expense.category || 'Miscellaneous'
             ]);
             updates.push({
-                range: `${this.SHEET_NAME}!D${startRow}:D${startRow + expenses.length - 1}`,
+                range: `${this.SHEET_NAME}!E${startRow}:E${startRow + expenses.length - 1}`,
                 values: categories
             });
 
-            // Column E: COST (only numeric amount)
+            // Column F: COST (only numeric amount)
             const costs = expenses.map(expense => {
                 const amount = parseFloat(expense.amount) || 0;
                 return [amount];
             });
             updates.push({
-                range: `${this.SHEET_NAME}!E${startRow}:E${startRow + expenses.length - 1}`,
+                range: `${this.SHEET_NAME}!F${startRow}:F${startRow + expenses.length - 1}`,
                 values: costs
             });
 
@@ -539,13 +538,20 @@ class GoogleSheetsService {
     }
 
     /**
-     * Format date for Google Sheets
+     * Format date for Google Sheets (dd-MMM-yyyy format like 20-Mar-2025)
      */
     formatDate(dateString) {
         try {
             if (!dateString) return '';
             const date = new Date(dateString);
-            return date.toLocaleDateString('en-GB'); // DD/MM/YYYY format
+
+            const day = String(date.getDate()).padStart(2, '0');
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                              'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const month = monthNames[date.getMonth()];
+            const year = date.getFullYear();
+
+            return `${day}-${month}-${year}`; // Format: 20-Mar-2025
         } catch (error) {
             return dateString; // Return original if formatting fails
         }
