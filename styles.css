@@ -849,6 +849,17 @@ main {
         margin-bottom: 30px;
     }
 
+    /* Fix extracted data box styling on mobile */
+    .extracted-data-box {
+        background: rgba(0, 212, 255, 0.08) !important;
+        border: 1px solid rgba(0, 212, 255, 0.3) !important;
+        border-radius: 12px !important;
+        padding: 15px !important;
+        margin-bottom: 20px !important;
+        font-size: 13px !important;
+        line-height: 1.8 !important;
+    }
+
     .section-header {
         flex-direction: column;
         gap: 15px;

@@ -324,23 +324,26 @@ class ExpenseTracker {
     }
 
     populateForm() {
-        // Populate form fields with extracted data
-        if (this.extractedData.date) {
-            document.getElementById('date').value = this.extractedData.date;
-        }
-        if (this.extractedData.category) {
-            document.getElementById('category').value = this.extractedData.category;
-        }
-        if (this.extractedData.description) {
-            document.getElementById('description').value = this.extractedData.description;
-        }
-        if (this.extractedData.amount) {
-            document.getElementById('amount').value = this.extractedData.amount;
-        }
-        // Vendor name is NOT auto-filled - user must enter manually
-        // if (this.extractedData.vendor) {
-        //     document.getElementById('vendor').value = this.extractedData.vendor;
-        // }
+        // ONLY fill fields that have extracted data - leave others empty
+        const fieldsToFill = [
+            { id: 'date', value: this.extractedData.date },
+            { id: 'category', value: this.extractedData.category },
+            { id: 'description', value: this.extractedData.description },
+            { id: 'amount', value: this.extractedData.amount }
+        ];
+
+        // Fill ONLY fields with valid extracted data, leave others empty
+        fieldsToFill.forEach(field => {
+            const element = document.getElementById(field.id);
+            if (field.value && field.value.trim() !== '') {
+                element.value = field.value;
+            } else {
+                element.value = ''; // Leave empty for manual entry
+            }
+        });
+
+        // Vendor field - always leave empty for manual entry
+        document.getElementById('vendor').value = '';
 
         // Set the receipt images
         const receiptInput = document.getElementById('receipt');
@@ -364,24 +367,40 @@ class ExpenseTracker {
             this.showNotification('⚠️ Could not extract data automatically. Please fill in the details manually.');
         }
 
-        // Add debugging info to form
+        // Add extracted data box to form
         const debugInfo = document.createElement('div');
+        debugInfo.className = 'extracted-data-box';
         debugInfo.style.cssText = `
-            background: rgba(0, 212, 255, 0.1);
+            background: rgba(0, 212, 255, 0.08);
             border: 1px solid rgba(0, 212, 255, 0.3);
-            border-radius: 8px;
-            padding: 10px;
+            border-radius: 12px;
+            padding: 15px;
             margin-bottom: 20px;
-            font-size: 12px;
+            font-size: 13px;
             color: var(--text-secondary);
+            line-height: 1.8;
         `;
-        debugInfo.innerHTML = `
-            <strong>🔍 Extracted Data:</strong><br>
-            Amount: ${this.extractedData.amount || 'Not found'}<br>
-            Vendor: ${this.extractedData.vendor || 'Not found'}<br>
-            Date: ${this.extractedData.date || 'Not found'}<br>
-            Category: ${this.extractedData.category || 'Not found'}
-        `;
+
+        // Build list of extracted fields - only show what was found
+        let extractedFields = [];
+        if (this.extractedData.amount) extractedFields.push(`Amount: ₹${this.extractedData.amount}`);
+        if (this.extractedData.vendor) extractedFields.push(`Vendor: ${this.extractedData.vendor}`);
+        if (this.extractedData.date) extractedFields.push(`Date: ${this.extractedData.date}`);
+        if (this.extractedData.category) extractedFields.push(`Category: ${this.extractedData.category}`);
+
+        if (extractedFields.length > 0) {
+            debugInfo.innerHTML = `
+                <strong style="color: var(--neon-cyan);">🔍 Extracted Data:</strong><br>
+                ${extractedFields.join('<br>')}
+                <br><br>
+                <small style="opacity: 0.7;">ℹ️ Empty fields were not found - fill them manually</small>
+            `;
+        } else {
+            debugInfo.innerHTML = `
+                <strong style="color: var(--neon-pink);">⚠️ Could not extract data</strong><br>
+                <small>Please fill in all fields manually</small>
+            `;
+        }
 
         const form = document.getElementById('expenseForm');
         form.insertBefore(debugInfo, form.firstChild);
@@ -402,8 +421,8 @@ class ExpenseTracker {
         const submitBtn = document.querySelector('#expenseForm button[type="submit"]');
         submitBtn.textContent = '✅ Confirm & Add Expense';
 
-        // Remove debug info if it exists
-        const existingDebug = document.querySelector('#expenseForm div[style*="rgba(0, 212, 255, 0.1)"]');
+        // Remove extracted data box if it exists
+        const existingDebug = document.querySelector('.extracted-data-box');
         if (existingDebug) {
             existingDebug.remove();
         }
