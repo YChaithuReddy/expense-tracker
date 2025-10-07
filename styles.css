@@ -190,11 +190,25 @@ main {
     padding: 30px;
     border-radius: 20px;
     position: relative;
-    overflow: hidden;
+    overflow: visible;
     box-shadow:
         0 20px 40px rgba(0, 0, 0, 0.3),
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
     transition: all 0.3s ease;
+}
+
+.ocr-section::after,
+.expense-form-section::after,
+.expenses-list-section::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 20px;
+    pointer-events: none;
+    z-index: -1;
 }
 
 .ocr-section:hover,
@@ -218,6 +232,8 @@ main {
     height: 2px;
     background: var(--border-gradient);
     opacity: 0.8;
+    pointer-events: none;
+    z-index: 0;
 }
 
 .ocr-section h2,
@@ -333,8 +349,15 @@ main {
     flex: 1;
 }
 
+#expenseForm {
+    position: relative;
+    z-index: 1;
+}
+
 .form-group {
     margin-bottom: 25px;
+    position: relative;
+    z-index: 1;
 }
 
 .form-group label {
@@ -403,6 +426,9 @@ main {
     overflow: hidden;
     transition: all 0.3s ease;
     backdrop-filter: blur(10px);
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    z-index: 10;
 }
 
 .btn-primary {
@@ -814,6 +840,13 @@ main {
     .expense-form-section,
     .expenses-list-section {
         padding: 20px;
+        overflow: visible;
+        position: relative;
+    }
+
+    .expense-form-section {
+        padding-bottom: 30px;
+        margin-bottom: 30px;
     }
 
     .section-header {
@@ -841,15 +874,30 @@ main {
     .form-actions {
         flex-direction: column;
         gap: 15px;
+        position: relative;
+        z-index: 100;
     }
 
     .form-actions .btn-secondary {
         width: 100%;
         order: 2;
+        min-height: 50px;
     }
 
     .form-actions .btn-primary {
         order: 1;
+        width: 100%;
+        min-height: 50px;
+    }
+
+    .btn-primary,
+    .btn-secondary,
+    .btn-danger {
+        padding: 16px 24px;
+        font-size: 15px;
+        min-height: 50px;
+        position: relative;
+        z-index: 100;
     }
 
     .image-preview-container {
@@ -884,8 +932,13 @@ main {
     .btn-primary,
     .btn-secondary,
     .btn-danger {
-        padding: 12px 20px;
-        font-size: 13px;
+        padding: 16px 24px;
+        font-size: 14px;
+        min-height: 52px;
+    }
+
+    .expense-form-section {
+        padding-bottom: 40px;
     }
 }
 
