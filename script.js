@@ -154,41 +154,60 @@ class ExpenseTracker {
         console.log('OCR Text Lines:', lines); // Debug log
 
         // Enhanced amount extraction for various formats
-        for (const line of lines) {
-            // Look for ₹80, Rs 80, 80 Rs, Amount 80, etc.
-            const amountPatterns = [
-                /₹\s*(\d+(?:[.,]\d{1,2})?)/i,
-                /rs\.?\s*(\d+(?:[.,]\d{1,2})?)/i,
-                /(\d+(?:[.,]\d{1,2})?)\s*₹/i,
-                /(\d+(?:[.,]\d{1,2})?)\s*rs/i,
-                /(?:amount|total|sum|paid)[\s:]*₹?\s*(\d+(?:[.,]\d{1,2})?)/i,
-                /rupees\s+(\w+)/i // for "Rupees Eighty" text
-            ];
+        const fullText = text.toLowerCase();
 
-            for (const pattern of amountPatterns) {
-                const match = line.match(pattern);
+        // Priority 1: Look for explicit amount/total/paid keywords
+        const amountPatterns = [
+            /(?:amount|total|paid|sum|bill|charge)[\s:]*(?:rs\.?|₹)?\s*(\d+(?:[.,]\d{1,2})?)/i,
+            /(?:rs\.?|₹)\s*(\d+(?:[.,]\d{1,2})?)/i,
+            /(\d+(?:[.,]\d{1,2})?)\s*(?:rs\.?|₹)/i,
+            /(?:inr|rupees?)\s*(\d+(?:[.,]\d{1,2})?)/i,
+            /(\d+(?:[.,]\d{1,2})?)\s*(?:inr|rupees?)/i,
+            /rupees\s+(\w+)(?:\s+only)?/i // for "Rupees Eighty Only"
+        ];
+
+        // Try each pattern on full text first
+        for (const pattern of amountPatterns) {
+            const match = fullText.match(pattern);
+            if (match) {
+                let amount = match[1];
+
+                // Handle text amounts like "Eighty"
+                if (isNaN(amount)) {
+                    const textNumbers = {
+                        'zero': 0, 'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5,
+                        'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10,
+                        'eleven': 11, 'twelve': 12, 'thirteen': 13, 'fourteen': 14, 'fifteen': 15,
+                        'sixteen': 16, 'seventeen': 17, 'eighteen': 18, 'nineteen': 19,
+                        'twenty': 20, 'thirty': 30, 'forty': 40, 'fifty': 50,
+                        'sixty': 60, 'seventy': 70, 'eighty': 80, 'ninety': 90,
+                        'hundred': 100, 'thousand': 1000
+                    };
+                    amount = textNumbers[amount.toLowerCase()] || 0;
+                }
+
+                if (amount && parseFloat(amount) > 0) {
+                    data.amount = parseFloat(amount.toString().replace(',', '.')).toString();
+                    console.log('✅ Amount found:', data.amount);
+                    break;
+                }
+            }
+        }
+
+        // Priority 2: If no amount found, look for any standalone number with currency
+        if (!data.amount) {
+            for (const line of lines) {
+                const match = line.match(/(?:₹|rs\.?)\s*(\d+(?:[.,]\d{1,2})?)/i) ||
+                             line.match(/(\d+(?:[.,]\d{1,2})?)\s*(?:₹|rs\.?)/i);
                 if (match) {
-                    let amount = match[1];
-
-                    // Handle text amounts like "Eighty"
-                    if (isNaN(amount)) {
-                        const textNumbers = {
-                            'zero': 0, 'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5,
-                            'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10,
-                            'twenty': 20, 'thirty': 30, 'forty': 40, 'fifty': 50,
-                            'sixty': 60, 'seventy': 70, 'eighty': 80, 'ninety': 90,
-                            'hundred': 100, 'thousand': 1000
-                        };
-                        amount = textNumbers[amount.toLowerCase()] || 0;
-                    }
-
-                    if (amount && parseFloat(amount) > 0) {
+                    const amount = match[1];
+                    if (amount && parseFloat(amount) > 0 && parseFloat(amount) < 100000) {
                         data.amount = parseFloat(amount.toString().replace(',', '.')).toString();
+                        console.log('✅ Amount found (fallback):', data.amount);
                         break;
                     }
                 }
             }
-            if (data.amount) break;
         }
 
         // Enhanced vendor extraction for Paytm-style receipts
@@ -287,16 +306,20 @@ class ExpenseTracker {
             data.category = 'Meals';
         }
 
-        // Generate description
-        if (data.vendor && data.category !== 'Miscellaneous') {
-            data.description = `${data.category} - ${data.vendor}`;
-        } else if (data.vendor) {
-            data.description = data.vendor;
+        // Generate description (simplified - only use category)
+        if (data.amount) {
+            data.description = `${data.category} - ₹${data.amount}`;
         } else {
             data.description = `${data.category} expense`;
         }
 
-        console.log('Parsed data:', data); // Debug log
+        console.log('✅ Parsed OCR data:', data); // Debug log
+        console.log('📊 Detection Summary:');
+        console.log('  Amount:', data.amount || '❌ NOT FOUND');
+        console.log('  Date:', data.date || '❌ NOT FOUND');
+        console.log('  Category:', data.category);
+        console.log('  Vendor:', data.vendor || '(not extracted)');
+
         return data;
     }
 
