@@ -4,6 +4,7 @@ class ExpenseTracker {
         this.scannedImages = [];
         this.extractedData = {};
         this.lastSyncedIndex = this.loadLastSyncedIndex(); // Track last synced expense
+        this.editingExpenseId = null; // Track which expense is being edited
         this.initializeEventListeners();
         this.displayExpenses();
         this.updateTotal();
@@ -313,9 +314,10 @@ class ExpenseTracker {
         if (this.extractedData.amount) {
             document.getElementById('amount').value = this.extractedData.amount;
         }
-        if (this.extractedData.vendor) {
-            document.getElementById('vendor').value = this.extractedData.vendor;
-        }
+        // Vendor name is NOT auto-filled - user must enter manually
+        // if (this.extractedData.vendor) {
+        //     document.getElementById('vendor').value = this.extractedData.vendor;
+        // }
 
         // Set the receipt images
         const receiptInput = document.getElementById('receipt');
@@ -370,6 +372,13 @@ class ExpenseTracker {
         document.getElementById('expenseForm').reset();
         this.setTodayDate();
 
+        // Reset editing mode
+        this.editingExpenseId = null;
+
+        // Reset submit button text
+        const submitBtn = document.querySelector('#expenseForm button[type="submit"]');
+        submitBtn.textContent = '✅ Confirm & Add Expense';
+
         // Remove debug info if it exists
         const existingDebug = document.querySelector('#expenseForm div[style*="rgba(0, 212, 255, 0.1)"]');
         if (existingDebug) {
@@ -407,28 +416,53 @@ class ExpenseTracker {
             return;
         }
 
-        const expense = {
-            id: Date.now(),
-            date: date,
-            category: category,
-            description: description,
-            amount: parseFloat(amount),
-            vendor: formData.get('vendor') || 'N/A',
-            images: []
-        };
+        // Check if we're editing an existing expense
+        if (this.editingExpenseId !== null) {
+            const expenseIndex = this.expenses.findIndex(exp => exp.id === this.editingExpenseId);
+            if (expenseIndex !== -1) {
+                // Update existing expense
+                const existingImages = this.expenses[expenseIndex].images || [];
+                const expense = {
+                    id: this.editingExpenseId,
+                    date: date,
+                    category: category,
+                    description: description,
+                    amount: parseFloat(amount),
+                    vendor: formData.get('vendor') || 'N/A',
+                    images: files.length > 0 ? [] : existingImages // Keep old images if no new ones uploaded
+                };
 
-        console.log('Creating expense:', expense); // Debug log
-
-        if (files.length > 0) {
-            this.processImages(files, expense);
+                if (files.length > 0) {
+                    this.processImages(files, expense, true);
+                } else {
+                    this.updateExpense(expense);
+                    this.backToScan();
+                }
+            }
         } else {
-            this.addExpense(expense);
-            // After successful submission, go back to scan mode
-            this.backToScan();
+            // Create new expense
+            const expense = {
+                id: Date.now(),
+                date: date,
+                category: category,
+                description: description,
+                amount: parseFloat(amount),
+                vendor: formData.get('vendor') || 'N/A',
+                images: []
+            };
+
+            console.log('Creating expense:', expense); // Debug log
+
+            if (files.length > 0) {
+                this.processImages(files, expense, false);
+            } else {
+                this.addExpense(expense);
+                this.backToScan();
+            }
         }
     }
 
-    processImages(files, expense) {
+    processImages(files, expense, isEdit = false) {
         let processedCount = 0;
         console.log('Processing images:', files.length); // Debug log
 
@@ -444,8 +478,11 @@ class ExpenseTracker {
                 console.log(`Processed image ${processedCount}/${files.length}`); // Debug log
 
                 if (processedCount === files.length) {
-                    this.addExpense(expense);
-                    // After successful submission, go back to scan mode
+                    if (isEdit) {
+                        this.updateExpense(expense);
+                    } else {
+                        this.addExpense(expense);
+                    }
                     this.backToScan();
                 }
             };
@@ -487,6 +524,55 @@ class ExpenseTracker {
         }
     }
 
+    editExpense(id) {
+        const expense = this.expenses.find(exp => exp.id === id);
+        if (!expense) {
+            alert('Expense not found!');
+            return;
+        }
+
+        // Set editing mode
+        this.editingExpenseId = id;
+
+        // Show the form section
+        document.getElementById('ocrSection').style.display = 'none';
+        document.getElementById('expenseFormSection').style.display = 'block';
+
+        // Populate form with expense data
+        document.getElementById('date').value = expense.date;
+        document.getElementById('category').value = expense.category;
+        document.getElementById('description').value = expense.description;
+        document.getElementById('amount').value = expense.amount;
+        document.getElementById('vendor').value = expense.vendor;
+
+        // Update submit button text
+        const submitBtn = document.querySelector('#expenseForm button[type="submit"]');
+        submitBtn.textContent = '💾 Update Expense';
+
+        // Show notification
+        this.showNotification('✏️ Editing expense. Make your changes and click Update.');
+
+        // Scroll to form
+        document.getElementById('expenseFormSection').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    updateExpense(updatedExpense) {
+        const index = this.expenses.findIndex(exp => exp.id === updatedExpense.id);
+        if (index !== -1) {
+            this.expenses[index] = updatedExpense;
+            this.sortExpensesByDate();
+            this.saveExpenses();
+            this.displayExpenses();
+            this.updateTotal();
+            this.showNotification('✅ Expense updated successfully!');
+            this.editingExpenseId = null;
+
+            // Reset submit button text
+            const submitBtn = document.querySelector('#expenseForm button[type="submit"]');
+            submitBtn.textContent = '✅ Confirm & Add Expense';
+        }
+    }
+
     displayExpenses() {
         const container = document.getElementById('expensesList');
 
@@ -495,14 +581,24 @@ class ExpenseTracker {
             return;
         }
 
-        const expensesHTML = this.expenses.map(expense => `
-            <div class="expense-item">
+        const expensesHTML = this.expenses.map((expense, index) => `
+            <div class="expense-item" id="expense-${expense.id}">
                 <div class="expense-header">
-                    <span class="expense-amount">₹${expense.amount.toFixed(2)}</span>
-                    <button class="delete-btn" onclick="expenseTracker.deleteExpense(${expense.id})">Delete</button>
+                    <div class="expense-header-left">
+                        <input type="checkbox"
+                               class="expense-checkbox"
+                               id="checkbox-${expense.id}"
+                               data-expense-id="${expense.id}"
+                               onchange="expenseTracker.updateExportButton()">
+                        <label for="checkbox-${expense.id}" class="expense-amount">₹${expense.amount.toFixed(2)}</label>
+                    </div>
+                    <div class="expense-actions">
+                        <button class="edit-btn" onclick="expenseTracker.editExpense(${expense.id})">Edit</button>
+                        <button class="delete-btn" onclick="expenseTracker.deleteExpense(${expense.id})">Delete</button>
+                    </div>
                 </div>
                 <div class="expense-details">
-                    <div><strong>Date:</strong> ${new Date(expense.date).toLocaleDateString()}</div>
+                    <div><strong>Date:</strong> ${this.formatDisplayDate(expense.date)}</div>
                     <div><strong>Category:</strong> ${expense.category}</div>
                     <div><strong>Vendor:</strong> ${expense.vendor}</div>
                 </div>
@@ -521,6 +617,21 @@ class ExpenseTracker {
         `).join('');
 
         container.innerHTML = expensesHTML;
+        this.updateExportButton();
+    }
+
+    formatDisplayDate(dateString) {
+        try {
+            const date = new Date(dateString);
+            const day = date.getDate();
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                              'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const month = monthNames[date.getMonth()];
+            const year = date.getFullYear();
+            return `${day}-${month}-${year}`; // Format: 8-Aug-2025
+        } catch (error) {
+            return dateString;
+        }
     }
 
     updateTotal() {
@@ -674,7 +785,7 @@ class ExpenseTracker {
             expense.images.forEach((image, imageIndex) => {
                 allImages.push({
                     data: image.data,
-                    label: `Bill ${expenseIndex + 1}-${imageIndex + 1}`,
+                    label: `Bill ${expenseIndex + 1}`,
                     expense: expense
                 });
             });
@@ -691,119 +802,144 @@ class ExpenseTracker {
         const pageWidth = 210; // A4 width in mm
         const pageHeight = 297; // A4 height in mm
         const margin = 10;
+        const headerHeight = 20;
+        const footerHeight = 15;
         const availableWidth = pageWidth - (2 * margin);
-        const availableHeight = pageHeight - (2 * margin);
+        const availableHeight = pageHeight - (2 * margin) - headerHeight - footerHeight;
 
-        // Simple 3x2 grid layout (6 images per page)
-        const imagesPerRow = 3;
-        const imagesPerColumn = 2;
-        const imagesPerPage = imagesPerRow * imagesPerColumn;
-        const imageWidth = (availableWidth / imagesPerRow) - 5; // Small gap between images
-        const imageHeight = (availableHeight / imagesPerColumn) - 15; // Gap between rows
+        // Determine layout: 6 images per page (3x2 grid) or 4 images per page (2x2 grid) if fewer
+        let imagesPerRow, imagesPerColumn, imagesPerPage;
+        if (allImages.length >= 6) {
+            imagesPerRow = 3;
+            imagesPerColumn = 2;
+            imagesPerPage = 6;
+        } else {
+            imagesPerRow = 2;
+            imagesPerColumn = 2;
+            imagesPerPage = 4;
+        }
 
-        let imageIndex = 0;
-        let needNewPage = false;
+        const gapX = 5; // Horizontal gap between images
+        const gapY = 5; // Vertical gap between images
+        const imageWidth = (availableWidth - (gapX * (imagesPerRow - 1))) / imagesPerRow;
+        const imageHeight = (availableHeight - (gapY * (imagesPerColumn - 1))) / imagesPerColumn;
+
+        let currentPage = 1;
+        let firstPage = true;
 
         allImages.forEach((imageItem, index) => {
+            // Calculate position on current page
+            const positionOnPage = index % imagesPerPage;
+
             // Add new page if needed
-            if (needNewPage || index === 0) {
-                if (index > 0) {
-                    pdf.addPage();
-                }
-                needNewPage = false;
-                imageIndex = 0;
+            if (positionOnPage === 0 && index > 0) {
+                pdf.addPage();
+                currentPage++;
             }
 
-            // Calculate position in 3x2 grid
-            const row = Math.floor(imageIndex / imagesPerRow);
-            const col = imageIndex % imagesPerRow;
+            // Add header on each page
+            if (positionOnPage === 0) {
+                pdf.setFillColor(45, 55, 72);
+                pdf.rect(0, 0, pageWidth, headerHeight, 'F');
+
+                pdf.setFontSize(14);
+                pdf.setFont('helvetica', 'bold');
+                pdf.setTextColor(255, 255, 255);
+                pdf.text('RECEIPT IMAGES', pageWidth / 2, 12, { align: 'center' });
+
+                pdf.setTextColor(0, 0, 0);
+            }
+
+            // Calculate position in grid
+            const row = Math.floor(positionOnPage / imagesPerRow);
+            const col = positionOnPage % imagesPerRow;
 
             // Calculate image position
-            const x = margin + (col * (imageWidth + 5));
-            const y = margin + (row * (imageHeight + 15));
+            const x = margin + (col * (imageWidth + gapX));
+            const y = margin + headerHeight + (row * (imageHeight + gapY));
 
             try {
-                // Add the image directly without styling
-                pdf.addImage(imageItem.data, 'JPEG', x, y, imageWidth, imageHeight);
+                // Create a temporary image to get aspect ratio
+                const img = new Image();
+                img.src = imageItem.data;
 
-                // No styling - just the image
+                // Calculate dimensions to maintain aspect ratio
+                const imgAspectRatio = img.width / img.height;
+                const boxAspectRatio = imageWidth / imageHeight;
+
+                let finalWidth = imageWidth;
+                let finalHeight = imageHeight;
+                let offsetX = 0;
+                let offsetY = 0;
+
+                if (imgAspectRatio > boxAspectRatio) {
+                    // Image is wider - fit to width
+                    finalHeight = imageWidth / imgAspectRatio;
+                    offsetY = (imageHeight - finalHeight) / 2;
+                } else {
+                    // Image is taller - fit to height
+                    finalWidth = imageHeight * imgAspectRatio;
+                    offsetX = (imageWidth - finalWidth) / 2;
+                }
+
+                // Add border
+                pdf.setDrawColor(200, 200, 200);
+                pdf.setLineWidth(0.5);
+                pdf.rect(x, y, imageWidth, imageHeight);
+
+                // Add the image with proper aspect ratio
+                pdf.addImage(imageItem.data, 'JPEG', x + offsetX, y + offsetY, finalWidth, finalHeight);
+
+                // Add label below image
+                pdf.setFontSize(8);
+                pdf.setTextColor(100, 100, 100);
+                pdf.text(imageItem.label, x + imageWidth / 2, y + imageHeight + 3, { align: 'center' });
+                pdf.setTextColor(0, 0, 0);
 
             } catch (error) {
                 console.error('Error adding image to PDF:', error);
-                // Add card-style error placeholder
-                pdf.setFillColor(254, 226, 226); // Light red background
-                pdf.rect(cardX, cardY, cardWidth, cardHeight, 'F');
 
-                pdf.setDrawColor(248, 113, 113); // Red border
+                // Add error placeholder
+                pdf.setFillColor(254, 226, 226);
+                pdf.rect(x, y, imageWidth, imageHeight, 'F');
+
+                pdf.setDrawColor(248, 113, 113);
                 pdf.setLineWidth(1);
-                pdf.rect(cardX, cardY, cardWidth, cardHeight);
-
-                // Add red header bar
-                pdf.setFillColor(239, 68, 68); // Red header
-                pdf.rect(cardX, cardY, cardWidth, 8, 'F');
+                pdf.rect(x, y, imageWidth, imageHeight);
 
                 pdf.setFontSize(10);
-                pdf.setFont('helvetica', 'bold');
-                pdf.setTextColor(255, 255, 255);
-                pdf.text(imageItem.label, cardX + (cardWidth / 2), cardY + 5, { align: 'center' });
-
-                pdf.setFontSize(14);
-                pdf.setTextColor(185, 28, 28); // Red text
-                pdf.text('IMAGE ERROR', cardX + (cardWidth / 2), cardY + (cardHeight / 2), { align: 'center' });
-
-                pdf.setTextColor(0, 0, 0); // Reset color
-            }
-
-            imageCount++;
-
-            // Check if we need a new page (4 images per page)
-            if (imageCount % 4 === 0 && index < allImages.length - 1) {
-                pdf.addPage();
-                currentPage++;
-                imageCount = 0;
-                startY = 50; // Reset Y position for new page
-
-                // Add professional header to new page
-                pdf.setFillColor(45, 55, 72); // Dark blue background
-                pdf.rect(0, 0, pageWidth, 35, 'F');
-
-                pdf.setFontSize(18);
-                pdf.setFont('helvetica', 'bold');
-                pdf.setTextColor(255, 255, 255);
-                pdf.text(`RECEIPT IMAGES - PAGE ${currentPage}`, pageWidth / 2, 15, { align: 'center' });
-
-                pdf.setFontSize(10);
-                pdf.text(`Continued from previous page`, pageWidth / 2, 25, { align: 'center' });
-
-                pdf.setTextColor(0, 0, 0); // Reset color
+                pdf.setTextColor(185, 28, 28);
+                pdf.text('IMAGE ERROR', x + imageWidth / 2, y + imageHeight / 2, { align: 'center' });
+                pdf.setTextColor(0, 0, 0);
             }
         });
 
-        // Add professional footer with page numbers
+        // Add footer with page numbers to all pages
         const totalPages = pdf.internal.getNumberOfPages();
         for (let i = 1; i <= totalPages; i++) {
             pdf.setPage(i);
 
-            // Add footer line
+            // Footer line
             pdf.setDrawColor(203, 213, 225);
             pdf.setLineWidth(0.5);
-            pdf.line(margin, pageHeight - 15, pageWidth - margin, pageHeight - 15);
+            pdf.line(margin, pageHeight - footerHeight, pageWidth - margin, pageHeight - footerHeight);
 
-            // Add page numbers
+            // Page numbers
             pdf.setFontSize(9);
-            pdf.setTextColor(107, 114, 128);
-            pdf.text(`Page ${i} of ${totalPages}`, pageWidth - margin, pageHeight - 8, { align: 'right' });
+            pdf.setTextColor(100, 100, 100);
+            pdf.text(`Page ${i} of ${totalPages}`, pageWidth - margin, pageHeight - 5, { align: 'right' });
 
-            // Add generation info on first page
             if (i === 1) {
-                pdf.text(`Generated by Expense Tracker`, margin, pageHeight - 8);
+                pdf.text(`Generated: ${new Date().toLocaleDateString()}`, margin, pageHeight - 5);
             }
+
+            pdf.setTextColor(0, 0, 0);
         }
 
         const fileName = `Receipt_Images_${new Date().toISOString().split('T')[0]}.pdf`;
         pdf.save(fileName);
 
-        this.showNotification(`PDF with ${allImages.length} receipt images downloaded!`);
+        this.showNotification(`✅ PDF with ${allImages.length} receipt images downloaded!`);
     }
 
     exportJSON() {
@@ -1194,34 +1330,55 @@ class ExpenseTracker {
         }
     }
 
+    updateExportButton() {
+        const checkboxes = document.querySelectorAll('.expense-checkbox:checked');
+        const exportBtn = document.getElementById('exportToGoogleSheets');
+        const btnText = exportBtn.querySelector('.btn-text');
+
+        if (checkboxes.length > 0) {
+            btnText.textContent = `Export Selected (${checkboxes.length})`;
+            exportBtn.style.display = 'block';
+        } else {
+            btnText.textContent = 'Export to Google Sheets';
+        }
+    }
+
+    getSelectedExpenses() {
+        const checkboxes = document.querySelectorAll('.expense-checkbox:checked');
+        const selectedIds = Array.from(checkboxes).map(cb => parseInt(cb.dataset.expenseId));
+        return this.expenses.filter(expense => selectedIds.includes(expense.id));
+    }
+
     async exportToGoogleSheets() {
         if (this.expenses.length === 0) {
             this.showNotification('⚠️ No expenses to export to Google Sheets');
             return;
         }
 
-        // Get only new expenses that haven't been synced
-        const newExpenses = this.expenses.slice(this.lastSyncedIndex + 1);
+        // Get selected expenses
+        const selectedExpenses = this.getSelectedExpenses();
 
-        if (newExpenses.length === 0) {
-            this.showNotification('ℹ️ All expenses are already synced to Google Sheets');
+        if (selectedExpenses.length === 0) {
+            this.showNotification('⚠️ Please select expenses to export by checking the boxes');
             return;
         }
 
         try {
             const button = document.getElementById('exportToGoogleSheets');
-            const originalText = button.textContent;
-            button.textContent = '📊 Exporting...';
+            const originalText = button.querySelector('.btn-text').textContent;
+            button.querySelector('.btn-text').textContent = 'Exporting...';
             button.disabled = true;
 
-            console.log(`Exporting ${newExpenses.length} new expenses (from index ${this.lastSyncedIndex + 1})`);
-            const result = await googleSheetsService.exportExpenses(newExpenses);
+            console.log(`Exporting ${selectedExpenses.length} selected expenses`);
+            const result = await googleSheetsService.exportExpenses(selectedExpenses);
 
             if (result.success) {
-                // Update sync index to current last expense
-                this.saveLastSyncedIndex(this.expenses.length - 1);
-                this.showNotification(`✅ Exported ${newExpenses.length} new expenses to Google Sheets`);
+                this.showNotification(`✅ Exported ${selectedExpenses.length} expenses to Google Sheets`);
                 console.log(`Data exported to rows ${result.startRow} to ${result.endRow}`);
+
+                // Uncheck all checkboxes after successful export
+                document.querySelectorAll('.expense-checkbox:checked').forEach(cb => cb.checked = false);
+                this.updateExportButton();
             } else {
                 this.showNotification(`❌ ${result.message}`);
             }
@@ -1230,7 +1387,7 @@ class ExpenseTracker {
             this.showNotification('❌ Export failed: ' + error.message);
         } finally {
             const button = document.getElementById('exportToGoogleSheets');
-            button.textContent = '📊 Export to Google Sheets';
+            button.querySelector('.btn-text').textContent = 'Export to Google Sheets';
             button.disabled = false;
         }
     }
