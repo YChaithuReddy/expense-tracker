@@ -12,8 +12,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-    <script src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
-    <script src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
+    <script src="google-sheets-service.js"></script>
+    <script src="https://apis.google.com/js/api.js" async defer onload="if(typeof gapiLoaded === 'function') gapiLoaded()"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer onload="if(typeof gisLoaded === 'function') gisLoaded()"></script>
 </head>
 <body>
     <div class="container">
@@ -204,7 +205,6 @@
         </div>
     </div>
 
-    <script src="google-sheets-service.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

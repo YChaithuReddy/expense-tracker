@@ -419,16 +419,16 @@ class ExpenseTracker {
         `;
 
         // Build list of extracted fields - only show what was found
-        let extractedFields = [];
-        if (this.extractedData.amount) extractedFields.push(`Amount: ₹${this.extractedData.amount}`);
-        if (this.extractedData.vendor) extractedFields.push(`Vendor: ${this.extractedData.vendor}`);
-        if (this.extractedData.date) extractedFields.push(`Date: ${this.extractedData.date}`);
-        if (this.extractedData.category) extractedFields.push(`Category: ${this.extractedData.category}`);
+        const extractedFieldsList = [];
+        if (this.extractedData.amount) extractedFieldsList.push(`Amount: ₹${this.extractedData.amount}`);
+        if (this.extractedData.vendor) extractedFieldsList.push(`Vendor: ${this.extractedData.vendor}`);
+        if (this.extractedData.date) extractedFieldsList.push(`Date: ${this.extractedData.date}`);
+        if (this.extractedData.category) extractedFieldsList.push(`Category: ${this.extractedData.category}`);
 
-        if (extractedFields.length > 0) {
+        if (extractedFieldsList.length > 0) {
             debugInfo.innerHTML = `
                 <strong style="color: var(--neon-cyan);">🔍 Extracted Data:</strong><br>
-                ${extractedFields.join('<br>')}
+                ${extractedFieldsList.join('<br>')}
                 <br><br>
                 <small style="opacity: 0.7;">ℹ️ Empty fields were not found - fill them manually</small>
             `;
