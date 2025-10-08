@@ -273,7 +273,7 @@ main {
 
 .image-preview-container {
     margin: 25px 0;
-    padding: 30px;
+    padding: 30px 20px;
     border: 2px dashed rgba(0, 212, 255, 0.3);
     border-radius: 15px;
     text-align: center;
@@ -287,6 +287,8 @@ main {
     transition: all 0.3s ease;
     position: relative;
     z-index: 1;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .image-preview-container h3 {
@@ -294,6 +296,9 @@ main {
     color: var(--neon-cyan);
     font-size: 1.1rem;
     font-weight: 600;
+    text-align: center;
+    width: 100%;
+    word-wrap: break-word;
 }
 
 .image-preview-container:hover {
@@ -1011,13 +1016,15 @@ main {
     }
 
     .image-preview-container {
-        padding: 20px;
+        padding: 20px 15px;
         min-height: 100px;
+        margin: 20px 0;
     }
 
     .image-preview-container h3 {
-        font-size: 1rem;
+        font-size: 0.95rem;
         margin-bottom: 12px;
+        padding: 0 5px;
     }
 
     .preview-image {
@@ -1080,14 +1087,16 @@ main {
     }
 
     .image-preview-container {
-        padding: 16px;
+        padding: 16px 12px;
         min-height: 80px;
         gap: 12px;
+        margin: 16px 0;
     }
 
     .image-preview-container h3 {
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         margin-bottom: 10px;
+        padding: 0 4px;
     }
 
     .preview-image {
