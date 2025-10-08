@@ -414,6 +414,56 @@ main {
     backdrop-filter: blur(10px);
 }
 
+/* Date input styling */
+.form-group input[type="date"] {
+    font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    color: var(--neon-cyan);
+    text-transform: uppercase;
+    position: relative;
+    padding-right: 45px;
+}
+
+.form-group input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    filter: invert(1) brightness(1.2);
+    opacity: 0.8;
+    transition: all 0.3s ease;
+    width: 20px;
+    height: 20px;
+    padding: 5px;
+    border-radius: 6px;
+    background: rgba(0, 212, 255, 0.1);
+}
+
+.form-group input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+    background: rgba(0, 212, 255, 0.2);
+    transform: scale(1.1);
+}
+
+.form-group input[type="date"]::-webkit-datetime-edit {
+    padding: 0;
+}
+
+.form-group input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+    padding: 0;
+}
+
+.form-group input[type="date"]::-webkit-datetime-edit-month-field,
+.form-group input[type="date"]::-webkit-datetime-edit-day-field,
+.form-group input[type="date"]::-webkit-datetime-edit-year-field {
+    color: var(--neon-cyan);
+    font-weight: 600;
+}
+
+.form-group input[type="date"]::-webkit-datetime-edit-text {
+    color: var(--text-secondary);
+    padding: 0 4px;
+}
+
 .form-group select option {
     background: #1a1a2e;
     color: #ffffff;
