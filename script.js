@@ -82,8 +82,10 @@ class ExpenseTracker {
         previewContainer.appendChild(header);
 
         const imagesWrapper = document.createElement('div');
-        imagesWrapper.style.cssText = 'display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; width: 100%;';
+        imagesWrapper.style.cssText = 'display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; width: 100%; min-height: 150px;';
+        imagesWrapper.id = 'imagesWrapper';
         previewContainer.appendChild(imagesWrapper);
+        console.log('Images wrapper created and appended');
 
         files.forEach((file, index) => {
             console.log(`Processing file ${index + 1}:`, file.name, file.type, file.size);
@@ -104,6 +106,7 @@ class ExpenseTracker {
 
             reader.onload = (e) => {
                 console.log(`✅ File ${index + 1} loaded successfully:`, file.name);
+                console.log('Data URL length:', e.target.result.substring(0, 50) + '...');
 
                 this.scannedImages.push({
                     name: file.name,
@@ -117,13 +120,24 @@ class ExpenseTracker {
                     <img src="${e.target.result}" alt="${file.name}">
                     <p>${file.name}</p>
                 `;
+
+                console.log('Appending image div to wrapper');
+                console.log('Images wrapper exists:', !!imagesWrapper);
+                console.log('Images wrapper in DOM:', document.getElementById('imagesWrapper') !== null);
+
                 imagesWrapper.appendChild(imageDiv);
 
+                console.log('Image div appended. Wrapper children count:', imagesWrapper.children.length);
                 console.log(`Images loaded: ${this.scannedImages.length}/${files.length}`);
 
                 if (this.scannedImages.length === files.length) {
-                    document.getElementById('scanBills').style.display = 'block';
-                    console.log('✅ All images loaded, showing scan button');
+                    const scanBtn = document.getElementById('scanBills');
+                    if (scanBtn) {
+                        scanBtn.style.display = 'block';
+                        console.log('✅ All images loaded, scan button shown');
+                    } else {
+                        console.error('❌ Scan button not found!');
+                    }
                 }
             };
 
