@@ -30,6 +30,8 @@ class ExpenseTracker {
         document.getElementById('testConnection').addEventListener('click', () => this.testGoogleConnection());
         document.getElementById('exportToGoogleSheets').addEventListener('click', () => this.exportToGoogleSheets());
 
+        // Select All checkbox
+        document.getElementById('selectAllCheckbox').addEventListener('change', (e) => this.handleSelectAll(e));
 
         // Image modal
         document.querySelector('.close-image').addEventListener('click', () => this.closeImageModal());
@@ -668,11 +670,16 @@ class ExpenseTracker {
 
     displayExpenses() {
         const container = document.getElementById('expensesList');
+        const selectAllContainer = document.getElementById('selectAllContainer');
 
         if (this.expenses.length === 0) {
             container.innerHTML = '<div class="empty-state">No expenses added yet. Add your first expense above!</div>';
+            selectAllContainer.style.display = 'none';
             return;
         }
+
+        // Show select all checkbox if there are expenses
+        selectAllContainer.style.display = 'flex';
 
         const expensesHTML = this.expenses.map((expense, index) => `
             <div class="expense-item" id="expense-${expense.id}">
@@ -1423,10 +1430,30 @@ class ExpenseTracker {
         }
     }
 
+    handleSelectAll(e) {
+        const isChecked = e.target.checked;
+        const checkboxes = document.querySelectorAll('.expense-checkbox');
+
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = isChecked;
+        });
+
+        this.updateExportButton();
+        console.log(`Select All: ${isChecked ? 'Checked' : 'Unchecked'} - ${checkboxes.length} items`);
+    }
+
     updateExportButton() {
         const checkboxes = document.querySelectorAll('.expense-checkbox:checked');
+        const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+        const allCheckboxes = document.querySelectorAll('.expense-checkbox');
         const exportBtn = document.getElementById('exportToGoogleSheets');
         const btnText = exportBtn.querySelector('.btn-text');
+
+        // Update select all checkbox state
+        if (allCheckboxes.length > 0) {
+            selectAllCheckbox.checked = checkboxes.length === allCheckboxes.length;
+            selectAllCheckbox.indeterminate = checkboxes.length > 0 && checkboxes.length < allCheckboxes.length;
+        }
 
         if (checkboxes.length > 0) {
             btnText.textContent = `Export Selected (${checkboxes.length})`;
