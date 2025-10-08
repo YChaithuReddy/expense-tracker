@@ -285,6 +285,15 @@ main {
     background: rgba(0, 212, 255, 0.02);
     backdrop-filter: blur(10px);
     transition: all 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+
+.image-preview-container h3 {
+    margin: 0 0 15px 0;
+    color: var(--neon-cyan);
+    font-size: 1.1rem;
+    font-weight: 600;
 }
 
 .image-preview-container:hover {
@@ -299,10 +308,31 @@ main {
 }
 
 .preview-image {
-    display: inline-block;
-    margin: 15px;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 10px;
     text-align: center;
     animation: fadeInScale 0.5s ease-out;
+    position: relative;
+    z-index: 2;
+}
+
+.preview-image img {
+    max-width: 200px;
+    max-height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin: 5px;
+    border: 2px solid var(--cyber-blue);
+    box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+}
+
+.preview-image p {
+    font-size: 12px;
+    text-align: center;
+    margin: 5px 0;
+    color: var(--text-secondary);
 }
 
 @keyframes fadeInScale {
@@ -913,10 +943,29 @@ main {
 
     .image-preview-container {
         padding: 20px;
+        min-height: 100px;
+    }
+
+    .image-preview-container h3 {
+        font-size: 1rem;
+        margin-bottom: 12px;
     }
 
     .preview-image {
-        margin: 10px 5px;
+        margin: 8px;
+    }
+
+    .preview-image img {
+        max-width: 150px;
+        max-height: 120px;
+    }
+
+    .preview-image p {
+        font-size: 11px;
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     .expenses-container {
@@ -950,6 +999,31 @@ main {
 
     .expense-form-section {
         padding-bottom: 40px;
+    }
+
+    .image-preview-container {
+        padding: 16px;
+        min-height: 80px;
+        gap: 12px;
+    }
+
+    .image-preview-container h3 {
+        font-size: 0.95rem;
+        margin-bottom: 10px;
+    }
+
+    .preview-image {
+        margin: 6px;
+    }
+
+    .preview-image img {
+        max-width: 120px;
+        max-height: 100px;
+    }
+
+    .preview-image p {
+        font-size: 10px;
+        max-width: 120px;
     }
 }
 

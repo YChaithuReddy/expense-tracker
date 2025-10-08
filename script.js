@@ -57,21 +57,54 @@ class ExpenseTracker {
     }
 
     handleImageUpload(e) {
+        console.log('📸 Image upload triggered');
         const files = Array.from(e.target.files);
+        console.log('Files selected:', files.length);
+
         this.scannedImages = [];
 
         if (files.length === 0) {
             document.getElementById('scanBills').style.display = 'none';
             document.getElementById('imagePreview').innerHTML = '';
+            console.log('No files selected, clearing preview');
             return;
         }
 
         const previewContainer = document.getElementById('imagePreview');
-        previewContainer.innerHTML = '<h3>📋 Selected Images:</h3>';
+        console.log('Preview container found:', !!previewContainer);
+
+        // Clear and add wrapper div for better layout
+        previewContainer.innerHTML = '';
+        previewContainer.className = 'image-preview-container has-images';
+
+        const header = document.createElement('h3');
+        header.textContent = '📋 Selected Images:';
+        previewContainer.appendChild(header);
+
+        const imagesWrapper = document.createElement('div');
+        imagesWrapper.style.cssText = 'display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; width: 100%;';
+        previewContainer.appendChild(imagesWrapper);
 
         files.forEach((file, index) => {
+            console.log(`Processing file ${index + 1}:`, file.name, file.type, file.size);
+
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                console.error('Invalid file type:', file.type);
+                alert(`File "${file.name}" is not an image. Please select image files only.`);
+                return;
+            }
+
             const reader = new FileReader();
+
+            reader.onerror = (error) => {
+                console.error('FileReader error for', file.name, error);
+                alert(`Failed to read file: ${file.name}`);
+            };
+
             reader.onload = (e) => {
+                console.log(`✅ File ${index + 1} loaded successfully:`, file.name);
+
                 this.scannedImages.push({
                     name: file.name,
                     data: e.target.result,
@@ -81,15 +114,19 @@ class ExpenseTracker {
                 const imageDiv = document.createElement('div');
                 imageDiv.className = 'preview-image';
                 imageDiv.innerHTML = `
-                    <img src="${e.target.result}" alt="${file.name}" style="max-width: 200px; max-height: 150px; object-fit: cover; border-radius: 8px; margin: 5px;">
-                    <p style="font-size: 12px; text-align: center; margin: 5px 0;">${file.name}</p>
+                    <img src="${e.target.result}" alt="${file.name}">
+                    <p>${file.name}</p>
                 `;
-                previewContainer.appendChild(imageDiv);
+                imagesWrapper.appendChild(imageDiv);
+
+                console.log(`Images loaded: ${this.scannedImages.length}/${files.length}`);
 
                 if (this.scannedImages.length === files.length) {
                     document.getElementById('scanBills').style.display = 'block';
+                    console.log('✅ All images loaded, showing scan button');
                 }
             };
+
             reader.readAsDataURL(file);
         });
     }
