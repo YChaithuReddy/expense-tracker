@@ -264,6 +264,9 @@ class ExpenseTracker {
             }
         }
 
+        // Vendor extraction disabled - user will enter manually
+        // User preference: Vendor field should always be empty for manual entry
+        /*
         // Enhanced vendor extraction for Paytm-style receipts
         for (const line of lines) {
             // Skip common non-vendor lines
@@ -279,6 +282,7 @@ class ExpenseTracker {
                 break;
             }
         }
+        */
 
         // Enhanced date extraction for multiple formats
         const datePatterns = [
@@ -483,10 +487,10 @@ class ExpenseTracker {
             line-height: 1.8;
         `;
 
-        // Build list of extracted fields - only show what was found
+        // Build list of extracted fields - only show what was found (excluding vendor)
         const extractedFieldsList = [];
         if (this.extractedData.amount) extractedFieldsList.push(`Amount: ₹${this.extractedData.amount}`);
-        if (this.extractedData.vendor) extractedFieldsList.push(`Vendor: ${this.extractedData.vendor}`);
+        // Vendor is intentionally excluded - user will enter manually
         if (this.extractedData.date) extractedFieldsList.push(`Date: ${this.extractedData.date}`);
         if (this.extractedData.category) extractedFieldsList.push(`Category: ${this.extractedData.category}`);
 
