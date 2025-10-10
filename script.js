@@ -199,6 +199,7 @@ class ExpenseTracker {
             amount: '',
             vendor: '',
             date: '',
+            time: '',
             description: '',
             category: 'Miscellaneous'
         };
@@ -340,6 +341,47 @@ class ExpenseTracker {
             if (data.date) break;
         }
 
+        // Time extraction for sorting within the same date
+        const timePatterns = [
+            /(?:paid|payment|transaction|time)?\s*(?:at|on|@)?\s*(\d{1,2}):(\d{2})\s*(am|pm)/i, // 06:21 PM
+            /(\d{1,2}):(\d{2})\s*(am|pm)/i, // 6:21 PM
+            /(\d{1,2}):(\d{2}):(\d{2})/,    // 18:21:30 (24-hour)
+            /(\d{1,2}):(\d{2})/             // 18:21 (24-hour)
+        ];
+
+        for (const line of lines) {
+            for (const pattern of timePatterns) {
+                const timeMatch = line.match(pattern);
+                if (timeMatch) {
+                    try {
+                        let hours = parseInt(timeMatch[1]);
+                        let minutes = parseInt(timeMatch[2]);
+                        const period = timeMatch[3] ? timeMatch[3].toLowerCase() : null;
+
+                        // Convert to 24-hour format if AM/PM is present
+                        if (period) {
+                            if (period === 'pm' && hours !== 12) {
+                                hours += 12;
+                            } else if (period === 'am' && hours === 12) {
+                                hours = 0;
+                            }
+                        }
+
+                        // Validate time
+                        if (hours >= 0 && hours < 24 && minutes >= 0 && minutes < 60) {
+                            // Store as HH:MM format for sorting
+                            data.time = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+                            console.log('✅ Time found:', data.time);
+                            break;
+                        }
+                    } catch (e) {
+                        console.log('Time parsing error:', e);
+                    }
+                }
+            }
+            if (data.time) break;
+        }
+
         // Enhanced category detection
         const textLower = text.toLowerCase();
         if (textLower.includes('fuel') || textLower.includes('petrol') || textLower.includes('diesel') ||
@@ -370,6 +412,7 @@ class ExpenseTracker {
         console.log('📊 Detection Summary:');
         console.log('  Amount:', data.amount || '❌ NOT FOUND');
         console.log('  Date:', data.date || '❌ NOT FOUND');
+        console.log('  Time:', data.time || '❌ NOT FOUND');
         console.log('  Category:', data.category);
         console.log('  Vendor:', data.vendor || '(not extracted)');
 
@@ -527,6 +570,7 @@ class ExpenseTracker {
             if (expenseIndex !== -1) {
                 // Update existing expense
                 const existingImages = this.expenses[expenseIndex].images || [];
+                const existingTime = this.expenses[expenseIndex].time || '';
                 const expense = {
                     id: this.editingExpenseId,
                     date: date,
@@ -534,6 +578,7 @@ class ExpenseTracker {
                     description: description,
                     amount: parseFloat(amount),
                     vendor: formData.get('vendor') || 'N/A',
+                    time: this.extractedData.time || existingTime, // Keep existing time if not re-scanned
                     images: files.length > 0 ? [] : existingImages // Keep old images if no new ones uploaded
                 };
 
@@ -553,6 +598,7 @@ class ExpenseTracker {
                 description: description,
                 amount: parseFloat(amount),
                 vendor: formData.get('vendor') || 'N/A',
+                time: this.extractedData.time || '', // Store time from OCR
                 images: []
             };
 
@@ -611,11 +657,26 @@ class ExpenseTracker {
     }
 
     sortExpensesByDate() {
-        // Sort expenses by date in ascending order (oldest first)
+        // Sort expenses by date and time in ascending order (oldest first)
         this.expenses.sort((a, b) => {
             const dateA = new Date(a.date);
             const dateB = new Date(b.date);
-            return dateA - dateB;
+
+            // First sort by date
+            const dateDiff = dateA - dateB;
+
+            // If dates are the same, sort by time
+            if (dateDiff === 0) {
+                const timeA = a.time || '00:00'; // Default to midnight if no time
+                const timeB = b.time || '00:00';
+
+                // Compare times as strings (HH:MM format works for string comparison)
+                if (timeA < timeB) return -1;
+                if (timeA > timeB) return 1;
+                return 0;
+            }
+
+            return dateDiff;
         });
     }
 
@@ -708,7 +769,7 @@ class ExpenseTracker {
                     </div>
                 </div>
                 <div class="expense-details">
-                    <div><strong>Date:</strong> ${this.formatDisplayDate(expense.date)}</div>
+                    <div><strong>Date:</strong> ${this.formatDisplayDate(expense.date)}${expense.time ? ` at ${this.formatDisplayTime(expense.time)}` : ''}</div>
                     <div><strong>Category:</strong> ${expense.category}</div>
                     <div><strong>Vendor:</strong> ${expense.vendor}</div>
                 </div>
@@ -741,6 +802,21 @@ class ExpenseTracker {
             return `${day}-${month}-${year}`; // Format: 8-Aug-2025
         } catch (error) {
             return dateString;
+        }
+    }
+
+    formatDisplayTime(timeString) {
+        try {
+            // timeString is in HH:MM format (24-hour)
+            const [hours, minutes] = timeString.split(':').map(Number);
+
+            // Convert to 12-hour format with AM/PM
+            const period = hours >= 12 ? 'PM' : 'AM';
+            const displayHours = hours % 12 || 12; // Convert 0 to 12 for midnight
+
+            return `${displayHours}:${String(minutes).padStart(2, '0')} ${period}`;
+        } catch (error) {
+            return timeString;
         }
     }
 
