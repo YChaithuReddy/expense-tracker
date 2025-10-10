@@ -284,56 +284,91 @@ class ExpenseTracker {
         }
         */
 
-        // Enhanced date extraction for multiple formats
+        // Comprehensive date extraction supporting multiple formats
         const datePatterns = [
-            /(\d{1,2})[\/\-\s]+([a-z]{3})[\/\-\s]+(\d{2,4})/i, // 04 Sep 2025
-            /([a-z]{3})[\/\-\s]+(\d{1,2})[\/\-\s]*(\d{2,4})/i, // Sep 04 2025
-            /(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})/,     // 04/09/2025
-            /(\d{2,4})[\/\-\.](\d{1,2})[\/\-\.](\d{1,2})/,     // 2025/09/04
-            /paid\s+at\s+\d{2}:\d{2}\s+[ap]m,?\s*(\d{1,2})\s+([a-z]{3})\s+(\d{2,4})/i // Paid at 06:21 PM, 04 Sep 2025
+            // Month name formats (long and short)
+            { regex: /(\d{1,2})\s+([a-z]+)\s+(\d{2,4})/i, type: 'DMY_NAME' }, // "04 September 2025", "11 Aug 23"
+            { regex: /([a-z]+)\s+(\d{1,2})[,\s]+(\d{2,4})/i, type: 'MDY_NAME' }, // "September 04, 2025"
+
+            // Numeric formats with separators
+            { regex: /(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})/, type: 'DMY_NUMERIC' }, // "04/09/2025", "04-09-2025", "04.09.2025"
+            { regex: /(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2})(?!\d)/, type: 'DMY_2DIGIT' }, // "04/09/25"
+            { regex: /(\d{4})[\/\-\.](\d{1,2})[\/\-\.](\d{1,2})/, type: 'YMD_NUMERIC' }, // "2025/09/04", "2025-09-04"
+
+            // ISO and concatenated formats
+            { regex: /(\d{4})(\d{2})(\d{2})(?!T|\d)/, type: 'YMD_CONCAT' }, // "20250904"
+            { regex: /(\d{4})-(\d{2})-(\d{2})T/, type: 'ISO_DATETIME' }, // "2025-09-04T18:21:30"
+
+            // Context-aware patterns (with keywords)
+            { regex: /(?:paid|date|on|at).*?(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})/i, type: 'DMY_CONTEXT' },
+            { regex: /(?:paid|date|on|at).*?(\d{1,2})\s+([a-z]+)\s+(\d{2,4})/i, type: 'DMY_NAME_CONTEXT' }
         ];
 
         const monthNames = {
-            jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5,
-            jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11,
-            january: 0, february: 1, march: 2, april: 3, may: 4, june: 5,
-            july: 6, august: 7, september: 8, october: 9, november: 10, december: 11
+            jan: 0, january: 0, feb: 1, february: 1, mar: 2, march: 2,
+            apr: 3, april: 3, may: 4, jun: 5, june: 5,
+            jul: 6, july: 6, aug: 7, august: 7, sep: 8, sept: 8, september: 8,
+            oct: 9, october: 9, nov: 10, november: 10, dec: 11, december: 11
         };
 
         for (const line of lines) {
-            for (const pattern of datePatterns) {
-                const dateMatch = line.match(pattern);
+            for (const { regex, type } of datePatterns) {
+                const dateMatch = line.match(regex);
                 if (dateMatch) {
                     try {
                         let day, month, year;
 
-                        if (dateMatch[0].match(/[a-z]{3}/i)) {
-                            // Handle month name formats
-                            if (isNaN(dateMatch[1])) {
-                                // Format: Sep 04 2025
-                                month = monthNames[dateMatch[1].toLowerCase()];
-                                day = parseInt(dateMatch[2]);
-                                year = parseInt(dateMatch[3]);
-                            } else {
-                                // Format: 04 Sep 2025
+                        switch(type) {
+                            case 'DMY_NAME':
+                            case 'DMY_NAME_CONTEXT':
                                 day = parseInt(dateMatch[1]);
                                 month = monthNames[dateMatch[2].toLowerCase()];
                                 year = parseInt(dateMatch[3]);
-                            }
-                        } else {
-                            // Handle numeric formats
-                            if (dateMatch[1] && dateMatch[2] && dateMatch[3]) {
-                                day = parseInt(dateMatch[1]);
-                                month = parseInt(dateMatch[2]) - 1; // JavaScript months are 0-indexed
+                                break;
+
+                            case 'MDY_NAME':
+                                month = monthNames[dateMatch[1].toLowerCase()];
+                                day = parseInt(dateMatch[2]);
                                 year = parseInt(dateMatch[3]);
-                            }
+                                break;
+
+                            case 'DMY_NUMERIC':
+                            case 'DMY_CONTEXT':
+                                day = parseInt(dateMatch[1]);
+                                month = parseInt(dateMatch[2]) - 1; // 0-indexed
+                                year = parseInt(dateMatch[3]);
+                                break;
+
+                            case 'DMY_2DIGIT':
+                                day = parseInt(dateMatch[1]);
+                                month = parseInt(dateMatch[2]) - 1;
+                                year = 2000 + parseInt(dateMatch[3]);
+                                break;
+
+                            case 'YMD_NUMERIC':
+                            case 'ISO_DATETIME':
+                                year = parseInt(dateMatch[1]);
+                                month = parseInt(dateMatch[2]) - 1;
+                                day = parseInt(dateMatch[3]);
+                                break;
+
+                            case 'YMD_CONCAT':
+                                year = parseInt(dateMatch[1]);
+                                month = parseInt(dateMatch[2]) - 1;
+                                day = parseInt(dateMatch[3]);
+                                break;
                         }
 
+                        // Handle 2-digit years
                         if (year < 100) year += 2000;
-                        if (month !== undefined && !isNaN(month) && day && year) {
+
+                        // Validate and create date
+                        if (month !== undefined && !isNaN(month) && month >= 0 && month < 12 &&
+                            day && day >= 1 && day <= 31 && year >= 2000 && year <= 2099) {
                             const date = new Date(year, month, day);
-                            if (!isNaN(date.getTime())) {
+                            if (!isNaN(date.getTime()) && date.getDate() === day) {
                                 data.date = date.toISOString().split('T')[0];
+                                console.log(`✅ Date found: ${data.date} (matched pattern: ${type})`);
                                 break;
                             }
                         }
@@ -345,24 +380,36 @@ class ExpenseTracker {
             if (data.date) break;
         }
 
-        // Time extraction for sorting within the same date
+        // Comprehensive time extraction supporting multiple formats
         const timePatterns = [
-            /(?:paid|payment|transaction|time)?\s*(?:at|on|@)?\s*(\d{1,2}):(\d{2})\s*(am|pm)/i, // 06:21 PM
-            /(\d{1,2}):(\d{2})\s*(am|pm)/i, // 6:21 PM
-            /(\d{1,2}):(\d{2}):(\d{2})/,    // 18:21:30 (24-hour)
-            /(\d{1,2}):(\d{2})/             // 18:21 (24-hour)
+            // 12-hour formats with AM/PM
+            { regex: /(?:paid|payment|transaction|time|at|on)\s*(?:at|@)?\s*(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(am|pm)/i, type: '12H_CONTEXT' }, // "Paid at 06:21:30 PM"
+            { regex: /(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(am|pm)/i, type: '12H_AMPM' }, // "6:21 PM", "06:21:30 PM"
+
+            // 24-hour formats with colons
+            { regex: /T(\d{2}):(\d{2}):(\d{2})/, type: '24H_ISO' }, // "T18:21:30" (ISO format)
+            { regex: /(?:^|\s)(\d{2}):(\d{2}):(\d{2})(?:\s|$)/, type: '24H_FULL' }, // "18:21:30"
+            { regex: /(?:^|\s)(\d{2}):(\d{2})(?:\s|$|,)/, type: '24H_SHORT' }, // "18:21"
+            { regex: /(\d{1,2}):(\d{2})(?:\s|$|,)/, type: '24H_FLEX' }, // "6:21" (flexible, could be 12h or 24h)
+
+            // Basic format without colons
+            { regex: /(?:^|\s)(\d{2})(\d{2})(?:\s|$)/, type: '24H_BASIC' }, // "1821" (no colons)
+
+            // Context-aware patterns
+            { regex: /(?:time|at|on)\s*[:\-]?\s*(\d{1,2}):(\d{2})/i, type: 'TIME_CONTEXT' } // "Time: 18:21"
         ];
 
         for (const line of lines) {
-            for (const pattern of timePatterns) {
-                const timeMatch = line.match(pattern);
+            for (const { regex, type } of timePatterns) {
+                const timeMatch = line.match(regex);
                 if (timeMatch) {
                     try {
                         let hours = parseInt(timeMatch[1]);
                         let minutes = parseInt(timeMatch[2]);
-                        const period = timeMatch[3] ? timeMatch[3].toLowerCase() : null;
+                        const seconds = timeMatch[3] ? parseInt(timeMatch[3]) : 0;
+                        const period = timeMatch[4] ? timeMatch[4].toLowerCase() : null;
 
-                        // Convert to 24-hour format if AM/PM is present
+                        // Handle 12-hour format with AM/PM
                         if (period) {
                             if (period === 'pm' && hours !== 12) {
                                 hours += 12;
@@ -371,11 +418,17 @@ class ExpenseTracker {
                             }
                         }
 
-                        // Validate time
-                        if (hours >= 0 && hours < 24 && minutes >= 0 && minutes < 60) {
+                        // For 24H_BASIC format (e.g., "1821")
+                        if (type === '24H_BASIC') {
+                            // timeMatch[1] is HH, timeMatch[2] is MM
+                            minutes = parseInt(timeMatch[2]);
+                        }
+
+                        // Validate time components
+                        if (hours >= 0 && hours < 24 && minutes >= 0 && minutes < 60 && seconds >= 0 && seconds < 60) {
                             // Store as HH:MM format for sorting
                             data.time = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
-                            console.log('✅ Time found:', data.time);
+                            console.log(`✅ Time found: ${data.time} (matched pattern: ${type})`);
                             break;
                         }
                     } catch (e) {
