@@ -441,13 +441,9 @@ class ExpenseTracker {
             element.removeAttribute('disabled');
         });
 
-        // Vendor field - populate if found, otherwise leave empty
+        // Vendor field - always leave empty for manual entry
         const vendorElement = document.getElementById('vendor');
-        if (this.extractedData.vendor && this.extractedData.vendor.trim() !== '') {
-            vendorElement.value = this.extractedData.vendor;
-        } else {
-            vendorElement.value = '';
-        }
+        vendorElement.value = '';
         vendorElement.removeAttribute('readonly');
         vendorElement.removeAttribute('disabled');
 
