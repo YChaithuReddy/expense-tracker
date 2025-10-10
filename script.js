@@ -393,10 +393,20 @@ class ExpenseTracker {
             } else {
                 element.value = ''; // Leave empty for manual entry
             }
+            // Ensure field is always editable and interactive
+            element.removeAttribute('readonly');
+            element.removeAttribute('disabled');
         });
 
-        // Vendor field - always leave empty for manual entry
-        document.getElementById('vendor').value = '';
+        // Vendor field - populate if found, otherwise leave empty
+        const vendorElement = document.getElementById('vendor');
+        if (this.extractedData.vendor && this.extractedData.vendor.trim() !== '') {
+            vendorElement.value = this.extractedData.vendor;
+        } else {
+            vendorElement.value = '';
+        }
+        vendorElement.removeAttribute('readonly');
+        vendorElement.removeAttribute('disabled');
 
         // Set the receipt images
         const receiptInput = document.getElementById('receipt');
