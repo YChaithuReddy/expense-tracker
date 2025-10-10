@@ -427,20 +427,26 @@ main {
     letter-spacing: 0.5px;
     color: var(--neon-cyan);
     text-transform: uppercase;
-    position: relative;
-    padding-right: 45px;
+    position: relative !important;
+    padding-right: 45px !important;
+    min-height: 45px;
+    cursor: pointer;
 }
 
 .form-group input[type="date"]::-webkit-calendar-picker-indicator {
     cursor: pointer;
     filter: invert(1) brightness(1.2);
-    opacity: 0.8;
+    opacity: 1;
     transition: all 0.3s ease;
     width: 20px;
     height: 20px;
     padding: 5px;
     border-radius: 6px;
     background: rgba(0, 212, 255, 0.1);
+    position: absolute;
+    right: 10px;
+    pointer-events: auto;
+    z-index: 10;
 }
 
 .form-group input[type="date"]::-webkit-calendar-picker-indicator:hover {
@@ -467,6 +473,35 @@ main {
 .form-group input[type="date"]::-webkit-datetime-edit-text {
     color: var(--text-secondary);
     padding: 0 4px;
+}
+
+/* Make empty date input show placeholder-like text */
+.form-group input[type="date"]:invalid {
+    color: var(--text-secondary);
+}
+
+/* Ensure the entire input is clickable */
+.form-group input[type="date"]::-webkit-datetime-edit {
+    min-height: 20px;
+    cursor: pointer;
+}
+
+/* Show clear visual feedback that calendar is available */
+.form-group input[type="date"]::before {
+    content: attr(placeholder);
+    color: var(--text-secondary);
+    pointer-events: none;
+}
+
+/* Firefox date input support */
+.form-group input[type="date"]::-moz-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 1;
+    width: 20px;
+    height: 20px;
+    padding: 5px;
+    background: rgba(0, 212, 255, 0.1);
+    border-radius: 6px;
 }
 
 .form-group select option {
