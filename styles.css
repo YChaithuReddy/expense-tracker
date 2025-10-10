@@ -435,24 +435,28 @@ main {
 
 .form-group input[type="date"]::-webkit-calendar-picker-indicator {
     cursor: pointer;
-    filter: invert(1) brightness(1.2);
+    filter: invert(1) brightness(2) saturate(0.8);
     opacity: 1;
     transition: all 0.3s ease;
-    width: 20px;
-    height: 20px;
-    padding: 5px;
-    border-radius: 6px;
-    background: rgba(0, 212, 255, 0.1);
+    width: 24px;
+    height: 24px;
+    padding: 6px;
+    border-radius: 8px;
+    background: rgba(0, 212, 255, 0.3);
+    border: 1px solid rgba(0, 212, 255, 0.5);
     position: absolute;
     right: 10px;
     pointer-events: auto;
     z-index: 10;
+    box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
 }
 
 .form-group input[type="date"]::-webkit-calendar-picker-indicator:hover {
     opacity: 1;
-    background: rgba(0, 212, 255, 0.2);
-    transform: scale(1.1);
+    background: rgba(0, 212, 255, 0.5);
+    border-color: rgba(0, 212, 255, 0.8);
+    transform: scale(1.15);
+    box-shadow: 0 0 15px rgba(0, 212, 255, 0.6);
 }
 
 .form-group input[type="date"]::-webkit-datetime-edit {
@@ -497,11 +501,19 @@ main {
 .form-group input[type="date"]::-moz-calendar-picker-indicator {
     cursor: pointer;
     opacity: 1;
-    width: 20px;
-    height: 20px;
-    padding: 5px;
-    background: rgba(0, 212, 255, 0.1);
-    border-radius: 6px;
+    width: 24px;
+    height: 24px;
+    padding: 6px;
+    background: rgba(0, 212, 255, 0.3);
+    border: 1px solid rgba(0, 212, 255, 0.5);
+    border-radius: 8px;
+    filter: brightness(1.5);
+}
+
+.form-group input[type="date"]::-moz-calendar-picker-indicator:hover {
+    background: rgba(0, 212, 255, 0.5);
+    border-color: rgba(0, 212, 255, 0.8);
+    transform: scale(1.15);
 }
 
 .form-group select option {
