@@ -1648,6 +1648,19 @@ main {
 }
 
 /* Authentication Page Styles */
+.auth-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.auth-header {
+    margin-bottom: 40px;
+    width: 100%;
+}
+
 .auth-section {
     background: var(--glass-bg);
     backdrop-filter: blur(20px);
@@ -1660,6 +1673,8 @@ main {
         0 20px 40px rgba(0, 0, 0, 0.3),
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
     transition: all 0.3s ease;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .auth-section::before {
@@ -1839,10 +1854,18 @@ main {
 
 /* Mobile responsive for auth pages */
 @media (max-width: 768px) {
+    .auth-container {
+        max-width: 100%;
+        padding: 15px;
+    }
+
+    .auth-header {
+        margin-bottom: 25px;
+    }
+
     .auth-section {
         padding: 25px 20px;
-        min-width: unset !important;
-        width: 100% !important;
+        width: 100%;
         box-sizing: border-box;
     }
 
@@ -1872,6 +1895,14 @@ main {
 }
 
 @media (max-width: 480px) {
+    .auth-container {
+        padding: 10px;
+    }
+
+    .auth-header {
+        margin-bottom: 20px;
+    }
+
     .auth-section {
         padding: 20px 15px;
     }
