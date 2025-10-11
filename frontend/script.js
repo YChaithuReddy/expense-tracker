@@ -1,14 +1,15 @@
 class ExpenseTracker {
     constructor() {
-        this.expenses = this.loadExpenses();
+        this.expenses = [];
         this.scannedImages = [];
         this.extractedData = {};
         this.lastSyncedIndex = this.loadLastSyncedIndex(); // Track last synced expense
         this.editingExpenseId = null; // Track which expense is being edited
         this.initializeEventListeners();
-        this.displayExpenses();
-        this.updateTotal();
         this.setTodayDate();
+
+        // Load expenses from backend (async)
+        this.loadExpenses();
     }
 
     initializeEventListeners() {
@@ -694,19 +695,49 @@ class ExpenseTracker {
         });
     }
 
-    addExpense(expense) {
-        console.log('Adding expense to list:', expense); // Debug log
-        this.expenses.push(expense);
+    async addExpense(expense) {
+        try {
+            console.log('Adding expense to backend:', expense);
 
-        // Sort expenses by date (oldest first)
-        this.sortExpensesByDate();
+            // Prepare expense data for backend
+            const expenseData = {
+                date: expense.date,
+                time: expense.time,
+                category: expense.category,
+                amount: expense.amount,
+                vendor: expense.vendor,
+                description: expense.description
+            };
 
-        this.saveExpenses();
-        this.displayExpenses();
-        this.updateTotal();
-        this.resetForm();
-        this.showNotification('✅ Expense added successfully!');
-        console.log('Total expenses now:', this.expenses.length); // Debug log
+            // Prepare images as File objects (if they exist)
+            const imageFiles = [];
+            if (expense.images && expense.images.length > 0) {
+                // Convert base64 images to File objects
+                for (const img of expense.images) {
+                    const blob = await fetch(img.data).then(r => r.blob());
+                    const file = new File([blob], img.name, { type: blob.type });
+                    imageFiles.push(file);
+                }
+            }
+
+            // Call backend API
+            const response = await api.createExpense(expenseData, imageFiles);
+
+            if (response.status === 'success') {
+                console.log('✅ Expense added to backend successfully');
+
+                // Reload expenses from backend to stay in sync
+                await this.loadExpenses();
+
+                this.resetForm();
+                this.showNotification('✅ Expense added successfully!');
+            } else {
+                throw new Error(response.message || 'Failed to add expense');
+            }
+        } catch (error) {
+            console.error('Error adding expense:', error);
+            this.showNotification('❌ Failed to add expense: ' + error.message);
+        }
     }
 
     sortExpensesByDate() {
@@ -733,13 +764,26 @@ class ExpenseTracker {
         });
     }
 
-    deleteExpense(id) {
+    async deleteExpense(id) {
         if (confirm('Are you sure you want to delete this expense?')) {
-            this.expenses = this.expenses.filter(expense => expense.id !== id);
-            this.saveExpenses();
-            this.displayExpenses();
-            this.updateTotal();
-            this.showNotification('Expense deleted successfully!');
+            try {
+                console.log('Deleting expense:', id);
+                const response = await api.deleteExpense(id);
+
+                if (response.status === 'success') {
+                    console.log('✅ Expense deleted from backend');
+
+                    // Reload expenses from backend to stay in sync
+                    await this.loadExpenses();
+
+                    this.showNotification('✅ Expense deleted successfully!');
+                } else {
+                    throw new Error(response.message || 'Failed to delete expense');
+                }
+            } catch (error) {
+                console.error('Error deleting expense:', error);
+                this.showNotification('❌ Failed to delete expense: ' + error.message);
+            }
         }
     }
 
@@ -775,20 +819,56 @@ class ExpenseTracker {
         document.getElementById('expenseFormSection').scrollIntoView({ behavior: 'smooth' });
     }
 
-    updateExpense(updatedExpense) {
-        const index = this.expenses.findIndex(exp => exp.id === updatedExpense.id);
-        if (index !== -1) {
-            this.expenses[index] = updatedExpense;
-            this.sortExpensesByDate();
-            this.saveExpenses();
-            this.displayExpenses();
-            this.updateTotal();
-            this.showNotification('✅ Expense updated successfully!');
-            this.editingExpenseId = null;
+    async updateExpense(updatedExpense) {
+        try {
+            console.log('Updating expense in backend:', updatedExpense);
 
-            // Reset submit button text
-            const submitBtn = document.querySelector('#expenseForm button[type="submit"]');
-            submitBtn.textContent = '✅ Confirm & Add Expense';
+            // Prepare expense data for backend
+            const expenseData = {
+                date: updatedExpense.date,
+                time: updatedExpense.time,
+                category: updatedExpense.category,
+                amount: updatedExpense.amount,
+                vendor: updatedExpense.vendor,
+                description: updatedExpense.description
+            };
+
+            // Prepare images as File objects (if they exist and are new)
+            const imageFiles = [];
+            if (updatedExpense.images && updatedExpense.images.length > 0) {
+                // Check if images are new (base64) or existing (URLs)
+                for (const img of updatedExpense.images) {
+                    if (img.data && img.data.startsWith('data:')) {
+                        // New image - convert base64 to File
+                        const blob = await fetch(img.data).then(r => r.blob());
+                        const file = new File([blob], img.name, { type: blob.type });
+                        imageFiles.push(file);
+                    }
+                    // Existing images (URLs) are kept automatically by backend
+                }
+            }
+
+            // Call backend API
+            const response = await api.updateExpense(updatedExpense.id, expenseData, imageFiles);
+
+            if (response.status === 'success') {
+                console.log('✅ Expense updated in backend successfully');
+
+                // Reload expenses from backend to stay in sync
+                await this.loadExpenses();
+
+                this.showNotification('✅ Expense updated successfully!');
+                this.editingExpenseId = null;
+
+                // Reset submit button text
+                const submitBtn = document.querySelector('#expenseForm button[type="submit"]');
+                submitBtn.textContent = '✅ Confirm & Add Expense';
+            } else {
+                throw new Error(response.message || 'Failed to update expense');
+            }
+        } catch (error) {
+            console.error('Error updating expense:', error);
+            this.showNotification('❌ Failed to update expense: ' + error.message);
         }
     }
 
@@ -883,22 +963,36 @@ class ExpenseTracker {
         this.setTodayDate();
     }
 
-    saveExpenses() {
-        localStorage.setItem('expenses', JSON.stringify(this.expenses));
-    }
+    async loadExpenses() {
+        try {
+            console.log('Loading expenses from backend...');
+            const response = await api.getExpenses(1, 1000); // Get up to 1000 expenses
 
-    loadExpenses() {
-        const saved = localStorage.getItem('expenses');
-        const expenses = saved ? JSON.parse(saved) : [];
+            if (response.status === 'success') {
+                this.expenses = response.expenses.map(exp => ({
+                    id: exp._id,
+                    date: exp.date.split('T')[0], // Convert to YYYY-MM-DD
+                    category: exp.category,
+                    description: exp.description,
+                    amount: exp.amount,
+                    vendor: exp.vendor,
+                    time: exp.time || '',
+                    images: exp.images.map(img => ({
+                        name: img.filename,
+                        data: img.url // Cloudinary URL
+                    }))
+                }));
 
-        // Sort by date when loading
-        expenses.sort((a, b) => {
-            const dateA = new Date(a.date);
-            const dateB = new Date(b.date);
-            return dateA - dateB;
-        });
-
-        return expenses;
+                console.log(`✅ Loaded ${this.expenses.length} expenses from backend`);
+                this.sortExpensesByDate();
+                this.displayExpenses();
+                this.updateTotal();
+            }
+        } catch (error) {
+            console.error('Error loading expenses:', error);
+            this.showNotification('⚠️ Failed to load expenses. Please refresh the page.');
+            this.expenses = [];
+        }
     }
 
     loadLastSyncedIndex() {
@@ -1234,13 +1328,21 @@ class ExpenseTracker {
         return dates[dates.length - 1].toISOString().split('T')[0];
     }
 
-    clearAllExpenses() {
-        if (confirm('Are you sure you want to clear all expenses? This action cannot be undone.')) {
-            this.expenses = [];
-            this.saveExpenses();
-            this.displayExpenses();
-            this.updateTotal();
-            this.showNotification('All expenses cleared!');
+    async clearAllExpenses() {
+        if (confirm('Are you sure you want to clear all expenses? This will delete ALL expenses from the database. This action cannot be undone.')) {
+            try {
+                // Delete all expenses one by one (backend doesn't have batch delete)
+                const deletePromises = this.expenses.map(expense => api.deleteExpense(expense.id));
+                await Promise.all(deletePromises);
+
+                // Reload expenses from backend
+                await this.loadExpenses();
+
+                this.showNotification('✅ All expenses cleared!');
+            } catch (error) {
+                console.error('Error clearing expenses:', error);
+                this.showNotification('❌ Failed to clear all expenses: ' + error.message);
+            }
         }
     }
 
@@ -1419,19 +1521,34 @@ class ExpenseTracker {
 
     // Google Sheets Integration Methods
 
-    openGoogleSheetsModal() {
+    async openGoogleSheetsModal() {
         const modal = document.getElementById('googleSheetsModal');
         modal.style.display = 'block';
 
-        // Load configuration (now hardcoded in service)
-        document.getElementById('clientId').value = googleSheetsService.CLIENT_ID;
-        document.getElementById('apiKey').value = googleSheetsService.API_KEY;
-        document.getElementById('sheetId').value = googleSheetsService.SHEET_ID;
-        document.getElementById('sheetName').value = googleSheetsService.SHEET_NAME;
+        try {
+            // Load configuration from backend (user-specific)
+            const response = await api.getGoogleSheetsConfig();
 
-        // Disable credential fields since they're hardcoded
-        document.getElementById('clientId').readOnly = true;
-        document.getElementById('apiKey').readOnly = true;
+            if (response.status === 'success' && response.config) {
+                const config = response.config;
+
+                // Populate form fields
+                document.getElementById('apiKey').value = config.apiKey || '';
+                document.getElementById('clientId').value = config.clientId || '';
+                document.getElementById('sheetId').value = config.spreadsheetId || '';
+
+                // Update Google Sheets service with loaded config
+                if (config.isConfigured) {
+                    googleSheetsService.setCredentials(config.clientId, config.apiKey);
+                    googleSheetsService.SHEET_ID = config.spreadsheetId;
+                }
+
+                console.log('✅ Loaded Google Sheets config from backend');
+            }
+        } catch (error) {
+            console.error('Error loading Google Sheets config:', error);
+            // Continue with empty form if loading fails
+        }
 
         // Debug information
         console.log('Google Sheets Service State:');
@@ -1439,13 +1556,6 @@ class ExpenseTracker {
         console.log('- gisInited:', googleSheetsService.gisInited);
         console.log('- isAuthenticated:', googleSheetsService.isAuthenticated);
         console.log('- isReady():', googleSheetsService.isReady());
-
-        // Force show the connect button for now to test
-        const authorizeBtn = document.getElementById('authorizeGoogle');
-        if (authorizeBtn) {
-            authorizeBtn.style.display = 'block';
-            console.log('Forcing connect button to show');
-        }
 
         // Update auth status
         googleSheetsService.updateAuthStatus();
@@ -1456,36 +1566,45 @@ class ExpenseTracker {
     }
 
     async saveGoogleSheetsConfig() {
+        const apiKey = document.getElementById('apiKey').value.trim();
+        const clientId = document.getElementById('clientId').value.trim();
         const sheetId = document.getElementById('sheetId').value.trim();
-        const sheetName = document.getElementById('sheetName').value.trim();
 
-        if (!sheetId || !sheetName) {
-            this.showNotification('⚠️ Please fill in sheet ID and name');
+        if (!apiKey || !clientId || !sheetId) {
+            this.showNotification('⚠️ Please fill in all required fields');
             return;
         }
 
         try {
-            // Save sheet config (credentials are hardcoded)
-            googleSheetsService.setSheetConfig(sheetId, sheetName);
+            // Save configuration to backend (user-specific)
+            const response = await api.saveGoogleSheetsConfig(apiKey, clientId, sheetId);
 
-            // Try to initialize APIs if not ready
-            let gapiReady = googleSheetsService.gapiInited;
-            let gisReady = googleSheetsService.gisInited;
+            if (response.status === 'success') {
+                // Update local Google Sheets service
+                googleSheetsService.setCredentials(clientId, apiKey);
+                googleSheetsService.SHEET_ID = sheetId;
 
-            if (!gapiReady) {
-                gapiReady = await googleSheetsService.initializeGapi();
-            }
-            if (!gisReady) {
-                gisReady = googleSheetsService.initializeGis();
-            }
+                // Try to initialize APIs if not ready
+                let gapiReady = googleSheetsService.gapiInited;
+                let gisReady = googleSheetsService.gisInited;
 
-            if (gapiReady && gisReady) {
-                this.showNotification('✅ Google Sheets configuration saved successfully!');
+                if (!gapiReady) {
+                    gapiReady = await googleSheetsService.initializeGapi();
+                }
+                if (!gisReady) {
+                    gisReady = googleSheetsService.initializeGis();
+                }
+
+                if (gapiReady && gisReady) {
+                    this.showNotification('✅ Google Sheets configuration saved to your profile!');
+                } else {
+                    this.showNotification('⚠️ Configuration saved but Google APIs are still loading...');
+                }
+
+                googleSheetsService.updateAuthStatus();
             } else {
-                this.showNotification('⚠️ Configuration saved but Google APIs are still loading...');
+                throw new Error(response.message || 'Failed to save configuration');
             }
-
-            googleSheetsService.updateAuthStatus();
         } catch (error) {
             console.error('Error saving Google Sheets config:', error);
             this.showNotification('❌ Error saving configuration: ' + error.message);

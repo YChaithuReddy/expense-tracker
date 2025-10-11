@@ -189,4 +189,110 @@ router.put('/updatepassword', protect, async (req, res) => {
     }
 });
 
+/**
+ * @route   GET /api/auth/google-sheets-config
+ * @desc    Get user's Google Sheets configuration
+ * @access  Private
+ */
+router.get('/google-sheets-config', protect, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+
+        res.status(200).json({
+            status: 'success',
+            config: user.googleSheetsConfig || {
+                apiKey: '',
+                clientId: '',
+                spreadsheetId: '',
+                isConfigured: false,
+                lastSync: null
+            }
+        });
+    } catch (error) {
+        console.error('Get Google Sheets config error:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Error fetching Google Sheets configuration'
+        });
+    }
+});
+
+/**
+ * @route   PUT /api/auth/google-sheets-config
+ * @desc    Update user's Google Sheets configuration
+ * @access  Private
+ */
+router.put('/google-sheets-config', protect, async (req, res) => {
+    try {
+        const { apiKey, clientId, spreadsheetId } = req.body;
+
+        // Validate required fields
+        if (!apiKey || !clientId || !spreadsheetId) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'Please provide API Key, Client ID, and Spreadsheet ID'
+            });
+        }
+
+        const user = await User.findByIdAndUpdate(
+            req.user.id,
+            {
+                googleSheetsConfig: {
+                    apiKey,
+                    clientId,
+                    spreadsheetId,
+                    isConfigured: true,
+                    lastSync: user.googleSheetsConfig?.lastSync || null
+                }
+            },
+            { new: true, runValidators: true }
+        );
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Google Sheets configuration saved successfully',
+            config: user.googleSheetsConfig
+        });
+    } catch (error) {
+        console.error('Update Google Sheets config error:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Error updating Google Sheets configuration'
+        });
+    }
+});
+
+/**
+ * @route   PUT /api/auth/google-sheets-sync
+ * @desc    Update last sync timestamp
+ * @access  Private
+ */
+router.put('/google-sheets-sync', protect, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+
+        if (!user.googleSheetsConfig || !user.googleSheetsConfig.isConfigured) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'Google Sheets not configured'
+            });
+        }
+
+        user.googleSheetsConfig.lastSync = new Date();
+        await user.save();
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Sync timestamp updated',
+            lastSync: user.googleSheetsConfig.lastSync
+        });
+    } catch (error) {
+        console.error('Update sync timestamp error:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Error updating sync timestamp'
+        });
+    }
+});
+
 module.exports = router;
