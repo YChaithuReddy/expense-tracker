@@ -13,8 +13,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="google-sheets-service.js"></script>
-    <script src="https://apis.google.com/js/api.js" async defer onload="if(typeof gapiLoaded === 'function') gapiLoaded()"></script>
-    <script src="https://accounts.google.com/gsi/client" async defer onload="if(typeof gisLoaded === 'function') gisLoaded()"></script>
 </head>
 <body>
     <div class="container">
@@ -112,13 +110,13 @@
                 <div class="section-header">
                     <h2>Your Expenses</h2>
                     <div class="action-buttons">
-                        <button id="configureGoogleSheets" class="btn-config">
-                            <span class="btn-icon">📊</span>
-                            <span class="btn-text">Configure Google Sheets</span>
-                        </button>
-                        <button id="exportToGoogleSheets" class="btn-primary" style="display: none;">
+                        <button id="exportToGoogleSheets" class="btn-primary">
                             <span class="btn-icon">☁️</span>
                             <span class="btn-text">Export to Google Sheets</span>
+                        </button>
+                        <button id="viewGoogleSheet" class="btn-secondary" style="display: none;">
+                            <span class="btn-icon">🔗</span>
+                            <span class="btn-text">View My Sheet</span>
                         </button>
                         <button id="generatePDF" class="btn-secondary">
                             <span class="btn-icon">📄</span>
@@ -159,71 +157,6 @@
             </div>
         </div>
 
-
-        <!-- Google Sheets Configuration Modal -->
-        <div id="googleSheetsModal" class="modal" style="display: none;">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2>📊 Google Sheets Configuration</h2>
-                    <span class="close-google-sheets">&times;</span>
-                </div>
-                <div class="modal-body">
-                    <div class="config-section">
-                        <h3>Google API Credentials</h3>
-                        <div class="form-group">
-                            <label for="clientId">Google Client ID:</label>
-                            <input type="text" id="clientId" placeholder="Your Google Client ID">
-                            <small>Get this from Google Cloud Console</small>
-                        </div>
-                        <div class="form-group">
-                            <label for="apiKey">Google API Key:</label>
-                            <input type="text" id="apiKey" placeholder="Your Google API Key">
-                            <small>Get this from Google Cloud Console</small>
-                        </div>
-                    </div>
-
-                    <div class="config-section">
-                        <h3>Sheet Configuration</h3>
-                        <div class="form-group">
-                            <label for="sheetId">Google Sheet ID:</label>
-                            <input type="text" id="sheetId" placeholder="Sheet ID from URL" value="1LDdO1WPcYjeDh8uMn3myxQXjN3CTPrf9">
-                            <small>Extracted from your sheet URL</small>
-                        </div>
-                        <div class="form-group">
-                            <label for="sheetName">Sheet Name/Tab:</label>
-                            <input type="text" id="sheetName" placeholder="Sheet1" value="Sheet1">
-                            <small>Name of the tab in your Google Sheet</small>
-                        </div>
-                    </div>
-
-                    <div class="config-section">
-                        <h3>Cell Mapping (Pre-configured for your template)</h3>
-                        <div class="mapping-info">
-                            <p><strong>S.NO:</strong> A14:A66 (Auto-incrementing serial numbers)</p>
-                            <p><strong>DATE:</strong> B14:B66 (Format: dd-MMM-yyyy like 20-Mar-2025)</p>
-                            <p><strong>VENDOR NAME:</strong> C14:D66 (Only vendor name from bills)</p>
-                            <p><strong>CATEGORY:</strong> E14:E66 (Expense category you entered)</p>
-                            <p><strong>COST:</strong> F14:F66 (Bill amounts only)</p>
-                        </div>
-                    </div>
-
-                    <div class="config-section">
-                        <h3>Authentication Status</h3>
-                        <div id="authStatus" class="auth-status">
-                            <span class="status-indicator" id="statusIndicator">⚪ Not connected</span>
-                            <button id="initializeApis" class="btn-secondary">🔄 Initialize Google APIs</button>
-                            <button id="authorizeGoogle" class="btn-primary" style="display: none;">🔐 Connect to Google</button>
-                            <button id="signOutGoogle" class="btn-secondary" style="display: none;">🔓 Disconnect</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button id="testConnection" class="btn-secondary">🧪 Test Connection</button>
-                    <button id="saveGoogleConfig" class="btn-primary">💾 Save Configuration</button>
-                    <button id="closeGoogleModal" class="btn-danger">❌ Close</button>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- Load authentication files first -->

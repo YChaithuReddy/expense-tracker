@@ -20,16 +20,13 @@ class ExpenseTracker {
         document.getElementById('generatePDF').addEventListener('click', () => this.generatePDF());
         document.getElementById('clearAll').addEventListener('click', () => this.clearAllExpenses());
 
-        // Google Sheets configuration
-        document.getElementById('configureGoogleSheets').addEventListener('click', () => this.openGoogleSheetsModal());
-        document.getElementById('closeGoogleModal').addEventListener('click', () => this.closeGoogleSheetsModal());
-        document.querySelector('.close-google-sheets').addEventListener('click', () => this.closeGoogleSheetsModal());
-        document.getElementById('saveGoogleConfig').addEventListener('click', () => this.saveGoogleSheetsConfig());
-        document.getElementById('initializeApis').addEventListener('click', () => this.initializeGoogleApis());
-        document.getElementById('authorizeGoogle').addEventListener('click', () => this.authorizeGoogle());
-        document.getElementById('signOutGoogle').addEventListener('click', () => this.signOutGoogle());
-        document.getElementById('testConnection').addEventListener('click', () => this.testGoogleConnection());
+        // Google Sheets export (simplified - no configuration needed)
         document.getElementById('exportToGoogleSheets').addEventListener('click', () => this.exportToGoogleSheets());
+
+        // Initialize Google Sheets service
+        if (window.googleSheetsService) {
+            window.googleSheetsService.initialize();
+        }
 
         // Select All checkbox
         document.getElementById('selectAllCheckbox').addEventListener('change', (e) => this.handleSelectAll(e));
@@ -41,9 +38,6 @@ class ExpenseTracker {
         window.addEventListener('click', (e) => {
             if (e.target === document.getElementById('templateModal')) {
                 this.closeTemplateModal();
-            }
-            if (e.target === document.getElementById('googleSheetsModal')) {
-                this.closeGoogleSheetsModal();
             }
             if (e.target === document.getElementById('imageModal')) {
                 this.closeImageModal();
@@ -1519,175 +1513,6 @@ class ExpenseTracker {
         }, 4000);
     }
 
-    // Google Sheets Integration Methods
-
-    async openGoogleSheetsModal() {
-        const modal = document.getElementById('googleSheetsModal');
-        modal.style.display = 'block';
-
-        try {
-            // Load configuration from backend (user-specific)
-            const response = await api.getGoogleSheetsConfig();
-
-            if (response.status === 'success' && response.config) {
-                const config = response.config;
-
-                // Populate form fields
-                document.getElementById('apiKey').value = config.apiKey || '';
-                document.getElementById('clientId').value = config.clientId || '';
-                document.getElementById('sheetId').value = config.spreadsheetId || '';
-
-                // Update Google Sheets service with loaded config
-                if (config.isConfigured) {
-                    googleSheetsService.setCredentials(config.clientId, config.apiKey);
-                    googleSheetsService.SHEET_ID = config.spreadsheetId;
-                }
-
-                console.log('✅ Loaded Google Sheets config from backend');
-            }
-        } catch (error) {
-            console.error('Error loading Google Sheets config:', error);
-            // Continue with empty form if loading fails
-        }
-
-        // Debug information
-        console.log('Google Sheets Service State:');
-        console.log('- gapiInited:', googleSheetsService.gapiInited);
-        console.log('- gisInited:', googleSheetsService.gisInited);
-        console.log('- isAuthenticated:', googleSheetsService.isAuthenticated);
-        console.log('- isReady():', googleSheetsService.isReady());
-
-        // Update auth status
-        googleSheetsService.updateAuthStatus();
-    }
-
-    closeGoogleSheetsModal() {
-        document.getElementById('googleSheetsModal').style.display = 'none';
-    }
-
-    async saveGoogleSheetsConfig() {
-        const apiKey = document.getElementById('apiKey').value.trim();
-        const clientId = document.getElementById('clientId').value.trim();
-        const sheetId = document.getElementById('sheetId').value.trim();
-
-        if (!apiKey || !clientId || !sheetId) {
-            this.showNotification('⚠️ Please fill in all required fields');
-            return;
-        }
-
-        try {
-            // Save configuration to backend (user-specific)
-            const response = await api.saveGoogleSheetsConfig(apiKey, clientId, sheetId);
-
-            if (response.status === 'success') {
-                // Update local Google Sheets service
-                googleSheetsService.setCredentials(clientId, apiKey);
-                googleSheetsService.SHEET_ID = sheetId;
-
-                // Try to initialize APIs if not ready
-                let gapiReady = googleSheetsService.gapiInited;
-                let gisReady = googleSheetsService.gisInited;
-
-                if (!gapiReady) {
-                    gapiReady = await googleSheetsService.initializeGapi();
-                }
-                if (!gisReady) {
-                    gisReady = googleSheetsService.initializeGis();
-                }
-
-                if (gapiReady && gisReady) {
-                    this.showNotification('✅ Google Sheets configuration saved to your profile!');
-                } else {
-                    this.showNotification('⚠️ Configuration saved but Google APIs are still loading...');
-                }
-
-                googleSheetsService.updateAuthStatus();
-            } else {
-                throw new Error(response.message || 'Failed to save configuration');
-            }
-        } catch (error) {
-            console.error('Error saving Google Sheets config:', error);
-            this.showNotification('❌ Error saving configuration: ' + error.message);
-        }
-    }
-
-    async initializeGoogleApis() {
-        const button = document.getElementById('initializeApis');
-        const originalText = button.textContent;
-        button.textContent = '⏳ Initializing...';
-        button.disabled = true;
-
-        try {
-            console.log('Manual API initialization started');
-            console.log('Current URL:', window.location.href);
-            console.log('Is HTTPS?', window.location.protocol === 'https:');
-            console.log('Is localhost?', window.location.hostname === 'localhost');
-
-            // Check if we're using file:// protocol
-            if (window.location.protocol === 'file:') {
-                this.showNotification('⚠️ Google APIs may not work with file:// URLs. Try using a local server (http://localhost).');
-            }
-
-            // Initialize both APIs
-            const gapiSuccess = await googleSheetsService.initializeGapi();
-            const gisSuccess = googleSheetsService.initializeGis();
-
-            console.log('Manual init results - GAPI:', gapiSuccess, 'GIS:', gisSuccess);
-
-            if (gapiSuccess && gisSuccess) {
-                this.showNotification('✅ Google APIs initialized successfully!');
-                googleSheetsService.updateAuthStatus();
-            } else {
-                let errorMsg = '⚠️ Some APIs failed to initialize:\n';
-                if (!gapiSuccess) errorMsg += '- Google API (gapi) failed\n';
-                if (!gisSuccess) errorMsg += '- Google Identity Services failed\n';
-                errorMsg += 'Check browser console for details.';
-                this.showNotification(errorMsg);
-            }
-        } catch (error) {
-            console.error('Manual initialization error:', error);
-            this.showNotification('❌ Failed to initialize APIs: ' + error.message);
-        } finally {
-            button.textContent = originalText;
-            button.disabled = false;
-        }
-    }
-
-    async authorizeGoogle() {
-        console.log('authorizeGoogle() called');
-        try {
-            if (!googleSheetsService.isReady()) {
-                this.showNotification('⚠️ Please initialize Google APIs first!');
-                return;
-            }
-
-            await googleSheetsService.authenticate();
-            this.showNotification('🔐 Google authentication initiated!');
-        } catch (error) {
-            console.error('Authentication error:', error);
-            this.showNotification('❌ Authentication failed: ' + error.message);
-        }
-    }
-
-    signOutGoogle() {
-        googleSheetsService.signOut();
-        this.showNotification('🔓 Signed out from Google successfully');
-    }
-
-    async testGoogleConnection() {
-        try {
-            const result = await googleSheetsService.testConnection();
-            if (result.success) {
-                this.showNotification('✅ ' + result.message);
-            } else {
-                this.showNotification('❌ ' + result.message);
-            }
-        } catch (error) {
-            console.error('Connection test error:', error);
-            this.showNotification('❌ Connection test failed: ' + error.message);
-        }
-    }
-
     handleSelectAll(e) {
         const isChecked = e.target.checked;
         const checkboxes = document.querySelectorAll('.expense-checkbox');
@@ -1771,4 +1596,5 @@ class ExpenseTracker {
     }
 }
 
-const expenseTracker = new ExpenseTracker();
+// Create global expenseTracker instance
+window.expenseTracker = new ExpenseTracker();

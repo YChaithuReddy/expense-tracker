@@ -4,6 +4,9 @@
  * Production Backend: Railway
  */
 
+// For LOCAL TESTING: Use localhost
+// For PRODUCTION: Use Railway URL
+// const API_BASE_URL = 'http://localhost:5000/api';
 const API_BASE_URL = 'https://expense-tracker-production-2538.up.railway.app/api';
 
 // Get auth token from localStorage
@@ -338,13 +341,14 @@ const api = {
     },
 
     /**
-     * Google Sheets Configuration APIs
+     * Google Sheets APIs - Simplified
+     * All sheet management now handled by backend
      */
 
-    // Get Google Sheets configuration
-    async getGoogleSheetsConfig() {
+    // Get user's Google Sheet link
+    async getGoogleSheetLink() {
         try {
-            const response = await fetch(`${API_BASE_URL}/auth/google-sheets-config`, {
+            const response = await fetch(`${API_BASE_URL}/google-sheets/link`, {
                 method: 'GET',
                 headers: getHeaders(true)
             });
@@ -352,7 +356,7 @@ const api = {
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.message || 'Failed to fetch Google Sheets config');
+                throw new Error(data.message || 'Failed to get Google Sheet link');
             }
 
             return data;
@@ -361,19 +365,19 @@ const api = {
         }
     },
 
-    // Save Google Sheets configuration
-    async saveGoogleSheetsConfig(apiKey, clientId, spreadsheetId) {
+    // Export expenses to Google Sheets
+    async exportToGoogleSheets(expenseIds) {
         try {
-            const response = await fetch(`${API_BASE_URL}/auth/google-sheets-config`, {
-                method: 'PUT',
+            const response = await fetch(`${API_BASE_URL}/google-sheets/export`, {
+                method: 'POST',
                 headers: getHeaders(true),
-                body: JSON.stringify({ apiKey, clientId, spreadsheetId })
+                body: JSON.stringify({ expenseIds })
             });
 
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.message || 'Failed to save Google Sheets config');
+                throw new Error(data.message || 'Failed to export to Google Sheets');
             }
 
             return data;
@@ -382,18 +386,18 @@ const api = {
         }
     },
 
-    // Update last sync timestamp
-    async updateGoogleSheetsSync() {
+    // Create Google Sheet for user (optional - done automatically on first export)
+    async createGoogleSheet() {
         try {
-            const response = await fetch(`${API_BASE_URL}/auth/google-sheets-sync`, {
-                method: 'PUT',
+            const response = await fetch(`${API_BASE_URL}/google-sheets/create`, {
+                method: 'POST',
                 headers: getHeaders(true)
             });
 
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.message || 'Failed to update sync timestamp');
+                throw new Error(data.message || 'Failed to create Google Sheet');
             }
 
             return data;
