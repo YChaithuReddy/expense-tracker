@@ -234,6 +234,9 @@ router.put('/google-sheets-config', protect, async (req, res) => {
             });
         }
 
+        // First get the existing user to preserve lastSync
+        const existingUser = await User.findById(req.user.id);
+
         const user = await User.findByIdAndUpdate(
             req.user.id,
             {
@@ -242,7 +245,7 @@ router.put('/google-sheets-config', protect, async (req, res) => {
                     clientId,
                     spreadsheetId,
                     isConfigured: true,
-                    lastSync: user.googleSheetsConfig?.lastSync || null
+                    lastSync: existingUser.googleSheetsConfig?.lastSync || null
                 }
             },
             { new: true, runValidators: true }
