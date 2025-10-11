@@ -92,7 +92,9 @@
                 }
             } catch (error) {
                 console.error('Login error:', error);
-                showMessage(error.message || 'Network error. Please try again.', 'error');
+                // Show detailed error for debugging
+                const errorDetails = `${error.message || 'Network error'}\n\nAPI URL: ${window.location.origin}\nBackend: ${typeof api !== 'undefined' ? 'loaded' : 'not loaded'}`;
+                showMessage(errorDetails, 'error');
                 resetButton();
             }
         });
@@ -118,6 +120,15 @@
         if (localStorage.getItem('authToken')) {
             window.location.href = 'index.html';
         }
+
+        // Debug: Show API configuration on page load (only for 3 seconds)
+        window.addEventListener('load', () => {
+            const debugInfo = document.createElement('div');
+            debugInfo.style.cssText = 'position: fixed; bottom: 10px; left: 10px; background: rgba(0,0,0,0.8); color: lime; padding: 10px; font-size: 10px; border-radius: 5px; z-index: 9999;';
+            debugInfo.innerHTML = `API: ${window.location.origin}<br>Backend ready: ${typeof api !== 'undefined'}`;
+            document.body.appendChild(debugInfo);
+            setTimeout(() => debugInfo.remove(), 5000);
+        });
     </script>
 </body>
 </html>
