@@ -21,6 +21,12 @@
         <header>
             <h1>Expense Tracker</h1>
             <p>Automate your reimbursement submissions</p>
+
+            <!-- User Info Section -->
+            <div id="userInfo" style="display: none;">
+                <span id="userName" style="color: var(--neon-cyan); font-weight: 600;"></span>
+                <button id="logoutBtn" class="btn-secondary" style="padding: 8px 16px;">🚪 Logout</button>
+            </div>
         </header>
 
         <main>
@@ -220,6 +226,32 @@
         </div>
     </div>
 
+    <!-- Load authentication files first -->
+    <script src="api.js"></script>
+    <script src="auth.js"></script>
     <script src="script.js"></script>
+
+    <!-- Authentication Check & User Info Display -->
+    <script>
+        // Check authentication on page load
+        if (!requireAuth()) {
+            // requireAuth() will redirect to login if not authenticated
+            throw new Error('Not authenticated');
+        }
+
+        // Display user info
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (user) {
+            document.getElementById('userName').textContent = `👤 ${user.name}`;
+            document.getElementById('userInfo').style.display = 'flex';
+        }
+
+        // Logout handler
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            if (confirm('Are you sure you want to logout?')) {
+                logout();
+            }
+        });
+    </script>
 </body>
 </html>
