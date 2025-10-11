@@ -1841,6 +1841,9 @@ main {
 @media (max-width: 768px) {
     .auth-section {
         padding: 25px 20px;
+        min-width: unset !important;
+        width: 100% !important;
+        box-sizing: border-box;
     }
 
     .auth-section h2 {
