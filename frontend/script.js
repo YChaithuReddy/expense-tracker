@@ -157,30 +157,50 @@ class ExpenseTracker {
         scanProgress.style.display = 'inline';
         scanButton.disabled = true;
 
-        let allExtractedText = '';
-
         try {
-            for (let i = 0; i < this.scannedImages.length; i++) {
-                progressText.textContent = `${Math.round(((i + 1) / this.scannedImages.length) * 100)}%`;
+            // Update progress
+            progressText.textContent = `Processing...`;
 
-                const result = await Tesseract.recognize(
-                    this.scannedImages[i].data,
-                    'eng',
-                    {
-                        logger: m => console.log(m)
-                    }
-                );
+            // Prepare FormData with images
+            const formData = new FormData();
+            this.scannedImages.forEach((img) => {
+                formData.append('images', img.file);
+            });
 
-                allExtractedText += result.data.text + '\n\n';
+            console.log(`📤 Uploading ${this.scannedImages.length} images to Azure OCR...`);
+
+            // Call backend OCR API
+            const token = localStorage.getItem('authToken');
+            const response = await fetch(`${api.API_BASE_URL}/ocr/scan`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error(`OCR API returned ${response.status}: ${response.statusText}`);
             }
 
-            this.extractedData = this.parseReceiptText(allExtractedText);
-            this.populateForm();
-            this.showExpenseForm();
+            const result = await response.json();
+            console.log('📥 Azure OCR response:', result);
+
+            if (result.status === 'success' && result.data) {
+                // Use the extracted data from Azure OCR
+                this.extractedData = result.data.extractedData || {};
+
+                console.log('✅ Azure OCR extracted:', this.extractedData);
+
+                this.populateForm();
+                this.showExpenseForm();
+            } else {
+                throw new Error(result.message || 'OCR processing failed');
+            }
 
         } catch (error) {
-            console.error('OCR Error:', error);
-            alert('Failed to scan bills. Please try again or enter details manually.');
+            console.error('❌ OCR Error:', error);
+            alert(`Failed to scan bills: ${error.message}\n\nYou can still enter details manually.`);
             this.showExpenseForm();
         } finally {
             scanText.style.display = 'inline';
