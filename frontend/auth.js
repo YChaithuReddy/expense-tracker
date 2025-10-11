@@ -48,10 +48,11 @@ function displayUserInfo() {
         const userInfoEl = document.getElementById('userInfo');
         if (userInfoEl) {
             userInfoEl.innerHTML = `
-                <span style="color: var(--neon-cyan); font-weight: 600;">${user.name}</span>
-                <span style="color: var(--text-secondary); margin: 0 10px;">|</span>
-                <span style="color: var(--text-secondary);">${user.email}</span>
-                <button onclick="logout()" class="btn-secondary" style="margin-left: 15px; padding: 8px 16px;">🚪 Logout</button>
+                <div style="text-align: center; width: 100%;">
+                    <div style="color: var(--neon-cyan); font-weight: 600; font-size: 1.1rem; margin-bottom: 5px;">${user.name}</div>
+                    <div style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 15px;">${user.email}</div>
+                    <button onclick="logout()" class="btn-secondary" style="padding: 8px 16px; width: 100%; max-width: 200px;">🚪 Logout</button>
+                </div>
             `;
         }
     }
