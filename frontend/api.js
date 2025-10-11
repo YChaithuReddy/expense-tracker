@@ -3,7 +3,7 @@
  * Handles all communication with the backend API
  */
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = 'https://expense-tracker-production-2538.up.railway.app/api';
 
 // Get auth token from localStorage
 function getAuthToken() {
