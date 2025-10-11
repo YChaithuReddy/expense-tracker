@@ -12,8 +12,12 @@ const googleSheetsRoutes = require('./routes/google-sheets');
 
 const app = express();
 
-// Security Middleware
-app.use(helmet());
+// Security Middleware - Configured for mobile compatibility
+app.use(helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
+    contentSecurityPolicy: false // Disable CSP as it blocks mobile requests
+}));
 
 // Rate Limiting
 const limiter = rateLimit({
