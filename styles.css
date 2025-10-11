@@ -994,20 +994,28 @@ main {
 
 /* Mobile responsive styles */
 @media (max-width: 768px) {
+    body {
+        padding: 0;
+        margin: 0;
+    }
+
     .container {
-        padding: 10px;
-        max-width: 100%;
+        padding: 5px !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
     }
 
     main {
         grid-template-columns: 1fr;
-        gap: 15px;
+        gap: 10px;
+        margin: 0;
     }
 
     header {
-        padding: 25px 15px;
-        margin-bottom: 30px;
-        border-radius: 20px;
+        padding: 20px 10px;
+        margin: 0 0 15px 0;
+        border-radius: 15px;
     }
 
     header h1 {
@@ -1021,11 +1029,13 @@ main {
     .ocr-section,
     .expense-form-section,
     .expenses-list-section {
-        padding: 20px 15px;
+        padding: 15px 10px;
         overflow: visible;
         position: relative;
-        border-radius: 15px;
-        margin: 0;
+        border-radius: 10px;
+        margin: 0 !important;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .expense-form-section {
@@ -1171,13 +1181,14 @@ main {
 
 @media (max-width: 480px) {
     .container {
-        padding: 8px;
+        padding: 3px !important;
+        margin: 0 !important;
     }
 
     header {
-        padding: 20px 12px;
-        margin-bottom: 20px;
-        border-radius: 15px;
+        padding: 15px 8px;
+        margin: 0 0 10px 0;
+        border-radius: 10px;
     }
 
     header h1 {
@@ -1187,8 +1198,11 @@ main {
     .ocr-section,
     .expense-form-section,
     .expenses-list-section {
-        padding: 18px 12px;
-        border-radius: 12px;
+        padding: 15px 8px;
+        border-radius: 8px;
+        margin: 0 !important;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .ocr-section h2,
