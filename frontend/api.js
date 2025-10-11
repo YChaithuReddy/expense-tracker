@@ -1,6 +1,7 @@
 /**
  * API Wrapper for Expense Tracker Backend
  * Handles all communication with the backend API
+ * Production Backend: Railway
  */
 
 const API_BASE_URL = 'https://expense-tracker-production-2538.up.railway.app/api';
