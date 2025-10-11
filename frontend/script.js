@@ -1723,7 +1723,7 @@ class ExpenseTracker {
 
     getSelectedExpenses() {
         const checkboxes = document.querySelectorAll('.expense-checkbox:checked');
-        const selectedIds = Array.from(checkboxes).map(cb => parseInt(cb.dataset.expenseId));
+        const selectedIds = Array.from(checkboxes).map(cb => cb.dataset.expenseId); // Keep as string for MongoDB IDs
         return this.expenses.filter(expense => selectedIds.includes(expense.id));
     }
 
