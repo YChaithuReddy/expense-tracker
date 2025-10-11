@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/chath/OneDrive/Pictures/Screenshots/**)",
+      "Bash(npm install:*)",
+      "Bash(npm start)",
+      "Bash(cmd /c:*)",
+      "Bash(python:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

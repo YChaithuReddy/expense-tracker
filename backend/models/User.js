@@ -27,12 +27,17 @@ const userSchema = new mongoose.Schema({
     },
     resetPasswordToken: String,
     resetPasswordExpire: Date,
-    googleSheetsConfig: {
-        apiKey: { type: String, default: '' },
-        clientId: { type: String, default: '' },
-        spreadsheetId: { type: String, default: '' },
-        isConfigured: { type: Boolean, default: false },
-        lastSync: { type: Date, default: null }
+    googleSheetId: {
+        type: String,
+        default: ''
+    },
+    googleSheetUrl: {
+        type: String,
+        default: ''
+    },
+    googleSheetCreatedAt: {
+        type: Date,
+        default: null
     },
     createdAt: {
         type: Date,
