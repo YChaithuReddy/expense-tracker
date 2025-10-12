@@ -9,7 +9,6 @@ require('dotenv').config();
 const authRoutes = require('./routes/auth');
 const expenseRoutes = require('./routes/expenses');
 const googleSheetsRoutes = require('./routes/google-sheets');
-const ocrRoutes = require('./routes/ocr');
 
 const app = express();
 
@@ -70,7 +69,6 @@ mongoose.connect(process.env.MONGODB_URI, {
 app.use('/api/auth', authRoutes);
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/google-sheets', googleSheetsRoutes);
-app.use('/api/ocr', ocrRoutes);
 
 // Health Check Route
 app.get('/api/health', (req, res) => {

@@ -157,50 +157,30 @@ class ExpenseTracker {
         scanProgress.style.display = 'inline';
         scanButton.disabled = true;
 
+        let allExtractedText = '';
+
         try {
-            // Update progress
-            progressText.textContent = `Processing...`;
+            for (let i = 0; i < this.scannedImages.length; i++) {
+                progressText.textContent = `${Math.round(((i + 1) / this.scannedImages.length) * 100)}%`;
 
-            // Prepare FormData with images
-            const formData = new FormData();
-            this.scannedImages.forEach((img) => {
-                formData.append('images', img.file);
-            });
+                const result = await Tesseract.recognize(
+                    this.scannedImages[i].data,
+                    'eng',
+                    {
+                        logger: m => console.log(m)
+                    }
+                );
 
-            console.log(`📤 Uploading ${this.scannedImages.length} images to Azure OCR...`);
-
-            // Call backend OCR API
-            const token = localStorage.getItem('authToken');
-            const response = await fetch(`${api.API_BASE_URL}/ocr/scan`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                },
-                body: formData
-            });
-
-            if (!response.ok) {
-                throw new Error(`OCR API returned ${response.status}: ${response.statusText}`);
+                allExtractedText += result.data.text + '\n\n';
             }
 
-            const result = await response.json();
-            console.log('📥 Azure OCR response:', result);
-
-            if (result.status === 'success' && result.data) {
-                // Use the extracted data from Azure OCR
-                this.extractedData = result.data.extractedData || {};
-
-                console.log('✅ Azure OCR extracted:', this.extractedData);
-
-                this.populateForm();
-                this.showExpenseForm();
-            } else {
-                throw new Error(result.message || 'OCR processing failed');
-            }
+            this.extractedData = this.parseReceiptText(allExtractedText);
+            this.populateForm();
+            this.showExpenseForm();
 
         } catch (error) {
-            console.error('❌ OCR Error:', error);
-            alert(`Failed to scan bills: ${error.message}\n\nYou can still enter details manually.`);
+            console.error('OCR Error:', error);
+            alert('Failed to scan bills. Please try again or enter details manually.');
             this.showExpenseForm();
         } finally {
             scanText.style.display = 'inline';
@@ -616,14 +596,14 @@ class ExpenseTracker {
         const formData = new FormData(e.target);
         const files = document.getElementById('receipt').files;
 
-        // Validate required fields (description is optional)
+        // Validate required fields
         const amount = formData.get('amount');
         const date = formData.get('date');
         const category = formData.get('category');
-        const description = formData.get('description') || ''; // Description is optional
+        const description = formData.get('description');
 
-        if (!amount || !date || !category) {
-            alert('Please fill in all required fields (Amount, Date, Category)');
+        if (!amount || !date || !category || !description) {
+            alert('Please fill in all required fields');
             return;
         }
 

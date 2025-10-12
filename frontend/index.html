@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <!-- Tesseract.js removed - Now using Azure Read OCR via backend API -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="google-sheets-service.js"></script>
 </head>
 <body>
@@ -69,18 +69,11 @@
                         <label for="category">Category:</label>
                         <select id="category" name="category" required>
                             <option value="">Select Category</option>
-                            <option value="Food">🍽️ Food</option>
-                            <option value="Cab">🚖 Cab/Taxi</option>
-                            <option value="Bus">🚌 Bus</option>
-                            <option value="Metro">🚇 Metro/Train</option>
-                            <option value="Auto">🛺 Auto Rickshaw</option>
-                            <option value="Fuel">⛽ Fuel</option>
-                            <option value="Parking">🅿️ Parking</option>
-                            <option value="Accommodation">🏨 Accommodation</option>
-                            <option value="Entertainment">🎬 Entertainment</option>
-                            <option value="Shopping">🛒 Shopping</option>
-                            <option value="Healthcare">🏥 Healthcare</option>
-                            <option value="Miscellaneous">📦 Miscellaneous</option>
+                            <option value="Transportation">Transportation</option>
+                            <option value="Accommodation">Accommodation</option>
+                            <option value="Meals">Meals</option>
+                            <option value="Fuel">Fuel</option>
+                            <option value="Miscellaneous">Miscellaneous</option>
                         </select>
                     </div>
 
