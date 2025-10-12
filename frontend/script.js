@@ -741,40 +741,47 @@ class ExpenseTracker {
     }
 
     populateForm() {
+        console.log('📝 Populating form with extracted data:', this.extractedData);
+
         // ONLY fill fields that have extracted data - leave others empty
         const fieldsToFill = [
             { id: 'date', value: this.extractedData.date },
             { id: 'category', value: this.extractedData.category },
             { id: 'description', value: this.extractedData.description },
-            { id: 'amount', value: this.extractedData.amount }
+            { id: 'amount', value: this.extractedData.amount },
+            { id: 'vendor', value: this.extractedData.vendor } // Now include vendor
         ];
 
         // Fill ONLY fields with valid extracted data, leave others empty
         fieldsToFill.forEach(field => {
             const element = document.getElementById(field.id);
+            if (!element) {
+                console.error(`❌ Element not found: ${field.id}`);
+                return;
+            }
+
             if (field.value && field.value.trim() !== '') {
                 element.value = field.value;
+                console.log(`✅ Filled ${field.id}: ${field.value}`);
             } else {
                 element.value = ''; // Leave empty for manual entry
+                console.log(`⚠️ ${field.id} is empty`);
             }
             // Ensure field is always editable and interactive
             element.removeAttribute('readonly');
             element.removeAttribute('disabled');
         });
 
-        // Vendor field - always leave empty for manual entry
-        const vendorElement = document.getElementById('vendor');
-        vendorElement.value = '';
-        vendorElement.removeAttribute('readonly');
-        vendorElement.removeAttribute('disabled');
-
         // Set the receipt images
         const receiptInput = document.getElementById('receipt');
-        const dt = new DataTransfer();
-        this.scannedImages.forEach(img => {
-            dt.items.add(img.file);
-        });
-        receiptInput.files = dt.files;
+        if (receiptInput && this.scannedImages.length > 0) {
+            const dt = new DataTransfer();
+            this.scannedImages.forEach(img => {
+                dt.items.add(img.file);
+            });
+            receiptInput.files = dt.files;
+            console.log(`✅ Set ${this.scannedImages.length} receipt images`);
+        }
     }
 
     showExpenseForm() {
