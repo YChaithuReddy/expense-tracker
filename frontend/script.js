@@ -616,14 +616,14 @@ class ExpenseTracker {
         const formData = new FormData(e.target);
         const files = document.getElementById('receipt').files;
 
-        // Validate required fields
+        // Validate required fields (description is optional)
         const amount = formData.get('amount');
         const date = formData.get('date');
         const category = formData.get('category');
-        const description = formData.get('description');
+        const description = formData.get('description') || ''; // Description is optional
 
-        if (!amount || !date || !category || !description) {
-            alert('Please fill in all required fields');
+        if (!amount || !date || !category) {
+            alert('Please fill in all required fields (Amount, Date, Category)');
             return;
         }
 
