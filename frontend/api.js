@@ -212,7 +212,7 @@ const api = {
             formData.append('date', expenseData.date);
             formData.append('category', expenseData.category);
             formData.append('amount', expenseData.amount);
-            formData.append('description', expenseData.description);
+            formData.append('description', expenseData.description || 'N/A');
 
             if (expenseData.vendor) {
                 formData.append('vendor', expenseData.vendor);
