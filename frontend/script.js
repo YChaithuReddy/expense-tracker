@@ -160,19 +160,42 @@ class ExpenseTracker {
         let allExtractedText = '';
 
         try {
+            // Initialize Tesseract worker for better performance
+            const worker = await Tesseract.createWorker('eng', 1, {
+                logger: m => {
+                    if (m.status === 'recognizing text') {
+                        console.log(`OCR Progress: ${(m.progress * 100).toFixed(0)}%`);
+                    }
+                }
+            });
+
+            // Configure Tesseract for better accuracy with receipts
+            await worker.setParameters({
+                tessedit_pageseg_mode: Tesseract.PSM.AUTO,
+                tessedit_char_whitelist: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ₹Rs./-:,@&()',
+                preserve_interword_spaces: '1',
+            });
+
             for (let i = 0; i < this.scannedImages.length; i++) {
                 progressText.textContent = `${Math.round(((i + 1) / this.scannedImages.length) * 100)}%`;
 
-                const result = await Tesseract.recognize(
-                    this.scannedImages[i].data,
-                    'eng',
-                    {
-                        logger: m => console.log(m)
-                    }
-                );
+                // Perform OCR with enhanced configuration
+                const result = await worker.recognize(this.scannedImages[i].data);
 
+                console.log(`📄 Image ${i + 1} OCR confidence: ${result.data.confidence.toFixed(2)}%`);
                 allExtractedText += result.data.text + '\n\n';
+
+                // Also extract with high confidence words only for better accuracy
+                const highConfidenceText = result.data.words
+                    .filter(word => word.confidence > 60)
+                    .map(word => word.text)
+                    .join(' ');
+
+                console.log(`✨ High confidence text: ${highConfidenceText}`);
             }
+
+            // Terminate worker to free memory
+            await worker.terminate();
 
             this.extractedData = this.parseReceiptText(allExtractedText);
             this.populateForm();
@@ -202,82 +225,213 @@ class ExpenseTracker {
         const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
         console.log('OCR Text Lines:', lines); // Debug log
 
-        // Enhanced amount extraction for various formats
+        // Enhanced amount extraction with better Indian currency patterns
         const fullText = text.toLowerCase();
 
-        // Priority 1: Look for explicit amount/total/paid keywords
-        const amountPatterns = [
-            /(?:amount|total|paid|sum|bill|charge)[\s:]*(?:rs\.?|₹)?\s*(\d+(?:[.,]\d{1,2})?)/i,
-            /(?:rs\.?|₹)\s*(\d+(?:[.,]\d{1,2})?)/i,
-            /(\d+(?:[.,]\d{1,2})?)\s*(?:rs\.?|₹)/i,
-            /(?:inr|rupees?)\s*(\d+(?:[.,]\d{1,2})?)/i,
-            /(\d+(?:[.,]\d{1,2})?)\s*(?:inr|rupees?)/i,
-            /rupees\s+(\w+)(?:\s+only)?/i // for "Rupees Eighty Only"
+        // Text number mapping for word amounts
+        const textNumbers = {
+            'zero': 0, 'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5,
+            'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10,
+            'eleven': 11, 'twelve': 12, 'thirteen': 13, 'fourteen': 14, 'fifteen': 15,
+            'sixteen': 16, 'seventeen': 17, 'eighteen': 18, 'nineteen': 19,
+            'twenty': 20, 'thirty': 30, 'forty': 40, 'fifty': 50,
+            'sixty': 60, 'seventy': 70, 'eighty': 80, 'ninety': 90,
+            'hundred': 100, 'thousand': 1000, 'lakh': 100000, 'lakhs': 100000
+        };
+
+        // Priority 1: Context-aware amount patterns (highest priority)
+        const contextPatterns = [
+            // Total/Grand Total with various formats
+            /(?:grand\s*)?total[\s:]*(?:amount)?[\s:]*(?:rs\.?|₹|inr)?\s*(\d+[,\d]*\.?\d*)/i,
+            /(?:net|final)\s*(?:amount|total)[\s:]*(?:rs\.?|₹|inr)?\s*(\d+[,\d]*\.?\d*)/i,
+            /(?:bill|invoice)\s*(?:amount|total)[\s:]*(?:rs\.?|₹|inr)?\s*(\d+[,\d]*\.?\d*)/i,
+
+            // Amount paid/payable
+            /(?:amount\s*)?(?:paid|payable|due)[\s:]*(?:rs\.?|₹|inr)?\s*(\d+[,\d]*\.?\d*)/i,
+            /(?:to\s*be\s*)?paid[\s:]*(?:rs\.?|₹|inr)?\s*(\d+[,\d]*\.?\d*)/i,
+
+            // Charges/sum
+            /(?:total\s*)?(?:charge|sum)s?[\s:]*(?:rs\.?|₹|inr)?\s*(\d+[,\d]*\.?\d*)/i,
         ];
 
-        // Try each pattern on full text first
-        for (const pattern of amountPatterns) {
+        // Priority 2: Currency symbol patterns
+        const currencyPatterns = [
+            // Indian Rupee symbol (₹) - most reliable
+            /₹\s*(\d+[,\d]*\.?\d*)/g,
+            /(\d+[,\d]*\.?\d*)\s*₹/g,
+
+            // Rs./Rs variants
+            /\brs\.?\s*(\d+[,\d]*\.?\d*)/gi,
+            /(\d+[,\d]*\.?\d*)\s*rs\.?/gi,
+
+            // INR/Rupees
+            /\binr\s*(\d+[,\d]*\.?\d*)/gi,
+            /\brupees?\s*(\d+[,\d]*\.?\d*)/gi,
+            /(\d+[,\d]*\.?\d*)\s*rupees?/gi,
+        ];
+
+        // Priority 3: Word amounts (Rupees Eighty Only)
+        const wordAmountPattern = /rupees?\s+([a-z\s]+?)(?:\s+only)?(?:\s|$)/gi;
+
+        // Helper function to clean and parse amount
+        const cleanAmount = (amountStr) => {
+            if (!amountStr) return null;
+            // Remove commas (Indian format: 1,00,000)
+            let cleaned = amountStr.replace(/,/g, '');
+            // Handle both . and , as decimal separator
+            cleaned = cleaned.replace(/,(\d{1,2})$/, '.$1');
+            const value = parseFloat(cleaned);
+            // Validate reasonable range (₹1 to ₹10,00,000)
+            if (value > 0 && value <= 1000000) {
+                return value;
+            }
+            return null;
+        };
+
+        // Try context patterns first (most accurate)
+        for (const pattern of contextPatterns) {
             const match = fullText.match(pattern);
             if (match) {
-                let amount = match[1];
-
-                // Handle text amounts like "Eighty"
-                if (isNaN(amount)) {
-                    const textNumbers = {
-                        'zero': 0, 'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5,
-                        'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10,
-                        'eleven': 11, 'twelve': 12, 'thirteen': 13, 'fourteen': 14, 'fifteen': 15,
-                        'sixteen': 16, 'seventeen': 17, 'eighteen': 18, 'nineteen': 19,
-                        'twenty': 20, 'thirty': 30, 'forty': 40, 'fifty': 50,
-                        'sixty': 60, 'seventy': 70, 'eighty': 80, 'ninety': 90,
-                        'hundred': 100, 'thousand': 1000
-                    };
-                    amount = textNumbers[amount.toLowerCase()] || 0;
-                }
-
-                if (amount && parseFloat(amount) > 0) {
-                    data.amount = parseFloat(amount.toString().replace(',', '.')).toString();
-                    console.log('✅ Amount found:', data.amount);
+                const amount = cleanAmount(match[1]);
+                if (amount) {
+                    data.amount = amount.toString();
+                    console.log('✅ Amount found (context):', data.amount, 'Pattern:', pattern.source.substring(0, 30));
                     break;
                 }
             }
         }
 
-        // Priority 2: If no amount found, look for any standalone number with currency
+        // Try currency patterns if context search failed
+        if (!data.amount) {
+            const foundAmounts = [];
+
+            for (const pattern of currencyPatterns) {
+                let match;
+                while ((match = pattern.exec(fullText)) !== null) {
+                    const amount = cleanAmount(match[1]);
+                    if (amount) {
+                        foundAmounts.push(amount);
+                    }
+                }
+            }
+
+            // If multiple amounts found, pick the largest (usually the total)
+            if (foundAmounts.length > 0) {
+                const largestAmount = Math.max(...foundAmounts);
+                data.amount = largestAmount.toString();
+                console.log('✅ Amount found (currency symbol):', data.amount, `(from ${foundAmounts.length} candidates)`);
+            }
+        }
+
+        // Try word amounts if still not found
+        if (!data.amount) {
+            let match;
+            while ((match = wordAmountPattern.exec(fullText)) !== null) {
+                const words = match[1].trim().toLowerCase().split(/\s+/);
+                let total = 0;
+                let currentNumber = 0;
+
+                for (const word of words) {
+                    if (textNumbers[word] !== undefined) {
+                        const value = textNumbers[word];
+                        if (value >= 100) {
+                            // Multiplier (hundred, thousand, lakh)
+                            currentNumber = currentNumber === 0 ? value : currentNumber * value;
+                        } else {
+                            currentNumber += value;
+                        }
+                    }
+                }
+
+                if (currentNumber > 0) {
+                    data.amount = currentNumber.toString();
+                    console.log('✅ Amount found (word):', data.amount);
+                    break;
+                }
+            }
+        }
+
+        // Final fallback: Look for any standalone number near bill/payment keywords
         if (!data.amount) {
             for (const line of lines) {
-                const match = line.match(/(?:₹|rs\.?)\s*(\d+(?:[.,]\d{1,2})?)/i) ||
-                             line.match(/(\d+(?:[.,]\d{1,2})?)\s*(?:₹|rs\.?)/i);
-                if (match) {
-                    const amount = match[1];
-                    if (amount && parseFloat(amount) > 0 && parseFloat(amount) < 100000) {
-                        data.amount = parseFloat(amount.toString().replace(',', '.')).toString();
-                        console.log('✅ Amount found (fallback):', data.amount);
-                        break;
+                if (/(?:bill|payment|charge|total)/i.test(line)) {
+                    const match = line.match(/(\d+[,\d]*\.?\d*)/);
+                    if (match) {
+                        const amount = cleanAmount(match[1]);
+                        if (amount && amount > 10) { // Minimum ₹10
+                            data.amount = amount.toString();
+                            console.log('✅ Amount found (fallback):', data.amount);
+                            break;
+                        }
                     }
                 }
             }
         }
 
-        // Vendor extraction disabled - user will enter manually
-        // User preference: Vendor field should always be empty for manual entry
-        /*
-        // Enhanced vendor extraction for Paytm-style receipts
-        for (const line of lines) {
-            // Skip common non-vendor lines
-            if (line.match(/^(amount|to|from|paid|paytm|upi|bank|ref|date|time)/i) ||
-                line.match(/₹|\d{4,}/) || line.length < 3) {
+        // Enhanced vendor extraction with smart filtering
+        const vendorCandidates = [];
+        const skipKeywords = /^(amount|to|from|paid|payment|paytm|phonepe|gpay|googlepay|upi|bank|ref|reference|date|time|bill|invoice|receipt|thank|thanks|total|subtotal|tax|gst|cgst|sgst|igst|cashier|customer)/i;
+        const businessKeywords = /(limited|ltd|pvt|private|corp|corporation|company|inc|llp|station|store|stores|mart|shop|restaurant|hotel|cafe|petrol|pump|mall|center|centre)/i;
+
+        for (let i = 0; i < Math.min(lines.length, 15); i++) { // Check first 15 lines
+            const line = lines[i];
+
+            // Skip lines with these characteristics
+            if (
+                skipKeywords.test(line) ||           // Skip common header/footer words
+                /₹|\d{4,}/.test(line) ||             // Skip lines with amounts or long numbers
+                line.length < 3 ||                    // Too short
+                line.length > 60 ||                   // Too long
+                /^\d+$/.test(line) ||                 // Just numbers
+                /^[^a-zA-Z]+$/.test(line) ||         // No letters
+                /transaction|order\s*id|ref/i.test(line) // Transaction details
+            ) {
                 continue;
             }
 
-            // Look for merchant/vendor patterns
-            if (line.match(/limited|ltd|pvt|corp|company|station|store|mart|shop/i) ||
-                (line.length > 5 && line.length < 50 && !line.match(/\d{2}[\/\-\.]\d{2}/))) {
-                data.vendor = line.substring(0, 50);
-                break;
+            // Calculate vendor confidence score
+            let confidence = 0;
+
+            // Bonus for business keywords
+            if (businessKeywords.test(line)) {
+                confidence += 50;
+            }
+
+            // Bonus for proper capitalization (Title Case)
+            if (/^[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*$/.test(line)) {
+                confidence += 20;
+            }
+
+            // Bonus for ALL CAPS (common for business names)
+            if (line === line.toUpperCase() && /[A-Z]/.test(line)) {
+                confidence += 15;
+            }
+
+            // Bonus for reasonable length
+            if (line.length >= 5 && line.length <= 40) {
+                confidence += 10;
+            }
+
+            // Penalty for multiple special characters
+            if ((line.match(/[^a-zA-Z0-9\s]/g) || []).length > 2) {
+                confidence -= 10;
+            }
+
+            // Penalty for lines appearing later (vendor usually at top)
+            confidence -= i * 2;
+
+            if (confidence > 0) {
+                vendorCandidates.push({ name: line, confidence, position: i });
             }
         }
-        */
+
+        // Pick the vendor with highest confidence
+        if (vendorCandidates.length > 0) {
+            vendorCandidates.sort((a, b) => b.confidence - a.confidence);
+            data.vendor = vendorCandidates[0].name.substring(0, 50).trim();
+            console.log('✅ Vendor found:', data.vendor, `(confidence: ${vendorCandidates[0].confidence})`);
+            console.log('   Other candidates:', vendorCandidates.slice(1, 3).map(v => `${v.name} (${v.confidence})`));
+        }
 
         // Comprehensive date extraction supporting multiple formats
         const datePatterns = [
@@ -434,23 +588,91 @@ class ExpenseTracker {
             if (data.time) break;
         }
 
-        // Enhanced category detection
+        // Enhanced category detection with confidence scoring
         const textLower = text.toLowerCase();
-        if (textLower.includes('fuel') || textLower.includes('petrol') || textLower.includes('diesel') ||
-            textLower.includes('gas') || textLower.includes('hp') || textLower.includes('bharat petroleum') ||
-            textLower.includes('iocl') || textLower.includes('bpcl') || textLower.includes('shell')) {
-            data.category = 'Fuel';
-        } else if (textLower.includes('uber') || textLower.includes('ola') || textLower.includes('taxi') ||
-                   textLower.includes('transport') || textLower.includes('bus') || textLower.includes('train') ||
-                   textLower.includes('metro') || textLower.includes('auto')) {
-            data.category = 'Transportation';
-        } else if (textLower.includes('hotel') || textLower.includes('accommodation') || textLower.includes('lodge') ||
-                   textLower.includes('resort') || textLower.includes('guest house')) {
-            data.category = 'Accommodation';
-        } else if (textLower.includes('restaurant') || textLower.includes('food') || textLower.includes('cafe') ||
-                   textLower.includes('meal') || textLower.includes('dinner') || textLower.includes('lunch') ||
-                   textLower.includes('breakfast') || textLower.includes('zomato') || textLower.includes('swiggy')) {
-            data.category = 'Meals';
+        const categoryScores = {
+            'Fuel': 0,
+            'Transportation': 0,
+            'Accommodation': 0,
+            'Meals': 0,
+            'Office Supplies': 0,
+            'Communication': 0,
+            'Entertainment': 0,
+            'Medical': 0,
+            'Parking': 0,
+            'Miscellaneous': 0
+        };
+
+        // Fuel keywords (weight: 10 each)
+        const fuelKeywords = ['fuel', 'petrol', 'diesel', 'gas', 'petroleum', 'hp', 'iocl', 'bpcl', 'shell', 'essar', 'reliance petroleum', 'nayara'];
+        fuelKeywords.forEach(kw => {
+            if (textLower.includes(kw)) categoryScores['Fuel'] += 10;
+        });
+
+        // Transportation keywords
+        const transportKeywords = ['uber', 'ola', 'taxi', 'cab', 'transport', 'bus', 'train', 'metro', 'railway', 'auto', 'rickshaw', 'rapido', 'toll'];
+        transportKeywords.forEach(kw => {
+            if (textLower.includes(kw)) categoryScores['Transportation'] += 10;
+        });
+
+        // Accommodation keywords
+        const accommKeywords = ['hotel', 'accommodation', 'lodge', 'resort', 'guest house', 'inn', 'motel', 'hostel', 'airbnb', 'oyo'];
+        accommKeywords.forEach(kw => {
+            if (textLower.includes(kw)) categoryScores['Accommodation'] += 10;
+        });
+
+        // Meals keywords
+        const mealsKeywords = ['restaurant', 'food', 'cafe', 'coffee', 'meal', 'dinner', 'lunch', 'breakfast', 'zomato', 'swiggy', 'dominos', 'mcdonald', 'kfc', 'pizza', 'burger'];
+        mealsKeywords.forEach(kw => {
+            if (textLower.includes(kw)) categoryScores['Meals'] += 10;
+        });
+
+        // Office Supplies keywords
+        const officeKeywords = ['stationery', 'office', 'supplies', 'paper', 'pen', 'printer', 'toner', 'cartridge'];
+        officeKeywords.forEach(kw => {
+            if (textLower.includes(kw)) categoryScores['Office Supplies'] += 10;
+        });
+
+        // Communication keywords
+        const commKeywords = ['mobile', 'phone', 'internet', 'broadband', 'recharge', 'data', 'airtel', 'jio', 'vodafone', 'vi'];
+        commKeywords.forEach(kw => {
+            if (textLower.includes(kw)) categoryScores['Communication'] += 10;
+        });
+
+        // Entertainment keywords
+        const entertainKeywords = ['movie', 'cinema', 'theatre', 'entertainment', 'ticket', 'show', 'pvr', 'inox'];
+        entertainKeywords.forEach(kw => {
+            if (textLower.includes(kw)) categoryScores['Entertainment'] += 10;
+        });
+
+        // Medical keywords
+        const medicalKeywords = ['medical', 'hospital', 'pharmacy', 'medicine', 'doctor', 'clinic', 'apollo', 'medplus'];
+        medicalKeywords.forEach(kw => {
+            if (textLower.includes(kw)) categoryScores['Medical'] += 10;
+        });
+
+        // Parking keywords
+        const parkingKeywords = ['parking', 'park', 'valet'];
+        parkingKeywords.forEach(kw => {
+            if (textLower.includes(kw)) categoryScores['Parking'] += 10;
+        });
+
+        // Find category with highest score
+        let maxScore = 0;
+        let detectedCategory = 'Miscellaneous';
+        for (const [category, score] of Object.entries(categoryScores)) {
+            if (score > maxScore) {
+                maxScore = score;
+                detectedCategory = category;
+            }
+        }
+
+        if (maxScore > 0) {
+            data.category = detectedCategory;
+            console.log(`✅ Category detected: ${data.category} (confidence score: ${maxScore})`);
+        } else {
+            data.category = 'Miscellaneous';
+            console.log('⚠️ Category: Miscellaneous (no keywords matched)');
         }
 
         // Generate description (simplified - only use category)
@@ -460,13 +682,60 @@ class ExpenseTracker {
             data.description = `${data.category} expense`;
         }
 
-        console.log('✅ Parsed OCR data:', data); // Debug log
-        console.log('📊 Detection Summary:');
-        console.log('  Amount:', data.amount || '❌ NOT FOUND');
-        console.log('  Date:', data.date || '❌ NOT FOUND');
-        console.log('  Time:', data.time || '❌ NOT FOUND');
-        console.log('  Category:', data.category);
-        console.log('  Vendor:', data.vendor || '(not extracted)');
+        // Calculate extraction quality score
+        let extractionScore = 0;
+        let maxScore = 100;
+        const weights = {
+            amount: 40,    // Most important
+            vendor: 20,
+            date: 20,
+            category: 10,
+            time: 10
+        };
+
+        if (data.amount) extractionScore += weights.amount;
+        if (data.vendor) extractionScore += weights.vendor;
+        if (data.date) extractionScore += weights.date;
+        if (data.category && data.category !== 'Miscellaneous') extractionScore += weights.category;
+        if (data.time) extractionScore += weights.time;
+
+        // Determine quality level
+        let qualityLevel = '';
+        let qualityIcon = '';
+        if (extractionScore >= 80) {
+            qualityLevel = 'Excellent';
+            qualityIcon = '🌟';
+        } else if (extractionScore >= 60) {
+            qualityLevel = 'Good';
+            qualityIcon = '✅';
+        } else if (extractionScore >= 40) {
+            qualityLevel = 'Fair';
+            qualityIcon = '⚠️';
+        } else {
+            qualityLevel = 'Poor';
+            qualityIcon = '❌';
+        }
+
+        console.log('✅ Parsed OCR data:', data);
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('📊 EXTRACTION QUALITY SUMMARY');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log(`${qualityIcon} Overall Quality: ${qualityLevel} (${extractionScore}/${maxScore})`);
+        console.log('');
+        console.log('Field Detection Results:');
+        console.log(`  💰 Amount:   ${data.amount ? '✅ ' + data.amount : '❌ NOT FOUND'}`);
+        console.log(`  🏪 Vendor:   ${data.vendor ? '✅ ' + data.vendor : '⚠️  Not extracted (will enter manually)'}`);
+        console.log(`  📅 Date:     ${data.date ? '✅ ' + data.date : '❌ NOT FOUND'}`);
+        console.log(`  ⏰ Time:     ${data.time ? '✅ ' + data.time : '⚠️  Not found (optional)'}`);
+        console.log(`  📂 Category: ${data.category ? '✅ ' + data.category : '❌ NOT FOUND'}`);
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+        // Add quality metadata to data
+        data._quality = {
+            score: extractionScore,
+            level: qualityLevel,
+            fieldsFound: Object.keys(data).filter(k => !k.startsWith('_') && data[k] && k !== 'description').length
+        };
 
         return data;
     }
