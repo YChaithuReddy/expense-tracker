@@ -67,7 +67,7 @@ const expenseValidation = [
 
     body('category')
         .notEmpty().withMessage('Category is required')
-        .isIn(['Fuel', 'Transportation', 'Accommodation', 'Meals', 'Office Supplies', 'Entertainment', 'Healthcare', 'Travel', 'Miscellaneous'])
+        .isIn(['Food', 'Cab', 'Bus', 'Metro', 'Auto', 'Fuel', 'Parking', 'Accommodation', 'Entertainment', 'Shopping', 'Healthcare', 'Miscellaneous'])
         .withMessage('Invalid category'),
 
     body('amount')
@@ -75,9 +75,9 @@ const expenseValidation = [
         .isFloat({ min: 0 }).withMessage('Amount must be a positive number'),
 
     body('description')
+        .optional({ checkFalsy: true })
         .trim()
-        .notEmpty().withMessage('Description is required')
-        .isLength({ min: 3, max: 200 }).withMessage('Description must be between 3 and 200 characters'),
+        .isLength({ max: 200 }).withMessage('Description cannot exceed 200 characters'),
 
     body('vendor')
         .optional()
