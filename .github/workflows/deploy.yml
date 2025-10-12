@@ -1,0 +1,40 @@
+name: Deploy to Vercel
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          echo "No dependencies to install for static frontend"
+
+      - name: Install backend dependencies
+        run: |
+          cd backend
+          npm ci
+
+      - name: Run backend tests (if any)
+        run: |
+          cd backend
+          echo "No tests configured yet"
+
+      - name: Deploy to Vercel
+        run: echo "Vercel deploys automatically via GitHub integration"
