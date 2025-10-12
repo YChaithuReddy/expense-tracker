@@ -1494,7 +1494,7 @@ class ExpenseTracker {
                 const img = new Image();
                 img.src = imageItem.data;
 
-                // Calculate dimensions to maintain aspect ratio
+                // Calculate dimensions to maintain aspect ratio and center perfectly
                 const imgAspectRatio = img.width / img.height;
                 const boxAspectRatio = imageWidth / imageHeight;
 
@@ -1504,21 +1504,21 @@ class ExpenseTracker {
                 let offsetY = 0;
 
                 if (imgAspectRatio > boxAspectRatio) {
-                    // Image is wider - fit to width
+                    // Image is wider - fit to width, center vertically
                     finalHeight = imageWidth / imgAspectRatio;
                     offsetY = (imageHeight - finalHeight) / 2;
                 } else {
-                    // Image is taller - fit to height
+                    // Image is taller - fit to height, center horizontally
                     finalWidth = imageHeight * imgAspectRatio;
                     offsetX = (imageWidth - finalWidth) / 2;
                 }
 
-                // Add border
+                // Add border around box
                 pdf.setDrawColor(200, 200, 200);
                 pdf.setLineWidth(0.5);
                 pdf.rect(x, y, imageWidth, imageHeight);
 
-                // Add the image with proper aspect ratio
+                // Add the image centered inside the box (from all four sides)
                 pdf.addImage(imageItem.data, 'JPEG', x + offsetX, y + offsetY, finalWidth, finalHeight);
 
                 // Add label below image

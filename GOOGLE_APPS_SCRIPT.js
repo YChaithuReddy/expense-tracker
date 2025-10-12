@@ -229,6 +229,8 @@ function exportSheetAsPdf(data) {
       size: 'A4',                // Paper size
       portrait: true,            // Orientation
       fitw: true,                // Fit to page width
+      fith: true,                // Fit to page height - FIT IN SINGLE PAGE
+      scale: 4,                  // Scale down content (1=normal, 2=50%, 3=33%, 4=25%)
       sheetnames: false,         // Don't show sheet names
       printtitle: false,         // Don't show title
       pagenumbers: false,        // Don't show page numbers
