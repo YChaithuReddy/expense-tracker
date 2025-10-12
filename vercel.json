@@ -1,17 +1,13 @@
 {
   "version": 2,
-  "builds": [
+  "buildCommand": "echo 'No build needed - static files'",
+  "outputDirectory": "frontend",
+  "installCommand": "echo 'No dependencies to install'",
+  "framework": null,
+  "rewrites": [
     {
-      "src": "frontend/**",
-      "use": "@vercel/static"
+      "source": "/(.*)",
+      "destination": "/frontend/$1"
     }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/frontend/$1"
-    }
-  ],
-  "buildCommand": null,
-  "outputDirectory": "frontend"
+  ]
 }
