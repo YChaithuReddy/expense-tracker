@@ -1172,7 +1172,7 @@ class ExpenseTracker {
                                id="checkbox-${expense.id}"
                                data-expense-id="${expense.id}"
                                onchange="expenseTracker.updateExportButton()">
-                        <label for="checkbox-${expense.id}" class="expense-amount">₹${expense.amount.toFixed(2)}</label>
+                        <label for="checkbox-${expense.id}" class="expense-amount">₹${this.formatAmount(expense.amount)}</label>
                     </div>
                     <div class="expense-actions">
                         <button class="edit-btn" onclick="expenseTracker.editExpense(${expense.id})">Edit</button>
@@ -1231,9 +1231,23 @@ class ExpenseTracker {
         }
     }
 
+    formatAmount(amount) {
+        // Remove .00 from whole numbers, keep decimals for amounts with cents
+        const num = parseFloat(amount);
+        if (isNaN(num)) return '0';
+
+        // Check if it's a whole number
+        if (num === Math.floor(num)) {
+            return num.toString();
+        }
+
+        // Has decimals - show up to 2 decimal places
+        return num.toFixed(2);
+    }
+
     updateTotal() {
         const total = this.expenses.reduce((sum, expense) => sum + expense.amount, 0);
-        document.getElementById('totalAmount').innerHTML = `<strong>Total Amount: ₹${total.toFixed(2)}</strong>`;
+        document.getElementById('totalAmount').innerHTML = `<strong>Total Amount: ₹${this.formatAmount(total)}</strong>`;
     }
 
     resetForm() {
