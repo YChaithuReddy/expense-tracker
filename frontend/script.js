@@ -79,7 +79,7 @@ class ExpenseTracker {
         previewContainer.appendChild(header);
 
         const imagesWrapper = document.createElement('div');
-        imagesWrapper.style.cssText = 'display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; width: 100%; min-height: 150px;';
+        imagesWrapper.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; width: 100%; padding: 10px;';
         imagesWrapper.id = 'imagesWrapper';
         previewContainer.appendChild(imagesWrapper);
         console.log('Images wrapper created and appended');
