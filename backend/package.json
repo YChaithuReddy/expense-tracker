@@ -1,6 +1,6 @@
 {
   "name": "expense-tracker-backend",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Backend API for Expense Tracker with OCR bill scanning",
   "main": "server.js",
   "scripts": {
