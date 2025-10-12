@@ -1,15 +1,16 @@
 /**
  * Azure OCR Service
- * Uses Azure AI Form Recognizer (Document Intelligence) to extract text from receipts
+ * Uses Azure Computer Vision Read API to extract text from receipts
  *
  * Features:
  * - Receipt-optimized OCR with 95-97% accuracy
- * - Extracts merchant name, date, total, tax, line items
+ * - Extracts text from images
  * - Supports handwritten text and low-quality images
  * - 5,000 free transactions per month
  */
 
-const { DocumentAnalysisClient, AzureKeyCredential } = require('@azure/ai-form-recognizer');
+const { ComputerVisionClient } = require('@azure/cognitiveservices-computervision');
+const { ApiKeyCredentials } = require('@azure/ms-rest-js');
 
 class AzureOcrService {
     constructor() {
@@ -20,10 +21,9 @@ class AzureOcrService {
             console.warn('⚠️  Azure Vision credentials not found in environment variables');
             console.warn('    Please set AZURE_VISION_ENDPOINT and AZURE_VISION_KEY');
         } else {
-            this.client = new DocumentAnalysisClient(
-                this.endpoint,
-                new AzureKeyCredential(this.apiKey)
-            );
+            // Create Computer Vision client
+            const credentials = new ApiKeyCredentials({ inHeader: { 'Ocp-Apim-Subscription-Key': this.apiKey } });
+            this.client = new ComputerVisionClient(credentials, this.endpoint);
             console.log('✅ Azure OCR Service initialized successfully');
         }
     }
@@ -36,7 +36,7 @@ class AzureOcrService {
     }
 
     /**
-     * Extract text from receipt image using Azure OCR
+     * Extract text from image using Azure Computer Vision Read API
      * @param {Buffer} imageBuffer - Image buffer from uploaded file
      * @returns {Promise<Object>} - Extracted text and confidence
      */
@@ -46,35 +46,63 @@ class AzureOcrService {
                 throw new Error('Azure OCR service not configured. Please set environment variables.');
             }
 
-            console.log('📄 Processing image with Azure OCR...');
+            console.log('📄 Processing image with Azure Computer Vision Read API...');
 
-            // Use the Read model for general text extraction (best for receipts)
-            const poller = await this.client.beginAnalyzeDocument('prebuilt-read', imageBuffer);
-            const result = await poller.pollUntilDone();
+            // Start the Read operation
+            const readResponse = await this.client.readInStream(imageBuffer);
 
-            if (!result || !result.content) {
-                console.warn('⚠️  No text extracted from image');
-                return {
-                    success: false,
-                    text: '',
-                    confidence: 0,
-                    message: 'No text found in image'
-                };
+            // Get the operation ID from the response headers
+            const operationLocation = readResponse.operationLocation;
+            const operationId = operationLocation.split('/').slice(-1)[0];
+
+            console.log(`   Operation ID: ${operationId}`);
+            console.log(`   Waiting for OCR processing...`);
+
+            // Poll for the result
+            let result;
+            let attempts = 0;
+            const maxAttempts = 20;
+
+            while (attempts < maxAttempts) {
+                result = await this.client.getReadResult(operationId);
+
+                if (result.status === 'succeeded') {
+                    break;
+                }
+
+                if (result.status === 'failed') {
+                    throw new Error('Azure OCR processing failed');
+                }
+
+                // Wait 500ms before checking again
+                await this.sleep(500);
+                attempts++;
             }
 
-            // Extract all text content
-            const extractedText = result.content;
+            if (attempts >= maxAttempts) {
+                throw new Error('Azure OCR timeout - processing took too long');
+            }
 
-            // Calculate average confidence from all lines
+            // Extract text from all pages
+            let extractedText = '';
             let totalConfidence = 0;
             let lineCount = 0;
 
-            if (result.pages && result.pages.length > 0) {
-                result.pages.forEach(page => {
+            if (result.analyzeResult && result.analyzeResult.readResults) {
+                result.analyzeResult.readResults.forEach(page => {
                     if (page.lines) {
                         page.lines.forEach(line => {
-                            totalConfidence += (line.confidence || 0);
-                            lineCount++;
+                            extractedText += line.text + '\n';
+
+                            // Calculate confidence from words if available
+                            if (line.words) {
+                                line.words.forEach(word => {
+                                    if (word.confidence !== undefined) {
+                                        totalConfidence += word.confidence;
+                                        lineCount++;
+                                    }
+                                });
+                            }
                         });
                     }
                 });
@@ -89,17 +117,17 @@ class AzureOcrService {
 
             return {
                 success: true,
-                text: extractedText,
+                text: extractedText.trim(),
                 confidence: averageConfidence,
                 lineCount: lineCount,
-                provider: 'Azure Read OCR'
+                provider: 'Azure Computer Vision Read API'
             };
 
         } catch (error) {
             console.error('❌ Azure OCR Error:', error.message);
 
             // Provide helpful error messages
-            if (error.message.includes('401')) {
+            if (error.message.includes('401') || error.message.includes('Access denied')) {
                 throw new Error('Azure OCR authentication failed. Please check your API key.');
             } else if (error.message.includes('403')) {
                 throw new Error('Azure OCR access denied. Please check your subscription.');
@@ -112,70 +140,30 @@ class AzureOcrService {
     }
 
     /**
-     * Extract text from receipt with enhanced receipt-specific model
+     * Sleep helper function
+     * @param {Number} ms - Milliseconds to sleep
+     */
+    sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    /**
+     * Extract receipt data with same interface as before
      * @param {Buffer} imageBuffer - Image buffer from uploaded file
-     * @returns {Promise<Object>} - Structured receipt data
+     * @returns {Promise<Object>} - Extracted text
      */
     async extractReceiptData(imageBuffer) {
-        try {
-            if (!this.isReady()) {
-                throw new Error('Azure OCR service not configured.');
-            }
+        // Computer Vision doesn't have receipt-specific model
+        // So we just extract text and let the parsing logic handle it
+        const result = await this.extractTextFromImage(imageBuffer);
 
-            console.log('🧾 Processing receipt with Azure Receipt Processor...');
-
-            // Use prebuilt-receipt model for better structure
-            const poller = await this.client.beginAnalyzeDocument('prebuilt-receipt', imageBuffer);
-            const result = await poller.pollUntilDone();
-
-            if (!result || !result.documents || result.documents.length === 0) {
-                console.warn('⚠️  No receipt data found, falling back to text extraction');
-                return await this.extractTextFromImage(imageBuffer);
-            }
-
-            const receipt = result.documents[0];
-            const fields = receipt.fields || {};
-
-            // Extract structured data
-            const receiptData = {
-                success: true,
-                provider: 'Azure Receipt Processor',
-                merchantName: fields.MerchantName?.content || '',
-                transactionDate: fields.TransactionDate?.content || '',
-                total: fields.Total?.content || '',
-                subtotal: fields.Subtotal?.content || '',
-                tax: fields.TotalTax?.content || '',
-                items: [],
-                rawText: result.content || ''
-            };
-
-            // Extract line items if available
-            if (fields.Items && fields.Items.values) {
-                receiptData.items = fields.Items.values.map(item => {
-                    const itemFields = item.properties || {};
-                    return {
-                        description: itemFields.Description?.content || '',
-                        quantity: itemFields.Quantity?.content || '',
-                        price: itemFields.Price?.content || '',
-                        totalPrice: itemFields.TotalPrice?.content || ''
-                    };
-                });
-            }
-
-            console.log('✅ Azure Receipt extraction successful');
-            console.log(`   Merchant: ${receiptData.merchantName || 'Not found'}`);
-            console.log(`   Date: ${receiptData.transactionDate || 'Not found'}`);
-            console.log(`   Total: ${receiptData.total || 'Not found'}`);
-            console.log(`   Items: ${receiptData.items.length}`);
-
-            return receiptData;
-
-        } catch (error) {
-            console.error('❌ Azure Receipt Processor Error:', error.message);
-            console.log('⚠️  Falling back to basic text extraction');
-            // Fallback to basic text extraction
-            return await this.extractTextFromImage(imageBuffer);
-        }
+        return {
+            ...result,
+            rawText: result.text,
+            merchantName: '',
+            transactionDate: '',
+            total: ''
+        };
     }
 }
 
