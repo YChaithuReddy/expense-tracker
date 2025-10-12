@@ -100,6 +100,26 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
+
+    // Keep-alive mechanism to prevent Railway from sleeping
+    if (process.env.NODE_ENV === 'production') {
+        const BACKEND_URL = process.env.BACKEND_URL || `http://localhost:${PORT}`;
+        const KEEP_ALIVE_INTERVAL = 14 * 60 * 1000; // 14 minutes (Railway sleeps after ~15 min)
+
+        setInterval(() => {
+            const https = require('https');
+            const http = require('http');
+            const protocol = BACKEND_URL.startsWith('https') ? https : http;
+
+            protocol.get(`${BACKEND_URL}/api/health`, (res) => {
+                console.log(`⏰ Keep-alive ping sent - Status: ${res.statusCode} - ${new Date().toISOString()}`);
+            }).on('error', (err) => {
+                console.error('❌ Keep-alive ping failed:', err.message);
+            });
+        }, KEEP_ALIVE_INTERVAL);
+
+        console.log('✅ Keep-alive mechanism enabled - Server will ping itself every 14 minutes');
+    }
 });
 
 module.exports = app;

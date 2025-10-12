@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backend Keep-Alive Monitor</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 100%);
+            color: #00d4ff;
+            padding: 40px;
+            margin: 0;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 12px;
+            padding: 30px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        .status.online {
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid rgba(0, 255, 0, 0.3);
+        }
+        .status.offline {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+        }
+        .log {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-left: 2px solid #00d4ff;
+            padding-left: 10px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .stat-box {
+            background: rgba(0, 212, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛡️ Backend Keep-Alive Monitor</h1>
+
+        <div id="status" class="status">
+            <strong>Status:</strong> Initializing...
+        </div>
+
+        <div class="stats">
+            <div class="stat-box">
+                <div>Total Pings</div>
+                <div class="stat-value" id="totalPings">0</div>
+            </div>
+            <div class="stat-box">
+                <div>Successful</div>
+                <div class="stat-value" id="successPings">0</div>
+            </div>
+            <div class="stat-box">
+                <div>Failed</div>
+                <div class="stat-value" id="failedPings">0</div>
+            </div>
+            <div class="stat-box">
+                <div>Uptime</div>
+                <div class="stat-value" id="uptime">0%</div>
+            </div>
+        </div>
+
+        <div class="log" id="log">
+            <strong>Activity Log:</strong>
+        </div>
+    </div>
+
+    <script>
+        const BACKEND_URL = 'https://expense-tracker-production-2538.up.railway.app';
+        const PING_INTERVAL = 10 * 60 * 1000; // 10 minutes
+
+        let totalPings = 0;
+        let successPings = 0;
+        let failedPings = 0;
+
+        function addLog(message, isError = false) {
+            const log = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.style.color = isError ? '#ff6b6b' : '#00d4ff';
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function updateStats() {
+            document.getElementById('totalPings').textContent = totalPings;
+            document.getElementById('successPings').textContent = successPings;
+            document.getElementById('failedPings').textContent = failedPings;
+
+            const uptimePercent = totalPings > 0 ? ((successPings / totalPings) * 100).toFixed(1) : 0;
+            document.getElementById('uptime').textContent = `${uptimePercent}%`;
+        }
+
+        async function pingBackend() {
+            totalPings++;
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/health`, {
+                    method: 'GET',
+                    mode: 'cors'
+                });
+
+                if (response.ok) {
+                    successPings++;
+                    const data = await response.json();
+                    document.getElementById('status').className = 'status online';
+                    document.getElementById('status').innerHTML = `<strong>Status:</strong> ✅ Online - ${data.message}`;
+                    addLog(`✅ Ping successful - Status: ${response.status}`);
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                failedPings++;
+                document.getElementById('status').className = 'status offline';
+                document.getElementById('status').innerHTML = `<strong>Status:</strong> ❌ Offline - ${error.message}`;
+                addLog(`❌ Ping failed - ${error.message}`, true);
+            }
+
+            updateStats();
+        }
+
+        // Initial ping
+        addLog('🚀 Keep-alive monitor started');
+        pingBackend();
+
+        // Set up interval
+        setInterval(pingBackend, PING_INTERVAL);
+        addLog(`⏰ Auto-ping configured - Will ping every ${PING_INTERVAL / 60000} minutes`);
+    </script>
+</body>
+</html>
