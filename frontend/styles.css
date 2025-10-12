@@ -326,13 +326,16 @@ main {
 }
 
 .preview-image img {
-    max-width: 200px;
-    max-height: 150px;
-    object-fit: cover;
-    border-radius: 8px;
+    width: auto;
+    height: auto;
+    max-width: 250px;
+    max-height: 200px;
+    object-fit: contain;
+    border-radius: 12px;
     margin: 5px;
     border: 2px solid var(--cyber-blue);
     box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+    background: rgba(0, 0, 0, 0.2);
 }
 
 .preview-image p {
@@ -353,17 +356,8 @@ main {
     }
 }
 
-.preview-image img {
-    border: 2px solid var(--cyber-blue);
-    border-radius: 12px;
-    box-shadow:
-        0 10px 30px rgba(0, 212, 255, 0.2),
-        0 0 0 1px rgba(255, 255, 255, 0.1);
-    transition: all 0.3s ease;
-}
-
 .preview-image img:hover {
-    transform: scale(1.05) rotate(1deg);
+    transform: scale(1.05);
     box-shadow:
         0 20px 40px rgba(0, 212, 255, 0.4),
         0 0 0 2px var(--cyber-blue);
