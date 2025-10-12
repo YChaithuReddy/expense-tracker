@@ -315,34 +315,49 @@ main {
 }
 
 .preview-image {
-    display: inline-flex;
+    display: flex;
     flex-direction: column;
-    align-items: center;
-    margin: 10px;
-    text-align: center;
+    align-items: stretch;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    padding: 12px;
+    border: 1px solid rgba(0, 212, 255, 0.2);
     animation: fadeInScale 0.5s ease-out;
     position: relative;
     z-index: 2;
+    transition: all 0.3s ease;
+}
+
+.preview-image:hover {
+    transform: translateY(-4px);
+    border-color: var(--cyber-blue);
+    box-shadow: 0 8px 24px rgba(0, 212, 255, 0.3);
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .preview-image img {
-    width: auto;
-    height: auto;
-    max-width: 250px;
-    max-height: 200px;
+    width: 100%;
+    height: 200px;
     object-fit: contain;
-    border-radius: 12px;
-    margin: 5px;
-    border: 2px solid var(--cyber-blue);
-    box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
-    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border: 1px solid rgba(0, 212, 255, 0.3);
+    background: rgba(0, 0, 0, 0.3);
+    padding: 8px;
 }
 
 .preview-image p {
-    font-size: 12px;
+    font-size: 11px;
     text-align: center;
-    margin: 5px 0;
-    color: var(--text-secondary);
+    margin: 0;
+    padding: 8px;
+    color: var(--neon-cyan);
+    font-weight: 500;
+    background: rgba(0, 212, 255, 0.1);
+    border-radius: 6px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 @keyframes fadeInScale {
