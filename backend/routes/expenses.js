@@ -24,8 +24,9 @@ router.get('/', async (req, res) => {
             query.category = category;
         }
 
+        // Fetch expenses and sort by date DESC, then time DESC (chronological order - newest first)
         const expenses = await Expense.find(query)
-            .sort(sortBy)
+            .sort({ date: -1, time: -1 }) // Sort by date descending, then time descending
             .limit(limit * 1)
             .skip((page - 1) * limit)
             .exec();
@@ -104,7 +105,7 @@ router.post('/', upload.array('images', 5), expenseValidation, async (req, res) 
             category,
             amount,
             vendor: vendor || 'N/A',
-            description,
+            description: description || '',
             images
         });
 

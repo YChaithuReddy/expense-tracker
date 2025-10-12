@@ -45,6 +45,7 @@ function handleApiError(error) {
 
 // API object with all methods
 const api = {
+    API_BASE_URL: API_BASE_URL, // Export API_BASE_URL for use in other scripts
     /**
      * Authentication APIs
      */
