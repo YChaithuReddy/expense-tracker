@@ -211,7 +211,7 @@ const api = {
             // Add expense data
             formData.append('date', expenseData.date);
             formData.append('category', expenseData.category);
-            formData.append('amount', expenseData.amount);
+            formData.append('amount', parseFloat(expenseData.amount) || 0);
             formData.append('description', expenseData.description || 'N/A');
 
             if (expenseData.vendor) {
@@ -253,7 +253,7 @@ const api = {
             // Add expense data
             if (expenseData.date) formData.append('date', expenseData.date);
             if (expenseData.category) formData.append('category', expenseData.category);
-            if (expenseData.amount) formData.append('amount', expenseData.amount);
+            if (expenseData.amount) formData.append('amount', parseFloat(expenseData.amount) || 0);
             if (expenseData.description) formData.append('description', expenseData.description);
             if (expenseData.vendor !== undefined) formData.append('vendor', expenseData.vendor);
             if (expenseData.time !== undefined) formData.append('time', expenseData.time);
