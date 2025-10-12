@@ -800,18 +800,8 @@ main {
     font-family: 'Orbitron', sans-serif;
     font-size: 2.2rem;
     font-weight: 900;
-    background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: 0 0 30px rgba(0, 255, 255, 0.6);
+    color: var(--neon-cyan);
     cursor: pointer;
-    animation: amountGlow 3s ease-in-out infinite alternate;
-}
-
-@keyframes amountGlow {
-    from { filter: drop-shadow(0 0 5px rgba(0, 255, 255, 0.6)); }
-    to { filter: drop-shadow(0 0 15px rgba(255, 0, 255, 0.6)); }
-    background-clip: text;
 }
 
 .expense-details {
