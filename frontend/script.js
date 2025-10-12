@@ -684,7 +684,7 @@ class ExpenseTracker {
 
         // Calculate extraction quality score
         let extractionScore = 0;
-        let maxScore = 100;
+        const qualityMaxScore = 100;
         const weights = {
             amount: 40,    // Most important
             vendor: 20,
@@ -720,7 +720,7 @@ class ExpenseTracker {
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         console.log('📊 EXTRACTION QUALITY SUMMARY');
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        console.log(`${qualityIcon} Overall Quality: ${qualityLevel} (${extractionScore}/${maxScore})`);
+        console.log(`${qualityIcon} Overall Quality: ${qualityLevel} (${extractionScore}/${qualityMaxScore})`);
         console.log('');
         console.log('Field Detection Results:');
         console.log(`  💰 Amount:   ${data.amount ? '✅ ' + data.amount : '❌ NOT FOUND'}`);
