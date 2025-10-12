@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="google-sheets-service.js"></script>
 </head>
@@ -131,6 +132,10 @@
                         <button id="clearAll" class="btn-danger">
                             <span class="btn-icon">🗑️</span>
                             <span class="btn-text">Clear All</span>
+                        </button>
+                        <button id="downloadReimbursementPackage" class="btn-highlight">
+                            <span class="btn-icon">📦</span>
+                            <span class="btn-text">Download Complete Package</span>
                         </button>
                     </div>
                 </div>

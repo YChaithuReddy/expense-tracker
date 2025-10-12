@@ -257,4 +257,60 @@ router.get('/verify', protect, async (req, res) => {
     }
 });
 
+/**
+ * @route   GET /api/google-sheets/export-pdf
+ * @desc    Export user's Google Sheet as PDF
+ * @access  Private
+ */
+router.get('/export-pdf', protect, async (req, res) => {
+    try {
+        // Check if user has a sheet
+        if (!req.user.googleSheetId) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'No Google Sheet found for this user. Please export expenses first.'
+            });
+        }
+
+        // Check if service is ready
+        if (!googleSheetsService.isReady()) {
+            return res.status(503).json({
+                status: 'error',
+                message: 'Google Sheets service not configured'
+            });
+        }
+
+        console.log(`📄 User ${req.user.email} requesting PDF export for sheet: ${req.user.googleSheetId}`);
+
+        // Export sheet as PDF via Apps Script
+        const pdfResult = await googleSheetsService.exportSheetAsPdf(req.user.googleSheetId);
+
+        if (!pdfResult.success) {
+            return res.status(500).json({
+                status: 'error',
+                message: 'Failed to export PDF',
+                error: pdfResult.error
+            });
+        }
+
+        res.status(200).json({
+            status: 'success',
+            message: 'PDF exported successfully',
+            data: {
+                pdfBase64: pdfResult.pdfBase64,
+                fileName: pdfResult.fileName,
+                size: pdfResult.size
+            }
+        });
+
+    } catch (error) {
+        console.error('PDF export error:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Server error while exporting PDF',
+            error: error.message
+        });
+    }
+});
+
 module.exports = router;

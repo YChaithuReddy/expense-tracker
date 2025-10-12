@@ -213,6 +213,63 @@ class GoogleSheetsService {
             };
         }
     }
+
+    /**
+     * Export user's Google Sheet as PDF
+     * @param {String} sheetId - User's sheet ID
+     * @returns {Object} - PDF data in base64
+     */
+    async exportSheetAsPdf(sheetId) {
+        try {
+            if (!this.isReady()) {
+                throw new Error('Google Apps Script URL not configured');
+            }
+
+            if (!sheetId) {
+                throw new Error('No sheet ID provided');
+            }
+
+            console.log(`📄 Exporting sheet as PDF: ${sheetId}`);
+
+            // Call Google Apps Script to export PDF
+            const response = await axios.post(this.appsScriptUrl, {
+                action: 'exportPdf',
+                sheetId: sheetId
+            }, {
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                timeout: 30000 // 30 second timeout
+            });
+
+            if (response.data.status === 'success') {
+                console.log(`✅ PDF export successful: ${response.data.data.size} bytes`);
+                return {
+                    success: true,
+                    pdfBase64: response.data.data.pdfBase64,
+                    fileName: response.data.data.fileName,
+                    size: response.data.data.size
+                };
+            } else {
+                throw new Error(response.data.message || 'Failed to export PDF');
+            }
+
+        } catch (error) {
+            console.error('❌ Error exporting PDF:', error.message);
+
+            if (error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT') {
+                return {
+                    success: false,
+                    error: 'Request timeout - Google Apps Script may be busy. Please try again.'
+                };
+            }
+
+            return {
+                success: false,
+                error: error.response?.data?.message || error.message
+            };
+        }
+    }
 }
 
 // Create singleton instance
