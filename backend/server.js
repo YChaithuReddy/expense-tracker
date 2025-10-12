@@ -13,6 +13,9 @@ const ocrRoutes = require('./routes/ocr');
 
 const app = express();
 
+// Trust proxy - Required for Railway/Heroku deployment behind reverse proxy
+app.set('trust proxy', 1);
+
 // Security Middleware - Configured for mobile compatibility
 app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
