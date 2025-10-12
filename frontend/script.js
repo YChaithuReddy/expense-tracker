@@ -748,8 +748,7 @@ class ExpenseTracker {
             { id: 'date', value: this.extractedData.date },
             { id: 'category', value: this.extractedData.category },
             { id: 'description', value: this.extractedData.description },
-            { id: 'amount', value: this.extractedData.amount },
-            { id: 'vendor', value: this.extractedData.vendor } // Now include vendor
+            { id: 'amount', value: this.extractedData.amount }
         ];
 
         // Fill ONLY fields with valid extracted data, leave others empty
@@ -771,6 +770,15 @@ class ExpenseTracker {
             element.removeAttribute('readonly');
             element.removeAttribute('disabled');
         });
+
+        // Vendor field - always leave empty for manual entry (user preference)
+        const vendorElement = document.getElementById('vendor');
+        if (vendorElement) {
+            vendorElement.value = '';
+            vendorElement.removeAttribute('readonly');
+            vendorElement.removeAttribute('disabled');
+            console.log('⚠️  vendor field left empty (user will enter manually)');
+        }
 
         // Set the receipt images
         const receiptInput = document.getElementById('receipt');
