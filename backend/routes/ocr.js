@@ -8,6 +8,7 @@ const router = express.Router();
 const { protect } = require('../middleware/auth');
 const { upload } = require('../middleware/upload');
 const azureOcrService = require('../services/azureOcrService');
+const axios = require('axios');
 
 /**
  * @route   POST /api/ocr/scan
@@ -43,8 +44,16 @@ router.post('/scan', protect, upload.array('images', 5), async (req, res) => {
             console.log(`   Processing image ${i + 1}/${req.files.length}: ${file.originalname}`);
 
             try {
-                // Try receipt-specific extraction first (better structured data)
-                const receiptResult = await azureOcrService.extractReceiptData(file.buffer);
+                // Download image from Cloudinary as buffer
+                console.log(`   Downloading from Cloudinary: ${file.path}`);
+                const response = await axios.get(file.path, {
+                    responseType: 'arraybuffer'
+                });
+                const imageBuffer = Buffer.from(response.data);
+                console.log(`   Downloaded ${imageBuffer.length} bytes`);
+
+                // Try receipt-specific extraction with downloaded buffer
+                const receiptResult = await azureOcrService.extractReceiptData(imageBuffer);
 
                 if (receiptResult.success) {
                     results.push({
@@ -104,20 +113,18 @@ function parseReceiptText(text, results = []) {
     const extractedData = {
         amount: '',
         date: '',
-        vendor: '',
-        category: 'Food',
+        vendor: '', // Leave empty - user will fill manually
+        category: '', // Leave empty - user will select from dropdown
         description: '',
         time: ''
     };
 
     // Try to get structured data from Azure receipt processor first
     if (results.length > 0) {
-        const firstReceipt = results.find(r => r.success && r.merchantName);
+        const firstReceipt = results.find(r => r.success);
         if (firstReceipt) {
-            // Use Azure's structured extraction
-            if (firstReceipt.merchantName) {
-                extractedData.vendor = firstReceipt.merchantName;
-            }
+            // Use Azure's structured extraction (but NOT merchant name)
+            // DON'T extract vendor - let user fill manually
             if (firstReceipt.transactionDate) {
                 extractedData.date = formatDate(firstReceipt.transactionDate);
             }
@@ -167,32 +174,54 @@ function parseReceiptText(text, results = []) {
         }
     }
 
-    // Extract vendor/merchant if not found
-    if (!extractedData.vendor && lines.length > 0) {
-        // Usually first non-empty line is merchant name
-        extractedData.vendor = lines[0].substring(0, 100);
+    // DON'T extract vendor - user will fill manually
+
+    // Intelligently guess category based on OCR text keywords
+    const textLower = text.toLowerCase();
+
+    // Transport categories
+    if (textLower.match(/cab|taxi|ola|uber|rapido/i)) {
+        extractedData.category = 'Cab';
+    } else if (textLower.match(/bus|ksrtc|msrtc|tsrtc|apsrtc|state transport/i)) {
+        extractedData.category = 'Bus';
+    } else if (textLower.match(/metro|train|railway|irctc|local train|suburban/i)) {
+        extractedData.category = 'Metro';
+    } else if (textLower.match(/auto|rickshaw|auto rickshaw/i)) {
+        extractedData.category = 'Auto';
+    } else if (textLower.match(/petrol|diesel|fuel|gas station|bunk|pump/i)) {
+        extractedData.category = 'Fuel';
+    } else if (textLower.match(/parking|valet/i)) {
+        extractedData.category = 'Parking';
+    }
+    // Food & Dining
+    else if (textLower.match(/restaurant|cafe|coffee|food|pizza|burger|dining|swiggy|zomato|hotel|dhaba|biryani|meal/i)) {
+        extractedData.category = 'Food';
+    }
+    // Accommodation
+    else if (textLower.match(/hotel|lodge|stay|accommodation|resort|motel|guest house/i)) {
+        extractedData.category = 'Accommodation';
+    }
+    // Entertainment
+    else if (textLower.match(/cinema|movie|theatre|pvr|inox|entertainment|ticket/i)) {
+        extractedData.category = 'Entertainment';
+    }
+    // Shopping
+    else if (textLower.match(/shop|store|mall|mart|retail|supermarket|grocery|big bazaar|reliance|dmart/i)) {
+        extractedData.category = 'Shopping';
+    }
+    // Healthcare
+    else if (textLower.match(/hospital|clinic|pharmacy|medical|doctor|medicine|apollo|fortis/i)) {
+        extractedData.category = 'Healthcare';
+    }
+    // Default to Miscellaneous if no match
+    else {
+        extractedData.category = 'Miscellaneous';
     }
 
     // Extract time
     const timeMatch = text.match(/(\d{1,2}:\d{2}\s*(?:am|pm)?)/i);
     if (timeMatch) {
         extractedData.time = timeMatch[1];
-    }
-
-    // Guess category based on merchant name
-    if (extractedData.vendor) {
-        const vendor = extractedData.vendor.toLowerCase();
-        if (vendor.match(/restaurant|cafe|coffee|food|pizza|burger|dining/i)) {
-            extractedData.category = 'Food';
-        } else if (vendor.match(/uber|lyft|taxi|transport|bus|metro|train/i)) {
-            extractedData.category = 'Transport';
-        } else if (vendor.match(/shop|store|mall|mart|retail/i)) {
-            extractedData.category = 'Shopping';
-        } else if (vendor.match(/hotel|lodge|stay|accommodation/i)) {
-            extractedData.category = 'Entertainment';
-        } else if (vendor.match(/hospital|clinic|pharmacy|medical|doctor/i)) {
-            extractedData.category = 'Healthcare';
-        }
     }
 
     return extractedData;

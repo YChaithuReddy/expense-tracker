@@ -124,12 +124,12 @@ router.post('/export', protect, async (req, res) => {
             req.user.googleSheetUrl = createResult.sheetUrl;
         }
 
-        // Get expenses from database
+        // Get expenses from database and sort chronologically (oldest first for Google Sheets)
         const Expense = require('../models/Expense');
         const expenses = await Expense.find({
             _id: { $in: expenseIds },
             user: req.user.id
-        });
+        }).sort({ date: 1, time: 1 }); // Sort by date ascending, then time ascending (oldest first)
 
         if (expenses.length === 0) {
             return res.status(404).json({
