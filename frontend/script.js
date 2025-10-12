@@ -23,6 +23,9 @@ class ExpenseTracker {
         // Google Sheets export (simplified - no configuration needed)
         document.getElementById('exportToGoogleSheets').addEventListener('click', () => this.exportToGoogleSheets());
 
+        // Download combined reimbursement package
+        document.getElementById('downloadReimbursementPackage').addEventListener('click', () => this.generateCombinedReimbursementPDF());
+
         // Initialize Google Sheets service
         if (window.googleSheetsService) {
             window.googleSheetsService.initialize();
@@ -1398,10 +1401,13 @@ class ExpenseTracker {
         this.showNotification(`✅ Exact template format generated! Downloaded: ${fileName}`);
     }
 
-    generatePDF() {
+    /**
+     * Generate bills PDF as blob (for merging or standalone download)
+     * @returns {Promise<Blob>} PDF blob
+     */
+    async generateBillsPdfBlob() {
         if (this.expenses.length === 0) {
-            alert('No expenses to export!');
-            return;
+            throw new Error('No expenses to export');
         }
 
         // Collect all images from all expenses
@@ -1561,10 +1567,122 @@ class ExpenseTracker {
             pdf.setTextColor(0, 0, 0);
         }
 
-        const fileName = `Receipt_Images_${new Date().toISOString().split('T')[0]}.pdf`;
-        pdf.save(fileName);
+        // Return as blob instead of downloading
+        return pdf.output('blob');
+    }
 
-        this.showNotification(`✅ PDF with ${allImages.length} receipt images downloaded!`);
+    /**
+     * Generate PDF for standalone download (uses generateBillsPdfBlob())
+     */
+    async generatePDF() {
+        try {
+            const pdfBlob = await this.generateBillsPdfBlob();
+
+            // Download it
+            const url = URL.createObjectURL(pdfBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Receipt_Images_${new Date().toISOString().split('T')[0]}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            this.showNotification('✅ PDF downloaded successfully!');
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            alert('Failed to generate PDF: ' + error.message);
+        }
+    }
+
+    /**
+     * Generate combined reimbursement package PDF
+     * - Page 1+: User's Google Sheet (expense reimbursement form)
+     * - Following pages: All bill receipt images
+     */
+    async generateCombinedReimbursementPDF() {
+        try {
+            // Step 1: Check if user has a Google Sheet
+            const sheetUrl = googleSheetsService.getSheetUrl();
+            if (!sheetUrl) {
+                alert('❌ Please export to Google Sheets first!\n\nYou need to create your expense report in Google Sheets before downloading the complete package.');
+                return;
+            }
+
+            // Show loading notification
+            this.showNotification('📦 Preparing your reimbursement package...');
+
+            // Step 2: Download Google Sheet as PDF from backend
+            console.log('📄 Downloading Google Sheet PDF...');
+            const sheetPdfResponse = await api.exportGoogleSheetAsPdf();
+
+            // Convert base64 to bytes
+            const sheetPdfBase64 = sheetPdfResponse.data.pdfBase64;
+            const sheetPdfBytes = Uint8Array.from(atob(sheetPdfBase64), c => c.charCodeAt(0));
+
+            this.showNotification('📋 Google Sheet downloaded, generating bills PDF...');
+
+            // Step 3: Generate bill photos PDF
+            console.log('📸 Generating bills PDF...');
+            const billsPdfBlob = await this.generateBillsPdfBlob();
+            const billsPdfBytes = await billsPdfBlob.arrayBuffer();
+
+            this.showNotification('🔗 Merging documents...');
+
+            // Step 4: Merge both PDFs using pdf-lib
+            console.log('🔀 Merging PDFs...');
+            const { PDFDocument } = PDFLib;
+
+            // Create new merged PDF
+            const mergedPdf = await PDFDocument.create();
+
+            // Load both PDFs
+            const sheetPdf = await PDFDocument.load(sheetPdfBytes);
+            const billsPdf = await PDFDocument.load(billsPdfBytes);
+
+            // Copy pages from Google Sheet PDF (expense form)
+            console.log(`📄 Adding ${sheetPdf.getPageCount()} page(s) from Google Sheet...`);
+            const sheetPages = await mergedPdf.copyPages(sheetPdf, sheetPdf.getPageIndices());
+            sheetPages.forEach(page => mergedPdf.addPage(page));
+
+            // Copy pages from Bills PDF (receipt images)
+            console.log(`📸 Adding ${billsPdf.getPageCount()} page(s) of receipts...`);
+            const billsPages = await mergedPdf.copyPages(billsPdf, billsPdf.getPageIndices());
+            billsPages.forEach(page => mergedPdf.addPage(page));
+
+            this.showNotification('💾 Saving package...');
+
+            // Step 5: Save merged PDF
+            const mergedPdfBytes = await mergedPdf.save();
+            const blob = new Blob([mergedPdfBytes], { type: 'application/pdf' });
+
+            // Download
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Reimbursement_Package_${new Date().toISOString().split('T')[0]}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            // Success notification
+            const totalPages = sheetPdf.getPageCount() + billsPdf.getPageCount();
+            this.showNotification(`✅ Complete reimbursement package downloaded! (${totalPages} pages)`);
+
+            console.log(`✅ Combined PDF created successfully: ${totalPages} pages, ${(mergedPdfBytes.length / 1024 / 1024).toFixed(2)} MB`);
+
+        } catch (error) {
+            console.error('❌ Error generating combined PDF:', error);
+
+            if (error.message.includes('Google Sheet')) {
+                alert('Failed to download Google Sheet PDF:\n\n' + error.message + '\n\nPlease make sure your expense report is exported to Google Sheets first.');
+            } else if (error.message.includes('No expenses')) {
+                alert('No expenses found to generate bills PDF.');
+            } else {
+                alert('Failed to generate reimbursement package:\n\n' + error.message);
+            }
+        }
     }
 
     exportJSON() {

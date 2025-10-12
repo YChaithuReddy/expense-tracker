@@ -405,6 +405,26 @@ const api = {
         } catch (error) {
             return handleApiError(error);
         }
+    },
+
+    // Export Google Sheet as PDF (base64)
+    async exportGoogleSheetAsPdf() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/google-sheets/export-pdf`, {
+                method: 'GET',
+                headers: getHeaders(true)
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to export Google Sheet as PDF');
+            }
+
+            return data;
+        } catch (error) {
+            return handleApiError(error);
+        }
     }
 };
 

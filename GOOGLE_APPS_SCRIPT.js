@@ -27,6 +27,8 @@ function doPost(e) {
         return exportExpensesToSheet(data);
       case 'verifySheet':
         return verifySheetAccess(data);
+      case 'exportPdf':
+        return exportSheetAsPdf(data);
       default:
         return createResponse(false, 'Unknown action: ' + action);
     }
@@ -200,6 +202,77 @@ function verifySheetAccess(data) {
 }
 
 /**
+ * Export sheet as PDF and return as base64
+ */
+function exportSheetAsPdf(data) {
+  try {
+    const { sheetId } = data;
+
+    if (!sheetId) {
+      return createResponse(false, 'Missing required field: sheetId');
+    }
+
+    Logger.log('Exporting sheet as PDF: ' + sheetId);
+
+    // Open the spreadsheet
+    const spreadsheet = SpreadsheetApp.openById(sheetId);
+    const sheet = spreadsheet.getSheetByName(TAB_NAME);
+
+    if (!sheet) {
+      return createResponse(false, 'Tab "' + TAB_NAME + '" not found');
+    }
+
+    // Create PDF blob from sheet
+    const url = 'https://docs.google.com/spreadsheets/d/' + sheetId + '/export?';
+    const params = {
+      format: 'pdf',
+      size: 'A4',                // Paper size
+      portrait: true,            // Orientation
+      fitw: true,                // Fit to page width
+      sheetnames: false,         // Don't show sheet names
+      printtitle: false,         // Don't show title
+      pagenumbers: false,        // Don't show page numbers
+      gridlines: false,          // Don't show gridlines
+      fzr: false,                // Don't repeat frozen rows
+      gid: sheet.getSheetId()    // Specific sheet/tab ID
+    };
+
+    // Build URL with parameters
+    const queryString = Object.keys(params).map(function(key) {
+      return key + '=' + params[key];
+    }).join('&');
+
+    const pdfUrl = url + queryString;
+
+    // Fetch PDF using UrlFetchApp
+    const token = ScriptApp.getOAuthToken();
+    const response = UrlFetchApp.fetch(pdfUrl, {
+      headers: {
+        'Authorization': 'Bearer ' + token
+      }
+    });
+
+    // Get PDF blob
+    const pdfBlob = response.getBlob();
+
+    // Convert to base64
+    const base64Pdf = Utilities.base64Encode(pdfBlob.getBytes());
+
+    Logger.log('PDF export completed successfully, size: ' + pdfBlob.getBytes().length + ' bytes');
+
+    return createResponse(true, 'PDF exported successfully', {
+      pdfBase64: base64Pdf,
+      fileName: spreadsheet.getName() + '.pdf',
+      size: pdfBlob.getBytes().length
+    });
+
+  } catch (error) {
+    Logger.log('Error exporting PDF: ' + error.toString());
+    return createResponse(false, 'Failed to export PDF: ' + error.toString());
+  }
+}
+
+/**
  * Create a standardized JSON response
  */
 function createResponse(success, message, data = null) {
@@ -249,5 +322,18 @@ function testExport() {
   };
 
   const result = exportExpensesToSheet(testData);
+  Logger.log(result.getContent());
+}
+
+/**
+ * Test function - Export PDF
+ */
+function testExportPdf() {
+  const testData = {
+    action: 'exportPdf',
+    sheetId: 'YOUR_TEST_SHEET_ID_HERE'
+  };
+
+  const result = exportSheetAsPdf(testData);
   Logger.log(result.getContent());
 }
