@@ -805,9 +805,9 @@ main {
     margin-top: 5px;
 }
 
-/* Reset sheet button */
+/* Reset sheet button - same color as Download Complete Package */
 .btn-reset {
-    background: linear-gradient(135deg, #f97316 0%, #dc2626 100%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     padding: 16px 24px;
     border: none;
@@ -820,7 +820,7 @@ main {
     align-items: center;
     justify-content: center;
     gap: 12px;
-    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
     width: 100%;
     min-height: 64px;
     position: relative;
@@ -846,7 +846,7 @@ main {
 
 .btn-reset:hover {
     transform: translateY(-4px) scale(1.02);
-    box-shadow: 0 12px 35px rgba(249, 115, 22, 0.5);
+    box-shadow: 0 12px 35px rgba(102, 126, 234, 0.5);
 }
 
 .btn-reset:active {
