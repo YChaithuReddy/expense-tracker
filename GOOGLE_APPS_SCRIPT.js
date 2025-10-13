@@ -225,10 +225,6 @@ function resetSheetFromMaster(data) {
       return createResponse(false, 'Tab "' + TAB_NAME + '" not found in user sheet');
     }
 
-    // Save the user's expense data before resetting
-    const dataRange = userSheet.getRange('A14:F66');
-    const savedData = dataRange.getValues();
-
     // Open the master template
     const masterSpreadsheet = SpreadsheetApp.openById(MASTER_TEMPLATE_ID);
     const masterSheet = masterSpreadsheet.getSheetByName(TAB_NAME);
@@ -237,14 +233,12 @@ function resetSheetFromMaster(data) {
       return createResponse(false, 'Tab "' + TAB_NAME + '" not found in master template');
     }
 
-    // Delete the old sheet and create a new one from master
+    // Delete the old sheet and create a fresh empty one from master
     userSpreadsheet.deleteSheet(userSheet);
     const newSheet = masterSheet.copyTo(userSpreadsheet);
     newSheet.setName(TAB_NAME);
 
-    // Restore the user's expense data
-    const newDataRange = newSheet.getRange('A14:F66');
-    newDataRange.setValues(savedData);
+    // No data restoration - sheet is now completely fresh and empty
 
     Logger.log('Sheet reset completed successfully');
 
