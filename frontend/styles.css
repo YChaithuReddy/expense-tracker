@@ -582,6 +582,10 @@ main {
     color: var(--text-primary);
     width: 100%;
     box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
 }
 
 .btn-primary:hover {
@@ -599,8 +603,11 @@ main {
 .btn-secondary {
     background: linear-gradient(135deg, var(--cyber-purple), var(--cyber-pink));
     color: var(--text-primary);
-    margin-right: 15px;
     box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
 }
 
 .btn-secondary:hover {
@@ -608,20 +615,20 @@ main {
     box-shadow: 0 15px 40px rgba(139, 92, 246, 0.4);
 }
 
-/* Ensure action buttons have proper flex centering */
-.action-buttons .btn-primary,
-.action-buttons .btn-secondary {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    margin-right: 0;
-}
-
 .btn-danger {
     background: linear-gradient(135deg, #ff4757, #ff3838);
     color: var(--text-primary);
     box-shadow: 0 10px 30px rgba(255, 71, 87, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+/* Override margin for action-buttons context */
+.action-buttons .btn-primary,
+.action-buttons .btn-secondary {
+    margin-right: 0;
 }
 
 .btn-danger:hover {
