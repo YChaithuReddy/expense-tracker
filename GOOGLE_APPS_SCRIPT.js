@@ -238,9 +238,11 @@ function resetSheetFromMaster(data) {
     const newSheet = masterSheet.copyTo(userSpreadsheet);
     newSheet.setName(TAB_NAME);
 
-    // No data restoration - sheet is now completely fresh and empty
+    // Clear all data rows (A14:F66) to ensure completely empty sheet
+    const dataRange = newSheet.getRange('A14:F66');
+    dataRange.clearContent();
 
-    Logger.log('Sheet reset completed successfully');
+    Logger.log('Sheet reset completed - all data cleared');
 
     return createResponse(true, 'Sheet reset from master template successfully', {
       sheetId: sheetId,
