@@ -29,6 +29,8 @@ function doPost(e) {
         return verifySheetAccess(data);
       case 'exportPdf':
         return exportSheetAsPdf(data);
+      case 'resetSheet':
+        return resetSheetFromMaster(data);
       default:
         return createResponse(false, 'Unknown action: ' + action);
     }
@@ -198,6 +200,62 @@ function verifySheetAccess(data) {
   } catch (error) {
     Logger.log('Error verifying sheet: ' + error.toString());
     return createResponse(false, 'Failed to verify sheet: ' + error.toString());
+  }
+}
+
+/**
+ * Reset user's sheet by copying from master template
+ * This will replace the corrupted/messed up sheet with a fresh copy
+ */
+function resetSheetFromMaster(data) {
+  try {
+    const { sheetId } = data;
+
+    if (!sheetId) {
+      return createResponse(false, 'Missing required field: sheetId');
+    }
+
+    Logger.log('Resetting sheet from master template: ' + sheetId);
+
+    // Open the user's spreadsheet
+    const userSpreadsheet = SpreadsheetApp.openById(sheetId);
+    const userSheet = userSpreadsheet.getSheetByName(TAB_NAME);
+
+    if (!userSheet) {
+      return createResponse(false, 'Tab "' + TAB_NAME + '" not found in user sheet');
+    }
+
+    // Save the user's expense data before resetting
+    const dataRange = userSheet.getRange('A14:F66');
+    const savedData = dataRange.getValues();
+
+    // Open the master template
+    const masterSpreadsheet = SpreadsheetApp.openById(MASTER_TEMPLATE_ID);
+    const masterSheet = masterSpreadsheet.getSheetByName(TAB_NAME);
+
+    if (!masterSheet) {
+      return createResponse(false, 'Tab "' + TAB_NAME + '" not found in master template');
+    }
+
+    // Delete the old sheet and create a new one from master
+    userSpreadsheet.deleteSheet(userSheet);
+    const newSheet = masterSheet.copyTo(userSpreadsheet);
+    newSheet.setName(TAB_NAME);
+
+    // Restore the user's expense data
+    const newDataRange = newSheet.getRange('A14:F66');
+    newDataRange.setValues(savedData);
+
+    Logger.log('Sheet reset completed successfully');
+
+    return createResponse(true, 'Sheet reset from master template successfully', {
+      sheetId: sheetId,
+      sheetName: userSpreadsheet.getName()
+    });
+
+  } catch (error) {
+    Logger.log('Error resetting sheet: ' + error.toString());
+    return createResponse(false, 'Failed to reset sheet: ' + error.toString());
   }
 }
 
