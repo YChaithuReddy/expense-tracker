@@ -556,6 +556,42 @@ main {
     display: block;
 }
 
+/* Category Select Styling */
+.category-select {
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(157, 0, 255, 0.1)) !important;
+    border: 2px solid rgba(0, 212, 255, 0.3) !important;
+    color: var(--neon-cyan) !important;
+    font-weight: 600 !important;
+    font-size: 16px !important;
+    padding: 16px 20px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+}
+
+.category-select:hover {
+    border-color: var(--cyber-blue) !important;
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(157, 0, 255, 0.15)) !important;
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.3) !important;
+}
+
+.category-select:focus {
+    border-color: var(--neon-cyan) !important;
+    box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.2), 0 0 30px rgba(0, 212, 255, 0.4) !important;
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(157, 0, 255, 0.2)) !important;
+}
+
+.category-select option {
+    background: #1a1a2e !important;
+    color: #ffffff !important;
+    padding: 12px !important;
+    font-size: 15px !important;
+    font-weight: 500 !important;
+}
+
+.category-select option:hover {
+    background: rgba(0, 212, 255, 0.2) !important;
+}
+
 .btn-primary,
 .btn-secondary,
 .btn-danger {
