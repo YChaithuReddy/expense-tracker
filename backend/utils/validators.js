@@ -67,8 +67,21 @@ const expenseValidation = [
 
     body('category')
         .notEmpty().withMessage('Category is required')
-        .isIn(['Food', 'Cab', 'Bus', 'Metro', 'Auto', 'Fuel', 'Parking', 'Accommodation', 'Entertainment', 'Shopping', 'Healthcare', 'Miscellaneous'])
-        .withMessage('Invalid category'),
+        .isString().withMessage('Category must be a string')
+        .trim()
+        .isLength({ min: 1, max: 100 }).withMessage('Category must be between 1 and 100 characters')
+        .custom((value) => {
+            // Accept hierarchical format: "MainCategory - Subcategory" or just "MainCategory"
+            const mainCategories = ['Transportation', 'Accommodation', 'Meals', 'Fuel', 'Miscellaneous', 'Others'];
+            const parts = value.split(' - ');
+            const mainCategory = parts[0];
+
+            if (!mainCategories.includes(mainCategory)) {
+                throw new Error('Invalid main category');
+            }
+
+            return true;
+        }),
 
     body('amount')
         .notEmpty().withMessage('Amount is required')
