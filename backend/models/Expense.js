@@ -19,17 +19,9 @@ const expenseSchema = new mongoose.Schema({
     category: {
         type: String,
         required: [true, 'Please provide a category'],
-        enum: [
-            'Fuel',
-            'Transportation',
-            'Accommodation',
-            'Meals',
-            'Office Supplies',
-            'Entertainment',
-            'Healthcare',
-            'Travel',
-            'Miscellaneous'
-        ]
+        trim: true
+        // No enum constraint - allows hierarchical format: "MainCategory - Subcategory"
+        // Validation is handled by validators.js middleware
     },
     amount: {
         type: Number,
