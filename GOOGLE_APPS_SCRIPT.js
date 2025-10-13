@@ -290,6 +290,8 @@ function exportSheetAsPdf(data) {
       pagenumbers: false,        // Don't show page numbers
       gridlines: false,          // Don't show gridlines
       fzr: false,                // Don't repeat frozen rows
+      horizontal_alignment: 'CENTER',  // Center the content horizontally
+      vertical_alignment: 'TOP',       // Align to top vertically
       gid: sheet.getSheetId()    // Specific sheet/tab ID
     };
 

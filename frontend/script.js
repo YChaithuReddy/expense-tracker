@@ -5,6 +5,16 @@ class ExpenseTracker {
         this.extractedData = {};
         this.lastSyncedIndex = this.loadLastSyncedIndex(); // Track last synced expense
         this.editingExpenseId = null; // Track which expense is being edited
+
+        // Category subcategory mapping
+        this.categorySubcategories = {
+            'Transportation': ['Bus', 'Metro', 'Auto', 'Cab (Uber/Rapido)', 'Train', 'Toll'],
+            'Accommodation': ['Room/Hotel', 'OYO'],
+            'Meals': ['Food', 'Snacks', 'Water/Juice', 'Tea/Coffee', 'Tiffin'],
+            'Fuel': ['Petrol', 'Service'],
+            'Miscellaneous': ['Tools', 'Stationery', 'Xerox', 'Wiring Material', 'Plumbing Material', 'Work Clothing', 'Porter', 'Dues', 'Fine']
+        };
+
         this.initializeEventListeners();
         this.setTodayDate();
 
@@ -28,6 +38,11 @@ class ExpenseTracker {
 
         // Reset Google Sheet
         document.getElementById('resetGoogleSheet').addEventListener('click', () => this.resetGoogleSheet());
+
+        // Category and subcategory handling
+        document.getElementById('mainCategory').addEventListener('change', (e) => this.handleMainCategoryChange(e));
+        document.getElementById('subcategory').addEventListener('change', (e) => this.handleSubcategoryChange(e));
+        document.getElementById('customCategory').addEventListener('input', (e) => this.handleCustomCategoryInput(e));
 
         // Initialize Google Sheets service
         if (window.googleSheetsService) {
@@ -85,7 +100,7 @@ class ExpenseTracker {
         previewContainer.appendChild(header);
 
         const imagesWrapper = document.createElement('div');
-        imagesWrapper.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; width: 100%; padding: 10px;';
+        imagesWrapper.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; width: 100%; padding: 10px; margin: 0 auto; justify-items: center;';
         imagesWrapper.id = 'imagesWrapper';
         previewContainer.appendChild(imagesWrapper);
         console.log('Images wrapper created and appended');
@@ -2051,6 +2066,70 @@ class ExpenseTracker {
             const button = document.getElementById('resetGoogleSheet');
             button.querySelector('.btn-text').textContent = 'Reset Sheet';
             button.disabled = false;
+        }
+    }
+
+    handleMainCategoryChange(e) {
+        const mainCategory = e.target.value;
+        const subcategoryGroup = document.getElementById('subcategoryGroup');
+        const subcategorySelect = document.getElementById('subcategory');
+        const customCategoryGroup = document.getElementById('customCategoryGroup');
+        const customCategoryInput = document.getElementById('customCategory');
+        const hiddenCategory = document.getElementById('category');
+
+        // Hide both subcategory dropdown and custom input by default
+        subcategoryGroup.style.display = 'none';
+        customCategoryGroup.style.display = 'none';
+        subcategorySelect.innerHTML = '<option value="">Select Subcategory</option>';
+        customCategoryInput.value = '';
+
+        if (mainCategory === 'Others') {
+            // Show custom text input for "Others" category
+            customCategoryGroup.style.display = 'block';
+            hiddenCategory.value = mainCategory;
+        } else if (mainCategory && this.categorySubcategories[mainCategory]) {
+            // Show subcategory dropdown for predefined categories
+            subcategoryGroup.style.display = 'block';
+
+            // Populate subcategories
+            this.categorySubcategories[mainCategory].forEach(sub => {
+                const option = document.createElement('option');
+                option.value = sub;
+                option.textContent = sub;
+                subcategorySelect.appendChild(option);
+            });
+
+            // Clear the hidden category field
+            hiddenCategory.value = mainCategory;
+        } else {
+            // No category selected
+            hiddenCategory.value = '';
+        }
+    }
+
+    handleSubcategoryChange(e) {
+        const mainCategory = document.getElementById('mainCategory').value;
+        const subcategory = e.target.value;
+        const hiddenCategory = document.getElementById('category');
+
+        if (mainCategory && subcategory) {
+            // Combine main category and subcategory with a dash
+            hiddenCategory.value = `${mainCategory} - ${subcategory}`;
+        } else {
+            hiddenCategory.value = mainCategory;
+        }
+    }
+
+    handleCustomCategoryInput(e) {
+        const mainCategory = document.getElementById('mainCategory').value;
+        const customText = e.target.value.trim();
+        const hiddenCategory = document.getElementById('category');
+
+        if (mainCategory === 'Others' && customText) {
+            // Combine "Others" with custom text
+            hiddenCategory.value = `Others - ${customText}`;
+        } else {
+            hiddenCategory.value = mainCategory;
         }
     }
 }

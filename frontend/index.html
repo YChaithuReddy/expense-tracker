@@ -73,16 +73,34 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="category">Category:</label>
-                        <select id="category" name="category" required>
-                            <option value="">Select Category</option>
-                            <option value="Transportation">Transportation</option>
-                            <option value="Accommodation">Accommodation</option>
-                            <option value="Meals">Meals</option>
-                            <option value="Fuel">Fuel</option>
-                            <option value="Miscellaneous">Miscellaneous</option>
+                        <label for="mainCategory">Main Category:</label>
+                        <select id="mainCategory" name="mainCategory" class="category-select" required>
+                            <option value="">Select Main Category</option>
+                            <option value="Transportation">🚗 Transportation</option>
+                            <option value="Accommodation">🏨 Accommodation</option>
+                            <option value="Meals">🍽️ Meals</option>
+                            <option value="Fuel">⛽ Fuel</option>
+                            <option value="Miscellaneous">📦 Miscellaneous</option>
+                            <option value="Others">✨ Others</option>
                         </select>
                     </div>
+
+                    <div class="form-group" id="subcategoryGroup" style="display: none;">
+                        <label for="subcategory">Subcategory:</label>
+                        <select id="subcategory" name="subcategory" class="category-select">
+                            <option value="">Select Subcategory</option>
+                        </select>
+                    </div>
+
+                    <!-- Custom text input for "Others" category -->
+                    <div class="form-group" id="customCategoryGroup" style="display: none;">
+                        <label for="customCategory">Specify Category:</label>
+                        <input type="text" id="customCategory" name="customCategory" class="category-select" placeholder="Enter custom category">
+                        <small>Enter a custom category description</small>
+                    </div>
+
+                    <!-- Hidden field to store combined category -->
+                    <input type="hidden" id="category" name="category">
 
                     <div class="form-group">
                         <label for="description">Description:</label>
