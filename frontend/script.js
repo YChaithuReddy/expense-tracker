@@ -72,6 +72,17 @@ class ExpenseTracker {
         if (dateInput) {
             dateInput.value = today;
         }
+
+        // Initialize Flatpickr for modern calendar interface
+        if (typeof flatpickr !== 'undefined' && dateInput) {
+            flatpickr(dateInput, {
+                dateFormat: 'Y-m-d',
+                defaultDate: today,
+                allowInput: true,
+                clickOpens: true,
+                wrap: false
+            });
+        }
     }
 
     handleImageUpload(e) {
