@@ -425,6 +425,26 @@ const api = {
         } catch (error) {
             return handleApiError(error);
         }
+    },
+
+    // Reset Google Sheet to master template format
+    async resetGoogleSheet() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/google-sheets/reset`, {
+                method: 'POST',
+                headers: getHeaders(true)
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to reset Google Sheet');
+            }
+
+            return data;
+        } catch (error) {
+            return handleApiError(error);
+        }
     }
 };
 

@@ -270,6 +270,61 @@ class GoogleSheetsService {
             };
         }
     }
+
+    /**
+     * Reset user's Google Sheet to master template format
+     * @param {String} sheetId - User's sheet ID
+     * @returns {Object} - Reset result
+     */
+    async resetSheet(sheetId) {
+        try {
+            if (!this.isReady()) {
+                throw new Error('Google Apps Script URL not configured');
+            }
+
+            if (!sheetId) {
+                throw new Error('No sheet ID provided');
+            }
+
+            console.log(`🔄 Resetting sheet: ${sheetId}`);
+
+            // Call Google Apps Script to reset sheet
+            const response = await axios.post(this.appsScriptUrl, {
+                action: 'resetSheet',
+                sheetId: sheetId
+            }, {
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                timeout: 30000 // 30 second timeout
+            });
+
+            if (response.data.status === 'success') {
+                console.log(`✅ Sheet reset successful`);
+                return {
+                    success: true,
+                    message: response.data.message
+                };
+            } else {
+                throw new Error(response.data.message || 'Failed to reset sheet');
+            }
+
+        } catch (error) {
+            console.error('❌ Error resetting sheet:', error.message);
+
+            if (error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT') {
+                return {
+                    success: false,
+                    error: 'Request timeout - Google Apps Script may be busy. Please try again.'
+                };
+            }
+
+            return {
+                success: false,
+                error: error.response?.data?.message || error.message
+            };
+        }
+    }
 }
 
 // Create singleton instance

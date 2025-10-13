@@ -313,4 +313,59 @@ router.get('/export-pdf', protect, async (req, res) => {
     }
 });
 
+/**
+ * @route   POST /api/google-sheets/reset
+ * @desc    Reset user's Google Sheet to master template format
+ * @access  Private
+ */
+router.post('/reset', protect, async (req, res) => {
+    try {
+        // Check if user has a sheet
+        if (!req.user.googleSheetId) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'No Google Sheet found for this user. Please export expenses first.'
+            });
+        }
+
+        // Check if service is ready
+        if (!googleSheetsService.isReady()) {
+            return res.status(503).json({
+                status: 'error',
+                message: 'Google Sheets service not configured'
+            });
+        }
+
+        console.log(`🔄 User ${req.user.email} resetting sheet: ${req.user.googleSheetId}`);
+
+        // Reset sheet via Apps Script
+        const resetResult = await googleSheetsService.resetSheet(req.user.googleSheetId);
+
+        if (!resetResult.success) {
+            return res.status(500).json({
+                status: 'error',
+                message: 'Failed to reset Google Sheet',
+                error: resetResult.error
+            });
+        }
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Google Sheet reset successfully',
+            data: {
+                sheetId: req.user.googleSheetId,
+                sheetUrl: req.user.googleSheetUrl
+            }
+        });
+
+    } catch (error) {
+        console.error('Reset sheet error:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Server error while resetting sheet',
+            error: error.message
+        });
+    }
+});
+
 module.exports = router;
