@@ -26,6 +26,9 @@ class ExpenseTracker {
         // Download combined reimbursement package
         document.getElementById('downloadReimbursementPackage').addEventListener('click', () => this.generateCombinedReimbursementPDF());
 
+        // Reset Google Sheet
+        document.getElementById('resetGoogleSheet').addEventListener('click', () => this.resetGoogleSheet());
+
         // Initialize Google Sheets service
         if (window.googleSheetsService) {
             window.googleSheetsService.initialize();
@@ -2007,6 +2010,46 @@ class ExpenseTracker {
         } finally {
             const button = document.getElementById('exportToGoogleSheets');
             button.querySelector('.btn-text').textContent = 'Export to Google Sheets';
+            button.disabled = false;
+        }
+    }
+
+    async resetGoogleSheet() {
+        const sheetUrl = googleSheetsService.getSheetUrl();
+
+        if (!sheetUrl) {
+            alert('⚠️ You don\'t have a Google Sheet yet.\n\nPlease export expenses to Google Sheets first to create your sheet.');
+            return;
+        }
+
+        // Confirm reset action
+        if (!confirm('🔄 Reset Google Sheet?\n\nThis will restore your sheet to the master template format while preserving all your expense data.\n\nAre you sure you want to continue?')) {
+            return;
+        }
+
+        try {
+            const button = document.getElementById('resetGoogleSheet');
+            const originalText = button.querySelector('.btn-text').textContent;
+            button.querySelector('.btn-text').textContent = 'Resetting...';
+            button.disabled = true;
+
+            console.log('Resetting Google Sheet...');
+
+            // Call Google Sheets service to reset
+            const result = await googleSheetsService.resetSheet();
+
+            if (result.success) {
+                this.showNotification('✅ Google Sheet reset successfully! Format restored to master template.');
+                console.log('Sheet reset completed');
+            } else {
+                this.showNotification(`❌ ${result.message}`);
+            }
+        } catch (error) {
+            console.error('Reset error:', error);
+            this.showNotification('❌ Failed to reset sheet: ' + error.message);
+        } finally {
+            const button = document.getElementById('resetGoogleSheet');
+            button.querySelector('.btn-text').textContent = 'Reset Sheet';
             button.disabled = false;
         }
     }

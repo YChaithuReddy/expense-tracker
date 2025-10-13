@@ -98,6 +98,43 @@ class GoogleSheetsService {
     }
 
     /**
+     * Reset user's Google Sheet to master template format
+     * @returns {Object} - Reset result
+     */
+    async resetSheet() {
+        try {
+            if (!this.hasSheet()) {
+                throw new Error('No Google Sheet found. Please export expenses first.');
+            }
+
+            console.log('🔄 Resetting Google Sheet...');
+
+            // Call backend reset API
+            const response = await api.resetGoogleSheet();
+
+            if (response.status === 'success') {
+                console.log('✅ Sheet reset successfully');
+                return {
+                    success: true,
+                    message: response.message
+                };
+            } else {
+                return {
+                    success: false,
+                    message: response.message || 'Reset failed'
+                };
+            }
+
+        } catch (error) {
+            console.error('❌ Error resetting sheet:', error);
+            return {
+                success: false,
+                message: error.message || 'Failed to reset sheet'
+            };
+        }
+    }
+
+    /**
      * Update UI to show/hide sheet link
      */
     updateUI() {

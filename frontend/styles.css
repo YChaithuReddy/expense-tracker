@@ -747,6 +747,54 @@ main {
     margin-top: 5px;
 }
 
+/* Reset sheet button */
+.btn-reset {
+    background: linear-gradient(135deg, #f97316 0%, #dc2626 100%);
+    color: white;
+    padding: 16px 24px;
+    border: none;
+    border-radius: 16px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+    width: 100%;
+    min-height: 64px;
+    position: relative;
+    overflow: hidden;
+    grid-column: 1 / -1;
+    margin-top: 5px;
+}
+
+.btn-reset::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.btn-reset:hover::before {
+    left: 100%;
+}
+
+.btn-reset:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 12px 35px rgba(249, 115, 22, 0.5);
+}
+
+.btn-reset:active {
+    transform: translateY(-1px) scale(0.98);
+}
+
 .select-all-container {
     display: flex;
     align-items: center;
