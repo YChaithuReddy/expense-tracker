@@ -45,18 +45,10 @@
                 <h2>📷 Add Expense from Bill</h2>
                 <p>Upload an image or scan with your camera to extract expense details</p>
 
-                <!-- Two Options: Upload or Scan -->
-                <div class="bill-input-options">
-                    <button id="uploadBillBtn" class="option-btn">
-                        <span class="icon">📁</span>
-                        <span class="text">Upload Bill</span>
-                        <small>Select from device</small>
-                    </button>
-
-                    <button id="scanBillBtn" class="option-btn">
-                        <span class="icon">📷</span>
-                        <span class="text">Scan Bill</span>
-                        <small>Use camera</small>
+                <!-- Single Add Expense Button -->
+                <div class="add-expense-btn-container">
+                    <button id="addExpenseBtn" class="btn-primary add-expense-btn">
+                        ➕ Add Expense
                     </button>
                 </div>
 
@@ -71,6 +63,36 @@
                     <span id="scanProgress" style="display: none;">Processing... <span id="progressText">0%</span></span>
                 </button>
             </section>
+
+            <!-- Add Expense Choice Modal -->
+            <div id="addExpenseChoiceModal" class="modal" style="display: none;">
+                <div class="modal-content choice-modal-content">
+                    <div class="modal-header">
+                        <h3>📋 Add Expense</h3>
+                        <button class="close-btn" id="closeChoiceModalBtn">&times;</button>
+                    </div>
+                    <div class="choice-options">
+                        <p style="text-align: center; margin-bottom: 20px; color: var(--text-secondary);">
+                            Choose how you want to add your expense:
+                        </p>
+                        <button id="uploadBillBtn" class="choice-option-btn">
+                            <span class="choice-icon">📁</span>
+                            <div class="choice-text">
+                                <strong>Upload Bill</strong>
+                                <small>Select images from your device</small>
+                            </div>
+                        </button>
+
+                        <button id="scanBillBtn" class="choice-option-btn">
+                            <span class="choice-icon">📷</span>
+                            <div class="choice-text">
+                                <strong>Scan with Camera</strong>
+                                <small>Capture bill photo with your camera</small>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
 
             <!-- Camera Modal -->
             <div id="cameraModal" class="modal">
