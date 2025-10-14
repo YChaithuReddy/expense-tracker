@@ -233,24 +233,31 @@ function resetSheetFromMaster(data) {
       return createResponse(false, 'Tab "' + TAB_NAME + '" not found in master template');
     }
 
-    // Delete the old sheet and create a fresh empty one from master
-    userSpreadsheet.deleteSheet(userSheet);
-    const newSheet = masterSheet.copyTo(userSpreadsheet);
-    newSheet.setName(TAB_NAME);
+    Logger.log('Clearing all data from user sheet...');
 
-    // Clear all data rows (A14:F66) to ensure completely empty sheet
-    const dataRange = newSheet.getRange('A14:F66');
+    // Instead of deleting and recreating, just clear all data
+    // This is safer and preserves the sheet structure
+    const dataRange = userSheet.getRange('A14:F66');
     dataRange.clearContent();
+
+    // Also clear any formatting that might have been added
+    dataRange.clearFormat();
+
+    // Optionally, restore formatting from master template
+    const masterDataRange = masterSheet.getRange('A14:F66');
+    const masterFormats = masterDataRange.getNumberFormats();
+    dataRange.setNumberFormats(masterFormats);
 
     Logger.log('Sheet reset completed - all data cleared');
 
-    return createResponse(true, 'Sheet reset from master template successfully', {
+    return createResponse(true, 'Sheet reset successfully - all data cleared', {
       sheetId: sheetId,
       sheetName: userSpreadsheet.getName()
     });
 
   } catch (error) {
     Logger.log('Error resetting sheet: ' + error.toString());
+    Logger.log('Error details: ' + JSON.stringify(error));
     return createResponse(false, 'Failed to reset sheet: ' + error.toString());
   }
 }
