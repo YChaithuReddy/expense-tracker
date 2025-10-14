@@ -162,21 +162,8 @@ function exportExpensesToSheet(data) {
     // Set COST (Column F)
     sheet.getRange(nextRow, 6, numExpenses, 1).setValues(costs);
 
-    // Copy formatting (borders, colors, fonts) from master template
-    // This ensures borders are applied to newly filled rows
-    Logger.log('Applying borders and formatting from master template...');
-    const masterSpreadsheet = SpreadsheetApp.openById(MASTER_TEMPLATE_ID);
-    const masterSheet = masterSpreadsheet.getSheetByName(TAB_NAME);
-
-    if (masterSheet) {
-      // Copy formatting from master template for the rows we just filled (A14:F66)
-      const masterFormatRange = masterSheet.getRange(14, 1, numExpenses, 6);
-
-      // Copy all formatting (borders, colors, fonts, alignment) to user sheet
-      masterFormatRange.copyFormatToRange(sheet, 1, 6, nextRow, nextRow + numExpenses - 1);
-
-      Logger.log('Borders and formatting applied successfully');
-    }
+    // Note: Borders are already set on the sheet (A14:F66) from master template
+    // No need to reapply borders during export - they're permanent on the sheet
 
     Logger.log('Export completed successfully');
 
@@ -249,16 +236,20 @@ function resetSheetFromMaster(data) {
       return createResponse(false, 'Tab "' + TAB_NAME + '" not found in master template');
     }
 
-    Logger.log('Clearing all data from user sheet while preserving formatting...');
+    Logger.log('Resetting sheet to match master template exactly...');
 
-    // Clear only the content, NOT the formatting (keeps borders, colors, fonts intact)
+    // Clear the data range first
     const dataRange = userSheet.getRange('A14:F66');
     dataRange.clearContent();
 
-    // DO NOT use clearFormat() as it removes borders and cell formatting
-    // Only content is cleared, all visual formatting is preserved
+    // Copy ALL formatting (borders, colors, fonts, alignment) from master template
+    // This ensures the sheet looks EXACTLY like the master template after reset
+    const masterDataRange = masterSheet.getRange('A14:F66');
 
-    Logger.log('Sheet reset completed - all data cleared, formatting preserved');
+    // Copy formatting from master to user sheet
+    masterDataRange.copyFormatToRange(userSheet, 1, 6, 14, 66);
+
+    Logger.log('Sheet reset completed - looks exactly like master template with all borders');
 
     return createResponse(true, 'Sheet reset successfully - all data cleared', {
       sheetId: sheetId,
