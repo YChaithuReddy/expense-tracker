@@ -238,16 +238,18 @@ function resetSheetFromMaster(data) {
 
     Logger.log('Resetting sheet to match master template exactly...');
 
-    // Clear the data range first
+    // Get the data range that needs to be reset
     const dataRange = userSheet.getRange('A14:F66');
+
+    // Clear only the content (values), not the formatting
     dataRange.clearContent();
 
-    // Copy ALL formatting (borders, colors, fonts, alignment) from master template
-    // This ensures the sheet looks EXACTLY like the master template after reset
+    // Get the same range from master template
     const masterDataRange = masterSheet.getRange('A14:F66');
 
-    // Copy formatting from master to user sheet
-    masterDataRange.copyFormatToRange(userSheet, 1, 6, 14, 66);
+    // Copy formatting (borders, colors, fonts) from master to user sheet
+    // Using copyTo method which is more reliable
+    masterDataRange.copyTo(dataRange, SpreadsheetApp.CopyPasteType.PASTE_FORMAT, false);
 
     Logger.log('Sheet reset completed - looks exactly like master template with all borders');
 
