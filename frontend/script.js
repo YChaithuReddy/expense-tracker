@@ -23,6 +23,26 @@ class ExpenseTracker {
     }
 
     initializeEventListeners() {
+        // Camera and Gallery buttons
+        document.getElementById('cameraBtn').addEventListener('click', () => {
+            document.getElementById('cameraInput').click();
+        });
+        document.getElementById('galleryBtn').addEventListener('click', () => {
+            document.getElementById('galleryInput').click();
+        });
+
+        // Handle file inputs from camera and gallery
+        document.getElementById('cameraInput').addEventListener('change', (e) => {
+            // Copy files to main billImages input and trigger the handler
+            document.getElementById('billImages').files = e.target.files;
+            this.handleImageUpload({ target: document.getElementById('billImages') });
+        });
+        document.getElementById('galleryInput').addEventListener('change', (e) => {
+            // Copy files to main billImages input and trigger the handler
+            document.getElementById('billImages').files = e.target.files;
+            this.handleImageUpload({ target: document.getElementById('billImages') });
+        });
+
         document.getElementById('billImages').addEventListener('change', (e) => this.handleImageUpload(e));
         document.getElementById('scanBills').addEventListener('click', () => this.scanBills());
         document.getElementById('backToScan').addEventListener('click', () => this.backToScan());

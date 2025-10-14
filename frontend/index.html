@@ -46,8 +46,20 @@
                 <p>Upload bill images to automatically extract expense details</p>
 
                 <div class="form-group">
-                    <label for="billImages">Upload Bill Images:</label>
-                    <input type="file" id="billImages" name="billImages" accept="image/*" multiple>
+                    <label>Upload Bill Images:</label>
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <button type="button" id="cameraBtn" class="btn-secondary" style="flex: 1;">
+                            📷 Camera
+                        </button>
+                        <button type="button" id="galleryBtn" class="btn-secondary" style="flex: 1;">
+                            🖼️ Gallery
+                        </button>
+                    </div>
+                    <!-- Hidden inputs for camera and gallery -->
+                    <input type="file" id="cameraInput" name="cameraInput" accept="image/*" capture="environment" style="display: none;" multiple>
+                    <input type="file" id="galleryInput" name="galleryInput" accept="image/*" style="display: none;" multiple>
+                    <!-- Original hidden input for compatibility -->
+                    <input type="file" id="billImages" name="billImages" accept="image/*" style="display: none;" multiple>
                     <small>Take a photo with camera or select from gallery</small>
                 </div>
 
