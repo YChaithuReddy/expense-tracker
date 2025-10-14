@@ -228,16 +228,49 @@ function resetSheetFromMaster(data) {
       return createResponse(false, 'Tab "' + TAB_NAME + '" not found in user sheet');
     }
 
-    Logger.log('Clearing data from A14:F66...');
+    // Open the master template
+    const masterSpreadsheet = SpreadsheetApp.openById(MASTER_TEMPLATE_ID);
+    const masterSheet = masterSpreadsheet.getSheetByName(TAB_NAME);
 
-    // Clear only the data content in the range A14:F66
-    // This keeps all borders, colors, and formatting intact
-    const dataRange = userSheet.getRange('A14:F66');
-    dataRange.clearContent();
+    if (!masterSheet) {
+      return createResponse(false, 'Tab "' + TAB_NAME + '" not found in master template');
+    }
 
-    Logger.log('Sheet reset completed - data cleared, borders preserved');
+    Logger.log('Clearing data and applying borders from master template...');
 
-    return createResponse(true, 'Sheet reset successfully - all data cleared', {
+    // Get the data range A14:F66
+    const userDataRange = userSheet.getRange('A14:F66');
+    const masterDataRange = masterSheet.getRange('A14:F66');
+
+    // Step 1: Clear all content and formatting from user sheet
+    userDataRange.clear();
+
+    // Step 2: Copy ONLY the formatting (borders, colors, fonts) from master - no data
+    const masterBackgrounds = masterDataRange.getBackgrounds();
+    const masterFontColors = masterDataRange.getFontColors();
+    const masterFontFamilies = masterDataRange.getFontFamilies();
+    const masterFontSizes = masterDataRange.getFontSizes();
+    const masterFontWeights = masterDataRange.getFontWeights();
+    const masterHorizontalAlignments = masterDataRange.getHorizontalAlignments();
+    const masterVerticalAlignments = masterDataRange.getVerticalAlignments();
+    const masterNumberFormats = masterDataRange.getNumberFormats();
+
+    // Apply all formatting to user sheet
+    userDataRange.setBackgrounds(masterBackgrounds);
+    userDataRange.setFontColors(masterFontColors);
+    userDataRange.setFontFamilies(masterFontFamilies);
+    userDataRange.setFontSizes(masterFontSizes);
+    userDataRange.setFontWeights(masterFontWeights);
+    userDataRange.setHorizontalAlignments(masterHorizontalAlignments);
+    userDataRange.setVerticalAlignments(masterVerticalAlignments);
+    userDataRange.setNumberFormats(masterNumberFormats);
+
+    // Step 3: Copy borders from master template (this is critical for borders)
+    masterDataRange.copyTo(userDataRange, {formatOnly: true});
+
+    Logger.log('Sheet reset completed - data cleared, all formatting and borders applied from master');
+
+    return createResponse(true, 'Sheet reset successfully - all data cleared, borders restored', {
       sheetId: sheetId,
       sheetName: userSpreadsheet.getName()
     });
