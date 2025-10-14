@@ -233,22 +233,16 @@ function resetSheetFromMaster(data) {
       return createResponse(false, 'Tab "' + TAB_NAME + '" not found in master template');
     }
 
-    Logger.log('Clearing all data from user sheet...');
+    Logger.log('Clearing all data from user sheet while preserving formatting...');
 
-    // Instead of deleting and recreating, just clear all data
-    // This is safer and preserves the sheet structure
+    // Clear only the content, NOT the formatting (keeps borders, colors, fonts intact)
     const dataRange = userSheet.getRange('A14:F66');
     dataRange.clearContent();
 
-    // Also clear any formatting that might have been added
-    dataRange.clearFormat();
+    // DO NOT use clearFormat() as it removes borders and cell formatting
+    // Only content is cleared, all visual formatting is preserved
 
-    // Optionally, restore formatting from master template
-    const masterDataRange = masterSheet.getRange('A14:F66');
-    const masterFormats = masterDataRange.getNumberFormats();
-    dataRange.setNumberFormats(masterFormats);
-
-    Logger.log('Sheet reset completed - all data cleared');
+    Logger.log('Sheet reset completed - all data cleared, formatting preserved');
 
     return createResponse(true, 'Sheet reset successfully - all data cleared', {
       sheetId: sheetId,
