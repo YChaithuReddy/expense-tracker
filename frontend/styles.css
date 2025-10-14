@@ -2445,53 +2445,86 @@ main {
    CAMERA & OCR ENHANCEMENT STYLES
    ======================================== */
 
-/* Bill Input Options */
-.bill-input-options {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
+/* Single Add Expense Button */
+.add-expense-btn-container {
+    display: flex;
+    justify-content: center;
     margin: 20px 0;
 }
 
-.option-btn {
+.add-expense-btn {
+    padding: 18px 40px;
+    font-size: 16px;
+    font-weight: 700;
+    min-width: 250px;
+    box-shadow: 0 10px 30px rgba(0, 212, 255, 0.4);
+}
+
+.add-expense-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(0, 212, 255, 0.5);
+}
+
+/* Choice Modal */
+.choice-modal-content {
+    max-width: 500px;
+    padding: 0;
+    overflow: hidden;
+}
+
+.choice-options {
+    padding: 30px;
     display: flex;
     flex-direction: column;
+    gap: 15px;
+}
+
+.choice-option-btn {
+    display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 30px 20px;
+    gap: 20px;
+    padding: 20px 25px;
     background: rgba(255, 255, 255, 0.03);
     border: 2px solid rgba(0, 212, 255, 0.2);
     border-radius: 16px;
     cursor: pointer;
     transition: all 0.3s ease;
-    font-family: inherit;
+    text-align: left;
+    width: 100%;
 }
 
-.option-btn:hover {
+.choice-option-btn:hover {
     background: rgba(0, 212, 255, 0.08);
     border-color: var(--neon-cyan);
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(0, 212, 255, 0.2);
+    transform: translateX(5px);
+    box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
 }
 
-.option-btn:active {
-    transform: translateY(-1px);
+.choice-option-btn:active {
+    transform: translateX(2px);
 }
 
-.option-btn .icon {
-    font-size: 48px;
+.choice-icon {
+    font-size: 42px;
+    flex-shrink: 0;
 }
 
-.option-btn .text {
+.choice-text {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.choice-text strong {
     font-size: 18px;
     font-weight: 600;
     color: var(--text-primary);
 }
 
-.option-btn small {
+.choice-text small {
     font-size: 13px;
     color: var(--text-secondary);
-    opacity: 0.7;
+    opacity: 0.8;
 }
 
 /* Camera Modal */
@@ -2699,17 +2732,33 @@ main {
 
 /* Responsive */
 @media (max-width: 768px) {
+    .add-expense-btn {
+        min-width: 200px;
+        padding: 16px 30px;
+        font-size: 15px;
+    }
+
+    .choice-modal-content,
     .camera-modal-content {
         width: 95%;
         margin: 20px auto;
     }
 
-    .option-btn {
-        padding: 20px 15px;
+    .choice-option-btn {
+        padding: 18px 20px;
+        gap: 15px;
     }
 
-    .option-btn .icon {
+    .choice-icon {
         font-size: 36px;
+    }
+
+    .choice-text strong {
+        font-size: 16px;
+    }
+
+    .choice-text small {
+        font-size: 12px;
     }
 
     .capture-button {
