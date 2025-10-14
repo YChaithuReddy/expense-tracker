@@ -228,30 +228,14 @@ function resetSheetFromMaster(data) {
       return createResponse(false, 'Tab "' + TAB_NAME + '" not found in user sheet');
     }
 
-    // Open the master template
-    const masterSpreadsheet = SpreadsheetApp.openById(MASTER_TEMPLATE_ID);
-    const masterSheet = masterSpreadsheet.getSheetByName(TAB_NAME);
+    Logger.log('Clearing data from A14:F66...');
 
-    if (!masterSheet) {
-      return createResponse(false, 'Tab "' + TAB_NAME + '" not found in master template');
-    }
-
-    Logger.log('Resetting sheet to match master template exactly...');
-
-    // Get the data range that needs to be reset
+    // Clear only the data content in the range A14:F66
+    // This keeps all borders, colors, and formatting intact
     const dataRange = userSheet.getRange('A14:F66');
-
-    // Clear only the content (values), not the formatting
     dataRange.clearContent();
 
-    // Get the same range from master template
-    const masterDataRange = masterSheet.getRange('A14:F66');
-
-    // Copy formatting (borders, colors, fonts) from master to user sheet
-    // Using copyTo method which is more reliable
-    masterDataRange.copyTo(dataRange, SpreadsheetApp.CopyPasteType.PASTE_FORMAT, false);
-
-    Logger.log('Sheet reset completed - looks exactly like master template with all borders');
+    Logger.log('Sheet reset completed - data cleared, borders preserved');
 
     return createResponse(true, 'Sheet reset successfully - all data cleared', {
       sheetId: sheetId,
@@ -260,7 +244,7 @@ function resetSheetFromMaster(data) {
 
   } catch (error) {
     Logger.log('Error resetting sheet: ' + error.toString());
-    Logger.log('Error details: ' + JSON.stringify(error));
+    Logger.log('Error stack: ' + error.stack);
     return createResponse(false, 'Failed to reset sheet: ' + error.toString());
   }
 }
