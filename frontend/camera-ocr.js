@@ -14,25 +14,13 @@ class CameraOCRHandler {
     }
 
     initializeEventListeners() {
-        // Add Expense button - opens choice modal
-        document.getElementById('addExpenseBtn').addEventListener('click', () => {
-            this.openChoiceModal();
-        });
-
-        // Close choice modal button
-        document.getElementById('closeChoiceModalBtn').addEventListener('click', () => {
-            this.closeChoiceModal();
-        });
-
-        // Upload Bill button (inside choice modal)
+        // Upload Bill button
         document.getElementById('uploadBillBtn').addEventListener('click', () => {
-            this.closeChoiceModal();
             this.handleUploadBill();
         });
 
-        // Scan Bill button (inside choice modal - camera)
+        // Scan Bill button (camera)
         document.getElementById('scanBillBtn').addEventListener('click', () => {
-            this.closeChoiceModal();
             this.handleScanBill();
         });
 
@@ -60,22 +48,6 @@ class CameraOCRHandler {
         document.getElementById('useCaptureBtn').addEventListener('click', () => {
             this.useCapture();
         });
-    }
-
-    /**
-     * Open choice modal to select Upload or Scan
-     */
-    openChoiceModal() {
-        const modal = document.getElementById('addExpenseChoiceModal');
-        modal.style.display = 'block';
-    }
-
-    /**
-     * Close choice modal
-     */
-    closeChoiceModal() {
-        const modal = document.getElementById('addExpenseChoiceModal');
-        modal.style.display = 'none';
     }
 
     /**
