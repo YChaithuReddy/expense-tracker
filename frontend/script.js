@@ -6,9 +6,6 @@ class ExpenseTracker {
         this.lastSyncedIndex = this.loadLastSyncedIndex(); // Track last synced expense
         this.editingExpenseId = null; // Track which expense is being edited
 
-        // Initialize camera handler
-        this.cameraHandler = new CameraOCRHandler(this);
-
         // Category subcategory mapping
         this.categorySubcategories = {
             'Transportation': ['Bus', 'Metro', 'Auto', 'Cab (Uber/Rapido)', 'Train', 'Toll'],
