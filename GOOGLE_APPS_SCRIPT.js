@@ -162,6 +162,22 @@ function exportExpensesToSheet(data) {
     // Set COST (Column F)
     sheet.getRange(nextRow, 6, numExpenses, 1).setValues(costs);
 
+    // Copy formatting (borders, colors, fonts) from master template
+    // This ensures borders are applied to newly filled rows
+    Logger.log('Applying borders and formatting from master template...');
+    const masterSpreadsheet = SpreadsheetApp.openById(MASTER_TEMPLATE_ID);
+    const masterSheet = masterSpreadsheet.getSheetByName(TAB_NAME);
+
+    if (masterSheet) {
+      // Copy formatting from master template for the rows we just filled (A14:F66)
+      const masterFormatRange = masterSheet.getRange(14, 1, numExpenses, 6);
+
+      // Copy all formatting (borders, colors, fonts, alignment) to user sheet
+      masterFormatRange.copyFormatToRange(sheet, 1, 6, nextRow, nextRow + numExpenses - 1);
+
+      Logger.log('Borders and formatting applied successfully');
+    }
+
     Logger.log('Export completed successfully');
 
     return createResponse(true, 'Successfully exported ' + numExpenses + ' expenses', {
