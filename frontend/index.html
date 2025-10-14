@@ -40,30 +40,17 @@
         </header>
 
         <main>
-            <!-- Bill OCR Section - Enhanced with Camera -->
+            <!-- Bill OCR Section -->
             <section id="ocrSection" class="ocr-section">
-                <h2>📷 Add Expense from Bill</h2>
-                <p>Upload an image or scan with your camera to extract expense details</p>
+                <h2>📷 Scan Your Bill</h2>
+                <p>Upload bill images to automatically extract expense details</p>
 
-                <!-- Two Options: Upload or Scan -->
-                <div class="bill-input-options">
-                    <button id="uploadBillBtn" class="option-btn">
-                        <span class="icon">📁</span>
-                        <span class="text">Upload Bill</span>
-                        <small>Select from device</small>
-                    </button>
-
-                    <button id="scanBillBtn" class="option-btn">
-                        <span class="icon">📷</span>
-                        <span class="text">Scan Bill</span>
-                        <small>Use camera</small>
-                    </button>
+                <div class="form-group">
+                    <label for="billImages">Upload Bill Images:</label>
+                    <input type="file" id="billImages" name="billImages" accept="image/*" multiple>
+                    <small>Select one or more bill images to scan</small>
                 </div>
 
-                <!-- Hidden file input for upload -->
-                <input type="file" id="billImages" name="billImages" accept="image/*,application/pdf" multiple style="display: none;">
-
-                <!-- Image preview and scan button -->
                 <div id="imagePreview" class="image-preview-container"></div>
 
                 <button type="button" id="scanBills" class="btn-primary" style="display: none;">
@@ -71,56 +58,6 @@
                     <span id="scanProgress" style="display: none;">Processing... <span id="progressText">0%</span></span>
                 </button>
             </section>
-
-            <!-- Camera Modal -->
-            <div id="cameraModal" class="modal">
-                <div class="modal-content camera-modal-content">
-                    <div class="modal-header">
-                        <h3>📷 Scan Bill with Camera</h3>
-                        <button class="close-btn" id="closeCameraBtn">&times;</button>
-                    </div>
-
-                    <div class="camera-container">
-                        <!-- Video preview -->
-                        <video id="cameraVideo" autoplay playsinline></video>
-
-                        <!-- Canvas for captured image -->
-                        <canvas id="captureCanvas" style="display: none;"></canvas>
-
-                        <!-- Preview of captured image -->
-                        <div id="capturedImagePreview" style="display: none;">
-                            <img id="capturedImage" alt="Captured bill">
-                            <div class="capture-actions">
-                                <button id="retakeBtn" class="btn-secondary">🔄 Retake</button>
-                                <button id="useCaptureBtn" class="btn-primary">✓ Use This Photo</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Camera controls -->
-                    <div class="camera-controls" id="cameraControls">
-                        <button id="switchCameraBtn" class="control-btn" title="Switch Camera">
-                            🔄
-                        </button>
-                        <button id="captureBtn" class="capture-button">
-                            <span class="capture-ring"></span>
-                            Capture
-                        </button>
-                        <button id="cancelCameraBtn" class="control-btn" title="Cancel">
-                            ✕
-                        </button>
-                    </div>
-
-                    <!-- Loading state -->
-                    <div id="cameraLoading" style="display: none;">
-                        <div class="spinner"></div>
-                        <p>Starting camera...</p>
-                    </div>
-
-                    <!-- Error message -->
-                    <div id="cameraError" style="display: none;" class="error-message"></div>
-                </div>
-            </div>
 
             <!-- Expense Entry Form -->
             <section class="expense-form-section" id="expenseFormSection" style="display: none;">
@@ -263,7 +200,6 @@
     <!-- Load authentication files first -->
     <script src="api.js"></script>
     <script src="auth.js"></script>
-    <script src="camera-ocr.js"></script>
     <script src="script.js"></script>
 
     <!-- Authentication Check & User Info Display -->
