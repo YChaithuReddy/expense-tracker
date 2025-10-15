@@ -441,3 +441,324 @@
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(255, 71, 87, 0.4);
 }
+
+/* Modern Orphaned Images Styles */
+.modal-modern {
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+/* Stats Container - Modern Design */
+.stats-container-modern {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    padding: 24px;
+    background: rgba(0, 0, 0, 0.15);
+}
+
+@media (min-width: 640px) {
+    .stats-container-modern {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.stat-card-modern {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 16px;
+    text-align: center;
+    transition: all 0.3s;
+}
+
+.stat-card-modern:hover {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%);
+    border-color: rgba(0, 212, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+.stat-label-modern {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.stat-value-modern {
+    color: #ffffff;
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.stat-value-modern.warning {
+    color: #ffa500;
+}
+
+.stat-unit-modern {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+    margin-left: 4px;
+    font-weight: 400;
+}
+
+/* Empty State - Modern */
+.empty-state-modern {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.empty-icon-modern {
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.7;
+}
+
+.empty-state-modern h3 {
+    color: #ffffff;
+    font-size: 20px;
+    margin: 0 0 12px 0;
+}
+
+.empty-state-modern p {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 14px;
+    margin: 0;
+    max-width: 280px;
+}
+
+/* Images Grid - Modern */
+.images-grid-modern {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+@media (min-width: 768px) {
+    .images-grid-modern {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Image Card - Modern */
+.image-card-modern {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    overflow: hidden;
+    transition: all 0.3s;
+}
+
+.image-card-modern:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+    border-color: rgba(0, 212, 255, 0.3);
+}
+
+/* Image Preview - Modern */
+.image-preview-modern {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    cursor: pointer;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.image-preview-modern img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+}
+
+.image-preview-modern:hover img {
+    transform: scale(1.1);
+}
+
+.image-overlay-modern {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.image-preview-modern:hover .image-overlay-modern {
+    opacity: 1;
+}
+
+/* Image Details - Modern */
+.image-details-modern {
+    padding: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.detail-row-modern {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 14px;
+}
+
+.detail-row-modern:last-child {
+    margin-bottom: 0;
+}
+
+.detail-icon {
+    font-size: 16px;
+    opacity: 0.8;
+}
+
+.detail-text {
+    flex: 1;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.detail-value-modern {
+    font-weight: 600;
+    color: #00d4ff;
+    font-size: 16px;
+}
+
+/* Expiry Badge - Modern */
+.expiry-badge-modern {
+    margin: 0 16px;
+    padding: 8px 16px;
+    border-radius: 24px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.expiry-badge-modern.badge-success {
+    background: rgba(76, 175, 80, 0.2);
+    color: #4caf50;
+    border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.expiry-badge-modern.badge-warning {
+    background: rgba(255, 165, 0, 0.2);
+    color: #ffa500;
+    border: 1px solid rgba(255, 165, 0, 0.3);
+}
+
+.expiry-badge-modern.badge-danger {
+    background: rgba(244, 67, 54, 0.2);
+    color: #f44336;
+    border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+/* Action Buttons - Modern */
+.action-buttons-modern {
+    display: flex;
+    gap: 12px;
+    padding: 16px;
+}
+
+.btn-extend-modern,
+.btn-delete-modern {
+    flex: 1;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-extend-modern {
+    background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+    color: white;
+}
+
+.btn-extend-modern:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(76, 175, 80, 0.4);
+}
+
+.btn-delete-modern {
+    background: linear-gradient(135deg, rgba(244, 67, 54, 0.2) 0%, rgba(244, 67, 54, 0.1) 100%);
+    color: #f44336;
+    border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+.btn-delete-modern:hover {
+    background: linear-gradient(135deg, rgba(244, 67, 54, 0.3) 0%, rgba(244, 67, 54, 0.2) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(244, 67, 54, 0.3);
+}
+
+/* Responsive Design Enhancements */
+@media (max-width: 480px) {
+    .stats-container-modern {
+        padding: 16px;
+        gap: 12px;
+    }
+
+    .stat-card-modern {
+        padding: 12px;
+    }
+
+    .stat-value-modern {
+        font-size: 20px;
+    }
+
+    .image-card-modern {
+        border-radius: 16px;
+    }
+
+    .image-preview-modern {
+        height: 160px;
+    }
+
+    .action-buttons-modern {
+        flex-direction: column;
+    }
+
+    .btn-extend-modern,
+    .btn-delete-modern {
+        width: 100%;
+    }
+}
+
+/* Animation Keyframes */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
