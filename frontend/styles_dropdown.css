@@ -1,4 +1,4 @@
-/* Dropdown Menu Styles */
+/* Dropdown Menu Styles - Improved Alignment */
 .dropdown {
     position: relative;
     display: inline-block;
@@ -14,9 +14,8 @@
 .dropdown-menu {
     position: absolute;
     top: calc(100% + 8px);
-    left: 0;
     right: 0;
-    background: rgba(26, 26, 46, 0.98);
+    background: linear-gradient(135deg, rgba(26, 26, 46, 0.98) 0%, rgba(22, 33, 62, 0.98) 100%);
     backdrop-filter: blur(30px);
     border: 2px solid rgba(0, 212, 255, 0.3);
     border-radius: 16px;
@@ -25,18 +24,135 @@
         0 20px 40px rgba(0, 0, 0, 0.5),
         0 0 30px rgba(0, 212, 255, 0.2),
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    z-index: 1000;
+    z-index: 10000;
     opacity: 0;
     visibility: hidden;
-    transform: translateY(-10px);
+    transform: translateY(-10px) scale(0.95);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    min-width: 280px;
+    min-width: 320px;
+    max-width: 380px;
+    width: max-content;
+}
+
+/* Desktop: Align to the right edge */
+@media (min-width: 769px) {
+    .dropdown-menu {
+        right: 0;
+        left: auto;
+    }
+}
+
+/* Tablet: Center the dropdown */
+@media (max-width: 768px) and (min-width: 481px) {
+    .dropdown-menu {
+        right: 50%;
+        transform: translateX(50%) translateY(-10px) scale(0.95);
+    }
+
+    .dropdown-menu.show {
+        transform: translateX(50%) translateY(0) scale(1);
+    }
+}
+
+/* Mobile: Full width with better animation */
+@media (max-width: 480px) {
+    .dropdown-menu {
+        position: fixed;
+        top: auto;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        max-width: none;
+        width: 100%;
+        border-radius: 20px 20px 0 0;
+        transform: translateY(100%);
+        padding: 12px 20px 20px;
+        border-top: 3px solid rgba(0, 212, 255, 0.4);
+    }
+
+    .dropdown-menu.show {
+        transform: translateY(0);
+    }
 }
 
 .dropdown-menu.show {
     opacity: 1;
     visibility: visible;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
+}
+
+/* Dropdown positioned above when no space below */
+.dropdown-menu.dropdown-up {
+    top: auto;
+    bottom: calc(100% + 12px);
+    transform-origin: bottom center;
+}
+
+@media (max-width: 480px) {
+    .dropdown-menu.dropdown-up {
+        bottom: 20px;
+        top: auto;
+    }
+}
+
+/* Add arrow indicator pointing to Clear Data button */
+.dropdown-menu::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    right: 24px;
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 10px solid rgba(0, 212, 255, 0.3);
+    z-index: 1;
+}
+
+.dropdown-menu::after {
+    content: '';
+    position: absolute;
+    top: -8px;
+    right: 25px;
+    width: 0;
+    height: 0;
+    border-left: 9px solid transparent;
+    border-right: 9px solid transparent;
+    border-bottom: 9px solid rgba(26, 26, 46, 0.98);
+    z-index: 2;
+}
+
+/* Adjust arrow position for larger screens */
+@media (min-width: 1024px) {
+    .dropdown-menu::before {
+        right: 48px;
+    }
+
+    .dropdown-menu::after {
+        right: 49px;
+    }
+}
+
+.dropdown-menu.dropdown-up::before {
+    top: auto;
+    bottom: -10px;
+    border-bottom: none;
+    border-top: 10px solid rgba(0, 212, 255, 0.3);
+}
+
+.dropdown-menu.dropdown-up::after {
+    top: auto;
+    bottom: -8px;
+    border-bottom: none;
+    border-top: 9px solid rgba(26, 26, 46, 0.98);
+}
+
+/* Hide arrows on mobile */
+@media (max-width: 480px) {
+    .dropdown-menu::before,
+    .dropdown-menu::after {
+        display: none;
+    }
 }
 
 .dropdown-item {
@@ -105,12 +221,10 @@
     margin: 8px 0;
 }
 
-/* Mobile responsive dropdown */
+/* Additional responsive adjustments */
 @media (max-width: 768px) {
-    .dropdown-menu {
-        min-width: 100%;
-        left: 0;
-        right: 0;
+    .dropdown {
+        position: static;
     }
 
     .dropdown-item {
@@ -123,6 +237,64 @@
 
     .dropdown-desc {
         font-size: 0.75rem;
+    }
+}
+
+/* Prevent dropdown from being cut off in grid */
+@media (min-width: 769px) {
+    .action-buttons {
+        position: relative;
+        z-index: auto;
+        overflow: visible;
+    }
+
+    .dropdown {
+        z-index: 100;
+        position: relative;
+    }
+
+    /* Ensure dropdown appears above other content */
+    .dropdown-menu.show {
+        z-index: 10001;
+    }
+
+    /* Adjust grid gap to prevent overlap */
+    .action-buttons {
+        gap: 12px;
+    }
+}
+
+/* Backdrop for mobile */
+@media (max-width: 480px) {
+    .dropdown-backdrop {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 9999;
+    }
+
+    .dropdown-backdrop.show {
+        display: block;
+    }
+
+    .dropdown-menu.show {
+        z-index: 10000;
+        animation: slideUp 0.3s ease-out;
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
     }
 }
 

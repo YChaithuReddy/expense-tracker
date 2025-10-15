@@ -1886,35 +1886,129 @@ class ExpenseTracker {
     initializeClearDropdown() {
         const dropdownBtn = document.getElementById('clearDropdownBtn');
         const dropdownMenu = document.getElementById('clearDropdownMenu');
+        const dropdownBackdrop = document.getElementById('dropdownBackdrop');
 
-        // Toggle dropdown
+        // Smart positioning function
+        const positionDropdown = () => {
+            const btnRect = dropdownBtn.getBoundingClientRect();
+            const menuHeight = 350; // Approximate height of the dropdown menu
+            const viewportHeight = window.innerHeight;
+            const viewportWidth = window.innerWidth;
+            const spaceBelow = viewportHeight - btnRect.bottom;
+            const spaceAbove = btnRect.top;
+
+            // Remove positioning classes and inline styles
+            dropdownMenu.classList.remove('dropdown-up');
+            dropdownMenu.style.right = '';
+            dropdownMenu.style.left = '';
+
+            // Check if we're on mobile
+            if (viewportWidth <= 480) {
+                // Mobile: Use fixed positioning at bottom (handled by CSS)
+                return;
+            }
+
+            // Tablet (481-768px): Center the dropdown (handled by CSS)
+            if (viewportWidth > 480 && viewportWidth <= 768) {
+                return;
+            }
+
+            // Desktop: Check vertical space
+            if (spaceBelow < menuHeight && spaceAbove > menuHeight) {
+                // Position above if not enough space below
+                dropdownMenu.classList.add('dropdown-up');
+            }
+
+            // For desktop, ensure proper right alignment
+            setTimeout(() => {
+                const menuRect = dropdownMenu.getBoundingClientRect();
+
+                // Check if dropdown goes off-screen on the right
+                if (menuRect.right > viewportWidth - 20) {
+                    const overflow = menuRect.right - (viewportWidth - 20);
+                    dropdownMenu.style.right = `${overflow + 20}px`;
+                }
+
+                // Check if dropdown goes off-screen on the left
+                if (menuRect.left < 20) {
+                    dropdownMenu.style.left = '20px';
+                    dropdownMenu.style.right = 'auto';
+                }
+            }, 50);
+        };
+
+        // Toggle dropdown with smart positioning
         dropdownBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            dropdownMenu.classList.toggle('show');
+
+            if (!dropdownMenu.classList.contains('show')) {
+                // Show backdrop on mobile
+                if (window.innerWidth <= 480) {
+                    dropdownBackdrop.classList.add('show');
+                }
+
+                // Position before showing
+                positionDropdown();
+                dropdownMenu.classList.add('show');
+
+                // Reposition after animation starts to ensure accuracy
+                setTimeout(positionDropdown, 10);
+            } else {
+                dropdownMenu.classList.remove('show');
+                dropdownBackdrop.classList.remove('show');
+            }
         });
 
         // Close dropdown when clicking outside
         document.addEventListener('click', (e) => {
             if (!dropdownBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
                 dropdownMenu.classList.remove('show');
+                dropdownMenu.classList.remove('dropdown-up');
+                dropdownBackdrop.classList.remove('show');
             }
         });
+
+        // Click backdrop to close (mobile)
+        if (dropdownBackdrop) {
+            dropdownBackdrop.addEventListener('click', () => {
+                dropdownMenu.classList.remove('show');
+                dropdownMenu.classList.remove('dropdown-up');
+                dropdownBackdrop.classList.remove('show');
+            });
+        }
+
+        // Reposition on window resize
+        window.addEventListener('resize', () => {
+            if (dropdownMenu.classList.contains('show')) {
+                positionDropdown();
+            }
+        });
+
+        // Reposition on scroll
+        window.addEventListener('scroll', () => {
+            if (dropdownMenu.classList.contains('show')) {
+                positionDropdown();
+            }
+        }, { passive: true });
 
         // Clear data only (keep images)
         document.getElementById('clearDataOnly').addEventListener('click', async () => {
             dropdownMenu.classList.remove('show');
+            dropdownBackdrop.classList.remove('show');
             await this.clearDataOnly();
         });
 
         // Clear images only
         document.getElementById('clearImagesOnly').addEventListener('click', async () => {
             dropdownMenu.classList.remove('show');
+            dropdownBackdrop.classList.remove('show');
             await this.clearImagesOnly();
         });
 
         // Clear everything
         document.getElementById('clearEverything').addEventListener('click', async () => {
             dropdownMenu.classList.remove('show');
+            dropdownBackdrop.classList.remove('show');
             await this.clearEverything();
         });
     }
