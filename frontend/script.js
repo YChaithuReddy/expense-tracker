@@ -20,6 +20,9 @@ class ExpenseTracker {
 
         // Load expenses from backend (async)
         this.loadExpenses();
+
+        // Initialize Google Sheets service to show View My Sheet button if user has a sheet
+        this.initializeGoogleSheets();
     }
 
     initializeEventListeners() {
@@ -1310,6 +1313,15 @@ class ExpenseTracker {
     resetForm() {
         document.getElementById('expenseForm').reset();
         this.setTodayDate();
+    }
+
+    async initializeGoogleSheets() {
+        try {
+            await googleSheetsService.initialize();
+            console.log('Google Sheets service initialized');
+        } catch (error) {
+            console.log('Google Sheets initialization:', error);
+        }
     }
 
     async loadExpenses() {
