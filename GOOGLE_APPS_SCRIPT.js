@@ -268,7 +268,36 @@ function resetSheetFromMaster(data) {
     // Step 3: Copy borders from master template (this is critical for borders)
     masterDataRange.copyTo(userDataRange, {formatOnly: true});
 
-    Logger.log('Sheet reset completed - data cleared, all formatting and borders applied from master');
+    // Step 4: Explicitly set borders for better reliability (especially for certain users)
+    // This ensures borders are always applied even if copyTo doesn't work properly
+    const borderStyle = SpreadsheetApp.BorderStyle.SOLID;
+
+    // Apply borders to the entire data range A14:F66
+    userDataRange.setBorder(
+      true,  // top
+      true,  // left
+      true,  // bottom
+      true,  // right
+      true,  // vertical (internal vertical borders)
+      true,  // horizontal (internal horizontal borders)
+      '#000000',  // color (black)
+      borderStyle  // style (solid)
+    );
+
+    // Apply thicker borders to header row (row 13)
+    const headerRange = userSheet.getRange('A13:F13');
+    headerRange.setBorder(
+      true,  // top
+      true,  // left
+      true,  // bottom
+      true,  // right
+      false, // no internal vertical
+      false, // no internal horizontal
+      '#000000',  // color (black)
+      SpreadsheetApp.BorderStyle.SOLID_THICK  // thicker border for header
+    );
+
+    Logger.log('Sheet reset completed - data cleared, all formatting and borders explicitly applied');
 
     return createResponse(true, 'Sheet reset successfully - all data cleared, borders restored', {
       sheetId: sheetId,
