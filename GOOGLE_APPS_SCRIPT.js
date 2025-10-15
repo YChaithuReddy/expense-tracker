@@ -451,3 +451,18 @@ function testExportPdf() {
   const result = exportSheetAsPdf(testData);
   Logger.log(result.getContent());
 }
+
+/**
+ * Test function - Reset Sheet
+ * IMPORTANT: Replace the sheetId with your actual sheet ID to test
+ */
+function testResetSheet() {
+  // Replace this with your actual Google Sheet ID
+  const testData = {
+    action: 'resetSheet',
+    sheetId: 'YOUR_TEST_SHEET_ID_HERE'  // <-- Replace with actual ID
+  };
+
+  const result = resetSheetFromMaster(testData);
+  Logger.log(result.getContent());
+}
