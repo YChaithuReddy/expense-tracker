@@ -138,13 +138,27 @@ orphanedImageSchema.methods.extendExpiry = function(days) {
 orphanedImageSchema.statics.getUserStorageStats = async function(userId) {
     const images = await this.find({ user: userId });
 
+    // Calculate expiring within 7 days manually
+    const now = new Date();
+    const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+    const expiringCount = images.filter(img => {
+        return !img.preserveIndefinitely && img.expiryDate > now && img.expiryDate <= sevenDaysFromNow;
+    }).length;
+
+    // Calculate oldest image age manually
+    let oldestImageDays = 0;
+    if (images.length > 0) {
+        const oldestDate = Math.min(...images.map(img => img.uploadDate.getTime()));
+        oldestImageDays = Math.floor((now - oldestDate) / (24 * 60 * 60 * 1000));
+    }
+
     const stats = {
         totalImages: images.length,
         totalSizeBytes: images.reduce((sum, img) => sum + (img.sizeInBytes || 0), 0),
         exportedCount: images.filter(img => img.wasExported).length,
         unexportedCount: images.filter(img => !img.wasExported).length,
-        expiringWithin7Days: images.filter(img => img.daysUntilExpiry <= 7 && img.daysUntilExpiry > 0).length,
-        oldestImage: images.length > 0 ? Math.max(...images.map(img => img.ageInDays)) : 0
+        expiringWithin7Days: expiringCount,
+        oldestImage: oldestImageDays
     };
 
     stats.totalSizeMB = (stats.totalSizeBytes / (1024 * 1024)).toFixed(2);
