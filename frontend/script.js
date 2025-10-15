@@ -48,7 +48,9 @@ class ExpenseTracker {
         document.getElementById('backToScan').addEventListener('click', () => this.backToScan());
         document.getElementById('expenseForm').addEventListener('submit', (e) => this.handleSubmit(e));
         document.getElementById('generatePDF').addEventListener('click', () => this.generatePDF());
-        document.getElementById('clearAll').addEventListener('click', () => this.clearAllExpenses());
+
+        // Clear dropdown menu
+        this.initializeClearDropdown();
 
         // Google Sheets export (simplified - no configuration needed)
         document.getElementById('exportToGoogleSheets').addEventListener('click', () => this.exportToGoogleSheets());
@@ -58,6 +60,9 @@ class ExpenseTracker {
 
         // Reset Google Sheet
         document.getElementById('resetGoogleSheet').addEventListener('click', () => this.resetGoogleSheet());
+
+        // View saved images gallery
+        document.getElementById('viewSavedImages').addEventListener('click', () => this.openOrphanedImagesModal());
 
         // Category and subcategory handling
         document.getElementById('mainCategory').addEventListener('change', (e) => this.handleMainCategoryChange(e));
@@ -1454,26 +1459,48 @@ class ExpenseTracker {
      * Generate bills PDF as blob (for merging or standalone download)
      * @returns {Promise<Blob>} PDF blob
      */
-    async generateBillsPdfBlob() {
-        if (this.expenses.length === 0) {
-            throw new Error('No expenses to export');
-        }
-
-        // Collect all images from all expenses
+    async generateBillsPdfBlob(includeOrphaned = true) {
+        // Collect all images from current expenses
         const allImages = [];
-        this.expenses.forEach((expense, expenseIndex) => {
-            expense.images.forEach((image, imageIndex) => {
-                allImages.push({
-                    data: image.data,
-                    label: `Bill ${expenseIndex + 1}`,
-                    expense: expense
+        let sectionIndex = 0;
+
+        // Add current expense images
+        if (this.expenses.length > 0) {
+            this.expenses.forEach((expense, expenseIndex) => {
+                expense.images.forEach((image, imageIndex) => {
+                    allImages.push({
+                        data: image.data,
+                        label: `Expense ${expenseIndex + 1}`,
+                        expense: expense,
+                        type: 'current'
+                    });
                 });
             });
-        });
+        }
+
+        // Check for and add orphaned images if requested
+        if (includeOrphaned) {
+            try {
+                const orphanedResponse = await api.getOrphanedImages();
+                if (orphanedResponse.status === 'success' && orphanedResponse.images && orphanedResponse.images.length > 0) {
+                    orphanedResponse.images.forEach((img, index) => {
+                        allImages.push({
+                            data: img.url,
+                            label: `Saved ${index + 1}`,
+                            type: 'orphaned',
+                            uploadDate: img.uploadDate,
+                            originalInfo: img.originalExpenseInfo
+                        });
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching orphaned images for PDF:', error);
+            }
+        }
 
         if (allImages.length === 0) {
             alert('No receipt images to export!');
-            return;
+            throw new Error('No images available');
         }
 
         const { jsPDF } = window.jspdf;
@@ -1506,8 +1533,16 @@ class ExpenseTracker {
 
         let currentPage = 1;
         let firstPage = true;
+        let currentType = null;
+        let typeHeaderAdded = false;
 
         allImages.forEach((imageItem, index) => {
+            // Check if we're starting a new type section
+            if (imageItem.type !== currentType) {
+                currentType = imageItem.type;
+                typeHeaderAdded = false;
+            }
+
             // Calculate position on current page
             const positionOnPage = index % imagesPerPage;
 
@@ -1515,6 +1550,7 @@ class ExpenseTracker {
             if (positionOnPage === 0 && index > 0) {
                 pdf.addPage();
                 currentPage++;
+                typeHeaderAdded = false;
             }
 
             // Add header on each page
@@ -1525,9 +1561,18 @@ class ExpenseTracker {
                 pdf.setFontSize(14);
                 pdf.setFont('helvetica', 'bold');
                 pdf.setTextColor(255, 255, 255);
-                pdf.text('RECEIPT IMAGES', pageWidth / 2, 12, { align: 'center' });
 
+                // Dynamic header based on content type
+                let headerText = 'RECEIPT IMAGES';
+                if (currentType === 'orphaned' && !typeHeaderAdded) {
+                    headerText = 'SAVED RECEIPT IMAGES';
+                } else if (currentType === 'current') {
+                    headerText = 'CURRENT EXPENSE RECEIPTS';
+                }
+
+                pdf.text(headerText, pageWidth / 2, 12, { align: 'center' });
                 pdf.setTextColor(0, 0, 0);
+                typeHeaderAdded = true;
             }
 
             // Calculate position in grid
@@ -1787,20 +1832,119 @@ class ExpenseTracker {
         return dates[dates.length - 1].toISOString().split('T')[0];
     }
 
-    async clearAllExpenses() {
-        if (confirm('Are you sure you want to clear all expenses? This will delete ALL expenses from the database. This action cannot be undone.')) {
+    initializeClearDropdown() {
+        const dropdownBtn = document.getElementById('clearDropdownBtn');
+        const dropdownMenu = document.getElementById('clearDropdownMenu');
+
+        // Toggle dropdown
+        dropdownBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdownMenu.classList.toggle('show');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!dropdownBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+
+        // Clear data only (keep images)
+        document.getElementById('clearDataOnly').addEventListener('click', async () => {
+            dropdownMenu.classList.remove('show');
+            await this.clearDataOnly();
+        });
+
+        // Clear images only
+        document.getElementById('clearImagesOnly').addEventListener('click', async () => {
+            dropdownMenu.classList.remove('show');
+            await this.clearImagesOnly();
+        });
+
+        // Clear everything
+        document.getElementById('clearEverything').addEventListener('click', async () => {
+            dropdownMenu.classList.remove('show');
+            await this.clearEverything();
+        });
+    }
+
+    async clearDataOnly() {
+        // Show smart warning
+        const warning = `
+            <strong>Clear Expense Data Only?</strong><br><br>
+            This will:<br>
+            • Delete all expense records<br>
+            • Keep all bill photos for 30 days<br>
+            • Allow PDF generation later<br><br>
+            <small>Images will be automatically deleted after 30 days unless extended.</small>
+        `;
+
+        if (confirm('Clear expense data but keep images?\n\nYour bill photos will be saved for 30 days for later PDF generation.')) {
             try {
-                // Delete all expenses one by one (backend doesn't have batch delete)
-                const deletePromises = this.expenses.map(expense => api.deleteExpense(expense.id));
-                await Promise.all(deletePromises);
+                const response = await api.clearExpenseDataOnly();
 
-                // Reload expenses from backend
-                await this.loadExpenses();
+                if (response.status === 'success') {
+                    // Reload expenses from backend
+                    await this.loadExpenses();
 
-                this.showNotification('✅ All expenses cleared!');
+                    this.showNotification(`✅ Expense data cleared! ${response.orphanedImagesCount || 0} images saved for later use.`);
+                } else {
+                    throw new Error(response.message || 'Failed to clear expense data');
+                }
             } catch (error) {
-                console.error('Error clearing expenses:', error);
-                this.showNotification('❌ Failed to clear all expenses: ' + error.message);
+                console.error('Error clearing expense data:', error);
+                this.showNotification('❌ Failed to clear expense data: ' + error.message);
+            }
+        }
+    }
+
+    async clearImagesOnly() {
+        try {
+            // First check if there are any orphaned images
+            const orphanedResponse = await api.getOrphanedImages();
+
+            if (!orphanedResponse.images || orphanedResponse.images.length === 0) {
+                this.showNotification('ℹ️ No saved images to clear');
+                return;
+            }
+
+            const imageCount = orphanedResponse.images.length;
+            const totalSize = orphanedResponse.stats?.totalSizeMB || 0;
+
+            if (confirm(`Clear ${imageCount} saved images (${totalSize} MB)?\n\nThis will permanently delete all saved bill photos that are not attached to expenses.`)) {
+                const response = await api.clearImagesOnly();
+
+                if (response.status === 'success') {
+                    this.showNotification(`✅ ${response.deletedCount || 0} saved images cleared!`);
+                } else {
+                    throw new Error(response.message || 'Failed to clear images');
+                }
+            }
+        } catch (error) {
+            console.error('Error clearing images:', error);
+            this.showNotification('❌ Failed to clear images: ' + error.message);
+        }
+    }
+
+    async clearEverything() {
+        // Show strong warning
+        if (confirm('⚠️ CLEAR EVERYTHING?\n\nThis will PERMANENTLY delete:\n• All expense records\n• All bill photos\n• All saved images\n\nThis action CANNOT be undone!')) {
+            if (confirm('Are you absolutely sure? All your data and images will be permanently deleted.')) {
+                try {
+                    const response = await api.clearAll();
+
+                    if (response.status === 'success') {
+                        // Reload expenses from backend
+                        await this.loadExpenses();
+
+                        this.showNotification(`✅ All data cleared! ${response.expensesCleared || 0} expenses and ${response.expenseImagesDeleted + response.orphanedImagesDeleted || 0} images deleted.`);
+                    } else {
+                        throw new Error(response.message || 'Failed to clear all data');
+                    }
+                } catch (error) {
+                    console.error('Error clearing all data:', error);
+                    this.showNotification('❌ Failed to clear all data: ' + error.message);
+                }
             }
         }
     }
@@ -2161,6 +2305,130 @@ class ExpenseTracker {
             hiddenCategory.value = `Others - ${customText}`;
         } else {
             hiddenCategory.value = mainCategory;
+        }
+    }
+
+    // Orphaned Images Gallery Methods
+    async openOrphanedImagesModal() {
+        try {
+            // Fetch orphaned images from backend
+            const response = await api.getOrphanedImages();
+
+            if (response.status === 'success') {
+                const modal = document.getElementById('orphanedImagesModal');
+                const statsDiv = document.getElementById('orphanedImagesStats');
+                const gridDiv = document.getElementById('orphanedImagesGrid');
+
+                // Display stats
+                const stats = response.stats || {};
+                statsDiv.innerHTML = `
+                    <div class="stat-item">
+                        <span class="stat-label">Total Images</span>
+                        <span class="stat-value">${response.count || 0}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Total Size</span>
+                        <span class="stat-value">${stats.totalSizeMB || 0} MB</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Exported</span>
+                        <span class="stat-value">${stats.exportedCount || 0}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Expiring Soon</span>
+                        <span class="stat-value" style="color: #ffc107;">${stats.expiringWithin7Days || 0}</span>
+                    </div>
+                `;
+
+                // Display images or empty state
+                if (!response.images || response.images.length === 0) {
+                    gridDiv.innerHTML = `
+                        <div class="empty-orphaned-images">
+                            <p>No saved images found</p>
+                            <small>Images are saved when you clear expense data while keeping photos.</small>
+                        </div>
+                    `;
+                } else {
+                    gridDiv.innerHTML = response.images.map(img => {
+                        const uploadDate = new Date(img.uploadDate).toLocaleDateString();
+                        const expiryDate = new Date(img.expiryDate);
+                        const daysUntilExpiry = Math.ceil((expiryDate - new Date()) / (1000 * 60 * 60 * 24));
+                        const isExpiringSoon = daysUntilExpiry <= 7;
+
+                        return `
+                            <div class="orphaned-image-card">
+                                <img src="${img.url}" alt="${img.filename}" class="orphaned-image-preview"
+                                     onclick="expenseTracker.openImageModal('${img.url}', '${img.filename}', 'orphaned', 0)">
+                                <div class="orphaned-image-info">
+                                    <div class="orphaned-image-date">📅 ${uploadDate}</div>
+                                    ${img.originalExpenseInfo ? `
+                                        <small>From: ${img.originalExpenseInfo.vendor || 'Unknown'}</small>
+                                        <small>₹${img.originalExpenseInfo.amount || 0}</small>
+                                    ` : ''}
+                                    <div class="orphaned-image-expiry ${isExpiringSoon ? 'warning' : ''}">
+                                        ⏱️ ${daysUntilExpiry} days left
+                                    </div>
+                                </div>
+                                <div class="orphaned-image-actions">
+                                    <button class="btn-extend" onclick="expenseTracker.extendImageExpiry('${img._id}')">
+                                        +30 days
+                                    </button>
+                                    <button class="btn-delete-orphan" onclick="expenseTracker.deleteOrphanedImage('${img._id}')">
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+
+                modal.style.display = 'block';
+            } else {
+                throw new Error(response.message || 'Failed to fetch saved images');
+            }
+        } catch (error) {
+            console.error('Error opening orphaned images modal:', error);
+            this.showNotification('❌ Failed to load saved images: ' + error.message);
+        }
+    }
+
+    closeOrphanedImagesModal() {
+        document.getElementById('orphanedImagesModal').style.display = 'none';
+    }
+
+    async extendImageExpiry(imageId) {
+        try {
+            const response = await api.extendOrphanedImageExpiry(imageId, 30);
+
+            if (response.status === 'success') {
+                this.showNotification('✅ Image expiry extended by 30 days');
+                // Refresh the gallery
+                await this.openOrphanedImagesModal();
+            } else {
+                throw new Error(response.message || 'Failed to extend image expiry');
+            }
+        } catch (error) {
+            console.error('Error extending image expiry:', error);
+            this.showNotification('❌ Failed to extend image expiry: ' + error.message);
+        }
+    }
+
+    async deleteOrphanedImage(imageId) {
+        if (confirm('Delete this saved image?\n\nThis action cannot be undone.')) {
+            try {
+                const response = await api.deleteOrphanedImage(imageId);
+
+                if (response.status === 'success') {
+                    this.showNotification('✅ Image deleted successfully');
+                    // Refresh the gallery
+                    await this.openOrphanedImagesModal();
+                } else {
+                    throw new Error(response.message || 'Failed to delete image');
+                }
+            } catch (error) {
+                console.error('Error deleting orphaned image:', error);
+                this.showNotification('❌ Failed to delete image: ' + error.message);
+            }
         }
     }
 }

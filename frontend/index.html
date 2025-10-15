@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles_dropdown.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
@@ -164,9 +165,40 @@
                             <span class="btn-icon">📄</span>
                             <span class="btn-text">Download PDF</span>
                         </button>
-                        <button id="clearAll" class="btn-danger">
-                            <span class="btn-icon">🗑️</span>
-                            <span class="btn-text">Clear All</span>
+                        <!-- Clear Data Dropdown Menu -->
+                        <div class="dropdown">
+                            <button class="btn-danger dropdown-toggle" id="clearDropdownBtn">
+                                <span class="btn-icon">🗑️</span>
+                                <span class="btn-text">Clear Data ▼</span>
+                            </button>
+                            <div class="dropdown-menu" id="clearDropdownMenu">
+                                <button class="dropdown-item" id="clearDataOnly">
+                                    <span class="dropdown-icon">📋</span>
+                                    <div>
+                                        <span class="dropdown-title">Clear Data Only</span>
+                                        <small class="dropdown-desc">Keep images for later PDF</small>
+                                    </div>
+                                </button>
+                                <button class="dropdown-item" id="clearImagesOnly">
+                                    <span class="dropdown-icon">🖼️</span>
+                                    <div>
+                                        <span class="dropdown-title">Clear Saved Images</span>
+                                        <small class="dropdown-desc">Remove orphaned images</small>
+                                    </div>
+                                </button>
+                                <div class="dropdown-divider"></div>
+                                <button class="dropdown-item danger" id="clearEverything">
+                                    <span class="dropdown-icon">⚠️</span>
+                                    <div>
+                                        <span class="dropdown-title">Clear Everything</span>
+                                        <small class="dropdown-desc">Delete all data & images</small>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                        <button id="viewSavedImages" class="btn-secondary">
+                            <span class="btn-icon">🖼️</span>
+                            <span class="btn-text">View Saved Images</span>
                         </button>
                         <button id="downloadReimbursementPackage" class="btn-highlight">
                             <span class="btn-icon">📦</span>
@@ -203,6 +235,22 @@
                 <img id="modalImage" src="" alt="Receipt Image">
                 <div class="image-info">
                     <span id="imageTitle">Receipt Image</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orphaned Images Gallery Modal -->
+        <div id="orphanedImagesModal" class="orphaned-images-modal" style="display: none;">
+            <div class="orphaned-images-content">
+                <div class="orphaned-images-header">
+                    <h2>🖼️ Saved Bill Images</h2>
+                    <span class="close-orphaned" onclick="expenseTracker.closeOrphanedImagesModal()">&times;</span>
+                </div>
+                <div class="orphaned-images-stats" id="orphanedImagesStats">
+                    <!-- Stats will be populated here -->
+                </div>
+                <div class="orphaned-images-grid" id="orphanedImagesGrid">
+                    <!-- Images will be displayed here -->
                 </div>
             </div>
         </div>
