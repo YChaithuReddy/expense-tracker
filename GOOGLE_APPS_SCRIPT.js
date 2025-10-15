@@ -265,13 +265,10 @@ function resetSheetFromMaster(data) {
     userDataRange.setVerticalAlignments(masterVerticalAlignments);
     userDataRange.setNumberFormats(masterNumberFormats);
 
-    // Step 3: Copy borders from master template (this is critical for borders)
-    masterDataRange.copyTo(userDataRange, {formatOnly: true});
+    // Step 3: Note - we cannot use copyTo between different spreadsheets
+    // Borders will be explicitly set in Step 4 instead
 
-    // Step 4: Explicitly set borders for better reliability (especially for certain users)
-    // This ensures borders are always applied even if copyTo doesn't work properly
-    const borderStyle = SpreadsheetApp.BorderStyle.SOLID;
-
+    // Step 4: Explicitly set borders (simplified version without BorderStyle enum)
     // Apply borders to the entire data range A14:F66
     userDataRange.setBorder(
       true,  // top
@@ -279,12 +276,10 @@ function resetSheetFromMaster(data) {
       true,  // bottom
       true,  // right
       true,  // vertical (internal vertical borders)
-      true,  // horizontal (internal horizontal borders)
-      '#000000',  // color (black)
-      borderStyle  // style (solid)
+      true   // horizontal (internal horizontal borders)
     );
 
-    // Apply thicker borders to header row (row 13)
+    // Apply borders to header row (row 13)
     const headerRange = userSheet.getRange('A13:F13');
     headerRange.setBorder(
       true,  // top
@@ -292,9 +287,7 @@ function resetSheetFromMaster(data) {
       true,  // bottom
       true,  // right
       false, // no internal vertical
-      false, // no internal horizontal
-      '#000000',  // color (black)
-      SpreadsheetApp.BorderStyle.SOLID_THICK  // thicker border for header
+      false  // no internal horizontal
     );
 
     Logger.log('Sheet reset completed - data cleared, all formatting and borders explicitly applied');
