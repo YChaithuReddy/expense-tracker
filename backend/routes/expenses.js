@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Expense = require('../models/Expense');
+const OrphanedImage = require('../models/OrphanedImage');
 const { protect } = require('../middleware/auth');
 const { expenseValidation } = require('../utils/validators');
 const { upload, deleteImage } = require('../middleware/upload');
@@ -306,6 +307,284 @@ router.get('/stats/summary', async (req, res) => {
         res.status(500).json({
             status: 'error',
             message: 'Error fetching statistics'
+        });
+    }
+});
+
+/**
+ * @route   DELETE /api/expenses/clear/data-only
+ * @desc    Clear all expense data but preserve images as orphaned
+ * @access  Private
+ */
+router.delete('/clear/data-only', async (req, res) => {
+    try {
+        // Find all expenses for the user
+        const expenses = await Expense.find({ user: req.user.id });
+
+        if (expenses.length === 0) {
+            return res.status(200).json({
+                status: 'success',
+                message: 'No expenses to clear',
+                clearedCount: 0,
+                orphanedImagesCount: 0
+            });
+        }
+
+        let orphanedImagesCount = 0;
+
+        // Process each expense
+        for (const expense of expenses) {
+            // Save images as orphaned before deleting expense
+            if (expense.images && expense.images.length > 0) {
+                try {
+                    const orphanedImages = await OrphanedImage.createFromExpenseImages(expense);
+                    orphanedImagesCount += orphanedImages.length;
+                    console.log(`Preserved ${orphanedImages.length} images from expense ${expense._id}`);
+                } catch (error) {
+                    console.error('Error preserving images:', error);
+                }
+            }
+
+            // Delete the expense (but not the images from Cloudinary)
+            await expense.deleteOne();
+        }
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Expense data cleared, images preserved',
+            clearedCount: expenses.length,
+            orphanedImagesCount
+        });
+
+    } catch (error) {
+        console.error('Clear data only error:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Error clearing expense data',
+            error: error.message
+        });
+    }
+});
+
+/**
+ * @route   DELETE /api/expenses/clear/images-only
+ * @desc    Clear only orphaned images
+ * @access  Private
+ */
+router.delete('/clear/images-only', async (req, res) => {
+    try {
+        // Find all orphaned images for the user
+        const orphanedImages = await OrphanedImage.find({ user: req.user.id });
+
+        if (orphanedImages.length === 0) {
+            return res.status(200).json({
+                status: 'success',
+                message: 'No orphaned images to clear',
+                deletedCount: 0
+            });
+        }
+
+        let deletedCount = 0;
+
+        // Delete each orphaned image
+        for (const image of orphanedImages) {
+            try {
+                // Delete from Cloudinary
+                if (image.publicId) {
+                    await deleteImage(image.publicId);
+                }
+
+                // Delete from database
+                await image.deleteOne();
+                deletedCount++;
+            } catch (error) {
+                console.error(`Failed to delete orphaned image ${image._id}:`, error);
+            }
+        }
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Orphaned images cleared',
+            deletedCount
+        });
+
+    } catch (error) {
+        console.error('Clear images only error:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Error clearing orphaned images',
+            error: error.message
+        });
+    }
+});
+
+/**
+ * @route   DELETE /api/expenses/clear/all
+ * @desc    Clear all expenses and all images (complete cleanup)
+ * @access  Private
+ */
+router.delete('/clear/all', async (req, res) => {
+    try {
+        // Delete all expenses and their images
+        const expenses = await Expense.find({ user: req.user.id });
+        let expenseImagesDeleted = 0;
+
+        for (const expense of expenses) {
+            // Delete images from Cloudinary
+            if (expense.images && expense.images.length > 0) {
+                for (const image of expense.images) {
+                    try {
+                        await deleteImage(image.publicId);
+                        expenseImagesDeleted++;
+                    } catch (error) {
+                        console.error(`Failed to delete image ${image.publicId}:`, error);
+                    }
+                }
+            }
+
+            await expense.deleteOne();
+        }
+
+        // Delete all orphaned images
+        const orphanedImages = await OrphanedImage.find({ user: req.user.id });
+        let orphanedImagesDeleted = 0;
+
+        for (const image of orphanedImages) {
+            try {
+                if (image.publicId) {
+                    await deleteImage(image.publicId);
+                }
+                await image.deleteOne();
+                orphanedImagesDeleted++;
+            } catch (error) {
+                console.error(`Failed to delete orphaned image ${image._id}:`, error);
+            }
+        }
+
+        res.status(200).json({
+            status: 'success',
+            message: 'All expenses and images cleared',
+            expensesCleared: expenses.length,
+            expenseImagesDeleted,
+            orphanedImagesDeleted
+        });
+
+    } catch (error) {
+        console.error('Clear all error:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Error clearing all data',
+            error: error.message
+        });
+    }
+});
+
+/**
+ * @route   GET /api/expenses/orphaned-images
+ * @desc    Get all orphaned images for the user
+ * @access  Private
+ */
+router.get('/orphaned-images', async (req, res) => {
+    try {
+        const orphanedImages = await OrphanedImage.find({ user: req.user.id })
+            .sort({ uploadDate: -1 });
+
+        const stats = await OrphanedImage.getUserStorageStats(req.user.id);
+
+        res.status(200).json({
+            status: 'success',
+            count: orphanedImages.length,
+            stats,
+            images: orphanedImages
+        });
+
+    } catch (error) {
+        console.error('Get orphaned images error:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Error fetching orphaned images',
+            error: error.message
+        });
+    }
+});
+
+/**
+ * @route   DELETE /api/expenses/orphaned-images/:imageId
+ * @desc    Delete a specific orphaned image
+ * @access  Private
+ */
+router.delete('/orphaned-images/:imageId', async (req, res) => {
+    try {
+        const image = await OrphanedImage.findOne({
+            _id: req.params.imageId,
+            user: req.user.id
+        });
+
+        if (!image) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'Orphaned image not found'
+            });
+        }
+
+        // Delete from Cloudinary
+        if (image.publicId) {
+            await deleteImage(image.publicId);
+        }
+
+        // Delete from database
+        await image.deleteOne();
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Orphaned image deleted successfully'
+        });
+
+    } catch (error) {
+        console.error('Delete orphaned image error:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Error deleting orphaned image',
+            error: error.message
+        });
+    }
+});
+
+/**
+ * @route   PUT /api/expenses/orphaned-images/:imageId/extend
+ * @desc    Extend expiry date of an orphaned image
+ * @access  Private
+ */
+router.put('/orphaned-images/:imageId/extend', async (req, res) => {
+    try {
+        const { days = 30 } = req.body;
+
+        const image = await OrphanedImage.findOne({
+            _id: req.params.imageId,
+            user: req.user.id
+        });
+
+        if (!image) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'Orphaned image not found'
+            });
+        }
+
+        await image.extendExpiry(days);
+
+        res.status(200).json({
+            status: 'success',
+            message: `Image expiry extended by ${days} days`,
+            newExpiryDate: image.expiryDate
+        });
+
+    } catch (error) {
+        console.error('Extend orphaned image error:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Error extending image expiry',
+            error: error.message
         });
     }
 });

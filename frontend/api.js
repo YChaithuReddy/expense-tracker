@@ -445,6 +445,135 @@ const api = {
         } catch (error) {
             return handleApiError(error);
         }
+    },
+
+    /**
+     * Selective Clear APIs
+     */
+
+    // Clear only expense data (preserve images)
+    async clearExpenseDataOnly() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/expenses/clear/data-only`, {
+                method: 'DELETE',
+                headers: getHeaders(true)
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to clear expense data');
+            }
+
+            return data;
+        } catch (error) {
+            return handleApiError(error);
+        }
+    },
+
+    // Clear only orphaned images
+    async clearImagesOnly() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/expenses/clear/images-only`, {
+                method: 'DELETE',
+                headers: getHeaders(true)
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to clear images');
+            }
+
+            return data;
+        } catch (error) {
+            return handleApiError(error);
+        }
+    },
+
+    // Clear everything (expenses and images)
+    async clearAll() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/expenses/clear/all`, {
+                method: 'DELETE',
+                headers: getHeaders(true)
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to clear all data');
+            }
+
+            return data;
+        } catch (error) {
+            return handleApiError(error);
+        }
+    },
+
+    /**
+     * Orphaned Images APIs
+     */
+
+    // Get all orphaned images
+    async getOrphanedImages() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/expenses/orphaned-images`, {
+                method: 'GET',
+                headers: getHeaders(true)
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to fetch orphaned images');
+            }
+
+            return data;
+        } catch (error) {
+            return handleApiError(error);
+        }
+    },
+
+    // Delete specific orphaned image
+    async deleteOrphanedImage(imageId) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/expenses/orphaned-images/${imageId}`, {
+                method: 'DELETE',
+                headers: getHeaders(true)
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to delete orphaned image');
+            }
+
+            return data;
+        } catch (error) {
+            return handleApiError(error);
+        }
+    },
+
+    // Extend orphaned image expiry
+    async extendOrphanedImageExpiry(imageId, days = 30) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/expenses/orphaned-images/${imageId}/extend`, {
+                method: 'PUT',
+                headers: getHeaders(true),
+                body: JSON.stringify({ days })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to extend image expiry');
+            }
+
+            return data;
+        } catch (error) {
+            return handleApiError(error);
+        }
     }
 };
 
