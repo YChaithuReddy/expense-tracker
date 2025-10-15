@@ -1516,7 +1516,8 @@ class ExpenseTracker {
         console.log(`Total images for PDF: ${allImages.length} (${currentExpenseImages} current + ${orphanedImages} saved)`);
 
         if (allImages.length === 0) {
-            alert('No receipt images to export!');
+            console.warn('No receipt images found for PDF generation');
+            // Don't show alert here - let the calling function handle it
             throw new Error('No images available');
         }
 
@@ -1687,17 +1688,43 @@ class ExpenseTracker {
      */
     async generatePDF() {
         try {
-            // Check if we have orphaned images to include
-            let hasOrphaned = false;
-            try {
-                const orphanedResponse = await api.getOrphanedImages();
-                hasOrphaned = orphanedResponse.status === 'success' && orphanedResponse.images && orphanedResponse.images.length > 0;
-            } catch (error) {
-                console.log('No orphaned images to check');
+            // First check if we have any images at all
+            let hasCurrentImages = false;
+            let hasOrphanedImages = false;
+
+            // Check current expense images
+            if (this.expenses.length > 0) {
+                hasCurrentImages = this.expenses.some(expense => expense.images && expense.images.length > 0);
             }
 
-            if (hasOrphaned) {
+            // Check orphaned images
+            try {
+                const orphanedResponse = await api.getOrphanedImages();
+                hasOrphanedImages = orphanedResponse.status === 'success' &&
+                                  orphanedResponse.images &&
+                                  orphanedResponse.images.length > 0;
+            } catch (error) {
+                console.log('No orphaned images available');
+            }
+
+            // If no images at all, show helpful message
+            if (!hasCurrentImages && !hasOrphanedImages) {
+                this.showNotification('ℹ️ No receipt images available to export');
+                alert('No receipt images to export!\n\n' +
+                      'To generate a PDF, you need to either:\n' +
+                      '• Add expenses with receipt images\n' +
+                      '• Have saved images from previous expenses\n\n' +
+                      'Images are saved when you use "Clear Data Only" option.');
+                return;
+            }
+
+            // Show appropriate notification
+            if (hasCurrentImages && hasOrphanedImages) {
                 this.showNotification('📸 Generating PDF with current and saved images...');
+            } else if (hasOrphanedImages) {
+                this.showNotification('📸 Generating PDF with saved images...');
+            } else {
+                this.showNotification('📸 Generating PDF with current images...');
             }
 
             const pdfBlob = await this.generateBillsPdfBlob(true); // Include orphaned images
@@ -1715,7 +1742,10 @@ class ExpenseTracker {
             this.showNotification('✅ PDF downloaded successfully!');
         } catch (error) {
             console.error('Error generating PDF:', error);
-            alert('Failed to generate PDF: ' + error.message);
+            // Don't show alert if it's "No images available" error
+            if (error.message !== 'No images available') {
+                alert('Failed to generate PDF: ' + error.message);
+            }
         }
     }
 
@@ -1748,31 +1778,59 @@ class ExpenseTracker {
 
             // Step 3: Generate bill photos PDF (INCLUDING orphaned/saved images)
             console.log('📸 Generating bills PDF with ALL images (current + saved)...');
-            const billsPdfBlob = await this.generateBillsPdfBlob(true); // Explicitly include orphaned images
-            const billsPdfBytes = await billsPdfBlob.arrayBuffer();
 
-            this.showNotification('🔗 Merging documents...');
+            let billsPdfBlob = null;
+            let billsPdfBytes = null;
+            let hasImages = false;
 
-            // Step 4: Merge both PDFs using pdf-lib
-            console.log('🔀 Merging PDFs...');
+            try {
+                billsPdfBlob = await this.generateBillsPdfBlob(true); // Explicitly include orphaned images
+                billsPdfBytes = await billsPdfBlob.arrayBuffer();
+                hasImages = true;
+                this.showNotification('🔗 Merging documents...');
+            } catch (error) {
+                if (error.message === 'No images available') {
+                    console.log('No bill images available, continuing with Google Sheet only');
+                    this.showNotification('📋 No bill images found. Downloading Google Sheet only...');
+                    hasImages = false;
+                } else {
+                    throw error; // Re-throw other errors
+                }
+            }
+
+            // Step 4: Create or merge PDFs
             const { PDFDocument } = PDFLib;
+            let mergedPdf;
+            let totalPages;
 
-            // Create new merged PDF
-            const mergedPdf = await PDFDocument.create();
+            if (hasImages) {
+                // We have both Google Sheet and bill images - merge them
+                console.log('🔀 Merging Google Sheet and bill images...');
 
-            // Load both PDFs
-            const sheetPdf = await PDFDocument.load(sheetPdfBytes);
-            const billsPdf = await PDFDocument.load(billsPdfBytes);
+                // Create new merged PDF
+                mergedPdf = await PDFDocument.create();
 
-            // Copy pages from Google Sheet PDF (expense form)
-            console.log(`📄 Adding ${sheetPdf.getPageCount()} page(s) from Google Sheet...`);
-            const sheetPages = await mergedPdf.copyPages(sheetPdf, sheetPdf.getPageIndices());
-            sheetPages.forEach(page => mergedPdf.addPage(page));
+                // Load both PDFs
+                const sheetPdf = await PDFDocument.load(sheetPdfBytes);
+                const billsPdf = await PDFDocument.load(billsPdfBytes);
 
-            // Copy pages from Bills PDF (receipt images)
-            console.log(`📸 Adding ${billsPdf.getPageCount()} page(s) of receipts...`);
-            const billsPages = await mergedPdf.copyPages(billsPdf, billsPdf.getPageIndices());
-            billsPages.forEach(page => mergedPdf.addPage(page));
+                // Copy pages from Google Sheet PDF (expense form)
+                console.log(`📄 Adding ${sheetPdf.getPageCount()} page(s) from Google Sheet...`);
+                const sheetPages = await mergedPdf.copyPages(sheetPdf, sheetPdf.getPageIndices());
+                sheetPages.forEach(page => mergedPdf.addPage(page));
+
+                // Copy pages from Bills PDF (receipt images)
+                console.log(`📸 Adding ${billsPdf.getPageCount()} page(s) of receipts...`);
+                const billsPages = await mergedPdf.copyPages(billsPdf, billsPdf.getPageIndices());
+                billsPages.forEach(page => mergedPdf.addPage(page));
+
+                totalPages = sheetPdf.getPageCount() + billsPdf.getPageCount();
+            } else {
+                // Only Google Sheet available
+                console.log('📄 Only Google Sheet available for download...');
+                mergedPdf = await PDFDocument.load(sheetPdfBytes);
+                totalPages = mergedPdf.getPageCount();
+            }
 
             this.showNotification('💾 Saving package...');
 
@@ -1790,14 +1848,21 @@ class ExpenseTracker {
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
 
-            // Success notification with detailed info
-            const totalPages = sheetPdf.getPageCount() + billsPdf.getPageCount();
-            this.showNotification(`✅ Complete reimbursement package downloaded! (${totalPages} pages)`);
+            // Success notification with appropriate message
+            if (hasImages) {
+                this.showNotification(`✅ Complete reimbursement package downloaded! (${totalPages} pages with images)`);
+            } else {
+                this.showNotification(`📋 Google Sheet downloaded! (${totalPages} pages, no bill images available)`);
+            }
 
             // Log summary for debugging
             console.log('=== Reimbursement Package Summary ===');
-            console.log(`Google Sheet pages: ${sheetPdf.getPageCount()}`);
-            console.log(`Receipt image pages: ${billsPdf.getPageCount()}`);
+            console.log(`Google Sheet pages: ${totalPages}`);
+            if (hasImages) {
+                console.log(`Bill images included: Yes`);
+            } else {
+                console.log(`Bill images included: No (none available)`);
+            }
             console.log(`Total pages: ${totalPages}`);
 
             console.log(`✅ Combined PDF created successfully: ${totalPages} pages, ${(mergedPdfBytes.length / 1024 / 1024).toFixed(2)} MB`);
