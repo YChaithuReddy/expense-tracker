@@ -2370,70 +2370,111 @@ class ExpenseTracker {
                 const statsDiv = document.getElementById('orphanedImagesStats');
                 const gridDiv = document.getElementById('orphanedImagesGrid');
 
-                // Display stats
+                // Display stats with improved modern design
                 const stats = response.stats || {};
                 statsDiv.innerHTML = `
-                    <div class="stat-item">
-                        <span class="stat-label">Total Images</span>
-                        <span class="stat-value">${response.count || 0}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Total Size</span>
-                        <span class="stat-value">${stats.totalSizeMB || 0} MB</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Exported</span>
-                        <span class="stat-value">${stats.exportedCount || 0}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Expiring Soon</span>
-                        <span class="stat-value" style="color: #ffc107;">${stats.expiringWithin7Days || 0}</span>
+                    <div class="stats-container-modern">
+                        <div class="stat-card-modern">
+                            <div class="stat-label-modern">Total Images</div>
+                            <div class="stat-value-modern">${response.count || 0}</div>
+                        </div>
+                        <div class="stat-card-modern">
+                            <div class="stat-label-modern">Total Size</div>
+                            <div class="stat-value-modern">
+                                ${stats.totalSizeMB || '0.00'}
+                                <span class="stat-unit-modern">MB</span>
+                            </div>
+                        </div>
+                        <div class="stat-card-modern">
+                            <div class="stat-label-modern">Exported</div>
+                            <div class="stat-value-modern">${stats.exportedCount || 0}</div>
+                        </div>
+                        <div class="stat-card-modern">
+                            <div class="stat-label-modern">Expiring Soon</div>
+                            <div class="stat-value-modern warning">${stats.expiringWithin7Days || 0}</div>
+                        </div>
                     </div>
                 `;
 
                 // Display images or empty state
                 if (!response.images || response.images.length === 0) {
                     gridDiv.innerHTML = `
-                        <div class="empty-orphaned-images">
-                            <p>No saved images found</p>
-                            <small>Images are saved when you clear expense data while keeping photos.</small>
+                        <div class="empty-state-modern">
+                            <div class="empty-icon-modern">📭</div>
+                            <h3>No Saved Images</h3>
+                            <p>Images will appear here when you use "Clear Data Only" option</p>
                         </div>
                     `;
                 } else {
-                    gridDiv.innerHTML = response.images.map(img => {
-                        const uploadDate = new Date(img.uploadDate).toLocaleDateString();
-                        const expiryDate = new Date(img.expiryDate);
-                        const daysUntilExpiry = Math.ceil((expiryDate - new Date()) / (1000 * 60 * 60 * 24));
-                        const isExpiringSoon = daysUntilExpiry <= 7;
+                    gridDiv.innerHTML = `
+                        <div class="images-grid-modern">
+                            ${response.images.map(img => {
+                                const uploadDate = new Date(img.uploadDate || img.createdAt).toLocaleDateString('en-IN', {
+                                    day: '2-digit',
+                                    month: '2-digit',
+                                    year: 'numeric'
+                                });
+                                const expiryDate = new Date(img.expiryDate);
+                                const daysUntilExpiry = Math.ceil((expiryDate - new Date()) / (1000 * 60 * 60 * 24));
+                                const badgeClass = daysUntilExpiry <= 7 ? 'badge-danger' :
+                                                  daysUntilExpiry <= 14 ? 'badge-warning' : 'badge-success';
 
-                        return `
-                            <div class="orphaned-image-card">
-                                <img src="${img.url}" alt="${img.filename}" class="orphaned-image-preview"
-                                     onclick="expenseTracker.openImageModal('${img.url}', '${img.filename}', 'orphaned', 0)">
-                                <div class="orphaned-image-info">
-                                    <div class="orphaned-image-date">📅 ${uploadDate}</div>
-                                    ${img.originalExpenseInfo ? `
-                                        <small>From: ${img.originalExpenseInfo.vendor || 'Unknown'}</small>
-                                        <small>₹${img.originalExpenseInfo.amount || 0}</small>
-                                    ` : ''}
-                                    <div class="orphaned-image-expiry ${isExpiringSoon ? 'warning' : ''}">
-                                        ⏱️ ${daysUntilExpiry} days left
+                                return `
+                                    <div class="image-card-modern">
+                                        <div class="image-preview-modern" onclick="expenseTracker.openImageModal('${img.url}', '${img.filename}', 'orphaned', 0)">
+                                            <img src="${img.url}" alt="${img.filename}">
+                                            <div class="image-overlay-modern">
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                                                    <path d="M15 3h6v6m0-6L10 14m-5 2H3v-6" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                                                </svg>
+                                            </div>
+                                        </div>
+
+                                        <div class="image-details-modern">
+                                            <div class="detail-row-modern">
+                                                <span class="detail-icon">📅</span>
+                                                <span class="detail-text">${uploadDate}</span>
+                                            </div>
+
+                                            <div class="detail-row-modern">
+                                                <span class="detail-icon">🏪</span>
+                                                <span class="detail-text">${img.originalExpenseInfo?.vendor || 'Unknown Vendor'}</span>
+                                            </div>
+
+                                            <div class="detail-row-modern">
+                                                <span class="detail-icon">💰</span>
+                                                <span class="detail-value-modern">₹${img.originalExpenseInfo?.amount || 0}</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="expiry-badge-modern ${badgeClass}">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                                                <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                            </svg>
+                                            <span>${daysUntilExpiry} days left</span>
+                                        </div>
+
+                                        <div class="action-buttons-modern">
+                                            <button class="btn-extend-modern" onclick="expenseTracker.extendImageExpiry('${img._id}')">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M12 4v16m8-8H4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                                </svg>
+                                                +30 days
+                                            </button>
+                                            <button class="btn-delete-modern" onclick="expenseTracker.deleteOrphanedImage('${img._id}')">
+                                                Delete
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="orphaned-image-actions">
-                                    <button class="btn-extend" onclick="expenseTracker.extendImageExpiry('${img._id}')">
-                                        +30 days
-                                    </button>
-                                    <button class="btn-delete-orphan" onclick="expenseTracker.deleteOrphanedImage('${img._id}')">
-                                        Delete
-                                    </button>
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
+                                `;
+                            }).join('')}
+                        </div>
+                    `;
                 }
 
                 modal.style.display = 'block';
+                modal.classList.add('modal-modern');
             } else {
                 throw new Error(response.message || 'Failed to fetch saved images');
             }
