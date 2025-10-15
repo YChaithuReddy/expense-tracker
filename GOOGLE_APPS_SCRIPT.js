@@ -153,8 +153,14 @@ function exportExpensesToSheet(data) {
     // Set DATE (Column B)
     sheet.getRange(nextRow, 2, numExpenses, 1).setValues(dates);
 
-    // Set VENDOR NAME (Column C)
+    // Set VENDOR NAME (Column C) and merge with Column D to match header format
     sheet.getRange(nextRow, 3, numExpenses, 1).setValues(vendors);
+
+    // Merge vendor cells across columns C and D for each row
+    for (let i = 0; i < numExpenses; i++) {
+      const vendorRange = sheet.getRange(nextRow + i, 3, 1, 2);  // Row, Col C, 1 row, 2 columns
+      vendorRange.merge();
+    }
 
     // Set CATEGORY (Column E)
     sheet.getRange(nextRow, 5, numExpenses, 1).setValues(categories);
@@ -289,6 +295,13 @@ function resetSheetFromMaster(data) {
       false, // no internal vertical
       false  // no internal horizontal
     );
+
+    // Merge vendor cells (C14:D66) to match header format
+    // Merge each row individually to maintain proper cell structure
+    for (let row = 14; row <= 66; row++) {
+      const vendorCellRange = userSheet.getRange(row, 3, 1, 2);  // Row, Col C, 1 row, 2 columns
+      vendorCellRange.merge();
+    }
 
     Logger.log('Sheet reset completed - data cleared, all formatting and borders explicitly applied');
 
