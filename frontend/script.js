@@ -47,7 +47,7 @@ class ExpenseTracker {
         document.getElementById('scanBills').addEventListener('click', () => this.scanBills());
         document.getElementById('backToScan').addEventListener('click', () => this.backToScan());
         document.getElementById('expenseForm').addEventListener('submit', (e) => this.handleSubmit(e));
-        document.getElementById('generatePDF').addEventListener('click', () => this.generatePDF());
+        // Removed generatePDF button event listener - button no longer exists in HTML
 
         // Clear dropdown menu
         this.initializeClearDropdown();
@@ -1683,71 +1683,9 @@ class ExpenseTracker {
         return pdf.output('blob');
     }
 
-    /**
-     * Generate PDF for standalone download (uses generateBillsPdfBlob())
-     */
-    async generatePDF() {
-        try {
-            // First check if we have any images at all
-            let hasCurrentImages = false;
-            let hasOrphanedImages = false;
-
-            // Check current expense images
-            if (this.expenses.length > 0) {
-                hasCurrentImages = this.expenses.some(expense => expense.images && expense.images.length > 0);
-            }
-
-            // Check orphaned images
-            try {
-                const orphanedResponse = await api.getOrphanedImages();
-                hasOrphanedImages = orphanedResponse.status === 'success' &&
-                                  orphanedResponse.images &&
-                                  orphanedResponse.images.length > 0;
-            } catch (error) {
-                console.log('No orphaned images available');
-            }
-
-            // If no images at all, show helpful message
-            if (!hasCurrentImages && !hasOrphanedImages) {
-                this.showNotification('ℹ️ No receipt images available to export');
-                alert('No receipt images to export!\n\n' +
-                      'To generate a PDF, you need to either:\n' +
-                      '• Add expenses with receipt images\n' +
-                      '• Have saved images from previous expenses\n\n' +
-                      'Images are saved when you use "Clear Data Only" option.');
-                return;
-            }
-
-            // Show appropriate notification
-            if (hasCurrentImages && hasOrphanedImages) {
-                this.showNotification('📸 Generating PDF with current and saved images...');
-            } else if (hasOrphanedImages) {
-                this.showNotification('📸 Generating PDF with saved images...');
-            } else {
-                this.showNotification('📸 Generating PDF with current images...');
-            }
-
-            const pdfBlob = await this.generateBillsPdfBlob(true); // Include orphaned images
-
-            // Download it
-            const url = URL.createObjectURL(pdfBlob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `Receipt_Images_${new Date().toISOString().split('T')[0]}.pdf`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-
-            this.showNotification('✅ PDF downloaded successfully!');
-        } catch (error) {
-            console.error('Error generating PDF:', error);
-            // Don't show alert if it's "No images available" error
-            if (error.message !== 'No images available') {
-                alert('Failed to generate PDF: ' + error.message);
-            }
-        }
-    }
+    // REMOVED: Standalone generatePDF() method - PDF button removed from UI
+    // PDF generation now only happens as part of the complete reimbursement package
+    // The generateBillsPdfBlob() method is still available and used by generateCombinedReimbursementPDF()
 
     /**
      * Generate combined reimbursement package PDF
