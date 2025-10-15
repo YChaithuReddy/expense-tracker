@@ -203,12 +203,29 @@
 }
 
 .orphaned-images-grid {
-    padding: 30px;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 20px;
-    max-height: 60vh;
+    padding: 24px;
+    max-height: calc(100vh - 280px);
     overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Custom scrollbar for the images grid */
+.orphaned-images-grid::-webkit-scrollbar {
+    width: 8px;
+}
+
+.orphaned-images-grid::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+.orphaned-images-grid::-webkit-scrollbar-thumb {
+    background: rgba(0, 212, 255, 0.3);
+    border-radius: 4px;
+}
+
+.orphaned-images-grid::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 212, 255, 0.5);
 }
 
 .orphaned-image-card {
@@ -536,13 +553,33 @@
 /* Images Grid - Modern */
 .images-grid-modern {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 24px;
+    padding: 20px 0;
+    align-items: start;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 768px) and (max-width: 1024px) {
     .images-grid-modern {
         grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1025px) {
+    .images-grid-modern {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 1440px) {
+    .images-grid-modern {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 767px) {
+    .images-grid-modern {
+        grid-template-columns: 1fr;
     }
 }
 
@@ -550,9 +587,13 @@
 .image-card-modern {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
+    border-radius: 16px;
     overflow: hidden;
     transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 420px;
 }
 
 .image-card-modern:hover {
@@ -565,10 +606,11 @@
 .image-preview-modern {
     position: relative;
     width: 100%;
-    height: 200px;
+    height: 180px;
     overflow: hidden;
     cursor: pointer;
     background: rgba(0, 0, 0, 0.3);
+    flex-shrink: 0;
 }
 
 .image-preview-modern img {
@@ -602,17 +644,21 @@
 
 /* Image Details - Modern */
 .image-details-modern {
-    padding: 16px;
+    padding: 12px 16px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .detail-row-modern {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
+    gap: 10px;
+    margin-bottom: 10px;
     color: rgba(255, 255, 255, 0.9);
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .detail-row-modern:last-child {
@@ -620,30 +666,37 @@
 }
 
 .detail-icon {
-    font-size: 16px;
+    font-size: 14px;
     opacity: 0.8;
+    width: 20px;
+    text-align: center;
+    flex-shrink: 0;
 }
 
 .detail-text {
     flex: 1;
     color: rgba(255, 255, 255, 0.8);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .detail-value-modern {
     font-weight: 600;
     color: #00d4ff;
-    font-size: 16px;
+    font-size: 15px;
 }
 
 /* Expiry Badge - Modern */
 .expiry-badge-modern {
-    margin: 0 16px;
-    padding: 8px 16px;
-    border-radius: 24px;
+    margin: 12px 16px;
+    padding: 6px 14px;
+    border-radius: 20px;
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    font-size: 13px;
+    justify-content: center;
+    gap: 6px;
+    font-size: 12px;
     font-weight: 500;
     transition: all 0.3s;
 }
@@ -669,16 +722,18 @@
 /* Action Buttons - Modern */
 .action-buttons-modern {
     display: flex;
-    gap: 12px;
-    padding: 16px;
+    gap: 10px;
+    padding: 12px 16px;
+    margin-top: auto;
+    flex-shrink: 0;
 }
 
 .btn-extend-modern,
 .btn-delete-modern {
     flex: 1;
-    padding: 12px 16px;
-    border-radius: 12px;
-    font-size: 14px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 13px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
@@ -686,12 +741,19 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
+    min-height: 36px;
 }
 
 .btn-extend-modern {
     background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
     color: white;
+}
+
+.btn-extend-modern svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
 }
 
 .btn-extend-modern:hover {
@@ -709,6 +771,13 @@
     background: linear-gradient(135deg, rgba(244, 67, 54, 0.3) 0%, rgba(244, 67, 54, 0.2) 100%);
     transform: translateY(-2px);
     box-shadow: 0 6px 12px rgba(244, 67, 54, 0.3);
+}
+
+/* SVG Icon Sizing in Expiry Badge */
+.expiry-badge-modern svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
 }
 
 /* Responsive Design Enhancements */
