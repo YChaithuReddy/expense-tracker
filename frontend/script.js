@@ -1457,12 +1457,17 @@ class ExpenseTracker {
 
     /**
      * Generate bills PDF as blob (for merging or standalone download)
+     * @param {boolean} includeOrphaned - Whether to include saved/orphaned images
      * @returns {Promise<Blob>} PDF blob
      */
     async generateBillsPdfBlob(includeOrphaned = true) {
+        console.log('=== Starting PDF Generation ===');
+        console.log('Include orphaned images:', includeOrphaned);
+
         // Collect all images from current expenses
         const allImages = [];
-        let sectionIndex = 0;
+        let currentExpenseImages = 0;
+        let orphanedImages = 0;
 
         // Add current expense images
         if (this.expenses.length > 0) {
@@ -1474,15 +1479,21 @@ class ExpenseTracker {
                         expense: expense,
                         type: 'current'
                     });
+                    currentExpenseImages++;
                 });
             });
         }
+        console.log(`Current expense images found: ${currentExpenseImages}`);
 
         // Check for and add orphaned images if requested
         if (includeOrphaned) {
             try {
+                console.log('Fetching orphaned/saved images...');
                 const orphanedResponse = await api.getOrphanedImages();
+
                 if (orphanedResponse.status === 'success' && orphanedResponse.images && orphanedResponse.images.length > 0) {
+                    console.log(`Found ${orphanedResponse.images.length} orphaned/saved images`);
+
                     orphanedResponse.images.forEach((img, index) => {
                         allImages.push({
                             data: img.url,
@@ -1491,12 +1502,18 @@ class ExpenseTracker {
                             uploadDate: img.uploadDate,
                             originalInfo: img.originalExpenseInfo
                         });
+                        orphanedImages++;
                     });
+                } else {
+                    console.log('No orphaned/saved images found');
                 }
             } catch (error) {
                 console.error('Error fetching orphaned images for PDF:', error);
+                // Don't throw error - continue with current images
             }
         }
+
+        console.log(`Total images for PDF: ${allImages.length} (${currentExpenseImages} current + ${orphanedImages} saved)`);
 
         if (allImages.length === 0) {
             alert('No receipt images to export!');
@@ -1670,7 +1687,20 @@ class ExpenseTracker {
      */
     async generatePDF() {
         try {
-            const pdfBlob = await this.generateBillsPdfBlob();
+            // Check if we have orphaned images to include
+            let hasOrphaned = false;
+            try {
+                const orphanedResponse = await api.getOrphanedImages();
+                hasOrphaned = orphanedResponse.status === 'success' && orphanedResponse.images && orphanedResponse.images.length > 0;
+            } catch (error) {
+                console.log('No orphaned images to check');
+            }
+
+            if (hasOrphaned) {
+                this.showNotification('📸 Generating PDF with current and saved images...');
+            }
+
+            const pdfBlob = await this.generateBillsPdfBlob(true); // Include orphaned images
 
             // Download it
             const url = URL.createObjectURL(pdfBlob);
@@ -1714,11 +1744,11 @@ class ExpenseTracker {
             const sheetPdfBase64 = sheetPdfResponse.data.pdfBase64;
             const sheetPdfBytes = Uint8Array.from(atob(sheetPdfBase64), c => c.charCodeAt(0));
 
-            this.showNotification('📋 Google Sheet downloaded, generating bills PDF...');
+            this.showNotification('📋 Google Sheet downloaded, collecting all bill images (current + saved)...');
 
-            // Step 3: Generate bill photos PDF
-            console.log('📸 Generating bills PDF...');
-            const billsPdfBlob = await this.generateBillsPdfBlob();
+            // Step 3: Generate bill photos PDF (INCLUDING orphaned/saved images)
+            console.log('📸 Generating bills PDF with ALL images (current + saved)...');
+            const billsPdfBlob = await this.generateBillsPdfBlob(true); // Explicitly include orphaned images
             const billsPdfBytes = await billsPdfBlob.arrayBuffer();
 
             this.showNotification('🔗 Merging documents...');
@@ -1760,9 +1790,15 @@ class ExpenseTracker {
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
 
-            // Success notification
+            // Success notification with detailed info
             const totalPages = sheetPdf.getPageCount() + billsPdf.getPageCount();
             this.showNotification(`✅ Complete reimbursement package downloaded! (${totalPages} pages)`);
+
+            // Log summary for debugging
+            console.log('=== Reimbursement Package Summary ===');
+            console.log(`Google Sheet pages: ${sheetPdf.getPageCount()}`);
+            console.log(`Receipt image pages: ${billsPdf.getPageCount()}`);
+            console.log(`Total pages: ${totalPages}`);
 
             console.log(`✅ Combined PDF created successfully: ${totalPages} pages, ${(mergedPdfBytes.length / 1024 / 1024).toFixed(2)} MB`);
 
