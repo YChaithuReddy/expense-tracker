@@ -572,6 +572,7 @@ class ExpenseTracker {
                                 day = parseInt(dateMatch[1]);
                                 month = monthNames[dateMatch[2].toLowerCase()];
                                 year = parseInt(dateMatch[3]);
+                                console.log(`   🔍 DMY_NAME parsing: day=${day}, month=${dateMatch[2].toLowerCase()}→${month}, year=${year}`);
                                 break;
 
                             case 'MDY_NAME':
