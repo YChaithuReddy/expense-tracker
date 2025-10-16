@@ -132,15 +132,41 @@ function exportExpensesToSheet(data) {
       const rowsToInsert = requiredEndRow - currentMaxRow;
       sheet.insertRowsAfter(currentMaxRow, rowsToInsert);
 
-      // Copy formatting from row 14 to new rows
+      // Get reference formatting from row 14
       const formatRange = sheet.getRange('A14:F14');
       const newRowsRange = sheet.getRange(currentMaxRow + 1, 1, rowsToInsert, 6);
-      formatRange.copyFormatToRange(sheet, 1, 6, currentMaxRow + 1, requiredEndRow);
 
-      // Apply borders to new rows
-      newRowsRange.setBorder(true, true, true, true, true, true);
+      // Copy all formatting from row 14
+      const backgrounds = formatRange.getBackgrounds();
+      const fontColors = formatRange.getFontColors();
+      const fontFamilies = formatRange.getFontFamilies();
+      const fontSizes = formatRange.getFontSizes();
+      const fontWeights = formatRange.getFontWeights();
+      const horizontalAlignments = formatRange.getHorizontalAlignments();
+      const verticalAlignments = formatRange.getVerticalAlignments();
+      const numberFormats = formatRange.getNumberFormats();
 
-      Logger.log('Sheet expanded by ' + rowsToInsert + ' rows');
+      // Apply formatting to each new row
+      for (let i = 0; i < rowsToInsert; i++) {
+        const targetRow = sheet.getRange(currentMaxRow + 1 + i, 1, 1, 6);
+        targetRow.setBackgrounds(backgrounds);
+        targetRow.setFontColors(fontColors);
+        targetRow.setFontFamilies(fontFamilies);
+        targetRow.setFontSizes(fontSizes);
+        targetRow.setFontWeights(fontWeights);
+        targetRow.setHorizontalAlignments(horizontalAlignments);
+        targetRow.setVerticalAlignments(verticalAlignments);
+        targetRow.setNumberFormats(numberFormats);
+
+        // Apply borders
+        targetRow.setBorder(true, true, true, true, true, true);
+
+        // Merge vendor cells (columns C and D) like in the template
+        const vendorRange = sheet.getRange(currentMaxRow + 1 + i, 3, 1, 2);
+        vendorRange.merge();
+      }
+
+      Logger.log('Sheet expanded by ' + rowsToInsert + ' rows with full formatting');
     }
 
     Logger.log('Starting export at row: ' + nextRow);
