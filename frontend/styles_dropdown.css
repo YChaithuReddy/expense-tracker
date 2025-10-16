@@ -375,10 +375,11 @@
 }
 
 .orphaned-images-grid {
-    padding: 24px;
+    padding: 20px 24px;
     max-height: calc(100vh - 280px);
     overflow-y: auto;
     overflow-x: hidden;
+    background: rgba(0, 0, 0, 0.1);
 }
 
 /* Custom scrollbar for the images grid */
@@ -722,40 +723,50 @@
     max-width: 280px;
 }
 
-/* Images Grid - Modern */
+/* Images Grid - Modern - Fixed Layout */
 .images-grid-modern {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 24px;
-    padding: 20px 0;
-    align-items: start;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    align-items: stretch;
+    justify-content: center;
 }
 
-@media (min-width: 768px) and (max-width: 1024px) {
-    .images-grid-modern {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (min-width: 1025px) {
-    .images-grid-modern {
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
-
+/* Desktop - 4 columns */
 @media (min-width: 1440px) {
     .images-grid-modern {
         grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
     }
 }
 
+/* Desktop - 3 columns */
+@media (min-width: 1025px) and (max-width: 1439px) {
+    .images-grid-modern {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+}
+
+/* Tablet - 2 columns */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .images-grid-modern {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+}
+
+/* Mobile - 1 column */
 @media (max-width: 767px) {
     .images-grid-modern {
         grid-template-columns: 1fr;
+        gap: 16px;
+        padding: 16px;
     }
 }
 
-/* Image Card - Modern */
+/* Image Card - Modern - Fixed Height */
 .image-card-modern {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -764,8 +775,8 @@
     transition: all 0.3s;
     display: flex;
     flex-direction: column;
-    height: 100%;
-    min-height: 420px;
+    height: 380px;
+    position: relative;
 }
 
 .image-card-modern:hover {
@@ -774,26 +785,34 @@
     border-color: rgba(0, 212, 255, 0.3);
 }
 
-/* Image Preview - Modern */
+/* Image Preview - Modern - Fixed Aspect Ratio */
 .image-preview-modern {
     position: relative;
     width: 100%;
-    height: 180px;
+    height: 200px;
     overflow: hidden;
     cursor: pointer;
-    background: rgba(0, 0, 0, 0.3);
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2));
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .image-preview-modern img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    object-position: center;
     transition: transform 0.3s;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 4px;
 }
 
 .image-preview-modern:hover img {
-    transform: scale(1.1);
+    transform: scale(1.05);
 }
 
 .image-overlay-modern {
@@ -814,23 +833,25 @@
     opacity: 1;
 }
 
-/* Image Details - Modern */
+/* Image Details - Modern - Fixed Layout */
 .image-details-modern {
-    padding: 12px 16px;
+    padding: 10px 14px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    flex: 1;
+    height: 90px;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: space-evenly;
+    flex-shrink: 0;
 }
 
 .detail-row-modern {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
+    gap: 8px;
+    margin-bottom: 6px;
     color: rgba(255, 255, 255, 0.9);
-    font-size: 13px;
+    font-size: 12px;
+    line-height: 1.2;
 }
 
 .detail-row-modern:last-child {
@@ -856,21 +877,22 @@
 .detail-value-modern {
     font-weight: 600;
     color: #00d4ff;
-    font-size: 15px;
+    font-size: 14px;
 }
 
-/* Expiry Badge - Modern */
+/* Expiry Badge - Modern - Compact */
 .expiry-badge-modern {
-    margin: 12px 16px;
-    padding: 6px 14px;
+    margin: 8px 14px;
+    padding: 5px 12px;
     border-radius: 20px;
-    display: inline-flex;
+    display: flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 500;
     transition: all 0.3s;
+    flex-shrink: 0;
 }
 
 .expiry-badge-modern.badge-success {
@@ -891,11 +913,11 @@
     border: 1px solid rgba(244, 67, 54, 0.3);
 }
 
-/* Action Buttons - Modern */
+/* Action Buttons - Modern - Compact */
 .action-buttons-modern {
     display: flex;
-    gap: 10px;
-    padding: 12px 16px;
+    gap: 8px;
+    padding: 10px 14px;
     margin-top: auto;
     flex-shrink: 0;
 }
@@ -903,9 +925,9 @@
 .btn-extend-modern,
 .btn-delete-modern {
     flex: 1;
-    padding: 10px 12px;
-    border-radius: 10px;
-    font-size: 13px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 12px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
@@ -913,8 +935,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    min-height: 36px;
+    gap: 5px;
+    min-height: 32px;
 }
 
 .btn-extend-modern {
@@ -969,10 +991,11 @@
 
     .image-card-modern {
         border-radius: 16px;
+        height: 360px;
     }
 
     .image-preview-modern {
-        height: 160px;
+        height: 180px;
     }
 
     .action-buttons-modern {
