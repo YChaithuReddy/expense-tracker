@@ -100,20 +100,47 @@ function exportExpensesToSheet(data) {
     }
 
     // Find next empty row (starting from row 14)
-    const dataRange = sheet.getRange('B14:B66');
-    const values = dataRange.getValues();
-    let nextRow = 14;
+    // First check the current data range
+    const lastRow = sheet.getLastRow();
+    const startRow = 14;
+    let nextRow = startRow;
 
-    for (let i = 0; i < values.length; i++) {
-      if (!values[i][0] || values[i][0] === '') {
-        nextRow = 14 + i;
-        break;
+    // Check existing data to find first empty row
+    if (lastRow >= startRow) {
+      const dataRange = sheet.getRange(startRow, 2, lastRow - startRow + 1, 1);
+      const values = dataRange.getValues();
+
+      for (let i = 0; i < values.length; i++) {
+        if (!values[i][0] || values[i][0] === '') {
+          nextRow = startRow + i;
+          break;
+        } else if (i === values.length - 1) {
+          // All rows have data, start after the last row
+          nextRow = lastRow + 1;
+        }
       }
     }
 
-    // Check if we have space for all expenses
-    if (nextRow + expenses.length > 67) {
-      return createResponse(false, 'Not enough space. Only ' + (67 - nextRow) + ' rows available.');
+    // Check if we need to expand the sheet
+    const requiredEndRow = nextRow + expenses.length - 1;
+    const currentMaxRow = Math.max(lastRow, 66); // At least up to row 66
+
+    if (requiredEndRow > currentMaxRow) {
+      Logger.log('Expanding sheet from row ' + currentMaxRow + ' to row ' + requiredEndRow);
+
+      // Insert new rows after the current last row
+      const rowsToInsert = requiredEndRow - currentMaxRow;
+      sheet.insertRowsAfter(currentMaxRow, rowsToInsert);
+
+      // Copy formatting from row 14 to new rows
+      const formatRange = sheet.getRange('A14:F14');
+      const newRowsRange = sheet.getRange(currentMaxRow + 1, 1, rowsToInsert, 6);
+      formatRange.copyFormatToRange(sheet, 1, 6, currentMaxRow + 1, requiredEndRow);
+
+      // Apply borders to new rows
+      newRowsRange.setBorder(true, true, true, true, true, true);
+
+      Logger.log('Sheet expanded by ' + rowsToInsert + ' rows');
     }
 
     Logger.log('Starting export at row: ' + nextRow);
@@ -244,12 +271,18 @@ function resetSheetFromMaster(data) {
 
     Logger.log('Clearing data and applying borders from master template...');
 
-    // Get the data range A14:F66
-    const userDataRange = userSheet.getRange('A14:F66');
+    // Get the actual data range (could be expanded beyond row 66)
+    const lastRow = Math.max(userSheet.getLastRow(), 66);
+    const userDataRange = userSheet.getRange('A14:F' + lastRow);
     const masterDataRange = masterSheet.getRange('A14:F66');
 
     // Step 1: Clear all content and formatting from user sheet
     userDataRange.clear();
+
+    // If sheet was expanded, delete extra rows to reset to original size
+    if (lastRow > 66) {
+      userSheet.deleteRows(67, lastRow - 66);
+    }
 
     // Step 2: Copy ONLY the formatting (borders, colors, fonts) from master - no data
     const masterBackgrounds = masterDataRange.getBackgrounds();
@@ -261,22 +294,23 @@ function resetSheetFromMaster(data) {
     const masterVerticalAlignments = masterDataRange.getVerticalAlignments();
     const masterNumberFormats = masterDataRange.getNumberFormats();
 
-    // Apply all formatting to user sheet
-    userDataRange.setBackgrounds(masterBackgrounds);
-    userDataRange.setFontColors(masterFontColors);
-    userDataRange.setFontFamilies(masterFontFamilies);
-    userDataRange.setFontSizes(masterFontSizes);
-    userDataRange.setFontWeights(masterFontWeights);
-    userDataRange.setHorizontalAlignments(masterHorizontalAlignments);
-    userDataRange.setVerticalAlignments(masterVerticalAlignments);
-    userDataRange.setNumberFormats(masterNumberFormats);
+    // Apply all formatting to user sheet (now resized to A14:F66)
+    const resizedUserDataRange = userSheet.getRange('A14:F66');
+    resizedUserDataRange.setBackgrounds(masterBackgrounds);
+    resizedUserDataRange.setFontColors(masterFontColors);
+    resizedUserDataRange.setFontFamilies(masterFontFamilies);
+    resizedUserDataRange.setFontSizes(masterFontSizes);
+    resizedUserDataRange.setFontWeights(masterFontWeights);
+    resizedUserDataRange.setHorizontalAlignments(masterHorizontalAlignments);
+    resizedUserDataRange.setVerticalAlignments(masterVerticalAlignments);
+    resizedUserDataRange.setNumberFormats(masterNumberFormats);
 
     // Step 3: Note - we cannot use copyTo between different spreadsheets
     // Borders will be explicitly set in Step 4 instead
 
     // Step 4: Explicitly set borders (simplified version without BorderStyle enum)
     // Apply borders to the entire data range A14:F66
-    userDataRange.setBorder(
+    resizedUserDataRange.setBorder(
       true,  // top
       true,  // left
       true,  // bottom
