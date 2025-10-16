@@ -95,21 +95,33 @@ class ExpenseTracker {
     }
 
     setTodayDate() {
-        const today = new Date().toISOString().split('T')[0];
         const dateInput = document.getElementById('date');
-        if (dateInput) {
-            dateInput.value = today;
+        if (!dateInput) return;
+
+        // Only set today's date if no date is already set (preserve OCR data)
+        const existingDate = dateInput.value || (this.extractedData && this.extractedData.date);
+        const dateToUse = existingDate || new Date().toISOString().split('T')[0];
+
+        if (!existingDate) {
+            dateInput.value = dateToUse;
+            console.log('📅 No existing date, setting today:', dateToUse);
+        } else {
+            console.log('📅 Preserving existing date:', existingDate);
         }
 
         // Initialize Flatpickr for modern calendar interface
-        if (typeof flatpickr !== 'undefined' && dateInput) {
+        if (typeof flatpickr !== 'undefined' && dateInput && !dateInput._flatpickr) {
             flatpickr(dateInput, {
                 dateFormat: 'Y-m-d',
-                defaultDate: today,
+                defaultDate: dateToUse,  // Use OCR date if available, otherwise today
                 allowInput: true,
                 clickOpens: true,
-                wrap: false
+                wrap: false,
+                onChange: function(selectedDates, dateStr, instance) {
+                    console.log('📅 Date manually selected:', dateStr);
+                }
             });
+            console.log('✅ Flatpickr initialized with date:', dateToUse);
         }
     }
 
@@ -118,7 +130,17 @@ class ExpenseTracker {
         const files = Array.from(e.target.files);
         console.log('Files selected:', files.length);
 
+        // Clear previous data to prevent caching issues
         this.scannedImages = [];
+        this.extractedData = {};  // Clear any previously extracted data
+        console.log('✅ Cleared previous OCR data');
+
+        // Clear form fields to prevent old data from persisting
+        const form = document.getElementById('expenseForm');
+        if (form) {
+            form.reset();
+            // Don't set today's date here, let OCR populate it or use it as fallback
+        }
 
         if (files.length === 0) {
             document.getElementById('scanBills').style.display = 'none';
@@ -277,6 +299,7 @@ class ExpenseTracker {
             amount: '',
             vendor: '',
             date: '',
+            dateConfidence: 0,  // Confidence score for date extraction (0-1)
             time: '',
             description: '',
             category: 'Miscellaneous'
@@ -577,7 +600,41 @@ class ExpenseTracker {
                             const date = new Date(year, month, day);
                             if (!isNaN(date.getTime()) && date.getDate() === day) {
                                 data.date = date.toISOString().split('T')[0];
-                                console.log(`✅ Date found: ${data.date} (matched pattern: ${type})`);
+
+                                // Calculate confidence score based on pattern type and context
+                                let confidence = 0.5; // Base confidence
+
+                                // Higher confidence for specific patterns
+                                if (type === 'DMY_NAME' || type === 'MDY_NAME') {
+                                    confidence = 0.9; // Month names are very reliable
+                                } else if (type === 'ISO_DATETIME' || type === 'YMD_NUMERIC') {
+                                    confidence = 0.85; // ISO format is reliable
+                                } else if (type === 'DMY_CONTEXT' || type === 'DMY_NAME_CONTEXT') {
+                                    confidence = 0.8; // Context-aware patterns
+                                } else if (type === 'DMY_NUMERIC') {
+                                    confidence = 0.7; // Standard numeric format
+                                } else if (type === 'DMY_2DIGIT') {
+                                    confidence = 0.6; // 2-digit years less reliable
+                                }
+
+                                // Check for date keywords nearby (increases confidence)
+                                const lowerLine = line.toLowerCase();
+                                const dateKeywords = ['invoice date', 'bill date', 'date of issue', 'transaction date', 'dated', 'date:'];
+                                if (dateKeywords.some(keyword => lowerLine.includes(keyword))) {
+                                    confidence = Math.min(confidence + 0.1, 1.0);
+                                }
+
+                                // Check if date is reasonable (not too far in past or future)
+                                const today = new Date();
+                                const daysDiff = Math.abs((date - today) / (1000 * 60 * 60 * 24));
+                                if (daysDiff < 30) {
+                                    confidence = Math.min(confidence + 0.05, 1.0); // Recent date
+                                } else if (daysDiff > 365) {
+                                    confidence = Math.max(confidence - 0.1, 0.3); // Old or future date
+                                }
+
+                                data.dateConfidence = confidence;
+                                console.log(`✅ Date found: ${data.date} (pattern: ${type}, confidence: ${(confidence * 100).toFixed(0)}%)`);
                                 break;
                             }
                         }
@@ -800,6 +857,42 @@ class ExpenseTracker {
         return data;
     }
 
+    addDateConfidenceWarning(element, confidence) {
+        // Remove any existing warning
+        const existingWarning = element.parentNode.querySelector('.date-confidence-warning');
+        if (existingWarning) {
+            existingWarning.remove();
+        }
+
+        // Create warning indicator
+        const warningSpan = document.createElement('span');
+        warningSpan.className = 'date-confidence-warning';
+        warningSpan.innerHTML = `⚠️ <small style="color: orange;">Date confidence: ${(confidence * 100).toFixed(0)}% - Please verify</small>`;
+        warningSpan.style.cssText = `
+            display: inline-block;
+            margin-left: 10px;
+            font-size: 0.85rem;
+            animation: pulse 2s infinite;
+        `;
+
+        // Add CSS animation if not already present
+        if (!document.querySelector('#confidence-warning-styles')) {
+            const style = document.createElement('style');
+            style.id = 'confidence-warning-styles';
+            style.textContent = `
+                @keyframes pulse {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0.6; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Insert warning after the date input
+        element.parentNode.appendChild(warningSpan);
+        console.log(`⚠️ Added date confidence warning (${(confidence * 100).toFixed(0)}%)`);
+    }
+
     populateForm() {
         console.log('📝 Populating form with extracted data:', this.extractedData);
 
@@ -822,9 +915,33 @@ class ExpenseTracker {
             if (field.value && field.value.trim() !== '') {
                 element.value = field.value;
                 console.log(`✅ Filled ${field.id}: ${field.value}`);
+
+                // Special handling for date field with Flatpickr
+                if (field.id === 'date') {
+                    if (element._flatpickr) {
+                        // Update Flatpickr instance to show the OCR-detected date
+                        element._flatpickr.setDate(field.value, true);
+                        console.log(`✅ Updated Flatpickr calendar with OCR date: ${field.value}`);
+                    }
+
+                    // Add confidence indicator if date confidence is low
+                    if (this.extractedData.dateConfidence && this.extractedData.dateConfidence < 0.7) {
+                        this.addDateConfidenceWarning(element, this.extractedData.dateConfidence);
+                    }
+                }
             } else {
-                element.value = ''; // Leave empty for manual entry
-                console.log(`⚠️ ${field.id} is empty`);
+                // For date field, if no OCR date detected, set today's date
+                if (field.id === 'date') {
+                    const today = new Date().toISOString().split('T')[0];
+                    element.value = today;
+                    if (element._flatpickr) {
+                        element._flatpickr.setDate(today, true);
+                    }
+                    console.log(`⚠️ No date detected, using today: ${today}`);
+                } else {
+                    element.value = ''; // Leave empty for manual entry
+                    console.log(`⚠️ ${field.id} is empty`);
+                }
             }
             // Ensure field is always editable and interactive
             element.removeAttribute('readonly');
@@ -1312,6 +1429,8 @@ class ExpenseTracker {
 
     resetForm() {
         document.getElementById('expenseForm').reset();
+        // Clear extracted data when resetting form
+        this.extractedData = {};
         this.setTodayDate();
     }
 
