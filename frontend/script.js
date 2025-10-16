@@ -353,8 +353,9 @@ class ExpenseTracker {
             /(\d+[,\d]*\.?\d*)\s*rupees?/gi,
         ];
 
-        // Priority 3: Word amounts (Rupees Eighty Only)
-        const wordAmountPattern = /rupees?\s+([a-z\s]+?)(?:\s+only)?(?:\s|$)/gi;
+        // Priority 3: Word amounts (Rupees Five Hundred Only)
+        // Match everything from "rupees" to "only" - use greedy match
+        const wordAmountPattern = /rupees?\s+([\sa-z]+)\s*only/gi;
 
         // Helper function to clean and parse amount
         const cleanAmount = (amountStr) => {
@@ -671,14 +672,18 @@ class ExpenseTracker {
 
         // Pick the date with highest confidence
         if (dateCandidates.length > 0) {
+            // Debug: Show all candidates
+            console.log(`🔍 Found ${dateCandidates.length} date candidates:`);
+            dateCandidates.forEach((d, i) => {
+                console.log(`   ${i+1}. ${d.date} (${(d.confidence * 100).toFixed(0)}% confidence) - Pattern: ${d.type}`);
+                console.log(`      Matched text: "${d.matchedText}" from line: "${d.line.substring(0, 80)}"`);
+            });
+
             dateCandidates.sort((a, b) => b.confidence - a.confidence);
             const bestMatch = dateCandidates[0];
             data.date = bestMatch.date;
             data.dateConfidence = bestMatch.confidence;
-            console.log(`✅ Date found: ${data.date} (pattern: ${bestMatch.type}, confidence: ${(bestMatch.confidence * 100).toFixed(0)}%)`);
-            if (dateCandidates.length > 1) {
-                console.log(`   Other date candidates found: ${dateCandidates.slice(1, 3).map(d => `${d.date} (${(d.confidence * 100).toFixed(0)}%)`).join(', ')}`);
-            }
+            console.log(`✅ Selected best match: ${data.date} (pattern: ${bestMatch.type}, confidence: ${(bestMatch.confidence * 100).toFixed(0)}%)`);
         }
 
         // Comprehensive time extraction supporting multiple formats
