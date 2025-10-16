@@ -1904,7 +1904,17 @@ class ExpenseTracker {
 
             // Check if we're on mobile
             if (viewportWidth <= 480) {
-                // Mobile: Use fixed positioning at bottom (handled by CSS)
+                // Mobile: Ensure dropdown fits within viewport
+                setTimeout(() => {
+                    const menuRect = dropdownMenu.getBoundingClientRect();
+                    const menuHeight = menuRect.height;
+
+                    // If dropdown is taller than viewport, adjust max-height
+                    if (menuHeight > viewportHeight - 100) {
+                        dropdownMenu.style.maxHeight = `${viewportHeight - 100}px`;
+                        dropdownMenu.style.overflowY = 'auto';
+                    }
+                }, 50);
                 return;
             }
 

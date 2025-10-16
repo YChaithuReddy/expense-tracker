@@ -24,7 +24,7 @@
         0 20px 40px rgba(0, 0, 0, 0.5),
         0 0 30px rgba(0, 212, 255, 0.2),
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    z-index: 10000;
+    z-index: 99998;
     opacity: 0;
     visibility: hidden;
     transform: translateY(-10px) scale(0.95);
@@ -54,24 +54,54 @@
     }
 }
 
-/* Mobile: Full width with better animation */
+/* Mobile: Full width with safe positioning */
 @media (max-width: 480px) {
     .dropdown-menu {
         position: fixed;
         top: auto;
-        bottom: 0;
-        left: 0;
-        right: 0;
+        bottom: 10px;
+        left: 10px;
+        right: 10px;
         max-width: none;
-        width: 100%;
-        border-radius: 20px 20px 0 0;
-        transform: translateY(100%);
-        padding: 12px 20px 20px;
-        border-top: 3px solid rgba(0, 212, 255, 0.4);
+        width: calc(100% - 20px);
+        max-height: calc(100vh - 100px);
+        overflow-y: auto;
+        border-radius: 20px;
+        transform: translateY(calc(100% + 20px));
+        padding: 20px;
+        border: 2px solid rgba(0, 212, 255, 0.4);
+        box-shadow:
+            0 -10px 40px rgba(0, 0, 0, 0.8),
+            0 0 60px rgba(0, 212, 255, 0.3);
     }
 
     .dropdown-menu.show {
         transform: translateY(0);
+    }
+
+    /* Ensure items are properly spaced on mobile */
+    .dropdown-menu .dropdown-item {
+        margin: 8px 0;
+    }
+
+    /* Add padding for safe area on modern phones */
+    .dropdown-menu {
+        padding-bottom: env(safe-area-inset-bottom, 20px);
+    }
+
+    /* Add scrollbar styling for mobile */
+    .dropdown-menu::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .dropdown-menu::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 2px;
+    }
+
+    .dropdown-menu::-webkit-scrollbar-thumb {
+        background: rgba(0, 212, 255, 0.5);
+        border-radius: 2px;
     }
 }
 
@@ -238,6 +268,12 @@
     .dropdown-desc {
         font-size: 0.75rem;
     }
+
+    /* Ensure dropdown content is never cut off */
+    .dropdown-menu {
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
 }
 
 /* Prevent dropdown from being cut off in grid */
@@ -273,26 +309,37 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0, 0, 0, 0.6);
-        z-index: 9999;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(5px);
+        z-index: 99999;
     }
 
     .dropdown-backdrop.show {
         display: block;
+        animation: fadeIn 0.2s ease-out;
     }
 
     .dropdown-menu.show {
-        z-index: 10000;
-        animation: slideUp 0.3s ease-out;
+        z-index: 100000;
+        animation: slideUpBounce 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
-    @keyframes slideUp {
+    @keyframes slideUpBounce {
         from {
-            transform: translateY(100%);
+            transform: translateY(calc(100% + 20px));
             opacity: 0;
         }
         to {
             transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
             opacity: 1;
         }
     }
