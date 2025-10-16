@@ -406,7 +406,7 @@ class ExpenseTracker {
             }
         }
 
-        // Try word amounts if still not found
+        // Try word amounts if still not found (e.g., "Rupees Five Hundred Only")
         if (!data.amount) {
             let match;
             while ((match = wordAmountPattern.exec(fullText)) !== null) {
@@ -419,16 +419,28 @@ class ExpenseTracker {
                         const value = textNumbers[word];
                         if (value >= 100) {
                             // Multiplier (hundred, thousand, lakh)
-                            currentNumber = currentNumber === 0 ? value : currentNumber * value;
+                            if (currentNumber === 0) {
+                                // "Hundred" alone = 100
+                                currentNumber = value;
+                            } else {
+                                // "Five Hundred" = 5 * 100
+                                currentNumber *= value;
+                            }
+                            total += currentNumber;
+                            currentNumber = 0; // Reset for next number
                         } else {
+                            // Regular numbers (one to ninety-nine)
                             currentNumber += value;
                         }
                     }
                 }
 
-                if (currentNumber > 0) {
-                    data.amount = currentNumber.toString();
-                    console.log('✅ Amount found (word):', data.amount);
+                // Add any remaining number
+                total += currentNumber;
+
+                if (total > 0) {
+                    data.amount = total.toString();
+                    console.log('✅ Amount found (word):', data.amount, `from "${match[0]}"`);
                     break;
                 }
             }
@@ -543,6 +555,9 @@ class ExpenseTracker {
             oct: 9, october: 9, nov: 10, november: 10, dec: 11, december: 11
         };
 
+        // Collect all date candidates with scores
+        const dateCandidates = [];
+
         for (const line of lines) {
             for (const { regex, type } of datePatterns) {
                 const dateMatch = line.match(regex);
@@ -599,7 +614,7 @@ class ExpenseTracker {
                             day && day >= 1 && day <= 31 && year >= 2000 && year <= 2099) {
                             const date = new Date(year, month, day);
                             if (!isNaN(date.getTime()) && date.getDate() === day) {
-                                data.date = date.toISOString().split('T')[0];
+                                const dateStr = date.toISOString().split('T')[0];
 
                                 // Calculate confidence score based on pattern type and context
                                 let confidence = 0.5; // Base confidence
@@ -610,7 +625,7 @@ class ExpenseTracker {
                                 } else if (type === 'ISO_DATETIME' || type === 'YMD_NUMERIC') {
                                     confidence = 0.85; // ISO format is reliable
                                 } else if (type === 'DMY_CONTEXT' || type === 'DMY_NAME_CONTEXT') {
-                                    confidence = 0.8; // Context-aware patterns
+                                    confidence = 0.95; // Context-aware patterns are MOST reliable
                                 } else if (type === 'DMY_NUMERIC') {
                                     confidence = 0.7; // Standard numeric format
                                 } else if (type === 'DMY_2DIGIT') {
@@ -619,8 +634,12 @@ class ExpenseTracker {
 
                                 // Check for date keywords nearby (increases confidence)
                                 const lowerLine = line.toLowerCase();
-                                const dateKeywords = ['invoice date', 'bill date', 'date of issue', 'transaction date', 'dated', 'date:'];
-                                if (dateKeywords.some(keyword => lowerLine.includes(keyword))) {
+                                const highPriorityKeywords = ['paid at', 'payment date', 'transaction date', 'paid on'];
+                                const mediumPriorityKeywords = ['invoice date', 'bill date', 'date of issue', 'dated', 'date:'];
+
+                                if (highPriorityKeywords.some(keyword => lowerLine.includes(keyword))) {
+                                    confidence = Math.min(confidence + 0.15, 1.0); // High boost for payment dates
+                                } else if (mediumPriorityKeywords.some(keyword => lowerLine.includes(keyword))) {
                                     confidence = Math.min(confidence + 0.1, 1.0);
                                 }
 
@@ -630,12 +649,17 @@ class ExpenseTracker {
                                 if (daysDiff < 30) {
                                     confidence = Math.min(confidence + 0.05, 1.0); // Recent date
                                 } else if (daysDiff > 365) {
-                                    confidence = Math.max(confidence - 0.1, 0.3); // Old or future date
+                                    confidence = Math.max(confidence - 0.15, 0.3); // Old or future date
                                 }
 
-                                data.dateConfidence = confidence;
-                                console.log(`✅ Date found: ${data.date} (pattern: ${type}, confidence: ${(confidence * 100).toFixed(0)}%)`);
-                                break;
+                                // Add to candidates
+                                dateCandidates.push({
+                                    date: dateStr,
+                                    confidence: confidence,
+                                    type: type,
+                                    line: line,
+                                    matchedText: dateMatch[0]
+                                });
                             }
                         }
                     } catch (e) {
@@ -643,7 +667,18 @@ class ExpenseTracker {
                     }
                 }
             }
-            if (data.date) break;
+        }
+
+        // Pick the date with highest confidence
+        if (dateCandidates.length > 0) {
+            dateCandidates.sort((a, b) => b.confidence - a.confidence);
+            const bestMatch = dateCandidates[0];
+            data.date = bestMatch.date;
+            data.dateConfidence = bestMatch.confidence;
+            console.log(`✅ Date found: ${data.date} (pattern: ${bestMatch.type}, confidence: ${(bestMatch.confidence * 100).toFixed(0)}%)`);
+            if (dateCandidates.length > 1) {
+                console.log(`   Other date candidates found: ${dateCandidates.slice(1, 3).map(d => `${d.date} (${(d.confidence * 100).toFixed(0)}%)`).join(', ')}`);
+            }
         }
 
         // Comprehensive time extraction supporting multiple formats
