@@ -556,6 +556,64 @@ class ExpenseTracker {
             oct: 9, october: 9, nov: 10, november: 10, dec: 11, december: 11
         };
 
+        // OCR often confuses similar letters (p→n, c→e, etc.)
+        // This map corrects common OCR errors in month names
+        const monthOCRCorrections = {
+            'sen': 'sep',  // p→n confusion
+            'seo': 'sep',  // p→o confusion
+            'oet': 'oct',  // c→e confusion
+            'oot': 'oct',  // c→o confusion
+            'deo': 'dec',  // c→o confusion
+            'dee': 'dec',  // c→e confusion
+            'aup': 'aug',  // g→p confusion
+            'ang': 'aug',  // u→n confusion
+            'jnn': 'jan',  // a→n confusion
+            'jau': 'jan',  // n→u confusion
+            'nay': 'may',  // m→n confusion
+            'juu': 'jun',  // n→u confusion
+            'jnl': 'jul',  // u→n confusion
+            'nop': 'nov',  // v→p confusion
+            'nou': 'nov',  // v→u confusion
+            'nar': 'mar',  // m→n confusion
+            'fen': 'feb',  // b→n confusion
+            'fen.': 'feb', // With period
+            'sen.': 'sep', // With period
+            'oet.': 'oct'  // With period
+        };
+
+        // Helper function to find month with OCR error correction
+        const findMonth = (monthStr) => {
+            const normalized = monthStr.toLowerCase().replace(/\./g, '');
+
+            // Try exact match first
+            if (monthNames[normalized] !== undefined) {
+                return monthNames[normalized];
+            }
+
+            // Try OCR correction
+            if (monthOCRCorrections[normalized]) {
+                const corrected = monthOCRCorrections[normalized];
+                console.log(`   🔧 OCR correction: "${monthStr}" → "${corrected}"`);
+                return monthNames[corrected];
+            }
+
+            // Try fuzzy match (Levenshtein distance = 1)
+            for (const validMonth in monthNames) {
+                if (validMonth.length === normalized.length) {
+                    let differences = 0;
+                    for (let i = 0; i < validMonth.length; i++) {
+                        if (validMonth[i] !== normalized[i]) differences++;
+                    }
+                    if (differences === 1) {
+                        console.log(`   🔧 Fuzzy match: "${monthStr}" → "${validMonth}"`);
+                        return monthNames[validMonth];
+                    }
+                }
+            }
+
+            return undefined;
+        };
+
         // Collect all date candidates with scores
         const dateCandidates = [];
 
@@ -570,12 +628,12 @@ class ExpenseTracker {
                             case 'DMY_NAME':
                             case 'DMY_NAME_CONTEXT':
                                 day = parseInt(dateMatch[1]);
-                                month = monthNames[dateMatch[2].toLowerCase()];
+                                month = findMonth(dateMatch[2]);
                                 year = parseInt(dateMatch[3]);
                                 break;
 
                             case 'MDY_NAME':
-                                month = monthNames[dateMatch[1].toLowerCase()];
+                                month = findMonth(dateMatch[1]);
                                 day = parseInt(dateMatch[2]);
                                 year = parseInt(dateMatch[3]);
                                 break;
