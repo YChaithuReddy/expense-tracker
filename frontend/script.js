@@ -572,7 +572,6 @@ class ExpenseTracker {
                                 day = parseInt(dateMatch[1]);
                                 month = monthNames[dateMatch[2].toLowerCase()];
                                 year = parseInt(dateMatch[3]);
-                                console.log(`   🔍 DMY_NAME parsing: day=${day}, month=${dateMatch[2].toLowerCase()}→${month}, year=${year}`);
                                 break;
 
                             case 'MDY_NAME':
@@ -616,7 +615,11 @@ class ExpenseTracker {
                             day && day >= 1 && day <= 31 && year >= 2000 && year <= 2099) {
                             const date = new Date(year, month, day);
                             if (!isNaN(date.getTime()) && date.getDate() === day) {
-                                const dateStr = date.toISOString().split('T')[0];
+                                // Use timezone-safe formatting instead of toISOString()
+                                const yyyy = year;
+                                const mm = String(month + 1).padStart(2, '0'); // month is 0-indexed
+                                const dd = String(day).padStart(2, '0');
+                                const dateStr = `${yyyy}-${mm}-${dd}`;
 
                                 // Calculate confidence score based on pattern type and context
                                 let confidence = 0.5; // Base confidence
