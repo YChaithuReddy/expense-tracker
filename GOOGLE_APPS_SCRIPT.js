@@ -80,6 +80,8 @@ function createSheetForUser(data) {
 
 /**
  * Export expenses to an existing sheet
+ * Data section is dynamic - always starts at row 14
+ * Summary section (17 rows) always follows data immediately
  */
 function exportExpensesToSheet(data) {
   try {
@@ -99,154 +101,28 @@ function exportExpensesToSheet(data) {
       return createResponse(false, 'Tab "' + TAB_NAME + '" not found in sheet');
     }
 
-    // Find next empty row (starting from row 14)
-    // First check the current data range
+    // Constants
+    const DATA_START_ROW = 14; // Data always starts at row 14
+    const SUMMARY_ROW_COUNT = 17; // Summary section is always 17 rows (A67:F83 in master)
+
+    // Find next empty row in data section (starting from row 14)
     const lastRow = sheet.getLastRow();
-    const startRow = 14;
-    let nextRow = startRow;
+    let nextRow = DATA_START_ROW;
 
     // Check existing data to find first empty row
-    if (lastRow >= startRow) {
-      const dataRange = sheet.getRange(startRow, 2, lastRow - startRow + 1, 1);
+    if (lastRow >= DATA_START_ROW) {
+      const dataRange = sheet.getRange(DATA_START_ROW, 2, lastRow - DATA_START_ROW + 1, 1);
       const values = dataRange.getValues();
 
       for (let i = 0; i < values.length; i++) {
         if (!values[i][0] || values[i][0] === '') {
-          nextRow = startRow + i;
+          nextRow = DATA_START_ROW + i;
           break;
         } else if (i === values.length - 1) {
           // All rows have data, start after the last row
           nextRow = lastRow + 1;
         }
       }
-    }
-
-    // Check if we need to expand the sheet
-    const requiredEndRow = nextRow + expenses.length - 1;
-    const currentMaxDataRow = 66; // Fixed data section ends at row 66
-    const summaryStartRow = 67; // Summary section starts at row 67 (rows 67-83 in master)
-    const summaryEndRow = 83; // Summary section ends at row 83
-    const summaryRowCount = summaryEndRow - summaryStartRow + 1; // 17 rows
-
-    if (requiredEndRow > currentMaxDataRow) {
-      Logger.log('Expanding data section from row ' + currentMaxDataRow + ' to row ' + requiredEndRow);
-
-      // Insert new rows BEFORE row 67 (summary section) to push it down
-      const rowsToInsert = requiredEndRow - currentMaxDataRow;
-      sheet.insertRowsBefore(summaryStartRow, rowsToInsert);
-
-      // Get reference formatting from row 14 (a data row)
-      const formatRange = sheet.getRange('A14:F14');
-
-      // Copy all formatting from row 14
-      const backgrounds = formatRange.getBackgrounds();
-      const fontColors = formatRange.getFontColors();
-      const fontFamilies = formatRange.getFontFamilies();
-      const fontSizes = formatRange.getFontSizes();
-      const fontWeights = formatRange.getFontWeights();
-      const horizontalAlignments = formatRange.getHorizontalAlignments();
-      const verticalAlignments = formatRange.getVerticalAlignments();
-      const numberFormats = formatRange.getNumberFormats();
-
-      // Apply formatting to each new data row (starting from row 67, which was just inserted)
-      for (let i = 0; i < rowsToInsert; i++) {
-        const targetRow = sheet.getRange(summaryStartRow + i, 1, 1, 6);
-        targetRow.setBackgrounds(backgrounds);
-        targetRow.setFontColors(fontColors);
-        targetRow.setFontFamilies(fontFamilies);
-        targetRow.setFontSizes(fontSizes);
-        targetRow.setFontWeights(fontWeights);
-        targetRow.setHorizontalAlignments(horizontalAlignments);
-        targetRow.setVerticalAlignments(verticalAlignments);
-        targetRow.setNumberFormats(numberFormats);
-
-        // Apply borders
-        targetRow.setBorder(true, true, true, true, true, true);
-
-        // Merge vendor cells (columns C and D) like in the template
-        const vendorRange = sheet.getRange(summaryStartRow + i, 3, 1, 2);
-        vendorRange.merge();
-      }
-
-      // Now copy the ENTIRE summary section from master template to new position
-      const newSummaryStartRow = requiredEndRow + 1;
-      Logger.log('Copying summary section from master template (A67:F83) to row ' + newSummaryStartRow);
-
-      // Open master template to copy summary section
-      const masterSpreadsheet = SpreadsheetApp.openById(MASTER_TEMPLATE_ID);
-      const masterSheet = masterSpreadsheet.getSheetByName(TAB_NAME);
-
-      if (masterSheet) {
-        // Get the summary section from master (rows 67-83)
-        const masterSummaryRange = masterSheet.getRange('A67:F83');
-
-        // Get all properties from master summary section
-        const summaryValues = masterSummaryRange.getValues();
-        const summaryFormulas = masterSummaryRange.getFormulas();
-        const summaryBackgrounds = masterSummaryRange.getBackgrounds();
-        const summaryFontColors = masterSummaryRange.getFontColors();
-        const summaryFontFamilies = masterSummaryRange.getFontFamilies();
-        const summaryFontSizes = masterSummaryRange.getFontSizes();
-        const summaryFontWeights = masterSummaryRange.getFontWeights();
-        const summaryHorizontalAlignments = masterSummaryRange.getHorizontalAlignments();
-        const summaryVerticalAlignments = masterSummaryRange.getVerticalAlignments();
-        const summaryNumberFormats = masterSummaryRange.getNumberFormats();
-
-        // Get target range in user sheet
-        const userSummaryRange = sheet.getRange(newSummaryStartRow, 1, summaryRowCount, 6);
-
-        // Apply all properties
-        // First apply formulas/values (formulas take priority)
-        for (let i = 0; i < summaryFormulas.length; i++) {
-          for (let j = 0; j < summaryFormulas[i].length; j++) {
-            if (summaryFormulas[i][j]) {
-              // Has formula - need to update row references
-              let formula = summaryFormulas[i][j];
-
-              // Update SUBTOTAL formula to reference correct data range
-              if (formula.includes('=SUM(F14:F66)')) {
-                formula = '=SUM(F14:F' + requiredEndRow + ')';
-              }
-
-              userSummaryRange.getCell(i + 1, j + 1).setFormula(formula);
-            } else if (summaryValues[i][j]) {
-              // No formula, just value
-              userSummaryRange.getCell(i + 1, j + 1).setValue(summaryValues[i][j]);
-            }
-          }
-        }
-
-        // Apply all formatting
-        userSummaryRange.setBackgrounds(summaryBackgrounds);
-        userSummaryRange.setFontColors(summaryFontColors);
-        userSummaryRange.setFontFamilies(summaryFontFamilies);
-        userSummaryRange.setFontSizes(summaryFontSizes);
-        userSummaryRange.setFontWeights(summaryFontWeights);
-        userSummaryRange.setHorizontalAlignments(summaryHorizontalAlignments);
-        userSummaryRange.setVerticalAlignments(summaryVerticalAlignments);
-        userSummaryRange.setNumberFormats(summaryNumberFormats);
-
-        // Copy merged cells from master
-        const masterMergedRanges = masterSummaryRange.getMergedRanges();
-        for (let i = 0; i < masterMergedRanges.length; i++) {
-          const mergedRange = masterMergedRanges[i];
-          const rowOffset = mergedRange.getRow() - 67; // Offset from row 67
-          const numRows = mergedRange.getNumRows();
-          const numCols = mergedRange.getNumColumns();
-          const col = mergedRange.getColumn();
-
-          // Apply same merge pattern in user sheet at new position
-          const userMergeRange = sheet.getRange(newSummaryStartRow + rowOffset, col, numRows, numCols);
-          userMergeRange.merge();
-        }
-
-        // Copy borders
-        userSummaryRange.setBorder(true, true, true, true, true, true);
-
-        Logger.log('Summary section copied successfully to row ' + newSummaryStartRow);
-      }
-
-      Logger.log('Sheet expanded by ' + rowsToInsert + ' rows. Summary section moved to row ' + newSummaryStartRow);
     }
 
     Logger.log('Starting export at row: ' + nextRow);
@@ -259,7 +135,7 @@ function exportExpensesToSheet(data) {
     const costs = [];
 
     expenses.forEach((expense, index) => {
-      // Column A: S.NO
+      // Column A: S.NO (1, 2, 3, ...)
       serialNumbers.push([nextRow + index - 13]);
 
       // Column B: DATE (format: dd-MMM-yyyy)
@@ -267,7 +143,7 @@ function exportExpensesToSheet(data) {
       const formattedDate = Utilities.formatDate(date, Session.getScriptTimeZone(), 'dd-MMM-yyyy');
       dates.push([formattedDate]);
 
-      // Column C: VENDOR NAME (merged with D)
+      // Column C: VENDOR NAME (will be merged with D)
       vendors.push([expense.vendor || 'Unknown Vendor']);
 
       // Column E: CATEGORY
@@ -280,36 +156,138 @@ function exportExpensesToSheet(data) {
     // Batch update all columns
     const numExpenses = expenses.length;
 
-    // Set S.NO (Column A)
-    sheet.getRange(nextRow, 1, numExpenses, 1).setValues(serialNumbers);
+    // Get reference formatting from row 14 (template row)
+    const templateRange = sheet.getRange('A14:F14');
+    const templateBackgrounds = templateRange.getBackgrounds();
+    const templateFontColors = templateRange.getFontColors();
+    const templateFontFamilies = templateRange.getFontFamilies();
+    const templateFontSizes = templateRange.getFontSizes();
+    const templateFontWeights = templateRange.getFontWeights();
+    const templateHorizontalAlignments = templateRange.getHorizontalAlignments();
+    const templateVerticalAlignments = templateRange.getVerticalAlignments();
+    const templateNumberFormats = templateRange.getNumberFormats();
 
-    // Set DATE (Column B)
-    sheet.getRange(nextRow, 2, numExpenses, 1).setValues(dates);
-
-    // Set VENDOR NAME (Column C) and merge with Column D to match header format
-    sheet.getRange(nextRow, 3, numExpenses, 1).setValues(vendors);
-
-    // Merge vendor cells across columns C and D for each row
+    // Apply formatting to all data rows being inserted
     for (let i = 0; i < numExpenses; i++) {
-      const vendorRange = sheet.getRange(nextRow + i, 3, 1, 2);  // Row, Col C, 1 row, 2 columns
+      const targetRow = sheet.getRange(nextRow + i, 1, 1, 6);
+      targetRow.setBackgrounds(templateBackgrounds);
+      targetRow.setFontColors(templateFontColors);
+      targetRow.setFontFamilies(templateFontFamilies);
+      targetRow.setFontSizes(templateFontSizes);
+      targetRow.setFontWeights(templateFontWeights);
+      targetRow.setHorizontalAlignments(templateHorizontalAlignments);
+      targetRow.setVerticalAlignments(templateVerticalAlignments);
+      targetRow.setNumberFormats(templateNumberFormats);
+
+      // Apply borders to data row
+      targetRow.setBorder(true, true, true, true, true, true);
+    }
+
+    // Set data values
+    sheet.getRange(nextRow, 1, numExpenses, 1).setValues(serialNumbers);
+    sheet.getRange(nextRow, 2, numExpenses, 1).setValues(dates);
+    sheet.getRange(nextRow, 3, numExpenses, 1).setValues(vendors);
+    sheet.getRange(nextRow, 5, numExpenses, 1).setValues(categories);
+    sheet.getRange(nextRow, 6, numExpenses, 1).setValues(costs);
+
+    // Merge vendor cells (columns C and D) for each row
+    for (let i = 0; i < numExpenses; i++) {
+      const vendorRange = sheet.getRange(nextRow + i, 3, 1, 2);
       vendorRange.merge();
     }
 
-    // Set CATEGORY (Column E)
-    sheet.getRange(nextRow, 5, numExpenses, 1).setValues(categories);
+    // Calculate where data now ends
+    const dataEndRow = nextRow + numExpenses - 1;
+    const summaryStartRow = dataEndRow + 1;
 
-    // Set COST (Column F)
-    sheet.getRange(nextRow, 6, numExpenses, 1).setValues(costs);
+    Logger.log('Data ends at row ' + dataEndRow + ', moving summary to row ' + summaryStartRow);
 
-    // Note: Borders are already set on the sheet (A14:F66) from master template
-    // No need to reapply borders during export - they're permanent on the sheet
+    // Now position the summary section immediately after data
+    // Open master template to copy summary section
+    const masterSpreadsheet = SpreadsheetApp.openById(MASTER_TEMPLATE_ID);
+    const masterSheet = masterSpreadsheet.getSheetByName(TAB_NAME);
+
+    if (masterSheet) {
+      // Clear any existing summary section first (might be at old position)
+      // Find and clear everything from dataEndRow + 1 onwards
+      const currentLastRow = sheet.getLastRow();
+      if (currentLastRow > dataEndRow) {
+        const clearRange = sheet.getRange(dataEndRow + 1, 1, currentLastRow - dataEndRow, 6);
+        clearRange.clear();
+      }
+
+      // Get the summary section from master (rows 67-83 = 17 rows)
+      const masterSummaryRange = masterSheet.getRange('A67:F83');
+
+      // Get all properties from master summary section
+      const summaryValues = masterSummaryRange.getValues();
+      const summaryFormulas = masterSummaryRange.getFormulas();
+      const summaryBackgrounds = masterSummaryRange.getBackgrounds();
+      const summaryFontColors = masterSummaryRange.getFontColors();
+      const summaryFontFamilies = masterSummaryRange.getFontFamilies();
+      const summaryFontSizes = masterSummaryRange.getFontSizes();
+      const summaryFontWeights = masterSummaryRange.getFontWeights();
+      const summaryHorizontalAlignments = masterSummaryRange.getHorizontalAlignments();
+      const summaryVerticalAlignments = masterSummaryRange.getVerticalAlignments();
+      const summaryNumberFormats = masterSummaryRange.getNumberFormats();
+
+      // Get target range in user sheet
+      const userSummaryRange = sheet.getRange(summaryStartRow, 1, SUMMARY_ROW_COUNT, 6);
+
+      // Apply formulas/values (formulas take priority)
+      for (let i = 0; i < summaryFormulas.length; i++) {
+        for (let j = 0; j < summaryFormulas[i].length; j++) {
+          if (summaryFormulas[i][j]) {
+            // Has formula - update row references for SUBTOTAL
+            let formula = summaryFormulas[i][j];
+
+            // Update SUBTOTAL formula to reference actual data range (14 to dataEndRow)
+            if (formula.includes('=SUM(F14:F66)')) {
+              formula = '=SUM(F14:F' + dataEndRow + ')';
+            }
+
+            userSummaryRange.getCell(i + 1, j + 1).setFormula(formula);
+          } else if (summaryValues[i][j]) {
+            // No formula, just value
+            userSummaryRange.getCell(i + 1, j + 1).setValue(summaryValues[i][j]);
+          }
+        }
+      }
+
+      // Apply all formatting (NO BORDERS - summary should be border-free)
+      userSummaryRange.setBackgrounds(summaryBackgrounds);
+      userSummaryRange.setFontColors(summaryFontColors);
+      userSummaryRange.setFontFamilies(summaryFontFamilies);
+      userSummaryRange.setFontSizes(summaryFontSizes);
+      userSummaryRange.setFontWeights(summaryFontWeights);
+      userSummaryRange.setHorizontalAlignments(summaryHorizontalAlignments);
+      userSummaryRange.setVerticalAlignments(summaryVerticalAlignments);
+      userSummaryRange.setNumberFormats(summaryNumberFormats);
+
+      // Copy merged cells from master
+      const masterMergedRanges = masterSummaryRange.getMergedRanges();
+      for (let i = 0; i < masterMergedRanges.length; i++) {
+        const mergedRange = masterMergedRanges[i];
+        const rowOffset = mergedRange.getRow() - 67; // Offset from row 67 in master
+        const numRows = mergedRange.getNumRows();
+        const numCols = mergedRange.getNumColumns();
+        const col = mergedRange.getColumn();
+
+        // Apply same merge pattern in user sheet at new position
+        const userMergeRange = sheet.getRange(summaryStartRow + rowOffset, col, numRows, numCols);
+        userMergeRange.merge();
+      }
+
+      Logger.log('Summary section copied successfully to row ' + summaryStartRow + ' (no borders applied)');
+    }
 
     Logger.log('Export completed successfully');
 
     return createResponse(true, 'Successfully exported ' + numExpenses + ' expenses', {
       exportedCount: numExpenses,
       startRow: nextRow,
-      endRow: nextRow + numExpenses - 1
+      endRow: dataEndRow,
+      summaryStartRow: summaryStartRow
     });
   } catch (error) {
     Logger.log('Error exporting expenses: ' + error.toString());
@@ -347,7 +325,9 @@ function verifySheetAccess(data) {
 
 /**
  * Reset user's sheet by copying from master template
- * This will replace the corrupted/messed up sheet with a fresh copy
+ * Clears all data and restores original structure:
+ * - Data section (rows 14-66) with borders
+ * - Summary section (rows 67-83) without borders
  */
 function resetSheetFromMaster(data) {
   try {
@@ -375,39 +355,18 @@ function resetSheetFromMaster(data) {
       return createResponse(false, 'Tab "' + TAB_NAME + '" not found in master template');
     }
 
-    Logger.log('Clearing data and restoring formatting from master template...');
+    Logger.log('Clearing all data and restoring master template formatting...');
 
-    // Get the actual last row (sheet might be expanded)
+    // Step 1: Clear everything from row 14 onwards
     const lastRow = userSheet.getLastRow();
-    const originalDataEndRow = 66; // Original data section ends at row 66
-    const originalSummaryStartRow = 67; // Original summary starts at row 67
-    const originalSummaryEndRow = 83; // Original summary ends at row 83
-
-    // Step 1: Clear ONLY data rows (14 to end of data section, excluding summary)
-    if (lastRow > originalSummaryStartRow) {
-      // Sheet was expanded - need to find where summary actually is
-      // Summary is 17 rows (67-83), so it should be at lastRow - 16 to lastRow
-      const currentSummaryStartRow = lastRow - 16;
-
-      // Clear data range from row 14 to just before summary
-      if (currentSummaryStartRow > 14) {
-        const userDataRange = userSheet.getRange('A14:F' + (currentSummaryStartRow - 1));
-        userDataRange.clear();
-      }
-
-      // Delete extra rows between row 67 and current summary start
-      const extraRows = currentSummaryStartRow - originalSummaryStartRow;
-      if (extraRows > 0) {
-        Logger.log('Deleting ' + extraRows + ' extra rows to restore original structure');
-        userSheet.deleteRows(originalSummaryStartRow, extraRows);
-      }
-    } else {
-      // Sheet not expanded - just clear data rows 14-66
-      const userDataRange = userSheet.getRange('A14:F66');
-      userDataRange.clear();
+    if (lastRow >= 14) {
+      const clearRange = userSheet.getRange('A14:F' + lastRow);
+      clearRange.clear();
     }
 
-    // Step 2: Restore DATA section formatting from master (A14:F66)
+    // Step 2: Restore DATA section formatting from master (A14:F66) with borders
+    Logger.log('Restoring data section (rows 14-66) with borders...');
+
     const masterDataRange = masterSheet.getRange('A14:F66');
     const masterBackgrounds = masterDataRange.getBackgrounds();
     const masterFontColors = masterDataRange.getFontColors();
@@ -418,7 +377,7 @@ function resetSheetFromMaster(data) {
     const masterVerticalAlignments = masterDataRange.getVerticalAlignments();
     const masterNumberFormats = masterDataRange.getNumberFormats();
 
-    // Apply all formatting to user sheet data section
+    // Apply all formatting to user sheet data section (rows 14-66)
     const userDataRange = userSheet.getRange('A14:F66');
     userDataRange.setBackgrounds(masterBackgrounds);
     userDataRange.setFontColors(masterFontColors);
@@ -429,7 +388,7 @@ function resetSheetFromMaster(data) {
     userDataRange.setVerticalAlignments(masterVerticalAlignments);
     userDataRange.setNumberFormats(masterNumberFormats);
 
-    // Apply borders to data section
+    // Apply borders to data section ONLY
     userDataRange.setBorder(true, true, true, true, true, true);
 
     // Merge vendor cells (C14:D66) to match template
@@ -438,8 +397,8 @@ function resetSheetFromMaster(data) {
       vendorCellRange.merge();
     }
 
-    // Step 3: Restore SUMMARY section from master (A67:F83)
-    Logger.log('Restoring summary section (rows 67-83) from master template...');
+    // Step 3: Restore SUMMARY section from master (A67:F83) WITHOUT borders
+    Logger.log('Restoring summary section (rows 67-83) without borders...');
 
     const masterSummaryRange = masterSheet.getRange('A67:F83');
 
@@ -458,14 +417,11 @@ function resetSheetFromMaster(data) {
     // Get target range in user sheet (rows 67-83)
     const userSummaryRange = userSheet.getRange('A67:F83');
 
-    // Clear the summary area first
-    userSummaryRange.clear();
-
     // Apply formulas and values
     for (let i = 0; i < summaryFormulas.length; i++) {
       for (let j = 0; j < summaryFormulas[i].length; j++) {
         if (summaryFormulas[i][j]) {
-          // Has formula - copy it as is
+          // Has formula - copy it as is (will be updated during export)
           userSummaryRange.getCell(i + 1, j + 1).setFormula(summaryFormulas[i][j]);
         } else if (summaryValues[i][j]) {
           // No formula, just value
@@ -474,7 +430,7 @@ function resetSheetFromMaster(data) {
       }
     }
 
-    // Apply all formatting to summary section
+    // Apply all formatting to summary section (NO BORDERS)
     userSummaryRange.setBackgrounds(summaryBackgrounds);
     userSummaryRange.setFontColors(summaryFontColors);
     userSummaryRange.setFontFamilies(summaryFontFamilies);
@@ -498,12 +454,13 @@ function resetSheetFromMaster(data) {
       userMergeRange.merge();
     }
 
-    // Apply borders to summary section
-    userSummaryRange.setBorder(true, true, true, true, true, true);
+    // DO NOT apply borders to summary section - leave it border-free
 
-    Logger.log('Sheet reset completed - data cleared, formatting and summary section restored from master');
+    Logger.log('Sheet reset completed:');
+    Logger.log('- Data section (rows 14-66): Formatted with borders');
+    Logger.log('- Summary section (rows 67-83): Formatted without borders');
 
-    return createResponse(true, 'Sheet reset successfully - all data cleared, borders restored', {
+    return createResponse(true, 'Sheet reset successfully - all data cleared, template restored', {
       sheetId: sheetId,
       sheetName: userSpreadsheet.getName()
     });
