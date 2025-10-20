@@ -116,25 +116,21 @@ app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
 
     // Keep-alive mechanism to prevent Railway from sleeping
-    if (process.env.NODE_ENV === 'production' && process.env.BACKEND_URL) {
-        const BACKEND_URL = process.env.BACKEND_URL;
+    // Uses localhost to avoid DNS issues with external URLs
+    if (process.env.NODE_ENV === 'production') {
         const KEEP_ALIVE_INTERVAL = 14 * 60 * 1000; // 14 minutes (Railway sleeps after ~15 min)
+        const http = require('http');
 
         setInterval(() => {
-            const https = require('https');
-            const http = require('http');
-            const protocol = BACKEND_URL.startsWith('https') ? https : http;
-
-            protocol.get(`${BACKEND_URL}/api/health`, (res) => {
+            // Ping localhost instead of external URL to avoid DNS issues
+            http.get(`http://localhost:${PORT}/api/health`, (res) => {
                 console.log(`⏰ Keep-alive ping sent - Status: ${res.statusCode} - ${new Date().toISOString()}`);
             }).on('error', (err) => {
                 console.error(`❌ Keep-alive ping failed: ${err.message}`);
             });
         }, KEEP_ALIVE_INTERVAL);
 
-        console.log(`✅ Keep-alive mechanism enabled - Pinging ${BACKEND_URL} every 14 minutes`);
-    } else if (process.env.NODE_ENV === 'production') {
-        console.log('ℹ️  Keep-alive disabled - Set BACKEND_URL environment variable to enable');
+        console.log(`✅ Keep-alive mechanism enabled - Pinging localhost:${PORT} every 14 minutes`);
     }
 });
 
