@@ -50,8 +50,7 @@ const orphanedImageSchema = new mongoose.Schema({
         default: function() {
             // Default 30 days from upload
             return new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-        },
-        index: true
+        }
     },
 
     // Track if this image was included in any PDF export
