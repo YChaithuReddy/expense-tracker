@@ -31,8 +31,25 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 // CORS Configuration - Enhanced for mobile compatibility
+const allowedOrigins = [
+    process.env.FRONTEND_URL || 'http://localhost:3000',
+    'https://expense-tracker-delta-ashy.vercel.app', // Vercel deployment
+    'http://localhost:3000', // Local development
+    'http://127.0.0.1:3000'  // Alternative localhost
+];
+
 const corsOptions = {
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            console.log('CORS blocked origin:', origin);
+            callback(null, false);
+        }
+    },
     credentials: true,
     optionsSuccessStatus: 200,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -55,10 +72,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
+mongoose.connect(process.env.MONGODB_URI)
 .then(() => console.log('✅ MongoDB connected successfully'))
 .catch((err) => {
     console.error('❌ MongoDB connection error:', err);
@@ -102,8 +116,8 @@ app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
 
     // Keep-alive mechanism to prevent Railway from sleeping
-    if (process.env.NODE_ENV === 'production') {
-        const BACKEND_URL = process.env.BACKEND_URL || `http://localhost:${PORT}`;
+    if (process.env.NODE_ENV === 'production' && process.env.BACKEND_URL) {
+        const BACKEND_URL = process.env.BACKEND_URL;
         const KEEP_ALIVE_INTERVAL = 14 * 60 * 1000; // 14 minutes (Railway sleeps after ~15 min)
 
         setInterval(() => {
@@ -114,11 +128,13 @@ app.listen(PORT, () => {
             protocol.get(`${BACKEND_URL}/api/health`, (res) => {
                 console.log(`⏰ Keep-alive ping sent - Status: ${res.statusCode} - ${new Date().toISOString()}`);
             }).on('error', (err) => {
-                console.error('❌ Keep-alive ping failed:', err.message);
+                console.error(`❌ Keep-alive ping failed: ${err.message}`);
             });
         }, KEEP_ALIVE_INTERVAL);
 
-        console.log('✅ Keep-alive mechanism enabled - Server will ping itself every 14 minutes');
+        console.log(`✅ Keep-alive mechanism enabled - Pinging ${BACKEND_URL} every 14 minutes`);
+    } else if (process.env.NODE_ENV === 'production') {
+        console.log('ℹ️  Keep-alive disabled - Set BACKEND_URL environment variable to enable');
     }
 });
 
