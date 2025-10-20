@@ -30,25 +30,29 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
-// CORS Configuration - Enhanced for mobile compatibility
-const allowedOrigins = [
-    process.env.FRONTEND_URL || 'http://localhost:3000',
-    'https://expense-tracker-delta-ashy.vercel.app', // Vercel deployment
-    'http://localhost:3000', // Local development
-    'http://127.0.0.1:3000'  // Alternative localhost
-];
-
+// CORS Configuration - Enhanced for mobile and Vercel preview deployments
 const corsOptions = {
     origin: function (origin, callback) {
         // Allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
 
-        if (allowedOrigins.indexOf(origin) !== -1) {
-            callback(null, true);
-        } else {
-            console.log('CORS blocked origin:', origin);
-            callback(null, false);
+        // Allow localhost for development
+        if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+            return callback(null, true);
         }
+
+        // Allow all Vercel deployments (production and preview)
+        if (origin.includes('vercel.app')) {
+            return callback(null, true);
+        }
+
+        // Allow production frontend URL
+        if (process.env.FRONTEND_URL && origin === process.env.FRONTEND_URL) {
+            return callback(null, true);
+        }
+
+        console.log('CORS blocked origin:', origin);
+        callback(null, false);
     },
     credentials: true,
     optionsSuccessStatus: 200,
