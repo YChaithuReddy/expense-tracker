@@ -13,6 +13,19 @@ const MASTER_TEMPLATE_ID = '1dcq8HKP1j4NocCMgAY9YSXlwCrzHwIiRCd0t4mun25E';
 const TAB_NAME = 'ExpenseReport';
 
 /**
+ * HTTP GET handler - for browser testing
+ */
+function doGet(e) {
+  return ContentService.createTextOutput(JSON.stringify({
+    status: 'success',
+    message: 'Expense Tracker Google Apps Script is running',
+    info: 'This script handles POST requests from the backend',
+    version: '1.0',
+    timestamp: new Date().toISOString()
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
  * HTTP POST handler - called by backend
  */
 function doPost(e) {
