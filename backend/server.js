@@ -22,14 +22,6 @@ app.use(helmet({
     contentSecurityPolicy: false // Disable CSP as it blocks mobile requests
 }));
 
-// Rate Limiting
-const limiter = rateLimit({
-    windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
-    max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, // limit each IP to 100 requests per windowMs
-    message: 'Too many requests from this IP, please try again later.'
-});
-app.use('/api/', limiter);
-
 // CORS Configuration - Enhanced for mobile and Vercel preview deployments
 const corsOptions = {
     origin: function (origin, callback) {
@@ -75,6 +67,38 @@ if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
 }
 
+// ===== CRITICAL: Health Check Route BEFORE Rate Limiting =====
+// This must come BEFORE rate limiter so Railway can health-check without limits
+app.get('/api/health', (req, res) => {
+    console.log('📊 Health check endpoint hit');
+    res.status(200).json({
+        status: 'ok',
+        message: 'Server is running',
+        time: new Date().toISOString(),
+        port: process.env.PORT || 5000,
+        environment: process.env.NODE_ENV || 'development'
+    });
+});
+
+// Root health check (Railway sometimes checks root)
+app.get('/', (req, res) => {
+    console.log('📊 Root endpoint hit');
+    res.status(200).json({
+        status: 'ok',
+        message: 'Expense Tracker API',
+        health: '/api/health',
+        time: new Date().toISOString()
+    });
+});
+
+// Rate Limiting - Applied AFTER health checks
+const limiter = rateLimit({
+    windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
+    max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
+    message: 'Too many requests from this IP, please try again later.'
+});
+app.use('/api/', limiter);
+
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI)
 .then(() => console.log('✅ MongoDB connected successfully'))
@@ -83,22 +107,14 @@ mongoose.connect(process.env.MONGODB_URI)
     process.exit(1);
 });
 
-// Routes
+// API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/google-sheets', googleSheetsRoutes);
 
-// Health Check Route
-app.get('/api/health', (req, res) => {
-    res.status(200).json({
-        status: 'success',
-        message: 'Expense Tracker API is running',
-        timestamp: new Date().toISOString()
-    });
-});
-
 // 404 Error Handler
 app.use((req, res) => {
+    console.log('⚠️ 404 - Route not found:', req.method, req.url);
     res.status(404).json({
         status: 'error',
         message: 'Route not found'
@@ -107,7 +123,7 @@ app.use((req, res) => {
 
 // Global Error Handler
 app.use((err, req, res, next) => {
-    console.error(err.stack);
+    console.error('❌ Server Error:', err.stack);
     res.status(err.status || 500).json({
         status: 'error',
         message: err.message || 'Internal server error'
@@ -116,25 +132,30 @@ app.use((err, req, res, next) => {
 
 // Start Server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log('='.repeat(50));
+    console.log(`🚀 Server started successfully!`);
+    console.log(`📍 Port: ${PORT}`);
+    console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🔗 Health Check: http://localhost:${PORT}/api/health`);
+    console.log('='.repeat(50));
 
     // Keep-alive mechanism to prevent Railway from sleeping
     // Uses localhost to avoid DNS issues with external URLs
     if (process.env.NODE_ENV === 'production') {
-        const KEEP_ALIVE_INTERVAL = 14 * 60 * 1000; // 14 minutes (Railway sleeps after ~15 min)
+        const KEEP_ALIVE_INTERVAL = 14 * 60 * 1000; // 14 minutes
         const http = require('http');
 
         setInterval(() => {
             // Ping localhost instead of external URL to avoid DNS issues
             http.get(`http://localhost:${PORT}/api/health`, (res) => {
-                console.log(`⏰ Keep-alive ping sent - Status: ${res.statusCode} - ${new Date().toISOString()}`);
+                console.log(`⏰ Keep-alive ping - Status: ${res.statusCode} - ${new Date().toISOString()}`);
             }).on('error', (err) => {
                 console.error(`❌ Keep-alive ping failed: ${err.message}`);
             });
         }, KEEP_ALIVE_INTERVAL);
 
-        console.log(`✅ Keep-alive mechanism enabled - Pinging localhost:${PORT} every 14 minutes`);
+        console.log(`✅ Keep-alive enabled - Pinging localhost:${PORT} every 14 minutes`);
     }
 });
 
