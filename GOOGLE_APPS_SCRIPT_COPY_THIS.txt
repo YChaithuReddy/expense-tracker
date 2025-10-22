@@ -1,0 +1,49 @@
+/**
+ * Google Apps Script for Expense Tracker Auto-Copy Template
+ *
+ * INSTRUCTIONS:
+ * 1. Copy ALL of this code
+ * 2. Go to: https://script.google.com/u/0/home/projects/17YAmyNLd0btwXw-WFmT_yUKCIZI38oFf5q4ZQBjImkjZ1F41eNddAqo_/edit
+ * 3. Delete any existing code
+ * 4. Paste this entire code
+ * 5. Click "Deploy" → "New deployment"
+ * 6. Choose "Web app" type
+ * 7. Execute as: "Me"
+ * 8. Who has access: "Anyone"
+ * 9. Click "Deploy"
+ *
+ * Deploy this as a Web App with "Execute as: Me" and "Access: Anyone"
+ */
+
+const MASTER_TEMPLATE_ID = '1dcq8HKP1j4NocCMgAY9YSXlwCrzHwIiRCd0t4mun25E';
+const TAB_NAME = 'ExpenseReport';
+
+/**
+ * HTTP POST handler - called by backend
+ */
+function doPost(e) {
+  try {
+    const data = JSON.parse(e.postData.contents);
+    const action = data.action;
+
+    switch (action) {
+      case 'createSheet':
+        return createSheetForUser(data);
+      case 'exportExpenses':
+        return exportExpensesToSheet(data);
+      case 'verifySheet':
+        return verifySheetAccess(data);
+      case 'exportPdf':
+        return exportSheetAsPdf(data);
+      case 'resetSheet':
+        return resetSheetFromMaster(data);
+      default:
+        return createResponse(false, 'Unknown action: ' + action);
+    }
+  } catch (error) {
+    Logger.log('Error in doPost: ' + error.toString());
+    return createResponse(false, 'Server error: ' + error.toString());
+  }
+}
+
+// [REST OF THE CODE FROM GOOGLE_APPS_SCRIPT.js - Full 630 lines]
