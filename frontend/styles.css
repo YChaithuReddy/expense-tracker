@@ -2988,21 +2988,14 @@ main {
    THEME TOGGLE BUTTON
    ================================================ */
 
-.theme-toggle-container {
-    position: fixed;
-    top: 1.5rem;
-    right: 1.5rem;
-    z-index: 10000;
-}
-
 .theme-toggle-btn {
     background: var(--card-bg);
     border: 2px solid var(--border-color);
     border-radius: 50px;
-    padding: 0.625rem 1.25rem;
-    display: flex;
+    padding: 8px 16px;
+    display: inline-flex;
     align-items: center;
-    gap: 0.625rem;
+    gap: 0.5rem;
     cursor: pointer;
     transition: all 0.3s ease;
     font-family: 'Space Grotesk', sans-serif;
@@ -3011,12 +3004,14 @@ main {
     color: var(--text-primary);
     box-shadow: 0 4px 12px var(--shadow-color);
     backdrop-filter: blur(10px);
+    margin-right: 12px;
 }
 
 .theme-toggle-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px var(--shadow-color);
     border-color: var(--primary-color);
+    background: var(--hover-bg);
 }
 
 .theme-toggle-btn:active {
@@ -3024,7 +3019,7 @@ main {
 }
 
 .theme-icon {
-    font-size: 1.25rem;
+    font-size: 1.125rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -3038,40 +3033,26 @@ main {
 .theme-label {
     font-size: 0.8125rem;
     letter-spacing: 0.03em;
-    text-transform: uppercase;
 }
 
 /* Mobile responsive */
 @media (max-width: 768px) {
-    .theme-toggle-container {
-        top: 1rem;
-        right: 1rem;
+    .theme-label {
+        display: none;
     }
 
     .theme-toggle-btn {
-        padding: 0.5rem 1rem;
-        font-size: 0.8125rem;
-    }
-
-    .theme-icon {
-        font-size: 1.125rem;
-    }
-
-    .theme-label {
-        display: none;
+        padding: 8px 12px;
+        margin-right: 8px;
     }
 }
 
 @media (max-width: 480px) {
-    .theme-toggle-container {
-        top: 0.75rem;
-        right: 0.75rem;
-    }
-
     .theme-toggle-btn {
-        padding: 0.5rem;
-        min-width: 44px;
-        min-height: 44px;
+        padding: 8px;
+        min-width: 40px;
+        min-height: 40px;
         justify-content: center;
+        margin-right: 8px;
     }
 }

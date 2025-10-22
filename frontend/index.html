@@ -28,14 +28,6 @@
     <script src="google-sheets-service.js"></script>
 </head>
 <body>
-    <!-- Theme Toggle Button -->
-    <div class="theme-toggle-container">
-        <button class="theme-toggle-btn" onclick="expenseTracker.toggleTheme()" aria-label="Toggle Theme">
-            <span class="theme-icon" id="themeIcon">🎨</span>
-            <span class="theme-label" id="themeLabel">Cyberpunk</span>
-        </button>
-    </div>
-
     <div class="container">
         <header>
             <h1>Expense Tracker</h1>
@@ -44,6 +36,10 @@
             <!-- User Info Section -->
             <div id="userInfo" style="display: none;">
                 <span id="userName" style="color: var(--neon-cyan); font-weight: 600;"></span>
+                <button class="theme-toggle-btn" onclick="expenseTracker.toggleTheme()" aria-label="Toggle Theme">
+                    <span class="theme-icon" id="themeIcon">🎨</span>
+                    <span class="theme-label" id="themeLabel">Cyberpunk</span>
+                </button>
                 <button id="logoutBtn" class="btn-secondary" style="padding: 8px 16px;">🚪 Logout</button>
             </div>
         </header>
