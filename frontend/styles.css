@@ -2990,33 +2990,14 @@ main {
 }
 
 .header-left {
-    flex: 0 0 auto;
-}
-
-.header-center {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
+    flex: 1;
 }
 
 .header-right {
-    flex: 0 0 auto;
     display: flex;
-    align-items: center;
-    justify-content: flex-end;
     gap: 8px;
-}
-
-/* Desktop: Keep theme toggle and user info together on right side */
-@media (min-width: 769px) {
-    .header-flex-wrapper {
-        justify-content: space-between;
-    }
-
-    .header-center {
-        margin-left: auto;
-        margin-right: 0;
-    }
+    align-items: center;
+    flex-shrink: 0;
 }
 
 /* Mobile header fixes */
@@ -3026,41 +3007,20 @@ main {
     }
 
     .header-flex-wrapper {
-        flex-direction: row;
-        flex-wrap: wrap;
+        flex-direction: column;
         align-items: center;
-        gap: 1rem;
-        position: relative;
+        gap: 1.5rem;
     }
 
     .header-left {
         text-align: center;
         width: 100%;
-        order: 1;
-    }
-
-    .header-center {
-        width: calc(100% - 60px);
-        order: 2;
-        justify-content: center;
     }
 
     .header-right {
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: auto;
-        order: 3;
-    }
-
-    .theme-toggle-btn {
-        min-width: 40px !important;
-        min-height: 40px !important;
-        padding: 8px !important;
-    }
-
-    .theme-icon {
-        font-size: 1.2rem !important;
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
     }
 
     header h1 {
@@ -3081,13 +3041,7 @@ main {
         font-size: 2rem;
     }
 
-    .theme-toggle-btn {
-        min-width: 36px !important;
-        min-height: 36px !important;
-        padding: 6px !important;
-    }
-
-    .theme-icon {
-        font-size: 1rem !important;
+    .header-right {
+        gap: 6px;
     }
 }
