@@ -2994,9 +2994,8 @@ main {
 }
 
 .header-center {
-    flex: 1;
+    flex: 0 0 auto;
     display: flex;
-    justify-content: center;
     align-items: center;
 }
 
@@ -3005,6 +3004,19 @@ main {
     display: flex;
     align-items: center;
     justify-content: flex-end;
+    gap: 8px;
+}
+
+/* Desktop: Keep theme toggle and user info together on right side */
+@media (min-width: 769px) {
+    .header-flex-wrapper {
+        justify-content: space-between;
+    }
+
+    .header-center {
+        margin-left: auto;
+        margin-right: 0;
+    }
 }
 
 /* Mobile header fixes */
