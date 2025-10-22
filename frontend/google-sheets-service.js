@@ -135,6 +135,45 @@ class GoogleSheetsService {
     }
 
     /**
+     * Update employee information in Google Sheet
+     * Updates specific cells: D4, D5, F5, F6, D9:E11
+     * @param {Object} employeeData - Employee information
+     * @returns {Object} - Update result
+     */
+    async updateEmployeeInfo(employeeData) {
+        try {
+            if (!this.hasSheet()) {
+                throw new Error('No Google Sheet found. Please export expenses first.');
+            }
+
+            console.log('📝 Updating employee info in Google Sheet...');
+
+            // Call backend API to update employee info
+            const response = await api.updateEmployeeInfo(employeeData);
+
+            if (response.status === 'success') {
+                console.log('✅ Employee info updated successfully');
+                return {
+                    success: true,
+                    message: response.message
+                };
+            } else {
+                return {
+                    success: false,
+                    message: response.message || 'Update failed'
+                };
+            }
+
+        } catch (error) {
+            console.error('❌ Error updating employee info:', error);
+            return {
+                success: false,
+                message: error.message || 'Failed to update employee information'
+            };
+        }
+    }
+
+    /**
      * Update UI to show/hide sheet link
      */
     updateUI() {

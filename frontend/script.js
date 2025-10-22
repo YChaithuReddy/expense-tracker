@@ -1922,8 +1922,7 @@ class ExpenseTracker {
 
     /**
      * Generate combined reimbursement package PDF
-     * - Page 1+: User's Google Sheet (expense reimbursement form)
-     * - Following pages: All bill receipt images
+     * Opens modal to collect employee information first
      */
     async generateCombinedReimbursementPDF() {
         try {
@@ -1934,10 +1933,27 @@ class ExpenseTracker {
                 return;
             }
 
+            // Step 2: Open modal to collect employee information
+            this.openEmployeeInfoModal();
+
+        } catch (error) {
+            console.error('❌ Error initiating PDF download:', error);
+            this.showNotification('❌ Failed to start PDF download: ' + error.message);
+        }
+    }
+
+    /**
+     * Generate combined reimbursement package PDF with employee info
+     * - Page 1+: User's Google Sheet (expense reimbursement form)
+     * - Following pages: All bill receipt images
+     * This is called AFTER employee info is collected and sheet is updated
+     */
+    async generateCombinedReimbursementPDFWithEmployeeInfo() {
+        try {
             // Show loading notification
             this.showNotification('📦 Preparing your reimbursement package...');
 
-            // Step 2: Download Google Sheet as PDF from backend
+            // Download Google Sheet as PDF from backend
             console.log('📄 Downloading Google Sheet PDF...');
             const sheetPdfResponse = await api.exportGoogleSheetAsPdf();
 
@@ -2811,6 +2827,87 @@ class ExpenseTracker {
 
     closeOrphanedImagesModal() {
         document.getElementById('orphanedImagesModal').style.display = 'none';
+    }
+
+    /**
+     * Open employee info modal to collect details before PDF download
+     */
+    openEmployeeInfoModal() {
+        const modal = document.getElementById('employeeInfoModal');
+        modal.style.display = 'flex';
+
+        // Set up form submission handler
+        const form = document.getElementById('employeeInfoForm');
+        const newForm = form.cloneNode(true);
+        form.parentNode.replaceChild(newForm, form);
+
+        newForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await this.handleEmployeeInfoSubmit(e);
+        });
+
+        // Set default date range if not filled
+        const today = new Date().toISOString().split('T')[0];
+        const firstDayOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+
+        if (!document.getElementById('expensePeriodFrom').value) {
+            document.getElementById('expensePeriodFrom').value = firstDayOfMonth;
+        }
+        if (!document.getElementById('expensePeriodTo').value) {
+            document.getElementById('expensePeriodTo').value = today;
+        }
+    }
+
+    /**
+     * Close employee info modal
+     */
+    closeEmployeeInfoModal() {
+        document.getElementById('employeeInfoModal').style.display = 'none';
+        document.getElementById('employeeInfoForm').reset();
+    }
+
+    /**
+     * Handle employee info form submission
+     */
+    async handleEmployeeInfoSubmit(e) {
+        try {
+            const formData = {
+                employeeName: document.getElementById('empName').value.trim(),
+                employeeCode: document.getElementById('empCode').value.trim() || '',
+                expensePeriodFrom: document.getElementById('expensePeriodFrom').value,
+                expensePeriodTo: document.getElementById('expensePeriodTo').value,
+                businessPurpose: document.getElementById('businessPurpose').value.trim()
+            };
+
+            // Validate date range
+            if (new Date(formData.expensePeriodFrom) > new Date(formData.expensePeriodTo)) {
+                alert('❌ "From" date cannot be after "To" date');
+                return;
+            }
+
+            console.log('📋 Employee info collected:', formData);
+
+            // Close modal
+            this.closeEmployeeInfoModal();
+
+            // Show loading notification
+            this.showNotification('📝 Updating employee details in Google Sheet...');
+
+            // Update Google Sheet with employee information
+            await googleSheetsService.updateEmployeeInfo(formData);
+
+            this.showNotification('✅ Employee details updated! Generating PDF...');
+
+            // Wait a bit to ensure Google Sheets is updated
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
+            // Proceed with PDF download
+            await this.generateCombinedReimbursementPDFWithEmployeeInfo();
+
+        } catch (error) {
+            console.error('❌ Error updating employee info:', error);
+            alert('Failed to update employee information. Please try again.');
+        }
     }
 
     async extendImageExpiry(imageId) {

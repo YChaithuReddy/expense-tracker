@@ -252,6 +252,56 @@
             </div>
         </div>
 
+        <!-- Employee Info Modal for PDF Download -->
+        <div id="employeeInfoModal" class="employee-info-modal" style="display: none;">
+            <div class="employee-info-content">
+                <div class="employee-info-header">
+                    <h2>📋 Complete Your Reimbursement Details</h2>
+                    <span class="close-employee-info" onclick="expenseTracker.closeEmployeeInfoModal()">&times;</span>
+                </div>
+                <div class="employee-info-body">
+                    <p class="modal-instruction">Please fill in the following details to complete your reimbursement package:</p>
+
+                    <form id="employeeInfoForm">
+                        <div class="form-group">
+                            <label for="empName">Employee Name: <span class="required">*</span></label>
+                            <input type="text" id="empName" name="empName" placeholder="Enter your full name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="empCode">Employee Code:</label>
+                            <input type="text" id="empCode" name="empCode" placeholder="Enter your employee code (optional)">
+                            <small>Leave blank if not applicable</small>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="expensePeriodFrom">Expense Period From: <span class="required">*</span></label>
+                                <input type="date" id="expensePeriodFrom" name="expensePeriodFrom" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="expensePeriodTo">To: <span class="required">*</span></label>
+                                <input type="date" id="expensePeriodTo" name="expensePeriodTo" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="businessPurpose">Business Purpose: <span class="required">*</span></label>
+                            <textarea id="businessPurpose" name="businessPurpose" rows="3" placeholder="Enter the purpose of these expenses" required></textarea>
+                            <small>Describe the business purpose or project related to these expenses</small>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn-secondary" onclick="expenseTracker.closeEmployeeInfoModal()">Cancel</button>
+                            <button type="submit" class="btn-primary">
+                                <span>📦 Generate Package</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <!-- Load authentication files first -->
