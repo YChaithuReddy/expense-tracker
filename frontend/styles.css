@@ -6,7 +6,13 @@
     box-sizing: border-box;
 }
 
-:root {
+/* ================================================
+   THEME SYSTEM - Dual Theme Support
+   ================================================ */
+
+/* Cyberpunk Theme (Default) */
+:root,
+[data-theme="cyberpunk"] {
     /* Neon Colors */
     --neon-cyan: #00ffff;
     --neon-pink: #ff00ff;
@@ -24,21 +30,63 @@
     --text-secondary: #a1a1aa;
     --accent-glow: #00d4ff40;
     --border-gradient: linear-gradient(90deg, var(--cyber-blue), var(--cyber-purple), var(--cyber-pink));
+
+    /* Common theme variables */
+    --primary-color: var(--neon-cyan);
+    --accent-color: var(--cyber-blue);
+    --background-primary: #0a0a0f;
+    --background-secondary: var(--card-bg);
+    --border-color: rgba(0, 212, 255, 0.3);
+    --hover-bg: rgba(0, 212, 255, 0.1);
+    --shadow-color: rgba(0, 212, 255, 0.4);
 }
 
+/* Modern Minimalist Theme */
+[data-theme="minimalist"] {
+    /* Minimalist Colors */
+    --neon-cyan: #10b981;
+    --neon-pink: #059669;
+    --neon-purple: #047857;
+    --neon-blue: #10b981;
+    --neon-green: #34d399;
+    --primary-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    --cyber-blue: #10b981;
+    --cyber-purple: #047857;
+    --cyber-pink: #34d399;
+    --dark-bg: #1e293b;
+    --card-bg: #334155;
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --accent-glow: rgba(16, 185, 129, 0.3);
+    --border-gradient: linear-gradient(90deg, #10b981, #059669, #047857);
+
+    /* Common theme variables */
+    --primary-color: #10b981;
+    --accent-color: #059669;
+    --background-primary: #1e293b;
+    --background-secondary: #334155;
+    --border-color: rgba(16, 185, 129, 0.2);
+    --hover-bg: rgba(16, 185, 129, 0.1);
+    --shadow-color: rgba(16, 185, 129, 0.2);
+}
+
+/* Smooth theme transitions */
 body {
     font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
     line-height: 1.6;
     color: var(--text-primary);
-    background: #0a0a0f;
+    background: var(--background-primary);
     min-height: 100vh;
     overflow-x: hidden;
     position: relative;
     width: 100%;
     max-width: 100vw;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-body::before {
+/* Theme-specific background effects */
+[data-theme="cyberpunk"] body::before {
     content: '';
     position: fixed;
     top: 0;
@@ -59,7 +107,23 @@ body::before {
     50% { opacity: 0.5; }
 }
 
-body::after {
+/* Minimalist theme background effects */
+[data-theme="minimalist"] body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background:
+        radial-gradient(circle at 30% 40%, rgba(16, 185, 129, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 70% 70%, rgba(5, 150, 105, 0.06) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: -1;
+    opacity: 0.7;
+}
+
+[data-theme="cyberpunk"] body::after {
     content: '';
     position: fixed;
     top: 0;
@@ -73,6 +137,23 @@ body::after {
     pointer-events: none;
     z-index: -1;
     animation: gridMove 20s linear infinite;
+}
+
+/* Minimalist theme subtle grid */
+[data-theme="minimalist"] body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        linear-gradient(rgba(16, 185, 129, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(16, 185, 129, 0.02) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: -1;
+    opacity: 0.5;
 }
 
 @keyframes gridMove {
@@ -2900,5 +2981,97 @@ main {
     #employeeInfoForm input[type="date"],
     #employeeInfoForm textarea {
         font-size: 0.9375rem;
+    }
+}
+
+/* ================================================
+   THEME TOGGLE BUTTON
+   ================================================ */
+
+.theme-toggle-container {
+    position: fixed;
+    top: 1.5rem;
+    right: 1.5rem;
+    z-index: 10000;
+}
+
+.theme-toggle-btn {
+    background: var(--card-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 50px;
+    padding: 0.625rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    box-shadow: 0 4px 12px var(--shadow-color);
+    backdrop-filter: blur(10px);
+}
+
+.theme-toggle-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px var(--shadow-color);
+    border-color: var(--primary-color);
+}
+
+.theme-toggle-btn:active {
+    transform: translateY(0);
+}
+
+.theme-icon {
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+}
+
+.theme-toggle-btn:hover .theme-icon {
+    transform: rotate(180deg);
+}
+
+.theme-label {
+    font-size: 0.8125rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .theme-toggle-container {
+        top: 1rem;
+        right: 1rem;
+    }
+
+    .theme-toggle-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.8125rem;
+    }
+
+    .theme-icon {
+        font-size: 1.125rem;
+    }
+
+    .theme-label {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .theme-toggle-container {
+        top: 0.75rem;
+        right: 0.75rem;
+    }
+
+    .theme-toggle-btn {
+        padding: 0.5rem;
+        min-width: 44px;
+        min-height: 44px;
+        justify-content: center;
     }
 }

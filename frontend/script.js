@@ -18,6 +18,9 @@ class ExpenseTracker {
         this.initializeEventListeners();
         this.setTodayDate();
 
+        // Initialize theme system
+        this.initializeTheme();
+
         // Load expenses from backend (async)
         this.loadExpenses();
 
@@ -2991,6 +2994,77 @@ class ExpenseTracker {
                 console.error('Error deleting orphaned image:', error);
                 this.showNotification('❌ Failed to delete image: ' + error.message);
             }
+        }
+    }
+
+    /**
+     * ================================================
+     * THEME SYSTEM
+     * ================================================
+     */
+
+    /**
+     * Initialize theme system - load saved theme preference
+     */
+    initializeTheme() {
+        // Get saved theme from localStorage, default to 'cyberpunk'
+        const savedTheme = localStorage.getItem('expenseTrackerTheme') || 'cyberpunk';
+
+        // Apply theme
+        this.applyTheme(savedTheme);
+
+        console.log(`🎨 Theme initialized: ${savedTheme}`);
+    }
+
+    /**
+     * Toggle between cyberpunk and minimalist themes
+     */
+    toggleTheme() {
+        // Get current theme
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'cyberpunk';
+
+        // Toggle to opposite theme
+        const newTheme = currentTheme === 'cyberpunk' ? 'minimalist' : 'cyberpunk';
+
+        // Apply and save new theme
+        this.applyTheme(newTheme);
+        localStorage.setItem('expenseTrackerTheme', newTheme);
+
+        // Show notification
+        const themeNames = {
+            'cyberpunk': 'Cyberpunk',
+            'minimalist': 'Minimalist'
+        };
+
+        this.showNotification(`🎨 Theme changed to ${themeNames[newTheme]}`);
+
+        console.log(`🎨 Theme toggled to: ${newTheme}`);
+    }
+
+    /**
+     * Apply theme to document
+     */
+    applyTheme(theme) {
+        // Set data-theme attribute on html element
+        document.documentElement.setAttribute('data-theme', theme);
+
+        // Update theme button UI
+        this.updateThemeButtonUI(theme);
+    }
+
+    /**
+     * Update theme button icon and label
+     */
+    updateThemeButtonUI(theme) {
+        const themeIcon = document.getElementById('themeIcon');
+        const themeLabel = document.getElementById('themeLabel');
+
+        if (theme === 'cyberpunk') {
+            if (themeIcon) themeIcon.textContent = '🌈';
+            if (themeLabel) themeLabel.textContent = 'Cyberpunk';
+        } else if (theme === 'minimalist') {
+            if (themeIcon) themeIcon.textContent = '🎯';
+            if (themeLabel) themeLabel.textContent = 'Minimalist';
         }
     }
 }
