@@ -1933,8 +1933,8 @@ class ExpenseTracker {
                 return;
             }
 
-            // Step 2: Open modal to collect employee information
-            this.openEmployeeInfoModal();
+            // Step 2: Open modal to collect employee information (auto-fills dates from expenses)
+            await this.openEmployeeInfoModal();
 
         } catch (error) {
             console.error('❌ Error initiating PDF download:', error);
@@ -2831,8 +2831,9 @@ class ExpenseTracker {
 
     /**
      * Open employee info modal to collect details before PDF download
+     * Auto-fills dates from actual expense data (first and last bill dates)
      */
-    openEmployeeInfoModal() {
+    async openEmployeeInfoModal() {
         const modal = document.getElementById('employeeInfoModal');
         modal.style.display = 'flex';
 
@@ -2846,7 +2847,54 @@ class ExpenseTracker {
             await this.handleEmployeeInfoSubmit(e);
         });
 
-        // Set default date range if not filled
+        // Auto-fill dates from actual expense data
+        try {
+            // Get the current loaded expenses (they're already sorted by date)
+            if (this.expenses && this.expenses.length > 0) {
+                // Find earliest and latest dates from expenses
+                let earliestDate = null;
+                let latestDate = null;
+
+                this.expenses.forEach(expense => {
+                    const expenseDate = new Date(expense.date);
+
+                    if (!earliestDate || expenseDate < earliestDate) {
+                        earliestDate = expenseDate;
+                    }
+
+                    if (!latestDate || expenseDate > latestDate) {
+                        latestDate = expenseDate;
+                    }
+                });
+
+                // Format dates as YYYY-MM-DD for input fields
+                if (earliestDate && latestDate) {
+                    const fromDate = earliestDate.toISOString().split('T')[0];
+                    const toDate = latestDate.toISOString().split('T')[0];
+
+                    console.log(`📅 Auto-filling dates: ${fromDate} to ${toDate}`);
+
+                    document.getElementById('expensePeriodFrom').value = fromDate;
+                    document.getElementById('expensePeriodTo').value = toDate;
+                } else {
+                    // Fallback to default dates if no expenses
+                    this.setDefaultDates();
+                }
+            } else {
+                // Fallback to default dates if no expenses loaded
+                this.setDefaultDates();
+            }
+        } catch (error) {
+            console.error('Error auto-filling dates:', error);
+            // Fallback to default dates on error
+            this.setDefaultDates();
+        }
+    }
+
+    /**
+     * Set default date range (first day of month to today)
+     */
+    setDefaultDates() {
         const today = new Date().toISOString().split('T')[0];
         const firstDayOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
 

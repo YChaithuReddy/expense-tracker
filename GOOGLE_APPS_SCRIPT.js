@@ -230,6 +230,10 @@ function exportExpensesToSheet(data) {
     sheet.getRange(nextRow, 5, numExpenses, 1).setValues(categories);
     sheet.getRange(nextRow, 6, numExpenses, 1).setValues(costs);
 
+    // Explicitly format date column (B) to display as "10-Sep-2025" format
+    const dateRange = sheet.getRange(nextRow, 2, numExpenses, 1);
+    dateRange.setNumberFormat('dd-mmm-yyyy');
+
     // Merge vendor cells (columns C and D) for each row
     for (let i = 0; i < numExpenses; i++) {
       const vendorRange = sheet.getRange(nextRow + i, 3, 1, 2);
@@ -723,16 +727,24 @@ function updateEmployeeInformation(data) {
       Logger.log('✅ Cleared D5 (Employee Code)');
     }
 
-    // Update Expense Period From (Cell F5)
+    // Update Expense Period From (Cell F5) - Format as dd-mmm-yyyy
     if (employeeData.expensePeriodFrom) {
-      activeSheet.getRange('F5').setValue(employeeData.expensePeriodFrom);
-      Logger.log('✅ Updated F5 (From Date): ' + employeeData.expensePeriodFrom);
+      const fromDate = new Date(employeeData.expensePeriodFrom);
+      const formattedFromDate = Utilities.formatDate(fromDate, Session.getScriptTimeZone(), 'dd-MMM-yyyy');
+      const cellF5 = activeSheet.getRange('F5');
+      cellF5.setValue(formattedFromDate);
+      cellF5.setNumberFormat('dd-mmm-yyyy');
+      Logger.log('✅ Updated F5 (From Date): ' + formattedFromDate);
     }
 
-    // Update Expense Period To (Cell F6)
+    // Update Expense Period To (Cell F6) - Format as dd-mmm-yyyy
     if (employeeData.expensePeriodTo) {
-      activeSheet.getRange('F6').setValue(employeeData.expensePeriodTo);
-      Logger.log('✅ Updated F6 (To Date): ' + employeeData.expensePeriodTo);
+      const toDate = new Date(employeeData.expensePeriodTo);
+      const formattedToDate = Utilities.formatDate(toDate, Session.getScriptTimeZone(), 'dd-MMM-yyyy');
+      const cellF6 = activeSheet.getRange('F6');
+      cellF6.setValue(formattedToDate);
+      cellF6.setNumberFormat('dd-mmm-yyyy');
+      Logger.log('✅ Updated F6 (To Date): ' + formattedToDate);
     }
 
     // Update Business Purpose (Cells D9:E11 merged range)
