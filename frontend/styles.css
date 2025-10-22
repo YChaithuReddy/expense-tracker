@@ -2440,3 +2440,262 @@ main {
 .flatpickr-calendar.arrowBottom::after {
     border-top-color: rgba(26, 26, 46, 0.98) !important;
 }
+
+/* ================================================
+   EMPLOYEE INFO MODAL - CYBERPUNK THEME
+   ================================================ */
+.employee-info-modal {
+    position: fixed;
+    z-index: 10002;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(15px);
+    animation: fadeIn 0.3s ease-out;
+    overflow-y: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.employee-info-content {
+    background: linear-gradient(135deg, rgba(26, 26, 46, 0.98) 0%, rgba(22, 33, 62, 0.98) 100%);
+    backdrop-filter: blur(30px);
+    border: 2px solid rgba(0, 212, 255, 0.3);
+    border-radius: 24px;
+    width: 100%;
+    max-width: 600px;
+    box-shadow:
+        0 30px 60px rgba(0, 0, 0, 0.7),
+        0 0 40px rgba(0, 212, 255, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    animation: modalSlideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+}
+
+@keyframes modalSlideUp {
+    0% {
+        opacity: 0;
+        transform: translateY(50px) scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.employee-info-header {
+    padding: 30px 35px;
+    border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(157, 0, 255, 0.1));
+    border-radius: 22px 22px 0 0;
+}
+
+.employee-info-header h2 {
+    margin: 0;
+    color: var(--neon-cyan);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    text-shadow: 0 0 20px rgba(0, 212, 255, 0.6);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.close-employee-info {
+    font-size: 2.5rem;
+    font-weight: 300;
+    color: var(--text-secondary);
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    line-height: 1;
+}
+
+.close-employee-info:hover {
+    background: rgba(255, 71, 87, 0.2);
+    color: #ff4757;
+    transform: rotate(90deg);
+}
+
+.employee-info-body {
+    padding: 35px;
+}
+
+.modal-instruction {
+    color: var(--text-secondary);
+    margin-bottom: 30px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    text-align: center;
+    padding: 15px;
+    background: rgba(0, 212, 255, 0.05);
+    border-left: 3px solid var(--cyber-blue);
+    border-radius: 8px;
+}
+
+#employeeInfoForm .form-group {
+    margin-bottom: 25px;
+}
+
+#employeeInfoForm label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: var(--neon-cyan);
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+#employeeInfoForm .required {
+    color: #ff4757;
+    font-size: 1.1rem;
+}
+
+#employeeInfoForm input[type="text"],
+#employeeInfoForm input[type="date"],
+#employeeInfoForm textarea {
+    width: 100%;
+    padding: 14px 18px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(0, 212, 255, 0.2);
+    border-radius: 12px;
+    font-size: 15px;
+    color: var(--text-primary);
+    font-family: 'Space Grotesk', sans-serif;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+#employeeInfoForm input[type="text"]:focus,
+#employeeInfoForm input[type="date"]:focus,
+#employeeInfoForm textarea:focus {
+    outline: none;
+    border-color: var(--cyber-blue);
+    background: rgba(0, 212, 255, 0.08);
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+}
+
+#employeeInfoForm textarea {
+    resize: vertical;
+    min-height: 80px;
+    line-height: 1.6;
+}
+
+#employeeInfoForm input::placeholder,
+#employeeInfoForm textarea::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.7;
+}
+
+#employeeInfoForm small {
+    color: var(--text-secondary);
+    font-size: 12px;
+    margin-top: 6px;
+    display: block;
+    font-style: italic;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+#employeeInfoForm .form-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 35px;
+    padding-top: 25px;
+    border-top: 1px solid rgba(0, 212, 255, 0.2);
+}
+
+#employeeInfoForm .form-actions button {
+    flex: 1;
+    padding: 16px 24px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+#employeeInfoForm .btn-primary {
+    background: linear-gradient(135deg, var(--cyber-blue), var(--cyber-purple));
+    border: none;
+    color: white;
+    box-shadow: 0 10px 30px rgba(0, 212, 255, 0.4);
+}
+
+#employeeInfoForm .btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(0, 212, 255, 0.5);
+}
+
+#employeeInfoForm .btn-primary:active {
+    transform: translateY(-1px);
+}
+
+#employeeInfoForm .btn-secondary {
+    background: rgba(108, 117, 125, 0.2);
+    border: 2px solid rgba(108, 117, 125, 0.4);
+    color: var(--text-secondary);
+}
+
+#employeeInfoForm .btn-secondary:hover {
+    background: rgba(108, 117, 125, 0.3);
+    border-color: rgba(108, 117, 125, 0.6);
+    transform: translateY(-2px);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .employee-info-content {
+        max-width: 95%;
+        margin: 10px;
+    }
+
+    .employee-info-header {
+        padding: 20px 25px;
+    }
+
+    .employee-info-header h2 {
+        font-size: 1.3rem;
+    }
+
+    .employee-info-body {
+        padding: 25px 20px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    #employeeInfoForm .form-actions {
+        flex-direction: column-reverse;
+    }
+
+    #employeeInfoForm .form-actions button {
+        width: 100%;
+    }
+}

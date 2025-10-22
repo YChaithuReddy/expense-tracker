@@ -325,6 +325,65 @@ class GoogleSheetsService {
             };
         }
     }
+
+    /**
+     * Update employee information in Google Sheet
+     * Updates cells: D4, D5, F5, F6, D9:E11
+     * @param {String} sheetId - Google Sheet ID
+     * @param {Object} employeeData - Employee information
+     * @returns {Object} - Update result
+     */
+    async updateEmployeeInfo(sheetId, employeeData) {
+        try {
+            if (!this.isReady()) {
+                throw new Error('Google Apps Script URL not configured');
+            }
+
+            if (!sheetId) {
+                throw new Error('No sheet ID provided');
+            }
+
+            console.log(`📝 Updating employee info in sheet: ${sheetId}`);
+            console.log('Employee data:', employeeData);
+
+            // Call Google Apps Script to update employee info
+            const response = await axios.post(this.appsScriptUrl, {
+                action: 'updateEmployeeInfo',
+                sheetId: sheetId,
+                employeeData: employeeData
+            }, {
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                timeout: 30000 // 30 second timeout
+            });
+
+            if (response.data.status === 'success') {
+                console.log(`✅ Employee info updated successfully`);
+                return {
+                    success: true,
+                    message: response.data.message
+                };
+            } else {
+                throw new Error(response.data.message || 'Failed to update employee info');
+            }
+
+        } catch (error) {
+            console.error('❌ Error updating employee info:', error.message);
+
+            if (error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT') {
+                return {
+                    success: false,
+                    error: 'Request timeout - Google Apps Script may be busy. Please try again.'
+                };
+            }
+
+            return {
+                success: false,
+                error: error.response?.data?.message || error.message
+            };
+        }
+    }
 }
 
 // Create singleton instance

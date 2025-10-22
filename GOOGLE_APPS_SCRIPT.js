@@ -44,6 +44,8 @@ function doPost(e) {
         return exportSheetAsPdf(data);
       case 'resetSheet':
         return resetSheetFromMaster(data);
+      case 'updateEmployeeInfo':
+        return updateEmployeeInformation(data);
       default:
         return createResponse(false, 'Unknown action: ' + action);
     }
@@ -682,4 +684,70 @@ function testResetSheet() {
 
   const result = resetSheetFromMaster(testData);
   Logger.log(result.getContent());
+}
+
+/**
+ * Update employee information in Google Sheet
+ * Updates specific cells: D4 (Employee Name), D5 (Employee Code), F5 (From Date), F6 (To Date), D9:E11 (Business Purpose)
+ */
+function updateEmployeeInformation(data) {
+  try {
+    const { sheetId, employeeData } = data;
+
+    if (!sheetId) {
+      return createResponse(false, 'Missing sheetId');
+    }
+
+    if (!employeeData) {
+      return createResponse(false, 'Missing employeeData');
+    }
+
+    Logger.log('Updating employee info in sheet: ' + sheetId);
+
+    // Open the user's sheet
+    const sheet = SpreadsheetApp.openById(sheetId);
+    const activeSheet = sheet.getActiveSheet();
+
+    // Update Employee Name (Cell D4)
+    if (employeeData.employeeName) {
+      activeSheet.getRange('D4').setValue(employeeData.employeeName);
+      Logger.log('✅ Updated D4 (Employee Name): ' + employeeData.employeeName);
+    }
+
+    // Update Employee Code (Cell D5) - Optional
+    if (employeeData.employeeCode) {
+      activeSheet.getRange('D5').setValue(employeeData.employeeCode);
+      Logger.log('✅ Updated D5 (Employee Code): ' + employeeData.employeeCode);
+    } else {
+      activeSheet.getRange('D5').setValue(''); // Clear if not provided
+      Logger.log('✅ Cleared D5 (Employee Code)');
+    }
+
+    // Update Expense Period From (Cell F5)
+    if (employeeData.expensePeriodFrom) {
+      activeSheet.getRange('F5').setValue(employeeData.expensePeriodFrom);
+      Logger.log('✅ Updated F5 (From Date): ' + employeeData.expensePeriodFrom);
+    }
+
+    // Update Expense Period To (Cell F6)
+    if (employeeData.expensePeriodTo) {
+      activeSheet.getRange('F6').setValue(employeeData.expensePeriodTo);
+      Logger.log('✅ Updated F6 (To Date): ' + employeeData.expensePeriodTo);
+    }
+
+    // Update Business Purpose (Cells D9:E11 merged range)
+    if (employeeData.businessPurpose) {
+      // Set the value in the top-left cell of the merged range (D9)
+      activeSheet.getRange('D9').setValue(employeeData.businessPurpose);
+      Logger.log('✅ Updated D9:E11 (Business Purpose): ' + employeeData.businessPurpose);
+    }
+
+    Logger.log('✅ Employee information updated successfully');
+
+    return createResponse(true, 'Employee information updated successfully');
+
+  } catch (error) {
+    Logger.log('❌ Error updating employee info: ' + error.toString());
+    return createResponse(false, 'Failed to update employee information: ' + error.toString());
+  }
 }

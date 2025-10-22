@@ -368,4 +368,75 @@ router.post('/reset', protect, async (req, res) => {
     }
 });
 
+// Update employee information in Google Sheet
+router.post('/update-employee-info', protect, async (req, res) => {
+    try {
+        // Check if user has a sheet
+        if (!req.user.googleSheetId) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'No Google Sheet found for this user. Please export expenses first.'
+            });
+        }
+
+        // Check if service is ready
+        if (!googleSheetsService.isReady()) {
+            return res.status(503).json({
+                status: 'error',
+                message: 'Google Sheets service not configured'
+            });
+        }
+
+        const { employeeName, employeeCode, expensePeriodFrom, expensePeriodTo, businessPurpose } = req.body;
+
+        // Validate required fields
+        if (!employeeName || !expensePeriodFrom || !expensePeriodTo || !businessPurpose) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'Missing required fields: employeeName, expensePeriodFrom, expensePeriodTo, businessPurpose'
+            });
+        }
+
+        console.log(`📝 User ${req.user.email} updating employee info in sheet: ${req.user.googleSheetId}`);
+        console.log('Employee Data:', { employeeName, employeeCode, expensePeriodFrom, expensePeriodTo, businessPurpose });
+
+        // Update employee info via Apps Script
+        const updateResult = await googleSheetsService.updateEmployeeInfo(
+            req.user.googleSheetId,
+            {
+                employeeName,
+                employeeCode,
+                expensePeriodFrom,
+                expensePeriodTo,
+                businessPurpose
+            }
+        );
+
+        if (!updateResult.success) {
+            return res.status(500).json({
+                status: 'error',
+                message: 'Failed to update employee information',
+                error: updateResult.error
+            });
+        }
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Employee information updated successfully',
+            data: {
+                sheetId: req.user.googleSheetId,
+                sheetUrl: req.user.googleSheetUrl
+            }
+        });
+
+    } catch (error) {
+        console.error('Update employee info error:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Server error while updating employee information',
+            error: error.message
+        });
+    }
+});
+
 module.exports = router;

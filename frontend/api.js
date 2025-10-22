@@ -447,6 +447,27 @@ const api = {
         }
     },
 
+    // Update employee information in Google Sheet
+    async updateEmployeeInfo(employeeData) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/google-sheets/update-employee-info`, {
+                method: 'POST',
+                headers: getHeaders(true),
+                body: JSON.stringify(employeeData)
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to update employee information');
+            }
+
+            return data;
+        } catch (error) {
+            return handleApiError(error);
+        }
+    },
+
     /**
      * Selective Clear APIs
      */
