@@ -2639,7 +2639,44 @@ main {
 .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    gap: 15px;
+}
+
+/* Enhanced date input styling */
+#employeeInfoForm input[type="date"] {
+    padding: 14px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    position: relative;
+    color: var(--neon-cyan);
+}
+
+/* Date input calendar icon styling */
+#employeeInfoForm input[type="date"]::-webkit-calendar-picker-indicator {
+    background: transparent;
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%2300ffff" viewBox="0 0 16 16"><path d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm-3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm-5 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z"/><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/></svg>');
+    background-size: 16px;
+    background-position: center;
+    background-repeat: no-repeat;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 0 3px rgba(0, 255, 255, 0.5));
+}
+
+#employeeInfoForm input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+    filter: drop-shadow(0 0 6px rgba(0, 255, 255, 0.8));
+    transform: scale(1.1);
+}
+
+/* Date input in focused state */
+#employeeInfoForm input[type="date"]:focus::-webkit-calendar-picker-indicator {
+    filter: drop-shadow(0 0 8px rgba(0, 255, 255, 1));
 }
 
 #employeeInfoForm .form-actions {
