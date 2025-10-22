@@ -30,14 +30,14 @@
 <body>
     <div class="container">
         <header>
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%; position: relative;">
-                <div>
+            <div class="header-flex-wrapper">
+                <div class="header-left">
                     <h1>Expense Tracker</h1>
                     <p>Automate your reimbursement submissions</p>
                 </div>
 
                 <!-- Theme Toggle - Always Visible -->
-                <div style="display: flex; gap: 8px; align-items: center; margin-top: 10px;">
+                <div class="header-right">
                     <button class="theme-toggle-btn" onclick="expenseTracker.toggleTheme()" aria-label="Toggle Theme" title="Switch Theme">
                         <span class="theme-icon" id="themeIcon">🎨</span>
                     </button>
