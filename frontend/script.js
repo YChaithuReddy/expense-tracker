@@ -2546,7 +2546,7 @@ class ExpenseTracker {
             btnText.textContent = `Export Selected (${checkboxes.length})`;
             exportBtn.style.display = 'block';
         } else {
-            btnText.textContent = 'Export to Google Sheets';
+            btnText.textContent = 'Google Export';
         }
     }
 
@@ -2594,7 +2594,7 @@ class ExpenseTracker {
             this.showNotification('❌ Export failed: ' + error.message);
         } finally {
             const button = document.getElementById('exportToGoogleSheets');
-            button.querySelector('.btn-text').textContent = 'Export to Google Sheets';
+            button.querySelector('.btn-text').textContent = 'Google Export';
             button.disabled = false;
         }
     }
