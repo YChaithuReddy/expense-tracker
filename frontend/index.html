@@ -36,16 +36,19 @@
                     <p>Automate your reimbursement submissions</p>
                 </div>
 
-                <!-- Theme Toggle - Always Visible -->
-                <div class="header-right">
-                    <button class="theme-toggle-btn" onclick="expenseTracker.toggleTheme()" aria-label="Toggle Theme" title="Switch Theme">
-                        <span class="theme-icon" id="themeIcon">🎨</span>
-                    </button>
-                    <!-- User Info Section -->
+                <!-- User Info Section - Center -->
+                <div class="header-center">
                     <div id="userInfo" style="display: none; align-items: center; gap: 8px;">
                         <span id="userName" style="color: var(--neon-cyan); font-weight: 600;"></span>
                         <button id="logoutBtn" class="btn-secondary" style="padding: 8px 16px;">🚪 Logout</button>
                     </div>
+                </div>
+
+                <!-- Theme Toggle - Right Side -->
+                <div class="header-right">
+                    <button class="theme-toggle-btn" onclick="expenseTracker.toggleTheme()" aria-label="Toggle Theme" title="Switch Theme">
+                        <span class="theme-icon" id="themeIcon">🎨</span>
+                    </button>
                 </div>
             </div>
         </header>
@@ -165,11 +168,11 @@
                     <div class="action-buttons">
                         <button id="exportToGoogleSheets" class="btn-primary">
                             <span class="btn-icon">☁️</span>
-                            <span class="btn-text">Export to Google Sheets</span>
+                            <span class="btn-text">Google Export</span>
                         </button>
                         <button id="viewGoogleSheet" class="btn-secondary" style="display: none;">
                             <span class="btn-icon">🔗</span>
-                            <span class="btn-text">View My Sheet</span>
+                            <span class="btn-text">View Sheet</span>
                         </button>
                         <button id="viewSavedImages" class="btn-secondary">
                             <span class="btn-icon">🖼️</span>
