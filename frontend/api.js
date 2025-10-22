@@ -5,9 +5,9 @@
  */
 
 // For LOCAL TESTING: Use localhost
-// For PRODUCTION: Use Render URL
+// For PRODUCTION: Use Railway URL
 // const API_BASE_URL = 'http://localhost:5000/api';
-const API_BASE_URL = 'https://expense-tracker-yjq7.onrender.com/api';
+const API_BASE_URL = 'https://expense-tracker-production-b501.up.railway.app/api';
 
 // Get auth token from localStorage
 function getAuthToken() {
