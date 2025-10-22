@@ -1,0 +1,35 @@
+{
+  "EmployeeName": "Y Chaithanya Reddy",
+  "ExpensePeriod": "Oct 2025",
+  "EmployeeCode": "EMP-0234",
+  "FromDate": "2025-09-01",
+  "ToDate": "2025-09-30",
+  "BusinessPurpose": "Client visit - Bangalore",
+  "CashAdvance": 5000.00,
+  "items": [
+    {
+      "Date": "2025-09-02",
+      "VendorName_Description": "Hotel ABC - accommodation",
+      "Category": "Accommodation",
+      "Cost": 2400.50
+    },
+    {
+      "Date": "2025-09-03",
+      "VendorName_Description": "Taxi - airport to client office",
+      "Category": "Transportation",
+      "Cost": 450.00
+    },
+    {
+      "Date": "2025-09-03",
+      "VendorName_Description": "Restaurant XYZ - client lunch",
+      "Category": "Meals",
+      "Cost": 890.00
+    },
+    {
+      "Date": "2025-09-04",
+      "VendorName_Description": "Petrol pump - fuel",
+      "Category": "Fuel",
+      "Cost": 1200.00
+    }
+  ]
+}
