@@ -118,52 +118,27 @@ function exportExpensesToSheet(data) {
     const DATA_START_ROW = 14; // Data always starts at row 14
     const SUMMARY_ROW_COUNT = 17; // Summary section is always 17 rows (A67:F83 in master)
 
-    // Find the last row with actual expense data (check column B for dates)
-    // Summary section has text like "SUBTOTAL" in column E, not dates in column B
+    // Find next empty row in data section (starting from row 14)
     const lastRow = sheet.getLastRow();
-    let lastDataRow = DATA_START_ROW - 1; // Start before first data row
+    let nextRow = DATA_START_ROW;
 
+    // Check existing data to find first empty row
     if (lastRow >= DATA_START_ROW) {
-      // Check each row for date data in column B
-      const dateColumn = sheet.getRange(DATA_START_ROW, 2, lastRow - DATA_START_ROW + 1, 1).getValues();
+      const dataRange = sheet.getRange(DATA_START_ROW, 2, lastRow - DATA_START_ROW + 1, 1);
+      const values = dataRange.getValues();
 
-      for (let i = 0; i < dateColumn.length; i++) {
-        const cellValue = dateColumn[i][0];
-        // If cell has a date or any value (not empty), it's data
-        if (cellValue && cellValue !== '') {
-          lastDataRow = DATA_START_ROW + i;
-        } else {
-          // Hit empty row, stop searching
+      for (let i = 0; i < values.length; i++) {
+        if (!values[i][0] || values[i][0] === '') {
+          nextRow = DATA_START_ROW + i;
           break;
+        } else if (i === values.length - 1) {
+          // All rows have data, start after the last row
+          nextRow = lastRow + 1;
         }
       }
-
-      Logger.log('Last data row found: ' + lastDataRow);
     }
 
-    // Next row to insert data is after the last data row
-    const nextRow = lastDataRow + 1;
-    Logger.log('Appending new expenses starting at row: ' + nextRow);
-
-    // If there's existing data beyond nextRow (like summary), clear it
-    // We'll re-add the summary after the new data
-    if (lastRow >= nextRow) {
-      Logger.log('Clearing old summary section from row ' + nextRow + ' onwards');
-      const clearRange = sheet.getRange(nextRow, 1, lastRow - nextRow + 1, 6);
-
-      // Unmerge any cells in this range to prevent conflicts
-      try {
-        const mergedRanges = clearRange.getMergedRanges();
-        for (let i = 0; i < mergedRanges.length; i++) {
-          mergedRanges[i].breakApart();
-        }
-        Logger.log('Unmerged ' + mergedRanges.length + ' ranges in summary area');
-      } catch (e) {
-        Logger.log('No merged cells to unmerge: ' + e);
-      }
-
-      clearRange.clear();
-    }
+    Logger.log('Starting export at row: ' + nextRow);
 
     // Prepare data arrays for batch update
     const serialNumbers = [];
@@ -273,33 +248,15 @@ function exportExpensesToSheet(data) {
       const userSummaryRange = sheet.getRange(summaryStartRow, 1, SUMMARY_ROW_COUNT, 6);
 
       // Apply formulas/values (formulas take priority)
-      const MASTER_SUMMARY_START_ROW = 67; // Master template summary starts at row 67
-      const rowOffset = summaryStartRow - MASTER_SUMMARY_START_ROW;
-
       for (let i = 0; i < summaryFormulas.length; i++) {
         for (let j = 0; j < summaryFormulas[i].length; j++) {
           if (summaryFormulas[i][j]) {
-            // Has formula - update row references
+            // Has formula - update row references for SUBTOTAL
             let formula = summaryFormulas[i][j];
 
             // Update SUBTOTAL formula to reference actual data range (14 to dataEndRow)
             if (formula.includes('=SUM(F14:F66)')) {
               formula = '=SUM(F14:F' + dataEndRow + ')';
-            }
-
-            // Update all other cell references to match new summary position
-            // This handles formulas like =F67-F68, =F69*F70, etc.
-            // Replace row numbers 67-83 (master summary range) with new row numbers
-            if (rowOffset !== 0) {
-              // Use regex to find and replace row numbers in cell references
-              formula = formula.replace(/([A-Z]+)(\d+)/g, function(match, col, row) {
-                const rowNum = parseInt(row);
-                // Only update rows in the summary section range (67-83)
-                if (rowNum >= MASTER_SUMMARY_START_ROW && rowNum <= 83) {
-                  return col + (rowNum + rowOffset);
-                }
-                return match; // Keep other row references unchanged
-              });
             }
 
             userSummaryRange.getCell(i + 1, j + 1).setFormula(formula);
