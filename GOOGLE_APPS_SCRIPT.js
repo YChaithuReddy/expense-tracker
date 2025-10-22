@@ -118,33 +118,52 @@ function exportExpensesToSheet(data) {
     const DATA_START_ROW = 14; // Data always starts at row 14
     const SUMMARY_ROW_COUNT = 17; // Summary section is always 17 rows (A67:F83 in master)
 
-    // IMPORTANT: Clear any existing data before exporting to avoid merge conflicts
-    // This prevents the "merged cells" error on re-export
+    // Find the last row with actual expense data (check column B for dates)
+    // Summary section has text like "SUBTOTAL" in column E, not dates in column B
     const lastRow = sheet.getLastRow();
+    let lastDataRow = DATA_START_ROW - 1; // Start before first data row
+
     if (lastRow >= DATA_START_ROW) {
-      Logger.log('Clearing existing data from row ' + DATA_START_ROW + ' onwards');
+      // Check each row for date data in column B
+      const dateColumn = sheet.getRange(DATA_START_ROW, 2, lastRow - DATA_START_ROW + 1, 1).getValues();
 
-      // Clear all content and formatting from data section onwards
-      const clearRange = sheet.getRange(DATA_START_ROW, 1, lastRow - DATA_START_ROW + 1, 6);
+      for (let i = 0; i < dateColumn.length; i++) {
+        const cellValue = dateColumn[i][0];
+        // If cell has a date or any value (not empty), it's data
+        if (cellValue && cellValue !== '') {
+          lastDataRow = DATA_START_ROW + i;
+        } else {
+          // Hit empty row, stop searching
+          break;
+        }
+      }
 
-      // First, unmerge any merged cells to prevent conflicts
+      Logger.log('Last data row found: ' + lastDataRow);
+    }
+
+    // Next row to insert data is after the last data row
+    const nextRow = lastDataRow + 1;
+    Logger.log('Appending new expenses starting at row: ' + nextRow);
+
+    // If there's existing data beyond nextRow (like summary), clear it
+    // We'll re-add the summary after the new data
+    if (lastRow >= nextRow) {
+      Logger.log('Clearing old summary section from row ' + nextRow + ' onwards');
+      const clearRange = sheet.getRange(nextRow, 1, lastRow - nextRow + 1, 6);
+
+      // Unmerge any cells in this range to prevent conflicts
       try {
         const mergedRanges = clearRange.getMergedRanges();
         for (let i = 0; i < mergedRanges.length; i++) {
           mergedRanges[i].breakApart();
         }
-        Logger.log('Unmerged ' + mergedRanges.length + ' cell ranges');
+        Logger.log('Unmerged ' + mergedRanges.length + ' ranges in summary area');
       } catch (e) {
-        Logger.log('No merged cells to break apart: ' + e);
+        Logger.log('No merged cells to unmerge: ' + e);
       }
 
-      // Now clear all content
       clearRange.clear();
     }
-
-    // Always start from row 14 for clean export
-    const nextRow = DATA_START_ROW;
-    Logger.log('Starting fresh export at row: ' + nextRow);
 
     // Prepare data arrays for batch update
     const serialNumbers = [];
