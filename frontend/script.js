@@ -3017,14 +3017,21 @@ class ExpenseTracker {
     }
 
     /**
-     * Toggle between cyberpunk and minimalist themes
+     * Toggle between cyberpunk, teal, and minimalist themes
      */
     toggleTheme() {
         // Get current theme
         const currentTheme = document.documentElement.getAttribute('data-theme') || 'cyberpunk';
 
-        // Toggle to opposite theme
-        const newTheme = currentTheme === 'cyberpunk' ? 'minimalist' : 'cyberpunk';
+        // Cycle through themes: cyberpunk -> teal -> minimalist -> cyberpunk
+        let newTheme;
+        if (currentTheme === 'cyberpunk') {
+            newTheme = 'teal';
+        } else if (currentTheme === 'teal') {
+            newTheme = 'minimalist';
+        } else {
+            newTheme = 'cyberpunk';
+        }
 
         // Apply and save new theme
         this.applyTheme(newTheme);
@@ -3033,7 +3040,8 @@ class ExpenseTracker {
         // Show notification
         const themeNames = {
             'cyberpunk': 'Cyberpunk',
-            'minimalist': 'Minimalist'
+            'teal': 'Teal Business',
+            'minimalist': 'Green Minimal'
         };
 
         this.showNotification(`🎨 Theme changed to ${themeNames[newTheme]}`);
@@ -3062,9 +3070,12 @@ class ExpenseTracker {
         if (theme === 'cyberpunk') {
             if (themeIcon) themeIcon.textContent = '🌈';
             if (themeLabel) themeLabel.textContent = 'Cyberpunk';
+        } else if (theme === 'teal') {
+            if (themeIcon) themeIcon.textContent = '🌊';
+            if (themeLabel) themeLabel.textContent = 'Teal Business';
         } else if (theme === 'minimalist') {
-            if (themeIcon) themeIcon.textContent = '🎯';
-            if (themeLabel) themeLabel.textContent = 'Minimalist';
+            if (themeIcon) themeIcon.textContent = '🌿';
+            if (themeLabel) themeLabel.textContent = 'Green Minimal';
         }
     }
 }
