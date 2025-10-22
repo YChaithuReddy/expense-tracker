@@ -118,27 +118,33 @@ function exportExpensesToSheet(data) {
     const DATA_START_ROW = 14; // Data always starts at row 14
     const SUMMARY_ROW_COUNT = 17; // Summary section is always 17 rows (A67:F83 in master)
 
-    // Find next empty row in data section (starting from row 14)
+    // IMPORTANT: Clear any existing data before exporting to avoid merge conflicts
+    // This prevents the "merged cells" error on re-export
     const lastRow = sheet.getLastRow();
-    let nextRow = DATA_START_ROW;
-
-    // Check existing data to find first empty row
     if (lastRow >= DATA_START_ROW) {
-      const dataRange = sheet.getRange(DATA_START_ROW, 2, lastRow - DATA_START_ROW + 1, 1);
-      const values = dataRange.getValues();
+      Logger.log('Clearing existing data from row ' + DATA_START_ROW + ' onwards');
 
-      for (let i = 0; i < values.length; i++) {
-        if (!values[i][0] || values[i][0] === '') {
-          nextRow = DATA_START_ROW + i;
-          break;
-        } else if (i === values.length - 1) {
-          // All rows have data, start after the last row
-          nextRow = lastRow + 1;
+      // Clear all content and formatting from data section onwards
+      const clearRange = sheet.getRange(DATA_START_ROW, 1, lastRow - DATA_START_ROW + 1, 6);
+
+      // First, unmerge any merged cells to prevent conflicts
+      try {
+        const mergedRanges = clearRange.getMergedRanges();
+        for (let i = 0; i < mergedRanges.length; i++) {
+          mergedRanges[i].breakApart();
         }
+        Logger.log('Unmerged ' + mergedRanges.length + ' cell ranges');
+      } catch (e) {
+        Logger.log('No merged cells to break apart: ' + e);
       }
+
+      // Now clear all content
+      clearRange.clear();
     }
 
-    Logger.log('Starting export at row: ' + nextRow);
+    // Always start from row 14 for clean export
+    const nextRow = DATA_START_ROW;
+    Logger.log('Starting fresh export at row: ' + nextRow);
 
     // Prepare data arrays for batch update
     const serialNumbers = [];
