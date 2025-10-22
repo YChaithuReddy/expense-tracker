@@ -30,17 +30,23 @@
 <body>
     <div class="container">
         <header>
-            <h1>Expense Tracker</h1>
-            <p>Automate your reimbursement submissions</p>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%; position: relative;">
+                <div>
+                    <h1>Expense Tracker</h1>
+                    <p>Automate your reimbursement submissions</p>
+                </div>
 
-            <!-- User Info Section -->
-            <div id="userInfo" style="display: none;">
-                <span id="userName" style="color: var(--neon-cyan); font-weight: 600;"></span>
-                <button class="theme-toggle-btn" onclick="expenseTracker.toggleTheme()" aria-label="Toggle Theme">
-                    <span class="theme-icon" id="themeIcon">🎨</span>
-                    <span class="theme-label" id="themeLabel">Cyberpunk</span>
-                </button>
-                <button id="logoutBtn" class="btn-secondary" style="padding: 8px 16px;">🚪 Logout</button>
+                <!-- Theme Toggle - Always Visible -->
+                <div style="display: flex; gap: 8px; align-items: center; margin-top: 10px;">
+                    <button class="theme-toggle-btn" onclick="expenseTracker.toggleTheme()" aria-label="Toggle Theme" title="Switch Theme">
+                        <span class="theme-icon" id="themeIcon">🎨</span>
+                    </button>
+                    <!-- User Info Section -->
+                    <div id="userInfo" style="display: none; align-items: center; gap: 8px;">
+                        <span id="userName" style="color: var(--neon-cyan); font-weight: 600;"></span>
+                        <button id="logoutBtn" class="btn-secondary" style="padding: 8px 16px;">🚪 Logout</button>
+                    </div>
+                </div>
             </div>
         </header>
 

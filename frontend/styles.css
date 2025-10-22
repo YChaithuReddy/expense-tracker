@@ -41,7 +41,7 @@
     --shadow-color: rgba(0, 0, 0, 0.3);
 }
 
-/* Modern Minimalist Theme */
+/* Modern Minimalist Theme (Green) */
 [data-theme="minimalist"] {
     /* Minimalist Colors */
     --neon-cyan: #10b981;
@@ -67,6 +67,35 @@
     --background-secondary: #334155;
     --border-color: rgba(16, 185, 129, 0.2);
     --hover-bg: rgba(16, 185, 129, 0.1);
+    --shadow-color: rgba(0, 0, 0, 0.2);
+}
+
+/* Teal Business Theme (Professional) */
+[data-theme="teal"] {
+    /* Teal Business Colors */
+    --neon-cyan: #14b8a6;
+    --neon-pink: #2dd4bf;
+    --neon-purple: #0d9488;
+    --neon-blue: #14b8a6;
+    --neon-green: #5eead4;
+    --primary-gradient: linear-gradient(135deg, #14b8a6 0%, #2dd4bf 100%);
+    --cyber-blue: #14b8a6;
+    --cyber-purple: #0d9488;
+    --cyber-pink: #2dd4bf;
+    --dark-bg: #1e293b;
+    --card-bg: #334155;
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --border-gradient: linear-gradient(90deg, #14b8a6, #2dd4bf, #0d9488);
+
+    /* Common theme variables */
+    --primary-color: #14b8a6;
+    --accent-color: #2dd4bf;
+    --background-primary: #1e293b;
+    --background-secondary: #334155;
+    --border-color: rgba(20, 184, 166, 0.25);
+    --hover-bg: rgba(20, 184, 166, 0.1);
     --shadow-color: rgba(0, 0, 0, 0.2);
 }
 
@@ -122,6 +151,22 @@ body {
     opacity: 0.7;
 }
 
+/* Teal theme background effects */
+[data-theme="teal"] body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background:
+        radial-gradient(circle at 25% 35%, rgba(20, 184, 166, 0.12) 0%, transparent 50%),
+        radial-gradient(circle at 75% 65%, rgba(45, 212, 191, 0.08) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: -1;
+    opacity: 0.8;
+}
+
 [data-theme="cyberpunk"] body::after {
     content: '';
     position: fixed;
@@ -153,6 +198,23 @@ body {
     pointer-events: none;
     z-index: -1;
     opacity: 0.5;
+}
+
+/* Teal theme subtle grid */
+[data-theme="teal"] body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        linear-gradient(rgba(20, 184, 166, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(20, 184, 166, 0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: -1;
+    opacity: 0.6;
 }
 
 @keyframes gridMove {
