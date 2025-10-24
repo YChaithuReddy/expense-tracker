@@ -438,6 +438,13 @@
     color: #ffa500;
 }
 
+.stat-unit {
+    font-size: 0.8rem;
+    font-weight: 400;
+    margin-left: 2px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
 .orphaned-images-grid {
     padding: 20px 24px;
     max-height: calc(100vh - 280px);
@@ -588,20 +595,24 @@
 
     .orphaned-images-stats {
         grid-template-columns: repeat(4, 1fr);
-        padding: 15px;
-        gap: 12px;
+        padding: 12px;
+        gap: 8px;
     }
 
     .stat-item {
-        padding: 12px 10px;
+        padding: 10px 8px;
     }
 
     .stat-label {
-        font-size: 0.7rem;
+        font-size: 0.65rem;
     }
 
     .stat-value {
-        font-size: 1.3rem;
+        font-size: 1.1rem;
+    }
+
+    .stat-unit {
+        font-size: 0.7rem;
     }
 
     .orphaned-images-grid {
@@ -628,50 +639,76 @@
         gap: 8px;
     }
 
-    /* Make stats display in 2x2 grid on very small screens, 4 columns on larger */
+    /* Force 4 columns in one row on mobile */
     .orphaned-images-stats {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        padding: 12px;
-        gap: 10px;
+        grid-template-columns: repeat(4, 1fr);
+        padding: 8px;
+        gap: 5px;
         background: transparent;
         border-bottom: 1px solid rgba(0, 212, 255, 0.2);
     }
 
-    @media (min-width: 360px) {
-        .orphaned-images-stats {
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-        }
-    }
-
     .stat-item {
         flex-direction: column;
-        padding: 12px 8px;
+        padding: 8px 4px;
         background: rgba(255, 255, 255, 0.03);
         border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 12px;
+        border-radius: 8px;
         text-align: center;
         min-width: 0;
     }
 
     .stat-label {
-        font-size: 0.7rem;
-        margin-bottom: 6px;
+        font-size: 0.55rem;
+        margin-bottom: 4px;
         color: rgba(255, 255, 255, 0.5);
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.3px;
         font-weight: 500;
+        line-height: 1;
     }
 
     .stat-value {
-        font-size: 1.2rem;
+        font-size: 0.95rem;
         font-weight: 700;
         color: #ffffff;
+        line-height: 1.2;
     }
 
     .stat-value.warning {
         color: #ffa500;
+    }
+
+    .stat-unit {
+        font-size: 0.55rem;
+        margin-left: 1px;
+    }
+
+    /* Even smaller for very small screens */
+    @media (max-width: 360px) {
+        .orphaned-images-stats {
+            gap: 3px;
+            padding: 6px;
+        }
+
+        .stat-item {
+            padding: 6px 2px;
+            border-radius: 6px;
+        }
+
+        .stat-label {
+            font-size: 0.5rem;
+            margin-bottom: 2px;
+        }
+
+        .stat-value {
+            font-size: 0.85rem;
+        }
+
+        .stat-unit {
+            font-size: 0.5rem;
+        }
     }
 
     .orphaned-images-grid {
