@@ -80,6 +80,20 @@
                     <span id="scanText">🔍 Scan Bills</span>
                     <span id="scanProgress" style="display: none;">Processing... <span id="progressText">0%</span></span>
                 </button>
+
+                <div style="text-align: center; margin-top: 20px;">
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+                        <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
+                        <span style="color: var(--text-secondary); font-size: 0.9rem;">OR</span>
+                        <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
+                    </div>
+                    <button type="button" id="skipToManualEntry" class="btn-secondary" style="width: 100%;">
+                        ✍️ Enter Expense Manually (Without Bill)
+                    </button>
+                    <small style="display: block; margin-top: 8px; color: var(--text-secondary);">
+                        Perfect for cash payments or when you don't have a receipt
+                    </small>
+                </div>
             </section>
 
             <!-- Expense Entry Form -->
@@ -146,9 +160,9 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="receipt">Receipt/Bill Image:</label>
+                        <label for="receipt">Receipt/Bill Image (Optional):</label>
                         <input type="file" id="receipt" name="receipt" accept="image/*" multiple>
-                        <small>You can select multiple images for one expense</small>
+                        <small>You can attach receipt images later or leave empty for manual entries</small>
                     </div>
 
                     <div class="form-actions">
