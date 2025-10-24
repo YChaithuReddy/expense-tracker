@@ -48,12 +48,16 @@ function displayUserInfo() {
         const userInfoEl = document.getElementById('userInfo');
         if (userInfoEl) {
             userInfoEl.innerHTML = `
-                <div style="text-align: center; width: 100%;">
-                    <div style="color: var(--neon-cyan); font-weight: 600; font-size: 1.1rem; margin-bottom: 5px;">${user.name}</div>
-                    <div style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 15px;">${user.email}</div>
-                    <button onclick="logout()" class="btn-secondary" style="padding: 8px 16px; width: 100%; max-width: 200px;">🚪 Logout</button>
+                <div class="user-info-content">
+                    <div class="user-details">
+                        <div class="user-name">${user.name}</div>
+                        <div class="user-email">${user.email}</div>
+                    </div>
+                    <button onclick="logout()" class="logout-btn">🚪 Logout</button>
                 </div>
             `;
+            // Show the user info section
+            userInfoEl.style.display = 'flex';
         }
     }
 }
