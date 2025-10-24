@@ -277,7 +277,10 @@
                         <span id="paginationInfo">Showing 1-10 of 100 expenses</span>
                     </div>
                     <div class="pagination-controls">
-                        <button id="prevPage" class="pagination-btn" disabled>← Previous</button>
+                        <button id="prevPage" class="pagination-btn" disabled>
+                            <span class="btn-text-full">← Previous</span>
+                            <span class="btn-text-short">←</span>
+                        </button>
                         <select id="pageSize" class="page-size-select">
                             <option value="10">10 per page</option>
                             <option value="25" selected>25 per page</option>
@@ -285,7 +288,10 @@
                             <option value="100">100 per page</option>
                             <option value="all">Show All</option>
                         </select>
-                        <button id="nextPage" class="pagination-btn">Next →</button>
+                        <button id="nextPage" class="pagination-btn">
+                            <span class="btn-text-full">Next →</span>
+                            <span class="btn-text-short">→</span>
+                        </button>
                     </div>
                 </div>
 
