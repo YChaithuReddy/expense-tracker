@@ -39,13 +39,17 @@ class ExpenseTracker {
 
         // Handle file inputs from camera and gallery
         document.getElementById('cameraInput').addEventListener('change', (e) => {
-            // Copy files to main billImages input and trigger the handler
-            document.getElementById('billImages').files = e.target.files;
+            // Copy files to main billImages input using DataTransfer API
+            const dt = new DataTransfer();
+            Array.from(e.target.files).forEach(file => dt.items.add(file));
+            document.getElementById('billImages').files = dt.files;
             this.handleImageUpload({ target: document.getElementById('billImages') });
         });
         document.getElementById('galleryInput').addEventListener('change', (e) => {
-            // Copy files to main billImages input and trigger the handler
-            document.getElementById('billImages').files = e.target.files;
+            // Copy files to main billImages input using DataTransfer API
+            const dt = new DataTransfer();
+            Array.from(e.target.files).forEach(file => dt.items.add(file));
+            document.getElementById('billImages').files = dt.files;
             this.handleImageUpload({ target: document.getElementById('billImages') });
         });
 
@@ -132,6 +136,35 @@ class ExpenseTracker {
         console.log('📸 Image upload triggered');
         const files = Array.from(e.target.files);
         console.log('Files selected:', files.length);
+
+        // File size validation
+        const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB per file
+        const MAX_TOTAL_SIZE = 20 * 1024 * 1024; // 20MB total
+        const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic'];
+
+        // Validate individual file sizes and types
+        for (const file of files) {
+            if (!ALLOWED_TYPES.includes(file.type)) {
+                this.showNotification(`❌ Invalid file type: ${file.name}. Only JPG, PNG, and WEBP images are allowed.`, 'error');
+                e.target.value = ''; // Clear the input
+                return;
+            }
+            if (file.size > MAX_FILE_SIZE) {
+                this.showNotification(`❌ File too large: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB). Maximum size is 5MB per image.`, 'error');
+                e.target.value = ''; // Clear the input
+                return;
+            }
+        }
+
+        // Validate total size
+        const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+        if (totalSize > MAX_TOTAL_SIZE) {
+            this.showNotification(`❌ Total file size too large (${(totalSize / 1024 / 1024).toFixed(2)}MB). Maximum total size is 20MB.`, 'error');
+            e.target.value = ''; // Clear the input
+            return;
+        }
+
+        console.log(`✅ File validation passed: ${files.length} files, ${(totalSize / 1024 / 1024).toFixed(2)}MB total`);
 
         // Clear previous data to prevent caching issues
         this.scannedImages = [];
@@ -244,9 +277,10 @@ class ExpenseTracker {
 
         let allExtractedText = '';
 
+        let worker = null;
         try {
             // Initialize Tesseract worker for better performance
-            const worker = await Tesseract.createWorker('eng', 1, {
+            worker = await Tesseract.createWorker('eng', 1, {
                 logger: m => {
                     if (m.status === 'recognizing text') {
                         console.log(`OCR Progress: ${(m.progress * 100).toFixed(0)}%`);
@@ -279,9 +313,6 @@ class ExpenseTracker {
                 console.log(`✨ High confidence text: ${highConfidenceText}`);
             }
 
-            // Terminate worker to free memory
-            await worker.terminate();
-
             this.extractedData = this.parseReceiptText(allExtractedText);
             this.populateForm();
             this.showExpenseForm();
@@ -291,6 +322,15 @@ class ExpenseTracker {
             alert('Failed to scan bills. Please try again or enter details manually.');
             this.showExpenseForm();
         } finally {
+            // Always terminate worker to prevent memory leaks
+            if (worker) {
+                try {
+                    await worker.terminate();
+                    console.log('✅ Tesseract worker terminated successfully');
+                } catch (terminateError) {
+                    console.error('⚠️ Error terminating Tesseract worker:', terminateError);
+                }
+            }
             scanText.style.display = 'inline';
             scanProgress.style.display = 'none';
             scanButton.disabled = false;
@@ -1259,6 +1299,13 @@ class ExpenseTracker {
         try {
             console.log('Adding expense to backend:', expense);
 
+            // Show loading indicator
+            const hasImages = expense.images && expense.images.length > 0;
+            this.showLoading(
+                hasImages ? 'Uploading expense with images...' : 'Adding expense...',
+                hasImages ? 'Please wait while we upload your receipts' : ''
+            );
+
             // Prepare expense data for backend
             const expenseData = {
                 date: expense.date,
@@ -1289,6 +1336,7 @@ class ExpenseTracker {
                 // Reload expenses from backend to stay in sync
                 await this.loadExpenses();
 
+                this.hideLoading();
                 this.resetForm();
                 this.showNotification('✅ Expense added successfully!');
             } else {
@@ -1296,6 +1344,7 @@ class ExpenseTracker {
             }
         } catch (error) {
             console.error('Error adding expense:', error);
+            this.hideLoading();
             this.showNotification('❌ Failed to add expense: ' + error.message);
         }
     }
@@ -1953,8 +2002,8 @@ class ExpenseTracker {
      */
     async generateCombinedReimbursementPDFWithEmployeeInfo() {
         try {
-            // Show loading notification
-            this.showNotification('📦 Preparing your reimbursement package...');
+            // Show loading indicator
+            this.showLoading('📦 Generating Reimbursement Package...', 'This may take up to 30 seconds');
 
             // Download Google Sheet as PDF from backend
             console.log('📄 Downloading Google Sheet PDF...');
@@ -2057,8 +2106,11 @@ class ExpenseTracker {
 
             console.log(`✅ Combined PDF created successfully: ${totalPages} pages, ${(mergedPdfBytes.length / 1024 / 1024).toFixed(2)} MB`);
 
+            this.hideLoading();
+
         } catch (error) {
             console.error('❌ Error generating combined PDF:', error);
+            this.hideLoading();
 
             if (error.message.includes('Google Sheet')) {
                 alert('Failed to download Google Sheet PDF:\n\n' + error.message + '\n\nPlease make sure your expense report is exported to Google Sheets first.');
@@ -2517,6 +2569,29 @@ class ExpenseTracker {
         }, 4000);
     }
 
+    showLoading(message = 'Processing...', subtext = '') {
+        // Remove any existing loading overlay
+        this.hideLoading();
+
+        const overlay = document.createElement('div');
+        overlay.id = 'loadingOverlay';
+        overlay.className = 'loading-overlay';
+        overlay.innerHTML = `
+            <div class="loading-spinner"></div>
+            <div class="loading-text">${message}</div>
+            ${subtext ? `<div class="loading-subtext">${subtext}</div>` : ''}
+        `;
+
+        document.body.appendChild(overlay);
+    }
+
+    hideLoading() {
+        const overlay = document.getElementById('loadingOverlay');
+        if (overlay) {
+            overlay.remove();
+        }
+    }
+
     handleSelectAll(e) {
         const isChecked = e.target.checked;
         const checkboxes = document.querySelectorAll('.expense-checkbox');
@@ -2572,12 +2647,19 @@ class ExpenseTracker {
 
         try {
             const button = document.getElementById('exportToGoogleSheets');
-            const originalText = button.querySelector('.btn-text').textContent;
             button.querySelector('.btn-text').textContent = 'Exporting...';
             button.disabled = true;
 
+            // Show loading indicator
+            this.showLoading(
+                `Exporting ${selectedExpenses.length} expense${selectedExpenses.length > 1 ? 's' : ''} to Google Sheets...`,
+                'This may take a few seconds'
+            );
+
             console.log(`Exporting ${selectedExpenses.length} selected expenses`);
             const result = await googleSheetsService.exportExpenses(selectedExpenses);
+
+            this.hideLoading();
 
             if (result.success) {
                 this.showNotification(`✅ Exported ${selectedExpenses.length} expenses to Google Sheets`);
@@ -2591,6 +2673,7 @@ class ExpenseTracker {
             }
         } catch (error) {
             console.error('Export error:', error);
+            this.hideLoading();
             this.showNotification('❌ Export failed: ' + error.message);
         } finally {
             const button = document.getElementById('exportToGoogleSheets');

@@ -19,7 +19,19 @@ app.set('trust proxy', 1);
 app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
     crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
-    contentSecurityPolicy: false // Disable CSP as it blocks mobile requests
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "https://vercel.app", "https://*.vercel.app"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://vercel.app", "https://*.vercel.app"],
+            imgSrc: ["'self'", "data:", "blob:", "https://res.cloudinary.com", "https://*.cloudinary.com"],
+            connectSrc: ["'self'", "https://vercel.app", "https://*.vercel.app", "https://railway.app", "https://*.railway.app"],
+            fontSrc: ["'self'", "data:"],
+            objectSrc: ["'none'"],
+            mediaSrc: ["'self'", "blob:", "data:"],
+            frameSrc: ["'none'"]
+        }
+    }
 }));
 
 // CORS Configuration - Enhanced for mobile and Vercel preview deployments
