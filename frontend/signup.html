@@ -1,11 +1,37 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="teal">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#0f0f23">
+    <meta name="theme-color" content="#14b8a6">
     <title>Sign Up - Expense Tracker</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        .password-input-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .password-input-wrapper input {
+            padding-right: 45px !important;
+        }
+
+        .password-toggle-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: color 0.3s ease;
+            font-size: 18px;
+            user-select: none;
+        }
+
+        .password-toggle-icon:hover {
+            color: var(--neon-cyan);
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -34,13 +60,19 @@
 
                     <div class="form-group">
                         <label for="password">Password:</label>
-                        <input type="password" id="password" name="password" placeholder="Min 6 characters" required autocomplete="new-password" minlength="6">
+                        <div class="password-input-wrapper">
+                            <input type="password" id="password" name="password" placeholder="Min 6 characters" required autocomplete="new-password" minlength="6">
+                            <span class="password-toggle-icon" onclick="togglePasswordVisibility('password', this)">👁️</span>
+                        </div>
                         <small>Password must be at least 6 characters and contain uppercase, lowercase, and number</small>
                     </div>
 
                     <div class="form-group">
                         <label for="confirmPassword">Confirm Password:</label>
-                        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Re-enter password" required autocomplete="new-password" minlength="6">
+                        <div class="password-input-wrapper">
+                            <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Re-enter password" required autocomplete="new-password" minlength="6">
+                            <span class="password-toggle-icon" onclick="togglePasswordVisibility('confirmPassword', this)">👁️</span>
+                        </div>
                     </div>
 
                     <button type="submit" class="btn-primary" id="signupBtn">
@@ -59,6 +91,18 @@
     <script src="api.js"></script>
     <script src="auth.js"></script>
     <script>
+        // Password visibility toggle function
+        function togglePasswordVisibility(inputId, iconElement) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                iconElement.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                iconElement.textContent = '👁️';
+            }
+        }
+
         document.getElementById('signupForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
