@@ -1561,10 +1561,12 @@ class ExpenseTracker {
         if (searchFilterContainer) {
             searchFilterContainer.style.display = 'block';
 
-            // Initialize collapsed state on mobile if not already set
+            // Auto-expand filters on mobile if any filter is active
             const filtersWrapper = document.getElementById('filtersWrapper');
-            if (filtersWrapper && window.innerWidth <= 768 && !filtersWrapper.classList.contains('collapsed') && !this.isFilterActive()) {
-                filtersWrapper.classList.add('collapsed');
+            if (filtersWrapper && window.innerWidth <= 768 && this.isFilterActive()) {
+                filtersWrapper.classList.remove('collapsed');
+                const expandBtn = document.getElementById('expandFiltersBtn');
+                if (expandBtn) expandBtn.classList.add('expanded');
             }
         }
 

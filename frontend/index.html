@@ -235,13 +235,19 @@
                             <span class="expand-icon">▼</span>
                         </button>
                     </div>
-                    <div class="filters-wrapper" id="filtersWrapper">
+                    <div class="filters-wrapper collapsed" id="filtersWrapper">
                         <div class="filter-row">
                             <select id="categoryFilter" class="filter-select">
                                 <option value="">All Categories</option>
                             </select>
-                            <input type="date" id="dateFromFilter" class="filter-date" placeholder="From Date">
-                            <input type="date" id="dateToFilter" class="filter-date" placeholder="To Date">
+                            <div class="date-input-wrapper">
+                                <label for="dateFromFilter" class="date-label">From Date</label>
+                                <input type="date" id="dateFromFilter" class="filter-date">
+                            </div>
+                            <div class="date-input-wrapper">
+                                <label for="dateToFilter" class="date-label">To Date</label>
+                                <input type="date" id="dateToFilter" class="filter-date">
+                            </div>
                             <button id="resetFilters" class="reset-filters-btn">Reset Filters</button>
                         </div>
                     </div>
