@@ -3229,6 +3229,10 @@ main {
     border: 1px solid var(--border-color);
 }
 
+.search-filter-container.hidden {
+    display: none;
+}
+
 .search-bar {
     position: relative;
     margin-bottom: 0;
