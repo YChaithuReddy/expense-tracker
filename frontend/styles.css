@@ -3785,29 +3785,31 @@ main {
     }
 
     .pagination-container {
-        padding: 8px 10px;
-        gap: 6px;
+        padding: 6px 8px;
+        gap: 4px;
         margin: 6px 0;
     }
 
     .pagination-info {
-        font-size: 0.75rem;
+        font-size: 0.72rem;
     }
 
     .pagination-controls {
-        gap: 5px;
+        gap: 4px;
     }
 
     .pagination-btn {
-        padding: 6px 10px;
-        font-size: 0.9rem;
+        padding: 5px 8px;
+        font-size: 0.8rem;
         font-weight: bold;
-        min-width: 40px;
+        min-width: 35px;
+        border-width: 1px;
     }
 
     .page-size-select {
-        padding: 6px;
+        padding: 5px 6px;
         font-size: 0.75rem;
+        border-width: 1px;
     }
 
     .btn-text-short {
