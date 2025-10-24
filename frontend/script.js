@@ -66,6 +66,7 @@ class ExpenseTracker {
 
         document.getElementById('billImages').addEventListener('change', (e) => this.handleImageUpload(e));
         document.getElementById('scanBills').addEventListener('click', () => this.scanBills());
+        document.getElementById('skipToManualEntry').addEventListener('click', () => this.showManualEntryForm());
         document.getElementById('backToScan').addEventListener('click', () => this.backToScan());
         document.getElementById('expenseForm').addEventListener('submit', (e) => this.handleSubmit(e));
         // Removed generatePDF button event listener - button no longer exists in HTML
@@ -1229,6 +1230,46 @@ class ExpenseTracker {
         form.insertBefore(debugInfo, form.firstChild);
     }
 
+    showManualEntryForm() {
+        // Hide OCR section and show form
+        document.getElementById('ocrSection').style.display = 'none';
+        document.getElementById('expenseFormSection').style.display = 'block';
+
+        // Reset form and set today's date
+        document.getElementById('expenseForm').reset();
+        this.setTodayDate();
+
+        // Update form heading for manual entry
+        const formSection = document.getElementById('expenseFormSection');
+        const heading = formSection.querySelector('h2');
+        const description = formSection.querySelector('p');
+        heading.textContent = '✍️ Enter Expense Details';
+        description.textContent = 'Fill in the details for your expense';
+
+        // Reset editing mode
+        this.editingExpenseId = null;
+
+        // Clear any extracted data
+        this.extractedData = { items: [] };
+
+        // Reset submit button text
+        const submitBtn = document.querySelector('#expenseForm button[type="submit"]');
+        submitBtn.textContent = '✅ Add Expense';
+
+        // Remove extracted data box if it exists
+        const extractedDataDiv = document.getElementById('extractedData');
+        if (extractedDataDiv) {
+            extractedDataDiv.remove();
+        }
+
+        // Clear image preview in OCR section
+        document.getElementById('imagePreview').innerHTML = '';
+        document.getElementById('scanBills').style.display = 'none';
+
+        // Scroll to form
+        formSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
     backToScan() {
         document.getElementById('expenseFormSection').style.display = 'none';
         document.getElementById('ocrSection').style.display = 'block';
@@ -1236,6 +1277,13 @@ class ExpenseTracker {
         // Reset form
         document.getElementById('expenseForm').reset();
         this.setTodayDate();
+
+        // Reset form heading back to default
+        const formSection = document.getElementById('expenseFormSection');
+        const heading = formSection.querySelector('h2');
+        const description = formSection.querySelector('p');
+        heading.textContent = '✏️ Review & Edit Details';
+        description.textContent = 'Verify the extracted information and make corrections if needed';
 
         // Reset editing mode
         this.editingExpenseId = null;
