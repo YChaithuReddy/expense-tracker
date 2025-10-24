@@ -3314,24 +3314,41 @@ main {
 }
 
 .filters-wrapper {
-    max-height: 500px;
     overflow: hidden;
     transition: max-height 0.4s ease, opacity 0.3s ease, margin-top 0.3s ease;
     opacity: 1;
     margin-top: 15px;
+    max-height: none;
 }
 
-.filters-wrapper.collapsed {
-    max-height: 0;
-    opacity: 0;
-    margin-top: 0;
+/* Desktop: Always show filters */
+@media (min-width: 769px) {
+    .filters-wrapper,
+    .filters-wrapper.collapsed {
+        max-height: none;
+        opacity: 1;
+        margin-top: 15px;
+    }
 }
 
 .filter-row {
     display: grid;
     grid-template-columns: 2fr 1.5fr 1.5fr auto;
     gap: 12px;
-    align-items: center;
+    align-items: end;
+}
+
+.date-input-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.date-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+    font-weight: 500;
 }
 
 .filter-select,
@@ -3343,6 +3360,10 @@ main {
     color: var(--text-primary);
     font-size: 0.95rem;
     transition: all 0.3s ease;
+}
+
+.filter-date {
+    width: 100%;
 }
 
 .filter-select:focus,
@@ -3389,7 +3410,7 @@ main {
     }
 
     /* Collapse filters by default on mobile */
-    .filters-wrapper {
+    .filters-wrapper.collapsed {
         max-height: 0;
         opacity: 0;
         margin-top: 0;
@@ -3404,7 +3425,12 @@ main {
     /* Stack filter inputs vertically on mobile */
     .filter-row {
         grid-template-columns: 1fr;
-        gap: 10px;
+        gap: 12px;
+    }
+
+    .filter-select,
+    .date-input-wrapper {
+        width: 100%;
     }
 
     .filter-select,
@@ -3414,6 +3440,7 @@ main {
 
     .reset-filters-btn {
         width: 100%;
+        margin-top: 4px;
     }
 
     /* Adjust search input padding when expand button is visible */
