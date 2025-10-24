@@ -3424,7 +3424,7 @@ main {
     padding: 8px 12px;
     border-radius: 4px;
     transition: all 0.3s ease;
-    display: none;
+    display: block;
     z-index: 2;
 }
 
@@ -3447,17 +3447,13 @@ main {
     transition: max-height 0.4s ease, opacity 0.3s ease, margin-top 0.3s ease;
     opacity: 1;
     margin-top: 15px;
-    max-height: none;
+    max-height: 500px;
 }
 
-/* Desktop: Always show filters */
-@media (min-width: 769px) {
-    .filters-wrapper,
-    .filters-wrapper.collapsed {
-        max-height: none;
-        opacity: 1;
-        margin-top: 15px;
-    }
+.filters-wrapper.collapsed {
+    max-height: 0;
+    opacity: 0;
+    margin-top: 0;
 }
 
 .filter-row {
@@ -3533,22 +3529,8 @@ main {
 
 /* Mobile responsive */
 @media (max-width: 768px) {
-    /* Show expand button on mobile */
-    .expand-filters-btn {
-        display: block;
-    }
-
-    /* Collapse filters by default on mobile */
-    .filters-wrapper.collapsed {
-        max-height: 0;
-        opacity: 0;
-        margin-top: 0;
-    }
-
     .filters-wrapper:not(.collapsed) {
         max-height: 800px;
-        opacity: 1;
-        margin-top: 15px;
     }
 
     /* Stack filter inputs vertically on mobile */
@@ -3571,16 +3553,16 @@ main {
         width: 100%;
         margin-top: 4px;
     }
+}
 
-    /* Adjust search input padding when expand button is visible */
-    .search-input {
-        padding-right: 85px;
-    }
+/* Adjust search input padding when expand button is visible */
+.search-input {
+    padding-right: 85px;
+}
 
-    /* Adjust clear button position */
-    .clear-search-btn {
-        right: 55px;
-    }
+/* Adjust clear button position when expand button is visible */
+.clear-search-btn {
+    right: 55px;
 }
 
 /* ================================================
