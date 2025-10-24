@@ -139,9 +139,9 @@ header {
     border: 2px solid rgba(255, 255, 255, 0.1);
     color: var(--text-primary);
     text-align: center;
-    padding: 60px 40px;
+    padding: 30px 25px;
     border-radius: 30px;
-    margin-bottom: 50px;
+    margin-bottom: 25px;
     position: relative;
     overflow: hidden;
     box-shadow:
@@ -179,9 +179,9 @@ header::before {
 
 header h1 {
     font-family: 'Orbitron', sans-serif;
-    font-size: 4rem;
+    font-size: 3rem;
     font-weight: 900;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink), var(--neon-purple));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -206,7 +206,7 @@ header p {
 main {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 30px;
+    gap: 20px;
     animation: fadeInUp 0.8s ease-out;
 }
 
@@ -235,7 +235,7 @@ main {
     background: var(--glass-bg);
     backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 30px;
+    padding: 20px;
     border-radius: 20px;
     position: relative;
     overflow: visible;
@@ -288,17 +288,17 @@ main {
 .expense-form-section h2,
 .expenses-list-section h2 {
     font-family: 'Orbitron', sans-serif;
-    margin-bottom: 30px;
+    margin-bottom: 15px;
     color: var(--neon-cyan);
-    font-size: 2rem;
+    font-size: 1.5rem;
     font-weight: 700;
     position: relative;
     display: flex;
     align-items: center;
     text-transform: uppercase;
-    letter-spacing: 3px;
-    padding-left: 20px;
-    gap: 10px;
+    letter-spacing: 2px;
+    padding-left: 15px;
+    gap: 8px;
 }
 
 .ocr-section h2::after,
@@ -320,8 +320,8 @@ main {
 }
 
 .image-preview-container {
-    margin: 25px 0;
-    padding: 30px 20px;
+    margin: 12px 0;
+    padding: 15px 12px;
     border: 2px dashed rgba(0, 212, 255, 0.3);
     border-radius: 15px;
     text-align: center;
@@ -446,7 +446,7 @@ main {
 }
 
 .form-group {
-    margin-bottom: 25px;
+    margin-bottom: 15px;
     position: relative;
     z-index: 1;
 }
@@ -962,8 +962,8 @@ main {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 15px;
-    padding: 20px;
-    margin-bottom: 15px;
+    padding: 15px;
+    margin-bottom: 10px;
     backdrop-filter: blur(10px);
     transition: all 0.3s ease;
     animation: slideInLeft 0.4s ease-out;
@@ -1102,9 +1102,9 @@ main {
 
 .total-section {
     text-align: center;
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     font-weight: 700;
-    padding: 25px;
+    padding: 15px;
     background: var(--glass-bg);
     backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -1238,11 +1238,11 @@ main {
     .ocr-section,
     .expense-form-section,
     .expenses-list-section {
-        padding: 15px;
+        padding: 12px;
         overflow-x: hidden;
         position: relative;
         border-radius: 10px;
-        margin: 0 !important;
+        margin: 0 0 15px 0 !important;
         width: 100%;
         max-width: 100%;
         box-sizing: border-box;
@@ -1958,7 +1958,7 @@ main {
 }
 
 .auth-form .form-group {
-    margin-bottom: 25px;
+    margin-bottom: 15px;
 }
 
 .auth-form .form-group label {
@@ -2081,8 +2081,8 @@ main {
 .user-info-content {
     display: flex;
     align-items: center;
-    gap: 20px;
-    padding: 15px 20px;
+    gap: 15px;
+    padding: 12px 16px;
     background: rgba(255, 255, 255, 0.05);
     border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -3123,7 +3123,8 @@ main {
 /* Mobile header fixes */
 @media (max-width: 768px) {
     header {
-        padding: 30px 20px;
+        padding: 20px 15px;
+        margin-bottom: 15px;
     }
 
     .header-flex-wrapper {
@@ -3157,7 +3158,8 @@ main {
     }
 
     header h1 {
-        font-size: 2.5rem;
+        font-size: 2rem;
+        margin-bottom: 8px;
     }
 
     header p {
@@ -3167,11 +3169,13 @@ main {
 
 @media (max-width: 480px) {
     header {
-        padding: 25px 15px;
+        padding: 18px 12px;
+        margin-bottom: 12px;
     }
 
     header h1 {
-        font-size: 2rem;
+        font-size: 1.8rem;
+        margin-bottom: 6px;
     }
 
     .header-right {
@@ -3573,8 +3577,8 @@ main {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 20px 0;
-    padding: 15px 20px;
+    margin: 12px 0;
+    padding: 12px 16px;
     background: var(--card-bg);
     border-radius: 12px;
     border: 1px solid var(--border-color);
