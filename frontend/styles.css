@@ -504,13 +504,6 @@ main {
     animation: none;
 }
 
-
-    50% {
-        opacity: 0.7;
-        filter: none;
-    }
-}
-
 /* Hide native browser calendar icon and let it trigger through custom icon */
 .form-group input[type="date"]::-webkit-calendar-picker-indicator {
     position: absolute;
@@ -777,7 +770,7 @@ main {
 
 .btn-icon {
     font-size: 1.5rem;
-    filter: none;);
+    filter: none;
 }
 
 .btn-text {
@@ -1167,9 +1160,6 @@ main {
 }
 
 /* Loading animations */
-
-    50% { opacity: 0.5; }
-}
 
 .loading {
     animation: none;
@@ -2408,7 +2398,7 @@ main {
     border-color: #00ffff !important;
     color: #ffffff !important;
     transform: scale(1.05) !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
 }
 
 /* Today */
@@ -2546,12 +2536,12 @@ main {
     background: linear-gradient(135deg, rgba(0, 212, 255, 0.4), rgba(157, 0, 255, 0.4)) !important;
     border-color: #00ffff !important;
     transform: translateY(-2px) !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
 }
 
 .flatpickr-button:active {
     transform: translateY(0) !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
 }
 
 /* Mobile Responsiveness */
