@@ -3266,25 +3266,25 @@ class ExpenseTracker {
                 // Display stats with improved modern design
                 const stats = response.stats || {};
                 statsDiv.innerHTML = `
-                    <div class="stats-container-modern">
-                        <div class="stat-card-modern">
-                            <div class="stat-label-modern">Total Images</div>
-                            <div class="stat-value-modern">${response.count || 0}</div>
+                    <div class="stats-wrapper">
+                        <div class="stat-item">
+                            <div class="stat-label">Total Images</div>
+                            <div class="stat-value">${response.count || 0}</div>
                         </div>
-                        <div class="stat-card-modern">
-                            <div class="stat-label-modern">Total Size</div>
-                            <div class="stat-value-modern">
+                        <div class="stat-item">
+                            <div class="stat-label">Total Size</div>
+                            <div class="stat-value">
                                 ${stats.totalSizeMB || '0.00'}
-                                <span class="stat-unit-modern">MB</span>
+                                <span class="stat-unit">MB</span>
                             </div>
                         </div>
-                        <div class="stat-card-modern">
-                            <div class="stat-label-modern">Exported</div>
-                            <div class="stat-value-modern">${stats.exportedCount || 0}</div>
+                        <div class="stat-item">
+                            <div class="stat-label">Exported</div>
+                            <div class="stat-value">${stats.exportedCount || 0}</div>
                         </div>
-                        <div class="stat-card-modern">
-                            <div class="stat-label-modern">Expiring Soon</div>
-                            <div class="stat-value-modern warning">${stats.expiringWithin7Days || 0}</div>
+                        <div class="stat-item">
+                            <div class="stat-label">Expiring Soon</div>
+                            <div class="stat-value warning">${stats.expiringWithin7Days || 0}</div>
                         </div>
                     </div>
                 `;
@@ -3300,7 +3300,7 @@ class ExpenseTracker {
                     `;
                 } else {
                     gridDiv.innerHTML = `
-                        <div class="images-grid-modern">
+                        <div class="images-grid-wrapper">
                             ${response.images.map(img => {
                                 const uploadDate = new Date(img.uploadDate || img.createdAt).toLocaleDateString('en-IN', {
                                     day: '2-digit',
