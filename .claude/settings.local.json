@@ -1,16 +1,7 @@
 {
   "permissions": {
     "allow": [
-      "Read(//c/Users/chath/OneDrive/Pictures/Screenshots/**)",
-      "Bash(npm install:*)",
-      "Bash(npm start)",
-      "Bash(cmd /c:*)",
-      "Bash(python:*)",
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(git push:*)",
-      "Bash(taskkill:*)",
-      "Bash(dir)"
+      "Bash(npx prettier:*)"
     ],
     "deny": [],
     "ask": []
