@@ -247,6 +247,24 @@
                     <!-- Expenses will be displayed here -->
                 </div>
 
+                <!-- Pagination -->
+                <div class="pagination-container" id="paginationContainer" style="display: none;">
+                    <div class="pagination-info">
+                        <span id="paginationInfo">Showing 1-10 of 100 expenses</span>
+                    </div>
+                    <div class="pagination-controls">
+                        <button id="prevPage" class="pagination-btn" disabled>← Previous</button>
+                        <select id="pageSize" class="page-size-select">
+                            <option value="10">10 per page</option>
+                            <option value="25" selected>25 per page</option>
+                            <option value="50">50 per page</option>
+                            <option value="100">100 per page</option>
+                            <option value="all">Show All</option>
+                        </select>
+                        <button id="nextPage" class="pagination-btn">Next →</button>
+                    </div>
+                </div>
+
                 <div id="totalAmount" class="total-section">
                     <strong>Total Amount: ₹0.00</strong>
                 </div>

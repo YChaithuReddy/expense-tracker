@@ -6,6 +6,17 @@ class ExpenseTracker {
         this.lastSyncedIndex = this.loadLastSyncedIndex(); // Track last synced expense
         this.editingExpenseId = null; // Track which expense is being edited
 
+        // Search and filter state
+        this.filteredExpenses = [];
+        this.searchTerm = '';
+        this.filterCategory = '';
+        this.filterDateFrom = '';
+        this.filterDateTo = '';
+
+        // Pagination state
+        this.currentPage = 1;
+        this.pageSize = 25;
+
         // Category subcategory mapping
         this.categorySubcategories = {
             'Transportation': ['Bus', 'Metro', 'Auto', 'Cab (Uber/Rapido)', 'Train', 'Toll'],
@@ -99,6 +110,48 @@ class ExpenseTracker {
                 this.closeImageModal();
             }
         });
+
+        // Search and filter event listeners
+        const searchInput = document.getElementById('searchInput');
+        const clearSearchBtn = document.getElementById('clearSearch');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const dateFromFilter = document.getElementById('dateFromFilter');
+        const dateToFilter = document.getElementById('dateToFilter');
+        const resetFiltersBtn = document.getElementById('resetFilters');
+
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => this.handleSearch(e.target.value));
+        }
+        if (clearSearchBtn) {
+            clearSearchBtn.addEventListener('click', () => this.clearSearch());
+        }
+        if (categoryFilter) {
+            categoryFilter.addEventListener('change', (e) => this.handleCategoryFilter(e.target.value));
+        }
+        if (dateFromFilter) {
+            dateFromFilter.addEventListener('change', (e) => this.handleDateFromFilter(e.target.value));
+        }
+        if (dateToFilter) {
+            dateToFilter.addEventListener('change', (e) => this.handleDateToFilter(e.target.value));
+        }
+        if (resetFiltersBtn) {
+            resetFiltersBtn.addEventListener('click', () => this.resetFilters());
+        }
+
+        // Pagination event listeners
+        const prevPageBtn = document.getElementById('prevPage');
+        const nextPageBtn = document.getElementById('nextPage');
+        const pageSizeSelect = document.getElementById('pageSize');
+
+        if (prevPageBtn) {
+            prevPageBtn.addEventListener('click', () => this.previousPage());
+        }
+        if (nextPageBtn) {
+            nextPageBtn.addEventListener('click', () => this.nextPage());
+        }
+        if (pageSizeSelect) {
+            pageSizeSelect.addEventListener('change', (e) => this.changePageSize(e.target.value));
+        }
     }
 
     setTodayDate() {
@@ -1484,17 +1537,42 @@ class ExpenseTracker {
     displayExpenses() {
         const container = document.getElementById('expensesList');
         const selectAllContainer = document.getElementById('selectAllContainer');
+        const searchFilterContainer = document.getElementById('searchFilterContainer');
 
         if (this.expenses.length === 0) {
             container.innerHTML = '<div class="empty-state">No expenses added yet. Add your first expense above!</div>';
             selectAllContainer.style.display = 'none';
+            if (searchFilterContainer) searchFilterContainer.style.display = 'none';
             return;
         }
 
-        // Show select all checkbox if there are expenses
+        // Show search/filter and select all if there are expenses
         selectAllContainer.style.display = 'flex';
+        if (searchFilterContainer) searchFilterContainer.style.display = 'block';
 
-        const expensesHTML = this.expenses.map((expense, index) => `
+        // Use filtered expenses if filters are active, otherwise use all expenses
+        const fullList = this.isFilterActive() ? this.filteredExpenses : this.expenses;
+
+        // Show search results info
+        if (this.isFilterActive()) {
+            this.updateSearchResultsInfo(fullList.length, this.expenses.length);
+        }
+
+        if (fullList.length === 0 && this.isFilterActive()) {
+            container.innerHTML = '<div class="empty-state">No expenses match your search/filter criteria.</div>';
+            return;
+        }
+
+        // Apply pagination
+        const { paginatedList, totalPages } = this.paginateExpenses(fullList);
+        this.updatePaginationControls(fullList.length, totalPages);
+
+        if (paginatedList.length === 0) {
+            container.innerHTML = '<div class="empty-state">No expenses on this page.</div>';
+            return;
+        }
+
+        const expensesHTML = paginatedList.map((expense, index) => `
             <div class="expense-item" id="expense-${expense.id}">
                 <div class="expense-header">
                     <div class="expense-header-left">
@@ -1531,6 +1609,220 @@ class ExpenseTracker {
 
         container.innerHTML = expensesHTML;
         this.updateExportButton();
+        this.populateCategoryFilter();
+    }
+
+    // Search and Filter Methods
+    isFilterActive() {
+        return this.searchTerm || this.filterCategory || this.filterDateFrom || this.filterDateTo;
+    }
+
+    applyFilters() {
+        let results = [...this.expenses];
+
+        // Apply search term filter
+        if (this.searchTerm) {
+            const term = this.searchTerm.toLowerCase();
+            results = results.filter(expense =>
+                expense.vendor.toLowerCase().includes(term) ||
+                expense.description.toLowerCase().includes(term) ||
+                expense.category.toLowerCase().includes(term)
+            );
+        }
+
+        // Apply category filter
+        if (this.filterCategory) {
+            results = results.filter(expense => expense.category === this.filterCategory);
+        }
+
+        // Apply date range filters
+        if (this.filterDateFrom) {
+            results = results.filter(expense => expense.date >= this.filterDateFrom);
+        }
+
+        if (this.filterDateTo) {
+            results = results.filter(expense => expense.date <= this.filterDateTo);
+        }
+
+        this.filteredExpenses = results;
+        this.displayExpenses();
+    }
+
+    handleSearch(value) {
+        this.searchTerm = value.trim();
+        const clearBtn = document.getElementById('clearSearch');
+        if (clearBtn) {
+            clearBtn.style.display = this.searchTerm ? 'block' : 'none';
+        }
+        this.applyFilters();
+    }
+
+    clearSearch() {
+        document.getElementById('searchInput').value = '';
+        this.searchTerm = '';
+        document.getElementById('clearSearch').style.display = 'none';
+        this.applyFilters();
+    }
+
+    handleCategoryFilter(value) {
+        this.filterCategory = value;
+        this.applyFilters();
+    }
+
+    handleDateFromFilter(value) {
+        this.filterDateFrom = value;
+        this.applyFilters();
+    }
+
+    handleDateToFilter(value) {
+        this.filterDateTo = value;
+        this.applyFilters();
+    }
+
+    resetFilters() {
+        // Clear all filter inputs
+        document.getElementById('searchInput').value = '';
+        document.getElementById('clearSearch').style.display = 'none';
+        document.getElementById('categoryFilter').value = '';
+        document.getElementById('dateFromFilter').value = '';
+        document.getElementById('dateToFilter').value = '';
+
+        // Reset filter state
+        this.searchTerm = '';
+        this.filterCategory = '';
+        this.filterDateFrom = '';
+        this.filterDateTo = '';
+        this.filteredExpenses = [];
+
+        // Hide search results info
+        const resultsInfo = document.getElementById('searchResults');
+        if (resultsInfo) resultsInfo.style.display = 'none';
+
+        this.displayExpenses();
+    }
+
+    updateSearchResultsInfo(filtered, total) {
+        const resultsInfo = document.getElementById('searchResults');
+        if (!resultsInfo) return;
+
+        if (filtered === total) {
+            resultsInfo.style.display = 'none';
+        } else {
+            resultsInfo.style.display = 'block';
+            resultsInfo.textContent = `Showing ${filtered} of ${total} expenses`;
+        }
+    }
+
+    populateCategoryFilter() {
+        const categoryFilter = document.getElementById('categoryFilter');
+        if (!categoryFilter) return;
+
+        // Get unique categories from expenses
+        const categories = [...new Set(this.expenses.map(exp => exp.category))].sort();
+
+        // Keep "All Categories" option and add unique categories
+        const currentValue = categoryFilter.value;
+        categoryFilter.innerHTML = '<option value="">All Categories</option>';
+        categories.forEach(cat => {
+            const option = document.createElement('option');
+            option.value = cat;
+            option.textContent = cat;
+            categoryFilter.appendChild(option);
+        });
+
+        // Restore previous selection if it still exists
+        if (currentValue && categories.includes(currentValue)) {
+            categoryFilter.value = currentValue;
+        }
+    }
+
+    // Pagination Methods
+    paginateExpenses(expenseList) {
+        if (this.pageSize === 'all') {
+            return {
+                paginatedList: expenseList,
+                totalPages: 1
+            };
+        }
+
+        const size = parseInt(this.pageSize);
+        const totalPages = Math.ceil(expenseList.length / size);
+
+        // Ensure current page is within bounds
+        if (this.currentPage > totalPages) {
+            this.currentPage = Math.max(1, totalPages);
+        }
+
+        const startIndex = (this.currentPage - 1) * size;
+        const endIndex = startIndex + size;
+        const paginatedList = expenseList.slice(startIndex, endIndex);
+
+        return { paginatedList, totalPages };
+    }
+
+    updatePaginationControls(totalExpenses, totalPages) {
+        const paginationContainer = document.getElementById('paginationContainer');
+        const prevBtn = document.getElementById('prevPage');
+        const nextBtn = document.getElementById('nextPage');
+        const paginationInfo = document.getElementById('paginationInfo');
+
+        if (!paginationContainer) return;
+
+        // Show pagination only if there are more expenses than minimum page size OR if showing all
+        if (totalExpenses > 10 || this.pageSize === 'all') {
+            paginationContainer.style.display = 'flex';
+        } else {
+            paginationContainer.style.display = 'none';
+            return;
+        }
+
+        // Update prev/next button states
+        if (prevBtn) {
+            prevBtn.disabled = this.currentPage === 1;
+        }
+        if (nextBtn) {
+            nextBtn.disabled = this.currentPage >= totalPages || this.pageSize === 'all';
+        }
+
+        // Update pagination info
+        if (paginationInfo) {
+            if (this.pageSize === 'all') {
+                paginationInfo.textContent = `Showing all ${totalExpenses} expenses`;
+            } else {
+                const size = parseInt(this.pageSize);
+                const startIndex = (this.currentPage - 1) * size + 1;
+                const endIndex = Math.min(this.currentPage * size, totalExpenses);
+                paginationInfo.textContent = `Showing ${startIndex}-${endIndex} of ${totalExpenses} expenses`;
+            }
+        }
+    }
+
+    nextPage() {
+        const fullList = this.isFilterActive() ? this.filteredExpenses : this.expenses;
+        const size = parseInt(this.pageSize);
+        const totalPages = Math.ceil(fullList.length / size);
+
+        if (this.currentPage < totalPages) {
+            this.currentPage++;
+            this.displayExpenses();
+            // Scroll to top of expense list
+            document.getElementById('expensesList').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+
+    previousPage() {
+        if (this.currentPage > 1) {
+            this.currentPage--;
+            this.displayExpenses();
+            // Scroll to top of expense list
+            document.getElementById('expensesList').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+
+    changePageSize(newSize) {
+        this.pageSize = newSize;
+        this.currentPage = 1; // Reset to first page when changing page size
+        this.displayExpenses();
     }
 
     formatDisplayDate(dateString) {
