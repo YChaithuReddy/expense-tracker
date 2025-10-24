@@ -208,7 +208,7 @@ class ExpenseTracker {
             // Validate file type
             if (!file.type.startsWith('image/')) {
                 console.error('Invalid file type:', file.type);
-                alert(`File "${file.name}" is not an image. Please select image files only.`);
+                this.showError(`File "${file.name}" is not a valid image.\n\nOnly JPG, PNG, and WEBP images are allowed.`, 'Invalid File Type');
                 return;
             }
 
@@ -216,7 +216,7 @@ class ExpenseTracker {
 
             reader.onerror = (error) => {
                 console.error('FileReader error for', file.name, error);
-                alert(`Failed to read file: ${file.name}`);
+                this.showError(`Unable to read file "${file.name}".\n\nPlease try selecting it again.`, 'File Read Error');
             };
 
             reader.onload = (e) => {
@@ -262,7 +262,7 @@ class ExpenseTracker {
 
     async scanBills() {
         if (this.scannedImages.length === 0) {
-            alert('Please select images to scan first!');
+            this.showError('Please select at least one image to scan.\n\nUse the Camera or Gallery button to add images.', 'No Images Selected');
             return;
         }
 
@@ -319,7 +319,7 @@ class ExpenseTracker {
 
         } catch (error) {
             console.error('OCR Error:', error);
-            alert('Failed to scan bills. Please try again or enter details manually.');
+            this.showError('Unable to scan the bill images.\n\nYou can enter the expense details manually below.', 'OCR Scan Failed');
             this.showExpenseForm();
         } finally {
             // Always terminate worker to prevent memory leaks
@@ -1209,12 +1209,12 @@ class ExpenseTracker {
         const description = formData.get('description');
 
         if (!amount || !date || !category || !description) {
-            alert('Please fill in all required fields');
+            this.showError('Please fill in all required fields:\n\n• Date\n• Amount\n• Category\n• Description', 'Required Fields Missing');
             return;
         }
 
         if (isNaN(parseFloat(amount)) || parseFloat(amount) <= 0) {
-            alert('Please enter a valid amount');
+            this.showError('Amount must be a positive number greater than zero.\n\nExample: 250.50', 'Invalid Amount');
             return;
         }
 
@@ -1399,7 +1399,7 @@ class ExpenseTracker {
     editExpense(id) {
         const expense = this.expenses.find(exp => exp.id === id);
         if (!expense) {
-            alert('Expense not found!');
+            this.showError('The selected expense could not be found.\n\nIt may have been deleted.', 'Expense Not Found');
             return;
         }
 
@@ -1641,7 +1641,7 @@ class ExpenseTracker {
 
     generateExcel() {
         if (this.expenses.length === 0) {
-            alert('No expenses to export!');
+            this.showError('You have no expenses to export.\n\nPlease add some expenses first.', 'No Expenses');
             return;
         }
 
@@ -1981,7 +1981,7 @@ class ExpenseTracker {
             // Step 1: Check if user has a Google Sheet
             const sheetUrl = googleSheetsService.getSheetUrl();
             if (!sheetUrl) {
-                alert('❌ Please export to Google Sheets first!\n\nYou need to create your expense report in Google Sheets before downloading the complete package.');
+                this.showError('You need to export your expenses to Google Sheets first.\n\nThis creates the expense report that will be included in your package.', 'Export to Google Sheets First');
                 return;
             }
 
@@ -2113,18 +2113,18 @@ class ExpenseTracker {
             this.hideLoading();
 
             if (error.message.includes('Google Sheet')) {
-                alert('Failed to download Google Sheet PDF:\n\n' + error.message + '\n\nPlease make sure your expense report is exported to Google Sheets first.');
+                this.showError('Failed to download your Google Sheet PDF.\n\n' + error.message + '\n\nPlease make sure you have exported to Google Sheets first.', 'Google Sheet Error');
             } else if (error.message.includes('No expenses')) {
-                alert('No expenses found to generate bills PDF.');
+                this.showError('No bill images found.\n\nAdd some expenses with images or export to Google Sheets first.', 'No Bills Found');
             } else {
-                alert('Failed to generate reimbursement package:\n\n' + error.message);
+                this.showError('Unable to generate the reimbursement package.\n\n' + error.message, 'Package Generation Failed');
             }
         }
     }
 
     exportJSON() {
         if (this.expenses.length === 0) {
-            alert('No expenses to export!');
+            this.showError('You have no expenses to export.\n\nPlease add some expenses first.', 'No Expenses');
             return;
         }
 
@@ -2592,6 +2592,77 @@ class ExpenseTracker {
         }
     }
 
+    showModal(title, message, type = 'info', buttons = [{ text: 'OK', primary: true }]) {
+        return new Promise((resolve) => {
+            const iconMap = {
+                'error': '❌',
+                'warning': '⚠️',
+                'success': '✅',
+                'info': 'ℹ️'
+            };
+
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-overlay';
+            overlay.innerHTML = `
+                <div class="modal-container">
+                    <div class="modal-header">
+                        <div class="modal-icon ${type}">${iconMap[type] || iconMap.info}</div>
+                        <h2 class="modal-title">${title}</h2>
+                    </div>
+                    <div class="modal-message">${message}</div>
+                    <div class="modal-actions">
+                        ${buttons.map((btn, i) => `
+                            <button class="modal-btn ${btn.primary ? 'modal-btn-primary' : 'modal-btn-secondary'}" data-index="${i}">
+                                ${btn.text}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+            overlay.querySelectorAll('.modal-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const index = parseInt(btn.dataset.index);
+                    overlay.remove();
+                    resolve(index);
+                });
+            });
+
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    overlay.remove();
+                    resolve(-1);
+                }
+            });
+
+            document.body.appendChild(overlay);
+        });
+    }
+
+    showError(message, title = 'Error') {
+        return this.showModal(title, message, 'error');
+    }
+
+    showWarning(message, title = 'Warning') {
+        return this.showModal(title, message, 'warning');
+    }
+
+    showSuccess(message, title = 'Success') {
+        return this.showModal(title, message, 'success');
+    }
+
+    showInfo(message, title = 'Information') {
+        return this.showModal(title, message, 'info');
+    }
+
+    async confirm(message, title = 'Confirm') {
+        const result = await this.showModal(title, message, 'warning', [
+            { text: 'Cancel', primary: false },
+            { text: 'Confirm', primary: true }
+        ]);
+        return result === 1;
+    }
+
     handleSelectAll(e) {
         const isChecked = e.target.checked;
         const checkboxes = document.querySelectorAll('.expense-checkbox');
@@ -2686,7 +2757,7 @@ class ExpenseTracker {
         const sheetUrl = googleSheetsService.getSheetUrl();
 
         if (!sheetUrl) {
-            alert('⚠️ You don\'t have a Google Sheet yet.\n\nPlease export expenses to Google Sheets first to create your sheet.');
+            this.showWarning('You don\'t have a Google Sheet yet.\n\nPlease export your expenses to Google Sheets first. This will create your expense report spreadsheet.', 'No Google Sheet');
             return;
         }
 
@@ -3015,7 +3086,7 @@ class ExpenseTracker {
 
             // Validate date range
             if (new Date(formData.expensePeriodFrom) > new Date(formData.expensePeriodTo)) {
-                alert('❌ "From" date cannot be after "To" date');
+                this.showError('"From" date cannot be after "To" date.\n\nPlease adjust your date range.', 'Invalid Date Range');
                 return;
             }
 
@@ -3040,7 +3111,7 @@ class ExpenseTracker {
 
         } catch (error) {
             console.error('❌ Error updating employee info:', error);
-            alert('Failed to update employee information. Please try again.');
+            this.showError('Failed to update employee information.\n\n' + (error.message || 'Please try again.'), 'Update Failed');
         }
     }
 
