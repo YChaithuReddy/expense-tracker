@@ -1482,12 +1482,13 @@ main {
     }
 
     .select-all-container {
-        padding: 10px 14px;
-        margin-bottom: 10px;
+        padding: 8px 12px;
+        margin-bottom: 8px;
+        border-radius: 8px;
     }
 
     .select-all-text {
-        font-size: 0.85rem;
+        font-size: 0.82rem;
     }
 
     .select-all-checkbox {
@@ -1520,6 +1521,45 @@ main {
     .preview-image p {
         font-size: 10px;
         max-width: 120px;
+    }
+
+    /* Compact expense items on mobile */
+    .expense-item {
+        padding: 10px;
+        margin-bottom: 8px;
+        border-radius: 10px;
+    }
+
+    .expense-header {
+        gap: 8px;
+    }
+
+    .expense-title {
+        font-size: 0.9rem;
+    }
+
+    .expense-amount {
+        font-size: 1rem;
+    }
+
+    .expense-details {
+        margin-top: 8px;
+        padding-top: 8px;
+    }
+
+    .expense-info {
+        font-size: 0.8rem;
+        margin-bottom: 4px;
+    }
+
+    .expense-actions {
+        margin-top: 10px;
+        gap: 8px;
+    }
+
+    .expense-actions button {
+        padding: 8px 12px;
+        font-size: 0.75rem;
     }
 }
 
@@ -3533,6 +3573,35 @@ main {
 
 /* Mobile responsive */
 @media (max-width: 768px) {
+    .search-filter-container {
+        padding: 12px;
+        margin-bottom: 12px;
+    }
+
+    .search-bar {
+        margin-bottom: 0;
+    }
+
+    .search-input {
+        padding: 10px 70px 10px 40px;
+        font-size: 0.9rem;
+    }
+
+    .search-icon {
+        left: 12px;
+        font-size: 1rem;
+    }
+
+    .clear-search-btn {
+        padding: 6px 8px;
+        font-size: 1rem;
+    }
+
+    .expand-filters-btn {
+        padding: 6px 10px;
+        font-size: 0.9rem;
+    }
+
     .filters-wrapper:not(.collapsed) {
         max-height: 800px;
     }
@@ -3650,14 +3719,16 @@ main {
 @media (max-width: 768px) {
     .pagination-container {
         flex-direction: column;
-        gap: 12px;
-        padding: 12px 15px;
+        gap: 8px;
+        padding: 10px 12px;
+        margin: 8px 0;
     }
 
     .pagination-info {
         text-align: center;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         width: 100%;
+        margin-bottom: 0;
     }
 
     .pagination-controls {
@@ -3665,19 +3736,19 @@ main {
         display: flex;
         justify-content: center;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
     }
 
     .pagination-btn {
-        padding: 8px 12px;
+        padding: 6px 10px;
         font-size: 0.85rem;
         min-width: auto;
         flex: 0 0 auto;
     }
 
     .page-size-select {
-        padding: 8px 10px;
-        font-size: 0.85rem;
+        padding: 6px 8px;
+        font-size: 0.8rem;
         min-width: auto;
         flex: 0 0 auto;
     }
@@ -3693,32 +3764,61 @@ main {
 }
 
 @media (max-width: 480px) {
+    .search-filter-container {
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 10px;
+    }
+
+    .search-input {
+        padding: 8px 65px 8px 35px;
+        font-size: 0.85rem;
+    }
+
+    .search-icon {
+        left: 10px;
+        font-size: 0.9rem;
+    }
+
+    .clear-search-btn {
+        padding: 5px 6px;
+        font-size: 0.9rem;
+        right: 45px;
+    }
+
+    .expand-filters-btn {
+        padding: 5px 8px;
+        font-size: 0.85rem;
+        right: 8px;
+    }
+
     .pagination-container {
-        padding: 10px 12px;
-        gap: 10px;
+        padding: 8px 10px;
+        gap: 6px;
+        margin: 6px 0;
     }
 
     .pagination-info {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
     }
 
     .pagination-controls {
-        gap: 6px;
+        gap: 5px;
     }
 
     .pagination-btn {
-        padding: 8px 14px;
-        font-size: 1rem;
+        padding: 6px 10px;
+        font-size: 0.9rem;
         font-weight: bold;
-        min-width: 44px;
+        min-width: 40px;
     }
 
     .page-size-select {
-        padding: 7px 8px;
-        font-size: 0.8rem;
+        padding: 6px;
+        font-size: 0.75rem;
     }
 
     .btn-text-short {
-        font-size: 1.2rem;
+        font-size: 1rem;
     }
 }
