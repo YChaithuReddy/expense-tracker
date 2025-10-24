@@ -1552,14 +1552,14 @@ class ExpenseTracker {
         if (this.expenses.length === 0) {
             container.innerHTML = '<div class="empty-state">No expenses added yet. Add your first expense above!</div>';
             selectAllContainer.style.display = 'none';
-            if (searchFilterContainer) searchFilterContainer.style.display = 'none';
+            if (searchFilterContainer) searchFilterContainer.classList.add('hidden');
             return;
         }
 
         // Show search/filter and select all if there are expenses
         selectAllContainer.style.display = 'flex';
         if (searchFilterContainer) {
-            searchFilterContainer.style.display = 'block';
+            searchFilterContainer.classList.remove('hidden');
 
             // Auto-expand filters on mobile if any filter is active
             const filtersWrapper = document.getElementById('filtersWrapper');
