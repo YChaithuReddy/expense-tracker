@@ -3231,7 +3231,7 @@ main {
 
 .search-bar {
     position: relative;
-    margin-bottom: 15px;
+    margin-bottom: 0;
 }
 
 .search-icon {
@@ -3241,11 +3241,12 @@ main {
     transform: translateY(-50%);
     font-size: 1.2rem;
     opacity: 0.5;
+    pointer-events: none;
 }
 
 .search-input {
     width: 100%;
-    padding: 12px 45px 12px 45px;
+    padding: 12px 45px;
     border: 2px solid var(--border-color);
     border-radius: 8px;
     background: var(--bg-secondary);
@@ -3273,11 +3274,57 @@ main {
     padding: 5px 10px;
     border-radius: 4px;
     transition: all 0.2s ease;
+    z-index: 2;
 }
 
 .clear-search-btn:hover {
     background: var(--hover-bg);
     color: var(--neon-cyan);
+}
+
+.expand-filters-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    display: none;
+    z-index: 2;
+}
+
+.expand-filters-btn:hover {
+    background: var(--hover-bg);
+    color: var(--neon-cyan);
+}
+
+.expand-icon {
+    display: inline-block;
+    transition: transform 0.3s ease;
+}
+
+.expand-filters-btn.expanded .expand-icon {
+    transform: rotate(180deg);
+}
+
+.filters-wrapper {
+    max-height: 500px;
+    overflow: hidden;
+    transition: max-height 0.4s ease, opacity 0.3s ease, margin-top 0.3s ease;
+    opacity: 1;
+    margin-top: 15px;
+}
+
+.filters-wrapper.collapsed {
+    max-height: 0;
+    opacity: 0;
+    margin-top: 0;
 }
 
 .filter-row {
@@ -3336,12 +3383,47 @@ main {
 
 /* Mobile responsive */
 @media (max-width: 768px) {
+    /* Show expand button on mobile */
+    .expand-filters-btn {
+        display: block;
+    }
+
+    /* Collapse filters by default on mobile */
+    .filters-wrapper {
+        max-height: 0;
+        opacity: 0;
+        margin-top: 0;
+    }
+
+    .filters-wrapper:not(.collapsed) {
+        max-height: 800px;
+        opacity: 1;
+        margin-top: 15px;
+    }
+
+    /* Stack filter inputs vertically on mobile */
     .filter-row {
         grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .filter-select,
+    .filter-date {
+        width: 100%;
     }
 
     .reset-filters-btn {
         width: 100%;
+    }
+
+    /* Adjust search input padding when expand button is visible */
+    .search-input {
+        padding-right: 85px;
+    }
+
+    /* Adjust clear button position */
+    .clear-search-btn {
+        right: 55px;
     }
 }
 

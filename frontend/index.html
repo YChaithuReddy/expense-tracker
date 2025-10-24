@@ -227,18 +227,23 @@
 
                 <!-- Search and Filter -->
                 <div class="search-filter-container" id="searchFilterContainer" style="display: none;">
-                    <div class="search-bar">
+                    <div class="search-bar" id="searchBarWrapper">
                         <span class="search-icon">🔍</span>
                         <input type="text" id="searchInput" class="search-input" placeholder="Search by vendor, description, or category...">
                         <button id="clearSearch" class="clear-search-btn" style="display: none;">✕</button>
+                        <button id="expandFiltersBtn" class="expand-filters-btn" aria-label="Expand filters">
+                            <span class="expand-icon">▼</span>
+                        </button>
                     </div>
-                    <div class="filter-row">
-                        <select id="categoryFilter" class="filter-select">
-                            <option value="">All Categories</option>
-                        </select>
-                        <input type="date" id="dateFromFilter" class="filter-date" placeholder="From Date">
-                        <input type="date" id="dateToFilter" class="filter-date" placeholder="To Date">
-                        <button id="resetFilters" class="reset-filters-btn">Reset Filters</button>
+                    <div class="filters-wrapper" id="filtersWrapper">
+                        <div class="filter-row">
+                            <select id="categoryFilter" class="filter-select">
+                                <option value="">All Categories</option>
+                            </select>
+                            <input type="date" id="dateFromFilter" class="filter-date" placeholder="From Date">
+                            <input type="date" id="dateToFilter" class="filter-date" placeholder="To Date">
+                            <button id="resetFilters" class="reset-filters-btn">Reset Filters</button>
+                        </div>
                     </div>
                     <div id="searchResults" class="search-results-info" style="display: none;"></div>
                 </div>

@@ -118,9 +118,16 @@ class ExpenseTracker {
         const dateFromFilter = document.getElementById('dateFromFilter');
         const dateToFilter = document.getElementById('dateToFilter');
         const resetFiltersBtn = document.getElementById('resetFilters');
+        const expandFiltersBtn = document.getElementById('expandFiltersBtn');
 
         if (searchInput) {
             searchInput.addEventListener('input', (e) => this.handleSearch(e.target.value));
+            // Also expand filters when user starts typing on mobile
+            searchInput.addEventListener('focus', () => {
+                if (window.innerWidth <= 768) {
+                    this.expandFilters();
+                }
+            });
         }
         if (clearSearchBtn) {
             clearSearchBtn.addEventListener('click', () => this.clearSearch());
@@ -136,6 +143,9 @@ class ExpenseTracker {
         }
         if (resetFiltersBtn) {
             resetFiltersBtn.addEventListener('click', () => this.resetFilters());
+        }
+        if (expandFiltersBtn) {
+            expandFiltersBtn.addEventListener('click', () => this.toggleFilters());
         }
 
         // Pagination event listeners
@@ -1548,7 +1558,15 @@ class ExpenseTracker {
 
         // Show search/filter and select all if there are expenses
         selectAllContainer.style.display = 'flex';
-        if (searchFilterContainer) searchFilterContainer.style.display = 'block';
+        if (searchFilterContainer) {
+            searchFilterContainer.style.display = 'block';
+
+            // Initialize collapsed state on mobile if not already set
+            const filtersWrapper = document.getElementById('filtersWrapper');
+            if (filtersWrapper && window.innerWidth <= 768 && !filtersWrapper.classList.contains('collapsed') && !this.isFilterActive()) {
+                filtersWrapper.classList.add('collapsed');
+            }
+        }
 
         // Use filtered expenses if filters are active, otherwise use all expenses
         const fullList = this.isFilterActive() ? this.filteredExpenses : this.expenses;
@@ -1699,6 +1717,41 @@ class ExpenseTracker {
         if (resultsInfo) resultsInfo.style.display = 'none';
 
         this.displayExpenses();
+    }
+
+    toggleFilters() {
+        const filtersWrapper = document.getElementById('filtersWrapper');
+        const expandBtn = document.getElementById('expandFiltersBtn');
+
+        if (filtersWrapper && expandBtn) {
+            const isCollapsed = filtersWrapper.classList.contains('collapsed');
+
+            if (isCollapsed) {
+                this.expandFilters();
+            } else {
+                this.collapseFilters();
+            }
+        }
+    }
+
+    expandFilters() {
+        const filtersWrapper = document.getElementById('filtersWrapper');
+        const expandBtn = document.getElementById('expandFiltersBtn');
+
+        if (filtersWrapper && expandBtn) {
+            filtersWrapper.classList.remove('collapsed');
+            expandBtn.classList.add('expanded');
+        }
+    }
+
+    collapseFilters() {
+        const filtersWrapper = document.getElementById('filtersWrapper');
+        const expandBtn = document.getElementById('expandFiltersBtn');
+
+        if (filtersWrapper && expandBtn) {
+            filtersWrapper.classList.add('collapsed');
+            expandBtn.classList.remove('expanded');
+        }
     }
 
     updateSearchResultsInfo(filtered, total) {
