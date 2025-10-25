@@ -9,6 +9,10 @@ class ExpenseTracker {
         // Search and filter state
         this.filteredExpenses = [];
         this.searchTerm = '';
+
+        // Performance optimization flags
+        this.isProcessingImages = false;
+        this.uploadProgress = 0;
         this.filterCategory = '';
         this.filterDateFrom = '';
         this.filterDateTo = '';
@@ -196,7 +200,51 @@ class ExpenseTracker {
         }
     }
 
-    handleImageUpload(e) {
+    // Compress image before processing
+    async compressImage(file, maxWidth = 1200, quality = 0.8) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+
+                    // Calculate new dimensions while maintaining aspect ratio
+                    if (width > maxWidth) {
+                        height = Math.round((height * maxWidth) / width);
+                        width = maxWidth;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Convert to blob with compression
+                    canvas.toBlob((blob) => {
+                        if (blob && blob.size < file.size) {
+                            // Only use compressed version if it's smaller
+                            const compressedFile = new File([blob], file.name, {
+                                type: 'image/jpeg',
+                                lastModified: Date.now()
+                            });
+                            console.log(`Compressed ${file.name}: ${(file.size/1024).toFixed(1)}KB → ${(blob.size/1024).toFixed(1)}KB`);
+                            resolve(compressedFile);
+                        } else {
+                            resolve(file); // Return original if compression didn't help
+                        }
+                    }, 'image/jpeg', quality);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    async handleImageUpload(e) {
         console.log('📸 Image upload triggered');
         const files = Array.from(e.target.files);
         console.log('Files selected:', files.length);
@@ -206,122 +254,207 @@ class ExpenseTracker {
         const MAX_TOTAL_SIZE = 20 * 1024 * 1024; // 20MB total
         const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic'];
 
-        // Validate individual file sizes and types
-        for (const file of files) {
-            if (!ALLOWED_TYPES.includes(file.type)) {
-                this.showNotification(`❌ Invalid file type: ${file.name}. Only JPG, PNG, and WEBP images are allowed.`, 'error');
-                e.target.value = ''; // Clear the input
-                return;
-            }
-            if (file.size > MAX_FILE_SIZE) {
-                this.showNotification(`❌ File too large: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB). Maximum size is 5MB per image.`, 'error');
-                e.target.value = ''; // Clear the input
-                return;
-            }
-        }
-
-        // Validate total size
-        const totalSize = files.reduce((sum, file) => sum + file.size, 0);
-        if (totalSize > MAX_TOTAL_SIZE) {
-            this.showNotification(`❌ Total file size too large (${(totalSize / 1024 / 1024).toFixed(2)}MB). Maximum total size is 20MB.`, 'error');
-            e.target.value = ''; // Clear the input
+        // Prevent multiple simultaneous processing
+        if (this.isProcessingImages) {
+            this.showNotification('⚠️ Please wait for current images to finish processing');
             return;
         }
 
-        console.log(`✅ File validation passed: ${files.length} files, ${(totalSize / 1024 / 1024).toFixed(2)}MB total`);
+        this.isProcessingImages = true;
 
-        // Clear previous data to prevent caching issues
-        this.scannedImages = [];
-        this.extractedData = {};  // Clear any previously extracted data
-        console.log('✅ Cleared previous OCR data');
-
-        // Clear form fields to prevent old data from persisting
-        const form = document.getElementById('expenseForm');
-        if (form) {
-            form.reset();
-            // Don't set today's date here, let OCR populate it or use it as fallback
-        }
-
-        if (files.length === 0) {
-            document.getElementById('scanBills').style.display = 'none';
-            document.getElementById('imagePreview').innerHTML = '';
-            console.log('No files selected, clearing preview');
-            return;
-        }
-
+        // Show loading indicator immediately
         const previewContainer = document.getElementById('imagePreview');
-        console.log('Preview container found:', !!previewContainer);
+        previewContainer.innerHTML = `
+            <div class="processing-overlay">
+                <div class="processing-content">
+                    <div class="spinner"></div>
+                    <h3>🖼️ Optimizing Images...</h3>
+                    <p id="processingStatus">Compressing for faster upload</p>
+                    <div class="progress-bar">
+                        <div id="progressFill" class="progress-fill" style="width: 0%"></div>
+                    </div>
+                    <span id="progressText">0%</span>
+                </div>
+            </div>
+        `;
 
-        // Clear and add wrapper div for better layout
-        previewContainer.innerHTML = '';
-        previewContainer.className = 'image-preview-container has-images';
+        // Add CSS for the processing overlay if not already present
+        if (!document.getElementById('processingStyles')) {
+            const style = document.createElement('style');
+            style.id = 'processingStyles';
+            style.textContent = `
+                .processing-overlay {
+                    padding: 40px;
+                    text-align: center;
+                    background: rgba(255, 255, 255, 0.05);
+                    border-radius: 12px;
+                    margin: 20px 0;
+                }
+                .processing-content h3 {
+                    margin: 20px 0 10px;
+                    color: var(--primary-color);
+                }
+                .spinner {
+                    width: 50px;
+                    height: 50px;
+                    border: 4px solid rgba(79, 172, 254, 0.2);
+                    border-top-color: #4FACFE;
+                    border-radius: 50%;
+                    animation: spin 1s linear infinite;
+                    margin: 0 auto;
+                }
+                @keyframes spin {
+                    to { transform: rotate(360deg); }
+                }
+                .progress-bar {
+                    width: 100%;
+                    height: 8px;
+                    background: rgba(255, 255, 255, 0.1);
+                    border-radius: 4px;
+                    overflow: hidden;
+                    margin: 15px 0 10px;
+                }
+                .progress-fill {
+                    height: 100%;
+                    background: linear-gradient(135deg, #4FACFE 0%, #00F2FE 100%);
+                    transition: width 0.3s ease;
+                }
+                #progressText {
+                    font-size: 14px;
+                    color: #4FACFE;
+                    font-weight: 600;
+                }
+                #processingStatus {
+                    color: #aaa;
+                    font-size: 14px;
+                    margin: 10px 0;
+                }
+            `;
+            document.head.appendChild(style);
+        }
 
-        const header = document.createElement('h3');
-        header.textContent = '📋 Selected Images:';
-        previewContainer.appendChild(header);
+        try {
+            // Validate individual file sizes and types
+            for (const file of files) {
+                if (!ALLOWED_TYPES.includes(file.type)) {
+                    this.showNotification(`❌ Invalid file type: ${file.name}. Only JPG, PNG, and WEBP images are allowed.`, 'error');
+                    e.target.value = '';
+                    this.isProcessingImages = false;
+                    return;
+                }
 
-        const imagesWrapper = document.createElement('div');
-        imagesWrapper.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; width: 100%; padding: 10px; margin: 0 auto; justify-items: center;';
-        imagesWrapper.id = 'imagesWrapper';
-        previewContainer.appendChild(imagesWrapper);
-        console.log('Images wrapper created and appended');
+                if (file.size > MAX_FILE_SIZE) {
+                    this.showNotification(`❌ File too large: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB). Maximum size is 5MB per image.`, 'error');
+                    e.target.value = '';
+                    this.isProcessingImages = false;
+                    return;
+                }
+            }
 
-        files.forEach((file, index) => {
-            console.log(`Processing file ${index + 1}:`, file.name, file.type, file.size);
-
-            // Validate file type
-            if (!file.type.startsWith('image/')) {
-                console.error('Invalid file type:', file.type);
-                this.showError(`File "${file.name}" is not a valid image.\n\nOnly JPG, PNG, and WEBP images are allowed.`, 'Invalid File Type');
+            // Validate total size
+            const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+            if (totalSize > MAX_TOTAL_SIZE) {
+                this.showNotification(`❌ Total file size too large (${(totalSize / 1024 / 1024).toFixed(2)}MB). Maximum total size is 20MB.`, 'error');
+                e.target.value = '';
+                this.isProcessingImages = false;
                 return;
             }
 
-            const reader = new FileReader();
+            console.log(`✅ File validation passed: ${files.length} files, ${(totalSize / 1024 / 1024).toFixed(2)}MB total`);
 
-            reader.onerror = (error) => {
-                console.error('FileReader error for', file.name, error);
-                this.showError(`Unable to read file "${file.name}".\n\nPlease try selecting it again.`, 'File Read Error');
-            };
+            // Clear previous data
+            this.scannedImages = [];
+            this.extractedData = {};
 
-            reader.onload = (e) => {
-                console.log(`✅ File ${index + 1} loaded successfully:`, file.name);
-                console.log('Data URL length:', e.target.result.substring(0, 50) + '...');
+            // Clear form if not editing
+            if (this.editingExpenseId === null) {
+                const form = document.getElementById('expenseForm');
+                if (form) form.reset();
+            }
 
-                this.scannedImages.push({
-                    name: file.name,
-                    data: e.target.result,
-                    file: file
+            if (files.length === 0) {
+                document.getElementById('scanBills').style.display = 'none';
+                document.getElementById('imagePreview').innerHTML = '';
+                this.isProcessingImages = false;
+                return;
+            }
+
+            // Process and compress images
+            const processedImages = [];
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const progressElement = document.getElementById('progressText');
+                const progressFill = document.getElementById('progressFill');
+                const statusElement = document.getElementById('processingStatus');
+
+                // Update progress
+                const progress = Math.round(((i + 1) / files.length) * 100);
+                if (progressElement) progressElement.textContent = `${progress}%`;
+                if (progressFill) progressFill.style.width = `${progress}%`;
+                if (statusElement) statusElement.textContent = `Processing image ${i + 1} of ${files.length}`;
+
+                // Compress image
+                const compressedFile = await this.compressImage(file, 1200, 0.85);
+
+                // Read compressed file
+                const dataUrl = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => resolve(e.target.result);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(compressedFile);
                 });
 
+                processedImages.push({
+                    name: compressedFile.name,
+                    data: dataUrl,
+                    file: compressedFile
+                });
+            }
+
+            this.scannedImages = processedImages;
+
+            // Display compressed images
+            previewContainer.innerHTML = '';
+            previewContainer.className = 'image-preview-container has-images';
+
+            const header = document.createElement('h3');
+            header.textContent = '📋 Selected Images:';
+            previewContainer.appendChild(header);
+
+            const imagesWrapper = document.createElement('div');
+            imagesWrapper.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; width: 100%; padding: 10px; margin: 0 auto; justify-items: center;';
+            imagesWrapper.id = 'imagesWrapper';
+            previewContainer.appendChild(imagesWrapper);
+
+            // Display all images
+            processedImages.forEach((img) => {
                 const imageDiv = document.createElement('div');
                 imageDiv.className = 'preview-image';
                 imageDiv.innerHTML = `
-                    <img src="${e.target.result}" alt="${file.name}">
-                    <p>${file.name}</p>
+                    <img src="${img.data}" alt="${img.name}">
+                    <p>${img.name}</p>
                 `;
-
-                console.log('Appending image div to wrapper');
-                console.log('Images wrapper exists:', !!imagesWrapper);
-                console.log('Images wrapper in DOM:', document.getElementById('imagesWrapper') !== null);
-
                 imagesWrapper.appendChild(imageDiv);
+            });
 
-                console.log('Image div appended. Wrapper children count:', imagesWrapper.children.length);
-                console.log(`Images loaded: ${this.scannedImages.length}/${files.length}`);
+            // Show scan button
+            const scanBtn = document.getElementById('scanBills');
+            if (scanBtn) {
+                scanBtn.style.display = 'block';
+                console.log('✅ All images processed, scan button shown');
+            }
 
-                if (this.scannedImages.length === files.length) {
-                    const scanBtn = document.getElementById('scanBills');
-                    if (scanBtn) {
-                        scanBtn.style.display = 'block';
-                        console.log('✅ All images loaded, scan button shown');
-                    } else {
-                        console.error('❌ Scan button not found!');
-                    }
-                }
-            };
+            const savedKB = Math.round((totalSize - processedImages.reduce((sum, img) => sum + img.file.size, 0)) / 1024);
+            if (savedKB > 0) {
+                this.showNotification(`✅ Images optimized! Saved ${savedKB}KB`);
+            }
 
-            reader.readAsDataURL(file);
-        });
+        } catch (error) {
+            console.error('Error processing images:', error);
+            this.showError('Failed to process images. Please try again.', 'Processing Error');
+        } finally {
+            this.isProcessingImages = false;
+        }
     }
 
     async scanBills() {
@@ -339,15 +472,80 @@ class ExpenseTracker {
         scanProgress.style.display = 'inline';
         scanButton.disabled = true;
 
-        let allExtractedText = '';
+        // Show enhanced progress indicator
+        const previewContainer = document.getElementById('imagePreview');
+        const currentContent = previewContainer.innerHTML;
 
+        const progressOverlay = document.createElement('div');
+        progressOverlay.id = 'ocrProgressOverlay';
+        progressOverlay.innerHTML = `
+            <div class="ocr-progress-overlay">
+                <div class="ocr-progress-content">
+                    <div class="spinner"></div>
+                    <h3>🔍 Scanning Bills...</h3>
+                    <p id="ocrStatus">Extracting text from images</p>
+                    <div class="progress-bar">
+                        <div id="ocrProgressFill" class="progress-fill" style="width: 0%"></div>
+                    </div>
+                    <span id="ocrProgressText">0%</span>
+                </div>
+            </div>
+        `;
+
+        // Add styles for OCR progress
+        if (!document.getElementById('ocrProgressStyles')) {
+            const style = document.createElement('style');
+            style.id = 'ocrProgressStyles';
+            style.textContent = `
+                .ocr-progress-overlay {
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: rgba(0, 0, 0, 0.9);
+                    padding: 40px;
+                    border-radius: 12px;
+                    z-index: 9999;
+                    text-align: center;
+                    min-width: 300px;
+                    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+                }
+                .ocr-progress-content h3 {
+                    color: #4FACFE;
+                    margin: 20px 0 10px;
+                }
+                #ocrStatus {
+                    color: #aaa;
+                    margin: 10px 0;
+                }
+                #ocrProgressText {
+                    color: #4FACFE;
+                    font-weight: 600;
+                    display: block;
+                    margin-top: 10px;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        document.body.appendChild(progressOverlay);
+
+        let allExtractedText = '';
         let worker = null;
+
         try {
-            // Initialize Tesseract worker for better performance
+            // Show initializing status
+            document.getElementById('ocrStatus').textContent = 'Initializing OCR engine...';
+
+            // Initialize Tesseract worker with optimizations
             worker = await Tesseract.createWorker('eng', 1, {
                 logger: m => {
                     if (m.status === 'recognizing text') {
-                        console.log(`OCR Progress: ${(m.progress * 100).toFixed(0)}%`);
+                        const currentProgress = document.getElementById('ocrProgressText');
+                        if (currentProgress) {
+                            const percent = (m.progress * 100).toFixed(0);
+                            currentProgress.textContent = `${percent}%`;
+                        }
                     }
                 }
             });
@@ -359,16 +557,26 @@ class ExpenseTracker {
                 preserve_interword_spaces: '1',
             });
 
+            // Process images
             for (let i = 0; i < this.scannedImages.length; i++) {
-                progressText.textContent = `${Math.round(((i + 1) / this.scannedImages.length) * 100)}%`;
+                const overallProgress = Math.round(((i + 1) / this.scannedImages.length) * 100);
+                progressText.textContent = `${overallProgress}%`;
 
-                // Perform OCR with enhanced configuration
+                const ocrProgressFill = document.getElementById('ocrProgressFill');
+                const ocrProgressText = document.getElementById('ocrProgressText');
+                const ocrStatus = document.getElementById('ocrStatus');
+
+                if (ocrProgressFill) ocrProgressFill.style.width = `${overallProgress}%`;
+                if (ocrProgressText) ocrProgressText.textContent = `${overallProgress}%`;
+                if (ocrStatus) ocrStatus.textContent = `Scanning image ${i + 1} of ${this.scannedImages.length}`;
+
+                // Perform OCR
                 const result = await worker.recognize(this.scannedImages[i].data);
 
                 console.log(`📄 Image ${i + 1} OCR confidence: ${result.data.confidence.toFixed(2)}%`);
                 allExtractedText += result.data.text + '\n\n';
 
-                // Also extract with high confidence words only for better accuracy
+                // Extract high confidence text for better accuracy
                 const highConfidenceText = result.data.words
                     .filter(word => word.confidence > 60)
                     .map(word => word.text)
@@ -377,16 +585,23 @@ class ExpenseTracker {
                 console.log(`✨ High confidence text: ${highConfidenceText}`);
             }
 
+            // Update status
+            if (document.getElementById('ocrStatus')) {
+                document.getElementById('ocrStatus').textContent = 'Processing extracted data...';
+            }
+
             this.extractedData = this.parseReceiptText(allExtractedText);
             this.populateForm();
             this.showExpenseForm();
+
+            this.showNotification('✅ Bill scanned successfully!');
 
         } catch (error) {
             console.error('OCR Error:', error);
             this.showError('Unable to scan the bill images.\n\nYou can enter the expense details manually below.', 'OCR Scan Failed');
             this.showExpenseForm();
         } finally {
-            // Always terminate worker to prevent memory leaks
+            // Clean up
             if (worker) {
                 try {
                     await worker.terminate();
@@ -395,6 +610,11 @@ class ExpenseTracker {
                     console.error('⚠️ Error terminating Tesseract worker:', terminateError);
                 }
             }
+
+            // Remove progress overlay
+            const overlay = document.getElementById('ocrProgressOverlay');
+            if (overlay) overlay.remove();
+
             scanText.style.display = 'inline';
             scanProgress.style.display = 'none';
             scanButton.disabled = false;
@@ -1410,12 +1630,80 @@ class ExpenseTracker {
         try {
             console.log('Adding expense to backend:', expense);
 
-            // Show loading indicator
+            // Show enhanced upload progress
             const hasImages = expense.images && expense.images.length > 0;
-            this.showLoading(
-                hasImages ? 'Uploading expense with images...' : 'Adding expense...',
-                hasImages ? 'Please wait while we upload your receipts' : ''
-            );
+
+            const uploadOverlay = document.createElement('div');
+            uploadOverlay.id = 'uploadProgressOverlay';
+            uploadOverlay.innerHTML = `
+                <div class="upload-progress-overlay">
+                    <div class="upload-progress-content">
+                        <div class="spinner"></div>
+                        <h3>${hasImages ? '📤 Uploading Bill...' : '💾 Saving Expense...'}</h3>
+                        <p id="uploadStatus">${hasImages ? 'Processing images for upload' : 'Saving expense data'}</p>
+                        ${hasImages ? `
+                            <div class="progress-bar">
+                                <div id="uploadProgressFill" class="progress-fill" style="width: 0%"></div>
+                            </div>
+                            <span id="uploadProgressText">0%</span>
+                        ` : ''}
+                        <p class="upload-tip">This may take a few moments with large images</p>
+                    </div>
+                </div>
+            `;
+
+            // Add upload progress styles
+            if (!document.getElementById('uploadProgressStyles')) {
+                const style = document.createElement('style');
+                style.id = 'uploadProgressStyles';
+                style.textContent = `
+                    .upload-progress-overlay {
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: rgba(0, 0, 0, 0.8);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        z-index: 10000;
+                    }
+                    .upload-progress-content {
+                        background: linear-gradient(135deg, rgba(15, 15, 35, 0.95), rgba(25, 25, 55, 0.95));
+                        padding: 40px;
+                        border-radius: 16px;
+                        text-align: center;
+                        min-width: 350px;
+                        box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+                        border: 1px solid rgba(79, 172, 254, 0.2);
+                    }
+                    .upload-progress-content h3 {
+                        color: #4FACFE;
+                        margin: 20px 0 15px;
+                        font-size: 24px;
+                    }
+                    #uploadStatus {
+                        color: #aaa;
+                        margin: 10px 0 20px;
+                    }
+                    #uploadProgressText {
+                        color: #4FACFE;
+                        font-weight: 600;
+                        display: block;
+                        margin-top: 10px;
+                        font-size: 18px;
+                    }
+                    .upload-tip {
+                        color: #666;
+                        font-size: 12px;
+                        margin-top: 20px;
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+
+            document.body.appendChild(uploadOverlay);
 
             // Prepare expense data for backend
             const expenseData = {
@@ -1430,12 +1718,27 @@ class ExpenseTracker {
             // Prepare images as File objects (if they exist)
             const imageFiles = [];
             if (expense.images && expense.images.length > 0) {
-                // Convert base64 images to File objects
-                for (const img of expense.images) {
+                const uploadStatus = document.getElementById('uploadStatus');
+                const uploadProgressFill = document.getElementById('uploadProgressFill');
+                const uploadProgressText = document.getElementById('uploadProgressText');
+
+                for (let i = 0; i < expense.images.length; i++) {
+                    const img = expense.images[i];
+
+                    // Update progress
+                    const progress = Math.round(((i + 1) / expense.images.length) * 50); // 50% for image prep
+                    if (uploadStatus) uploadStatus.textContent = `Preparing image ${i + 1} of ${expense.images.length}`;
+                    if (uploadProgressFill) uploadProgressFill.style.width = `${progress}%`;
+                    if (uploadProgressText) uploadProgressText.textContent = `${progress}%`;
+
                     const blob = await fetch(img.data).then(r => r.blob());
                     const file = new File([blob], img.name, { type: blob.type });
                     imageFiles.push(file);
                 }
+
+                if (uploadStatus) uploadStatus.textContent = 'Uploading to server...';
+                if (uploadProgressFill) uploadProgressFill.style.width = '60%';
+                if (uploadProgressText) uploadProgressText.textContent = '60%';
             }
 
             // Call backend API
@@ -1444,10 +1747,29 @@ class ExpenseTracker {
             if (response.status === 'success') {
                 console.log('✅ Expense added to backend successfully');
 
+                // Update progress to 90%
+                const uploadProgressFill = document.getElementById('uploadProgressFill');
+                const uploadProgressText = document.getElementById('uploadProgressText');
+                const uploadStatus = document.getElementById('uploadStatus');
+
+                if (uploadStatus) uploadStatus.textContent = 'Finalizing...';
+                if (uploadProgressFill) uploadProgressFill.style.width = '90%';
+                if (uploadProgressText) uploadProgressText.textContent = '90%';
+
                 // Reload expenses from backend to stay in sync
                 await this.loadExpenses();
 
-                this.hideLoading();
+                // Complete progress
+                if (uploadProgressFill) uploadProgressFill.style.width = '100%';
+                if (uploadProgressText) uploadProgressText.textContent = '100%';
+                if (uploadStatus) uploadStatus.textContent = 'Complete!';
+
+                // Remove overlay after a brief delay
+                setTimeout(() => {
+                    const overlay = document.getElementById('uploadProgressOverlay');
+                    if (overlay) overlay.remove();
+                }, 500);
+
                 this.resetForm();
                 this.showNotification('✅ Expense added successfully!');
             } else {
@@ -1455,7 +1777,11 @@ class ExpenseTracker {
             }
         } catch (error) {
             console.error('Error adding expense:', error);
-            this.hideLoading();
+
+            // Remove overlay on error
+            const overlay = document.getElementById('uploadProgressOverlay');
+            if (overlay) overlay.remove();
+
             this.showNotification('❌ Failed to add expense: ' + error.message);
         }
     }
@@ -1508,7 +1834,7 @@ class ExpenseTracker {
     }
 
     editExpense(id) {
-        const expense = this.expenses.find(exp => exp.id === id);
+        const expense = this.expenses.find(exp => exp.id === String(id));
         if (!expense) {
             this.showError('The selected expense could not be found.\n\nIt may have been deleted.', 'Expense Not Found');
             return;
@@ -1652,8 +1978,8 @@ class ExpenseTracker {
                         <label for="checkbox-${expense.id}" class="expense-amount">₹${this.formatAmount(expense.amount)}</label>
                     </div>
                     <div class="expense-actions">
-                        <button class="edit-btn" onclick="expenseTracker.editExpense(${expense.id})">Edit</button>
-                        <button class="delete-btn" onclick="expenseTracker.deleteExpense(${expense.id})">Delete</button>
+                        <button class="edit-btn" onclick="expenseTracker.editExpense('${expense.id}')">Edit</button>
+                        <button class="delete-btn" onclick="expenseTracker.deleteExpense('${expense.id}')">Delete</button>
                     </div>
                 </div>
                 <div class="expense-details">
@@ -1668,7 +1994,7 @@ class ExpenseTracker {
                     <div class="expense-images">
                         ${expense.images.map((img, index) => `
                             <img src="${img.data}" alt="${img.name}" title="Click to view full size"
-                                 onclick="expenseTracker.openImageModal('${img.data}', '${img.name}', ${expense.id}, ${index})">
+                                 onclick="expenseTracker.openImageModal('${img.data}', '${img.name}', '${expense.id}', ${index})">
                         `).join('')}
                     </div>
                 ` : ''}
@@ -3349,13 +3675,13 @@ class ExpenseTracker {
                                         </div>
 
                                         <div class="action-buttons-modern">
-                                            <button class="btn-extend-modern" onclick="expenseTracker.extendImageExpiry('${img._id}')">
+                                            <button class="btn-extend-modern" data-image-id="${img._id}" onclick="expenseTracker.extendImageExpiry(this.getAttribute('data-image-id'))">
                                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                                                     <path d="M12 4v16m8-8H4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                                                 </svg>
                                                 +30 days
                                             </button>
-                                            <button class="btn-delete-modern" onclick="expenseTracker.deleteOrphanedImage('${img._id}')">
+                                            <button class="btn-delete-modern" data-image-id="${img._id}" onclick="expenseTracker.deleteOrphanedImage(this.getAttribute('data-image-id'))">
                                                 Delete
                                             </button>
                                         </div>
