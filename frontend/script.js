@@ -539,9 +539,7 @@ class ExpenseTracker {
 
             previewContainer.className = 'image-preview-container drag-drop-zone has-images';
 
-            const header = document.createElement('h3');
-            header.textContent = '📋 Selected Images:';
-            previewContainer.appendChild(header);
+            // Removed the "Selected Images:" header for cleaner UI
 
             const imagesWrapper = document.createElement('div');
             // Remove inline styles - let CSS handle the styling

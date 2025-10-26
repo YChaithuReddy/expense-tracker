@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Preview Size Test</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            padding: 40px;
+            background: #1a1e2e;
+            color: white;
+            font-family: system-ui;
+        }
+        h1 {
+            color: #00d4ff;
+            margin-bottom: 20px;
+        }
+        .test-section {
+            margin-bottom: 40px;
+        }
+        .size-info {
+            margin: 10px 0;
+            padding: 10px;
+            background: #2a3447;
+            border-radius: 8px;
+            font-family: monospace;
+        }
+        .responsive-test {
+            margin-top: 30px;
+            padding: 20px;
+            background: #252c3d;
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Image Preview Size Test</h1>
+
+    <div class="test-section">
+        <h2>Current Configuration</h2>
+        <div class="size-info" id="sizeInfo">
+            Loading size information...
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Sample Image Previews</h2>
+        <div id="imagesWrapper">
+            <div class="image-preview-item">
+                <div class="thumb-container">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300'%3E%3Crect fill='%23f0f0f0' width='400' height='300'/%3E%3Ctext x='50%25' y='30' text-anchor='middle' font-family='Arial' font-size='20' fill='%23333'%3EBILL PREVIEW%3C/text%3E%3Cline x1='40' y1='50' x2='360' y2='50' stroke='%23999' stroke-width='1'/%3E%3Ctext x='40' y='80' font-family='Arial' font-size='14' fill='%23666'%3EDate: 2025-10-26%3C/text%3E%3Ctext x='40' y='110' font-family='Arial' font-size='14' fill='%23666'%3EAmount: $250.00%3C/text%3E%3Ctext x='40' y='140' font-family='Arial' font-size='14' fill='%23666'%3ECategory: Groceries%3C/text%3E%3Ctext x='40' y='170' font-family='Arial' font-size='14' fill='%23666'%3EReference: INV-001234%3C/text%3E%3Ctext x='40' y='200' font-family='Arial' font-size='14' fill='%23666'%3EStore: SuperMart%3C/text%3E%3Ctext x='40' y='230' font-family='Arial' font-size='14' fill='%23666'%3EPayment: Credit Card%3C/text%3E%3Crect x='40' y='250' width='320' height='30' fill='%23e8e8e8' stroke='%23999' stroke-width='1'/%3E%3Ctext x='200' y='270' text-anchor='middle' font-family='Arial' font-size='12' fill='%23333'%3ETotal: $250.00%3C/text%3E%3C/svg%3E" alt="Sample Bill 1" class="thumb-image">
+                </div>
+                <div class="thumb-caption">receipt_2025_10_26.jpg</div>
+            </div>
+
+            <div class="image-preview-item">
+                <div class="thumb-container">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300'%3E%3Crect fill='%23fff' width='400' height='300'/%3E%3Ctext x='50%25' y='30' text-anchor='middle' font-family='Arial' font-size='18' fill='%23000'%3EINVOICE%3C/text%3E%3Cline x1='30' y1='45' x2='370' y2='45' stroke='%23333' stroke-width='2'/%3E%3Ctext x='30' y='75' font-family='Arial' font-size='12' fill='%23333'%3EInvoice No: 2025-0426%3C/text%3E%3Ctext x='30' y='100' font-family='Arial' font-size='12' fill='%23333'%3ECustomer: John Doe%3C/text%3E%3Ctext x='30' y='125' font-family='Arial' font-size='12' fill='%23333'%3EDate: October 26, 2025%3C/text%3E%3Crect x='30' y='140' width='340' height='1' fill='%23ccc'/%3E%3Ctext x='30' y='165' font-family='Arial' font-size='12' fill='%23333'%3EItem 1: Office Supplies - $45.00%3C/text%3E%3Ctext x='30' y='185' font-family='Arial' font-size='12' fill='%23333'%3EItem 2: Printer Paper - $25.00%3C/text%3E%3Ctext x='30' y='205' font-family='Arial' font-size='12' fill='%23333'%3EItem 3: Notebooks - $30.00%3C/text%3E%3Crect x='30' y='220' width='340' height='1' fill='%23ccc'/%3E%3Ctext x='30' y='245' font-family='Arial' font-size='14' font-weight='bold' fill='%23000'%3ETotal: $100.00%3C/text%3E%3C/svg%3E" alt="Sample Invoice" class="thumb-image">
+                </div>
+                <div class="thumb-caption">invoice_october.pdf</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="responsive-test">
+        <h2>Responsive Behavior Test</h2>
+        <p>Resize your browser window to test responsive behavior:</p>
+        <ul>
+            <li><strong>Desktop (>768px):</strong> Images should be 380x320px</li>
+            <li><strong>Mobile (≤768px):</strong> Images should be 180x150px</li>
+        </ul>
+        <div class="size-info" id="viewportInfo">
+            Current viewport: <span id="viewport"></span>
+        </div>
+    </div>
+
+    <script>
+        function updateSizeInfo() {
+            const thumb = document.querySelector('.thumb-container');
+            if (thumb) {
+                const styles = getComputedStyle(thumb);
+                const info = `
+                    Width: ${styles.width}
+                    Height: ${styles.height}
+                    Display: ${styles.display}
+                    Align Items: ${styles.alignItems}
+                    Justify Content: ${styles.justifyContent}
+                    Border: ${styles.border}
+                    Padding: ${styles.padding}
+                `;
+                document.getElementById('sizeInfo').textContent = info;
+            }
+
+            const viewport = window.innerWidth;
+            const mode = viewport > 768 ? 'Desktop Mode' : 'Mobile Mode';
+            document.getElementById('viewport').textContent = `${viewport}px (${mode})`;
+        }
+
+        // Update on load and resize
+        updateSizeInfo();
+        window.addEventListener('resize', updateSizeInfo);
+
+        // Test image loading
+        console.log('✅ Test page loaded successfully');
+        console.log('✅ Number of image previews:', document.querySelectorAll('.image-preview-item').length);
+        console.log('✅ Thumbnail containers found:', document.querySelectorAll('.thumb-container').length);
+    </script>
+</body>
+</html>
