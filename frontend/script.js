@@ -321,10 +321,11 @@ class ExpenseTracker {
             }
         }, false);
 
-        // Allow clicking on empty drop zone to open file browser
+        // Allow clicking on drop zone to open file browser
         dropZone.addEventListener('click', (e) => {
-            // Only trigger if the zone is empty and clicking on the zone itself
-            if (dropZone.children.length === 0 && (e.target === dropZone)) {
+            // Check if clicking on the hint or drop zone when it only has the hint
+            const dragHint = document.getElementById('dragDropHint');
+            if (e.target.closest('#dragDropHint') || (dropZone.children.length === 1 && dropZone.contains(dragHint))) {
                 billImagesInput.click();
             }
         });
@@ -352,7 +353,19 @@ class ExpenseTracker {
 
         // Show loading indicator immediately
         const previewContainer = document.getElementById('imagePreview');
-        previewContainer.innerHTML = `
+        // Hide the drag hint
+        const dragHint = document.getElementById('dragDropHint');
+        if (dragHint) {
+            dragHint.style.display = 'none';
+        }
+
+        // Clear existing content but keep the hint element
+        const existingContent = previewContainer.querySelectorAll(':not(#dragDropHint)');
+        existingContent.forEach(element => element.remove());
+
+        // Add loading overlay
+        const loadingDiv = document.createElement('div');
+        loadingDiv.innerHTML = `
             <div class="processing-overlay">
                 <div class="processing-content">
                     <div class="spinner"></div>
@@ -365,6 +378,7 @@ class ExpenseTracker {
                 </div>
             </div>
         `;
+        previewContainer.appendChild(loadingDiv.firstElementChild);
 
         // Add CSS for the processing overlay if not already present
         if (!document.getElementById('processingStyles')) {
@@ -462,7 +476,18 @@ class ExpenseTracker {
 
             if (files.length === 0) {
                 document.getElementById('scanBills').style.display = 'none';
-                document.getElementById('imagePreview').innerHTML = '';
+                // Clear preview but restore the drag hint
+                const previewContainer = document.getElementById('imagePreview');
+                const existingItems = previewContainer.querySelectorAll(':not(#dragDropHint)');
+                existingItems.forEach(item => item.remove());
+
+                // Show the drag hint again
+                const dragHint = document.getElementById('dragDropHint');
+                if (dragHint) {
+                    dragHint.style.display = 'block';
+                }
+                previewContainer.className = 'image-preview-container drag-drop-zone';
+
                 this.isProcessingImages = false;
                 return;
             }
@@ -502,8 +527,17 @@ class ExpenseTracker {
             this.scannedImages = processedImages;
 
             // Display compressed images
-            previewContainer.innerHTML = '';
-            previewContainer.className = 'image-preview-container has-images';
+            // Clear existing content but keep the hint element
+            const existingItems = previewContainer.querySelectorAll(':not(#dragDropHint)');
+            existingItems.forEach(item => item.remove());
+
+            // Hide the drag hint if it exists
+            const hint = document.getElementById('dragDropHint');
+            if (hint) {
+                hint.style.display = 'none';
+            }
+
+            previewContainer.className = 'image-preview-container drag-drop-zone has-images';
 
             const header = document.createElement('h3');
             header.textContent = '📋 Selected Images:';
@@ -1570,8 +1604,18 @@ class ExpenseTracker {
             extractedDataDiv.remove();
         }
 
-        // Clear image preview in OCR section
-        document.getElementById('imagePreview').innerHTML = '';
+        // Clear image preview in OCR section but restore hint
+        const previewContainer = document.getElementById('imagePreview');
+        const existingItems = previewContainer.querySelectorAll(':not(#dragDropHint)');
+        existingItems.forEach(item => item.remove());
+
+        // Show the drag hint again
+        const dragHint = document.getElementById('dragDropHint');
+        if (dragHint) {
+            dragHint.style.display = 'block';
+        }
+        previewContainer.className = 'image-preview-container drag-drop-zone';
+
         document.getElementById('scanBills').style.display = 'none';
 
         // Scroll to form
@@ -1610,7 +1654,19 @@ class ExpenseTracker {
         this.scannedImages = [];
         this.extractedData = {};
         document.getElementById('billImages').value = '';
-        document.getElementById('imagePreview').innerHTML = '';
+
+        // Clear preview but restore the drag hint
+        const previewContainer = document.getElementById('imagePreview');
+        const existingItems = previewContainer.querySelectorAll(':not(#dragDropHint)');
+        existingItems.forEach(item => item.remove());
+
+        // Show the drag hint again
+        const dragHint = document.getElementById('dragDropHint');
+        if (dragHint) {
+            dragHint.style.display = 'block';
+        }
+        previewContainer.className = 'image-preview-container drag-drop-zone';
+
         document.getElementById('scanBills').style.display = 'none';
     }
 
