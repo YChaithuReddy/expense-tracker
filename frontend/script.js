@@ -68,6 +68,9 @@ class ExpenseTracker {
             this.handleImageUpload({ target: document.getElementById('billImages') });
         });
 
+        // Initialize drag and drop functionality
+        this.initializeDragAndDrop();
+
         document.getElementById('billImages').addEventListener('change', (e) => this.handleImageUpload(e));
         document.getElementById('scanBills').addEventListener('click', () => this.scanBills());
         document.getElementById('skipToManualEntry').addEventListener('click', () => this.showManualEntryForm());
@@ -242,6 +245,91 @@ class ExpenseTracker {
             };
             reader.readAsDataURL(file);
         });
+    }
+
+    initializeDragAndDrop() {
+        const dropZone = document.getElementById('dropZone');
+        const billImagesInput = document.getElementById('billImages');
+
+        if (!dropZone) {
+            console.warn('Drop zone element not found');
+            return;
+        }
+
+        // Prevent default drag behaviors on document
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            document.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            }, false);
+        });
+
+        // Highlight drop zone when item is dragged over it
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropZone.classList.add('drag-over');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropZone.classList.remove('drag-over');
+            }, false);
+        });
+
+        // Handle dropped files
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const dt = e.dataTransfer;
+            const files = dt.files;
+
+            if (files.length > 0) {
+                // Validate that files are images
+                const imageFiles = Array.from(files).filter(file => {
+                    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic', 'image/gif'];
+                    return validTypes.includes(file.type.toLowerCase());
+                });
+
+                if (imageFiles.length === 0) {
+                    this.showNotification('❌ Please drop only image files (JPEG, PNG, WebP, HEIC, GIF)');
+                    return;
+                }
+
+                if (imageFiles.length < files.length) {
+                    const skipped = files.length - imageFiles.length;
+                    this.showNotification(`⚠️ ${skipped} non-image file(s) were skipped`);
+                }
+
+                // Create a new DataTransfer object to set files programmatically
+                const dataTransfer = new DataTransfer();
+                imageFiles.forEach(file => dataTransfer.items.add(file));
+
+                // Set the files to the hidden input
+                billImagesInput.files = dataTransfer.files;
+
+                // Trigger the existing handleImageUpload function
+                this.handleImageUpload({ target: billImagesInput });
+
+                // Provide visual feedback
+                this.showNotification(`✅ ${imageFiles.length} image(s) added successfully!`);
+            }
+        }, false);
+
+        // Optional: Allow clicking on drop zone to open file browser
+        dropZone.addEventListener('click', (e) => {
+            // Only trigger if clicking on the drop zone itself, not buttons inside
+            if (e.target === dropZone || e.target.closest('.drag-drop-content')) {
+                billImagesInput.click();
+            }
+        });
+
+        console.log('✅ Drag and drop functionality initialized');
     }
 
     async handleImageUpload(e) {
