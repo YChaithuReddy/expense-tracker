@@ -4059,10 +4059,11 @@ main {
 
 #imagesWrapper {
     display: grid !important;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important;
-    gap: 20px !important;
+    /* Adjusted grid for larger desktop images */
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)) !important;
+    gap: 30px !important;
     width: 100% !important;
-    padding: 10px !important;
+    padding: 20px !important;
     margin: 0 auto !important;
     justify-items: center !important;
 }
@@ -4079,15 +4080,16 @@ main {
 
 .thumb-container,
 .selected-image {
-    width: 220px !important;
-    height: 180px !important;
+    /* Increased size for better bill visibility on desktop */
+    width: 380px !important;
+    height: 320px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     border: 2px solid rgba(0, 212, 255, 0.5) !important;
     border-radius: 12px !important;
     background: rgba(30, 40, 60, 0.6) !important;
-    padding: 10px !important;
+    padding: 15px !important;
     position: relative !important;
     overflow: hidden !important;
     box-shadow:
@@ -4116,7 +4118,7 @@ main {
     color: var(--cyan-text, #00d4ff);
     font-size: 14px;
     text-align: center;
-    max-width: 220px;
+    max-width: 380px;  /* Adjusted to match new image width */
     word-break: break-word;
 }
 
@@ -4193,10 +4195,24 @@ main {
         font-size: 24px;
     }
 
+    /* Keep smaller size for mobile - easier to view on smaller screens */
     .thumb-container,
     .selected-image {
-        width: 180px;
-        height: 150px;
+        width: 180px !important;
+        height: 150px !important;
+        padding: 10px !important;
+    }
+
+    .thumb-caption,
+    .image-caption {
+        max-width: 180px !important;
+    }
+
+    /* Adjust grid for mobile */
+    #imagesWrapper {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)) !important;
+        gap: 15px !important;
+        padding: 10px !important;
     }
 
     .search-input.clean {
