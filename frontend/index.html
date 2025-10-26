@@ -404,16 +404,27 @@
         // Display user info
         const user = JSON.parse(localStorage.getItem('user'));
         if (user) {
-            document.getElementById('userName').textContent = `👤 ${user.name}`;
-            document.getElementById('userInfo').style.display = 'flex';
+            const userNameElement = document.getElementById('userName');
+            const userInfoElement = document.getElementById('userInfo');
+
+            // Check if elements exist before trying to update them
+            if (userNameElement) {
+                userNameElement.textContent = `👤 ${user.name}`;
+            }
+            if (userInfoElement) {
+                userInfoElement.style.display = 'flex';
+            }
         }
 
         // Logout handler
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            if (confirm('Are you sure you want to logout?')) {
-                logout();
-            }
-        });
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
+                if (confirm('Are you sure you want to logout?')) {
+                    logout();
+                }
+            });
+        }
     </script>
 
     <!-- Global Progress Modal -->

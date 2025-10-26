@@ -544,7 +544,7 @@ class ExpenseTracker {
             previewContainer.appendChild(header);
 
             const imagesWrapper = document.createElement('div');
-            imagesWrapper.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; width: 100%; padding: 10px; margin: 0 auto; justify-items: center;';
+            // Remove inline styles - let CSS handle the styling
             imagesWrapper.id = 'imagesWrapper';
             previewContainer.appendChild(imagesWrapper);
 
