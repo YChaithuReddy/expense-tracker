@@ -247,8 +247,10 @@
                 <!-- Search and Filter -->
                 <div class="search-filter-container hidden" id="searchFilterContainer">
                     <div class="search-bar" id="searchBarWrapper">
-                        <span class="search-icon">🔍</span>
-                        <input type="text" id="searchInput" class="search-input" placeholder="Search by vendor, description, or category...">
+                        <svg class="search-icon clean" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M21 21l-5.2-5.2m0 0A7.5 7.5 0 105.8 15.8l5.2 5.2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <input type="text" id="searchInput" class="search-input clean" placeholder="Search by vendor, description, or category..." aria-label="Search">
                         <button id="clearSearch" class="clear-search-btn" style="display: none;">✕</button>
                         <button id="expandFiltersBtn" class="expand-filters-btn" aria-label="Expand filters">
                             <span class="expand-icon">▼</span>
@@ -413,5 +415,21 @@
             }
         });
     </script>
+
+    <!-- Global Progress Modal -->
+    <div id="global-progress-modal" class="progress-modal-overlay" aria-modal="true" role="dialog" aria-labelledby="progress-title">
+        <div class="progress-modal-card">
+            <div class="progress-spinner"></div>
+            <h2 id="progress-title" class="progress-title">Uploading Bill...</h2>
+            <p class="progress-message">Finalizing...</p>
+            <div class="progress-bar-container">
+                <div class="progress-bar-fill"></div>
+            </div>
+            <div class="progress-percent">0%</div>
+        </div>
+    </div>
+
+    <!-- Progress Modal Script -->
+    <script src="progress-modal.js"></script>
 </body>
 </html>

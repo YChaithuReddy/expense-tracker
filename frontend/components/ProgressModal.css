@@ -1,0 +1,119 @@
+/* Progress Modal CSS for React Component */
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Progress Modal Overlay */
+.progress-modal-react-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(10, 15, 30, 0.9);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
+}
+
+/* Progress Modal Card */
+.progress-modal-react-card {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    border-radius: 20px;
+    padding: 40px;
+    min-width: 320px;
+    max-width: 90%;
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.4),
+        0 0 40px rgba(0, 212, 255, 0.2);
+    text-align: center;
+    animation: slideUp 0.3s ease;
+}
+
+/* Progress Spinner */
+.progress-modal-react-spinner {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 20px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top-color: #00d4ff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Progress Title */
+.progress-modal-react-title {
+    color: #ffffff;
+    font-size: 24px;
+    margin: 0 0 10px;
+    font-weight: 600;
+}
+
+/* Progress Message */
+.progress-modal-react-message {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 16px;
+    margin: 0 0 20px;
+}
+
+/* Progress Bar Container */
+.progress-modal-react-bar-container {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 15px;
+}
+
+/* Progress Bar Fill */
+.progress-modal-react-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #00d4ff, #00a8cc);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+    box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+}
+
+/* Progress Percent */
+.progress-modal-react-percent {
+    color: #00d4ff;
+    font-size: 28px;
+    font-weight: bold;
+    text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .progress-modal-react-card {
+        padding: 30px 20px;
+        min-width: 280px;
+    }
+
+    .progress-modal-react-title {
+        font-size: 20px;
+    }
+
+    .progress-modal-react-percent {
+        font-size: 24px;
+    }
+}
