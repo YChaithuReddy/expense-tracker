@@ -551,10 +551,12 @@ class ExpenseTracker {
             // Display all images
             processedImages.forEach((img) => {
                 const imageDiv = document.createElement('div');
-                imageDiv.className = 'preview-image';
+                imageDiv.className = 'image-preview-item';
                 imageDiv.innerHTML = `
-                    <img src="${img.data}" alt="${img.name}">
-                    <p>${img.name}</p>
+                    <div class="thumb-container">
+                        <img src="${img.data}" alt="${img.name}" class="thumb-image">
+                    </div>
+                    <div class="thumb-caption">${img.name}</div>
                 `;
                 imagesWrapper.appendChild(imageDiv);
             });
