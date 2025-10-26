@@ -248,11 +248,11 @@ class ExpenseTracker {
     }
 
     initializeDragAndDrop() {
-        const dropZone = document.getElementById('dropZone');
+        const dropZone = document.getElementById('imagePreview');
         const billImagesInput = document.getElementById('billImages');
 
         if (!dropZone) {
-            console.warn('Drop zone element not found');
+            console.warn('Image preview element not found');
             return;
         }
 
@@ -321,10 +321,10 @@ class ExpenseTracker {
             }
         }, false);
 
-        // Optional: Allow clicking on drop zone to open file browser
+        // Allow clicking on empty drop zone to open file browser
         dropZone.addEventListener('click', (e) => {
-            // Only trigger if clicking on the drop zone itself, not buttons inside
-            if (e.target === dropZone || e.target.closest('.drag-drop-content')) {
+            // Only trigger if the zone is empty and clicking on the zone itself
+            if (dropZone.children.length === 0 && (e.target === dropZone)) {
                 billImagesInput.click();
             }
         });

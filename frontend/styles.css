@@ -3821,10 +3821,11 @@ main {
    DRAG AND DROP ZONE STYLES
    ============================================ */
 
-.drag-drop-zone {
+/* Image preview container as drag drop zone when empty */
+.image-preview-container.drag-drop-zone:empty {
     border: 3px dashed rgba(0, 212, 255, 0.5);
     border-radius: 15px;
-    padding: 40px 20px;
+    padding: 60px 20px;
     text-align: center;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -3832,122 +3833,93 @@ main {
     position: relative;
     margin: 20px 0;
     overflow: hidden;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.drag-drop-zone::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(157, 0, 255, 0.1));
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    pointer-events: none;
+/* Show drag hint text when empty */
+.image-preview-container.drag-drop-zone:empty::before {
+    content: '📁 Drag & Drop Receipt Images Here';
+    font-size: 1.2em;
+    font-weight: 600;
+    color: var(--text-secondary);
+    opacity: 0.8;
 }
 
-.drag-drop-zone:hover {
+/* When container has images, keep it as drop zone but different style */
+.image-preview-container.drag-drop-zone:not(:empty) {
+    border: 2px dashed transparent;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    min-height: 150px;
+}
+
+/* Hover effect for empty container */
+.image-preview-container.drag-drop-zone:empty:hover {
     background: linear-gradient(135deg, rgba(0, 212, 255, 0.08), rgba(157, 0, 255, 0.08));
     border-color: rgba(0, 212, 255, 0.7);
     transform: translateY(-2px);
 }
 
-.drag-drop-zone.drag-over {
-    background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(157, 0, 255, 0.15));
-    border-color: var(--neon-cyan);
+/* Drag over effect */
+.image-preview-container.drag-drop-zone.drag-over {
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(157, 0, 255, 0.15)) !important;
+    border-color: var(--neon-cyan) !important;
+    border-style: dashed !important;
+    border-width: 3px !important;
     transform: scale(1.02);
     box-shadow: 0 10px 40px rgba(0, 212, 255, 0.3);
 }
 
-.drag-drop-zone.drag-over::before {
-    opacity: 1;
-    animation: pulse 2s infinite;
+/* Change text when dragging over empty container */
+.image-preview-container.drag-drop-zone.drag-over:empty::before {
+    content: '🎯 Drop Images Here!' !important;
+    color: var(--neon-cyan);
+    font-size: 1.3em;
+    animation: pulse 1s infinite;
 }
 
 @keyframes pulse {
     0%, 100% {
-        opacity: 0.5;
+        opacity: 0.8;
     }
     50% {
         opacity: 1;
     }
 }
 
-.drag-drop-content {
-    position: relative;
-    z-index: 1;
-}
-
-.drag-drop-icon {
-    width: 60px;
-    height: 60px;
-    margin: 0 auto 15px;
-    background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 30px;
-    animation: float 3s ease-in-out infinite;
-}
-
-@keyframes float {
-    0%, 100% {
-        transform: translateY(0);
-    }
-    50% {
-        transform: translateY(-10px);
-    }
-}
-
-.drag-drop-text {
-    color: var(--text-primary);
-    font-size: 1.2em;
-    font-weight: 600;
-    margin-bottom: 8px;
-}
-
-.drag-drop-subtext {
-    color: var(--text-secondary);
-    font-size: 0.9em;
-    opacity: 0.8;
-}
-
 /* Dark theme adjustments for drag and drop */
-[data-theme="dark"] .drag-drop-zone {
+[data-theme="dark"] .image-preview-container.drag-drop-zone:empty {
     border-color: rgba(0, 212, 255, 0.3);
     background: linear-gradient(135deg, rgba(0, 212, 255, 0.02), rgba(157, 0, 255, 0.02));
 }
 
-[data-theme="dark"] .drag-drop-zone:hover {
+[data-theme="dark"] .image-preview-container.drag-drop-zone:empty:hover {
     background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(157, 0, 255, 0.05));
     border-color: rgba(0, 212, 255, 0.5);
 }
 
-[data-theme="dark"] .drag-drop-zone.drag-over {
-    background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(157, 0, 255, 0.1));
-    border-color: var(--neon-cyan);
+[data-theme="dark"] .image-preview-container.drag-drop-zone.drag-over {
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(157, 0, 255, 0.1)) !important;
+    border-color: var(--neon-cyan) !important;
     box-shadow: 0 10px 40px rgba(0, 212, 255, 0.2);
 }
 
 /* Light theme adjustments for drag and drop */
-[data-theme="light"] .drag-drop-zone {
+[data-theme="light"] .image-preview-container.drag-drop-zone:empty {
     border-color: rgba(16, 185, 129, 0.4);
     background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(139, 92, 246, 0.05));
 }
 
-[data-theme="light"] .drag-drop-zone:hover {
+[data-theme="light"] .image-preview-container.drag-drop-zone:empty:hover {
     background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(139, 92, 246, 0.08));
     border-color: rgba(16, 185, 129, 0.6);
 }
 
-[data-theme="light"] .drag-drop-zone.drag-over {
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(139, 92, 246, 0.15));
-    border-color: #10b981;
+[data-theme="light"] .image-preview-container.drag-drop-zone.drag-over {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(139, 92, 246, 0.15)) !important;
+    border-color: #10b981 !important;
     box-shadow: 0 10px 40px rgba(16, 185, 129, 0.2);
-}
-
-[data-theme="light"] .drag-drop-icon {
-    background: linear-gradient(135deg, #10b981, #8b5cf6);
 }
