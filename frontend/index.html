@@ -58,15 +58,6 @@
                 <div class="form-group">
                     <label>Upload Bill Images:</label>
 
-                    <!-- Drag and Drop Zone -->
-                    <div id="dropZone" class="drag-drop-zone">
-                        <div class="drag-drop-content">
-                            <div class="drag-drop-icon">📁</div>
-                            <div class="drag-drop-text">Drag & Drop Receipt Images Here</div>
-                            <div class="drag-drop-subtext">or use the options below</div>
-                        </div>
-                    </div>
-
                     <div style="display: flex; gap: 10px; margin-top: 10px;">
                         <button type="button" id="cameraBtn" class="btn-secondary" style="flex: 1;">
                             📷 Camera
@@ -83,7 +74,9 @@
                     <small>Drag & drop receipts, take a photo with camera, or select from gallery</small>
                 </div>
 
-                <div id="imagePreview" class="image-preview-container"></div>
+                <div id="imagePreview" class="image-preview-container drag-drop-zone">
+                    <!-- Drag and drop hint will be shown here when empty -->
+                </div>
 
                 <button type="button" id="scanBills" class="btn-primary" style="display: none;">
                     <span id="scanText">🔍 Scan Bills</span>
