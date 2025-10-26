@@ -3823,17 +3823,17 @@ main {
 
 /* Image preview container as drag drop zone */
 .image-preview-container.drag-drop-zone {
-    border: 3px dashed rgba(0, 212, 255, 0.5);
-    border-radius: 15px;
-    padding: 20px;
+    border: 2px dashed rgba(0, 212, 255, 0.4);
+    border-radius: 12px;
+    padding: 15px;
     text-align: center;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(157, 0, 255, 0.05));
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.03), rgba(157, 0, 255, 0.03));
     position: relative;
-    margin: 20px 0;
+    margin: 15px 0;
     overflow: hidden;
-    min-height: 200px;
+    min-height: 120px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -3842,44 +3842,23 @@ main {
 
 /* Drag drop hint styling */
 .drag-drop-hint {
-    padding: 40px;
+    padding: 20px;
     text-align: center;
     width: 100%;
 }
 
-.drag-drop-icon {
-    width: 80px;
-    height: 80px;
-    margin: 0 auto 20px;
-    background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 40px;
-    animation: float 3s ease-in-out infinite;
-}
-
-@keyframes float {
-    0%, 100% {
-        transform: translateY(0);
-    }
-    50% {
-        transform: translateY(-10px);
-    }
-}
-
 .drag-drop-text {
     color: var(--text-primary);
-    font-size: 1.4em;
-    font-weight: 600;
-    margin-bottom: 10px;
+    font-size: 1.1em;
+    font-weight: 500;
+    margin-bottom: 6px;
+    opacity: 0.9;
 }
 
 .drag-drop-subtext {
     color: var(--text-secondary);
-    font-size: 0.95em;
-    opacity: 0.7;
+    font-size: 0.85em;
+    opacity: 0.6;
 }
 
 /* When container has images, adjust the border */
@@ -3891,19 +3870,19 @@ main {
 
 /* Hover effect for drop zone */
 .image-preview-container.drag-drop-zone:hover {
-    background: linear-gradient(135deg, rgba(0, 212, 255, 0.08), rgba(157, 0, 255, 0.08));
-    border-color: rgba(0, 212, 255, 0.7);
-    transform: translateY(-2px);
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.06), rgba(157, 0, 255, 0.06));
+    border-color: rgba(0, 212, 255, 0.6);
+    transform: translateY(-1px);
 }
 
 /* Drag over effect */
 .image-preview-container.drag-drop-zone.drag-over {
-    background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(157, 0, 255, 0.15)) !important;
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(157, 0, 255, 0.1)) !important;
     border-color: var(--neon-cyan) !important;
     border-style: dashed !important;
-    border-width: 3px !important;
-    transform: scale(1.02);
-    box-shadow: 0 10px 40px rgba(0, 212, 255, 0.3);
+    border-width: 2px !important;
+    transform: scale(1.01);
+    box-shadow: 0 5px 20px rgba(0, 212, 255, 0.2);
 }
 
 /* Change text when dragging over */
@@ -3912,18 +3891,8 @@ main {
     animation: pulse 1s infinite;
 }
 
-.drag-drop-zone.drag-over .drag-drop-icon {
-    transform: scale(1.1);
-    animation: bounce 0.5s ease-in-out infinite;
-}
-
-@keyframes bounce {
-    0%, 100% {
-        transform: scale(1.1) translateY(0);
-    }
-    50% {
-        transform: scale(1.1) translateY(-5px);
-    }
+.drag-drop-zone.drag-over .drag-drop-subtext {
+    opacity: 0.8;
 }
 
 @keyframes pulse {
@@ -3936,13 +3905,13 @@ main {
 }
 
 /* Dark theme adjustments for drag and drop */
-[data-theme="dark"] .image-preview-container.drag-drop-zone:empty {
+[data-theme="dark"] .image-preview-container.drag-drop-zone {
     border-color: rgba(0, 212, 255, 0.3);
     background: linear-gradient(135deg, rgba(0, 212, 255, 0.02), rgba(157, 0, 255, 0.02));
 }
 
-[data-theme="dark"] .image-preview-container.drag-drop-zone:empty:hover {
-    background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(157, 0, 255, 0.05));
+[data-theme="dark"] .image-preview-container.drag-drop-zone:hover {
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.04), rgba(157, 0, 255, 0.04));
     border-color: rgba(0, 212, 255, 0.5);
 }
 
@@ -3953,14 +3922,14 @@ main {
 }
 
 /* Light theme adjustments for drag and drop */
-[data-theme="light"] .image-preview-container.drag-drop-zone:empty {
-    border-color: rgba(16, 185, 129, 0.4);
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(139, 92, 246, 0.05));
+[data-theme="light"] .image-preview-container.drag-drop-zone {
+    border-color: rgba(16, 185, 129, 0.35);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.03), rgba(139, 92, 246, 0.03));
 }
 
-[data-theme="light"] .image-preview-container.drag-drop-zone:empty:hover {
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(139, 92, 246, 0.08));
-    border-color: rgba(16, 185, 129, 0.6);
+[data-theme="light"] .image-preview-container.drag-drop-zone:hover {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.06), rgba(139, 92, 246, 0.06));
+    border-color: rgba(16, 185, 129, 0.5);
 }
 
 [data-theme="light"] .image-preview-container.drag-drop-zone.drag-over {
