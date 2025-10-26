@@ -57,6 +57,16 @@
 
                 <div class="form-group">
                     <label>Upload Bill Images:</label>
+
+                    <!-- Drag and Drop Zone -->
+                    <div id="dropZone" class="drag-drop-zone">
+                        <div class="drag-drop-content">
+                            <div class="drag-drop-icon">📁</div>
+                            <div class="drag-drop-text">Drag & Drop Receipt Images Here</div>
+                            <div class="drag-drop-subtext">or use the options below</div>
+                        </div>
+                    </div>
+
                     <div style="display: flex; gap: 10px; margin-top: 10px;">
                         <button type="button" id="cameraBtn" class="btn-secondary" style="flex: 1;">
                             📷 Camera
@@ -70,7 +80,7 @@
                     <input type="file" id="galleryInput" name="galleryInput" accept="image/*" style="display: none;" multiple>
                     <!-- Original hidden input for compatibility -->
                     <input type="file" id="billImages" name="billImages" accept="image/*" style="display: none;" multiple>
-                    <small>Take a photo with camera or select from gallery</small>
+                    <small>Drag & drop receipts, take a photo with camera, or select from gallery</small>
                 </div>
 
                 <div id="imagePreview" class="image-preview-container"></div>
