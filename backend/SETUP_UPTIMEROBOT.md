@@ -30,7 +30,7 @@ Once logged in:
 
    **Friendly Name:** `Expense Tracker Backend`
 
-   **URL (or IP):** `https://expense-tracker-production-ycr.up.railway.app/api/health`
+   **URL (or IP):** `https://expense-tracker-production-8f00.up.railway.app/api/health`
 
    **Monitoring Interval:** `5 minutes` (free tier allows this)
 
@@ -92,7 +92,7 @@ By default, alerts go to your email. To add more alert methods:
 
 Monitor: Expense Tracker Backend
 Status: DOWN
-URL: https://expense-tracker-production-ycr.up.railway.app/api/health
+URL: https://expense-tracker-production-8f00.up.railway.app/api/health
 Time: 2025-10-22 15:30:45
 Reason: Connection timeout
 
@@ -105,7 +105,7 @@ Reason: Connection timeout
 
 Monitor: Expense Tracker Backend
 Status: UP
-URL: https://expense-tracker-production-ycr.up.railway.app/api/health
+URL: https://expense-tracker-production-8f00.up.railway.app/api/health
 Downtime: 8 minutes
 Time: 2025-10-22 15:38:12
 
@@ -121,7 +121,7 @@ You can monitor multiple endpoints for free (up to 50 monitors):
 ### Additional Monitors to Add:
 
 **1. Root Endpoint**
-- URL: `https://expense-tracker-production-ycr.up.railway.app/`
+- URL: `https://expense-tracker-production-8f00.up.railway.app/`
 - Name: `Expense Tracker Backend Root`
 
 **2. Frontend**
@@ -132,7 +132,7 @@ You can monitor multiple endpoints for free (up to 50 monitors):
 - Can't directly monitor, but monitor API endpoints that use it
 
 **4. Specific API Endpoints (optional)**
-- URL: `https://expense-tracker-production-ycr.up.railway.app/api/expenses`
+- URL: `https://expense-tracker-production-8f00.up.railway.app/api/expenses`
 - Requires auth token (advanced - not recommended for now)
 
 ---

@@ -7,7 +7,7 @@
 
 const https = require('https');
 
-const BACKEND_URL = 'https://expense-tracker-production-ycr.up.railway.app';
+const BACKEND_URL = 'https://expense-tracker-production-8f00.up.railway.app';
 const HEALTH_ENDPOINT = '/api/health';
 
 console.log('🔍 Checking backend health...\n');

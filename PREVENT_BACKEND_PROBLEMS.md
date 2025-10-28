@@ -16,7 +16,7 @@ cd backend
 npm run health
 
 # Method 2: Open in browser
-https://expense-tracker-production-ycr.up.railway.app/api/health
+https://expense-tracker-production-8f00.up.railway.app/api/health
 
 # Method 3: Open keep-alive monitor
 Open: frontend/keep-alive.html in your browser
@@ -70,7 +70,7 @@ npm run health
 4. Settings:
    - **Monitor Type:** HTTP(s)
    - **Friendly Name:** Expense Tracker Backend
-   - **URL:** `https://expense-tracker-production-ycr.up.railway.app/api/health`
+   - **URL:** `https://expense-tracker-production-8f00.up.railway.app/api/health`
    - **Monitoring Interval:** 5 minutes
 5. Click "Create Monitor"
 6. Add email/SMS alerts
@@ -218,7 +218,7 @@ Just run `npm run health` occasionally to verify everything is working.
 - MongoDB Atlas: https://cloud.mongodb.com
 - Cloudinary: https://cloudinary.com/console
 - UptimeRobot: https://uptimerobot.com
-- Backend Health: https://expense-tracker-production-ycr.up.railway.app/api/health
+- Backend Health: https://expense-tracker-production-8f00.up.railway.app/api/health
 - Keep-alive Monitor: Open `frontend/keep-alive.html`
 
 **Need help? Check `backend/DEPLOYMENT_GUIDE.md` for detailed troubleshooting.**

@@ -24,7 +24,7 @@ require('dotenv').config();
 const API_KEY = process.env.UPTIMEROBOT_API_KEY;
 
 const UPTIMEROBOT_API = 'api.uptimerobot.com';
-const BACKEND_URL = 'https://expense-tracker-production-ycr.up.railway.app/api/health';
+const BACKEND_URL = 'https://expense-tracker-production-8f00.up.railway.app/api/health';
 const FRONTEND_URL = 'https://expense-tracker-delta-ashy.vercel.app';
 
 /**
