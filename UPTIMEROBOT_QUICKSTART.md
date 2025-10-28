@@ -32,7 +32,7 @@ Get instant alerts when your backend goes down!
    |-------|-------|
    | **Monitor Type** | HTTP(s) |
    | **Friendly Name** | Expense Tracker Backend |
-   | **URL** | `https://expense-tracker-production-b501.up.railway.app/api/health` |
+   | **URL** | `https://expense-tracker-production-ycr.up.railway.app/api/health` |
    | **Monitoring Interval** | Every 5 minutes |
 
 3. **Click:** "Create Monitor"
@@ -68,7 +68,7 @@ Get SMS alerts too:
 Subject: Expense Tracker Backend is DOWN
 
 Your monitor "Expense Tracker Backend" is DOWN.
-URL: https://expense-tracker-production-b501.up.railway.app/api/health
+URL: https://expense-tracker-production-ycr.up.railway.app/api/health
 Started: Oct 22, 2025 at 3:45 PM
 Reason: Connection timeout
 
@@ -127,7 +127,7 @@ Monitor your frontend too:
 ### 1. Check if backend is really down
 ```bash
 # Open in browser:
-https://expense-tracker-production-b501.up.railway.app/api/health
+https://expense-tracker-production-ycr.up.railway.app/api/health
 
 # Or run:
 cd backend
@@ -233,7 +233,7 @@ npm run uptime:create
 ## Quick Links
 
 - **Dashboard:** https://uptimerobot.com/dashboard
-- **Backend Health:** https://expense-tracker-production-b501.up.railway.app/api/health
+- **Backend Health:** https://expense-tracker-production-ycr.up.railway.app/api/health
 - **Detailed Guide:** See `backend/SETUP_UPTIMEROBOT.md`
 
 **Questions? Check the detailed guide in `backend/SETUP_UPTIMEROBOT.md`**

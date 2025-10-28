@@ -2,7 +2,7 @@
 
 ## Current Setup: Railway (Recommended)
 
-Your backend is deployed on Railway at: `https://expense-tracker-production-b501.up.railway.app`
+Your backend is deployed on Railway at: `https://expense-tracker-production-ycr.up.railway.app`
 
 ---
 
@@ -34,10 +34,10 @@ Your backend is deployed on Railway at: `https://expense-tracker-production-b501
 **Check if backend is alive:**
 ```bash
 # Method 1: Direct health check
-curl https://expense-tracker-production-b501.up.railway.app/api/health
+curl https://expense-tracker-production-ycr.up.railway.app/api/health
 
 # Method 2: Open in browser
-https://expense-tracker-production-b501.up.railway.app/api/health
+https://expense-tracker-production-ycr.up.railway.app/api/health
 ```
 
 **Expected Response:**
@@ -122,7 +122,7 @@ FRONTEND_URL=https://expense-tracker-delta-ashy.vercel.app
 **Solution:**
 ```bash
 # 1. Check health endpoint
-curl https://expense-tracker-production-b501.up.railway.app/api/health
+curl https://expense-tracker-production-ycr.up.railway.app/api/health
 
 # 2. Check Railway logs for errors
 # 3. Verify Railway domain hasn't changed
@@ -188,7 +188,7 @@ Add external monitoring to get alerts:
 1. Sign up: https://uptimerobot.com
 2. Add monitor:
    - Type: HTTP(s)
-   - URL: `https://expense-tracker-production-b501.up.railway.app/api/health`
+   - URL: `https://expense-tracker-production-ycr.up.railway.app/api/health`
    - Interval: 5 minutes
 3. Get email/SMS alerts if down
 
@@ -231,7 +231,7 @@ Add external monitoring to get alerts:
 
 1. **Check health endpoint:**
    ```bash
-   curl https://expense-tracker-production-b501.up.railway.app/api/health
+   curl https://expense-tracker-production-ycr.up.railway.app/api/health
    ```
 
 2. **Check Railway dashboard:**
