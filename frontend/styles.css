@@ -4268,37 +4268,40 @@ main {
     padding: 8px 12px;
     border: 1px solid var(--border-color);
     border-radius: 6px;
-    background: var(--input-bg);
+    background: var(--background-secondary);
     color: var(--text-primary);
 }
 
-/* Batch Gallery Grid */
+/* Batch Gallery Grid - Improved Layout */
 .batch-gallery {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 24px;
-    padding: 8px;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
+    padding: 16px 8px;
 }
 
-/* Batch Card */
+/* Batch Card - More Compact & User-Friendly */
 .batch-card {
     position: relative;
     background: var(--card-bg);
     border: 2px solid var(--border-color);
-    border-radius: 16px;
+    border-radius: 12px;
     overflow: hidden;
     transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
 }
 
 .batch-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
     border-color: var(--primary-color);
 }
 
 .batch-card.selected {
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.2);
+    box-shadow: 0 0 0 2px var(--primary-color), 0 4px 12px rgba(79, 172, 254, 0.3);
+    background: rgba(79, 172, 254, 0.05);
 }
 
 .card-checkbox {
@@ -4318,15 +4321,17 @@ main {
 .card-image {
     position: relative;
     width: 100%;
-    height: 200px;
+    height: 180px;
     overflow: hidden;
-    background: var(--section-bg);
+    background: rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .card-image img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
+    background: rgba(0, 0, 0, 0.2);
 }
 
 .card-confidence {
@@ -4372,33 +4377,39 @@ main {
 }
 
 .card-content {
-    padding: 20px;
+    padding: 16px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .card-amount {
-    font-size: 28px;
+    font-size: 32px;
     font-weight: 700;
     color: var(--primary-color);
-    margin-bottom: 16px;
+    margin-bottom: 12px;
+    text-shadow: 0 0 20px rgba(79, 172, 254, 0.3);
 }
 
 .card-details {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
+    flex: 1;
 }
 
 .detail-row {
-    display: flex;
+    display: grid;
+    grid-template-columns: 75px 1fr;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
 }
 
 .detail-row .label {
-    min-width: 80px;
     font-weight: 600;
     color: var(--text-secondary);
-    font-size: 14px;
+    font-size: 13px;
+    text-transform: capitalize;
 }
 
 .inline-input {
@@ -4406,7 +4417,7 @@ main {
     padding: 8px 12px;
     border: 1px solid var(--border-color);
     border-radius: 6px;
-    background: var(--input-bg);
+    background: var(--background-secondary);
     color: var(--text-primary);
     font-size: 14px;
     transition: all 0.2s ease;
@@ -4422,23 +4433,47 @@ main {
     border-color: var(--primary-color);
 }
 
+/* Fix select dropdown styling for dark theme */
+.inline-input select,
+select.inline-input {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23a1a1aa' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+}
+
+/* Style dropdown options for dark theme */
+.inline-input option,
+select.inline-input option {
+    background: var(--card-bg);
+    color: var(--text-primary);
+    padding: 8px;
+}
+
 .btn-delete {
     width: 100%;
-    margin-top: 16px;
-    padding: 10px;
+    margin-top: 12px;
+    padding: 8px;
     background: transparent;
-    color: var(--danger-color, #ef4444);
-    border: 1px solid var(--danger-color, #ef4444);
-    border-radius: 8px;
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.5);
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
     transition: all 0.2s ease;
 }
 
 .btn-delete:hover {
-    background: var(--danger-color, #ef4444);
-    color: white;
+    background: rgba(239, 68, 68, 0.1);
+    border-color: #ef4444;
+    transform: translateY(-1px);
+}
+
+.btn-delete:active {
+    transform: translateY(0);
 }
 
 /* Responsive */
