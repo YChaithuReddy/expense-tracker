@@ -1658,7 +1658,6 @@ main {
     right: 0;
     color: var(--text-primary);
     font-size: 2.5rem;
-    font-weight: bold;
     cursor: pointer;
     z-index: 10001;
     width: 50px;
@@ -1669,12 +1668,21 @@ main {
     border-radius: 50%;
     background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(10px);
+    border: none;
+    padding: 0;
+    pointer-events: auto;
     transition: all 0.3s ease;
 }
 
-.close-image:hover {
+.close-image:hover,
+.close-image:active {
     background: rgba(255, 255, 255, 0.2);
     transform: scale(1.1);
+}
+
+.close-image:focus {
+    outline: 2px solid rgba(79, 172, 254, 0.5);
+    outline-offset: 2px;
 }
 
 #modalImage {
@@ -1955,22 +1963,36 @@ main {
     }
 
     .close-image {
+        position: fixed;
         top: 20px;
         right: 20px;
-        width: 44px;
-        height: 44px;
+        width: 48px;
+        height: 48px;
         font-size: 2rem;
-        position: fixed; /* Fixed positioning for better accessibility */
         z-index: 10001;
         cursor: pointer;
-        background: rgba(0, 0, 0, 0.7);
-        border: none;
+        background: rgba(0, 0, 0, 0.8);
+        border: 2px solid rgba(255, 255, 255, 0.3);
         border-radius: 50%;
+        color: white;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: auto;
+        transition: all 0.2s ease;
     }
 
-    .close-image:hover {
+    .close-image:hover,
+    .close-image:active {
         background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.5);
         transform: scale(1.1);
+    }
+
+    .close-image:focus {
+        outline: 2px solid rgba(79, 172, 254, 0.5);
+        outline-offset: 2px;
     }
 
     #modalImage {
