@@ -1593,10 +1593,10 @@ class ExpenseTracker {
     }
 
     showBatchReviewUI() {
-        // Hide image preview and scan section
-        const imageUploadSection = document.getElementById('imageUploadSection');
-        if (imageUploadSection) {
-            imageUploadSection.style.display = 'none';
+        // Hide OCR section
+        const ocrSection = document.getElementById('ocrSection');
+        if (ocrSection) {
+            ocrSection.style.display = 'none';
         }
 
         // Show batch review modal
@@ -1794,13 +1794,19 @@ class ExpenseTracker {
             modal.classList.remove('active');
         }
 
-        // Show image upload section again
-        document.getElementById('imageUploadSection').style.display = 'block';
+        // Show OCR section again
+        const ocrSection = document.getElementById('ocrSection');
+        if (ocrSection) {
+            ocrSection.style.display = 'block';
+        }
 
         // Clear scanned images
         this.scannedImages = [];
         this.extractedExpenses = [];
-        document.getElementById('imagePreview').innerHTML = '<p>No images selected</p>';
+        const imagePreview = document.getElementById('imagePreview');
+        if (imagePreview) {
+            imagePreview.innerHTML = '<p>No images selected</p>';
+        }
     }
 
     async submitBatchExpenses() {
