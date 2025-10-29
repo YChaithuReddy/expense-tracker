@@ -1931,8 +1931,9 @@ main {
 
 /* Mobile responsive styles for image modal */
 @media (max-width: 768px) {
-    /* Full-screen modal wrapper with flexbox */
-    #imageModal.modal {
+    /* When image modal is displayed on mobile, apply flexbox */
+    #imageModal[style*="display: block"].modal,
+    #imageModal[style*="display: flex"].modal {
         display: flex !important;
         align-items: stretch;
         justify-content: center;
@@ -1962,6 +1963,14 @@ main {
         position: fixed; /* Fixed positioning for better accessibility */
         z-index: 10001;
         cursor: pointer;
+        background: rgba(0, 0, 0, 0.7);
+        border: none;
+        border-radius: 50%;
+    }
+
+    .close-image:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(1.1);
     }
 
     #modalImage {
