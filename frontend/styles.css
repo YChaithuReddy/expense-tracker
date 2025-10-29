@@ -4818,14 +4818,16 @@ select.inline-input option {
     .batch-gallery {
         grid-template-columns: 1fr;
         gap: 16px;
-        padding: 12px 8px;
+        padding: 0 8px 12px 8px; /* Reduced top padding, keep bottom for scrolling comfort */
+        flex: 1; /* Grow to fill modal-body space */
     }
 
     .batch-actions-bar {
         flex-direction: column;
         align-items: stretch;
-        gap: 16px;
-        padding: 16px;
+        gap: 12px;
+        padding: 12px;
+        flex-shrink: 0; /* Don't shrink, maintain size */
     }
 
     .batch-selection {
@@ -4867,17 +4869,21 @@ select.inline-input option {
         padding: 16px;
     }
 
-    /* Mobile modal adjustments */
+    /* Mobile modal adjustments - full screen */
     .modal-content {
         max-width: 100% !important;
         margin: 0 !important;
         border-radius: 16px 16px 0 0 !important;
-        max-height: 92vh !important; /* Reduced from 95vh to minimize blank space */
+        height: 100vh !important; /* Full screen height */
+        max-height: 100vh !important;
+        display: flex;
+        flex-direction: column;
     }
 
     /* Batch review modal specific mobile optimizations */
     .batch-review-modal-content {
-        max-height: 90vh !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
     }
 
     .modal-header {
@@ -4890,6 +4896,10 @@ select.inline-input option {
 
     .modal-body {
         padding: 12px !important;
+        flex: 1; /* Grow to fill available space */
+        overflow-y: auto; /* Scroll if content exceeds */
+        display: flex;
+        flex-direction: column;
     }
 
     .modal-footer {
