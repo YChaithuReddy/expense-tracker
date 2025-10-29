@@ -4870,12 +4870,20 @@ select.inline-input option {
     }
 
     /* Mobile modal adjustments - full screen */
+    .modal {
+        display: flex !important;
+        align-items: stretch; /* Stretch content to fill height */
+        justify-content: center;
+        padding: 0 !important;
+    }
+
     .modal-content {
         max-width: 100% !important;
         margin: 0 !important;
         border-radius: 16px 16px 0 0 !important;
         height: 100vh !important; /* Full screen height */
         max-height: 100vh !important;
+        width: 100% !important;
         display: flex;
         flex-direction: column;
     }
