@@ -603,11 +603,11 @@ class ExpenseTracker {
         const scanButton = document.getElementById('scanBills');
         const scanText = document.getElementById('scanText');
         const scanProgress = document.getElementById('scanProgress');
-        const progressText = document.getElementById('progressText');
 
-        scanText.style.display = 'none';
-        scanProgress.style.display = 'inline';
-        scanButton.disabled = true;
+        // Safely update UI elements with null checks
+        if (scanText) scanText.style.display = 'none';
+        if (scanProgress) scanProgress.style.display = 'inline';
+        if (scanButton) scanButton.disabled = true;
 
         // Show enhanced progress indicator
         const progressOverlay = document.createElement('div');
@@ -716,7 +716,6 @@ class ExpenseTracker {
             // Process each image separately for batch upload
             for (let i = 0; i < this.scannedImages.length; i++) {
                 const overallProgress = Math.round(((i + 1) / this.scannedImages.length) * 100);
-                progressText.textContent = `${overallProgress}%`;
 
                 const ocrProgressFill = document.getElementById('ocrProgressFill');
                 const ocrProgressText = document.getElementById('ocrProgressText');
@@ -885,9 +884,14 @@ class ExpenseTracker {
             const overlay = document.getElementById('ocrProgressOverlay');
             if (overlay) overlay.remove();
 
-            scanText.style.display = 'inline';
-            scanProgress.style.display = 'none';
-            scanButton.disabled = false;
+            // Safely restore UI elements with null checks
+            const scanButton = document.getElementById('scanBills');
+            const scanText = document.getElementById('scanText');
+            const scanProgress = document.getElementById('scanProgress');
+
+            if (scanText) scanText.style.display = 'inline';
+            if (scanProgress) scanProgress.style.display = 'none';
+            if (scanButton) scanButton.disabled = false;
         }
     }
 
