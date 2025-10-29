@@ -4943,35 +4943,13 @@ select.inline-input option {
     }
 
     .modal-footer {
-        flex-direction: row !important; /* Keep buttons side-by-side on mobile */
-        gap: 10px !important;
-        padding: 14px 16px !important;
-        justify-content: space-between;
+        flex-direction: column !important;
+        gap: 12px !important;
+        padding: 16px !important;
     }
 
     .modal-footer button {
-        flex: 1; /* Equal width buttons that share space */
-        max-width: none !important;
-        min-width: 0 !important;
-        margin: 0 !important;
-        padding: 12px 16px !important;
-        font-size: 14px !important;
-    }
-
-    /* Batch review footer mobile optimizations */
-    .batch-review-footer {
-        padding: 12px 16px !important;
-        gap: 10px !important;
-    }
-
-    .batch-review-footer button {
-        min-width: 0 !important;
-        max-width: none !important;
-        padding: 12px 20px !important;
-        font-size: 13px !important;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        width: 100% !important;
     }
 
     /* Batch card mobile optimizations */
