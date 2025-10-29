@@ -1598,7 +1598,10 @@ class ExpenseTracker {
 
     showBatchReviewUI() {
         // Hide image preview and scan section
-        document.getElementById('imageUploadSection').style.display = 'none';
+        const imageUploadSection = document.getElementById('imageUploadSection');
+        if (imageUploadSection) {
+            imageUploadSection.style.display = 'none';
+        }
 
         // Show batch review modal
         let batchModal = document.getElementById('batchReviewModal');
