@@ -1702,6 +1702,7 @@ main {
 
 /* Modal Styles */
 .modal {
+    display: none !important; /* Hidden by default - only show when explicitly opened */
     position: fixed;
     z-index: 10000;
     left: 0;
