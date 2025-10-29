@@ -196,6 +196,42 @@
       ],
       "impact": "high",
       "estimatedTime": "1-3 hours per feature"
+    },
+    {
+      "id": "layout-fixer",
+      "name": "Layout Fixer",
+      "description": "Fix UI alignment, spacing, and layout issues for professional appearance",
+      "enabled": true,
+      "priority": "high",
+      "triggers": [
+        "fix layout",
+        "alignment",
+        "spacing",
+        "misaligned",
+        "overlapping",
+        "broken layout",
+        "not aligned",
+        "fix spacing",
+        "clean layout",
+        "positioning",
+        "overflow",
+        "responsive issues"
+      ],
+      "files": [
+        ".claude/skills/layout-fixer/SKILL.md"
+      ],
+      "features": [
+        "Alignment fixes (vertical, horizontal, grid)",
+        "Consistent spacing system",
+        "Flexbox and Grid debugging",
+        "Overflow and positioning fixes",
+        "Responsive layout corrections",
+        "Form field alignment",
+        "Button group alignment",
+        "Modal centering"
+      ],
+      "impact": "high",
+      "estimatedTime": "30 minutes - 1 hour"
     }
   ],
   "config": {
@@ -217,7 +253,7 @@
   "installation": {
     "status": "installed",
     "location": ".claude/skills/",
-    "totalSkills": 6,
-    "enabledSkills": 6
+    "totalSkills": 7,
+    "enabledSkills": 7
   }
 }

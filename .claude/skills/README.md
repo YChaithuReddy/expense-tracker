@@ -2,7 +2,7 @@
 
 ## Overview
 
-This directory contains **6 specialized skills** designed specifically for your expense tracker project. These skills make redesigning and upgrading your app incredibly easy.
+This directory contains **7 specialized skills** designed specifically for your expense tracker project. These skills make redesigning and upgrading your app incredibly easy.
 
 ## Available Skills
 
@@ -112,6 +112,26 @@ This directory contains **6 specialized skills** designed specifically for your 
 
 ---
 
+### 7. 📐 **Layout Fixer**
+**Location:** `.claude/skills/layout-fixer/`
+
+**What it does:**
+- Fixes alignment issues (vertical, horizontal, grid)
+- Corrects spacing inconsistencies
+- Resolves flexbox and grid layout problems
+- Handles overflow and positioning issues
+- Fixes responsive layout breakpoints
+- Aligns form fields and buttons perfectly
+
+**Use it by saying:**
+- "Fix the card alignment"
+- "The spacing looks inconsistent"
+- "Elements are overlapping"
+- "Make the grid responsive"
+- "Fix the form layout"
+
+---
+
 ## 🎯 How to Use Skills
 
 ### Option 1: Just Talk Naturally (Easiest!)
@@ -160,6 +180,7 @@ You: "Lazy load images" → Performance Optimizer
 | Faster App | "Optimize performance" | Performance Optimizer |
 | Export Data | "Generate Excel report" | Report Generator |
 | New Feature | "Add dark mode" | Feature Upgrader |
+| Fix Layout | "Fix the alignment" | Layout Fixer |
 
 ---
 
@@ -199,6 +220,15 @@ You: "Lazy load images" → Performance Optimizer
 "Handle Indian date formats"
 ```
 
+### For Layout:
+```
+"Fix the card alignment"
+"The spacing looks inconsistent"
+"Elements are overlapping"
+"Make the form fields align properly"
+"Fix the responsive layout on mobile"
+```
+
 ---
 
 ## 📊 Skill Impact
@@ -207,6 +237,7 @@ You: "Lazy load images" → Performance Optimizer
 |-------|------------------|--------|----------|
 | Indian Receipt OCR | 2 hours | ⭐⭐⭐⭐⭐ High | High |
 | UI Redesigner | 3-4 hours | ⭐⭐⭐⭐⭐ High | High |
+| Layout Fixer | 30 min - 1 hour | ⭐⭐⭐⭐⭐ High | High |
 | Performance Optimizer | 2-3 hours | ⭐⭐⭐⭐ High | Medium |
 | Component Generator | 30 min/component | ⭐⭐⭐ Medium | Medium |
 | Report Generator | 2 hours | ⭐⭐⭐ Medium | Medium |
@@ -221,6 +252,7 @@ Each skill has a detailed `SKILL.md` file:
 ```
 .claude/skills/indian-receipt-ocr/SKILL.md
 .claude/skills/ui-redesigner/SKILL.md
+.claude/skills/layout-fixer/SKILL.md
 .claude/skills/component-generator/SKILL.md
 .claude/skills/performance-optimizer/SKILL.md
 .claude/skills/report-generator/SKILL.md
