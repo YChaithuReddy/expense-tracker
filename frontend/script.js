@@ -3756,7 +3756,8 @@ class ExpenseTracker {
 
         modalImage.src = imageData;
         imageTitle.textContent = `${imageName} - Expense #${expenseId}`;
-        modal.style.display = 'block';
+        // Use 'flex' for proper flexbox layout on all screen sizes
+        modal.style.display = 'flex';
 
         // Add keyboard support
         const handleKeyPress = (e) => {
