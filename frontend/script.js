@@ -672,9 +672,21 @@ class ExpenseTracker {
             // Show initializing status
             document.getElementById('ocrStatus').textContent = 'Initializing OCR engine...';
 
-            // Initialize Tesseract worker with optimizations
-            worker = await Tesseract.createWorker('eng', 1, {
+            // Check if Tesseract is available
+            if (typeof Tesseract === 'undefined') {
+                throw new Error('Tesseract library not loaded. Please refresh the page and try again.');
+            }
+
+            console.log('🔧 Starting Tesseract worker initialization...');
+
+            // Initialize Tesseract worker with timeout and better error handling
+            const initTimeout = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Tesseract initialization timeout (30s)')), 30000)
+            );
+
+            const workerInit = Tesseract.createWorker('eng', 1, {
                 logger: m => {
+                    console.log('Tesseract:', m.status, m.progress ? `${(m.progress * 100).toFixed(0)}%` : '');
                     if (m.status === 'recognizing text') {
                         const currentProgress = document.getElementById('ocrProgressText');
                         if (currentProgress) {
@@ -682,15 +694,24 @@ class ExpenseTracker {
                             currentProgress.textContent = `${percent}%`;
                         }
                     }
+                },
+                errorHandler: err => {
+                    console.error('❌ Tesseract error:', err);
                 }
             });
 
+            // Wait for initialization with timeout
+            worker = await Promise.race([workerInit, initTimeout]);
+            console.log('✅ Tesseract worker initialized successfully');
+
             // Configure Tesseract for better accuracy with receipts
+            console.log('⚙️ Configuring Tesseract parameters...');
             await worker.setParameters({
                 tessedit_pageseg_mode: Tesseract.PSM.AUTO,
                 tessedit_char_whitelist: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ₹Rs./-:,@&()',
                 preserve_interword_spaces: '1',
             });
+            console.log('✅ Tesseract configured successfully');
 
             // Process each image separately for batch upload
             for (let i = 0; i < this.scannedImages.length; i++) {
@@ -705,14 +726,62 @@ class ExpenseTracker {
                 if (ocrProgressText) ocrProgressText.textContent = `${overallProgress}%`;
                 if (ocrStatus) ocrStatus.textContent = `Scanning bill ${i + 1} of ${this.scannedImages.length}`;
 
-                // Perform OCR on this image
-                const result = await worker.recognize(this.scannedImages[i].data);
-                const ocrText = result.data.text;
+                console.log(`\n📸 Processing bill ${i + 1}/${this.scannedImages.length}...`);
+                console.log(`   Image: ${this.scannedImages[i].name}`);
+                console.log(`   Size: ${(this.scannedImages[i].file.size / 1024).toFixed(2)} KB`);
 
-                console.log(`📄 Bill ${i + 1} OCR confidence: ${result.data.confidence.toFixed(2)}%`);
+                let result = null;
+                let ocrText = '';
+                let retryCount = 0;
+                const maxRetries = 2;
 
-                // Extract expense data from this bill
+                // Retry logic for individual image OCR
+                while (retryCount <= maxRetries) {
+                    try {
+                        console.log(`   Attempt ${retryCount + 1}/${maxRetries + 1}...`);
+
+                        // Perform OCR on this image with timeout
+                        const ocrTimeout = new Promise((_, reject) =>
+                            setTimeout(() => reject(new Error('OCR timeout for this image (60s)')), 60000)
+                        );
+
+                        const ocrPromise = worker.recognize(this.scannedImages[i].data);
+                        result = await Promise.race([ocrPromise, ocrTimeout]);
+
+                        ocrText = result.data.text;
+                        console.log(`✅ Bill ${i + 1} OCR confidence: ${result.data.confidence.toFixed(2)}%`);
+                        console.log(`   Extracted text length: ${ocrText.length} characters`);
+
+                        // Success - break retry loop
+                        break;
+
+                    } catch (imageError) {
+                        retryCount++;
+                        console.error(`❌ OCR failed for bill ${i + 1}, attempt ${retryCount}:`, imageError.message);
+
+                        if (retryCount > maxRetries) {
+                            console.warn(`⚠️ Skipping bill ${i + 1} after ${maxRetries + 1} attempts`);
+                            // Create expense with empty OCR text (user can edit manually)
+                            ocrText = '';
+                            result = { data: { confidence: 0, text: '' } };
+                        } else {
+                            // Wait before retry
+                            await new Promise(resolve => setTimeout(resolve, 1000));
+                        }
+                    }
+                }
+
+                // Extract expense data from this bill (even if OCR failed)
                 const expenseData = this.parseReceiptText(ocrText);
+
+                // If OCR failed completely, add default values
+                if (!ocrText) {
+                    console.warn(`⚠️ Using default values for bill ${i + 1}`);
+                    expenseData.amount = expenseData.amount || '';
+                    expenseData.vendor = expenseData.vendor || 'Unknown Vendor';
+                    expenseData.date = expenseData.date || new Date().toISOString().split('T')[0];
+                    expenseData.category = 'Miscellaneous';
+                }
 
                 // Store extracted expense with image data
                 this.extractedExpenses.push({
@@ -721,7 +790,8 @@ class ExpenseTracker {
                     imageData: this.scannedImages[i].data,
                     imageName: this.scannedImages[i].name,
                     ocrText: ocrText,
-                    ocrConfidence: result.data.confidence,
+                    ocrConfidence: result ? result.data.confidence : 0,
+                    ocrFailed: !ocrText, // Flag for failed OCR
                     ...expenseData,
                     selected: true,
                     edited: false
@@ -735,21 +805,70 @@ class ExpenseTracker {
                 document.getElementById('ocrStatus').textContent = 'Processing complete!';
             }
 
+            // Check how many had OCR failures
+            const failedCount = this.extractedExpenses.filter(e => e.ocrFailed).length;
+            const successCount = this.extractedExpenses.length - failedCount;
+
+            console.log(`\n📊 OCR Results:`);
+            console.log(`   ✅ Successful: ${successCount}`);
+            console.log(`   ⚠️ Failed: ${failedCount}`);
+            console.log(`   📝 Total: ${this.extractedExpenses.length}`);
+
             // If only one bill, use the old single-bill flow
             if (this.extractedExpenses.length === 1) {
                 this.extractedData = this.extractedExpenses[0];
                 this.populateForm();
                 this.showExpenseForm();
-                this.showNotification('✅ Bill scanned successfully!');
+
+                if (this.extractedExpenses[0].ocrFailed) {
+                    this.showNotification('⚠️ OCR failed. Please enter details manually.');
+                } else {
+                    this.showNotification('✅ Bill scanned successfully!');
+                }
             } else {
                 // Multiple bills - show batch review UI
                 this.showBatchReviewUI();
-                this.showNotification(`✅ ${this.extractedExpenses.length} bills scanned successfully!`);
+
+                if (failedCount === 0) {
+                    this.showNotification(`✅ All ${this.extractedExpenses.length} bills scanned successfully!`);
+                } else if (failedCount === this.extractedExpenses.length) {
+                    this.showNotification(`⚠️ OCR failed for all bills. Please edit details manually.`);
+                } else {
+                    this.showNotification(`✅ ${successCount} bills scanned successfully. ${failedCount} need manual entry.`);
+                }
             }
 
         } catch (error) {
-            console.error('OCR Error:', error);
-            this.showError('Unable to scan the bill images.\n\nYou can enter the expense details manually below.', 'OCR Scan Failed');
+            console.error('❌ Critical OCR Error:', error);
+            console.error('Error details:', {
+                name: error.name,
+                message: error.message,
+                stack: error.stack
+            });
+
+            // This catch block only triggers if Tesseract worker fails to initialize
+            // Individual image failures are handled in the retry logic above
+
+            let errorMessage = '❌ OCR Engine Failed to Initialize\n\n';
+
+            if (error.message.includes('timeout')) {
+                errorMessage += 'The OCR engine took too long to load.\n\n';
+                errorMessage += 'Possible causes:\n';
+                errorMessage += '• Slow internet connection\n';
+                errorMessage += '• Server is slow\n\n';
+                errorMessage += '✅ Solution: Refresh the page and try again.';
+            } else if (error.message.includes('Tesseract library not loaded')) {
+                errorMessage += 'The OCR library failed to load from CDN.\n\n';
+                errorMessage += 'Possible causes:\n';
+                errorMessage += '• Ad blocker is blocking the script\n';
+                errorMessage += '• Network/firewall restrictions\n\n';
+                errorMessage += '✅ Solution: Disable ad blocker and refresh.';
+            } else {
+                errorMessage += `Technical error: ${error.message}\n\n`;
+                errorMessage += '✅ Solution: Refresh the page and try again.';
+            }
+
+            this.showError(errorMessage, 'OCR Initialization Failed');
             this.showExpenseForm();
         } finally {
             // Clean up
@@ -1535,7 +1654,7 @@ class ExpenseTracker {
 
     renderBatchGallery() {
         return this.extractedExpenses.map((expense, index) => `
-            <div class="batch-card ${expense.selected ? 'selected' : ''}" data-index="${index}">
+            <div class="batch-card ${expense.selected ? 'selected' : ''} ${expense.ocrFailed ? 'ocr-failed' : ''}" data-index="${index}">
                 <div class="card-checkbox">
                     <input type="checkbox" ${expense.selected ? 'checked' : ''}
                            onchange="expenseTracker.toggleBillSelection(${index}, this.checked)">
@@ -1543,9 +1662,15 @@ class ExpenseTracker {
 
                 <div class="card-image">
                     <img src="${expense.imageData}" alt="Bill ${index + 1}">
-                    <div class="card-confidence">
-                        <span title="OCR Confidence">${expense.ocrConfidence.toFixed(0)}%</span>
-                    </div>
+                    ${expense.ocrFailed ? `
+                        <div class="card-ocr-failed" title="OCR failed - please enter details manually">
+                            <span>⚠️ Manual Entry Required</span>
+                        </div>
+                    ` : `
+                        <div class="card-confidence">
+                            <span title="OCR Confidence">${expense.ocrConfidence.toFixed(0)}%</span>
+                        </div>
+                    `}
                 </div>
 
                 <div class="card-content">
