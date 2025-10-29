@@ -3,6 +3,7 @@ class ExpenseTracker {
         this.expenses = [];
         this.scannedImages = [];
         this.extractedData = {};
+        this.extractedExpenses = []; // Store multiple extracted bills for batch upload
         this.lastSyncedIndex = this.loadLastSyncedIndex(); // Track last synced expense
         this.editingExpenseId = null; // Track which expense is being edited
 
@@ -340,7 +341,8 @@ class ExpenseTracker {
 
         // File size validation
         const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB per file
-        const MAX_TOTAL_SIZE = 20 * 1024 * 1024; // 20MB total
+        const MAX_TOTAL_SIZE = 100 * 1024 * 1024; // 100MB total (for batch uploads)
+        const MAX_FILES = 20; // Maximum 20 files for batch upload
         const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic'];
 
         // Prevent multiple simultaneous processing
@@ -436,6 +438,19 @@ class ExpenseTracker {
         }
 
         try {
+            // Validate number of files
+            if (files.length > MAX_FILES) {
+                this.showNotification(`❌ Too many files selected (${files.length}). Maximum is ${MAX_FILES} files for batch upload.`, 'error');
+                e.target.value = '';
+                this.isProcessingImages = false;
+                return;
+            }
+
+            // Show warning for large batches
+            if (files.length > 10) {
+                console.log(`⚠️ Large batch upload: ${files.length} files. This may take several minutes.`);
+            }
+
             // Validate individual file sizes and types
             for (const file of files) {
                 if (!ALLOWED_TYPES.includes(file.type)) {
@@ -456,7 +471,7 @@ class ExpenseTracker {
             // Validate total size
             const totalSize = files.reduce((sum, file) => sum + file.size, 0);
             if (totalSize > MAX_TOTAL_SIZE) {
-                this.showNotification(`❌ Total file size too large (${(totalSize / 1024 / 1024).toFixed(2)}MB). Maximum total size is 20MB.`, 'error');
+                this.showNotification(`❌ Total file size too large (${(totalSize / 1024 / 1024).toFixed(2)}MB). Maximum total size is 100MB.`, 'error');
                 e.target.value = '';
                 this.isProcessingImages = false;
                 return;
@@ -595,9 +610,6 @@ class ExpenseTracker {
         scanButton.disabled = true;
 
         // Show enhanced progress indicator
-        const previewContainer = document.getElementById('imagePreview');
-        const currentContent = previewContainer.innerHTML;
-
         const progressOverlay = document.createElement('div');
         progressOverlay.id = 'ocrProgressOverlay';
         progressOverlay.innerHTML = `
@@ -652,7 +664,8 @@ class ExpenseTracker {
 
         document.body.appendChild(progressOverlay);
 
-        let allExtractedText = '';
+        // Clear previous extracted expenses
+        this.extractedExpenses = [];
         let worker = null;
 
         try {
@@ -679,7 +692,7 @@ class ExpenseTracker {
                 preserve_interword_spaces: '1',
             });
 
-            // Process images
+            // Process each image separately for batch upload
             for (let i = 0; i < this.scannedImages.length; i++) {
                 const overallProgress = Math.round(((i + 1) / this.scannedImages.length) * 100);
                 progressText.textContent = `${overallProgress}%`;
@@ -690,33 +703,49 @@ class ExpenseTracker {
 
                 if (ocrProgressFill) ocrProgressFill.style.width = `${overallProgress}%`;
                 if (ocrProgressText) ocrProgressText.textContent = `${overallProgress}%`;
-                if (ocrStatus) ocrStatus.textContent = `Scanning image ${i + 1} of ${this.scannedImages.length}`;
+                if (ocrStatus) ocrStatus.textContent = `Scanning bill ${i + 1} of ${this.scannedImages.length}`;
 
-                // Perform OCR
+                // Perform OCR on this image
                 const result = await worker.recognize(this.scannedImages[i].data);
+                const ocrText = result.data.text;
 
-                console.log(`📄 Image ${i + 1} OCR confidence: ${result.data.confidence.toFixed(2)}%`);
-                allExtractedText += result.data.text + '\n\n';
+                console.log(`📄 Bill ${i + 1} OCR confidence: ${result.data.confidence.toFixed(2)}%`);
 
-                // Extract high confidence text for better accuracy
-                const highConfidenceText = result.data.words
-                    .filter(word => word.confidence > 60)
-                    .map(word => word.text)
-                    .join(' ');
+                // Extract expense data from this bill
+                const expenseData = this.parseReceiptText(ocrText);
 
-                console.log(`✨ High confidence text: ${highConfidenceText}`);
+                // Store extracted expense with image data
+                this.extractedExpenses.push({
+                    id: `temp_${Date.now()}_${i}`,
+                    imageFile: this.scannedImages[i].file,
+                    imageData: this.scannedImages[i].data,
+                    imageName: this.scannedImages[i].name,
+                    ocrText: ocrText,
+                    ocrConfidence: result.data.confidence,
+                    ...expenseData,
+                    selected: true,
+                    edited: false
+                });
+
+                console.log(`✅ Bill ${i + 1} extracted:`, expenseData);
             }
 
             // Update status
             if (document.getElementById('ocrStatus')) {
-                document.getElementById('ocrStatus').textContent = 'Processing extracted data...';
+                document.getElementById('ocrStatus').textContent = 'Processing complete!';
             }
 
-            this.extractedData = this.parseReceiptText(allExtractedText);
-            this.populateForm();
-            this.showExpenseForm();
-
-            this.showNotification('✅ Bill scanned successfully!');
+            // If only one bill, use the old single-bill flow
+            if (this.extractedExpenses.length === 1) {
+                this.extractedData = this.extractedExpenses[0];
+                this.populateForm();
+                this.showExpenseForm();
+                this.showNotification('✅ Bill scanned successfully!');
+            } else {
+                // Multiple bills - show batch review UI
+                this.showBatchReviewUI();
+                this.showNotification(`✅ ${this.extractedExpenses.length} bills scanned successfully!`);
+            }
 
         } catch (error) {
             console.error('OCR Error:', error);
@@ -1442,6 +1471,324 @@ class ExpenseTracker {
         // Insert warning after the date input
         element.parentNode.appendChild(warningSpan);
         console.log(`⚠️ Added date confidence warning (${(confidence * 100).toFixed(0)}%)`);
+    }
+
+    showBatchReviewUI() {
+        // Hide image preview and scan section
+        document.getElementById('imageUploadSection').style.display = 'none';
+
+        // Show batch review modal
+        let batchModal = document.getElementById('batchReviewModal');
+        if (!batchModal) {
+            // Create modal if it doesn't exist
+            batchModal = document.createElement('div');
+            batchModal.id = 'batchReviewModal';
+            batchModal.className = 'modal active';
+            document.body.appendChild(batchModal);
+        }
+
+        batchModal.innerHTML = `
+            <div class="modal-content" style="max-width: 1200px; max-height: 90vh; overflow-y: auto;">
+                <div class="modal-header">
+                    <h2>📋 Review Scanned Bills (${this.extractedExpenses.length})</h2>
+                    <button class="close-modal" onclick="expenseTracker.closeBatchReview()">&times;</button>
+                </div>
+
+                <div class="modal-body">
+                    <!-- Bulk Actions Bar -->
+                    <div class="batch-actions-bar">
+                        <div class="batch-selection">
+                            <label>
+                                <input type="checkbox" id="selectAllBills" checked onchange="expenseTracker.toggleSelectAll(this.checked)">
+                                <span>Select All</span>
+                            </label>
+                            <span class="selection-count" id="selectionCount">${this.extractedExpenses.filter(e => e.selected).length} of ${this.extractedExpenses.length} selected</span>
+                        </div>
+
+                        <div class="batch-bulk-actions">
+                            <label>
+                                <span>Apply vendor to all:</span>
+                                <input type="text" id="bulkVendor" placeholder="Enter vendor name" style="width: 200px; margin-left: 8px;">
+                                <button class="btn-secondary" onclick="expenseTracker.applyBulkVendor()" style="margin-left: 8px;">Apply</button>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Bills Gallery -->
+                    <div class="batch-gallery" id="batchGallery">
+                        ${this.renderBatchGallery()}
+                    </div>
+                </div>
+
+                <div class="modal-footer" style="display: flex; justify-content: space-between; padding: 20px;">
+                    <button class="btn-secondary" onclick="expenseTracker.closeBatchReview()">Cancel</button>
+                    <button class="btn-primary" onclick="expenseTracker.submitBatchExpenses()" id="submitBatchBtn">
+                        📤 Submit ${this.extractedExpenses.filter(e => e.selected).length} Selected Bills
+                    </button>
+                </div>
+            </div>
+        `;
+
+        batchModal.style.display = 'flex';
+        batchModal.classList.add('active');
+    }
+
+    renderBatchGallery() {
+        return this.extractedExpenses.map((expense, index) => `
+            <div class="batch-card ${expense.selected ? 'selected' : ''}" data-index="${index}">
+                <div class="card-checkbox">
+                    <input type="checkbox" ${expense.selected ? 'checked' : ''}
+                           onchange="expenseTracker.toggleBillSelection(${index}, this.checked)">
+                </div>
+
+                <div class="card-image">
+                    <img src="${expense.imageData}" alt="Bill ${index + 1}">
+                    <div class="card-confidence">
+                        <span title="OCR Confidence">${expense.ocrConfidence.toFixed(0)}%</span>
+                    </div>
+                </div>
+
+                <div class="card-content">
+                    <div class="card-amount">₹${expense.amount || '0'}</div>
+                    <div class="card-details">
+                        <div class="detail-row">
+                            <span class="label">Vendor:</span>
+                            <input type="text" class="inline-input" value="${expense.vendor || ''}"
+                                   onchange="expenseTracker.updateExpenseField(${index}, 'vendor', this.value)">
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Date:</span>
+                            <input type="date" class="inline-input" value="${expense.date || ''}"
+                                   onchange="expenseTracker.updateExpenseField(${index}, 'date', this.value)">
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Amount:</span>
+                            <input type="number" class="inline-input" value="${expense.amount || ''}" step="0.01"
+                                   onchange="expenseTracker.updateExpenseField(${index}, 'amount', this.value)">
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Category:</span>
+                            <select class="inline-input" onchange="expenseTracker.updateExpenseField(${index}, 'category', this.value)">
+                                <option value="Transportation" ${expense.category === 'Transportation' ? 'selected' : ''}>Transportation</option>
+                                <option value="Accommodation" ${expense.category === 'Accommodation' ? 'selected' : ''}>Accommodation</option>
+                                <option value="Meals" ${expense.category === 'Meals' ? 'selected' : ''}>Meals</option>
+                                <option value="Fuel" ${expense.category === 'Fuel' ? 'selected' : ''}>Fuel</option>
+                                <option value="Miscellaneous" ${expense.category === 'Miscellaneous' ? 'selected' : ''}>Miscellaneous</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button class="btn-delete" onclick="expenseTracker.removeBillFromBatch(${index})" title="Remove this bill">
+                        🗑️ Remove
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    toggleSelectAll(checked) {
+        this.extractedExpenses.forEach(expense => expense.selected = checked);
+        this.updateBatchUI();
+    }
+
+    toggleBillSelection(index, checked) {
+        this.extractedExpenses[index].selected = checked;
+        this.updateSelectionCount();
+        this.updateSubmitButton();
+    }
+
+    updateExpenseField(index, field, value) {
+        this.extractedExpenses[index][field] = value;
+        this.extractedExpenses[index].edited = true;
+        console.log(`Updated bill ${index + 1} ${field}:`, value);
+    }
+
+    applyBulkVendor() {
+        const vendor = document.getElementById('bulkVendor').value.trim();
+        if (!vendor) {
+            this.showError('Please enter a vendor name', 'Bulk Edit');
+            return;
+        }
+
+        this.extractedExpenses.forEach(expense => {
+            if (expense.selected) {
+                expense.vendor = vendor;
+                expense.edited = true;
+            }
+        });
+
+        this.updateBatchUI();
+        this.showNotification(`✅ Applied vendor "${vendor}" to ${this.extractedExpenses.filter(e => e.selected).length} bills`);
+    }
+
+    removeBillFromBatch(index) {
+        if (confirm('Remove this bill from the batch?')) {
+            this.extractedExpenses.splice(index, 1);
+            this.updateBatchUI();
+        }
+    }
+
+    updateBatchUI() {
+        const gallery = document.getElementById('batchGallery');
+        if (gallery) {
+            gallery.innerHTML = this.renderBatchGallery();
+        }
+        this.updateSelectionCount();
+        this.updateSubmitButton();
+    }
+
+    updateSelectionCount() {
+        const selectedCount = this.extractedExpenses.filter(e => e.selected).length;
+        const countElement = document.getElementById('selectionCount');
+        if (countElement) {
+            countElement.textContent = `${selectedCount} of ${this.extractedExpenses.length} selected`;
+        }
+
+        const selectAllCheckbox = document.getElementById('selectAllBills');
+        if (selectAllCheckbox) {
+            selectAllCheckbox.checked = selectedCount === this.extractedExpenses.length;
+        }
+    }
+
+    updateSubmitButton() {
+        const selectedCount = this.extractedExpenses.filter(e => e.selected).length;
+        const submitBtn = document.getElementById('submitBatchBtn');
+        if (submitBtn) {
+            submitBtn.textContent = `📤 Submit ${selectedCount} Selected Bill${selectedCount !== 1 ? 's' : ''}`;
+            submitBtn.disabled = selectedCount === 0;
+        }
+    }
+
+    closeBatchReview() {
+        const modal = document.getElementById('batchReviewModal');
+        if (modal) {
+            modal.style.display = 'none';
+            modal.classList.remove('active');
+        }
+
+        // Show image upload section again
+        document.getElementById('imageUploadSection').style.display = 'block';
+
+        // Clear scanned images
+        this.scannedImages = [];
+        this.extractedExpenses = [];
+        document.getElementById('imagePreview').innerHTML = '<p>No images selected</p>';
+    }
+
+    async submitBatchExpenses() {
+        const selectedExpenses = this.extractedExpenses.filter(e => e.selected);
+
+        if (selectedExpenses.length === 0) {
+            this.showError('Please select at least one bill to submit', 'No Bills Selected');
+            return;
+        }
+
+        // Show progress modal
+        const progressModal = document.createElement('div');
+        progressModal.id = 'batchUploadProgress';
+        progressModal.className = 'modal active';
+        progressModal.innerHTML = `
+            <div class="modal-content" style="max-width: 500px;">
+                <div class="modal-header">
+                    <h3>📤 Uploading Bills...</h3>
+                </div>
+                <div class="modal-body" style="text-align: center; padding: 30px;">
+                    <div class="upload-progress-info">
+                        <img id="currentBillImage" src="" alt="Current bill" style="max-width: 200px; max-height: 150px; margin-bottom: 20px; border-radius: 8px;">
+                        <p id="uploadStatus" style="font-size: 18px; margin: 10px 0;">Uploading bill 1 of ${selectedExpenses.length}...</p>
+                        <div class="progress-bar" style="width: 100%; height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden; margin: 20px 0;">
+                            <div id="uploadProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #4FACFE, #00F2FE); transition: width 0.3s;"></div>
+                        </div>
+                        <p id="uploadPercentage" style="font-weight: 600; color: #4FACFE;">0%</p>
+                    </div>
+                    <div id="uploadResults" style="margin-top: 20px; display: none;">
+                        <h4 style="color: #4FACFE;">Upload Complete!</h4>
+                        <p id="uploadSummary"></p>
+                        <button class="btn-primary" onclick="expenseTracker.finishBatchUpload()" style="margin-top: 20px;">Done</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(progressModal);
+
+        // Upload each expense
+        let successCount = 0;
+        let failCount = 0;
+        const failedExpenses = [];
+
+        for (let i = 0; i < selectedExpenses.length; i++) {
+            const expense = selectedExpenses[i];
+            const progress = Math.round(((i + 1) / selectedExpenses.length) * 100);
+
+            // Update progress UI
+            document.getElementById('currentBillImage').src = expense.imageData;
+            document.getElementById('uploadStatus').textContent = `Uploading bill ${i + 1} of ${selectedExpenses.length}...`;
+            document.getElementById('uploadProgressBar').style.width = `${progress}%`;
+            document.getElementById('uploadPercentage').textContent = `${progress}%`;
+
+            try {
+                // Create expense data object
+                const expenseData = {
+                    date: expense.date || new Date().toISOString().split('T')[0],
+                    time: expense.time || new Date().toTimeString().slice(0, 5),
+                    category: expense.category || 'Miscellaneous',
+                    amount: expense.amount || 0,
+                    vendor: expense.vendor || 'N/A',
+                    description: expense.description || `Bill from ${expense.vendor || 'vendor'}`
+                };
+
+                // Upload this expense
+                await api.createExpense(expenseData, [expense.imageFile]);
+                successCount++;
+                console.log(`✅ Uploaded bill ${i + 1}/${selectedExpenses.length}`);
+
+            } catch (error) {
+                console.error(`❌ Failed to upload bill ${i + 1}:`, error);
+                failCount++;
+                failedExpenses.push({ index: i + 1, error: error.message, vendor: expense.vendor });
+            }
+        }
+
+        // Show results
+        document.getElementById('uploadProgressBar').style.width = '100%';
+        document.getElementById('uploadProgressBar').style.background = successCount === selectedExpenses.length ?
+            'linear-gradient(90deg, #10b981, #059669)' : 'linear-gradient(90deg, #f59e0b, #d97706)';
+
+        const summaryHtml = `
+            <div style="text-align: left; margin-top: 15px;">
+                <p style="color: #10b981;">✅ Successfully uploaded: ${successCount}</p>
+                ${failCount > 0 ? `<p style="color: #ef4444;">❌ Failed: ${failCount}</p>` : ''}
+                ${failedExpenses.length > 0 ? `
+                    <details style="margin-top: 10px;">
+                        <summary style="cursor: pointer; color: #ef4444;">View failed bills</summary>
+                        <ul style="text-align: left; margin-top: 10px;">
+                            ${failedExpenses.map(f => `<li>Bill ${f.index} (${f.vendor}): ${f.error}</li>`).join('')}
+                        </ul>
+                    </details>
+                ` : ''}
+            </div>
+        `;
+
+        document.getElementById('uploadSummary').innerHTML = summaryHtml;
+        document.getElementById('uploadResults').style.display = 'block';
+        document.querySelector('.upload-progress-info').style.display = 'none';
+
+        // Reload expenses to show new ones
+        await this.loadExpenses();
+    }
+
+    finishBatchUpload() {
+        // Remove progress modal
+        const progressModal = document.getElementById('batchUploadProgress');
+        if (progressModal) {
+            progressModal.remove();
+        }
+
+        // Close batch review
+        this.closeBatchReview();
+
+        // Show success notification
+        this.showNotification('✅ Batch upload complete!');
     }
 
     populateForm() {

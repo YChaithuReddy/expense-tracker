@@ -370,7 +370,7 @@ router.put('/orphaned-images/:imageId/extend', async (req, res) => {
  * @desc    Create a new expense
  * @access  Private
  */
-router.post('/', upload.array('images', 5), expenseValidation, async (req, res) => {
+router.post('/', upload.array('images', 20), expenseValidation, async (req, res) => {
     try {
         const { date, time, category, amount, vendor, description } = req.body;
 
