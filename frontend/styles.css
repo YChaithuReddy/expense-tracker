@@ -1702,7 +1702,7 @@ main {
 
 /* Modal Styles */
 .modal {
-    display: none !important; /* Hidden by default - only show when explicitly opened */
+    display: none; /* Hidden by default - only show when explicitly opened */
     position: fixed;
     z-index: 10000;
     left: 0;
@@ -1712,6 +1712,14 @@ main {
     background-color: rgba(0, 0, 0, 0.8);
     backdrop-filter: blur(10px);
     animation: fadeIn 0.3s ease-out;
+}
+
+/* When modal is explicitly shown, use flexbox for proper layout */
+.modal[style*="display: flex"],
+.modal[style*="display: block"] {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
 }
 
 .modal-content {
@@ -1931,15 +1939,7 @@ main {
 
 /* Mobile responsive styles for image modal */
 @media (max-width: 768px) {
-    /* When image modal is displayed on mobile, apply flexbox */
-    #imageModal[style*="display: block"].modal,
-    #imageModal[style*="display: flex"].modal {
-        display: flex !important;
-        align-items: stretch;
-        justify-content: center;
-        padding: 0 !important;
-    }
-
+    /* Image modal layout styling for mobile - do NOT override display property here */
     .image-modal-content {
         width: 100% !important;
         height: 100vh !important;
