@@ -4562,6 +4562,8 @@ main {
     padding: 20px;
     gap: 16px;
     border-top: 1px solid var(--border-color);
+    flex-shrink: 0;
+    z-index: 100;
 }
 
 /* Make footer buttons equal width */
@@ -4569,6 +4571,8 @@ main {
     flex: 1;
     min-width: 120px;
     padding: 12px 20px;
+    pointer-events: auto;
+    cursor: pointer;
 }
 
 .bulk-vendor-input {
@@ -4986,12 +4990,25 @@ select.inline-input option {
 
     .modal-footer {
         flex-direction: column !important;
-        gap: 12px !important;
-        padding: 16px !important;
+        gap: 16px !important;
+        padding: 20px !important;
+        flex-shrink: 0;
     }
 
     .modal-footer button {
         width: 100% !important;
+        min-height: 44px;
+        pointer-events: auto !important;
+        cursor: pointer !important;
+    }
+
+    .batch-review-footer {
+        padding: 20px !important;
+    }
+
+    .batch-review-footer button {
+        min-height: 44px;
+        pointer-events: auto !important;
     }
 
     /* Batch gallery mobile - add top padding and proper spacing */
@@ -5021,21 +5038,36 @@ select.inline-input option {
     }
 
     .batch-bulk-actions label {
-        flex-direction: column;
-        align-items: stretch;
+        flex-direction: row;
+        align-items: center;
         width: 100%;
+        gap: 8px;
+    }
+
+    .batch-bulk-actions label span {
+        flex-shrink: 0;
+        font-size: 13px;
+        white-space: nowrap;
     }
 
     .bulk-vendor-input {
-        width: 100%;
+        flex: 1;
+        min-width: 0;
         margin-left: 0;
-        margin-top: 8px;
+        margin-top: 0;
+        height: 40px;
+        padding: 8px 12px;
+        font-size: 14px;
     }
 
     .btn-apply-vendor {
-        width: 100%;
+        flex-shrink: 0;
         margin-left: 0;
-        margin-top: 8px;
+        margin-top: 0;
+        min-width: 80px;
+        height: 40px;
+        padding: 8px 16px;
+        font-size: 13px;
     }
 
     .detail-row {
