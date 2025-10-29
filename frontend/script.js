@@ -107,12 +107,22 @@ class ExpenseTracker {
         // Select All checkbox
         document.getElementById('selectAllCheckbox').addEventListener('change', (e) => this.handleSelectAll(e));
 
-        // Image modal removed - feature disabled
+        // Image modal close button
+        const closeBtn = document.querySelector('.close-image');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.closeImageModal();
+            });
+        }
 
         // Close modals when clicking outside
         window.addEventListener('click', (e) => {
             if (e.target === document.getElementById('templateModal')) {
                 this.closeTemplateModal();
+            }
+            if (e.target === document.getElementById('imageModal')) {
+                this.closeImageModal();
             }
         });
 
@@ -2618,7 +2628,8 @@ class ExpenseTracker {
                 ${expense.images.length > 0 ? `
                     <div class="expense-images">
                         ${expense.images.map((img, index) => `
-                            <img src="${img.data}" alt="${img.name}">
+                            <img src="${img.data}" alt="${img.name}" title="Click to view full size"
+                                 onclick="expenseTracker.openImageModal('${img.data}', '${img.name}', '${expense.id}', ${index})">
                         `).join('')}
                     </div>
                 ` : ''}
@@ -3750,13 +3761,28 @@ class ExpenseTracker {
         document.getElementById('templateModal').style.display = 'none';
     }
 
-    // Image viewer modal feature removed - disabled functions
     openImageModal(imageData, imageName, expenseId, imageIndex) {
-        // Feature disabled - image viewer modal removed
+        const modal = document.getElementById('imageModal');
+        const modalImage = document.getElementById('modalImage');
+        const imageTitle = document.getElementById('imageTitle');
+
+        modalImage.src = imageData;
+        imageTitle.textContent = `${imageName} - Expense #${expenseId}`;
+        // Use 'flex' for proper flexbox layout on all screen sizes
+        modal.style.display = 'flex';
+
+        // Add keyboard support
+        const handleKeyPress = (e) => {
+            if (e.key === 'Escape') {
+                this.closeImageModal();
+                document.removeEventListener('keydown', handleKeyPress);
+            }
+        };
+        document.addEventListener('keydown', handleKeyPress);
     }
 
     closeImageModal() {
-        // Feature disabled - image viewer modal removed
+        document.getElementById('imageModal').style.display = 'none';
     }
 
 
@@ -4250,7 +4276,7 @@ class ExpenseTracker {
 
                                 return `
                                     <div class="image-card-modern">
-                                        <div class="image-preview-modern">
+                                        <div class="image-preview-modern" onclick="expenseTracker.openImageModal('${img.url}', '${img.filename}', 'orphaned', 0)">
                                             <img src="${img.url}" alt="${img.filename}">
                                             <div class="image-overlay-modern">
                                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
