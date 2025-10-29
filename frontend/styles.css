@@ -4223,13 +4223,40 @@ main {
 
 /* ========== BATCH UPLOAD STYLES ========== */
 
-/* Batch Actions Bar */
-.batch-actions-bar {
+/* Batch Review Modal - Desktop */
+.batch-review-modal-content {
+    max-width: 1200px;
+    max-height: 90vh;
+    overflow-y: auto;
+    margin: 20px;
+}
+
+.batch-review-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 20px;
-    background: var(--section-bg);
+    gap: 16px;
+    border-top: 1px solid var(--border-color);
+}
+
+.bulk-vendor-input {
+    width: 200px;
+    margin-left: 8px;
+}
+
+.btn-apply-vendor {
+    margin-left: 8px;
+}
+
+/* Batch Actions Bar - Improved Responsive */
+.batch-actions-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
     border-radius: 12px;
     margin-bottom: 24px;
     flex-wrap: wrap;
@@ -4240,6 +4267,7 @@ main {
     display: flex;
     align-items: center;
     gap: 16px;
+    flex-wrap: wrap;
 }
 
 .batch-selection label {
@@ -4490,36 +4518,144 @@ select.inline-input option {
         gap: 20px;
         padding: 16px;
     }
+
+    .batch-review-modal-content {
+        max-width: 95%;
+        margin: 10px;
+    }
+
+    .batch-actions-bar {
+        padding: 16px;
+    }
+
+    .bulk-vendor-input {
+        width: 180px;
+    }
 }
 
 @media (max-width: 768px) {
     .batch-gallery {
         grid-template-columns: 1fr;
         gap: 16px;
-        padding: 12px;
+        padding: 12px 8px;
     }
 
     .batch-actions-bar {
         flex-direction: column;
         align-items: stretch;
-        gap: 12px;
+        gap: 16px;
+        padding: 16px;
+    }
+
+    .batch-selection {
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+    }
+
+    .batch-bulk-actions {
+        width: 100%;
     }
 
     .batch-bulk-actions label {
+        display: flex;
         flex-direction: column;
         align-items: stretch;
+        gap: 8px;
+        width: 100%;
     }
 
-    .batch-bulk-actions input {
+    .batch-bulk-actions input,
+    .bulk-vendor-input {
+        width: 100% !important;
+        margin: 0 !important;
+        box-sizing: border-box;
+    }
+
+    .batch-bulk-actions button,
+    .btn-apply-vendor {
         width: 100%;
-        margin: 8px 0;
+        margin: 0 !important;
     }
 
     .card-image {
-        height: 250px;
+        height: 220px;
     }
 
     .card-content {
         padding: 16px;
+    }
+
+    /* Mobile modal adjustments */
+    .modal-content {
+        max-width: 100% !important;
+        margin: 0 !important;
+        border-radius: 16px 16px 0 0 !important;
+        max-height: 95vh !important;
+    }
+
+    .modal-header {
+        padding: 16px !important;
+    }
+
+    .modal-header h2 {
+        font-size: 1.2rem !important;
+    }
+
+    .modal-body {
+        padding: 12px !important;
+    }
+
+    .modal-footer {
+        flex-direction: column !important;
+        gap: 12px !important;
+        padding: 16px !important;
+    }
+
+    .modal-footer button {
+        width: 100% !important;
+        margin: 0 !important;
+    }
+
+    /* Batch card mobile optimizations */
+    .batch-card {
+        border-radius: 12px;
+    }
+
+    .detail-row {
+        grid-template-columns: 70px 1fr;
+        gap: 8px;
+    }
+
+    .detail-row .label {
+        font-size: 13px;
+    }
+
+    .inline-input {
+        font-size: 14px;
+        padding: 8px 12px;
+    }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+    .batch-gallery {
+        padding: 8px 4px;
+    }
+
+    .batch-actions-bar {
+        padding: 12px;
+    }
+
+    .card-image {
+        height: 180px;
+    }
+
+    .card-amount {
+        font-size: 28px;
+    }
+
+    .modal-content {
+        border-radius: 12px 12px 0 0 !important;
     }
 }
