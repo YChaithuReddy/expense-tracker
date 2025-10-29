@@ -107,8 +107,14 @@ class ExpenseTracker {
         // Select All checkbox
         document.getElementById('selectAllCheckbox').addEventListener('change', (e) => this.handleSelectAll(e));
 
-        // Image modal
-        document.querySelector('.close-image').addEventListener('click', () => this.closeImageModal());
+        // Image modal close button
+        const closeBtn = document.querySelector('.close-image');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.closeImageModal();
+            });
+        }
 
         // Close modals when clicking outside
         window.addEventListener('click', (e) => {
