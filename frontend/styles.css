@@ -4567,17 +4567,16 @@ main {
 /* Make footer buttons equal width */
 .batch-review-footer button {
     flex: 1;
-    min-width: 120px;
-    padding: 12px 20px;
+    min-width: 150px;
+    max-width: 250px;
 }
 
 .bulk-vendor-input {
-    flex: 0 0 200px;
+    width: 200px;
     margin-left: 8px;
 }
 
 .btn-apply-vendor {
-    flex-shrink: 0;
     margin-left: 8px;
 }
 
@@ -4622,13 +4621,13 @@ main {
 .selection-count {
     color: var(--primary-color);
     font-weight: 600;
-    padding: 8px 14px;
+    padding: 6px 12px;
     background: rgba(79, 172, 254, 0.1);
     border-radius: 6px;
-    display: flex;
+    line-height: 1;
+    display: inline-flex;
     align-items: center;
-    height: auto;
-    white-space: nowrap;
+    height: 30px; /* Match checkbox + label height for alignment */
 }
 
 .batch-bulk-actions label {
@@ -4648,10 +4647,9 @@ main {
 /* Batch Gallery Grid - Improved Layout */
 .batch-gallery {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); /* Reduced from 480px for better tablet support */
     gap: 24px;
-    padding: 16px;
-    place-items: center;
+    padding: 20px 16px;
 }
 
 /* Batch Card - More Compact & User-Friendly */
@@ -4717,7 +4715,6 @@ main {
     position: absolute;
     top: 16px;
     right: 16px;
-    z-index: 20;
     background: rgba(0, 0, 0, 0.75);
     backdrop-filter: blur(4px);
     color: white;
@@ -4732,7 +4729,6 @@ main {
     top: 16px;
     right: 16px;
     left: 16px;
-    z-index: 20;
     background: rgba(239, 68, 68, 0.9);
     backdrop-filter: blur(4px);
     color: white;
@@ -4783,9 +4779,9 @@ main {
 
 .detail-row {
     display: grid;
-    grid-template-columns: minmax(60px, auto) 1fr;
+    grid-template-columns: 75px 1fr; /* Reduced from 85px for tighter, more efficient layout */
     align-items: center;
-    gap: 12px;
+    gap: 10px; /* Reduced from 12px for tighter spacing */
 }
 
 .detail-row .label {
@@ -4807,13 +4803,6 @@ main {
 }
 
 .inline-input:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-    border-color: var(--primary-color);
-}
-
-/* Old :focus state */
-.inline-input-old-focus {
     outline: none;
     border-color: var(--primary-color);
     box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
@@ -4994,53 +4983,14 @@ select.inline-input option {
         width: 100% !important;
     }
 
-    /* Batch gallery mobile - add top padding and proper spacing */
-    .batch-gallery {
-        padding: 12px 12px 12px 12px;
-        gap: 16px;
-        grid-template-columns: 1fr;
-    }
-
     /* Batch card mobile optimizations */
     .batch-card {
         border-radius: 12px;
-        width: 100%;
-        max-width: 360px;
-    }
-
-    .batch-actions-bar {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 12px;
-    }
-
-    .batch-selection {
-        flex-direction: column;
-        align-items: flex-start;
-        width: 100%;
-    }
-
-    .batch-bulk-actions label {
-        flex-direction: column;
-        align-items: stretch;
-        width: 100%;
-    }
-
-    .bulk-vendor-input {
-        width: 100%;
-        margin-left: 0;
-        margin-top: 8px;
-    }
-
-    .btn-apply-vendor {
-        width: 100%;
-        margin-left: 0;
-        margin-top: 8px;
     }
 
     .detail-row {
-        grid-template-columns: minmax(50px, auto) 1fr;
-        gap: 10px;
+        grid-template-columns: 70px 1fr;
+        gap: 8px;
     }
 
     .detail-row .label {
