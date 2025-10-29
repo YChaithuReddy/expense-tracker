@@ -4275,9 +4275,9 @@ main {
 /* Batch Gallery Grid - Improved Layout */
 .batch-gallery {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 20px;
-    padding: 16px 8px;
+    grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
+    gap: 24px;
+    padding: 20px 16px;
 }
 
 /* Batch Card - More Compact & User-Friendly */
@@ -4306,14 +4306,18 @@ main {
 
 .card-checkbox {
     position: absolute;
-    top: 12px;
-    left: 12px;
+    top: 16px;
+    left: 16px;
     z-index: 10;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    padding: 4px;
+    border-radius: 6px;
 }
 
 .card-checkbox input[type="checkbox"] {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     cursor: pointer;
     accent-color: var(--primary-color);
 }
@@ -4321,7 +4325,7 @@ main {
 .card-image {
     position: relative;
     width: 100%;
-    height: 180px;
+    height: 280px;
     overflow: hidden;
     background: rgba(0, 0, 0, 0.3);
     border-bottom: 1px solid var(--border-color);
@@ -4332,30 +4336,33 @@ main {
     height: 100%;
     object-fit: contain;
     background: rgba(0, 0, 0, 0.2);
+    padding: 8px;
 }
 
 .card-confidence {
     position: absolute;
-    top: 12px;
-    right: 12px;
-    background: rgba(0, 0, 0, 0.7);
+    top: 16px;
+    right: 16px;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
     color: white;
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-size: 12px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 14px;
     font-weight: 600;
 }
 
 .card-ocr-failed {
     position: absolute;
-    top: 12px;
-    right: 12px;
-    left: 12px;
+    top: 16px;
+    right: 16px;
+    left: 16px;
     background: rgba(239, 68, 68, 0.9);
+    backdrop-filter: blur(4px);
     color: white;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 11px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
     font-weight: 600;
     text-align: center;
     animation: pulse-warning 2s infinite;
@@ -4377,49 +4384,49 @@ main {
 }
 
 .card-content {
-    padding: 16px;
+    padding: 20px;
     flex: 1;
     display: flex;
     flex-direction: column;
 }
 
 .card-amount {
-    font-size: 32px;
+    font-size: 36px;
     font-weight: 700;
     color: var(--primary-color);
-    margin-bottom: 12px;
+    margin-bottom: 16px;
     text-shadow: 0 0 20px rgba(79, 172, 254, 0.3);
 }
 
 .card-details {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 14px;
     flex: 1;
 }
 
 .detail-row {
     display: grid;
-    grid-template-columns: 75px 1fr;
+    grid-template-columns: 85px 1fr;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
 }
 
 .detail-row .label {
     font-weight: 600;
     color: var(--text-secondary);
-    font-size: 13px;
+    font-size: 14px;
     text-transform: capitalize;
 }
 
 .inline-input {
     flex: 1;
-    padding: 8px 12px;
+    padding: 10px 14px;
     border: 1px solid var(--border-color);
-    border-radius: 6px;
+    border-radius: 8px;
     background: var(--background-secondary);
     color: var(--text-primary);
-    font-size: 14px;
+    font-size: 15px;
     transition: all 0.2s ease;
 }
 
@@ -4477,15 +4484,25 @@ select.inline-input option {
 }
 
 /* Responsive */
+@media (max-width: 1024px) {
+    .batch-gallery {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 16px;
+    }
+}
+
 @media (max-width: 768px) {
     .batch-gallery {
         grid-template-columns: 1fr;
         gap: 16px;
+        padding: 12px;
     }
 
     .batch-actions-bar {
         flex-direction: column;
         align-items: stretch;
+        gap: 12px;
     }
 
     .batch-bulk-actions label {
@@ -4500,5 +4517,9 @@ select.inline-input option {
 
     .card-image {
         height: 250px;
+    }
+
+    .card-content {
+        padding: 16px;
     }
 }
