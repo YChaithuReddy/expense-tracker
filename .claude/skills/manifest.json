@@ -1,0 +1,223 @@
+{
+  "version": "1.0.0",
+  "project": "Expense Tracker",
+  "description": "Custom skills for redesigning and upgrading the expense tracker",
+  "skills": [
+    {
+      "id": "indian-receipt-ocr",
+      "name": "Indian Receipt OCR Enhancement",
+      "description": "Dramatically improve OCR accuracy for Indian bills with vendor-specific patterns",
+      "enabled": true,
+      "priority": "high",
+      "triggers": [
+        "ocr",
+        "scan",
+        "receipt",
+        "bill",
+        "invoice",
+        "accuracy",
+        "not reading",
+        "wrong amount",
+        "swiggy",
+        "zomato",
+        "uber",
+        "₹",
+        "rupees"
+      ],
+      "files": [
+        ".claude/skills/indian-receipt-ocr/SKILL.md"
+      ],
+      "features": [
+        "95% accuracy for Indian receipts",
+        "20+ vendor-specific patterns",
+        "GST extraction (CGST, SGST, IGST)",
+        "Indian date format support",
+        "Currency pattern recognition",
+        "Confidence scoring"
+      ],
+      "impact": "high",
+      "estimatedTime": "2 hours to implement"
+    },
+    {
+      "id": "ui-redesigner",
+      "name": "UI Redesigner",
+      "description": "Transform UI with modern design patterns, animations, and responsive layouts",
+      "enabled": true,
+      "priority": "high",
+      "triggers": [
+        "redesign",
+        "improve ui",
+        "make it look better",
+        "modern design",
+        "professional",
+        "animations",
+        "glassmorphism",
+        "responsive",
+        "mobile",
+        "ugly",
+        "boring"
+      ],
+      "files": [
+        ".claude/skills/ui-redesigner/SKILL.md"
+      ],
+      "features": [
+        "Premium glassmorphism effects",
+        "Smooth animations",
+        "Responsive design patterns",
+        "Modern color schemes",
+        "Professional buttons and forms",
+        "Loading states",
+        "Toast notifications"
+      ],
+      "impact": "high",
+      "estimatedTime": "3-4 hours to implement"
+    },
+    {
+      "id": "component-generator",
+      "name": "Component Generator",
+      "description": "Generate reusable UI components with consistent styling",
+      "enabled": true,
+      "priority": "medium",
+      "triggers": [
+        "create component",
+        "add a",
+        "build a",
+        "generate",
+        "modal",
+        "card",
+        "button",
+        "form",
+        "chart",
+        "dropdown",
+        "toast"
+      ],
+      "files": [
+        ".claude/skills/component-generator/SKILL.md"
+      ],
+      "features": [
+        "Modal dialogs",
+        "Expense cards",
+        "Form components",
+        "Chart components",
+        "Loading skeletons",
+        "Toast notifications",
+        "Ready-to-use templates"
+      ],
+      "impact": "medium",
+      "estimatedTime": "30 minutes per component"
+    },
+    {
+      "id": "performance-optimizer",
+      "name": "Performance Optimizer",
+      "description": "Make app faster through lazy loading, caching, and optimization",
+      "enabled": true,
+      "priority": "medium",
+      "triggers": [
+        "slow",
+        "performance",
+        "optimize",
+        "speed up",
+        "lag",
+        "loading time",
+        "images take long",
+        "freezes"
+      ],
+      "files": [
+        ".claude/skills/performance-optimizer/SKILL.md"
+      ],
+      "features": [
+        "Image lazy loading",
+        "Virtual scrolling",
+        "API response caching",
+        "Debounced search",
+        "Code splitting",
+        "IndexedDB offline storage"
+      ],
+      "impact": "high",
+      "estimatedTime": "2-3 hours to implement"
+    },
+    {
+      "id": "report-generator",
+      "name": "Report Generator",
+      "description": "Generate professional Excel and PDF reports with charts and branding",
+      "enabled": true,
+      "priority": "medium",
+      "triggers": [
+        "generate report",
+        "export",
+        "reimbursement",
+        "excel",
+        "pdf",
+        "monthly report",
+        "expense summary"
+      ],
+      "files": [
+        ".claude/skills/report-generator/SKILL.md"
+      ],
+      "features": [
+        "Excel reports with formulas",
+        "PDF generation",
+        "Professional formatting",
+        "Charts and graphs",
+        "GST breakdown",
+        "Company branding"
+      ],
+      "impact": "medium",
+      "estimatedTime": "2 hours to implement"
+    },
+    {
+      "id": "feature-upgrader",
+      "name": "Feature Upgrader",
+      "description": "Add new features like dark mode, budget tracking, recurring expenses",
+      "enabled": true,
+      "priority": "medium",
+      "triggers": [
+        "add feature",
+        "implement",
+        "upgrade",
+        "add support",
+        "dark mode",
+        "budget",
+        "recurring",
+        "analytics",
+        "duplicate detection"
+      ],
+      "files": [
+        ".claude/skills/feature-upgrader/SKILL.md"
+      ],
+      "features": [
+        "Dark mode",
+        "Budget tracking with alerts",
+        "Recurring expenses",
+        "Smart category suggestions",
+        "Duplicate detection",
+        "Multi-currency support",
+        "Google Sheets export"
+      ],
+      "impact": "high",
+      "estimatedTime": "1-3 hours per feature"
+    }
+  ],
+  "config": {
+    "autoLoad": true,
+    "enableAnalytics": false,
+    "cacheTimeout": 3600,
+    "maxConcurrentSkills": 3
+  },
+  "usage": {
+    "howToUse": "Just describe what you want in natural language, and Claude will automatically activate the right skill",
+    "examples": [
+      "Make the OCR read Indian receipts better",
+      "Redesign the expense cards",
+      "Add a dark mode",
+      "Generate an Excel report",
+      "Make the app faster"
+    ]
+  },
+  "installation": {
+    "status": "installed",
+    "location": ".claude/skills/",
+    "totalSkills": 6,
+    "enabledSkills": 6
+  }
+}
