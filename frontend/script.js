@@ -1614,7 +1614,7 @@ class ExpenseTracker {
         }
 
         batchModal.innerHTML = `
-            <div class="modal-content" style="max-width: 1200px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-content batch-review-modal-content">
                 <div class="modal-header">
                     <h2>📋 Review Scanned Bills (${this.extractedExpenses.length})</h2>
                     <button class="close-modal" onclick="expenseTracker.closeBatchReview()">&times;</button>
@@ -1634,8 +1634,8 @@ class ExpenseTracker {
                         <div class="batch-bulk-actions">
                             <label>
                                 <span>Apply vendor to all:</span>
-                                <input type="text" id="bulkVendor" placeholder="Enter vendor name" style="width: 200px; margin-left: 8px;">
-                                <button class="btn-secondary" onclick="expenseTracker.applyBulkVendor()" style="margin-left: 8px;">Apply</button>
+                                <input type="text" id="bulkVendor" placeholder="Enter vendor name" class="bulk-vendor-input">
+                                <button class="btn-secondary btn-apply-vendor" onclick="expenseTracker.applyBulkVendor()">Apply</button>
                             </label>
                         </div>
                     </div>
@@ -1646,9 +1646,9 @@ class ExpenseTracker {
                     </div>
                 </div>
 
-                <div class="modal-footer" style="display: flex; justify-content: space-between; padding: 20px;">
-                    <button class="btn-secondary" onclick="expenseTracker.closeBatchReview()">Cancel</button>
-                    <button class="btn-primary" onclick="expenseTracker.submitBatchExpenses()" id="submitBatchBtn">
+                <div class="modal-footer batch-review-footer">
+                    <button class="btn-secondary btn-cancel" onclick="expenseTracker.closeBatchReview()">Cancel</button>
+                    <button class="btn-primary btn-submit" onclick="expenseTracker.submitBatchExpenses()" id="submitBatchBtn">
                         📤 Submit ${this.extractedExpenses.filter(e => e.selected).length} Selected Bills
                     </button>
                 </div>
