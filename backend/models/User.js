@@ -21,9 +21,34 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: [true, 'Please provide a password'],
+        required: function() {
+            // Password only required for local authentication
+            return this.authProvider === 'local';
+        },
         minlength: [6, 'Password must be at least 6 characters'],
         select: false // Don't return password by default
+    },
+    googleId: {
+        type: String,
+        unique: true,
+        sparse: true
+    },
+    authProvider: {
+        type: String,
+        enum: ['local', 'google'],
+        default: 'local'
+    },
+    profilePicture: {
+        type: String,
+        default: null
+    },
+    emailVerified: {
+        type: Boolean,
+        default: false
+    },
+    lastLogin: {
+        type: Date,
+        default: Date.now
     },
     resetPasswordToken: String,
     resetPasswordExpire: Date,
@@ -49,8 +74,13 @@ const userSchema = new mongoose.Schema({
 
 // Hash password before saving
 userSchema.pre('save', async function(next) {
-    // Only hash the password if it has been modified (or is new)
-    if (!this.isModified('password')) {
+    // Skip password hashing for Google OAuth users
+    if (this.authProvider !== 'local' || !this.isModified('password')) {
+        return next();
+    }
+
+    // Only hash if there's a password to hash
+    if (!this.password) {
         return next();
     }
 
@@ -66,6 +96,12 @@ userSchema.pre('save', async function(next) {
 // Method to compare password
 userSchema.methods.comparePassword = async function(enteredPassword) {
     return await bcrypt.compare(enteredPassword, this.password);
+};
+
+// Method to update last login
+userSchema.methods.updateLastLogin = async function() {
+    this.lastLogin = Date.now();
+    await this.save({ validateBeforeSave: false });
 };
 
 // Method to get user without password

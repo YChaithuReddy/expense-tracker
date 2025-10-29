@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
+const passport = require('passport');
 const User = require('../models/User');
-const { sendTokenResponse } = require('../utils/jwt');
+const { sendTokenResponse, generateToken } = require('../utils/jwt');
 const { registerValidation, loginValidation } = require('../utils/validators');
 const { protect } = require('../middleware/auth');
 
@@ -188,5 +189,59 @@ router.put('/updatepassword', protect, async (req, res) => {
         });
     }
 });
+
+/**
+ * @route   GET /api/auth/google
+ * @desc    Initiate Google OAuth login
+ * @access  Public
+ */
+router.get('/google',
+    passport.authenticate('google', {
+        scope: ['profile', 'email'],
+        prompt: 'select_account'
+    })
+);
+
+/**
+ * @route   GET /api/auth/google/callback
+ * @desc    Google OAuth callback
+ * @access  Public
+ */
+router.get('/google/callback',
+    passport.authenticate('google', {
+        session: false,
+        failureRedirect: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/login.html?error=google_auth_failed`
+    }),
+    async (req, res) => {
+        try {
+            // Update last login
+            await req.user.updateLastLogin();
+
+            // Generate JWT token
+            const token = generateToken(req.user._id);
+
+            // Determine frontend URL
+            const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+
+            // Prepare user data for frontend
+            const userData = {
+                id: req.user._id,
+                name: req.user.name,
+                email: req.user.email,
+                profilePicture: req.user.profilePicture || null,
+                authProvider: 'google'
+            };
+
+            // Redirect to frontend with token and user info
+            const redirectUrl = `${frontendUrl}/login.html?token=${encodeURIComponent(token)}&user=${encodeURIComponent(JSON.stringify(userData))}&authProvider=google`;
+
+            res.redirect(redirectUrl);
+
+        } catch (error) {
+            console.error('Google callback error:', error);
+            res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/login.html?error=auth_error`);
+        }
+    }
+);
 
 module.exports = router;

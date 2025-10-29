@@ -4,7 +4,12 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
+const session = require('express-session');
+const passport = require('passport');
 require('dotenv').config();
+
+// Initialize Passport configuration
+require('./config/passport');
 
 const authRoutes = require('./routes/auth');
 const expenseRoutes = require('./routes/expenses');
@@ -15,21 +20,21 @@ const app = express();
 // Trust proxy - Required for Railway/Heroku deployment behind reverse proxy
 app.set('trust proxy', 1);
 
-// Security Middleware - Configured for mobile compatibility
+// Security Middleware - Configured for mobile compatibility and Google OAuth
 app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
     crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", "'unsafe-inline'", "https://vercel.app", "https://*.vercel.app"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "https://vercel.app", "https://*.vercel.app", "https://accounts.google.com"],
             styleSrc: ["'self'", "'unsafe-inline'", "https://vercel.app", "https://*.vercel.app"],
-            imgSrc: ["'self'", "data:", "blob:", "https://res.cloudinary.com", "https://*.cloudinary.com"],
-            connectSrc: ["'self'", "https://vercel.app", "https://*.vercel.app", "https://railway.app", "https://*.railway.app"],
+            imgSrc: ["'self'", "data:", "blob:", "https://res.cloudinary.com", "https://*.cloudinary.com", "https://*.googleusercontent.com"],
+            connectSrc: ["'self'", "https://vercel.app", "https://*.vercel.app", "https://railway.app", "https://*.railway.app", "https://accounts.google.com"],
             fontSrc: ["'self'", "data:"],
             objectSrc: ["'none'"],
             mediaSrc: ["'self'", "blob:", "data:"],
-            frameSrc: ["'none'"]
+            frameSrc: ["'self'", "https://accounts.google.com"]
         }
     }
 }));
@@ -73,6 +78,22 @@ app.options('*', cors(corsOptions));
 // Body Parser Middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Session Configuration (Required for Passport)
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'your-secret-key-change-this',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: process.env.NODE_ENV === 'production', // HTTPS in production
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
+}));
+
+// Initialize Passport
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Logging Middleware
 if (process.env.NODE_ENV === 'development') {
