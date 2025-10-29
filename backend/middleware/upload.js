@@ -37,7 +37,7 @@ const upload = multer({
     fileFilter: fileFilter,
     limits: {
         fileSize: 5 * 1024 * 1024, // 5MB max file size
-        files: 5 // Max 5 files per upload
+        files: 20 // Max 20 files per upload (for batch bill upload)
     }
 });
 

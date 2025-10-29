@@ -76,8 +76,8 @@ app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 
 // Body Parser Middleware
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: '100mb' })); // Increased for batch bill uploads
+app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 
 // Session Configuration (Required for Passport)
 app.use(session({
