@@ -1945,10 +1945,11 @@ main {
         margin: 0 !important;
         display: flex;
         flex-direction: column;
-        justify-content: center;
+        justify-content: space-between;
         align-items: center;
-        padding: 20px;
+        padding: 60px 20px 20px 20px;
         animation: none; /* Disable zoom animation on mobile */
+        position: relative;
     }
 
     .close-image {
@@ -1959,26 +1960,30 @@ main {
         font-size: 2rem;
         position: fixed; /* Fixed positioning for better accessibility */
         z-index: 10001;
+        cursor: pointer;
     }
 
     #modalImage {
-        max-width: 95%;
-        max-height: 85vh;
+        max-width: 98%;
+        max-height: 80vh;
         width: auto;
         height: auto;
         object-fit: contain;
         border-radius: 12px;
+        flex: 1;
+        display: flex;
+        align-items: center;
     }
 
     .image-info {
-        margin-top: 20px;
-        padding: 12px 20px;
+        padding: 16px 20px;
         font-size: 14px;
         width: 100%;
         text-align: center;
         background: rgba(0, 0, 0, 0.6);
         backdrop-filter: blur(10px);
         border-radius: 10px;
+        margin-top: 16px;
     }
 
     .modal-content {
