@@ -1966,10 +1966,13 @@ class ExpenseTracker {
     }
 
     closeBatchReview() {
+        console.log('Closing batch review modal');
+
         const modal = document.getElementById('batchReviewModal');
         if (modal) {
             modal.style.display = 'none';
             modal.classList.remove('active');
+            console.log('Batch review modal closed');
         }
 
         // Show OCR section again
@@ -1978,13 +1981,45 @@ class ExpenseTracker {
             ocrSection.style.display = 'block';
         }
 
-        // Clear scanned images
+        // Clear scanned images and extracted expenses
         this.scannedImages = [];
         this.extractedExpenses = [];
+        this.extractedData = {};
+
+        // Reset the image preview to show drag hint
         const imagePreview = document.getElementById('imagePreview');
         if (imagePreview) {
-            imagePreview.innerHTML = '<p>No images selected</p>';
+            // Clear all content
+            imagePreview.innerHTML = '';
+            // Restore the drag hint
+            const dragHintHtml = `
+                <div id="dragDropHint" class="drag-drop-hint">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <p>Drag & drop images here</p>
+                    <p class="text-muted">or use the Camera/Gallery buttons above</p>
+                </div>
+            `;
+            imagePreview.innerHTML = dragHintHtml;
+            imagePreview.className = 'image-preview-container drag-drop-zone';
         }
+
+        // Hide scan button
+        const scanBtn = document.getElementById('scanBills');
+        if (scanBtn) {
+            scanBtn.style.display = 'none';
+        }
+
+        // Clear file input
+        const fileInput = document.getElementById('billImages');
+        if (fileInput) {
+            fileInput.value = '';
+        }
+
+        console.log('Batch review cleanup complete');
     }
 
     async submitBatchExpenses() {
@@ -2160,26 +2195,77 @@ class ExpenseTracker {
             </div>
         `;
 
-        document.getElementById('uploadSummary').innerHTML = summaryHtml;
-        document.getElementById('uploadResults').style.display = 'block';
-        document.querySelector('.upload-progress-info').style.display = 'none';
+        // Safely update the UI elements
+        const uploadSummaryElement = document.getElementById('uploadSummary');
+        const uploadResultsElement = document.getElementById('uploadResults');
+        const uploadProgressInfo = document.querySelector('.upload-progress-info');
+
+        if (uploadSummaryElement) {
+            uploadSummaryElement.innerHTML = summaryHtml;
+        } else {
+            console.error('uploadSummary element not found');
+        }
+
+        if (uploadResultsElement) {
+            uploadResultsElement.style.display = 'block';
+        } else {
+            console.error('uploadResults element not found');
+        }
+
+        if (uploadProgressInfo) {
+            uploadProgressInfo.style.display = 'none';
+        } else {
+            console.error('upload-progress-info element not found');
+        }
 
         // Reload expenses to show new ones
         await this.loadExpenses();
+
+        // If all uploads were successful, auto-close after a delay
+        if (failCount === 0 && successCount > 0) {
+            console.log(`All ${successCount} bills uploaded successfully, auto-closing in 3 seconds`);
+
+            // Show success message immediately
+            this.showNotification(`✅ Successfully uploaded ${successCount} bill(s)!`);
+            this.batchUploadNotificationShown = true; // Mark as shown
+
+            // Auto close after 3 seconds
+            setTimeout(() => {
+                this.finishBatchUpload();
+            }, 3000);
+        } else if (failCount > 0) {
+            // If there were failures, show the results but don't auto-close
+            console.log(`Upload completed with ${failCount} failures`);
+            this.showNotification(`⚠️ Uploaded ${successCount} bill(s), ${failCount} failed. Check details below.`);
+        }
     }
 
     finishBatchUpload() {
+        console.log('Finishing batch upload and closing modals');
+
         // Remove progress modal
         const progressModal = document.getElementById('batchUploadProgress');
         if (progressModal) {
             progressModal.remove();
+            console.log('Removed progress modal');
         }
 
-        // Close batch review
+        // Close batch review modal
         this.closeBatchReview();
 
-        // Show success notification
-        this.showNotification('✅ Batch upload complete!');
+        // Update the UI to show the new expenses
+        this.renderExpenses();
+        this.updateTotals();
+
+        // Clear the extracted expenses
+        this.extractedExpenses = [];
+        this.scannedImages = [];
+
+        // Show success notification (if not already shown)
+        if (!this.batchUploadNotificationShown) {
+            this.showNotification('✅ Batch upload complete!');
+            this.batchUploadNotificationShown = false; // Reset for next time
+        }
     }
 
     populateForm() {
