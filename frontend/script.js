@@ -203,11 +203,21 @@ class ExpenseTracker {
     // Compress image before processing
     async compressImage(file, maxWidth = 1200, quality = 0.8) {
         return new Promise((resolve, reject) => {
-            // Set a timeout to prevent hanging
+            console.log(`Starting compression for ${file.name} (${(file.size/1024).toFixed(1)}KB, type: ${file.type || 'unknown'})`);
+
+            // For now, skip compression for ALL files to ensure they work
+            // We can re-enable compression once we fix the timeout issues
+            if (true || file.size < 500 * 1024) {
+                console.log(`${file.name}: Using original file (compression temporarily disabled)`);
+                resolve(file);
+                return;
+            }
+
+            // Set a longer timeout to prevent hanging
             const timeout = setTimeout(() => {
                 console.warn(`Compression timeout for ${file.name}, using original`);
                 resolve(file);
-            }, 10000); // 10 second timeout
+            }, 30000); // 30 second timeout
 
             const reader = new FileReader();
 
@@ -254,17 +264,23 @@ class ExpenseTracker {
                         // Convert to blob with compression
                         canvas.toBlob((blob) => {
                             clearTimeout(timeout);
-                            if (blob && blob.size < file.size) {
+                            if (!blob) {
+                                console.warn(`Failed to create blob for ${file.name}, using original`);
+                                resolve(file);
+                                return;
+                            }
+
+                            if (blob.size < file.size) {
                                 // Only use compressed version if it's smaller
                                 const compressedFile = new File([blob], file.name, {
                                     type: 'image/jpeg',
                                     lastModified: Date.now()
                                 });
-                                console.log(`Compressed ${file.name}: ${(file.size/1024).toFixed(1)}KB → ${(blob.size/1024).toFixed(1)}KB`);
+                                console.log(`✅ Compressed ${file.name}: ${(file.size/1024).toFixed(1)}KB → ${(blob.size/1024).toFixed(1)}KB`);
                                 resolve(compressedFile);
                             } else {
-                                // Use original if compression didn't help or blob is null
-                                console.log(`Using original ${file.name}: ${(file.size/1024).toFixed(1)}KB`);
+                                // Use original if compression didn't help
+                                console.log(`Using original ${file.name}: ${(file.size/1024).toFixed(1)}KB (compression not beneficial)`);
                                 resolve(file);
                             }
                         }, 'image/jpeg', quality);
@@ -327,8 +343,11 @@ class ExpenseTracker {
             if (files.length > 0) {
                 // Validate that files are images
                 const imageFiles = Array.from(files).filter(file => {
-                    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic', 'image/gif'];
-                    return validTypes.includes(file.type.toLowerCase());
+                    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic', 'image/gif', 'image/bmp'];
+                    const fileExtension = file.name.split('.').pop().toLowerCase();
+                    const validExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'heic'];
+                    // Check both MIME type and file extension
+                    return validTypes.includes(file.type?.toLowerCase()) || validExtensions.includes(fileExtension);
                 });
 
                 if (imageFiles.length === 0) {
@@ -374,10 +393,10 @@ class ExpenseTracker {
         console.log('Files selected:', files.length);
 
         // File size validation
-        const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB per file
+        const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB per file (increased)
         const MAX_TOTAL_SIZE = 100 * 1024 * 1024; // 100MB total (for batch uploads)
         const MAX_FILES = 20; // Maximum 20 files for batch upload
-        const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic'];
+        const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic', 'image/gif', 'image/bmp'];
 
         // Prevent multiple simultaneous processing
         if (this.isProcessingImages) {
@@ -487,15 +506,20 @@ class ExpenseTracker {
 
             // Validate individual file sizes and types
             for (const file of files) {
-                if (!ALLOWED_TYPES.includes(file.type)) {
-                    this.showNotification(`❌ Invalid file type: ${file.name}. Only JPG, PNG, and WEBP images are allowed.`, 'error');
+                // Check file type - sometimes file.type is empty for certain images
+                const fileExtension = file.name.split('.').pop().toLowerCase();
+                const isValidExtension = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'heic'].includes(fileExtension);
+
+                if (!ALLOWED_TYPES.includes(file.type) && !isValidExtension) {
+                    console.error(`Invalid file type for ${file.name}: type="${file.type}", extension="${fileExtension}"`);
+                    this.showNotification(`❌ Invalid file type: ${file.name}. Only image files are allowed (JPG, PNG, WEBP, GIF, BMP).`, 'error');
                     e.target.value = '';
                     this.isProcessingImages = false;
                     return;
                 }
 
                 if (file.size > MAX_FILE_SIZE) {
-                    this.showNotification(`❌ File too large: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB). Maximum size is 5MB per image.`, 'error');
+                    this.showNotification(`❌ File too large: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB). Maximum size is 10MB per image.`, 'error');
                     e.target.value = '';
                     this.isProcessingImages = false;
                     return;
@@ -556,37 +580,67 @@ class ExpenseTracker {
                     if (progressElement) progressElement.textContent = `${startProgress}%`;
                     if (statusElement) statusElement.textContent = `Processing image ${i + 1} of ${files.length}`;
 
-                    console.log(`Processing image ${i + 1}/${files.length}: ${file.name}`);
+                    console.log(`Processing image ${i + 1}/${files.length}: ${file.name} (type: ${file.type || 'unknown'}, size: ${(file.size/1024).toFixed(1)}KB)`);
 
-                    // Compress image with error handling
-                    const compressedFile = await this.compressImage(file, 1200, 0.85);
+                    // Try to compress image (or return original if small/errors)
+                    let fileToRead = file;
+                    try {
+                        fileToRead = await this.compressImage(file, 1200, 0.85);
+                    } catch (compressionError) {
+                        console.warn(`Compression failed for ${file.name}, using original:`, compressionError);
+                        fileToRead = file;
+                    }
 
-                    // Read compressed file with timeout
-                    const dataUrl = await new Promise((resolve, reject) => {
-                        const timeout = setTimeout(() => {
-                            console.warn(`Read timeout for ${file.name}, using placeholder`);
-                            resolve(''); // Return empty string on timeout
-                        }, 5000); // 5 second timeout for reading
+                    // Read file - simplified approach
+                    const dataUrl = await new Promise((resolve) => {
+                        console.log(`Reading file ${file.name}...`);
 
                         const reader = new FileReader();
+
+                        // Set up a timeout
+                        const timeout = setTimeout(() => {
+                            console.warn(`Read timeout for ${file.name}, attempting fallback`);
+                            // Don't resolve empty - let the reader finish
+                        }, 10000);
+
                         reader.onload = (e) => {
                             clearTimeout(timeout);
-                            resolve(e.target.result);
+                            if (e.target.result) {
+                                console.log(`✅ Successfully read ${file.name}`);
+                                resolve(e.target.result);
+                            } else {
+                                console.warn(`Empty result for ${file.name}`);
+                                resolve('');
+                            }
                         };
+
                         reader.onerror = (error) => {
                             clearTimeout(timeout);
                             console.error(`Error reading file ${file.name}:`, error);
-                            resolve(''); // Return empty string on error
+                            resolve('');
                         };
-                        reader.readAsDataURL(compressedFile);
+
+                        reader.onabort = () => {
+                            clearTimeout(timeout);
+                            console.warn(`Reading aborted for ${file.name}`);
+                            resolve('');
+                        };
+
+                        try {
+                            reader.readAsDataURL(fileToRead);
+                        } catch (error) {
+                            clearTimeout(timeout);
+                            console.error(`Failed to start reading ${file.name}:`, error);
+                            resolve('');
+                        }
                     });
 
                     // Only add if we successfully got data
                     if (dataUrl) {
                         processedImages.push({
-                            name: compressedFile.name,
+                            name: fileToRead.name,
                             data: dataUrl,
-                            file: compressedFile
+                            file: fileToRead
                         });
                         console.log(`✅ Successfully processed ${file.name}`);
                     } else {
