@@ -778,6 +778,13 @@ class ExpenseTracker {
                     expenseData.category = 'Miscellaneous';
                 }
 
+                // Validate category before storing - ensure it's a valid backend category
+                const validCategories = ['Transportation', 'Accommodation', 'Meals', 'Fuel', 'Miscellaneous'];
+                if (expenseData.category && !validCategories.includes(expenseData.category)) {
+                    console.warn(`Mapping invalid category "${expenseData.category}" to Miscellaneous for bill ${i + 1}`);
+                    expenseData.category = 'Miscellaneous';
+                }
+
                 // Store extracted expense with image data
                 this.extractedExpenses.push({
                     id: `temp_${Date.now()}_${i}`,
@@ -1476,11 +1483,21 @@ class ExpenseTracker {
         // Find category with highest score
         let maxScore = 0;
         let detectedCategory = 'Miscellaneous';
+
+        // Valid backend categories
+        const validCategories = ['Transportation', 'Accommodation', 'Meals', 'Fuel', 'Miscellaneous'];
+
         for (const [category, score] of Object.entries(categoryScores)) {
             if (score > maxScore) {
                 maxScore = score;
                 detectedCategory = category;
             }
+        }
+
+        // Map invalid categories to Miscellaneous
+        if (!validCategories.includes(detectedCategory)) {
+            console.log(`⚠️ Category "${detectedCategory}" not valid for backend, mapping to Miscellaneous`);
+            detectedCategory = 'Miscellaneous';
         }
 
         if (maxScore > 0) {
@@ -1893,14 +1910,37 @@ class ExpenseTracker {
 
             try {
                 // Create expense data object
+                // Clean and validate vendor name (remove special characters that might cause issues)
+                let cleanVendor = (expense.vendor || 'N/A').trim();
+                if (cleanVendor.length > 100) {
+                    cleanVendor = cleanVendor.substring(0, 100);
+                }
+
+                // Create a safe description
+                let description = expense.description || `Bill from ${cleanVendor}`;
+                if (description.length > 200) {
+                    description = description.substring(0, 200);
+                }
+
+                // Ensure category is valid for backend
+                const validCategories = ['Transportation', 'Accommodation', 'Meals', 'Fuel', 'Miscellaneous'];
+                let category = expense.category || 'Miscellaneous';
+                if (!validCategories.includes(category)) {
+                    console.warn(`Invalid category "${category}" for bill ${i + 1}, using Miscellaneous`);
+                    category = 'Miscellaneous';
+                }
+
                 const expenseData = {
                     date: expense.date || new Date().toISOString().split('T')[0],
                     time: expense.time || new Date().toTimeString().slice(0, 5),
-                    category: expense.category || 'Miscellaneous',
-                    amount: expense.amount || 0,
-                    vendor: expense.vendor || 'N/A',
-                    description: expense.description || `Bill from ${expense.vendor || 'vendor'}`
+                    category: category,
+                    amount: parseFloat(expense.amount) || 0,
+                    vendor: cleanVendor,
+                    description: description
                 };
+
+                // Log the data being sent for debugging
+                console.log(`Submitting bill ${i + 1} with data:`, expenseData);
 
                 // Prepare image files for upload - handle undefined imageFile
                 const imageFilesToUpload = [];
@@ -1924,8 +1964,22 @@ class ExpenseTracker {
 
             } catch (error) {
                 console.error(`❌ Failed to upload bill ${i + 1}:`, error);
+                console.error(`   Failed expense details:`, {
+                    vendor: expense.vendor,
+                    amount: expense.amount,
+                    date: expense.date,
+                    time: expense.time,
+                    category: expense.category,
+                    description: expense.description || `Bill from ${expense.vendor || 'vendor'}`
+                });
                 failCount++;
-                failedExpenses.push({ index: i + 1, error: error.message, vendor: expense.vendor });
+                failedExpenses.push({
+                    index: i + 1,
+                    error: error.message,
+                    vendor: expense.vendor,
+                    amount: expense.amount,
+                    date: expense.date
+                });
             }
         }
 
@@ -1941,8 +1995,14 @@ class ExpenseTracker {
                 ${failedExpenses.length > 0 ? `
                     <details style="margin-top: 10px;">
                         <summary style="cursor: pointer; color: #ef4444;">View failed bills</summary>
-                        <ul style="text-align: left; margin-top: 10px;">
-                            ${failedExpenses.map(f => `<li>Bill ${f.index} (${f.vendor}): ${f.error}</li>`).join('')}
+                        <ul style="text-align: left; margin-top: 10px; font-size: 12px;">
+                            ${failedExpenses.map(f => `
+                                <li style="margin-bottom: 8px;">
+                                    <strong>Bill ${f.index}</strong> (${f.vendor || 'Unknown vendor'})<br>
+                                    Amount: ₹${f.amount || 0}, Date: ${f.date || 'No date'}<br>
+                                    <span style="color: #ef4444;">Error: ${f.error}</span>
+                                </li>
+                            `).join('')}
                         </ul>
                     </details>
                 ` : ''}
@@ -3769,17 +3829,51 @@ class ExpenseTracker {
         if (confirm('⚠️ CLEAR EVERYTHING?\n\nThis will PERMANENTLY delete:\n• All expense records\n• All bill photos\n• All saved images\n\nThis action CANNOT be undone!')) {
             if (confirm('Are you absolutely sure? All your data and images will be permanently deleted.')) {
                 try {
+                    // Show loading indicator
+                    this.showLoading('🗑️ Clearing all data...', 'This may take a few moments');
+
                     const response = await api.clearAll();
 
                     if (response.status === 'success') {
-                        // Reload expenses from backend
+                        // Clear all frontend state
+                        this.expenses = [];
+                        this.filteredExpenses = [];
+                        this.scannedImages = [];
+                        this.extractedExpenses = [];
+                        this.extractedData = {};
+                        this.editingExpenseId = null;
+
+                        // Clear any cached images in the UI
+                        const imagePreview = document.getElementById('imagePreview');
+                        if (imagePreview) {
+                            imagePreview.innerHTML = '<p>No images selected</p>';
+                        }
+
+                        // Reset form
+                        const expenseForm = document.getElementById('expenseForm');
+                        if (expenseForm) {
+                            expenseForm.reset();
+                        }
+
+                        // Reload expenses from backend (should be empty now)
                         await this.loadExpenses();
 
+                        // Update the UI
+                        this.renderExpenses();
+                        this.updateTotals();
+
+                        this.hideLoading();
                         this.showNotification(`✅ All data cleared! ${response.expensesCleared || 0} expenses and ${response.expenseImagesDeleted + response.orphanedImagesDeleted || 0} images deleted.`);
+
+                        // Log for debugging
+                        console.log('Clear everything response:', response);
+                        console.log('Expenses after clearing:', this.expenses);
                     } else {
+                        this.hideLoading();
                         throw new Error(response.message || 'Failed to clear all data');
                     }
                 } catch (error) {
+                    this.hideLoading();
                     console.error('Error clearing all data:', error);
                     this.showNotification('❌ Failed to clear all data: ' + error.message);
                 }
