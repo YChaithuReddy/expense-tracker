@@ -202,44 +202,82 @@ class ExpenseTracker {
 
     // Compress image before processing
     async compressImage(file, maxWidth = 1200, quality = 0.8) {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
+            // Set a timeout to prevent hanging
+            const timeout = setTimeout(() => {
+                console.warn(`Compression timeout for ${file.name}, using original`);
+                resolve(file);
+            }, 10000); // 10 second timeout
+
             const reader = new FileReader();
+
+            reader.onerror = (error) => {
+                clearTimeout(timeout);
+                console.error(`Error reading file ${file.name}:`, error);
+                resolve(file); // Return original file on error
+            };
+
             reader.onload = (e) => {
                 const img = new Image();
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    let width = img.width;
-                    let height = img.height;
 
-                    // Calculate new dimensions while maintaining aspect ratio
-                    if (width > maxWidth) {
-                        height = Math.round((height * maxWidth) / width);
-                        width = maxWidth;
-                    }
-
-                    canvas.width = width;
-                    canvas.height = height;
-
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-
-                    // Convert to blob with compression
-                    canvas.toBlob((blob) => {
-                        if (blob && blob.size < file.size) {
-                            // Only use compressed version if it's smaller
-                            const compressedFile = new File([blob], file.name, {
-                                type: 'image/jpeg',
-                                lastModified: Date.now()
-                            });
-                            console.log(`Compressed ${file.name}: ${(file.size/1024).toFixed(1)}KB → ${(blob.size/1024).toFixed(1)}KB`);
-                            resolve(compressedFile);
-                        } else {
-                            resolve(file); // Return original if compression didn't help
-                        }
-                    }, 'image/jpeg', quality);
+                img.onerror = (error) => {
+                    clearTimeout(timeout);
+                    console.error(`Error loading image ${file.name}:`, error);
+                    resolve(file); // Return original file on error
                 };
+
+                img.onload = () => {
+                    try {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+
+                        // Calculate new dimensions while maintaining aspect ratio
+                        if (width > maxWidth) {
+                            height = Math.round((height * maxWidth) / width);
+                            width = maxWidth;
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+
+                        const ctx = canvas.getContext('2d');
+                        if (!ctx) {
+                            clearTimeout(timeout);
+                            console.error('Failed to get canvas context');
+                            resolve(file);
+                            return;
+                        }
+
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        // Convert to blob with compression
+                        canvas.toBlob((blob) => {
+                            clearTimeout(timeout);
+                            if (blob && blob.size < file.size) {
+                                // Only use compressed version if it's smaller
+                                const compressedFile = new File([blob], file.name, {
+                                    type: 'image/jpeg',
+                                    lastModified: Date.now()
+                                });
+                                console.log(`Compressed ${file.name}: ${(file.size/1024).toFixed(1)}KB → ${(blob.size/1024).toFixed(1)}KB`);
+                                resolve(compressedFile);
+                            } else {
+                                // Use original if compression didn't help or blob is null
+                                console.log(`Using original ${file.name}: ${(file.size/1024).toFixed(1)}KB`);
+                                resolve(file);
+                            }
+                        }, 'image/jpeg', quality);
+                    } catch (error) {
+                        clearTimeout(timeout);
+                        console.error(`Error processing image ${file.name}:`, error);
+                        resolve(file); // Return original file on error
+                    }
+                };
+
                 img.src = e.target.result;
             };
+
             reader.readAsDataURL(file);
         });
     }
@@ -511,31 +549,85 @@ class ExpenseTracker {
                 const progressFill = document.getElementById('progressFill');
                 const statusElement = document.getElementById('processingStatus');
 
-                // Update progress
-                const progress = Math.round(((i + 1) / files.length) * 100);
-                if (progressElement) progressElement.textContent = `${progress}%`;
-                if (progressFill) progressFill.style.width = `${progress}%`;
-                if (statusElement) statusElement.textContent = `Processing image ${i + 1} of ${files.length}`;
+                try {
+                    // Update progress before processing
+                    const startProgress = Math.round((i / files.length) * 100);
+                    if (progressFill) progressFill.style.width = `${startProgress}%`;
+                    if (progressElement) progressElement.textContent = `${startProgress}%`;
+                    if (statusElement) statusElement.textContent = `Processing image ${i + 1} of ${files.length}`;
 
-                // Compress image
-                const compressedFile = await this.compressImage(file, 1200, 0.85);
+                    console.log(`Processing image ${i + 1}/${files.length}: ${file.name}`);
 
-                // Read compressed file
-                const dataUrl = await new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = (e) => resolve(e.target.result);
-                    reader.onerror = reject;
-                    reader.readAsDataURL(compressedFile);
-                });
+                    // Compress image with error handling
+                    const compressedFile = await this.compressImage(file, 1200, 0.85);
 
-                processedImages.push({
-                    name: compressedFile.name,
-                    data: dataUrl,
-                    file: compressedFile
-                });
+                    // Read compressed file with timeout
+                    const dataUrl = await new Promise((resolve, reject) => {
+                        const timeout = setTimeout(() => {
+                            console.warn(`Read timeout for ${file.name}, using placeholder`);
+                            resolve(''); // Return empty string on timeout
+                        }, 5000); // 5 second timeout for reading
+
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            clearTimeout(timeout);
+                            resolve(e.target.result);
+                        };
+                        reader.onerror = (error) => {
+                            clearTimeout(timeout);
+                            console.error(`Error reading file ${file.name}:`, error);
+                            resolve(''); // Return empty string on error
+                        };
+                        reader.readAsDataURL(compressedFile);
+                    });
+
+                    // Only add if we successfully got data
+                    if (dataUrl) {
+                        processedImages.push({
+                            name: compressedFile.name,
+                            data: dataUrl,
+                            file: compressedFile
+                        });
+                        console.log(`✅ Successfully processed ${file.name}`);
+                    } else {
+                        console.warn(`⚠️ Failed to read ${file.name}, skipping`);
+                    }
+
+                    // Update progress after processing
+                    const endProgress = Math.round(((i + 1) / files.length) * 100);
+                    if (progressElement) progressElement.textContent = `${endProgress}%`;
+                    if (progressFill) progressFill.style.width = `${endProgress}%`;
+
+                } catch (error) {
+                    console.error(`Error processing image ${i + 1} (${file.name}):`, error);
+                    // Continue with next image instead of stopping
+                }
             }
 
             this.scannedImages = processedImages;
+
+            // Check if we processed any images
+            if (processedImages.length === 0) {
+                console.error('No images were successfully processed');
+                this.showError('Failed to process images. Please try again with different images.', 'Processing Failed');
+                this.isProcessingImages = false;
+
+                // Clear the loading overlay
+                const processingOverlay = previewContainer.querySelector('.processing-overlay');
+                if (processingOverlay && processingOverlay.parentElement) {
+                    processingOverlay.parentElement.remove();
+                }
+
+                // Show drag hint again
+                const dragHint = document.getElementById('dragDropHint');
+                if (dragHint) {
+                    dragHint.style.display = 'block';
+                }
+
+                return;
+            }
+
+            console.log(`Successfully processed ${processedImages.length} of ${files.length} images`);
 
             // Display compressed images
             // Clear existing content but keep the hint element
@@ -577,9 +669,14 @@ class ExpenseTracker {
                 console.log('✅ All images processed, scan button shown');
             }
 
-            const savedKB = Math.round((totalSize - processedImages.reduce((sum, img) => sum + img.file.size, 0)) / 1024);
+            // Calculate space saved by compression
+            const originalSize = files.reduce((sum, file) => sum + file.size, 0);
+            const compressedSize = processedImages.reduce((sum, img) => sum + img.file.size, 0);
+            const savedKB = Math.round((originalSize - compressedSize) / 1024);
             if (savedKB > 0) {
                 this.showNotification(`✅ Images optimized! Saved ${savedKB}KB`);
+            } else {
+                this.showNotification(`✅ ${processedImages.length} image(s) ready for scanning`);
             }
 
         } catch (error) {
