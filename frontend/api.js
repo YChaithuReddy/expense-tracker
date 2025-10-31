@@ -236,7 +236,22 @@ const api = {
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.message || 'Failed to create expense');
+                // Log the full error details for debugging
+                console.error('Backend validation error:', data);
+
+                // Extract detailed error message if available
+                let errorMessage = data.message || 'Failed to create expense';
+                if (data.error) {
+                    errorMessage = data.error;
+                }
+                if (data.errors && Array.isArray(data.errors)) {
+                    errorMessage = data.errors.join(', ');
+                }
+                if (data.details) {
+                    errorMessage += ` - ${data.details}`;
+                }
+
+                throw new Error(errorMessage);
             }
 
             return data;
@@ -523,8 +538,13 @@ const api = {
             const data = await response.json();
 
             if (!response.ok) {
+                // Log the full error details for debugging
+                console.error('Backend clear all error:', data);
                 throw new Error(data.message || 'Failed to clear all data');
             }
+
+            // Log success details for debugging
+            console.log('Clear all successful:', data);
 
             return data;
         } catch (error) {
