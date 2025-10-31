@@ -1644,7 +1644,7 @@ class ExpenseTracker {
 
                 <div class="modal-footer batch-review-footer">
                     <button class="btn-secondary btn-cancel" onclick="expenseTracker.closeBatchReview()">Cancel</button>
-                    <button class="btn-primary btn-submit" onclick="expenseTracker.submitBatchExpenses()" id="submitBatchBtn">
+                    <button class="btn-primary btn-submit" onclick="expenseTracker.submitBatchExpenses().catch(e => { console.error('Submit button error:', e); alert('Error submitting bills: ' + e.message); })" id="submitBatchBtn">
                         📤 Submit ${this.extractedExpenses.filter(e => e.selected).length} Selected Bills
                     </button>
                 </div>
@@ -1653,6 +1653,16 @@ class ExpenseTracker {
 
         batchModal.style.display = 'flex';
         batchModal.classList.add('active');
+
+        // Ensure initial selection state is correct
+        // Since "Select All" checkbox is checked by default, ensure all bills are selected
+        const selectAllCheckbox = document.getElementById('selectAllBills');
+        if (selectAllCheckbox && selectAllCheckbox.checked) {
+            // Make sure all expenses are selected to match the checkbox state
+            this.extractedExpenses.forEach(expense => expense.selected = true);
+            this.updateSelectionCount();
+            this.updateSubmitButton();
+        }
     }
 
     renderBatchGallery() {
@@ -1810,9 +1820,15 @@ class ExpenseTracker {
     }
 
     async submitBatchExpenses() {
+        console.log('Submit button clicked');
+        console.log('All expenses:', this.extractedExpenses);
+        console.log('Selected state of expenses:', this.extractedExpenses.map(e => ({ vendor: e.vendor, selected: e.selected })));
+
         const selectedExpenses = this.extractedExpenses.filter(e => e.selected);
+        console.log('Selected expenses count:', selectedExpenses.length);
 
         if (selectedExpenses.length === 0) {
+            console.warn('No bills selected for submission');
             this.showError('Please select at least one bill to submit', 'No Bills Selected');
             return;
         }
