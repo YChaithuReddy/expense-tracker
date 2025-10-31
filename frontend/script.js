@@ -1826,10 +1826,25 @@ class ExpenseTracker {
 
         const selectedExpenses = this.extractedExpenses.filter(e => e.selected);
         console.log('Selected expenses count:', selectedExpenses.length);
+        console.log('Selected expenses details:', selectedExpenses.map(e => ({
+            vendor: e.vendor,
+            amount: e.amount,
+            hasImageFile: !!e.imageFile,
+            hasImageData: !!e.imageData,
+            imageName: e.imageName
+        })));
 
         if (selectedExpenses.length === 0) {
             console.warn('No bills selected for submission');
             this.showError('Please select at least one bill to submit', 'No Bills Selected');
+            return;
+        }
+
+        // Validate that expenses have required data
+        const invalidExpenses = selectedExpenses.filter(e => !e.amount || parseFloat(e.amount) <= 0);
+        if (invalidExpenses.length > 0) {
+            console.warn('Found expenses with invalid amounts:', invalidExpenses);
+            this.showError(`${invalidExpenses.length} bill(s) have invalid or missing amounts. Please correct them before submitting.`, 'Invalid Data');
             return;
         }
 
@@ -1887,8 +1902,23 @@ class ExpenseTracker {
                     description: expense.description || `Bill from ${expense.vendor || 'vendor'}`
                 };
 
+                // Prepare image files for upload - handle undefined imageFile
+                const imageFilesToUpload = [];
+                if (expense.imageFile) {
+                    imageFilesToUpload.push(expense.imageFile);
+                } else if (expense.imageData) {
+                    // If no imageFile but imageData exists, try to convert it to a file
+                    try {
+                        const blob = await fetch(expense.imageData).then(r => r.blob());
+                        const file = new File([blob], expense.imageName || `bill_${i + 1}.jpg`, { type: blob.type });
+                        imageFilesToUpload.push(file);
+                    } catch (imgError) {
+                        console.warn(`Could not convert image data to file for bill ${i + 1}:`, imgError);
+                    }
+                }
+
                 // Upload this expense
-                await api.createExpense(expenseData, [expense.imageFile]);
+                await api.createExpense(expenseData, imageFilesToUpload);
                 successCount++;
                 console.log(`✅ Uploaded bill ${i + 1}/${selectedExpenses.length}`);
 
