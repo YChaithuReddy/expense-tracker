@@ -1833,11 +1833,19 @@ main {
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.1);
     border: none;
+    pointer-events: auto;
+    z-index: 1000;
+    position: relative;
+    touch-action: manipulation;
 }
 
 .close-modal:hover {
     background: rgba(255, 255, 255, 0.2);
     transform: scale(1.1);
+}
+
+.close-modal:active {
+    transform: scale(0.95);
 }
 
 .modal-body {
@@ -4977,10 +4985,22 @@ select.inline-input option {
 
     .modal-header {
         padding: 16px !important;
+        position: relative;
+        z-index: 100;
     }
 
     .modal-header h2 {
         font-size: 1.2rem !important;
+    }
+
+    .modal-header .close-modal {
+        pointer-events: auto !important;
+        z-index: 1001;
+        min-width: 44px;
+        min-height: 44px;
+        width: 44px;
+        height: 44px;
+        touch-action: manipulation;
     }
 
     .modal-body {
@@ -5004,6 +5024,9 @@ select.inline-input option {
         min-height: 44px;
         pointer-events: auto !important;
         cursor: pointer !important;
+        touch-action: manipulation;
+        z-index: 100;
+        position: relative;
     }
 
     .batch-review-footer {
@@ -5014,6 +5037,14 @@ select.inline-input option {
     .batch-review-footer button {
         min-height: 44px;
         pointer-events: auto !important;
+        touch-action: manipulation;
+        z-index: 100;
+        position: relative;
+    }
+
+    .btn-cancel {
+        pointer-events: auto !important;
+        touch-action: manipulation;
     }
 
     /* Batch gallery mobile - add top padding and proper spacing */
@@ -5229,14 +5260,29 @@ select.inline-input option {
         justify-content: center;
         gap: 8px;
         box-sizing: border-box;
+        pointer-events: auto !important;
+        touch-action: manipulation;
+        z-index: 100;
+        position: relative;
     }
 
     .btn-cancel {
         order: 2;
+        pointer-events: auto !important;
+        touch-action: manipulation;
     }
 
     .btn-submit {
         order: 1;
+        pointer-events: auto !important;
+        touch-action: manipulation;
+    }
+
+    .modal-header .close-modal {
+        min-width: 48px;
+        min-height: 48px;
+        width: 48px;
+        height: 48px;
     }
 
     .card-amount {
