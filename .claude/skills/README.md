@@ -2,7 +2,7 @@
 
 ## Overview
 
-This directory contains **7 specialized skills** designed specifically for your expense tracker project. These skills make redesigning and upgrading your app incredibly easy.
+This directory contains **9 specialized skills** designed specifically for your expense tracker project. These skills make redesigning and upgrading your app incredibly easy.
 
 ## Available Skills
 
@@ -132,6 +132,55 @@ This directory contains **7 specialized skills** designed specifically for your 
 
 ---
 
+### 8. 📱 **Mobile Debug**
+**Location:** `.claude/skills/mobile-debug/`
+
+**What it does:**
+- Diagnoses mobile layout and alignment issues
+- Inspects CSS responsive breakpoints
+- Identifies common mobile problems (touch targets, overflow, etc.)
+- Checks media query coverage
+- Analyzes button positioning and sizing for mobile
+- Reviews mobile-related git history
+- Provides detailed diagnostic reports
+
+**Use it by saying:**
+- "I'm seeing alignment issues on mobile"
+- "Debug the mobile view problems"
+- "Why is the modal not displaying correctly on mobile?"
+- "The buttons are misaligned on mobile"
+- "Mobile view is broken"
+
+**Supporting files:**
+- `common-issues.md` - Common mobile layout problems and solutions
+- `debugging-checklist.md` - Comprehensive mobile debugging checklist
+
+---
+
+### 9. 🔧 **Mobile Fix**
+**Location:** `.claude/skills/mobile-fix/`
+
+**What it does:**
+- Applies responsive CSS fixes
+- Updates and creates mobile media queries
+- Adjusts spacing and sizing for touch interfaces
+- Fixes button positioning for mobile
+- Updates modal layouts for mobile screens
+- Ensures proper flexbox/grid mobile configurations
+- Applies mobile-first design patterns
+
+**Use it by saying:**
+- "Fix the mobile alignment issues"
+- "Make this component mobile-responsive"
+- "The buttons need to be fixed on mobile"
+- "Apply mobile fixes"
+- "Make the modal work on mobile"
+
+**Supporting files:**
+- `templates.md` - Ready-to-use CSS templates for mobile patterns
+
+---
+
 ## 🎯 How to Use Skills
 
 ### Option 1: Just Talk Naturally (Easiest!)
@@ -181,6 +230,8 @@ You: "Lazy load images" → Performance Optimizer
 | Export Data | "Generate Excel report" | Report Generator |
 | New Feature | "Add dark mode" | Feature Upgrader |
 | Fix Layout | "Fix the alignment" | Layout Fixer |
+| Debug Mobile | "Mobile view has issues" | Mobile Debug |
+| Fix Mobile | "Fix mobile alignment" | Mobile Fix |
 
 ---
 
@@ -229,6 +280,16 @@ You: "Lazy load images" → Performance Optimizer
 "Fix the responsive layout on mobile"
 ```
 
+### For Mobile Issues:
+```
+"Debug mobile view problems"
+"The modal doesn't work on mobile"
+"Buttons are misaligned on mobile"
+"Fix mobile alignment issues"
+"Make this mobile-responsive"
+"The layout breaks on small screens"
+```
+
 ---
 
 ## 📊 Skill Impact
@@ -238,6 +299,8 @@ You: "Lazy load images" → Performance Optimizer
 | Indian Receipt OCR | 2 hours | ⭐⭐⭐⭐⭐ High | High |
 | UI Redesigner | 3-4 hours | ⭐⭐⭐⭐⭐ High | High |
 | Layout Fixer | 30 min - 1 hour | ⭐⭐⭐⭐⭐ High | High |
+| Mobile Debug | 15-30 min | ⭐⭐⭐⭐⭐ High | High |
+| Mobile Fix | 30 min - 1 hour | ⭐⭐⭐⭐⭐ High | High |
 | Performance Optimizer | 2-3 hours | ⭐⭐⭐⭐ High | Medium |
 | Component Generator | 30 min/component | ⭐⭐⭐ Medium | Medium |
 | Report Generator | 2 hours | ⭐⭐⭐ Medium | Medium |
@@ -253,6 +316,8 @@ Each skill has a detailed `SKILL.md` file:
 .claude/skills/indian-receipt-ocr/SKILL.md
 .claude/skills/ui-redesigner/SKILL.md
 .claude/skills/layout-fixer/SKILL.md
+.claude/skills/mobile-debug/SKILL.md
+.claude/skills/mobile-fix/SKILL.md
 .claude/skills/component-generator/SKILL.md
 .claude/skills/performance-optimizer/SKILL.md
 .claude/skills/report-generator/SKILL.md
