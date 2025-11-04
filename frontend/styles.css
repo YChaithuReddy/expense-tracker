@@ -4984,7 +4984,7 @@ select.inline-input option {
     }
 
     .modal-body {
-        padding: 12px !important;
+        padding: 16px !important;
         flex: 1; /* Grow to fill available space */
         overflow-y: auto; /* Scroll if content exceeds */
         display: flex;
@@ -4995,6 +4995,7 @@ select.inline-input option {
         flex-direction: column !important;
         gap: 16px !important;
         padding: 20px !important;
+        padding-bottom: calc(20px + env(safe-area-inset-bottom)) !important;
         flex-shrink: 0;
     }
 
@@ -5007,6 +5008,7 @@ select.inline-input option {
 
     .batch-review-footer {
         padding: 20px !important;
+        padding-bottom: calc(20px + env(safe-area-inset-bottom)) !important;
     }
 
     .batch-review-footer button {
@@ -5075,7 +5077,8 @@ select.inline-input option {
         min-width: 0;
         margin-left: 0;
         margin-top: 0;
-        height: 40px;
+        min-height: 44px;
+        height: 44px;
         padding: 8px 12px;
         font-size: 14px;
     }
@@ -5085,7 +5088,8 @@ select.inline-input option {
         margin-left: 0;
         margin-top: 0;
         min-width: 80px;
-        height: 40px;
+        min-height: 44px;
+        height: 44px;
         padding: 8px 16px;
         font-size: 13px;
     }
@@ -5101,7 +5105,9 @@ select.inline-input option {
 
     .inline-input {
         font-size: 14px;
-        padding: 8px 12px;
+        padding: 10px 12px;
+        min-height: 44px;
+        box-sizing: border-box;
     }
 }
 
@@ -5145,12 +5151,13 @@ select.inline-input option {
 @media (max-width: 480px) {
     /* Center align batch gallery on mobile */
     .batch-gallery {
-        padding: 16px;
+        padding: 20px;
         display: flex;
         flex-direction: column;
         align-items: center;
         gap: 20px;
         width: 100%;
+        box-sizing: border-box;
     }
 
     /* Fix batch card alignment and sizing */
@@ -5163,11 +5170,12 @@ select.inline-input option {
 
     /* Improve actions bar layout */
     .batch-actions-bar {
-        padding: 16px;
+        padding: 20px;
         display: flex;
         flex-direction: column;
         gap: 16px;
         width: 100%;
+        box-sizing: border-box;
     }
 
     .batch-selection {
@@ -5205,8 +5213,10 @@ select.inline-input option {
         display: flex;
         flex-direction: column;
         gap: 12px;
-        padding: 16px !important;
+        padding: 20px !important;
+        padding-bottom: calc(20px + env(safe-area-inset-bottom)) !important;
         width: 100%;
+        box-sizing: border-box;
     }
 
     .batch-review-footer button {
@@ -5218,6 +5228,7 @@ select.inline-input option {
         align-items: center;
         justify-content: center;
         gap: 8px;
+        box-sizing: border-box;
     }
 
     .btn-cancel {
@@ -5242,18 +5253,22 @@ select.inline-input option {
     }
 
     .card-content {
-        padding: 14px;
+        padding: 16px;
     }
 }
 
 /* Extra small screens - stack label and input vertically */
 @media (max-width: 400px) {
     .batch-gallery {
-        padding: 12px;
+        padding: 16px;
     }
 
     .batch-card {
         max-width: 320px;
+    }
+
+    .batch-actions-bar {
+        padding: 16px;
     }
 
     /* Fix confidence badge positioning on mobile */
@@ -5298,8 +5313,10 @@ select.inline-input option {
 
     .inline-input {
         width: 100%;
-        font-size: 13px;
-        padding: 8px 10px;
+        font-size: 14px;
+        padding: 10px 12px;
+        min-height: 44px;
+        box-sizing: border-box;
     }
 
     .card-amount {
@@ -5308,7 +5325,13 @@ select.inline-input option {
     }
 
     .card-content {
-        padding: 12px;
+        padding: 14px;
+    }
+
+    /* Add safe area bottom padding for footer on extra small screens */
+    .batch-review-footer {
+        padding: 16px !important;
+        padding-bottom: calc(16px + env(safe-area-inset-bottom)) !important;
     }
 
     .card-details {
@@ -5331,14 +5354,18 @@ select.inline-input option {
 
     .bulk-vendor-input {
         width: 100% !important;
-        padding: 10px;
+        min-height: 48px;
+        padding: 12px;
         font-size: 16px;
+        box-sizing: border-box;
     }
 
     .btn-apply-vendor {
         width: 100%;
-        padding: 10px;
+        min-height: 48px;
+        padding: 12px;
         font-size: 16px;
+        box-sizing: border-box;
     }
 
     /* Selection count styling */
