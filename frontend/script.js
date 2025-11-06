@@ -2122,9 +2122,17 @@ class ExpenseTracker {
 
         // First, completely remove the modal from DOM
         const modal = document.getElementById('batchReviewModal');
-        if (modal && modal.parentNode) {
-            modal.parentNode.removeChild(modal);
-            console.log('Batch review modal removed from DOM');
+        if (modal) {
+            // Remove resize handlers
+            if (modal._resizeHandler) {
+                window.removeEventListener('resize', modal._resizeHandler);
+                window.removeEventListener('orientationchange', modal._resizeHandler);
+            }
+            
+            if (modal.parentNode) {
+                modal.parentNode.removeChild(modal);
+                console.log('Batch review modal removed from DOM');
+            }
         }
         
         // Re-enable body scroll when modal is closed - CRITICAL for mobile

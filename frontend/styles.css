@@ -4980,14 +4980,19 @@ select.inline-input option {
         left: 0;
         right: 0;
         bottom: 0;
+        height: 100% !important;
+        height: 100dvh !important; /* Use dynamic viewport height for mobile */
+        max-height: 100% !important;
     }
 
     .modal-content {
         max-width: 100% !important;
         margin: 0 !important;
         border-radius: 0 !important;
-        height: 100vh !important; /* Full screen height */
-        max-height: 100vh !important;
+        height: 100% !important;
+        height: 100dvh !important; /* Use dynamic viewport height for mobile */
+        max-height: 100% !important;
+        max-height: 100dvh !important;
         width: 100% !important;
         display: flex;
         flex-direction: column;
@@ -4997,9 +5002,13 @@ select.inline-input option {
 
     /* Batch review modal specific mobile optimizations */
     .batch-review-modal-content {
-        height: 100vh !important;
-        max-height: 100vh !important;
+        height: 100% !important;
+        height: 100dvh !important; /* Use dynamic viewport height for mobile */
+        max-height: 100% !important;
+        max-height: 100dvh !important;
         border-radius: 0 !important;
+        min-height: 100% !important;
+        min-height: 100dvh !important;
     }
 
     .modal-header {
@@ -5052,7 +5061,7 @@ select.inline-input option {
 
     .modal-body {
         padding: 16px !important;
-        flex: 1; /* Grow to fill available space */
+        flex: 1 1 auto; /* Grow and shrink to fill available space */
         overflow-y: auto; /* Scroll if content exceeds */
         overflow-x: hidden;
         display: flex;
@@ -5061,6 +5070,8 @@ select.inline-input option {
         -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
         touch-action: pan-y; /* Allow vertical scrolling */
         overscroll-behavior: contain; /* Prevent scroll chaining */
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .modal-footer {
@@ -5069,7 +5080,11 @@ select.inline-input option {
         padding: 16px !important;
         padding-bottom: calc(16px + env(safe-area-inset-bottom)) !important;
         flex-shrink: 0;
+        flex-grow: 0;
         border-top: 1px solid rgba(255, 255, 255, 0.1);
+        width: 100%;
+        box-sizing: border-box;
+        margin-top: auto; /* Push footer to bottom */
     }
 
     .modal-footer button {
@@ -5095,6 +5110,9 @@ select.inline-input option {
         gap: 12px !important;
         width: 100% !important;
         box-sizing: border-box !important;
+        flex-shrink: 0 !important;
+        flex-grow: 0 !important;
+        margin-top: auto !important; /* Push footer to bottom */
     }
 
     .batch-review-footer button {
