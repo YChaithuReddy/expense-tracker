@@ -2120,28 +2120,33 @@ class ExpenseTracker {
     closeBatchReview() {
         console.log('Closing batch review modal');
 
+        // First, completely remove the modal from DOM
         const modal = document.getElementById('batchReviewModal');
-        if (modal) {
-            // Remove all event listeners by cloning
-            const newModal = modal.cloneNode(false);
-            if (modal.parentNode) {
-                modal.parentNode.replaceChild(newModal, modal);
-            }
-            newModal.style.display = 'none';
-            newModal.classList.remove('active');
-            console.log('Batch review modal closed');
+        if (modal && modal.parentNode) {
+            modal.parentNode.removeChild(modal);
+            console.log('Batch review modal removed from DOM');
         }
         
-        // Re-enable body scroll when modal is closed
+        // Re-enable body scroll when modal is closed - CRITICAL for mobile
         document.body.classList.remove('modal-open');
         document.body.style.overflow = '';
         document.body.style.position = '';
         document.body.style.width = '';
+        document.body.style.height = '';
+        
+        // Force a reflow to ensure styles are applied
+        void document.body.offsetHeight;
 
-        // Show OCR section again
+        // Show OCR section again (home page)
         const ocrSection = document.getElementById('ocrSection');
         if (ocrSection) {
             ocrSection.style.display = 'block';
+        }
+
+        // Hide expense form section if it was shown
+        const expenseFormSection = document.getElementById('expenseFormSection');
+        if (expenseFormSection) {
+            expenseFormSection.style.display = 'none';
         }
 
         // Clear scanned images and extracted expenses
@@ -2157,13 +2162,8 @@ class ExpenseTracker {
             // Restore the drag hint
             const dragHintHtml = `
                 <div id="dragDropHint" class="drag-drop-hint">
-                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                        <polyline points="17 8 12 3 7 8"></polyline>
-                        <line x1="12" y1="3" x2="12" y2="15"></line>
-                    </svg>
-                    <p>Drag & drop images here</p>
-                    <p class="text-muted">or use the Camera/Gallery buttons above</p>
+                    <div class="drag-drop-text">Drag & Drop Receipt Images Here</div>
+                    <div class="drag-drop-subtext">or click to browse files</div>
                 </div>
             `;
             imagePreview.innerHTML = dragHintHtml;
@@ -2176,13 +2176,24 @@ class ExpenseTracker {
             scanBtn.style.display = 'none';
         }
 
-        // Clear file input
+        // Clear file inputs
         const fileInput = document.getElementById('billImages');
         if (fileInput) {
             fileInput.value = '';
         }
+        const cameraInput = document.getElementById('cameraInput');
+        if (cameraInput) {
+            cameraInput.value = '';
+        }
+        const galleryInput = document.getElementById('galleryInput');
+        if (galleryInput) {
+            galleryInput.value = '';
+        }
 
-        console.log('Batch review cleanup complete');
+        // Scroll to top of page to ensure user sees the content
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        console.log('Batch review cleanup complete - returned to home page');
     }
 
     async submitBatchExpenses() {
