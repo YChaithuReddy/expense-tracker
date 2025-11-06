@@ -1922,7 +1922,6 @@ class ExpenseTracker {
         this.attachBatchGalleryListeners();
 
         // Ensure initial selection state is correct
-        const selectAllCheckbox = document.getElementById('selectAllBills');
         if (selectAllCheckbox && selectAllCheckbox.checked) {
             this.extractedExpenses.forEach(expense => expense.selected = true);
             this.updateSelectionCount();
