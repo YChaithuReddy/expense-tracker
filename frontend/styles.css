@@ -5023,10 +5023,10 @@ select.inline-input option {
     .modal-header .close-modal {
         pointer-events: auto !important;
         z-index: 1002 !important;
-        min-width: 44px !important;
-        min-height: 44px !important;
-        width: 44px !important;
-        height: 44px !important;
+        min-width: 48px !important;
+        min-height: 48px !important;
+        width: 48px !important;
+        height: 48px !important;
         touch-action: manipulation !important;
         position: relative !important;
         flex-shrink: 0;
@@ -5037,13 +5037,17 @@ select.inline-input option {
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        font-size: 28px !important;
+        font-size: 32px !important;
         line-height: 1 !important;
+        user-select: none !important;
+        -webkit-tap-highlight-color: rgba(255, 255, 255, 0.3) !important;
     }
 
-    .modal-header .close-modal:active {
+    .modal-header .close-modal:active,
+    .modal-header .close-modal:focus {
         background: rgba(255, 255, 255, 0.3) !important;
         transform: scale(0.95) !important;
+        outline: none !important;
     }
 
     .modal-body {
@@ -5106,6 +5110,15 @@ select.inline-input option {
         align-items: center !important;
         justify-content: center !important;
         box-sizing: border-box !important;
+        user-select: none !important;
+        -webkit-tap-highlight-color: rgba(79, 172, 254, 0.3) !important;
+        border: 2px solid transparent !important;
+    }
+
+    .batch-review-footer button:active,
+    .batch-review-footer button:focus {
+        outline: none !important;
+        border-color: rgba(79, 172, 254, 0.5) !important;
     }
 
     .btn-cancel {

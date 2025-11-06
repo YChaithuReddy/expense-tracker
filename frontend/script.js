@@ -1767,16 +1767,20 @@ class ExpenseTracker {
             ocrSection.style.display = 'none';
         }
 
-        // Show batch review modal
+        // Always remove existing modal to avoid event listener conflicts
         let batchModal = document.getElementById('batchReviewModal');
-        if (!batchModal) {
-            // Create modal if it doesn't exist
-            batchModal = document.createElement('div');
-            batchModal.id = 'batchReviewModal';
-            batchModal.className = 'modal active';
-            document.body.appendChild(batchModal);
+        if (batchModal && batchModal.parentNode) {
+            batchModal.parentNode.removeChild(batchModal);
         }
+        
+        // Create fresh modal
+        batchModal = document.createElement('div');
+        batchModal.id = 'batchReviewModal';
+        batchModal.className = 'modal active';
+        batchModal.style.display = 'flex';
+        document.body.appendChild(batchModal);
 
+        // Set the modal content
         batchModal.innerHTML = `
             <div class="modal-content batch-review-modal-content">
                 <div class="modal-header">
@@ -1819,88 +1823,89 @@ class ExpenseTracker {
             </div>
         `;
 
-        batchModal.style.display = 'flex';
-        batchModal.classList.add('active');
-        
         // Prevent body scroll when modal is open (important for mobile)
         document.body.classList.add('modal-open');
         document.body.style.overflow = 'hidden';
+        document.body.style.position = 'fixed';
+        document.body.style.width = '100%';
 
-        // Attach event listeners properly (works better on mobile than inline onclick)
-        const closeBtn = document.getElementById('closeBatchModalBtn');
-        const cancelBtn = document.getElementById('cancelBatchBtn');
-        const submitBtn = document.getElementById('submitBatchBtn');
-        const selectAllCheckbox = document.getElementById('selectAllBills');
-        const applyVendorBtn = document.getElementById('applyBulkVendorBtn');
+        // Use event delegation on the modal for better mobile support
+        const handleModalClick = (e) => {
+            const target = e.target;
+            const targetId = target.id;
+            const closestBtn = target.closest('button');
+            const closestCheckbox = target.closest('input[type="checkbox"]');
 
-        // Close button handler
-        if (closeBtn) {
-            closeBtn.addEventListener('click', (e) => {
+            // Close button or cancel button - check both direct click and closest button
+            if (targetId === 'closeBatchModalBtn' || targetId === 'cancelBatchBtn' || 
+                target.classList.contains('close-modal') || target.classList.contains('btn-cancel') ||
+                (closestBtn && (closestBtn.id === 'closeBatchModalBtn' || closestBtn.id === 'cancelBatchBtn' || closestBtn.classList.contains('btn-cancel')))) {
                 e.preventDefault();
                 e.stopPropagation();
+                e.stopImmediatePropagation();
+                console.log('Close/Cancel button clicked');
                 this.closeBatchReview();
-            }, { passive: false });
-        }
+                return false;
+            }
 
-        // Cancel button handler
-        if (cancelBtn) {
-            cancelBtn.addEventListener('click', (e) => {
+            // Submit button
+            if (targetId === 'submitBatchBtn' || target.classList.contains('btn-submit') ||
+                (closestBtn && (closestBtn.id === 'submitBatchBtn' || closestBtn.classList.contains('btn-submit')))) {
                 e.preventDefault();
                 e.stopPropagation();
-                this.closeBatchReview();
-            }, { passive: false });
-        }
-
-        // Submit button handler
-        if (submitBtn) {
-            submitBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                this.submitBatchExpenses().catch(e => {
-                    console.error('Submit button error:', e);
-                    alert('Error submitting bills: ' + e.message);
+                e.stopImmediatePropagation();
+                console.log('Submit button clicked');
+                this.submitBatchExpenses().catch(err => {
+                    console.error('Submit button error:', err);
+                    alert('Error submitting bills: ' + err.message);
                 });
-            }, { passive: false });
-        }
+                return false;
+            }
 
-        // Select all checkbox handler
-        if (selectAllCheckbox) {
-            selectAllCheckbox.addEventListener('change', (e) => {
-                this.toggleSelectAll(e.target.checked);
-            });
-        }
+            // Select all checkbox
+            if (targetId === 'selectAllBills' || (closestCheckbox && closestCheckbox.id === 'selectAllBills')) {
+                const checkbox = closestCheckbox || target;
+                this.toggleSelectAll(checkbox.checked);
+                return;
+            }
 
-        // Apply bulk vendor button handler
-        if (applyVendorBtn) {
-            applyVendorBtn.addEventListener('click', (e) => {
+            // Apply bulk vendor button
+            if (targetId === 'applyBulkVendorBtn' || target.classList.contains('btn-apply-vendor') ||
+                (closestBtn && (closestBtn.id === 'applyBulkVendorBtn' || closestBtn.classList.contains('btn-apply-vendor')))) {
                 e.preventDefault();
                 e.stopPropagation();
                 this.applyBulkVendor();
-            }, { passive: false });
-        }
+                return false;
+            }
+
+            // Close modal when clicking on overlay (outside modal content)
+            if (target === batchModal) {
+                this.closeBatchReview();
+                return false;
+            }
+        };
+
+        // Attach both click and touchend for mobile compatibility
+        batchModal.addEventListener('click', handleModalClick, { capture: true, passive: false });
+        batchModal.addEventListener('touchend', handleModalClick, { capture: true, passive: false });
 
         // Prevent modal overlay from closing when clicking inside modal content
         const modalContent = batchModal.querySelector('.modal-content');
         if (modalContent) {
             modalContent.addEventListener('click', (e) => {
                 e.stopPropagation();
-            });
+            }, { capture: true });
+            modalContent.addEventListener('touchend', (e) => {
+                e.stopPropagation();
+            }, { capture: true });
         }
-
-        // Close modal when clicking on overlay (outside modal content)
-        batchModal.addEventListener('click', (e) => {
-            if (e.target === batchModal) {
-                this.closeBatchReview();
-            }
-        });
 
         // Attach event listeners to gallery elements
         this.attachBatchGalleryListeners();
 
         // Ensure initial selection state is correct
-        // Since "Select All" checkbox is checked by default, ensure all bills are selected
+        const selectAllCheckbox = document.getElementById('selectAllBills');
         if (selectAllCheckbox && selectAllCheckbox.checked) {
-            // Make sure all expenses are selected to match the checkbox state
             this.extractedExpenses.forEach(expense => expense.selected = true);
             this.updateSelectionCount();
             this.updateSubmitButton();
@@ -2100,14 +2105,21 @@ class ExpenseTracker {
 
         const modal = document.getElementById('batchReviewModal');
         if (modal) {
-            modal.style.display = 'none';
-            modal.classList.remove('active');
+            // Remove all event listeners by cloning
+            const newModal = modal.cloneNode(false);
+            if (modal.parentNode) {
+                modal.parentNode.replaceChild(newModal, modal);
+            }
+            newModal.style.display = 'none';
+            newModal.classList.remove('active');
             console.log('Batch review modal closed');
         }
         
         // Re-enable body scroll when modal is closed
         document.body.classList.remove('modal-open');
         document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.width = '';
 
         // Show OCR section again
         const ocrSection = document.getElementById('ocrSection');
