@@ -4917,7 +4917,7 @@ select.inline-input option {
         align-items: center;
         gap: 20px;
         padding: 16px;
-        flex: 1; /* Grow to fill modal-body space */
+        flex: 0 1 auto; /* Take only needed space, don't grow to fill */
         width: 100%;
     }
 
