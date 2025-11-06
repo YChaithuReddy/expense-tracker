@@ -1781,7 +1781,7 @@ class ExpenseTracker {
             <div class="modal-content batch-review-modal-content">
                 <div class="modal-header">
                     <h2>📋 Review Scanned Bills (${this.extractedExpenses.length})</h2>
-                    <button class="close-modal" onclick="expenseTracker.closeBatchReview()">&times;</button>
+                    <button class="close-modal" id="closeBatchModalBtn" type="button" aria-label="Close">&times;</button>
                 </div>
 
                 <div class="modal-body">
@@ -1789,7 +1789,7 @@ class ExpenseTracker {
                     <div class="batch-actions-bar">
                         <div class="batch-selection">
                             <label>
-                                <input type="checkbox" id="selectAllBills" checked onchange="expenseTracker.toggleSelectAll(this.checked)">
+                                <input type="checkbox" id="selectAllBills" checked>
                                 <span>Select All</span>
                             </label>
                             <span class="selection-count" id="selectionCount">${this.extractedExpenses.filter(e => e.selected).length} of ${this.extractedExpenses.length} selected</span>
@@ -1799,7 +1799,7 @@ class ExpenseTracker {
                             <label>
                                 <span>Apply vendor to all:</span>
                                 <input type="text" id="bulkVendor" placeholder="Enter vendor name" class="bulk-vendor-input">
-                                <button class="btn-secondary btn-apply-vendor" onclick="expenseTracker.applyBulkVendor()">Apply</button>
+                                <button class="btn-secondary btn-apply-vendor" id="applyBulkVendorBtn" type="button">Apply</button>
                             </label>
                         </div>
                     </div>
@@ -1811,8 +1811,8 @@ class ExpenseTracker {
                 </div>
 
                 <div class="modal-footer batch-review-footer">
-                    <button class="btn-secondary btn-cancel" onclick="expenseTracker.closeBatchReview()">Cancel</button>
-                    <button class="btn-primary btn-submit" onclick="expenseTracker.submitBatchExpenses().catch(e => { console.error('Submit button error:', e); alert('Error submitting bills: ' + e.message); })" id="submitBatchBtn">
+                    <button class="btn-secondary btn-cancel" id="cancelBatchBtn" type="button">Cancel</button>
+                    <button class="btn-primary btn-submit" id="submitBatchBtn" type="button">
                         📤 Submit ${this.extractedExpenses.filter(e => e.selected).length} Selected Bills
                     </button>
                 </div>
@@ -1821,10 +1821,84 @@ class ExpenseTracker {
 
         batchModal.style.display = 'flex';
         batchModal.classList.add('active');
+        
+        // Prevent body scroll when modal is open (important for mobile)
+        document.body.classList.add('modal-open');
+        document.body.style.overflow = 'hidden';
+
+        // Attach event listeners properly (works better on mobile than inline onclick)
+        const closeBtn = document.getElementById('closeBatchModalBtn');
+        const cancelBtn = document.getElementById('cancelBatchBtn');
+        const submitBtn = document.getElementById('submitBatchBtn');
+        const selectAllCheckbox = document.getElementById('selectAllBills');
+        const applyVendorBtn = document.getElementById('applyBulkVendorBtn');
+
+        // Close button handler
+        if (closeBtn) {
+            closeBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.closeBatchReview();
+            }, { passive: false });
+        }
+
+        // Cancel button handler
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.closeBatchReview();
+            }, { passive: false });
+        }
+
+        // Submit button handler
+        if (submitBtn) {
+            submitBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.submitBatchExpenses().catch(e => {
+                    console.error('Submit button error:', e);
+                    alert('Error submitting bills: ' + e.message);
+                });
+            }, { passive: false });
+        }
+
+        // Select all checkbox handler
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', (e) => {
+                this.toggleSelectAll(e.target.checked);
+            });
+        }
+
+        // Apply bulk vendor button handler
+        if (applyVendorBtn) {
+            applyVendorBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.applyBulkVendor();
+            }, { passive: false });
+        }
+
+        // Prevent modal overlay from closing when clicking inside modal content
+        const modalContent = batchModal.querySelector('.modal-content');
+        if (modalContent) {
+            modalContent.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        }
+
+        // Close modal when clicking on overlay (outside modal content)
+        batchModal.addEventListener('click', (e) => {
+            if (e.target === batchModal) {
+                this.closeBatchReview();
+            }
+        });
+
+        // Attach event listeners to gallery elements
+        this.attachBatchGalleryListeners();
 
         // Ensure initial selection state is correct
         // Since "Select All" checkbox is checked by default, ensure all bills are selected
-        const selectAllCheckbox = document.getElementById('selectAllBills');
         if (selectAllCheckbox && selectAllCheckbox.checked) {
             // Make sure all expenses are selected to match the checkbox state
             this.extractedExpenses.forEach(expense => expense.selected = true);
@@ -1837,8 +1911,7 @@ class ExpenseTracker {
         return this.extractedExpenses.map((expense, index) => `
             <div class="batch-card ${expense.selected ? 'selected' : ''} ${expense.ocrFailed ? 'ocr-failed' : ''}" data-index="${index}">
                 <div class="card-checkbox">
-                    <input type="checkbox" ${expense.selected ? 'checked' : ''}
-                           onchange="expenseTracker.toggleBillSelection(${index}, this.checked)">
+                    <input type="checkbox" class="bill-checkbox" data-index="${index}" ${expense.selected ? 'checked' : ''}>
                 </div>
 
                 <div class="card-image">
@@ -1859,22 +1932,19 @@ class ExpenseTracker {
                     <div class="card-details">
                         <div class="detail-row">
                             <span class="label">Vendor:</span>
-                            <input type="text" class="inline-input" value="${expense.vendor || ''}"
-                                   onchange="expenseTracker.updateExpenseField(${index}, 'vendor', this.value)">
+                            <input type="text" class="inline-input expense-vendor" data-index="${index}" value="${expense.vendor || ''}">
                         </div>
                         <div class="detail-row">
                             <span class="label">Date:</span>
-                            <input type="date" class="inline-input" value="${expense.date || ''}"
-                                   onchange="expenseTracker.updateExpenseField(${index}, 'date', this.value)">
+                            <input type="date" class="inline-input expense-date" data-index="${index}" value="${expense.date || ''}">
                         </div>
                         <div class="detail-row">
                             <span class="label">Amount:</span>
-                            <input type="number" class="inline-input" value="${expense.amount || ''}" step="0.01"
-                                   onchange="expenseTracker.updateExpenseField(${index}, 'amount', this.value)">
+                            <input type="number" class="inline-input expense-amount" data-index="${index}" value="${expense.amount || ''}" step="0.01">
                         </div>
                         <div class="detail-row">
                             <span class="label">Category:</span>
-                            <select class="inline-input" onchange="expenseTracker.updateExpenseField(${index}, 'category', this.value)">
+                            <select class="inline-input expense-category" data-index="${index}">
                                 <option value="Transportation" ${expense.category === 'Transportation' ? 'selected' : ''}>Transportation</option>
                                 <option value="Accommodation" ${expense.category === 'Accommodation' ? 'selected' : ''}>Accommodation</option>
                                 <option value="Meals" ${expense.category === 'Meals' ? 'selected' : ''}>Meals</option>
@@ -1884,7 +1954,7 @@ class ExpenseTracker {
                         </div>
                     </div>
 
-                    <button class="btn-delete" onclick="expenseTracker.removeBillFromBatch(${index})" title="Remove this bill">
+                    <button class="btn-delete remove-bill-btn" data-index="${index}" type="button" title="Remove this bill">
                         🗑️ Remove
                     </button>
                 </div>
@@ -1938,9 +2008,69 @@ class ExpenseTracker {
         const gallery = document.getElementById('batchGallery');
         if (gallery) {
             gallery.innerHTML = this.renderBatchGallery();
+            // Attach event listeners to all interactive elements
+            this.attachBatchGalleryListeners();
         }
         this.updateSelectionCount();
         this.updateSubmitButton();
+    }
+
+    attachBatchGalleryListeners() {
+        // Attach listeners to all bill checkboxes
+        const billCheckboxes = document.querySelectorAll('.bill-checkbox');
+        billCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                const index = parseInt(e.target.dataset.index);
+                this.toggleBillSelection(index, e.target.checked);
+            });
+        });
+
+        // Attach listeners to all input fields
+        const vendorInputs = document.querySelectorAll('.expense-vendor');
+        vendorInputs.forEach(input => {
+            input.addEventListener('change', (e) => {
+                const index = parseInt(e.target.dataset.index);
+                this.updateExpenseField(index, 'vendor', e.target.value);
+            });
+        });
+
+        const dateInputs = document.querySelectorAll('.expense-date');
+        dateInputs.forEach(input => {
+            input.addEventListener('change', (e) => {
+                const index = parseInt(e.target.dataset.index);
+                this.updateExpenseField(index, 'date', e.target.value);
+            });
+        });
+
+        const amountInputs = document.querySelectorAll('.expense-amount');
+        amountInputs.forEach(input => {
+            input.addEventListener('change', (e) => {
+                const index = parseInt(e.target.dataset.index);
+                this.updateExpenseField(index, 'amount', e.target.value);
+            });
+        });
+
+        const categorySelects = document.querySelectorAll('.expense-category');
+        categorySelects.forEach(select => {
+            select.addEventListener('change', (e) => {
+                const index = parseInt(e.target.dataset.index);
+                this.updateExpenseField(index, 'category', e.target.value);
+            });
+        });
+
+        // Attach listeners to remove buttons
+        const removeButtons = document.querySelectorAll('.remove-bill-btn');
+        removeButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                // Get index from button element (not e.target, as target might be child element)
+                const index = parseInt(button.dataset.index);
+                if (!isNaN(index)) {
+                    this.removeBillFromBatch(index);
+                }
+            }, { passive: false });
+        });
     }
 
     updateSelectionCount() {
@@ -1974,6 +2104,10 @@ class ExpenseTracker {
             modal.classList.remove('active');
             console.log('Batch review modal closed');
         }
+        
+        // Re-enable body scroll when modal is closed
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
 
         // Show OCR section again
         const ocrSection = document.getElementById('ocrSection');
