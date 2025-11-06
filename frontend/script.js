@@ -1829,55 +1829,84 @@ class ExpenseTracker {
         document.body.style.position = 'fixed';
         document.body.style.width = '100%';
 
-        // Use event delegation on the modal for better mobile support
-        const handleModalClick = (e) => {
-            const target = e.target;
-            const targetId = target.id;
-            const closestBtn = target.closest('button');
-            const closestCheckbox = target.closest('input[type="checkbox"]');
+        // Use direct event listeners for buttons (more reliable on mobile)
+        // Get buttons immediately after innerHTML is set
+        const closeBtn = document.getElementById('closeBatchModalBtn');
+        const cancelBtn = document.getElementById('cancelBatchBtn');
+        const submitBtn = document.getElementById('submitBatchBtn');
+        const selectAllCheckbox = document.getElementById('selectAllBills');
+        const applyVendorBtn = document.getElementById('applyBulkVendorBtn');
 
-            // Close button or cancel button - check both direct click and closest button
-            if (targetId === 'closeBatchModalBtn' || targetId === 'cancelBatchBtn' || 
-                target.classList.contains('close-modal') || target.classList.contains('btn-cancel') ||
-                (closestBtn && (closestBtn.id === 'closeBatchModalBtn' || closestBtn.id === 'cancelBatchBtn' || closestBtn.classList.contains('btn-cancel')))) {
+        // Helper function to handle button clicks
+        const createButtonHandler = (handlerFn) => {
+            return (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 e.stopImmediatePropagation();
-                console.log('Close/Cancel button clicked');
+                handlerFn();
+            };
+        };
+
+        // Close button handler
+        if (closeBtn) {
+            const closeHandler = createButtonHandler(() => {
+                console.log('Close button clicked');
                 this.closeBatchReview();
-                return false;
-            }
+            });
+            closeBtn.addEventListener('click', closeHandler, { passive: false });
+            closeBtn.addEventListener('touchend', closeHandler, { passive: false });
+        }
 
-            // Submit button
-            if (targetId === 'submitBatchBtn' || target.classList.contains('btn-submit') ||
-                (closestBtn && (closestBtn.id === 'submitBatchBtn' || closestBtn.classList.contains('btn-submit')))) {
-                e.preventDefault();
+        // Cancel button handler - CRITICAL for mobile
+        if (cancelBtn) {
+            const cancelHandler = createButtonHandler(() => {
+                console.log('Cancel button clicked');
+                this.closeBatchReview();
+            });
+            cancelBtn.addEventListener('click', cancelHandler, { passive: false });
+            cancelBtn.addEventListener('touchend', cancelHandler, { passive: false });
+            // Prevent any other handlers from interfering
+            cancelBtn.addEventListener('touchstart', (e) => {
                 e.stopPropagation();
-                e.stopImmediatePropagation();
+            }, { passive: false });
+            // Make sure button is focusable and clickable
+            cancelBtn.setAttribute('tabindex', '0');
+            cancelBtn.style.cursor = 'pointer';
+        }
+
+        // Submit button handler
+        if (submitBtn) {
+            const submitHandler = createButtonHandler(() => {
                 console.log('Submit button clicked');
                 this.submitBatchExpenses().catch(err => {
                     console.error('Submit button error:', err);
                     alert('Error submitting bills: ' + err.message);
                 });
-                return false;
-            }
+            });
+            submitBtn.addEventListener('click', submitHandler, { passive: false });
+            submitBtn.addEventListener('touchend', submitHandler, { passive: false });
+        }
 
-            // Select all checkbox
-            if (targetId === 'selectAllBills' || (closestCheckbox && closestCheckbox.id === 'selectAllBills')) {
-                const checkbox = closestCheckbox || target;
-                this.toggleSelectAll(checkbox.checked);
-                return;
-            }
+        // Select all checkbox handler
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', (e) => {
+                this.toggleSelectAll(e.target.checked);
+            });
+        }
 
-            // Apply bulk vendor button
-            if (targetId === 'applyBulkVendorBtn' || target.classList.contains('btn-apply-vendor') ||
-                (closestBtn && (closestBtn.id === 'applyBulkVendorBtn' || closestBtn.classList.contains('btn-apply-vendor')))) {
-                e.preventDefault();
-                e.stopPropagation();
+        // Apply bulk vendor button handler
+        if (applyVendorBtn) {
+            const applyHandler = createButtonHandler(() => {
                 this.applyBulkVendor();
-                return false;
-            }
+            });
+            applyVendorBtn.addEventListener('click', applyHandler, { passive: false });
+            applyVendorBtn.addEventListener('touchend', applyHandler, { passive: false });
+        }
 
+        // Also use event delegation as fallback for overlay clicks
+        const handleModalClick = (e) => {
+            const target = e.target;
+            
             // Close modal when clicking on overlay (outside modal content)
             if (target === batchModal) {
                 this.closeBatchReview();
@@ -1885,20 +1914,9 @@ class ExpenseTracker {
             }
         };
 
-        // Attach both click and touchend for mobile compatibility
+        // Attach overlay click handler
         batchModal.addEventListener('click', handleModalClick, { capture: true, passive: false });
         batchModal.addEventListener('touchend', handleModalClick, { capture: true, passive: false });
-
-        // Prevent modal overlay from closing when clicking inside modal content
-        const modalContent = batchModal.querySelector('.modal-content');
-        if (modalContent) {
-            modalContent.addEventListener('click', (e) => {
-                e.stopPropagation();
-            }, { capture: true });
-            modalContent.addEventListener('touchend', (e) => {
-                e.stopPropagation();
-            }, { capture: true });
-        }
 
         // Attach event listeners to gallery elements
         this.attachBatchGalleryListeners();
