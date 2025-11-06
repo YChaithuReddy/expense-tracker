@@ -1823,11 +1823,36 @@ class ExpenseTracker {
             </div>
         `;
 
+        // Set modal height to actual viewport height (accounts for mobile browser UI)
+        const setModalHeight = () => {
+            const vh = window.innerHeight;
+            batchModal.style.height = `${vh}px`;
+            const modalContent = batchModal.querySelector('.modal-content');
+            if (modalContent) {
+                modalContent.style.height = `${vh}px`;
+                modalContent.style.maxHeight = `${vh}px`;
+            }
+        };
+        
+        // Set height immediately
+        setModalHeight();
+        
+        // Update height on resize (for mobile browser address bar show/hide)
+        const resizeHandler = () => {
+            setModalHeight();
+        };
+        window.addEventListener('resize', resizeHandler);
+        window.addEventListener('orientationchange', resizeHandler);
+        
+        // Store handler for cleanup
+        batchModal._resizeHandler = resizeHandler;
+
         // Prevent body scroll when modal is open (important for mobile)
         document.body.classList.add('modal-open');
         document.body.style.overflow = 'hidden';
         document.body.style.position = 'fixed';
         document.body.style.width = '100%';
+        document.body.style.height = `${window.innerHeight}px`;
 
         // Use direct event listeners for buttons (more reliable on mobile)
         // Get buttons immediately after innerHTML is set
