@@ -44,6 +44,14 @@ class ExpenseTracker {
         this.initializeGoogleSheets();
     }
 
+    // Sanitize HTML to prevent XSS attacks
+    sanitizeHTML(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
     initializeEventListeners() {
         // Camera and Gallery buttons
         document.getElementById('cameraBtn').addEventListener('click', () => {
@@ -1955,7 +1963,14 @@ class ExpenseTracker {
     }
 
     renderBatchGallery() {
-        return this.extractedExpenses.map((expense, index) => `
+        return this.extractedExpenses.map((expense, index) => {
+            // Sanitize all user-controlled data to prevent XSS
+            const safeVendor = this.sanitizeHTML(expense.vendor || '');
+            const safeDate = this.sanitizeHTML(expense.date || '');
+            const safeAmount = this.sanitizeHTML(expense.amount || '');
+            const safeCategory = this.sanitizeHTML(expense.category || '');
+
+            return `
             <div class="batch-card ${expense.selected ? 'selected' : ''} ${expense.ocrFailed ? 'ocr-failed' : ''}" data-index="${index}">
                 <div class="card-checkbox">
                     <input type="checkbox" class="bill-checkbox" data-index="${index}" ${expense.selected ? 'checked' : ''}>
@@ -1979,24 +1994,24 @@ class ExpenseTracker {
                     <div class="card-details">
                         <div class="detail-row">
                             <span class="label">Vendor:</span>
-                            <input type="text" class="inline-input expense-vendor" data-index="${index}" value="${expense.vendor || ''}">
+                            <input type="text" class="inline-input expense-vendor" data-index="${index}" value="${safeVendor}">
                         </div>
                         <div class="detail-row">
                             <span class="label">Date:</span>
-                            <input type="date" class="inline-input expense-date" data-index="${index}" value="${expense.date || ''}">
+                            <input type="date" class="inline-input expense-date" data-index="${index}" value="${safeDate}">
                         </div>
                         <div class="detail-row">
                             <span class="label">Amount:</span>
-                            <input type="number" class="inline-input expense-amount" data-index="${index}" value="${expense.amount || ''}" step="0.01">
+                            <input type="number" class="inline-input expense-amount" data-index="${index}" value="${safeAmount}" step="0.01">
                         </div>
                         <div class="detail-row">
                             <span class="label">Category:</span>
                             <select class="inline-input expense-category" data-index="${index}">
-                                <option value="Transportation" ${expense.category === 'Transportation' ? 'selected' : ''}>Transportation</option>
-                                <option value="Accommodation" ${expense.category === 'Accommodation' ? 'selected' : ''}>Accommodation</option>
-                                <option value="Meals" ${expense.category === 'Meals' ? 'selected' : ''}>Meals</option>
-                                <option value="Fuel" ${expense.category === 'Fuel' ? 'selected' : ''}>Fuel</option>
-                                <option value="Miscellaneous" ${expense.category === 'Miscellaneous' ? 'selected' : ''}>Miscellaneous</option>
+                                <option value="Transportation" ${safeCategory === 'Transportation' ? 'selected' : ''}>Transportation</option>
+                                <option value="Accommodation" ${safeCategory === 'Accommodation' ? 'selected' : ''}>Accommodation</option>
+                                <option value="Meals" ${safeCategory === 'Meals' ? 'selected' : ''}>Meals</option>
+                                <option value="Fuel" ${safeCategory === 'Fuel' ? 'selected' : ''}>Fuel</option>
+                                <option value="Miscellaneous" ${safeCategory === 'Miscellaneous' ? 'selected' : ''}>Miscellaneous</option>
                             </select>
                         </div>
                     </div>
@@ -2006,7 +2021,8 @@ class ExpenseTracker {
                     </button>
                 </div>
             </div>
-        `).join('');
+        `;
+        }).join('');
     }
 
     toggleSelectAll(checked) {
@@ -3141,39 +3157,48 @@ class ExpenseTracker {
             return;
         }
 
-        const expensesHTML = paginatedList.map((expense, index) => `
-            <div class="expense-item" id="expense-${expense.id}">
+        const expensesHTML = paginatedList.map((expense, index) => {
+            // Sanitize all user-controlled data to prevent XSS
+            const safeId = this.sanitizeHTML(expense.id);
+            const safeCategory = this.sanitizeHTML(expense.category);
+            const safeVendor = this.sanitizeHTML(expense.vendor);
+            const safeDescription = this.sanitizeHTML(expense.description);
+
+            return `
+            <div class="expense-item" id="expense-${safeId}">
                 <div class="expense-header">
                     <div class="expense-header-left">
                         <input type="checkbox"
                                class="expense-checkbox"
-                               id="checkbox-${expense.id}"
-                               data-expense-id="${expense.id}"
+                               id="checkbox-${safeId}"
+                               data-expense-id="${safeId}"
                                onchange="expenseTracker.updateExportButton()">
-                        <label for="checkbox-${expense.id}" class="expense-amount">₹${this.formatAmount(expense.amount)}</label>
+                        <label for="checkbox-${safeId}" class="expense-amount">₹${this.formatAmount(expense.amount)}</label>
                     </div>
                     <div class="expense-actions">
-                        <button class="edit-btn" onclick="expenseTracker.editExpense('${expense.id}')">Edit</button>
-                        <button class="delete-btn" onclick="expenseTracker.deleteExpense('${expense.id}')">Delete</button>
+                        <button class="edit-btn" onclick="expenseTracker.editExpense('${safeId}')">Edit</button>
+                        <button class="delete-btn" onclick="expenseTracker.deleteExpense('${safeId}')">Delete</button>
                     </div>
                 </div>
                 <div class="expense-details">
                     <div><strong>Date:</strong> ${this.formatDisplayDate(expense.date)}${expense.time ? ` at ${this.formatDisplayTime(expense.time)}` : ''}</div>
-                    <div><strong>Category:</strong> ${expense.category}</div>
-                    <div><strong>Vendor:</strong> ${expense.vendor}</div>
+                    <div><strong>Category:</strong> ${safeCategory}</div>
+                    <div><strong>Vendor:</strong> ${safeVendor}</div>
                 </div>
                 <div style="margin-top: 8px; padding: 6px 8px; background: rgba(255, 255, 255, 0.03); border-radius: 6px; font-size: 13px;">
-                    <strong>Description:</strong> ${expense.description}
+                    <strong>Description:</strong> ${safeDescription}
                 </div>
                 ${expense.images.length > 0 ? `
                     <div class="expense-images">
-                        ${expense.images.map((img, index) => `
-                            <img src="${img.data}" alt="${img.name}">
-                        `).join('')}
+                        ${expense.images.map((img, index) => {
+                            const safeName = this.sanitizeHTML(img.name);
+                            return `<img src="${img.data}" alt="${safeName}">`;
+                        }).join('')}
                     </div>
                 ` : ''}
             </div>
-        `).join('');
+        `;
+        }).join('');
 
         container.innerHTML = expensesHTML;
         this.updateExportButton();
