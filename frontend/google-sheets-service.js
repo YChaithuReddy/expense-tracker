@@ -28,7 +28,15 @@ class GoogleSheetsService {
 
             return true;
         } catch (error) {
-            console.log('User has no Google Sheet yet - will be created on first export');
+            // Check if it's an authentication error
+            if (error.message && (error.message.includes('Not authorized') ||
+                                 error.message.includes('Token is invalid') ||
+                                 error.message.includes('401'))) {
+                console.log('Authentication error in Google Sheets service - token expired or invalid');
+                // Don't redirect here, let the main expense loading handle it
+            } else {
+                console.log('User has no Google Sheet yet - will be created on first export');
+            }
             this.isInitialized = false;
             return false;
         }
