@@ -27,10 +27,10 @@ app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", "'unsafe-inline'", "https://vercel.app", "https://*.vercel.app", "https://accounts.google.com"],
-            styleSrc: ["'self'", "'unsafe-inline'", "https://vercel.app", "https://*.vercel.app"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "https://vercel.app", "https://*.vercel.app", "https://*.github.io", "https://accounts.google.com"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://vercel.app", "https://*.vercel.app", "https://*.github.io"],
             imgSrc: ["'self'", "data:", "blob:", "https://res.cloudinary.com", "https://*.cloudinary.com", "https://*.googleusercontent.com"],
-            connectSrc: ["'self'", "https://vercel.app", "https://*.vercel.app", "https://railway.app", "https://*.railway.app", "https://accounts.google.com"],
+            connectSrc: ["'self'", "https://vercel.app", "https://*.vercel.app", "https://*.github.io", "https://railway.app", "https://*.railway.app", "https://accounts.google.com"],
             fontSrc: ["'self'", "data:"],
             objectSrc: ["'none'"],
             mediaSrc: ["'self'", "blob:", "data:"],
@@ -52,6 +52,11 @@ const corsOptions = {
 
         // Allow all Vercel deployments (production and preview)
         if (origin.includes('vercel.app')) {
+            return callback(null, true);
+        }
+
+        // Allow GitHub Pages deployments
+        if (origin.includes('github.io')) {
             return callback(null, true);
         }
 
