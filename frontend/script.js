@@ -3544,7 +3544,23 @@ class ExpenseTracker {
             }
         } catch (error) {
             console.error('Error loading expenses:', error);
-            this.showNotification('⚠️ Failed to load expenses. Please refresh the page.');
+
+            // Check if it's an authentication error
+            if (error.message && (error.message.includes('Not authorized') ||
+                                 error.message.includes('Token is invalid') ||
+                                 error.message.includes('401'))) {
+                console.log('Authentication token expired or invalid. Redirecting to login...');
+                this.showNotification('⚠️ Your session has expired. Please log in again.');
+
+                // Clear invalid token and redirect to login
+                setTimeout(() => {
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('user');
+                    window.location.href = 'login.html';
+                }, 2000);
+            } else {
+                this.showNotification('⚠️ Failed to load expenses. Please refresh the page.');
+            }
             this.expenses = [];
         }
     }
