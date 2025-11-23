@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backend Connection Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #1a1a2e;
+            color: #fff;
+        }
+        .test-result {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { background: #2ecc71; }
+        .error { background: #e74c3c; }
+        .pending { background: #f39c12; }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover { background: #2980b9; }
+        pre {
+            background: #2c3e50;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Backend Connection Test</h1>
+    <p>Testing connection to Railway backend...</p>
+
+    <button onclick="testBackend()">Run Test</button>
+    <button onclick="testHealth()">Test Health Endpoint</button>
+
+    <div id="results"></div>
+
+    <script>
+        const BACKEND_URL = 'https://expense-tracker-production-8f00.up.railway.app';
+
+        function log(message, type = 'pending') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = message;
+            results.appendChild(div);
+        }
+
+        async function testHealth() {
+            document.getElementById('results').innerHTML = '';
+            log('🔄 Testing health endpoint...', 'pending');
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/health`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    log('✅ Health endpoint responded successfully!', 'success');
+                    log(`<pre>${JSON.stringify(data, null, 2)}</pre>`, 'success');
+                } else {
+                    log(`❌ Health endpoint returned status: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Failed to connect to health endpoint: ${error.message}`, 'error');
+            }
+        }
+
+        async function testBackend() {
+            document.getElementById('results').innerHTML = '';
+
+            // Test 1: Health endpoint
+            await testHealth();
+
+            // Test 2: Root endpoint
+            log('🔄 Testing root endpoint...', 'pending');
+            try {
+                const response = await fetch(`${BACKEND_URL}/`, {
+                    method: 'GET'
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    log('✅ Root endpoint works!', 'success');
+                    log(`<pre>${JSON.stringify(data, null, 2)}</pre>`, 'success');
+                } else {
+                    log(`⚠️ Root endpoint returned status: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Root endpoint failed: ${error.message}`, 'error');
+            }
+
+            // Test 3: Login endpoint (should return 400 without credentials)
+            log('🔄 Testing login endpoint...', 'pending');
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                });
+
+                if (response.status === 400 || response.status === 401) {
+                    log('✅ Login endpoint is reachable (expecting 400/401 without credentials)', 'success');
+                } else {
+                    log(`⚠️ Login endpoint returned unexpected status: ${response.status}`, 'pending');
+                }
+            } catch (error) {
+                log(`❌ Login endpoint failed: ${error.message}`, 'error');
+            }
+
+            // Test 4: CORS check
+            log('🔄 Checking CORS headers...', 'pending');
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/health`, {
+                    method: 'OPTIONS'
+                });
+
+                const corsHeader = response.headers.get('Access-Control-Allow-Origin');
+                if (corsHeader) {
+                    log(`✅ CORS is enabled: ${corsHeader}`, 'success');
+                } else {
+                    log('⚠️ CORS header not found', 'error');
+                }
+            } catch (error) {
+                log(`❌ CORS check failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-run test on page load
+        window.addEventListener('load', testBackend);
+    </script>
+</body>
+</html>
