@@ -114,7 +114,9 @@ app.get('/api/health', (req, res) => {
         message: 'Server is running',
         time: new Date().toISOString(),
         port: process.env.PORT || 5000,
-        environment: process.env.NODE_ENV || 'development'
+        environment: process.env.NODE_ENV || 'development',
+        corsFixed: true, // CORS fix for GitHub Pages deployed
+        version: '1.0.1'
     });
 });
 
