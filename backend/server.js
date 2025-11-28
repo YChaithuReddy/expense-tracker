@@ -181,21 +181,21 @@ app.listen(PORT, '0.0.0.0', () => {
     console.log('='.repeat(50));
 
     // Keep-alive mechanism to prevent Railway from sleeping
-    // Uses localhost to avoid DNS issues with external URLs
+    // Uses 127.0.0.1 (IPv4) instead of localhost to avoid IPv6 resolution issues
     if (process.env.NODE_ENV === 'production') {
         const KEEP_ALIVE_INTERVAL = 14 * 60 * 1000; // 14 minutes
         const http = require('http');
 
         setInterval(() => {
-            // Ping localhost instead of external URL to avoid DNS issues
-            http.get(`http://localhost:${PORT}/api/health`, (res) => {
+            // Ping 127.0.0.1 (IPv4) instead of localhost to avoid IPv6 ::1 resolution
+            http.get(`http://127.0.0.1:${PORT}/api/health`, (res) => {
                 console.log(`⏰ Keep-alive ping - Status: ${res.statusCode} - ${new Date().toISOString()}`);
             }).on('error', (err) => {
                 console.error(`❌ Keep-alive ping failed: ${err.message}`);
             });
         }, KEEP_ALIVE_INTERVAL);
 
-        console.log(`✅ Keep-alive enabled - Pinging localhost:${PORT} every 14 minutes`);
+        console.log(`✅ Keep-alive enabled - Pinging 127.0.0.1:${PORT} every 14 minutes`);
     }
 });
 
