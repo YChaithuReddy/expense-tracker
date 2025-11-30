@@ -64,6 +64,18 @@ const userSchema = new mongoose.Schema({
         type: Date,
         default: null
     },
+    whatsappNumber: {
+        type: String,
+        default: ''
+    },
+    whatsappNotifications: {
+        type: Boolean,
+        default: false
+    },
+    monthlyBudget: {
+        type: Number,
+        default: 0
+    },
     createdAt: {
         type: Date,
         default: Date.now

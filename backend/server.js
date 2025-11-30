@@ -14,6 +14,7 @@ require('./config/passport');
 const authRoutes = require('./routes/auth');
 const expenseRoutes = require('./routes/expenses');
 const googleSheetsRoutes = require('./routes/google-sheets');
+const whatsappRoutes = require('./routes/whatsapp');
 
 const app = express();
 
@@ -151,6 +152,7 @@ mongoose.connect(process.env.MONGODB_URI)
 app.use('/api/auth', authRoutes);
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/google-sheets', googleSheetsRoutes);
+app.use('/api/whatsapp', whatsappRoutes);
 
 // 404 Error Handler
 app.use((req, res) => {

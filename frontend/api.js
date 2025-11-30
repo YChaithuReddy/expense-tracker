@@ -615,6 +615,92 @@ const api = {
         } catch (error) {
             return handleApiError(error);
         }
+    },
+
+    /**
+     * WhatsApp APIs
+     */
+
+    // Get WhatsApp configuration status
+    async getWhatsAppStatus() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/whatsapp/status`, {
+                method: 'GET',
+                headers: getHeaders(true)
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to get WhatsApp status');
+            }
+
+            return data;
+        } catch (error) {
+            return handleApiError(error);
+        }
+    },
+
+    // Setup WhatsApp number
+    async setupWhatsApp(phoneNumber, enableNotifications = true) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/whatsapp/setup`, {
+                method: 'POST',
+                headers: getHeaders(true),
+                body: JSON.stringify({ phoneNumber, enableNotifications })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to setup WhatsApp');
+            }
+
+            return data;
+        } catch (error) {
+            return handleApiError(error);
+        }
+    },
+
+    // Send expense summary via WhatsApp
+    async sendWhatsAppSummary(period = 'month') {
+        try {
+            const response = await fetch(`${API_BASE_URL}/whatsapp/send-summary`, {
+                method: 'POST',
+                headers: getHeaders(true),
+                body: JSON.stringify({ period })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to send WhatsApp summary');
+            }
+
+            return data;
+        } catch (error) {
+            return handleApiError(error);
+        }
+    },
+
+    // Test WhatsApp connection
+    async testWhatsApp() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/whatsapp/test`, {
+                method: 'POST',
+                headers: getHeaders(true)
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to send test message');
+            }
+
+            return data;
+        } catch (error) {
+            return handleApiError(error);
+        }
     }
 };
 
