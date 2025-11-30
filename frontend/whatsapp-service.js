@@ -15,7 +15,7 @@ class WhatsAppService {
      */
     async initialize() {
         try {
-            const response = await ExpenseAPI.getWhatsAppStatus();
+            const response = await api.getWhatsAppStatus();
             if (response.success) {
                 this.isConfigured = response.configured;
                 this.userPhone = response.userPhone;
@@ -31,7 +31,7 @@ class WhatsAppService {
      */
     async setupWhatsApp(phoneNumber, enableNotifications = true) {
         try {
-            const response = await ExpenseAPI.setupWhatsApp(phoneNumber, enableNotifications);
+            const response = await api.setupWhatsApp(phoneNumber, enableNotifications);
             if (response.success) {
                 this.userPhone = response.phoneNumber;
                 this.notificationsEnabled = response.notificationsEnabled;
@@ -48,7 +48,7 @@ class WhatsAppService {
      */
     async sendSummary(period = 'month') {
         try {
-            const response = await ExpenseAPI.sendWhatsAppSummary(period);
+            const response = await api.sendWhatsAppSummary(period);
             return response;
         } catch (error) {
             return { success: false, message: error.message };
@@ -60,7 +60,7 @@ class WhatsAppService {
      */
     async sendTestMessage() {
         try {
-            const response = await ExpenseAPI.testWhatsApp();
+            const response = await api.testWhatsApp();
             return response;
         } catch (error) {
             return { success: false, message: error.message };
