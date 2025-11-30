@@ -840,6 +840,9 @@ class ExpenseTracker {
             );
 
             const workerInit = Tesseract.createWorker('eng', 1, {
+                workerPath: 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/worker.min.js',
+                corePath: 'https://cdn.jsdelivr.net/npm/tesseract.js-core@5/tesseract-core.wasm.js',
+                langPath: 'https://tessdata.projectnaptha.com/4.0.0',
                 logger: m => {
                     console.log('Tesseract:', m.status, m.progress ? `${(m.progress * 100).toFixed(0)}%` : '');
                     if (m.status === 'recognizing text') {
@@ -1012,20 +1015,29 @@ class ExpenseTracker {
 
             let errorMessage = '❌ OCR Engine Failed to Initialize\n\n';
 
-            if (error.message.includes('timeout')) {
+            const errorMsg = error.message || error.toString() || 'Unknown error';
+
+            if (errorMsg.includes('timeout')) {
                 errorMessage += 'The OCR engine took too long to load.\n\n';
                 errorMessage += 'Possible causes:\n';
                 errorMessage += '• Slow internet connection\n';
                 errorMessage += '• Server is slow\n\n';
                 errorMessage += '✅ Solution: Refresh the page and try again.';
-            } else if (error.message.includes('Tesseract library not loaded')) {
+            } else if (errorMsg.includes('Tesseract library not loaded')) {
                 errorMessage += 'The OCR library failed to load from CDN.\n\n';
                 errorMessage += 'Possible causes:\n';
                 errorMessage += '• Ad blocker is blocking the script\n';
                 errorMessage += '• Network/firewall restrictions\n\n';
                 errorMessage += '✅ Solution: Disable ad blocker and refresh.';
+            } else if (errorMsg.includes('NetworkError') || errorMsg.includes('importScripts')) {
+                errorMessage += 'Failed to load OCR worker script.\n\n';
+                errorMessage += 'Possible causes:\n';
+                errorMessage += '• Network connectivity issue\n';
+                errorMessage += '• CDN is blocked by your network\n';
+                errorMessage += '• Ad blocker or firewall restriction\n\n';
+                errorMessage += '✅ Solution: Try disabling ad blocker or use a different network.';
             } else {
-                errorMessage += `Technical error: ${error.message}\n\n`;
+                errorMessage += `Technical error: ${errorMsg}\n\n`;
                 errorMessage += '✅ Solution: Refresh the page and try again.';
             }
 
