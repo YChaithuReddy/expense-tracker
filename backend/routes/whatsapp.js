@@ -327,38 +327,28 @@ router.post('/webhook', async (req, res) => {
             }
 
             if (ocrResult.success && ocrResult.amount) {
-                // OCR successful - create pending with extracted data
-                const category = ocrResult.vendor ? detectCategory(ocrResult.vendor) : 'Miscellaneous';
-
+                // OCR successful - save amount and date, ask user for description
                 pending = await PendingWhatsAppExpense.findOneAndUpdate(
                     { user: user._id },
                     {
                         user: user._id,
                         whatsappNumber: phoneNumber,
-                        step: 'confirm',
+                        step: 'description', // Ask user to enter description
                         amount: ocrResult.amount,
-                        description: ocrResult.description || `Bill from ${ocrResult.vendor || 'vendor'}`,
-                        category: category,
-                        vendor: ocrResult.vendor || 'N/A',
                         date: ocrResult.date || new Date(),
                         billImage: cloudinaryImage || { url: imageUrl, publicId: '' }
                     },
                     { upsert: true, new: true }
                 );
 
-                // Show extracted data for confirmation
+                // Show extracted amount and ask for description
                 await whatsappService.sendMessage(From,
                     '📷 *Bill Scanned!*\n\n' +
-                    `💰 Amount: ₹${pending.amount}\n` +
-                    `📝 Description: ${pending.description}\n` +
-                    `📁 Category: ${pending.category}\n` +
-                    `🏪 Vendor: ${pending.vendor}\n` +
-                    `📅 Date: ${pending.date.toLocaleDateString()}\n` +
-                    `📷 Receipt: Attached\n\n` +
-                    'Reply:\n' +
-                    '✅ *yes* - Save as is\n' +
-                    '✏️ *edit* - Modify details\n' +
-                    '❌ *no* - Cancel'
+                    `✅ Amount: ₹${pending.amount}\n` +
+                    `✅ Date: ${pending.date.toLocaleDateString()}\n\n` +
+                    '*Step 2/4: Description*\n' +
+                    'What was this expense for?\n\n' +
+                    '_Example: Lunch at Cafe Coffee Day_'
                 );
             } else {
                 // OCR failed or not configured - fallback to manual entry

@@ -142,7 +142,13 @@ function parseReceiptText(text) {
         /\brupees?\s*(\d+[,\d]*\.?\d*)/gi,
     ];
 
-    // Priority 3: Standalone amounts (common in UPI payment screenshots)
+    // Priority 3: Comma-formatted amounts (very common: 2,000 or 10,500)
+    const commaAmountPatterns = [
+        /(\d{1,2},\d{3}(?:\.\d{2})?)/g,  // 2,000 or 10,500
+        /(\d{1,3},\d{2},\d{3})/g,         // Indian format: 1,00,000
+    ];
+
+    // Priority 4: Standalone amounts (common in UPI payment screenshots)
     // Look for amounts like "2,000" or "₹2000" on their own line
     const standaloneAmountPatterns = [
         /^\s*₹?\s*(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)\s*$/gm,
@@ -190,6 +196,25 @@ function parseReceiptText(text) {
         if (foundAmounts.length > 0) {
             data.amount = Math.max(...foundAmounts);
             console.log('✅ Amount found (currency):', data.amount);
+        }
+    }
+
+    // Try comma-formatted amounts (2,000 or 10,500)
+    if (!data.amount) {
+        const foundAmounts = [];
+        for (const pattern of commaAmountPatterns) {
+            let match;
+            const regex = new RegExp(pattern.source, pattern.flags);
+            while ((match = regex.exec(text)) !== null) {
+                const amount = cleanAmount(match[1]);
+                if (amount && amount >= 100) {
+                    foundAmounts.push(amount);
+                }
+            }
+        }
+        if (foundAmounts.length > 0) {
+            data.amount = Math.max(...foundAmounts);
+            console.log('✅ Amount found (comma format):', data.amount);
         }
     }
 
@@ -266,12 +291,14 @@ function parseReceiptText(text) {
     }
 
     // Last resort: find any reasonable amount (₹100 - ₹50,000)
+    // But exclude numbers that look like dates (1-31) or times
     if (!data.amount) {
         const allNumbers = [];
         const numberPattern = /(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)/g;
         let match;
         while ((match = numberPattern.exec(text)) !== null) {
             const amount = cleanAmount(match[1]);
+            // Skip small numbers (likely dates/times) and very large numbers
             if (amount && amount >= 100 && amount <= 50000) {
                 allNumbers.push(amount);
             }
@@ -282,6 +309,7 @@ function parseReceiptText(text) {
             console.log('✅ Amount found (last resort):', data.amount);
         }
     }
+
 
     // ========== VENDOR EXTRACTION ==========
 
