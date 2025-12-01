@@ -3,6 +3,7 @@ const router = express.Router();
 const axios = require('axios');
 const { protect } = require('../middleware/auth');
 const whatsappService = require('../services/whatsapp');
+const ocrService = require('../services/ocr');
 const { cloudinary } = require('../middleware/upload');
 const User = require('../models/User');
 const Expense = require('../models/Expense');
@@ -310,37 +311,86 @@ router.post('/webhook', async (req, res) => {
         // Check for pending expense
         let pending = await PendingWhatsAppExpense.findOne({ user: user._id });
 
-        // === PHOTO HANDLING ===
+        // === PHOTO HANDLING WITH OCR ===
         if (NumMedia && parseInt(NumMedia) > 0 && MediaContentType0?.startsWith('image/')) {
             console.log('📷 Processing image upload...');
 
-            // Upload to Cloudinary
+            // Upload to Cloudinary first
             const cloudinaryImage = await uploadToCloudinary(MediaUrl0);
+            const imageUrl = cloudinaryImage?.url || MediaUrl0;
 
-            if (!pending) {
-                // Start new expense with photo
-                pending = new PendingWhatsAppExpense({
-                    user: user._id,
-                    whatsappNumber: phoneNumber,
-                    step: 'amount',
-                    billImage: cloudinaryImage || { url: MediaUrl0, publicId: '' }
-                });
-                await pending.save();
+            // Try OCR to extract bill data
+            let ocrResult = { success: false };
+            if (ocrService.isConfigured()) {
+                await whatsappService.sendMessage(From, '🔍 _Scanning bill..._');
+                ocrResult = await ocrService.extractFromBill(imageUrl);
+            }
 
+            if (ocrResult.success && ocrResult.amount) {
+                // OCR successful - create pending with extracted data
+                const category = ocrResult.vendor ? detectCategory(ocrResult.vendor) : 'Miscellaneous';
+
+                pending = await PendingWhatsAppExpense.findOneAndUpdate(
+                    { user: user._id },
+                    {
+                        user: user._id,
+                        whatsappNumber: phoneNumber,
+                        step: 'confirm',
+                        amount: ocrResult.amount,
+                        description: ocrResult.description || `Bill from ${ocrResult.vendor || 'vendor'}`,
+                        category: category,
+                        vendor: ocrResult.vendor || 'N/A',
+                        date: ocrResult.date || new Date(),
+                        billImage: cloudinaryImage || { url: imageUrl, publicId: '' }
+                    },
+                    { upsert: true, new: true }
+                );
+
+                // Show extracted data for confirmation
                 await whatsappService.sendMessage(From,
-                    '📷 *Receipt Saved!*\n\n' +
-                    '*Step 1/4: Amount*\n' +
-                    'How much was this expense?\n\n' +
-                    '_Example: 500_'
+                    '📷 *Bill Scanned!*\n\n' +
+                    `💰 Amount: ₹${pending.amount}\n` +
+                    `📝 Description: ${pending.description}\n` +
+                    `📁 Category: ${pending.category}\n` +
+                    `🏪 Vendor: ${pending.vendor}\n` +
+                    `📅 Date: ${pending.date.toLocaleDateString()}\n` +
+                    `📷 Receipt: Attached\n\n` +
+                    'Reply:\n' +
+                    '✅ *yes* - Save as is\n' +
+                    '✏️ *edit* - Modify details\n' +
+                    '❌ *no* - Cancel'
                 );
             } else {
-                // Attach photo to existing pending expense
-                pending.billImage = cloudinaryImage || { url: MediaUrl0, publicId: '' };
-                await pending.save();
+                // OCR failed or not configured - fallback to manual entry
+                if (!pending) {
+                    pending = new PendingWhatsAppExpense({
+                        user: user._id,
+                        whatsappNumber: phoneNumber,
+                        step: 'amount',
+                        billImage: cloudinaryImage || { url: imageUrl, publicId: '' }
+                    });
+                    await pending.save();
 
-                await whatsappService.sendMessage(From,
-                    `📷 *Receipt Attached!*\n\nContinue with Step ${pending.step === 'amount' ? '1' : '2'}/3`
-                );
+                    const ocrMsg = ocrService.isConfigured()
+                        ? '⚠️ _Could not read bill clearly_\n\n'
+                        : '';
+
+                    await whatsappService.sendMessage(From,
+                        '📷 *Receipt Saved!*\n\n' +
+                        ocrMsg +
+                        '*Step 1/4: Amount*\n' +
+                        'Enter the amount:\n\n' +
+                        '_Example: 500_'
+                    );
+                } else {
+                    // Attach photo to existing pending expense
+                    pending.billImage = cloudinaryImage || { url: imageUrl, publicId: '' };
+                    await pending.save();
+
+                    await whatsappService.sendMessage(From,
+                        `📷 *Receipt Attached!*\n\nContinue with Step ${pending.step === 'amount' ? '1' : pending.step === 'description' ? '2' : '3'}/4`
+                    );
+                }
             }
             return res.status(200).send('OK');
         }
@@ -399,6 +449,22 @@ async function processStep(from, user, pending, message) {
 
     switch (pending.step) {
         case 'amount':
+            const inputLowerAmt = input?.toLowerCase();
+
+            // Allow skip if editing (amount already exists)
+            if ((inputLowerAmt === 'skip' || inputLowerAmt === 's') && pending.amount) {
+                pending.step = 'description';
+                await pending.save();
+
+                await whatsappService.sendMessage(from,
+                    `✅ Amount: ₹${pending.amount} (kept)\n\n` +
+                    '*Step 2/4: Description*\n' +
+                    (pending.description ? `Current: ${pending.description}\n\n` : '') +
+                    'Enter description or *skip* to keep current:'
+                );
+                return;
+            }
+
             const amount = parseFloat(input.replace(/[₹,Rs\s]/gi, ''));
             if (isNaN(amount) || amount <= 0) {
                 await whatsappService.sendMessage(from,
@@ -413,12 +479,33 @@ async function processStep(from, user, pending, message) {
             await whatsappService.sendMessage(from,
                 `✅ Amount: ₹${amount}\n\n` +
                 '*Step 2/4: Description*\n' +
+                (pending.description ? `Current: ${pending.description}\n\n` : '') +
                 'What was this for?\n\n' +
-                '_Example: Lunch at Cafe Coffee Day_'
+                '_Example: Lunch at Cafe Coffee Day_' +
+                (pending.description ? '\n\nOr send *skip* to keep current' : '')
             );
             break;
 
         case 'description':
+            const inputLowerDesc = input?.toLowerCase();
+
+            // Allow skip if editing (description already exists)
+            if ((inputLowerDesc === 'skip' || inputLowerDesc === 's') && pending.description) {
+                pending.step = 'date';
+                await pending.save();
+
+                await whatsappService.sendMessage(from,
+                    `✅ Description: ${pending.description} (kept)\n\n` +
+                    '*Step 3/4: Date*\n' +
+                    (pending.date ? `Current: ${pending.date.toLocaleDateString()}\n\n` : '') +
+                    '• *today* - Today\n' +
+                    '• *yesterday* - Yesterday\n' +
+                    '• *skip* - Keep current\n' +
+                    '• Or enter: *25/11*'
+                );
+                return;
+            }
+
             if (!input || input.length < 2) {
                 await whatsappService.sendMessage(from,
                     '❌ Please enter a description.\n\n_Example: Lunch at office_'
@@ -441,9 +528,10 @@ async function processStep(from, user, pending, message) {
             await whatsappService.sendMessage(from,
                 `✅ Description: ${input}\n\n` +
                 '*Step 3/4: Date*\n' +
-                'When was this expense?\n\n' +
+                (pending.date ? `Current: ${pending.date.toLocaleDateString()}\n\n` : '') +
                 '• *today* - Today\'s date\n' +
                 '• *yesterday* - Yesterday\n' +
+                (pending.date ? '• *skip* - Keep current\n' : '') +
                 '• Or enter: *25/11* or *25/11/2024*'
             );
             break;
@@ -452,7 +540,10 @@ async function processStep(from, user, pending, message) {
             let expenseDate = new Date();
             const inputLowerDate = input?.toLowerCase();
 
-            if (inputLowerDate === 'today' || inputLowerDate === 't') {
+            // Allow skip if editing (date already exists)
+            if ((inputLowerDate === 'skip' || inputLowerDate === 's') && pending.date) {
+                expenseDate = pending.date;
+            } else if (inputLowerDate === 'today' || inputLowerDate === 't') {
                 expenseDate = new Date();
             } else if (inputLowerDate === 'yesterday' || inputLowerDate === 'y') {
                 expenseDate = new Date();
@@ -545,6 +636,17 @@ async function processStep(from, user, pending, message) {
                     `📷 ${pending.billImage?.url ? 'Receipt attached' : 'No receipt'}\n\n` +
                     '_Send *add* for another or *summary* for report_'
                 );
+            } else if (inputLower === 'edit' || inputLower === 'e' || inputLower === 'modify') {
+                // Go back to amount step for editing
+                pending.step = 'amount';
+                await pending.save();
+
+                await whatsappService.sendMessage(from,
+                    '✏️ *Edit Mode*\n\n' +
+                    '*Step 1/4: Amount*\n' +
+                    `Current: ₹${pending.amount}\n\n` +
+                    'Enter new amount or send *skip* to keep current:'
+                );
             } else if (inputLower === 'no' || inputLower === 'n' || inputLower === 'cancel') {
                 await PendingWhatsAppExpense.deleteOne({ user: user._id });
                 await whatsappService.sendMessage(from,
@@ -552,7 +654,10 @@ async function processStep(from, user, pending, message) {
                 );
             } else {
                 await whatsappService.sendMessage(from,
-                    '❓ Please reply *yes* to save or *no* to cancel.'
+                    '❓ Reply:\n' +
+                    '• *yes* - Save expense\n' +
+                    '• *edit* - Modify details\n' +
+                    '• *no* - Cancel'
                 );
             }
             break;
