@@ -299,7 +299,7 @@ router.post('/webhook', async (req, res) => {
 
             await whatsappService.sendMessage(From,
                 '📝 *New Expense*\n\n' +
-                '*Step 1/3: Amount*\n' +
+                '*Step 1/4: Amount*\n' +
                 'Enter the amount:\n\n' +
                 '_Example: 500_\n\n' +
                 '💡 _Tip: Send photo anytime to attach receipt_'
@@ -329,7 +329,7 @@ router.post('/webhook', async (req, res) => {
 
                 await whatsappService.sendMessage(From,
                     '📷 *Receipt Saved!*\n\n' +
-                    '*Step 1/3: Amount*\n' +
+                    '*Step 1/4: Amount*\n' +
                     'How much was this expense?\n\n' +
                     '_Example: 500_'
                 );
@@ -412,7 +412,7 @@ async function processStep(from, user, pending, message) {
 
             await whatsappService.sendMessage(from,
                 `✅ Amount: ₹${amount}\n\n` +
-                '*Step 2/3: Description*\n' +
+                '*Step 2/4: Description*\n' +
                 'What was this for?\n\n' +
                 '_Example: Lunch at Cafe Coffee Day_'
             );
@@ -430,17 +430,70 @@ async function processStep(from, user, pending, message) {
             const category = detectCategory(input);
             const vendor = extractVendor(input);
 
-            // Save to pending for confirmation
+            // Save to pending
             pending.description = input;
             pending.category = category;
             pending.vendor = vendor;
-            pending.date = new Date();
+            pending.step = 'date';
+            await pending.save();
+
+            // Ask for date
+            await whatsappService.sendMessage(from,
+                `✅ Description: ${input}\n\n` +
+                '*Step 3/4: Date*\n' +
+                'When was this expense?\n\n' +
+                '• *today* - Today\'s date\n' +
+                '• *yesterday* - Yesterday\n' +
+                '• Or enter: *25/11* or *25/11/2024*'
+            );
+            break;
+
+        case 'date':
+            let expenseDate = new Date();
+            const inputLowerDate = input?.toLowerCase();
+
+            if (inputLowerDate === 'today' || inputLowerDate === 't') {
+                expenseDate = new Date();
+            } else if (inputLowerDate === 'yesterday' || inputLowerDate === 'y') {
+                expenseDate = new Date();
+                expenseDate.setDate(expenseDate.getDate() - 1);
+            } else {
+                // Try to parse date: DD/MM, DD/MM/YY, DD/MM/YYYY, DD-MM-YYYY
+                const dateMatch = input.match(/(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?/);
+                if (dateMatch) {
+                    const day = parseInt(dateMatch[1]);
+                    const month = parseInt(dateMatch[2]) - 1; // JS months are 0-indexed
+                    let year = dateMatch[3] ? parseInt(dateMatch[3]) : new Date().getFullYear();
+                    if (year < 100) year += 2000; // Convert 24 to 2024
+
+                    expenseDate = new Date(year, month, day);
+
+                    // Validate date
+                    if (isNaN(expenseDate.getTime()) || day > 31 || month > 11) {
+                        await whatsappService.sendMessage(from,
+                            '❌ Invalid date.\n\n' +
+                            'Use: *today*, *yesterday*, or *DD/MM* format\n' +
+                            '_Example: 25/11 or 25/11/2024_'
+                        );
+                        return;
+                    }
+                } else {
+                    await whatsappService.sendMessage(from,
+                        '❌ Invalid date format.\n\n' +
+                        'Use: *today*, *yesterday*, or *DD/MM* format\n' +
+                        '_Example: 25/11 or 25/11/2024_'
+                    );
+                    return;
+                }
+            }
+
+            pending.date = expenseDate;
             pending.step = 'confirm';
             await pending.save();
 
             // Show confirmation
             await whatsappService.sendMessage(from,
-                '📋 *Step 3/3: Confirm*\n\n' +
+                '📋 *Step 4/4: Confirm*\n\n' +
                 `💰 Amount: ₹${pending.amount}\n` +
                 `📝 Description: ${pending.description}\n` +
                 `📁 Category: ${pending.category}\n` +
