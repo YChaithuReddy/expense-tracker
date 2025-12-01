@@ -879,7 +879,7 @@ main {
     margin-top: 5px;
 }
 
-/* Reset sheet button - same color as Download Complete Package */
+/* Reset sheet button - same style as other action buttons */
 .btn-reset {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
@@ -894,13 +894,11 @@ main {
     align-items: center;
     justify-content: center;
     gap: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     width: 100%;
     min-height: 64px;
     position: relative;
     overflow: hidden;
-    grid-column: 1 / -1;
-    margin-top: 5px;
 }
 
 .btn-reset::before {
@@ -927,16 +925,20 @@ main {
     transform: translateY(-1px) scale(0.98);
 }
 
-/* WhatsApp Button */
+/* WhatsApp Button - matches action button grid */
 .btn-whatsapp {
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 12px 20px;
+    justify-content: center;
+    gap: 12px;
+    padding: 16px 24px;
     background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
     color: white;
     border: none;
-    border-radius: 12px;
+    border-radius: 16px;
+    width: 100%;
+    min-height: 64px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     font-weight: 600;
     font-size: 0.95rem;
     cursor: pointer;
