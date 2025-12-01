@@ -430,41 +430,78 @@ async function processStep(from, user, pending, message) {
             const category = detectCategory(input);
             const vendor = extractVendor(input);
 
-            // Create expense
-            const expenseData = {
-                user: user._id,
-                amount: pending.amount,
-                description: input,
-                category: category,
-                vendor: vendor,
-                date: new Date()
-            };
+            // Save to pending for confirmation
+            pending.description = input;
+            pending.category = category;
+            pending.vendor = vendor;
+            pending.date = new Date();
+            pending.step = 'confirm';
+            await pending.save();
 
-            // Add image if present
-            if (pending.billImage?.url) {
-                expenseData.images = [{
-                    url: pending.billImage.url,
-                    publicId: pending.billImage.publicId || 'whatsapp-upload',
-                    filename: 'receipt.jpg'
-                }];
-            }
-
-            const expense = new Expense(expenseData);
-            await expense.save();
-
-            // Delete pending
-            await PendingWhatsAppExpense.deleteOne({ user: user._id });
-
+            // Show confirmation
             await whatsappService.sendMessage(from,
-                '✅ *Expense Saved!*\n\n' +
-                `💰 ₹${expense.amount}\n` +
-                `📝 ${expense.description}\n` +
-                `📁 ${expense.category}\n` +
-                `🏪 ${expense.vendor}\n` +
-                `📅 ${expense.date.toLocaleDateString()}\n` +
-                `📷 ${pending.billImage?.url ? 'Receipt attached' : 'No receipt'}\n\n` +
-                '_Send *add* for another or *summary* for report_'
+                '📋 *Step 3/3: Confirm*\n\n' +
+                `💰 Amount: ₹${pending.amount}\n` +
+                `📝 Description: ${pending.description}\n` +
+                `📁 Category: ${pending.category}\n` +
+                `🏪 Vendor: ${pending.vendor}\n` +
+                `📅 Date: ${pending.date.toLocaleDateString()}\n` +
+                `📷 Receipt: ${pending.billImage?.url ? 'Attached' : 'None'}\n\n` +
+                'Reply:\n' +
+                '✅ *yes* - Save expense\n' +
+                '❌ *no* - Cancel'
             );
+            break;
+
+        case 'confirm':
+            const inputLower = input?.toLowerCase();
+
+            if (inputLower === 'yes' || inputLower === 'y' || inputLower === 'ok' || inputLower === 'confirm') {
+                // Create expense
+                const expenseData = {
+                    user: user._id,
+                    amount: pending.amount,
+                    description: pending.description,
+                    category: pending.category,
+                    vendor: pending.vendor,
+                    date: pending.date
+                };
+
+                // Add image if present
+                if (pending.billImage?.url) {
+                    expenseData.images = [{
+                        url: pending.billImage.url,
+                        publicId: pending.billImage.publicId || 'whatsapp-upload',
+                        filename: 'receipt.jpg'
+                    }];
+                }
+
+                const expense = new Expense(expenseData);
+                await expense.save();
+
+                // Delete pending
+                await PendingWhatsAppExpense.deleteOne({ user: user._id });
+
+                await whatsappService.sendMessage(from,
+                    '✅ *Expense Saved!*\n\n' +
+                    `💰 ₹${expense.amount}\n` +
+                    `📝 ${expense.description}\n` +
+                    `📁 ${expense.category}\n` +
+                    `🏪 ${expense.vendor}\n` +
+                    `📅 ${expense.date.toLocaleDateString()}\n` +
+                    `📷 ${pending.billImage?.url ? 'Receipt attached' : 'No receipt'}\n\n` +
+                    '_Send *add* for another or *summary* for report_'
+                );
+            } else if (inputLower === 'no' || inputLower === 'n' || inputLower === 'cancel') {
+                await PendingWhatsAppExpense.deleteOne({ user: user._id });
+                await whatsappService.sendMessage(from,
+                    '❌ *Expense Cancelled*\n\nSend *add* to start again.'
+                );
+            } else {
+                await whatsappService.sendMessage(from,
+                    '❓ Please reply *yes* to save or *no* to cancel.'
+                );
+            }
             break;
     }
 }
