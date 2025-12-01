@@ -8,14 +8,24 @@ const User = require('../models/User');
 const Expense = require('../models/Expense');
 const PendingWhatsAppExpense = require('../models/PendingWhatsAppExpense');
 
-// Category auto-detection keywords
+// Category auto-detection keywords with proper format matching your sheet
 const CATEGORY_KEYWORDS = {
-    'Food': ['lunch', 'dinner', 'breakfast', 'food', 'restaurant', 'coffee', 'tea', 'snack', 'meal', 'eat', 'cafe', 'hotel', 'biryani', 'pizza', 'burger', 'swiggy', 'zomato', 'canteen'],
-    'Transport': ['uber', 'ola', 'cab', 'taxi', 'bus', 'metro', 'train', 'fuel', 'petrol', 'diesel', 'parking', 'toll', 'auto', 'rickshaw', 'rapido'],
-    'Shopping': ['shop', 'amazon', 'flipkart', 'clothes', 'shoes', 'buy', 'mall', 'myntra', 'purchase'],
-    'Utilities': ['electricity', 'water', 'gas', 'internet', 'wifi', 'phone', 'recharge', 'bill', 'mobile', 'jio', 'airtel', 'vi'],
-    'Entertainment': ['movie', 'netflix', 'spotify', 'game', 'concert', 'show', 'cinema', 'pvr', 'inox'],
-    'Health': ['medicine', 'doctor', 'hospital', 'pharmacy', 'medical', 'health', 'apollo', 'clinic'],
+    'Meals - Food': ['lunch', 'dinner', 'breakfast', 'food', 'meal', 'eat', 'biryani', 'canteen'],
+    'Meals - Snacks': ['snack', 'coffee', 'tea', 'cafe', 'juice', 'samosa'],
+    'Meals - Restaurant': ['restaurant', 'hotel', 'pizza', 'burger', 'swiggy', 'zomato', 'dine'],
+    'Transportation - Cab (Uber/Rapido)': ['uber', 'ola', 'cab', 'taxi', 'rapido'],
+    'Transportation - Auto': ['auto', 'rickshaw'],
+    'Transportation - Bus': ['bus', 'metro', 'train'],
+    'Fuel - Petrol': ['fuel', 'petrol', 'diesel', 'gas station'],
+    'Shopping - Online': ['amazon', 'flipkart', 'myntra', 'online'],
+    'Shopping - Clothes': ['clothes', 'shoes', 'dress', 'shirt', 'wear'],
+    'Shopping - General': ['shop', 'mall', 'buy', 'purchase', 'store'],
+    'Utilities - Bills': ['electricity', 'water', 'gas', 'internet', 'wifi', 'bill'],
+    'Utilities - Recharge': ['recharge', 'mobile', 'phone', 'jio', 'airtel', 'vi'],
+    'Entertainment - Movies': ['movie', 'cinema', 'pvr', 'inox', 'film'],
+    'Entertainment - Subscription': ['netflix', 'spotify', 'prime', 'hotstar', 'subscription'],
+    'Health - Medicine': ['medicine', 'pharmacy', 'medical', 'tablet'],
+    'Health - Doctor': ['doctor', 'hospital', 'clinic', 'apollo', 'consultation'],
     'Groceries': ['grocery', 'vegetables', 'fruits', 'milk', 'supermarket', 'bigbasket', 'blinkit', 'zepto', 'dmart']
 };
 
@@ -27,17 +37,49 @@ function detectCategory(description) {
             return category;
         }
     }
-    return 'Other';
+    return 'Miscellaneous';
 }
 
-// Extract vendor from description (capitalize first word or use as-is)
+// Extract vendor from description
+// For "Lunch at St Martha" -> extract "St Martha"
+// For "Coffee at Starbucks" -> extract "Starbucks"
+// For "Amazon order" -> extract "Amazon"
 function extractVendor(description) {
-    const words = description.trim().split(' ');
-    if (words.length > 0) {
-        // Capitalize first letter of first word
-        return words[0].charAt(0).toUpperCase() + words[0].slice(1);
+    const desc = description.trim();
+
+    // Pattern 1: "X at Y" or "X from Y" -> extract Y as vendor
+    const atMatch = desc.match(/(?:at|from|@)\s+(.+)/i);
+    if (atMatch && atMatch[1]) {
+        return capitalizeWords(atMatch[1].trim());
     }
+
+    // Pattern 2: Known vendor names in description
+    const knownVendors = ['amazon', 'flipkart', 'swiggy', 'zomato', 'uber', 'ola', 'rapido',
+                          'starbucks', 'ccd', 'dominos', 'mcdonalds', 'kfc', 'subway',
+                          'bigbasket', 'blinkit', 'zepto', 'dmart', 'reliance', 'apollo'];
+    const descLower = desc.toLowerCase();
+    for (const vendor of knownVendors) {
+        if (descLower.includes(vendor)) {
+            return capitalizeWords(vendor);
+        }
+    }
+
+    // Pattern 3: If description is just one or two words and not a common expense word, use it
+    const words = desc.split(/\s+/);
+    const commonExpenseWords = ['lunch', 'dinner', 'breakfast', 'coffee', 'tea', 'snack',
+                                 'food', 'grocery', 'medicine', 'fuel', 'petrol', 'recharge'];
+    if (words.length <= 2 && !commonExpenseWords.includes(words[0].toLowerCase())) {
+        return capitalizeWords(desc);
+    }
+
     return 'N/A';
+}
+
+// Helper to capitalize words
+function capitalizeWords(str) {
+    return str.split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ');
 }
 
 // Upload image from URL to Cloudinary
