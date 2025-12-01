@@ -127,6 +127,9 @@ function parseReceiptText(text) {
         /(?:amount\s*)?(?:paid|payable|due)[\s:]*(?:rs\.?|₹|inr)?\s*(\d+[,\d]*\.?\d*)/i,
         /(?:to\s*be\s*)?paid[\s:]*(?:rs\.?|₹|inr)?\s*(\d+[,\d]*\.?\d*)/i,
         /(?:total\s*)?(?:charge|sum)s?[\s:]*(?:rs\.?|₹|inr)?\s*(\d+[,\d]*\.?\d*)/i,
+        // Payment successful patterns (PhonePe, GPay, Paytm, etc.)
+        /payment\s*successful[\s\S]*?(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)/i,
+        /(?:you\s*)?(?:paid|sent|received)[\s:]*(?:rs\.?|₹|inr)?\s*(\d+[,\d]*\.?\d*)/i,
     ];
 
     // Priority 2: Currency symbol patterns
@@ -137,6 +140,13 @@ function parseReceiptText(text) {
         /(\d+[,\d]*\.?\d*)\s*rs\.?/gi,
         /\binr\s*(\d+[,\d]*\.?\d*)/gi,
         /\brupees?\s*(\d+[,\d]*\.?\d*)/gi,
+    ];
+
+    // Priority 3: Standalone amounts (common in UPI payment screenshots)
+    // Look for amounts like "2,000" or "₹2000" on their own line
+    const standaloneAmountPatterns = [
+        /^\s*₹?\s*(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)\s*$/gm,
+        /\n\s*₹?\s*(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)\s*\n/g,
     ];
 
     // Helper function to clean and parse amount
@@ -218,10 +228,30 @@ function parseReceiptText(text) {
         }
     }
 
+    // Try standalone amounts (UPI payment screenshots)
+    if (!data.amount) {
+        for (const pattern of standaloneAmountPatterns) {
+            const regex = new RegExp(pattern.source, pattern.flags);
+            let match;
+            const foundAmounts = [];
+            while ((match = regex.exec(text)) !== null) {
+                const amount = cleanAmount(match[1]);
+                if (amount && amount >= 100) { // Minimum ₹100 for standalone
+                    foundAmounts.push(amount);
+                }
+            }
+            if (foundAmounts.length > 0) {
+                data.amount = Math.max(...foundAmounts);
+                console.log('✅ Amount found (standalone):', data.amount);
+                break;
+            }
+        }
+    }
+
     // Fallback: any number near bill/payment keywords
     if (!data.amount) {
         for (const line of lines) {
-            if (/(?:bill|payment|charge|total)/i.test(line)) {
+            if (/(?:bill|payment|charge|total|successful)/i.test(line)) {
                 const match = line.match(/(\d+[,\d]*\.?\d*)/);
                 if (match) {
                     const amount = cleanAmount(match[1]);
@@ -235,29 +265,121 @@ function parseReceiptText(text) {
         }
     }
 
+    // Last resort: find any reasonable amount (₹100 - ₹50,000)
+    if (!data.amount) {
+        const allNumbers = [];
+        const numberPattern = /(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)/g;
+        let match;
+        while ((match = numberPattern.exec(text)) !== null) {
+            const amount = cleanAmount(match[1]);
+            if (amount && amount >= 100 && amount <= 50000) {
+                allNumbers.push(amount);
+            }
+        }
+        if (allNumbers.length > 0) {
+            // Pick the largest reasonable amount
+            data.amount = Math.max(...allNumbers);
+            console.log('✅ Amount found (last resort):', data.amount);
+        }
+    }
+
     // ========== VENDOR EXTRACTION ==========
 
     const skipKeywords = /^(amount|to|from|paid|payment|paytm|phonepe|gpay|googlepay|upi|bank|ref|reference|date|time|bill|invoice|receipt|thank|thanks|total|subtotal|tax|gst|cgst|sgst|igst|cashier|customer)/i;
     const businessKeywords = /(limited|ltd|pvt|private|corp|corporation|company|inc|llp|station|store|stores|mart|shop|restaurant|hotel|cafe|petrol|pump|mall|center|centre)/i;
 
-    // Known vendors
+    // Known vendors (with word boundary check for short names)
     const knownVendors = [
-        'swiggy', 'zomato', 'uber', 'ola', 'rapido', 'amazon', 'flipkart',
-        'bigbasket', 'blinkit', 'zepto', 'dunzo', 'dominos', 'pizza hut',
-        'mcdonalds', 'kfc', 'subway', 'starbucks', 'cafe coffee day', 'ccd',
-        'reliance', 'dmart', 'big bazaar', 'more', 'spencer', 'apollo',
-        'medplus', 'netmeds', 'pharmeasy', 'myntra', 'ajio', 'nykaa',
-        'haldiram', 'barbeque nation', 'mainland china', 'taj', 'marriott',
-        'oyo', 'fab hotel', 'treebo', 'airtel', 'jio', 'vodafone', 'vi',
-        'hp', 'indian oil', 'bharat petroleum', 'shell'
+        { name: 'swiggy', needsWordBoundary: false },
+        { name: 'zomato', needsWordBoundary: false },
+        { name: 'uber', needsWordBoundary: true },
+        { name: 'ola', needsWordBoundary: true },
+        { name: 'rapido', needsWordBoundary: false },
+        { name: 'amazon', needsWordBoundary: false },
+        { name: 'flipkart', needsWordBoundary: false },
+        { name: 'bigbasket', needsWordBoundary: false },
+        { name: 'blinkit', needsWordBoundary: false },
+        { name: 'zepto', needsWordBoundary: false },
+        { name: 'dunzo', needsWordBoundary: false },
+        { name: 'dominos', needsWordBoundary: false },
+        { name: 'pizza hut', needsWordBoundary: false },
+        { name: 'mcdonalds', needsWordBoundary: false },
+        { name: 'kfc', needsWordBoundary: true },
+        { name: 'subway', needsWordBoundary: false },
+        { name: 'starbucks', needsWordBoundary: false },
+        { name: 'cafe coffee day', needsWordBoundary: false },
+        { name: 'ccd', needsWordBoundary: true },
+        { name: 'reliance', needsWordBoundary: false },
+        { name: 'dmart', needsWordBoundary: false },
+        { name: 'big bazaar', needsWordBoundary: false },
+        { name: 'more', needsWordBoundary: true },
+        { name: 'spencer', needsWordBoundary: false },
+        { name: 'apollo', needsWordBoundary: false },
+        { name: 'medplus', needsWordBoundary: false },
+        { name: 'netmeds', needsWordBoundary: false },
+        { name: 'pharmeasy', needsWordBoundary: false },
+        { name: 'myntra', needsWordBoundary: false },
+        { name: 'ajio', needsWordBoundary: false },
+        { name: 'nykaa', needsWordBoundary: false },
+        { name: 'haldiram', needsWordBoundary: false },
+        { name: 'barbeque nation', needsWordBoundary: false },
+        { name: 'mainland china', needsWordBoundary: false },
+        { name: 'taj', needsWordBoundary: true },
+        { name: 'marriott', needsWordBoundary: false },
+        { name: 'oyo', needsWordBoundary: true },
+        { name: 'fab hotel', needsWordBoundary: false },
+        { name: 'treebo', needsWordBoundary: false },
+        { name: 'airtel', needsWordBoundary: false },
+        { name: 'jio', needsWordBoundary: true },
+        { name: 'vodafone', needsWordBoundary: false },
+        { name: 'phonepe', needsWordBoundary: false },
+        { name: 'paytm', needsWordBoundary: false },
+        { name: 'google pay', needsWordBoundary: false },
+        { name: 'gpay', needsWordBoundary: true },
+        { name: 'hp petrol', needsWordBoundary: false },
+        { name: 'indian oil', needsWordBoundary: false },
+        { name: 'bharat petroleum', needsWordBoundary: false },
+        { name: 'shell', needsWordBoundary: true },
     ];
 
-    // Check for known vendors first
-    for (const vendor of knownVendors) {
-        if (fullText.includes(vendor)) {
-            data.vendor = vendor.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    // Check for known vendors first (with word boundary for short names)
+    for (const { name, needsWordBoundary } of knownVendors) {
+        let found = false;
+        if (needsWordBoundary) {
+            // Use word boundary for short names to avoid false matches
+            const regex = new RegExp(`\\b${name}\\b`, 'i');
+            found = regex.test(fullText);
+        } else {
+            found = fullText.includes(name);
+        }
+
+        if (found) {
+            data.vendor = name.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
             console.log('✅ Vendor found (known):', data.vendor);
             break;
+        }
+    }
+
+    // For UPI payments, try to extract recipient name
+    if (!data.vendor) {
+        // Pattern: "Paid to NAME" or "To NAME" or just a name after Payment Successful
+        const upiPatterns = [
+            /(?:paid\s*to|to|sent\s*to)\s+([A-Z][A-Za-z\s]+?)(?:\n|,|@)/i,
+            /payment\s*successful[\s\S]*?\n([A-Z][A-Za-z\s]+?)(?:\n|,|@)/i,
+        ];
+
+        for (const pattern of upiPatterns) {
+            const match = text.match(pattern);
+            if (match && match[1]) {
+                let name = match[1].trim();
+                // Clean up the name
+                name = name.replace(/\s+/g, ' ').substring(0, 30);
+                if (name.length >= 2 && !/^(market|view|share|details|receipt|android)/i.test(name)) {
+                    data.vendor = name;
+                    console.log('✅ Vendor found (UPI recipient):', data.vendor);
+                    break;
+                }
+            }
         }
     }
 
