@@ -1,29 +1,7 @@
-const vision = require('@google-cloud/vision');
-
-// Initialize Google Cloud Vision client
-let visionClient = null;
-
-function getVisionClient() {
-    if (!visionClient) {
-        // Check if credentials are provided via environment variable
-        if (process.env.GOOGLE_CLOUD_VISION_CREDENTIALS) {
-            try {
-                const credentials = JSON.parse(process.env.GOOGLE_CLOUD_VISION_CREDENTIALS);
-                visionClient = new vision.ImageAnnotatorClient({ credentials });
-            } catch (error) {
-                console.error('Error parsing Google Cloud Vision credentials:', error.message);
-                return null;
-            }
-        } else {
-            console.log('Google Cloud Vision credentials not configured');
-            return null;
-        }
-    }
-    return visionClient;
-}
+const Tesseract = require('tesseract.js');
 
 /**
- * Extract text from image using Google Cloud Vision OCR
+ * Extract text from image using Tesseract.js OCR (FREE - no API key needed)
  * @param {string} imageUrl - URL of the image to process
  * @returns {Promise<{amount: number|null, vendor: string|null, date: Date|null, rawText: string}>}
  */
@@ -37,25 +15,27 @@ async function extractFromBill(imageUrl) {
         success: false
     };
 
-    const client = getVisionClient();
-    if (!client) {
-        console.log('OCR not available - Vision client not configured');
-        return result;
-    }
-
     try {
-        // Perform text detection on the image
-        const [response] = await client.textDetection(imageUrl);
-        const detections = response.textAnnotations;
+        console.log('🔍 Starting Tesseract OCR...');
 
-        if (!detections || detections.length === 0) {
+        // Perform OCR using Tesseract.js
+        const { data } = await Tesseract.recognize(imageUrl, 'eng', {
+            logger: m => {
+                if (m.status === 'recognizing text') {
+                    console.log(`OCR Progress: ${Math.round(m.progress * 100)}%`);
+                }
+            }
+        });
+
+        if (!data || !data.text) {
             console.log('No text detected in image');
             return result;
         }
 
         // Get full text from the image
-        const fullText = detections[0].description;
+        const fullText = data.text;
         result.rawText = fullText;
+        console.log('📝 OCR Raw Text:', fullText.substring(0, 200) + '...');
 
         // Extract amount
         result.amount = extractAmount(fullText);
@@ -71,10 +51,10 @@ async function extractFromBill(imageUrl) {
 
         result.success = result.amount !== null;
 
-        console.log('OCR Result:', {
+        console.log('✅ OCR Result:', {
             amount: result.amount,
             vendor: result.vendor,
-            date: result.date,
+            date: result.date?.toLocaleDateString(),
             description: result.description
         });
 
@@ -92,22 +72,25 @@ function extractAmount(text) {
     // Common patterns for amounts on Indian bills
     const patterns = [
         // Total patterns (prioritize these)
-        /(?:total|grand\s*total|net\s*amount|amount\s*payable|bill\s*amount|final\s*amount)[:\s]*(?:rs\.?|₹|inr)?\s*([0-9,]+(?:\.[0-9]{2})?)/i,
-        /(?:total|grand\s*total|net\s*amount)[:\s]*([0-9,]+(?:\.[0-9]{2})?)/i,
+        /(?:total|grand\s*total|net\s*amount|amount\s*payable|bill\s*amount|final\s*amount|net\s*payable|amount\s*due)[:\s]*(?:rs\.?|₹|inr|\?)?\s*([0-9,]+(?:\.[0-9]{2})?)/gi,
+        /(?:total|grand\s*total)[:\s]*([0-9,]+(?:\.[0-9]{2})?)/gi,
         // Amount with currency symbol
         /(?:rs\.?|₹|inr)\s*([0-9,]+(?:\.[0-9]{2})?)/gi,
-        // Plain numbers that look like amounts (4+ digits or with decimal)
-        /\b([0-9]{1,3}(?:,[0-9]{3})*(?:\.[0-9]{2})?)\b/g,
-        /\b([0-9]+\.[0-9]{2})\b/g
+        // Plain numbers that look like amounts
+        /\b([0-9]{2,6}(?:\.[0-9]{2})?)\b/g
     ];
 
-    // Try total patterns first
+    // Try total patterns first (get all matches and take the largest)
     for (let i = 0; i < 2; i++) {
-        const match = text.match(patterns[i]);
-        if (match && match[1]) {
-            const amount = parseFloat(match[1].replace(/,/g, ''));
-            if (amount > 0 && amount < 1000000) {
-                return amount;
+        const matches = [...text.matchAll(patterns[i])];
+        if (matches.length > 0) {
+            const amounts = matches
+                .map(m => parseFloat(m[1].replace(/,/g, '')))
+                .filter(a => a > 0 && a < 100000)
+                .sort((a, b) => b - a);
+
+            if (amounts.length > 0) {
+                return amounts[0];
             }
         }
     }
@@ -115,10 +98,9 @@ function extractAmount(text) {
     // Find all amounts with currency symbols
     const currencyMatches = [...text.matchAll(patterns[2])];
     if (currencyMatches.length > 0) {
-        // Get the largest amount (usually the total)
         const amounts = currencyMatches
             .map(m => parseFloat(m[1].replace(/,/g, '')))
-            .filter(a => a > 0 && a < 1000000)
+            .filter(a => a > 0 && a < 100000)
             .sort((a, b) => b - a);
 
         if (amounts.length > 0) {
@@ -127,9 +109,9 @@ function extractAmount(text) {
     }
 
     // Fallback: find largest reasonable number
-    const allNumbers = [...text.matchAll(/\b([0-9,]+(?:\.[0-9]{2})?)\b/g)]
+    const allNumbers = [...text.matchAll(patterns[3])]
         .map(m => parseFloat(m[1].replace(/,/g, '')))
-        .filter(n => n >= 10 && n < 100000) // Reasonable bill amounts
+        .filter(n => n >= 10 && n < 50000)
         .sort((a, b) => b - a);
 
     return allNumbers.length > 0 ? allNumbers[0] : null;
@@ -141,12 +123,14 @@ function extractAmount(text) {
 function extractDate(text) {
     // Common date patterns
     const patterns = [
-        // DD/MM/YYYY or DD-MM-YYYY
-        /(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/,
+        // DD/MM/YYYY or DD-MM-YYYY or DD.MM.YYYY
+        /(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})/,
         // DD MMM YYYY (01 Dec 2025)
-        /(\d{1,2})\s*(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s*(\d{2,4})/i,
+        /(\d{1,2})\s*(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*[\s,]*(\d{2,4})/i,
         // MMM DD, YYYY (Dec 01, 2025)
-        /(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s*(\d{1,2}),?\s*(\d{2,4})/i
+        /(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s*(\d{1,2})[\s,]*(\d{2,4})/i,
+        // YYYY-MM-DD
+        /(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/
     ];
 
     const monthMap = {
@@ -202,6 +186,21 @@ function extractDate(text) {
         }
     }
 
+    // Try YYYY-MM-DD format
+    const match4 = text.match(patterns[3]);
+    if (match4) {
+        const year = parseInt(match4[1]);
+        const month = parseInt(match4[2]) - 1;
+        const day = parseInt(match4[3]);
+
+        if (day >= 1 && day <= 31 && month >= 0 && month <= 11) {
+            const date = new Date(year, month, day);
+            if (!isNaN(date.getTime())) {
+                return date;
+            }
+        }
+    }
+
     // Default to today if no date found
     return new Date();
 }
@@ -210,7 +209,7 @@ function extractDate(text) {
  * Extract vendor/shop name from text
  */
 function extractVendor(text) {
-    const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+    const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 2);
 
     // Known vendor patterns
     const knownVendors = [
@@ -218,7 +217,10 @@ function extractVendor(text) {
         'bigbasket', 'blinkit', 'zepto', 'dunzo', 'dominos', 'pizza hut',
         'mcdonalds', 'kfc', 'subway', 'starbucks', 'cafe coffee day', 'ccd',
         'reliance', 'dmart', 'big bazaar', 'more', 'spencer', 'apollo',
-        'medplus', 'netmeds', 'pharmeasy', 'myntra', 'ajio', 'nykaa'
+        'medplus', 'netmeds', 'pharmeasy', 'myntra', 'ajio', 'nykaa',
+        'haldiram', 'barbeque nation', 'mainland china', 'taj', 'marriott',
+        'oyo', 'fab hotel', 'treebo', 'airtel', 'jio', 'vodafone', 'vi',
+        'petrol', 'hp', 'indian oil', 'bharat petroleum', 'shell'
     ];
 
     // Check for known vendors
@@ -229,16 +231,28 @@ function extractVendor(text) {
         }
     }
 
-    // First few lines often contain shop name
-    for (let i = 0; i < Math.min(3, lines.length); i++) {
+    // First few non-empty lines often contain shop name
+    for (let i = 0; i < Math.min(5, lines.length); i++) {
         const line = lines[i];
-        // Skip lines that are just numbers, dates, or common headers
-        if (/^[\d\s\-\/\.\,]+$/.test(line)) continue;
-        if (/^(tax|invoice|bill|receipt|gst|cash|memo)/i.test(line)) continue;
-        if (line.length < 3 || line.length > 50) continue;
 
-        // This might be the shop name
-        return line.substring(0, 30);
+        // Skip lines that are just numbers, dates, or common headers
+        if (/^[\d\s\-\/\.\,\:\+]+$/.test(line)) continue;
+        if (/^(tax|invoice|bill|receipt|gst|gstin|cash|memo|no|number|date|time|tel|ph|mobile|fax|email)/i.test(line)) continue;
+        if (/^(total|amount|subtotal|discount|cgst|sgst|igst|vat)/i.test(line)) continue;
+        if (line.length < 3 || line.length > 40) continue;
+
+        // Check if line looks like a name (has letters)
+        if (/[a-zA-Z]{2,}/.test(line)) {
+            // Clean up the line
+            let vendorName = line
+                .replace(/[^a-zA-Z\s&']/g, '')
+                .trim()
+                .substring(0, 30);
+
+            if (vendorName.length >= 3) {
+                return vendorName;
+            }
+        }
     }
 
     return null;
@@ -255,10 +269,10 @@ function generateDescription(result) {
 }
 
 /**
- * Check if OCR is configured
+ * Check if OCR is configured (Tesseract is always available)
  */
 function isConfigured() {
-    return !!process.env.GOOGLE_CLOUD_VISION_CREDENTIALS;
+    return true; // Tesseract.js doesn't need any configuration
 }
 
 module.exports = {
