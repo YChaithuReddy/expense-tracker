@@ -357,9 +357,9 @@ router.post('/webhook', async (req, res) => {
                     `💰 Amount: *₹${pending.amount}*\n` +
                     `📅 Date: *${formatDate(pending.date)}*\n\n` +
                     'Reply:\n' +
-                    '✅ *ok* - Continue to add description\n' +
-                    '✏️ *edit* - Change amount/date\n' +
-                    '❌ *cancel* - Cancel'
+                    '1️⃣ *ok* - Continue to add description\n' +
+                    '2️⃣ *edit* - Change amount/date\n' +
+                    '3️⃣ *cancel* - Cancel'
                 );
             } else {
                 // OCR failed or not configured - fallback to manual entry
@@ -453,7 +453,7 @@ async function processStep(from, user, pending, message) {
             // User confirming scanned amount/date
             const inputLowerScan = input?.toLowerCase();
 
-            if (inputLowerScan === 'ok' || inputLowerScan === 'yes' || inputLowerScan === 'y') {
+            if (inputLowerScan === 'ok' || inputLowerScan === 'yes' || inputLowerScan === 'y' || input === '1') {
                 // Continue to description
                 pending.step = 'description';
                 await pending.save();
@@ -465,7 +465,7 @@ async function processStep(from, user, pending, message) {
                     'What was this expense for?\n\n' +
                     '_Example: Lunch at Cafe Coffee Day_'
                 );
-            } else if (inputLowerScan === 'edit' || inputLowerScan === 'e') {
+            } else if (inputLowerScan === 'edit' || inputLowerScan === 'e' || input === '2') {
                 // Go to amount step to edit
                 pending.step = 'amount';
                 await pending.save();
@@ -476,7 +476,7 @@ async function processStep(from, user, pending, message) {
                     '*Step 1/4: Amount*\n' +
                     'Enter the correct amount:'
                 );
-            } else if (inputLowerScan === 'cancel' || inputLowerScan === 'no' || inputLowerScan === 'n') {
+            } else if (inputLowerScan === 'cancel' || inputLowerScan === 'no' || inputLowerScan === 'n' || input === '3') {
                 await PendingWhatsAppExpense.deleteOne({ user: user._id });
                 await whatsappService.sendMessage(from,
                     '❌ *Cancelled*\n\nSend *add* or a photo to start again.'
@@ -484,9 +484,9 @@ async function processStep(from, user, pending, message) {
             } else {
                 await whatsappService.sendMessage(from,
                     '❓ Reply:\n' +
-                    '• *ok* - Continue\n' +
-                    '• *edit* - Change amount/date\n' +
-                    '• *cancel* - Cancel'
+                    '• *1* or *ok* - Continue\n' +
+                    '• *2* or *edit* - Change amount/date\n' +
+                    '• *3* or *cancel* - Cancel'
                 );
             }
             break;
@@ -580,9 +580,9 @@ async function processStep(from, user, pending, message) {
                     `📅 Date: ${formatDate(pending.date)}\n` +
                     `📷 Receipt: Attached\n\n` +
                     'Reply:\n' +
-                    '✅ *yes* - Save expense\n' +
-                    '✏️ *edit* - Modify details\n' +
-                    '❌ *no* - Cancel'
+                    '1️⃣ *yes* - Save expense\n' +
+                    '2️⃣ *edit* - Modify details\n' +
+                    '3️⃣ *no* - Cancel'
                 );
             } else {
                 // No photo - ask for date
@@ -655,15 +655,16 @@ async function processStep(from, user, pending, message) {
                 `📅 Date: ${formatDate(pending.date)}\n` +
                 `📷 Receipt: ${pending.billImage?.url ? 'Attached' : 'None'}\n\n` +
                 'Reply:\n' +
-                '✅ *yes* - Save expense\n' +
-                '❌ *no* - Cancel'
+                '1️⃣ *yes* - Save expense\n' +
+                '2️⃣ *edit* - Modify details\n' +
+                '3️⃣ *no* - Cancel'
             );
             break;
 
         case 'confirm':
             const inputLower = input?.toLowerCase();
 
-            if (inputLower === 'yes' || inputLower === 'y' || inputLower === 'ok' || inputLower === 'confirm') {
+            if (inputLower === 'yes' || inputLower === 'y' || inputLower === 'ok' || inputLower === 'confirm' || input === '1') {
                 // Create expense
                 const expenseData = {
                     user: user._id,
@@ -699,7 +700,7 @@ async function processStep(from, user, pending, message) {
                     `📷 ${pending.billImage?.url ? 'Receipt attached' : 'No receipt'}\n\n` +
                     '_Send *add* for another or *summary* for report_'
                 );
-            } else if (inputLower === 'edit' || inputLower === 'e' || inputLower === 'modify') {
+            } else if (inputLower === 'edit' || inputLower === 'e' || inputLower === 'modify' || input === '2') {
                 // Go back to amount step for editing
                 pending.step = 'amount';
                 await pending.save();
@@ -710,7 +711,7 @@ async function processStep(from, user, pending, message) {
                     `Current: ₹${pending.amount}\n\n` +
                     'Enter new amount or send *skip* to keep current:'
                 );
-            } else if (inputLower === 'no' || inputLower === 'n' || inputLower === 'cancel') {
+            } else if (inputLower === 'no' || inputLower === 'n' || inputLower === 'cancel' || input === '3') {
                 await PendingWhatsAppExpense.deleteOne({ user: user._id });
                 await whatsappService.sendMessage(from,
                     '❌ *Expense Cancelled*\n\nSend *add* to start again.'
@@ -718,9 +719,9 @@ async function processStep(from, user, pending, message) {
             } else {
                 await whatsappService.sendMessage(from,
                     '❓ Reply:\n' +
-                    '• *yes* - Save expense\n' +
-                    '• *edit* - Modify details\n' +
-                    '• *no* - Cancel'
+                    '• *1* or *yes* - Save expense\n' +
+                    '• *2* or *edit* - Modify details\n' +
+                    '• *3* or *no* - Cancel'
                 );
             }
             break;
