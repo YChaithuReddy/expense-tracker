@@ -327,13 +327,13 @@ router.post('/webhook', async (req, res) => {
             }
 
             if (ocrResult.success && ocrResult.amount) {
-                // OCR successful - save amount and date, ask user for description
+                // OCR successful - save amount and date, show for confirmation
                 pending = await PendingWhatsAppExpense.findOneAndUpdate(
                     { user: user._id },
                     {
                         user: user._id,
                         whatsappNumber: phoneNumber,
-                        step: 'description', // Ask user to enter description
+                        step: 'confirm_scan', // New step to confirm scanned data
                         amount: ocrResult.amount,
                         date: ocrResult.date || new Date(),
                         billImage: cloudinaryImage || { url: imageUrl, publicId: '' }
@@ -341,14 +341,15 @@ router.post('/webhook', async (req, res) => {
                     { upsert: true, new: true }
                 );
 
-                // Show extracted amount and ask for description
+                // Show extracted data with edit option
                 await whatsappService.sendMessage(From,
                     '📷 *Bill Scanned!*\n\n' +
-                    `✅ Amount: ₹${pending.amount}\n` +
-                    `✅ Date: ${pending.date.toLocaleDateString()}\n\n` +
-                    '*Step 2/4: Description*\n' +
-                    'What was this expense for?\n\n' +
-                    '_Example: Lunch at Cafe Coffee Day_'
+                    `💰 Amount: *₹${pending.amount}*\n` +
+                    `📅 Date: *${pending.date.toLocaleDateString()}*\n\n` +
+                    'Reply:\n' +
+                    '✅ *ok* - Continue to add description\n' +
+                    '✏️ *edit* - Change amount/date\n' +
+                    '❌ *cancel* - Cancel'
                 );
             } else {
                 // OCR failed or not configured - fallback to manual entry
@@ -438,6 +439,48 @@ async function processStep(from, user, pending, message) {
     const input = message?.trim();
 
     switch (pending.step) {
+        case 'confirm_scan':
+            // User confirming scanned amount/date
+            const inputLowerScan = input?.toLowerCase();
+
+            if (inputLowerScan === 'ok' || inputLowerScan === 'yes' || inputLowerScan === 'y') {
+                // Continue to description
+                pending.step = 'description';
+                await pending.save();
+
+                await whatsappService.sendMessage(from,
+                    `✅ Amount: ₹${pending.amount}\n` +
+                    `✅ Date: ${pending.date.toLocaleDateString()}\n\n` +
+                    '*Step 2/4: Description*\n' +
+                    'What was this expense for?\n\n' +
+                    '_Example: Lunch at Cafe Coffee Day_'
+                );
+            } else if (inputLowerScan === 'edit' || inputLowerScan === 'e') {
+                // Go to amount step to edit
+                pending.step = 'amount';
+                await pending.save();
+
+                await whatsappService.sendMessage(from,
+                    '✏️ *Edit Mode*\n\n' +
+                    `Current Amount: ₹${pending.amount}\n\n` +
+                    '*Step 1/4: Amount*\n' +
+                    'Enter the correct amount:'
+                );
+            } else if (inputLowerScan === 'cancel' || inputLowerScan === 'no' || inputLowerScan === 'n') {
+                await PendingWhatsAppExpense.deleteOne({ user: user._id });
+                await whatsappService.sendMessage(from,
+                    '❌ *Cancelled*\n\nSend *add* or a photo to start again.'
+                );
+            } else {
+                await whatsappService.sendMessage(from,
+                    '❓ Reply:\n' +
+                    '• *ok* - Continue\n' +
+                    '• *edit* - Change amount/date\n' +
+                    '• *cancel* - Cancel'
+                );
+            }
+            break;
+
         case 'amount':
             const inputLowerAmt = input?.toLowerCase();
 

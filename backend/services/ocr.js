@@ -167,7 +167,18 @@ function parseReceiptText(text) {
         return null;
     };
 
-    // Try context patterns first
+    // PRIORITY 0: Find comma-formatted amounts FIRST (most reliable for UPI: 2,000 or 50,000)
+    const commaAmountMatch = text.match(/(\d{1,2},\d{3}(?:\.\d{2})?)/);
+    if (commaAmountMatch) {
+        const amount = cleanAmount(commaAmountMatch[1]);
+        if (amount && amount >= 100) {
+            data.amount = amount;
+            console.log('✅ Amount found (comma format - priority 0):', data.amount);
+            // Don't return yet, continue to extract date and vendor
+        }
+    }
+
+    // Try context patterns if comma format didn't work
     for (const pattern of contextPatterns) {
         const match = fullText.match(pattern);
         if (match) {
