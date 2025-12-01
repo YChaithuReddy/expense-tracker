@@ -15,10 +15,10 @@ const pendingWhatsAppExpenseSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    // Conversation state (4-step flow: amount, description, date, confirm)
+    // Conversation state (flow: confirm_scan, amount, description, date, confirm)
     step: {
         type: String,
-        enum: ['amount', 'description', 'date', 'confirm'],
+        enum: ['confirm_scan', 'amount', 'description', 'date', 'confirm'],
         default: 'amount'
     },
     // Expense data being collected
