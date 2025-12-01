@@ -174,19 +174,21 @@ function parseReceiptText(text) {
         if (amount && amount >= 100) {
             data.amount = amount;
             console.log('✅ Amount found (comma format - priority 0):', data.amount);
-            // Don't return yet, continue to extract date and vendor
+            // STOP here - don't let other patterns overwrite this
         }
     }
 
-    // Try context patterns if comma format didn't work
-    for (const pattern of contextPatterns) {
-        const match = fullText.match(pattern);
-        if (match) {
-            const amount = cleanAmount(match[1]);
-            if (amount) {
-                data.amount = amount;
-                console.log('✅ Amount found (context):', data.amount);
-                break;
+    // Try context patterns ONLY if comma format didn't find anything
+    if (!data.amount) {
+        for (const pattern of contextPatterns) {
+            const match = fullText.match(pattern);
+            if (match) {
+                const amount = cleanAmount(match[1]);
+                if (amount) {
+                    data.amount = amount;
+                    console.log('✅ Amount found (context):', data.amount);
+                    break;
+                }
             }
         }
     }

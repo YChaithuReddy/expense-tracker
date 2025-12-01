@@ -83,6 +83,16 @@ function capitalizeWords(str) {
         .join(' ');
 }
 
+// Helper to format date as DD/MM/YYYY (Indian format)
+function formatDate(date) {
+    if (!date) return 'N/A';
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+}
+
 // Upload image from URL to Cloudinary
 async function uploadToCloudinary(imageUrl) {
     try {
@@ -345,7 +355,7 @@ router.post('/webhook', async (req, res) => {
                 await whatsappService.sendMessage(From,
                     '📷 *Bill Scanned!*\n\n' +
                     `💰 Amount: *₹${pending.amount}*\n` +
-                    `📅 Date: *${pending.date.toLocaleDateString()}*\n\n` +
+                    `📅 Date: *${formatDate(pending.date)}*\n\n` +
                     'Reply:\n' +
                     '✅ *ok* - Continue to add description\n' +
                     '✏️ *edit* - Change amount/date\n' +
@@ -407,7 +417,7 @@ router.post('/webhook', async (req, res) => {
                     `📝 ${expense.description}\n` +
                     `📁 ${expense.category}\n` +
                     `🏪 ${expense.vendor}\n` +
-                    `📅 ${expense.date.toLocaleDateString()}\n\n` +
+                    `📅 ${formatDate(expense.date)}\n\n` +
                     '_Send another or type *summary*_'
                 );
                 return res.status(200).send('OK');
@@ -450,7 +460,7 @@ async function processStep(from, user, pending, message) {
 
                 await whatsappService.sendMessage(from,
                     `✅ Amount: ₹${pending.amount}\n` +
-                    `✅ Date: ${pending.date.toLocaleDateString()}\n\n` +
+                    `✅ Date: ${formatDate(pending.date)}\n\n` +
                     '*Step 2/4: Description*\n' +
                     'What was this expense for?\n\n' +
                     '_Example: Lunch at Cafe Coffee Day_'
@@ -530,7 +540,7 @@ async function processStep(from, user, pending, message) {
                 await whatsappService.sendMessage(from,
                     `✅ Description: ${pending.description} (kept)\n\n` +
                     '*Step 3/4: Date*\n' +
-                    (pending.date ? `Current: ${pending.date.toLocaleDateString()}\n\n` : '') +
+                    (pending.date ? `Current: ${formatDate(pending.date)}\n\n` : '') +
                     '• *today* - Today\n' +
                     '• *yesterday* - Yesterday\n' +
                     '• *skip* - Keep current\n' +
@@ -554,19 +564,39 @@ async function processStep(from, user, pending, message) {
             pending.description = input;
             pending.category = category;
             pending.vendor = vendor;
-            pending.step = 'date';
-            await pending.save();
 
-            // Ask for date
-            await whatsappService.sendMessage(from,
-                `✅ Description: ${input}\n\n` +
-                '*Step 3/4: Date*\n' +
-                (pending.date ? `Current: ${pending.date.toLocaleDateString()}\n\n` : '') +
-                '• *today* - Today\'s date\n' +
-                '• *yesterday* - Yesterday\n' +
-                (pending.date ? '• *skip* - Keep current\n' : '') +
-                '• Or enter: *25/11* or *25/11/2024*'
-            );
+            // If photo was scanned (has billImage and date from OCR), skip date step
+            if (pending.billImage?.url && pending.date) {
+                pending.step = 'confirm';
+                await pending.save();
+
+                // Go directly to confirm
+                await whatsappService.sendMessage(from,
+                    '📋 *Confirm Expense*\n\n' +
+                    `💰 Amount: ₹${pending.amount}\n` +
+                    `📝 Description: ${pending.description}\n` +
+                    `📁 Category: ${pending.category}\n` +
+                    `🏪 Vendor: ${pending.vendor}\n` +
+                    `📅 Date: ${formatDate(pending.date)}\n` +
+                    `📷 Receipt: Attached\n\n` +
+                    'Reply:\n' +
+                    '✅ *yes* - Save expense\n' +
+                    '✏️ *edit* - Modify details\n' +
+                    '❌ *no* - Cancel'
+                );
+            } else {
+                // No photo - ask for date
+                pending.step = 'date';
+                await pending.save();
+
+                await whatsappService.sendMessage(from,
+                    `✅ Description: ${input}\n\n` +
+                    '*Step 3/4: Date*\n' +
+                    '• *today* - Today\'s date\n' +
+                    '• *yesterday* - Yesterday\n' +
+                    '• Or enter: *25/11* or *25/11/2024*'
+                );
+            }
             break;
 
         case 'date':
@@ -622,7 +652,7 @@ async function processStep(from, user, pending, message) {
                 `📝 Description: ${pending.description}\n` +
                 `📁 Category: ${pending.category}\n` +
                 `🏪 Vendor: ${pending.vendor}\n` +
-                `📅 Date: ${pending.date.toLocaleDateString()}\n` +
+                `📅 Date: ${formatDate(pending.date)}\n` +
                 `📷 Receipt: ${pending.billImage?.url ? 'Attached' : 'None'}\n\n` +
                 'Reply:\n' +
                 '✅ *yes* - Save expense\n' +
@@ -665,7 +695,7 @@ async function processStep(from, user, pending, message) {
                     `📝 ${expense.description}\n` +
                     `📁 ${expense.category}\n` +
                     `🏪 ${expense.vendor}\n` +
-                    `📅 ${expense.date.toLocaleDateString()}\n` +
+                    `📅 ${formatDate(expense.date)}\n` +
                     `📷 ${pending.billImage?.url ? 'Receipt attached' : 'No receipt'}\n\n` +
                     '_Send *add* for another or *summary* for report_'
                 );
