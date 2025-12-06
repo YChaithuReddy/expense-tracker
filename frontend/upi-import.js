@@ -6,24 +6,24 @@
 (function() {
     'use strict';
 
-    // UPI App deep links that work on Android
+    // UPI App deep links that work on Android - opens app home screen
     const UPI_APPS = {
         gpay: {
             name: 'Google Pay',
-            // Use UPI deep link format that GPay handles
-            deepLink: 'upi://pay?pa=test@upi&pn=Test&cu=INR',
+            // Open GPay home/history
+            deepLink: 'gpay://upi/',
             fallbackUrl: 'https://play.google.com/store/apps/details?id=com.google.android.apps.nbu.paisa.user'
         },
         phonepe: {
             name: 'PhonePe',
-            // PhonePe specific deep link
-            deepLink: 'phonepe://pay?pa=test@upi&pn=Test&cu=INR',
+            // Open PhonePe home
+            deepLink: 'phonepe://',
             fallbackUrl: 'https://play.google.com/store/apps/details?id=com.phonepe.app'
         },
         paytm: {
             name: 'Paytm',
-            // Paytm specific deep link
-            deepLink: 'paytmmp://pay?pa=test@upi&pn=Test&cu=INR',
+            // Open Paytm home
+            deepLink: 'paytmmp://',
             fallbackUrl: 'https://play.google.com/store/apps/details?id=net.one97.paytm'
         }
     };
