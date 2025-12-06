@@ -9,6 +9,9 @@
 // const API_BASE_URL = 'http://localhost:5000/api';
 const API_BASE_URL = 'https://expense-tracker-production-8f00.up.railway.app/api';
 
+// Make API_BASE_URL available globally for offline manager
+window.API_BASE_URL = API_BASE_URL;
+
 // Get auth token from localStorage
 function getAuthToken() {
     return localStorage.getItem('authToken');
@@ -32,12 +35,81 @@ function getHeaders(includeAuth = false, isFormData = false) {
     return headers;
 }
 
+// Retry configuration
+const RETRY_CONFIG = {
+    maxRetries: 3,
+    baseDelay: 1000, // 1 second
+    maxDelay: 10000  // 10 seconds
+};
+
+// Fetch with retry logic
+async function fetchWithRetry(url, options = {}, retries = RETRY_CONFIG.maxRetries) {
+    let lastError;
+
+    for (let attempt = 0; attempt < retries; attempt++) {
+        try {
+            // Check if online
+            if (!navigator.onLine) {
+                throw new Error('You are offline. Please check your internet connection.');
+            }
+
+            const response = await fetch(url, {
+                ...options,
+                // Add timeout using AbortController
+                signal: AbortSignal.timeout(30000) // 30 second timeout
+            });
+
+            // If server error (5xx), retry
+            if (response.status >= 500 && attempt < retries - 1) {
+                throw new Error(`Server error: ${response.status}`);
+            }
+
+            return response;
+        } catch (error) {
+            lastError = error;
+            console.warn(`Fetch attempt ${attempt + 1}/${retries} failed:`, error.message);
+
+            // Don't retry on certain errors
+            if (error.name === 'AbortError' ||
+                error.message.includes('offline') ||
+                error.message.includes('401')) {
+                break;
+            }
+
+            // Wait before retrying (exponential backoff)
+            if (attempt < retries - 1) {
+                const delay = Math.min(
+                    RETRY_CONFIG.baseDelay * Math.pow(2, attempt),
+                    RETRY_CONFIG.maxDelay
+                );
+                console.log(`Retrying in ${delay}ms...`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+        }
+    }
+
+    throw lastError;
+}
+
 // Handle API errors
 function handleApiError(error) {
     console.error('API Error:', error);
 
+    // Offline error
+    if (!navigator.onLine || error.message === 'Failed to fetch') {
+        const offlineError = new Error('You are offline. Changes will be saved locally and synced when you\'re back online.');
+        offlineError.isOffline = true;
+        throw offlineError;
+    }
+
+    // Timeout error
+    if (error.name === 'TimeoutError' || error.name === 'AbortError') {
+        throw new Error('Request timed out. Please try again.');
+    }
+
+    // Network error
     if (error.message === 'Failed to fetch') {
-        throw new Error('Cannot connect to server. Please check if backend is running.');
+        throw new Error('Cannot connect to server. Please check your internet connection.');
     }
 
     throw error;
@@ -158,7 +230,7 @@ const api = {
      * Expense APIs
      */
 
-    // Get all expenses
+    // Get all expenses (with offline support)
     async getExpenses(page = 1, limit = 50, category = 'all') {
         try {
             let url = `${API_BASE_URL}/expenses?page=${page}&limit=${limit}`;
@@ -166,7 +238,7 @@ const api = {
                 url += `&category=${category}`;
             }
 
-            const response = await fetch(url, {
+            const response = await fetchWithRetry(url, {
                 method: 'GET',
                 headers: getHeaders(true)
             });
@@ -177,8 +249,26 @@ const api = {
                 throw new Error(data.message || 'Failed to fetch expenses');
             }
 
+            // Cache expenses for offline viewing
+            if (window.offlineManager && data.data) {
+                window.offlineManager.cacheExpenses(data.data);
+            }
+
             return data;
         } catch (error) {
+            // If offline, try to return cached expenses
+            if (!navigator.onLine && window.offlineManager) {
+                console.log('Offline: Loading cached expenses...');
+                const cachedExpenses = await window.offlineManager.getCachedExpenses();
+                if (cachedExpenses.length > 0) {
+                    return {
+                        success: true,
+                        data: cachedExpenses,
+                        cached: true,
+                        message: 'Showing cached data (offline)'
+                    };
+                }
+            }
             return handleApiError(error);
         }
     },
@@ -203,8 +293,19 @@ const api = {
         }
     },
 
-    // Create new expense
+    // Create new expense (with offline support)
     async createExpense(expenseData, images = []) {
+        // If offline and no images, save locally
+        if (!navigator.onLine && images.length === 0 && window.offlineManager) {
+            console.log('Offline: Saving expense locally...');
+            await window.offlineManager.savePendingExpense(expenseData);
+            return {
+                success: true,
+                offline: true,
+                message: 'Expense saved offline. Will sync when online.'
+            };
+        }
+
         try {
             const formData = new FormData();
 
@@ -227,7 +328,7 @@ const api = {
                 formData.append('images', images[i]);
             }
 
-            const response = await fetch(`${API_BASE_URL}/expenses`, {
+            const response = await fetchWithRetry(`${API_BASE_URL}/expenses`, {
                 method: 'POST',
                 headers: getHeaders(true, true),
                 body: formData
@@ -256,6 +357,17 @@ const api = {
 
             return data;
         } catch (error) {
+            // If network error and no images, save offline
+            if ((error.message.includes('fetch') || error.message.includes('offline') || !navigator.onLine)
+                && images.length === 0 && window.offlineManager) {
+                console.log('Network error: Saving expense locally...');
+                await window.offlineManager.savePendingExpense(expenseData);
+                return {
+                    success: true,
+                    offline: true,
+                    message: 'Expense saved offline. Will sync when online.'
+                };
+            }
             return handleApiError(error);
         }
     },

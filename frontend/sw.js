@@ -16,6 +16,7 @@ const STATIC_ASSETS = [
   '/auth.js',
   '/google-sheets-service.js',
   '/whatsapp-service.js',
+  '/offline-manager.js',
   '/progress-modal.js',
   '/favicon.svg',
   '/manifest.json',
