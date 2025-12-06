@@ -130,16 +130,35 @@
             upiImportBtn.onclick = function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                // Scroll to UPI import section
+                // Show and scroll to UPI import section
                 const upiSection = document.getElementById('upiImportSection');
                 if (upiSection) {
-                    upiSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    // Add a highlight effect
-                    upiSection.style.transition = 'box-shadow 0.3s ease';
-                    upiSection.style.boxShadow = '0 0 20px rgba(20, 184, 166, 0.5)';
+                    // Show the section
+                    upiSection.style.display = 'block';
+                    // Scroll to it
                     setTimeout(() => {
-                        upiSection.style.boxShadow = '';
-                    }, 1500);
+                        upiSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        // Add a highlight effect
+                        upiSection.style.transition = 'box-shadow 0.3s ease';
+                        upiSection.style.boxShadow = '0 0 20px rgba(20, 184, 166, 0.5)';
+                        setTimeout(() => {
+                            upiSection.style.boxShadow = '';
+                        }, 1500);
+                    }, 100);
+                }
+                return false;
+            };
+        }
+
+        // Close button for UPI section
+        const upiCloseBtn = document.getElementById('upiCloseBtn');
+        if (upiCloseBtn) {
+            upiCloseBtn.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const upiSection = document.getElementById('upiImportSection');
+                if (upiSection) {
+                    upiSection.style.display = 'none';
                 }
                 return false;
             };
