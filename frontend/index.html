@@ -12,7 +12,17 @@
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="alternate icon" href="favicon.ico">
-    <link rel="apple-touch-icon" href="favicon.svg">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="icons/icon-192x192.png">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Expense Tracker">
+    <meta name="msapplication-TileColor" content="#0f0f23">
+    <meta name="msapplication-TileImage" content="icons/icon-144x144.png">
 
     <!-- Flatpickr CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -437,5 +447,96 @@
 
     <!-- Progress Modal Script -->
     <script src="progress-modal.js"></script>
+
+    <!-- PWA Service Worker Registration -->
+    <script>
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', async () => {
+                try {
+                    const registration = await navigator.serviceWorker.register('/sw.js');
+                    console.log('✅ PWA Service Worker registered:', registration.scope);
+
+                    // Check for updates
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        console.log('🔄 New Service Worker installing...');
+
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // New version available
+                                if (confirm('New version available! Reload to update?')) {
+                                    window.location.reload();
+                                }
+                            }
+                        });
+                    });
+                } catch (error) {
+                    console.warn('⚠️ Service Worker registration failed:', error);
+                }
+            });
+        }
+
+        // PWA Install Prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+
+            // Show install button after a delay (non-intrusive)
+            setTimeout(() => {
+                showInstallPrompt();
+            }, 30000); // Show after 30 seconds of usage
+        });
+
+        function showInstallPrompt() {
+            if (!deferredPrompt) return;
+
+            // Create install banner
+            const banner = document.createElement('div');
+            banner.id = 'pwa-install-banner';
+            banner.innerHTML = `
+                <div style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+                            background: linear-gradient(135deg, #14b8a6, #0d9488); color: white;
+                            padding: 15px 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                            display: flex; align-items: center; gap: 15px; z-index: 10000; max-width: 90%;">
+                    <span style="font-size: 24px;">📱</span>
+                    <div>
+                        <div style="font-weight: bold;">Install Expense Tracker</div>
+                        <div style="font-size: 12px; opacity: 0.9;">Add to home screen for quick access</div>
+                    </div>
+                    <button id="pwa-install-btn" style="background: white; color: #0d9488; border: none;
+                            padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                        Install
+                    </button>
+                    <button id="pwa-dismiss-btn" style="background: transparent; color: white; border: none;
+                            font-size: 20px; cursor: pointer; padding: 5px;">✕</button>
+                </div>
+            `;
+            document.body.appendChild(banner);
+
+            document.getElementById('pwa-install-btn').addEventListener('click', async () => {
+                banner.remove();
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log('PWA install outcome:', outcome);
+                deferredPrompt = null;
+            });
+
+            document.getElementById('pwa-dismiss-btn').addEventListener('click', () => {
+                banner.remove();
+                // Don't show again for this session
+                sessionStorage.setItem('pwa-dismissed', 'true');
+            });
+        }
+
+        // Handle app installed event
+        window.addEventListener('appinstalled', () => {
+            console.log('✅ PWA was installed');
+            deferredPrompt = null;
+            const banner = document.getElementById('pwa-install-banner');
+            if (banner) banner.remove();
+        });
+    </script>
 </body>
 </html>
