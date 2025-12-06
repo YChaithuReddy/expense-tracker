@@ -122,25 +122,21 @@
                         <h3 style="margin: 0;">Import from UPI App</h3>
                     </div>
                     <div class="upi-apps-grid">
-                        <button class="upi-app-btn" onclick="window.upiImport.openUPIApp('gpay')">
+                        <button class="upi-app-btn" id="gpayBtn">
                             <span class="upi-app-icon">💳</span>
                             <span class="upi-app-name">Google Pay</span>
                         </button>
-                        <button class="upi-app-btn" onclick="window.upiImport.openUPIApp('phonepe')">
+                        <button class="upi-app-btn" id="phonepeBtn">
                             <span class="upi-app-icon">📱</span>
                             <span class="upi-app-name">PhonePe</span>
                         </button>
-                        <button class="upi-app-btn" onclick="window.upiImport.openUPIApp('paytm')">
+                        <button class="upi-app-btn" id="paytmBtn">
                             <span class="upi-app-icon">💰</span>
                             <span class="upi-app-name">Paytm</span>
                         </button>
-                        <button class="upi-app-btn" onclick="window.upiImport.selectScreenshot()">
-                            <span class="upi-app-icon">🖼️</span>
-                            <span class="upi-app-name">Upload Screenshot</span>
-                        </button>
                     </div>
                     <div class="upi-import-hint">
-                        <strong>How it works:</strong> Open your UPI app, go to payment history, take a screenshot, then come back here. We'll auto-extract the payment details!
+                        <strong>How it works:</strong> Tap an app to open it, go to payment history, take a screenshot, then come back and scan it using the Camera/Gallery buttons above.
                     </div>
                 </div>
             </section>
