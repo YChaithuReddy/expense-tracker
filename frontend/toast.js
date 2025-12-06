@@ -6,10 +6,24 @@
 class ToastManager {
     constructor() {
         this.container = null;
-        this.init();
+        this.initialized = false;
+        // Wait for DOM to be ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.init());
+        } else {
+            this.init();
+        }
     }
 
     init() {
+        if (this.initialized) return;
+        if (!document.body) {
+            // Body not ready yet, try again shortly
+            setTimeout(() => this.init(), 10);
+            return;
+        }
+        this.initialized = true;
+
         // Create container if not exists
         if (!document.getElementById('toast-container')) {
             this.container = document.createElement('div');
@@ -200,6 +214,18 @@ class ToastManager {
      * @returns {HTMLElement} Toast element (for updating/removing)
      */
     show({ type = 'info', title = '', message = '', duration = 4000, showProgress = true }) {
+        // Ensure initialized
+        if (!this.initialized) {
+            this.init();
+        }
+        if (!this.container) {
+            this.container = document.getElementById('toast-container');
+        }
+        if (!this.container) {
+            console.warn('Toast container not ready');
+            return null;
+        }
+
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
         toast.style.position = 'relative';
