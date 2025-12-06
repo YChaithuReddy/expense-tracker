@@ -124,6 +124,27 @@
             };
         }
 
+        // UPI Import button in action buttons section
+        const upiImportBtn = document.getElementById('upiImportBtn');
+        if (upiImportBtn) {
+            upiImportBtn.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                // Scroll to UPI import section
+                const upiSection = document.getElementById('upiImportSection');
+                if (upiSection) {
+                    upiSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // Add a highlight effect
+                    upiSection.style.transition = 'box-shadow 0.3s ease';
+                    upiSection.style.boxShadow = '0 0 20px rgba(20, 184, 166, 0.5)';
+                    setTimeout(() => {
+                        upiSection.style.boxShadow = '';
+                    }, 1500);
+                }
+                return false;
+            };
+        }
+
         console.log('UPI Import buttons initialized');
     }
 
