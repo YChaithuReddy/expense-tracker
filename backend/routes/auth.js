@@ -195,12 +195,17 @@ router.put('/updatepassword', protect, async (req, res) => {
  * @desc    Initiate Google OAuth login
  * @access  Public
  */
-router.get('/google',
+router.get('/google', (req, res, next) => {
+    // Store platform info in session/state for callback
+    const platform = req.query.platform || 'web';
+    const state = Buffer.from(JSON.stringify({ platform })).toString('base64');
+
     passport.authenticate('google', {
         scope: ['profile', 'email'],
-        prompt: 'select_account'
-    })
-);
+        prompt: 'select_account',
+        state: state
+    })(req, res, next);
+});
 
 /**
  * @route   GET /api/auth/google/callback
@@ -220,8 +225,16 @@ router.get('/google/callback',
             // Generate JWT token
             const token = generateToken(req.user._id);
 
-            // Determine frontend URL
-            const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+            // Parse state to check platform
+            let platform = 'web';
+            if (req.query.state) {
+                try {
+                    const stateData = JSON.parse(Buffer.from(req.query.state, 'base64').toString());
+                    platform = stateData.platform || 'web';
+                } catch (e) {
+                    console.log('Could not parse state:', e);
+                }
+            }
 
             // Prepare user data for frontend
             const userData = {
@@ -232,8 +245,16 @@ router.get('/google/callback',
                 authProvider: 'google'
             };
 
-            // Redirect to frontend with token and user info
-            const redirectUrl = `${frontendUrl}/login.html?token=${encodeURIComponent(token)}&user=${encodeURIComponent(JSON.stringify(userData))}&authProvider=google`;
+            // Determine redirect URL based on platform
+            let redirectUrl;
+            if (platform === 'android' || platform === 'ios') {
+                // Use custom URL scheme for mobile apps
+                redirectUrl = `expensetracker://auth?token=${encodeURIComponent(token)}&user=${encodeURIComponent(JSON.stringify(userData))}&authProvider=google`;
+            } else {
+                // Use web URL for browser
+                const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+                redirectUrl = `${frontendUrl}/login.html?token=${encodeURIComponent(token)}&user=${encodeURIComponent(JSON.stringify(userData))}&authProvider=google`;
+            }
 
             res.redirect(redirectUrl);
 

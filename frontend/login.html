@@ -99,6 +99,7 @@
 
     <script src="api.js"></script>
     <script src="auth.js"></script>
+    <script src="deep-link-handler.js"></script>
     <script>
         // Password visibility toggle function
         function togglePasswordVisibility(inputId, iconElement) {
@@ -180,11 +181,25 @@
             btnLoading.style.display = 'none';
         }
 
+        // Detect if running in Capacitor (mobile app)
+        function isCapacitorApp() {
+            return window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
+        }
+
+        // Get platform type
+        function getPlatform() {
+            if (isCapacitorApp()) {
+                return window.Capacitor.getPlatform(); // 'android' or 'ios'
+            }
+            return 'web';
+        }
+
         // Google Sign-In function
         function loginWithGoogle() {
             // Get backend URL from api.js configuration
             const backendUrl = 'https://expense-tracker-production-8f00.up.railway.app';
-            window.location.href = `${backendUrl}/api/auth/google`;
+            const platform = getPlatform();
+            window.location.href = `${backendUrl}/api/auth/google?platform=${platform}`;
         }
 
         // Handle OAuth callback

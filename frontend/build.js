@@ -24,6 +24,7 @@ const filesToCopy = [
     'offline-manager.js',
     'toast.js',
     'progress-modal.js',
+    'deep-link-handler.js',
     'sw.js',
     'manifest.json',
     'favicon.svg'
