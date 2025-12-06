@@ -6,22 +6,25 @@
 (function() {
     'use strict';
 
-    // UPI App package names for Android
+    // UPI App deep links that work on Android
     const UPI_APPS = {
         gpay: {
             name: 'Google Pay',
-            package: 'com.google.android.apps.nbu.paisa.user',
-            playStore: 'https://play.google.com/store/apps/details?id=com.google.android.apps.nbu.paisa.user'
+            // Use UPI deep link format that GPay handles
+            deepLink: 'upi://pay?pa=test@upi&pn=Test&cu=INR',
+            fallbackUrl: 'https://play.google.com/store/apps/details?id=com.google.android.apps.nbu.paisa.user'
         },
         phonepe: {
             name: 'PhonePe',
-            package: 'com.phonepe.app',
-            playStore: 'https://play.google.com/store/apps/details?id=com.phonepe.app'
+            // PhonePe specific deep link
+            deepLink: 'phonepe://pay?pa=test@upi&pn=Test&cu=INR',
+            fallbackUrl: 'https://play.google.com/store/apps/details?id=com.phonepe.app'
         },
         paytm: {
             name: 'Paytm',
-            package: 'net.one97.paytm',
-            playStore: 'https://play.google.com/store/apps/details?id=net.one97.paytm'
+            // Paytm specific deep link
+            deepLink: 'paytmmp://pay?pa=test@upi&pn=Test&cu=INR',
+            fallbackUrl: 'https://play.google.com/store/apps/details?id=net.one97.paytm'
         }
     };
 
@@ -30,8 +33,8 @@
         return window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
     }
 
-    // Open UPI app using Android Intent
-    async function openUPIApp(appKey) {
+    // Open UPI app
+    function openUPIApp(appKey) {
         const app = UPI_APPS[appKey];
         if (!app) {
             console.error('Unknown UPI app:', appKey);
@@ -45,50 +48,45 @@
             window.toast.info(`Opening ${app.name}...`, 'UPI Import');
         }
 
-        if (isCapacitorApp()) {
-            try {
-                // Use Capacitor App plugin to open the app
-                const { App } = window.Capacitor.Plugins;
+        // Create a hidden link and click it
+        const link = document.createElement('a');
+        link.href = app.deepLink;
+        link.style.display = 'none';
+        document.body.appendChild(link);
 
-                // Try to open the app directly using package name
-                const intentUrl = `intent://#Intent;package=${app.package};end`;
+        // Track if the app opened
+        let appOpened = false;
+        const startTime = Date.now();
 
-                try {
-                    await App.openUrl({ url: intentUrl });
-                    console.log('Opened via intent URL');
+        // Listen for visibility change (app opened = we go to background)
+        const visibilityHandler = function() {
+            if (document.hidden) {
+                appOpened = true;
+            }
+        };
+        document.addEventListener('visibilitychange', visibilityHandler);
 
-                    if (window.toast) {
-                        window.toast.success('Take a screenshot of your payment, then come back!', app.name + ' Opened');
-                    }
-                    return;
-                } catch (e) {
-                    console.log('Intent URL failed, trying market URL:', e);
-                }
+        // Click the link to trigger the deep link
+        link.click();
 
-                // Try market URL (opens Play Store if app not installed)
-                try {
-                    await App.openUrl({ url: `market://details?id=${app.package}` });
-                    return;
-                } catch (e) {
-                    console.log('Market URL failed:', e);
-                }
+        // Check after a delay if the app opened
+        setTimeout(() => {
+            document.removeEventListener('visibilitychange', visibilityHandler);
+            document.body.removeChild(link);
 
-                // Fallback to Play Store web URL
-                window.open(app.playStore, '_system');
-
-            } catch (error) {
-                console.error('Error opening UPI app:', error);
-
+            if (!appOpened && Date.now() - startTime < 2000) {
+                // App didn't open, show error
                 if (window.toast) {
-                    window.toast.error(`Could not open ${app.name}. Make sure it's installed.`, 'Error');
+                    window.toast.warning(`${app.name} may not be installed. Opening Play Store...`, 'App Not Found');
+                }
+                // Open Play Store
+                window.open(app.fallbackUrl, '_blank');
+            } else {
+                if (window.toast) {
+                    window.toast.success('Take a screenshot of your payment, then come back!', app.name);
                 }
             }
-        } else {
-            // On web, show message
-            if (window.toast) {
-                window.toast.info(`Open ${app.name} on your phone, take a screenshot, then upload it here.`, 'UPI Import');
-            }
-        }
+        }, 1500);
     }
 
     // Initialize button click handlers
@@ -96,28 +94,34 @@
         // Google Pay button
         const gpayBtn = document.getElementById('gpayBtn');
         if (gpayBtn) {
-            gpayBtn.addEventListener('click', function(e) {
+            gpayBtn.onclick = function(e) {
                 e.preventDefault();
+                e.stopPropagation();
                 openUPIApp('gpay');
-            });
+                return false;
+            };
         }
 
         // PhonePe button
         const phonepeBtn = document.getElementById('phonepeBtn');
         if (phonepeBtn) {
-            phonepeBtn.addEventListener('click', function(e) {
+            phonepeBtn.onclick = function(e) {
                 e.preventDefault();
+                e.stopPropagation();
                 openUPIApp('phonepe');
-            });
+                return false;
+            };
         }
 
         // Paytm button
         const paytmBtn = document.getElementById('paytmBtn');
         if (paytmBtn) {
-            paytmBtn.addEventListener('click', function(e) {
+            paytmBtn.onclick = function(e) {
                 e.preventDefault();
+                e.stopPropagation();
                 openUPIApp('paytm');
-            });
+                return false;
+            };
         }
 
         console.log('UPI Import buttons initialized');
