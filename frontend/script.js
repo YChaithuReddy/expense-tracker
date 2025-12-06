@@ -99,8 +99,11 @@ class ExpenseTracker {
         // Reset Google Sheet
         document.getElementById('resetGoogleSheet').addEventListener('click', () => this.resetGoogleSheet());
 
-        // WhatsApp Share Button
-        document.getElementById('whatsappShareBtn').addEventListener('click', () => this.showWhatsAppOptions());
+        // WhatsApp Share Button (if exists)
+        const whatsappBtn = document.getElementById('whatsappShareBtn');
+        if (whatsappBtn) {
+            whatsappBtn.addEventListener('click', () => this.showWhatsAppOptions());
+        }
 
         // View saved images gallery
         document.getElementById('viewSavedImages').addEventListener('click', () => this.openOrphanedImagesModal());
