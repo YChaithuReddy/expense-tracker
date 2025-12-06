@@ -6,7 +6,9 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git push)",
-      "Bash(node create-placeholder-icons.js:*)"
+      "Bash(node create-placeholder-icons.js:*)",
+      "Bash(npm install:*)",
+      "Bash(npx cap add android)"
     ],
     "deny": [],
     "ask": []

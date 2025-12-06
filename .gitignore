@@ -48,3 +48,14 @@ temp/
 # Uploaded files (if storing locally)
 uploads/
 public/uploads/
+
+# Capacitor
+frontend/www/
+frontend/android/app/build/
+frontend/android/.gradle/
+frontend/android/build/
+frontend/ios/App/Pods/
+*.keystore
+
+# Package lock files (optional - remove if you want to track)
+frontend/package-lock.json
