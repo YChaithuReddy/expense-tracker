@@ -40,6 +40,7 @@
     <script src="offline-manager.js"></script>
     <script src="toast.js"></script>
     <script src="deep-link-handler.js"></script>
+    <script src="upi-import.js"></script>
 </head>
 <body>
     <div class="container">
@@ -112,6 +113,35 @@
                     <small style="display: block; margin-top: 8px; color: var(--text-secondary);">
                         Perfect for cash payments or when you don't have a receipt
                     </small>
+                </div>
+
+                <!-- UPI Import Section -->
+                <div class="upi-import-section" id="upiImportSection">
+                    <div class="upi-import-title">
+                        <span style="font-size: 24px;">📱</span>
+                        <h3 style="margin: 0;">Import from UPI App</h3>
+                    </div>
+                    <div class="upi-apps-grid">
+                        <button class="upi-app-btn" onclick="window.upiImport.openUPIApp('gpay')">
+                            <span class="upi-app-icon">💳</span>
+                            <span class="upi-app-name">Google Pay</span>
+                        </button>
+                        <button class="upi-app-btn" onclick="window.upiImport.openUPIApp('phonepe')">
+                            <span class="upi-app-icon">📱</span>
+                            <span class="upi-app-name">PhonePe</span>
+                        </button>
+                        <button class="upi-app-btn" onclick="window.upiImport.openUPIApp('paytm')">
+                            <span class="upi-app-icon">💰</span>
+                            <span class="upi-app-name">Paytm</span>
+                        </button>
+                        <button class="upi-app-btn" onclick="window.upiImport.selectScreenshot()">
+                            <span class="upi-app-icon">🖼️</span>
+                            <span class="upi-app-name">Upload Screenshot</span>
+                        </button>
+                    </div>
+                    <div class="upi-import-hint">
+                        <strong>How it works:</strong> Open your UPI app, go to payment history, take a screenshot, then come back here. We'll auto-extract the payment details!
+                    </div>
                 </div>
             </section>
 
