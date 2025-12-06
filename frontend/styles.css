@@ -5709,3 +5709,158 @@ select.inline-input option {
         color: var(--primary-color);
     }
 }
+
+
+/* ================================================
+   UPI IMPORT SECTION
+   ================================================ */
+
+.upi-import-section {
+    background: var(--bg-secondary, var(--card-bg));
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 25px;
+    border: 1px solid var(--border-color);
+}
+
+.upi-import-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    color: var(--text-primary);
+}
+
+.upi-import-title h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.upi-apps-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+@media (max-width: 480px) {
+    .upi-apps-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.upi-app-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 15px 10px;
+    background: var(--bg-primary, var(--dark-bg));
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--text-primary);
+}
+
+.upi-app-btn:hover {
+    border-color: var(--neon-cyan);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
+}
+
+.upi-app-btn:active {
+    transform: translateY(0);
+}
+
+.upi-app-icon {
+    font-size: 28px;
+}
+
+.upi-app-name {
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+.upi-import-hint {
+    margin-top: 15px;
+    padding: 12px;
+    background: rgba(20, 184, 166, 0.1);
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.upi-import-hint strong {
+    color: var(--neon-cyan);
+}
+
+/* UPI Screenshot Modal */
+.upi-screenshot-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    padding: 20px;
+}
+
+.upi-screenshot-content {
+    background: var(--bg-secondary, var(--card-bg));
+    border-radius: 16px;
+    max-width: 400px;
+    width: 100%;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.upi-screenshot-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.upi-screenshot-header h3 {
+    margin: 0;
+    color: var(--text-primary);
+}
+
+.upi-close-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+.upi-close-btn:hover {
+    color: var(--neon-cyan);
+}
+
+.upi-screenshot-body {
+    padding: 20px;
+}
+
+.upi-screenshot-body p {
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.upi-screenshot-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}

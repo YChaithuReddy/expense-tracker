@@ -25,6 +25,7 @@ const filesToCopy = [
     'toast.js',
     'progress-modal.js',
     'deep-link-handler.js',
+    'upi-import.js',
     'sw.js',
     'manifest.json',
     'favicon.svg'
