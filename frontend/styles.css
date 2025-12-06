@@ -5723,17 +5723,44 @@ select.inline-input option {
     border: 1px solid var(--border-color);
 }
 
+.upi-import-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
 .upi-import-title {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 15px;
     color: var(--text-primary);
 }
 
 .upi-import-title h3 {
     font-size: 1.1rem;
     font-weight: 600;
+}
+
+.upi-import-section .upi-close-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: var(--text-secondary);
+    font-size: 24px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    line-height: 1;
+}
+
+.upi-import-section .upi-close-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ff6b6b;
 }
 
 .upi-apps-grid {
