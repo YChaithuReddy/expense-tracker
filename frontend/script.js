@@ -4524,7 +4524,31 @@ class ExpenseTracker {
         this.loadTemplateConfig();
     }
 
-    showNotification(message) {
+    showNotification(message, type = 'info') {
+        // Use toast system if available
+        if (window.toast) {
+            // Determine type from message content
+            let toastType = type;
+            if (message.includes('✅') || message.includes('success')) {
+                toastType = 'success';
+            } else if (message.includes('❌') || message.includes('error') || message.includes('failed')) {
+                toastType = 'error';
+            } else if (message.includes('⚠️') || message.includes('warning')) {
+                toastType = 'warning';
+            }
+
+            // Clean message of emoji for title
+            const cleanMessage = message.replace(/^[✅❌⚠️ℹ️🔄📤💾🔍📷]+\s*/, '');
+
+            window.toast.show({
+                type: toastType,
+                message: cleanMessage,
+                duration: toastType === 'error' ? 6000 : 4000
+            });
+            return;
+        }
+
+        // Fallback to old notification system
         const notification = document.createElement('div');
         notification.className = 'notification';
         notification.textContent = message;

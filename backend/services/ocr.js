@@ -168,13 +168,35 @@ function parseReceiptText(text) {
     };
 
     // PRIORITY 0: Find comma-formatted amounts FIRST (most reliable for UPI: 2,000 or 50,000)
-    const commaAmountMatch = text.match(/(\d{1,2},\d{3}(?:\.\d{2})?)/);
-    if (commaAmountMatch) {
-        const amount = cleanAmount(commaAmountMatch[1]);
-        if (amount && amount >= 100) {
-            data.amount = amount;
-            console.log('✅ Amount found (comma format - priority 0):', data.amount);
-            // STOP here - don't let other patterns overwrite this
+    // Look for amounts near payment keywords first
+    const paymentAmountPatterns = [
+        /(?:₹|rs\.?)\s*(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)/gi,
+        /(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)\s*(?:₹|rs\.?)/gi,
+        /(?:paid|amount|total|sent)\s*[:\s]*(?:₹|rs\.?)?\s*(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)/gi,
+    ];
+
+    for (const pattern of paymentAmountPatterns) {
+        const matches = [...text.matchAll(pattern)];
+        for (const match of matches) {
+            const amount = cleanAmount(match[1]);
+            if (amount && amount >= 50) {
+                data.amount = amount;
+                console.log('✅ Amount found (payment pattern - priority 0):', data.amount);
+                break;
+            }
+        }
+        if (data.amount) break;
+    }
+
+    // If no payment pattern found, try comma-formatted amounts
+    if (!data.amount) {
+        const commaAmountMatch = text.match(/(\d{1,2},\d{3}(?:\.\d{2})?)/);
+        if (commaAmountMatch) {
+            const amount = cleanAmount(commaAmountMatch[1]);
+            if (amount && amount >= 50) {
+                data.amount = amount;
+                console.log('✅ Amount found (comma format - priority 0):', data.amount);
+            }
         }
     }
 
