@@ -30,7 +30,7 @@
         return window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
     }
 
-    // Open UPI app using Android Intent
+    // Open UPI app using native Android bridge
     function openUPIApp(appKey) {
         const app = UPI_APPS[appKey];
         if (!app) {
@@ -38,57 +38,42 @@
             return;
         }
 
-        console.log('Opening UPI app:', app.name);
+        console.log('Opening UPI app:', app.name, app.package);
 
         // Show toast
         if (window.toast) {
             window.toast.info(`Opening ${app.name}...`, 'UPI Import');
         }
 
-        // Use Android Intent URL format to launch app
-        // Format: intent://...#Intent;package=...;end
-        const intentUrl = `intent://#Intent;package=${app.package};launchFlags=0x10000000;end`;
-
-        // Create iframe to trigger intent (works better in WebView)
-        const iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        iframe.src = intentUrl;
-        document.body.appendChild(iframe);
-
-        // Track if app opened
-        let appOpened = false;
-        const visibilityHandler = function() {
-            if (document.hidden) {
-                appOpened = true;
-            }
-        };
-        document.addEventListener('visibilitychange', visibilityHandler);
-
-        // Cleanup and show message after delay
-        setTimeout(() => {
-            document.removeEventListener('visibilitychange', visibilityHandler);
-            if (iframe.parentNode) {
-                iframe.parentNode.removeChild(iframe);
-            }
-
-            if (appOpened) {
-                if (window.toast) {
-                    window.toast.success('Take a screenshot of your payment, then come back!', app.name);
-                }
-            } else {
-                // Try fallback - direct window.location
-                window.location.href = intentUrl;
-
-                // If still here after 500ms, app probably not installed
-                setTimeout(() => {
-                    if (!document.hidden) {
+        // Check if native AppLauncher is available (Android app)
+        if (window.AppLauncher) {
+            try {
+                const success = window.AppLauncher.openApp(app.package);
+                if (success) {
+                    setTimeout(() => {
                         if (window.toast) {
-                            window.toast.warning(`${app.name} may not be installed.`, 'App Not Found');
+                            window.toast.success('Take a screenshot of your payment, then come back!', app.name);
                         }
+                    }, 500);
+                } else {
+                    if (window.toast) {
+                        window.toast.warning(`${app.name} is not installed.`, 'App Not Found');
                     }
-                }, 500);
+                    // Open Play Store
+                    window.open(app.fallbackUrl, '_blank');
+                }
+            } catch (e) {
+                console.error('Error launching app:', e);
+                if (window.toast) {
+                    window.toast.error(`Could not open ${app.name}`, 'Error');
+                }
             }
-        }, 1000);
+        } else {
+            // Web fallback - show message
+            if (window.toast) {
+                window.toast.info(`Open ${app.name} on your phone, take a screenshot, then upload it here.`, 'UPI Import');
+            }
+        }
     }
 
     // Initialize button click handlers
