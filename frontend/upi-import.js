@@ -6,24 +6,21 @@
 (function() {
     'use strict';
 
-    // UPI App deep links that work on Android - opens app home screen
+    // UPI App package names for Android
     const UPI_APPS = {
         gpay: {
             name: 'Google Pay',
-            // Open GPay home/history
-            deepLink: 'gpay://upi/',
+            package: 'com.google.android.apps.nbu.paisa.user',
             fallbackUrl: 'https://play.google.com/store/apps/details?id=com.google.android.apps.nbu.paisa.user'
         },
         phonepe: {
             name: 'PhonePe',
-            // Open PhonePe home
-            deepLink: 'phonepe://',
+            package: 'com.phonepe.app',
             fallbackUrl: 'https://play.google.com/store/apps/details?id=com.phonepe.app'
         },
         paytm: {
             name: 'Paytm',
-            // Open Paytm home
-            deepLink: 'paytmmp://',
+            package: 'net.one97.paytm',
             fallbackUrl: 'https://play.google.com/store/apps/details?id=net.one97.paytm'
         }
     };
@@ -33,7 +30,7 @@
         return window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
     }
 
-    // Open UPI app
+    // Open UPI app using Android Intent
     function openUPIApp(appKey) {
         const app = UPI_APPS[appKey];
         if (!app) {
@@ -48,17 +45,18 @@
             window.toast.info(`Opening ${app.name}...`, 'UPI Import');
         }
 
-        // Create a hidden link and click it
-        const link = document.createElement('a');
-        link.href = app.deepLink;
-        link.style.display = 'none';
-        document.body.appendChild(link);
+        // Use Android Intent URL format to launch app
+        // Format: intent://...#Intent;package=...;end
+        const intentUrl = `intent://#Intent;package=${app.package};launchFlags=0x10000000;end`;
 
-        // Track if the app opened
+        // Create iframe to trigger intent (works better in WebView)
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = intentUrl;
+        document.body.appendChild(iframe);
+
+        // Track if app opened
         let appOpened = false;
-        const startTime = Date.now();
-
-        // Listen for visibility change (app opened = we go to background)
         const visibilityHandler = function() {
             if (document.hidden) {
                 appOpened = true;
@@ -66,27 +64,31 @@
         };
         document.addEventListener('visibilitychange', visibilityHandler);
 
-        // Click the link to trigger the deep link
-        link.click();
-
-        // Check after a delay if the app opened
+        // Cleanup and show message after delay
         setTimeout(() => {
             document.removeEventListener('visibilitychange', visibilityHandler);
-            document.body.removeChild(link);
+            if (iframe.parentNode) {
+                iframe.parentNode.removeChild(iframe);
+            }
 
-            if (!appOpened && Date.now() - startTime < 2000) {
-                // App didn't open, show error
-                if (window.toast) {
-                    window.toast.warning(`${app.name} may not be installed. Opening Play Store...`, 'App Not Found');
-                }
-                // Open Play Store
-                window.open(app.fallbackUrl, '_blank');
-            } else {
+            if (appOpened) {
                 if (window.toast) {
                     window.toast.success('Take a screenshot of your payment, then come back!', app.name);
                 }
+            } else {
+                // Try fallback - direct window.location
+                window.location.href = intentUrl;
+
+                // If still here after 500ms, app probably not installed
+                setTimeout(() => {
+                    if (!document.hidden) {
+                        if (window.toast) {
+                            window.toast.warning(`${app.name} may not be installed.`, 'App Not Found');
+                        }
+                    }
+                }, 500);
             }
-        }, 1500);
+        }, 1000);
     }
 
     // Initialize button click handlers
