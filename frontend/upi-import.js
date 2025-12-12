@@ -40,13 +40,13 @@
 
         console.log('Opening UPI app:', app.name, app.package);
 
-        // Show toast
-        if (window.toast) {
-            window.toast.info(`Opening ${app.name}...`, 'UPI Import');
-        }
-
-        // Check if native AppLauncher is available (Android app)
+        // Check if native AppLauncher is available (Android app only)
         if (window.AppLauncher) {
+            // Show toast
+            if (window.toast) {
+                window.toast.info(`Opening ${app.name}...`, 'UPI Import');
+            }
+
             try {
                 const success = window.AppLauncher.openApp(app.package);
                 if (success) {
@@ -59,8 +59,6 @@
                     if (window.toast) {
                         window.toast.warning(`${app.name} is not installed.`, 'App Not Found');
                     }
-                    // Open Play Store
-                    window.open(app.fallbackUrl, '_blank');
                 }
             } catch (e) {
                 console.error('Error launching app:', e);
@@ -69,9 +67,9 @@
                 }
             }
         } else {
-            // Web fallback - show message
+            // Web browser - show message that this feature is app-only
             if (window.toast) {
-                window.toast.info(`Open ${app.name} on your phone, take a screenshot, then upload it here.`, 'UPI Import');
+                window.toast.warning('This feature only works in the Android app. Please use the mobile app to open UPI apps directly.', 'Mobile App Required');
             }
         }
     }
