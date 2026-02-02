@@ -97,8 +97,11 @@
         </main>
     </div>
 
-    <script src="api.js"></script>
-    <script src="auth.js"></script>
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-client.js"></script>
+    <script src="supabase-api.js"></script>
+    <script src="supabase-auth.js"></script>
     <script src="deep-link-handler.js"></script>
     <script>
         // Password visibility toggle function
@@ -140,12 +143,9 @@
             try {
                 const response = await api.login(email, password);
 
-                if (response.status === 'success') {
+                if (response.success) {
                     showMessage('Login successful! Redirecting...', 'success');
-
-                    // Save token and user info
-                    localStorage.setItem('authToken', response.token);
-                    localStorage.setItem('user', JSON.stringify(response.user));
+                    // Token and user are saved automatically by supabase-api.js
 
                     // Redirect to main app after short delay
                     setTimeout(() => {
@@ -157,9 +157,7 @@
                 }
             } catch (error) {
                 console.error('Login error:', error);
-                // Show detailed error for debugging
-                const errorDetails = `${error.message || 'Network error'}\n\nAPI URL: ${window.location.origin}\nBackend: ${typeof api !== 'undefined' ? 'loaded' : 'not loaded'}`;
-                showMessage(errorDetails, 'error');
+                showMessage(error.message || 'Login failed. Please try again.', 'error');
                 resetButton();
             }
         });
@@ -194,12 +192,15 @@
             return 'web';
         }
 
-        // Google Sign-In function
-        function loginWithGoogle() {
-            // Get backend URL from api.js configuration
-            const backendUrl = 'https://expense-tracker-production-8f00.up.railway.app';
-            const platform = getPlatform();
-            window.location.href = `${backendUrl}/api/auth/google?platform=${platform}`;
+        // Google Sign-In function (Supabase)
+        async function loginWithGoogle() {
+            try {
+                const result = await api.loginWithGoogle();
+                // Supabase handles the redirect automatically
+            } catch (error) {
+                console.error('Google login error:', error);
+                showMessage('Google login failed: ' + error.message, 'error');
+            }
         }
 
         // Handle OAuth callback
