@@ -1,7 +1,7 @@
 // Service Worker for Expense Tracker PWA
-const CACHE_NAME = 'expense-tracker-v7';
-const STATIC_CACHE = 'expense-tracker-static-v7';
-const DYNAMIC_CACHE = 'expense-tracker-dynamic-v7';
+const CACHE_NAME = 'expense-tracker-v8';
+const STATIC_CACHE = 'expense-tracker-static-v8';
+const DYNAMIC_CACHE = 'expense-tracker-dynamic-v8';
 
 // Files to cache immediately on install
 const STATIC_ASSETS = [
@@ -82,6 +82,11 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
+
+  // Skip non-http(s) requests (e.g., chrome-extension://)
+  if (!url.protocol.startsWith('http')) {
+    return;
+  }
 
   // Skip non-GET requests
   if (request.method !== 'GET') {
