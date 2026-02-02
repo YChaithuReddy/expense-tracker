@@ -1,7 +1,7 @@
 // Service Worker for Expense Tracker PWA
-const CACHE_NAME = 'expense-tracker-v1';
-const STATIC_CACHE = 'expense-tracker-static-v1';
-const DYNAMIC_CACHE = 'expense-tracker-dynamic-v1';
+const CACHE_NAME = 'expense-tracker-v2';
+const STATIC_CACHE = 'expense-tracker-static-v2';
+const DYNAMIC_CACHE = 'expense-tracker-dynamic-v2';
 
 // Files to cache immediately on install
 const STATIC_ASSETS = [
@@ -12,8 +12,9 @@ const STATIC_ASSETS = [
   '/styles.css',
   '/styles_dropdown.css',
   '/script.js',
-  '/api.js',
-  '/auth.js',
+  '/supabase-client.js',
+  '/supabase-api.js',
+  '/supabase-auth.js',
   '/google-sheets-service.js',
   '/whatsapp-service.js',
   '/offline-manager.js',
