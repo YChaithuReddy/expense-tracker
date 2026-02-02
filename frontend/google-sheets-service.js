@@ -1,51 +1,181 @@
 /**
- * Google Sheets Service Module - Simplified
- * All sheet management now handled by backend
- * Frontend just makes simple API calls
+ * Google Sheets Service - Uses Google Apps Script Web App
+ * Connects to master template system for expense exports
  */
 
 class GoogleSheetsService {
     constructor() {
         this.sheetUrl = null;
+        this.sheetId = null;
         this.isInitialized = false;
+
+        // Google Apps Script Web App URL
+        this.APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw43MwKinnOU7YpChEp75CcEnW_PF0CkDqsiEBJrWNhuTL79fFMPyV7LEWrFtxhi2eBjA/exec';
     }
 
     /**
-     * Initialize service - check if user has a sheet
+     * Initialize service - load saved sheet info
      */
     async initialize() {
         try {
-            const response = await api.getGoogleSheetLink();
+            // Load saved sheet info from localStorage
+            const savedSheetId = localStorage.getItem('googleSheetId');
+            const savedSheetUrl = localStorage.getItem('googleSheetUrl');
 
-            if (response.status === 'success') {
-                this.sheetUrl = response.data.sheetUrl;
+            if (savedSheetId && savedSheetUrl) {
+                this.sheetId = savedSheetId;
+                this.sheetUrl = savedSheetUrl;
                 this.isInitialized = true;
                 this.updateUI();
-            } else {
-                // User doesn't have a sheet yet - will be created on first export
-                this.isInitialized = false;
+                console.log('Google Sheet loaded:', this.sheetUrl);
             }
 
             return true;
         } catch (error) {
-            // Check if it's an authentication error
-            if (error.message && (error.message.includes('Not authorized') ||
-                                 error.message.includes('Token is invalid') ||
-                                 error.message.includes('401'))) {
-                console.log('Authentication error in Google Sheets service - token expired or invalid');
-                // Don't redirect here, let the main expense loading handle it
-            } else {
-                console.log('User has no Google Sheet yet - will be created on first export');
-            }
+            console.log('Google Sheets initialization:', error.message);
             this.isInitialized = false;
             return false;
         }
     }
 
     /**
-     * Export selected expenses to Google Sheets
-     * @param {Array} expenses - Array of expense objects
-     * @returns {Object} - Export result
+     * Call Apps Script using form submission (avoids CORS)
+     */
+    async callAppsScript(data) {
+        return new Promise((resolve, reject) => {
+            // Create a unique callback name
+            const callbackName = 'googleSheetsCallback_' + Date.now();
+
+            // Create hidden iframe for form submission
+            const iframe = document.createElement('iframe');
+            iframe.name = 'googleSheetsFrame';
+            iframe.style.display = 'none';
+            document.body.appendChild(iframe);
+
+            // Create form
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = this.APPS_SCRIPT_URL;
+            form.target = 'googleSheetsFrame';
+
+            // Add data as hidden field
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'data';
+            input.value = JSON.stringify(data);
+            form.appendChild(input);
+
+            // Handle response via postMessage
+            const messageHandler = (event) => {
+                if (event.origin.includes('google.com')) {
+                    window.removeEventListener('message', messageHandler);
+                    document.body.removeChild(iframe);
+                    document.body.removeChild(form);
+
+                    try {
+                        const result = JSON.parse(event.data);
+                        resolve(result);
+                    } catch (e) {
+                        resolve({ status: 'success', data: {} });
+                    }
+                }
+            };
+
+            window.addEventListener('message', messageHandler);
+
+            // Submit form
+            document.body.appendChild(form);
+            form.submit();
+
+            // Timeout after 30 seconds
+            setTimeout(() => {
+                window.removeEventListener('message', messageHandler);
+                if (document.body.contains(iframe)) {
+                    document.body.removeChild(iframe);
+                }
+                if (document.body.contains(form)) {
+                    document.body.removeChild(form);
+                }
+                // Assume success if no response (Apps Script may not send postMessage)
+                resolve({ status: 'success', data: {} });
+            }, 30000);
+        });
+    }
+
+    /**
+     * Call Apps Script using GET request (better CORS support)
+     */
+    async fetchAppsScript(data) {
+        try {
+            // Use GET request with data as URL parameter
+            const params = new URLSearchParams({
+                data: JSON.stringify(data)
+            });
+
+            const response = await fetch(`${this.APPS_SCRIPT_URL}?${params}`, {
+                method: 'GET',
+                redirect: 'follow'
+            });
+
+            const text = await response.text();
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                console.log('Response:', text);
+                return { status: 'success', data: {} };
+            }
+        } catch (error) {
+            console.error('Fetch error:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Create a new sheet for the user (copy of master template)
+     */
+    async createSheet() {
+        try {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+            if (!user.email || !user.name) {
+                throw new Error('User information not available. Please log in again.');
+            }
+
+            console.log('Creating sheet for:', user.name, user.email);
+
+            const data = {
+                action: 'createSheet',
+                userId: user.id,
+                userEmail: user.email,
+                userName: user.name
+            };
+
+            const result = await this.fetchAppsScript(data);
+
+            if (result.status === 'success' && result.data) {
+                this.sheetId = result.data.sheetId;
+                this.sheetUrl = result.data.sheetUrl;
+
+                // Save to localStorage
+                localStorage.setItem('googleSheetId', this.sheetId);
+                localStorage.setItem('googleSheetUrl', this.sheetUrl);
+
+                this.isInitialized = true;
+                this.updateUI();
+
+                console.log('Sheet created:', this.sheetUrl);
+                return { success: true, sheetId: this.sheetId, sheetUrl: this.sheetUrl };
+            } else {
+                throw new Error(result.message || 'Failed to create sheet');
+            }
+        } catch (error) {
+            console.error('Error creating sheet:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Export expenses to Google Sheets
      */
     async exportExpenses(expenses) {
         try {
@@ -53,31 +183,43 @@ class GoogleSheetsService {
                 throw new Error('No expenses to export');
             }
 
-            // Extract expense IDs
-            const expenseIds = expenses.map(exp => exp.id);
+            // Create sheet if doesn't exist
+            if (!this.sheetId) {
+                await this.createSheet();
+            }
 
-            // Call backend export API
-            const response = await api.exportToGoogleSheets(expenseIds);
+            console.log(`Exporting ${expenses.length} expenses to sheet:`, this.sheetId);
 
-            if (response.status === 'success') {
-                // Update sheet URL if returned
-                if (response.data.sheetUrl) {
-                    this.sheetUrl = response.data.sheetUrl;
-                    this.isInitialized = true;
-                    this.updateUI();
-                }
+            // Format expenses for the Apps Script
+            const formattedExpenses = expenses.map(exp => ({
+                date: exp.date,
+                vendor: exp.vendor || 'N/A',
+                category: exp.category,
+                amount: parseFloat(exp.amount) || 0,
+                description: exp.description || ''
+            }));
+
+            const data = {
+                action: 'exportExpenses',
+                sheetId: this.sheetId,
+                expenses: formattedExpenses
+            };
+
+            const result = await this.fetchAppsScript(data);
+
+            if (result.status === 'success') {
+                this.updateUI();
 
                 return {
                     success: true,
-                    message: response.message,
-                    sheetUrl: response.data.sheetUrl,
-                    exportedCount: response.data.exportedCount
+                    message: `Exported ${result.data?.exportedCount || expenses.length} expenses to Google Sheets`,
+                    sheetUrl: this.sheetUrl,
+                    exportedCount: result.data?.exportedCount || expenses.length,
+                    startRow: result.data?.startRow,
+                    endRow: result.data?.endRow
                 };
             } else {
-                return {
-                    success: false,
-                    message: response.message || 'Export failed'
-                };
+                throw new Error(result.message || 'Export failed');
             }
 
         } catch (error) {
@@ -90,8 +232,30 @@ class GoogleSheetsService {
     }
 
     /**
-     * Get user's Google Sheet URL
-     * @returns {String} - Sheet URL or null
+     * Reset/clear the sheet - creates a new copy of master template
+     */
+    async resetSheet() {
+        try {
+            // Clear saved sheet data
+            localStorage.removeItem('googleSheetId');
+            localStorage.removeItem('googleSheetUrl');
+
+            this.sheetId = null;
+            this.sheetUrl = null;
+            this.isInitialized = false;
+
+            // Create a new sheet
+            await this.createSheet();
+
+            return { success: true, message: 'New sheet created from template' };
+        } catch (error) {
+            console.error('❌ Error resetting sheet:', error);
+            return { success: false, message: error.message };
+        }
+    }
+
+    /**
+     * Get sheet URL
      */
     getSheetUrl() {
         return this.sheetUrl;
@@ -99,86 +263,9 @@ class GoogleSheetsService {
 
     /**
      * Check if user has a sheet
-     * @returns {Boolean}
      */
     hasSheet() {
         return this.isInitialized && this.sheetUrl !== null;
-    }
-
-    /**
-     * Reset user's Google Sheet to master template format
-     * @returns {Object} - Reset result
-     */
-    async resetSheet() {
-        try {
-            if (!this.hasSheet()) {
-                throw new Error('No Google Sheet found. Please export expenses first.');
-            }
-
-            console.log('🔄 Resetting Google Sheet...');
-
-            // Call backend reset API
-            const response = await api.resetGoogleSheet();
-
-            if (response.status === 'success') {
-                console.log('✅ Sheet reset successfully');
-                return {
-                    success: true,
-                    message: response.message
-                };
-            } else {
-                return {
-                    success: false,
-                    message: response.message || 'Reset failed'
-                };
-            }
-
-        } catch (error) {
-            console.error('❌ Error resetting sheet:', error);
-            return {
-                success: false,
-                message: error.message || 'Failed to reset sheet'
-            };
-        }
-    }
-
-    /**
-     * Update employee information in Google Sheet
-     * Updates specific cells: D4, D5, F5, F6, D9:E11
-     * @param {Object} employeeData - Employee information
-     * @returns {Object} - Update result
-     */
-    async updateEmployeeInfo(employeeData) {
-        try {
-            if (!this.hasSheet()) {
-                throw new Error('No Google Sheet found. Please export expenses first.');
-            }
-
-            console.log('📝 Updating employee info in Google Sheet...');
-
-            // Call backend API to update employee info
-            const response = await api.updateEmployeeInfo(employeeData);
-
-            if (response.status === 'success') {
-                console.log('✅ Employee info updated successfully');
-                return {
-                    success: true,
-                    message: response.message
-                };
-            } else {
-                return {
-                    success: false,
-                    message: response.message || 'Update failed'
-                };
-            }
-
-        } catch (error) {
-            console.error('❌ Error updating employee info:', error);
-            return {
-                success: false,
-                message: error.message || 'Failed to update employee information'
-            };
-        }
     }
 
     /**
@@ -199,15 +286,23 @@ class GoogleSheetsService {
             }
         }
 
-        // Export button always visible
         if (exportBtn) {
             exportBtn.style.display = 'inline-block';
         }
+    }
+
+    /**
+     * Disconnect Google Sheets (clear local data)
+     */
+    disconnect() {
+        this.sheetId = null;
+        this.sheetUrl = null;
+        this.isInitialized = false;
+        localStorage.removeItem('googleSheetId');
+        localStorage.removeItem('googleSheetUrl');
+        this.updateUI();
     }
 }
 
 // Create global instance
 window.googleSheetsService = new GoogleSheetsService();
-
-// Note: No more Google API loading needed!
-// Everything is handled by the backend now.

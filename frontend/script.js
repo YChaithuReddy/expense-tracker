@@ -2953,7 +2953,7 @@ class ExpenseTracker {
             // Call backend API
             const response = await api.createExpense(expenseData, imageFiles);
 
-            if (response.status === 'success') {
+            if (response.success) {
                 console.log('✅ Expense added to backend successfully');
 
                 // Update progress to 90%
@@ -3025,7 +3025,7 @@ class ExpenseTracker {
                 console.log('Deleting expense:', id);
                 const response = await api.deleteExpense(id);
 
-                if (response.status === 'success') {
+                if (response.success) {
                     console.log('✅ Expense deleted from backend');
 
                     // Reload expenses from backend to stay in sync
@@ -3106,7 +3106,7 @@ class ExpenseTracker {
             // Call backend API
             const response = await api.updateExpense(updatedExpense.id, expenseData, imageFiles);
 
-            if (response.status === 'success') {
+            if (response.success) {
                 console.log('✅ Expense updated in backend successfully');
 
                 // Reload expenses from backend to stay in sync
@@ -3540,8 +3540,8 @@ class ExpenseTracker {
             console.log('Loading expenses from backend...');
             const response = await api.getExpenses(1, 1000); // Get up to 1000 expenses
 
-            if (response.status === 'success') {
-                this.expenses = response.expenses.map(exp => ({
+            if (response.success) {
+                this.expenses = response.data.map(exp => ({
                     id: exp._id,
                     date: exp.date.split('T')[0], // Convert to YYYY-MM-DD
                     category: exp.category,
@@ -4284,7 +4284,7 @@ class ExpenseTracker {
             try {
                 const response = await api.clearExpenseDataOnly();
 
-                if (response.status === 'success') {
+                if (response.success) {
                     // Reload expenses from backend
                     await this.loadExpenses();
 
@@ -4315,7 +4315,7 @@ class ExpenseTracker {
             if (confirm(`Clear ${imageCount} saved images (${totalSize} MB)?\n\nThis will permanently delete all saved bill photos that are not attached to expenses.`)) {
                 const response = await api.clearImagesOnly();
 
-                if (response.status === 'success') {
+                if (response.success) {
                     this.showNotification(`✅ ${response.deletedCount || 0} saved images cleared!`);
                 } else {
                     throw new Error(response.message || 'Failed to clear images');
@@ -4337,7 +4337,7 @@ class ExpenseTracker {
 
                     const response = await api.clearAll();
 
-                    if (response.status === 'success') {
+                    if (response.success) {
                         // Clear all frontend state
                         this.expenses = [];
                         this.filteredExpenses = [];
@@ -4964,7 +4964,7 @@ class ExpenseTracker {
             // Fetch orphaned images from backend
             const response = await api.getOrphanedImages();
 
-            if (response.status === 'success') {
+            if (response.success) {
                 const modal = document.getElementById('orphanedImagesModal');
                 const statsDiv = document.getElementById('orphanedImagesStats');
                 const gridDiv = document.getElementById('orphanedImagesGrid');
@@ -4975,7 +4975,7 @@ class ExpenseTracker {
                     <div class="stats-wrapper">
                         <div class="stat-item">
                             <div class="stat-label">Total Images</div>
-                            <div class="stat-value">${response.count || 0}</div>
+                            <div class="stat-value">${response.data?.length || 0}</div>
                         </div>
                         <div class="stat-item">
                             <div class="stat-label">Total Size</div>
@@ -4996,7 +4996,7 @@ class ExpenseTracker {
                 `;
 
                 // Display images or empty state
-                if (!response.images || response.images.length === 0) {
+                if (!response.data || response.data.length === 0) {
                     gridDiv.innerHTML = `
                         <div class="empty-state-modern">
                             <div class="empty-icon-modern">📭</div>
@@ -5007,7 +5007,7 @@ class ExpenseTracker {
                 } else {
                     gridDiv.innerHTML = `
                         <div class="images-grid-wrapper">
-                            ${response.images.map(img => {
+                            ${response.data.map(img => {
                                 const uploadDate = new Date(img.uploadDate || img.createdAt).toLocaleDateString('en-IN', {
                                     day: '2-digit',
                                     month: '2-digit',
@@ -5220,7 +5220,7 @@ class ExpenseTracker {
         try {
             const response = await api.extendOrphanedImageExpiry(imageId, 30);
 
-            if (response.status === 'success') {
+            if (response.success) {
                 this.showNotification('✅ Image expiry extended by 30 days');
                 // Refresh the gallery
                 await this.openOrphanedImagesModal();
@@ -5238,7 +5238,7 @@ class ExpenseTracker {
             try {
                 const response = await api.deleteOrphanedImage(imageId);
 
-                if (response.status === 'success') {
+                if (response.success) {
                     this.showNotification('✅ Image deleted successfully');
                     // Refresh the gallery
                     await this.openOrphanedImagesModal();
