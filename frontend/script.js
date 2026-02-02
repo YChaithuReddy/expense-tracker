@@ -37,8 +37,8 @@ class ExpenseTracker {
         // Initialize theme system
         this.initializeTheme();
 
-        // Load expenses from backend (async)
-        this.loadExpenses();
+        // Note: loadExpenses() is called from initAuth() after auth is confirmed
+        // This prevents race conditions and ensures user is authenticated first
 
         // Initialize Google Sheets service to show View My Sheet button if user has a sheet
         this.initializeGoogleSheets();
@@ -3545,13 +3545,6 @@ class ExpenseTracker {
                 return;
             }
 
-            // Prevent double loading (called from both constructor and initAuth)
-            if (this._loadingExpenses) {
-                console.log('Already loading expenses, skipping...');
-                return;
-            }
-            this._loadingExpenses = true;
-
             console.log('Loading expenses from backend...');
             const response = await api.getExpenses(1, 1000); // Get up to 1000 expenses
 
@@ -3595,8 +3588,6 @@ class ExpenseTracker {
                 this.showNotification('⚠️ Failed to load expenses. Please refresh the page.');
             }
             this.expenses = [];
-        } finally {
-            this._loadingExpenses = false;
         }
     }
 
