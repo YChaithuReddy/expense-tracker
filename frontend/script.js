@@ -3545,6 +3545,13 @@ class ExpenseTracker {
                 return;
             }
 
+            // Prevent double loading (called from both constructor and initAuth)
+            if (this._loadingExpenses) {
+                console.log('Already loading expenses, skipping...');
+                return;
+            }
+            this._loadingExpenses = true;
+
             console.log('Loading expenses from backend...');
             const response = await api.getExpenses(1, 1000); // Get up to 1000 expenses
 
@@ -3588,6 +3595,8 @@ class ExpenseTracker {
                 this.showNotification('⚠️ Failed to load expenses. Please refresh the page.');
             }
             this.expenses = [];
+        } finally {
+            this._loadingExpenses = false;
         }
     }
 
