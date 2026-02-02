@@ -203,14 +203,6 @@ async function handleAuthCallback() {
 async function initAuth() {
     console.log('Initializing auth...');
 
-    const now = Date.now();
-
-    // Clear old redirect timestamp (older than 5 seconds)
-    const lastRedirect = sessionStorage.getItem('lastAuthRedirect');
-    if (lastRedirect && (now - parseInt(lastRedirect)) > 5000) {
-        sessionStorage.removeItem('lastAuthRedirect');
-    }
-
     // Wait for Supabase client
     let attempts = 0;
     while (!window.supabaseClient?.get() && attempts < 50) {
@@ -225,7 +217,6 @@ async function initAuth() {
     }
 
     const pathname = window.location.pathname;
-    const currentPage = pathname.split('/').pop() || 'index.html';
     // Handle both with and without .html extension (for Vercel clean URLs)
     const isPublicPage = pathname.includes('login') || pathname.includes('signup');
 
@@ -237,20 +228,14 @@ async function initAuth() {
     if (isPublicPage) {
         // On login/signup page
         if (hasSession) {
-            // Prevent redirect loops
-            const recentRedirect = sessionStorage.getItem('lastAuthRedirect');
-            if (recentRedirect && (now - parseInt(recentRedirect)) < 2000) {
-                console.log('Preventing redirect loop from login');
-                return;
-            }
             // Already logged in, redirect to app
             console.log('Already authenticated, redirecting to app...');
-            sessionStorage.setItem('lastAuthRedirect', now.toString());
             const redirect = sessionStorage.getItem('redirectAfterLogin') || 'index.html';
             sessionStorage.removeItem('redirectAfterLogin');
             window.location.href = redirect;
             return;
         }
+        // Not logged in - stay on login page (this is correct)
     } else {
         // Protected page
         if (hasSession) {
@@ -261,20 +246,16 @@ async function initAuth() {
                 window.expenseTracker.loadExpenses();
             }
         } else {
-            // Not authenticated, check localStorage as fallback
+            // Not authenticated via Supabase session, check localStorage as fallback
             if (!isAuthenticated()) {
-                // Prevent redirect loops - only redirect if we haven't just redirected
-                const recentRedirect = sessionStorage.getItem('lastAuthRedirect');
-                if (recentRedirect && (now - parseInt(recentRedirect)) < 2000) {
-                    console.log('Preventing redirect loop - waiting for session');
-                    return;
-                }
+                // No session and no localStorage - redirect to login
                 console.log('Not authenticated, redirecting to login...');
-                sessionStorage.setItem('lastAuthRedirect', now.toString());
+                sessionStorage.setItem('redirectAfterLogin', pathname);
                 window.location.href = 'login.html';
                 return;
             }
-            // Has localStorage user but no session - try to restore
+            // Has localStorage user but no Supabase session - show UI anyway
+            // (API calls will fail and trigger proper logout if session is truly invalid)
             displayUserInfo();
             // Trigger expense loading
             if (window.expenseTracker && typeof window.expenseTracker.loadExpenses === 'function') {
