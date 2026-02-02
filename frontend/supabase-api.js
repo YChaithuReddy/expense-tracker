@@ -818,7 +818,9 @@ const api = {
         if (result.status === 'success' && result.data) {
             return {
                 success: true,
-                pdfUrl: result.data.pdfUrl,
+                pdfBase64: result.data.pdfBase64,
+                fileName: result.data.fileName,
+                size: result.data.size,
                 message: 'PDF exported successfully'
             };
         } else {
