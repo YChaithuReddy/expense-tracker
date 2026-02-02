@@ -12,7 +12,7 @@ class GoogleSheetsService {
         this.createPromise = null; // Store pending creation promise
 
         // Google Apps Script Web App URL
-        this.APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyfE7_WVHTtOYeVlbc8VV__e9wjnMsG1PiTX3suyUQN-2rSFwhjusvqOfzH26lHd8d5YQ/exec';
+        this.APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw982LsWrhuZIlnD0AYro9exu3NXj9idUckMpLt8F1YsEQ09tQdU7zhyka_GzwnS3-i1g/exec';
     }
 
     /**
