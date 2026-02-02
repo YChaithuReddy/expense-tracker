@@ -203,6 +203,14 @@ async function handleAuthCallback() {
 async function initAuth() {
     console.log('Initializing auth...');
 
+    // Prevent redirect loops - check if we just redirected
+    const lastRedirect = sessionStorage.getItem('lastAuthRedirect');
+    const now = Date.now();
+    if (lastRedirect && (now - parseInt(lastRedirect)) < 2000) {
+        console.log('Preventing redirect loop');
+        return;
+    }
+
     // Wait for Supabase client
     let attempts = 0;
     while (!window.supabaseClient?.get() && attempts < 50) {
@@ -216,18 +224,22 @@ async function initAuth() {
         return;
     }
 
-    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-    const publicPages = ['login.html', 'signup.html'];
-    const isPublicPage = publicPages.includes(currentPage);
+    const pathname = window.location.pathname;
+    const currentPage = pathname.split('/').pop() || 'index.html';
+    // Handle both with and without .html extension (for Vercel clean URLs)
+    const isPublicPage = pathname.includes('login') || pathname.includes('signup');
 
     // Handle OAuth callback
     const hasSession = await handleAuthCallback();
+
+    console.log('Auth check:', { pathname, isPublicPage, hasSession, hasLocalStorage: isAuthenticated() });
 
     if (isPublicPage) {
         // On login/signup page
         if (hasSession) {
             // Already logged in, redirect to app
             console.log('Already authenticated, redirecting to app...');
+            sessionStorage.setItem('lastAuthRedirect', now.toString());
             const redirect = sessionStorage.getItem('redirectAfterLogin') || 'index.html';
             sessionStorage.removeItem('redirectAfterLogin');
             window.location.href = redirect;
@@ -242,6 +254,7 @@ async function initAuth() {
             // Not authenticated, check localStorage as fallback
             if (!isAuthenticated()) {
                 console.log('Not authenticated, redirecting to login...');
+                sessionStorage.setItem('lastAuthRedirect', now.toString());
                 window.location.href = 'login.html';
                 return;
             }
