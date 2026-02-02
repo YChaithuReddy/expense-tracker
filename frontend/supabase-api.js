@@ -717,7 +717,7 @@ const api = {
     // ==============================================
 
     // Apps Script Web App URL
-    APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbw982LsWrhuZIlnD0AYro9exu3NXj9idUckMpLt8F1YsEQ09tQdU7zhyka_GzwnS3-i1g/exec',
+    APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzzX1mABr4ZB51KjJZ2IddflNROpZcDVI1erLq0T4dHTK07VSYHZ2rQp2DQNHyx9o9GcQ/exec',
 
     // Helper to call Apps Script
     async callAppsScript(data) {
