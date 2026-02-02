@@ -12,7 +12,7 @@ class GoogleSheetsService {
         this.createPromise = null; // Store pending creation promise
 
         // Google Apps Script Web App URL
-        this.APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw43MwKinnOU7YpChEp75CcEnW_PF0CkDqsiEBJrWNhuTL79fFMPyV7LEWrFtxhi2eBjA/exec';
+        this.APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyfE7_WVHTtOYeVlbc8VV__e9wjnMsG1PiTX3suyUQN-2rSFwhjusvqOfzH26lHd8d5YQ/exec';
     }
 
     /**
@@ -326,13 +326,57 @@ class GoogleSheetsService {
     }
 
     /**
-     * Reset/clear the sheet - creates a new copy of master template
+     * Reset/clear the sheet - restores to master template format
      */
     async resetSheet() {
+        try {
+            if (!this.sheetId) {
+                throw new Error('No Google Sheet found. Please create one first.');
+            }
+
+            const data = {
+                action: 'resetSheet',
+                sheetId: this.sheetId
+            };
+
+            const result = await this.fetchAppsScript(data);
+
+            if (result.status === 'success') {
+                return { success: true, message: 'Sheet reset to template successfully' };
+            } else {
+                throw new Error(result.message || 'Failed to reset sheet');
+            }
+        } catch (error) {
+            console.error('Error resetting sheet:', error);
+            return { success: false, message: error.message };
+        }
+    }
+
+    /**
+     * Create a completely new sheet (replaces existing)
+     */
+    async createNewSheet() {
         try {
             // Clear saved sheet data
             localStorage.removeItem('googleSheetId');
             localStorage.removeItem('googleSheetUrl');
+
+            // Clear from database
+            try {
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                const supabase = window.supabaseClient?.get();
+                if (supabase && user.id) {
+                    await supabase
+                        .from('profiles')
+                        .update({
+                            google_sheet_id: null,
+                            google_sheet_url: null
+                        })
+                        .eq('id', user.id);
+                }
+            } catch (dbError) {
+                console.log('Could not clear sheet from database:', dbError.message);
+            }
 
             this.sheetId = null;
             this.sheetUrl = null;
@@ -343,7 +387,7 @@ class GoogleSheetsService {
 
             return { success: true, message: 'New sheet created from template' };
         } catch (error) {
-            console.error('❌ Error resetting sheet:', error);
+            console.error('Error creating new sheet:', error);
             return { success: false, message: error.message };
         }
     }
@@ -382,6 +426,77 @@ class GoogleSheetsService {
 
         if (exportBtn) {
             exportBtn.style.display = 'inline-block';
+        }
+    }
+
+    /**
+     * Update employee information in the sheet
+     */
+    async updateEmployeeInfo(employeeData) {
+        try {
+            if (!this.sheetId) {
+                await this.createSheet();
+            }
+
+            const data = {
+                action: 'updateEmployeeInfo',
+                sheetId: this.sheetId,
+                employeeData: employeeData
+            };
+
+            const result = await this.fetchAppsScript(data);
+
+            if (result.status === 'success') {
+                return {
+                    success: true,
+                    message: 'Employee information updated successfully'
+                };
+            } else {
+                throw new Error(result.message || 'Failed to update employee info');
+            }
+        } catch (error) {
+            console.error('Error updating employee info:', error);
+            return {
+                success: false,
+                message: error.message || 'Failed to update employee information'
+            };
+        }
+    }
+
+    /**
+     * Export sheet as PDF
+     */
+    async exportAsPdf() {
+        try {
+            if (!this.sheetId) {
+                throw new Error('No Google Sheet found. Please create one first.');
+            }
+
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+            const data = {
+                action: 'exportPdf',
+                sheetId: this.sheetId,
+                userEmail: user.email
+            };
+
+            const result = await this.fetchAppsScript(data);
+
+            if (result.status === 'success' && result.data) {
+                return {
+                    success: true,
+                    pdfUrl: result.data.pdfUrl,
+                    message: 'PDF exported successfully'
+                };
+            } else {
+                throw new Error(result.message || 'Failed to export PDF');
+            }
+        } catch (error) {
+            console.error('Error exporting PDF:', error);
+            return {
+                success: false,
+                message: error.message || 'Failed to export PDF'
+            };
         }
     }
 
