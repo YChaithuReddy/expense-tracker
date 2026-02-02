@@ -203,12 +203,12 @@ async function handleAuthCallback() {
 async function initAuth() {
     console.log('Initializing auth...');
 
-    // Prevent redirect loops - check if we just redirected
-    const lastRedirect = sessionStorage.getItem('lastAuthRedirect');
     const now = Date.now();
-    if (lastRedirect && (now - parseInt(lastRedirect)) < 2000) {
-        console.log('Preventing redirect loop');
-        return;
+
+    // Clear old redirect timestamp (older than 5 seconds)
+    const lastRedirect = sessionStorage.getItem('lastAuthRedirect');
+    if (lastRedirect && (now - parseInt(lastRedirect)) > 5000) {
+        sessionStorage.removeItem('lastAuthRedirect');
     }
 
     // Wait for Supabase client
@@ -237,6 +237,12 @@ async function initAuth() {
     if (isPublicPage) {
         // On login/signup page
         if (hasSession) {
+            // Prevent redirect loops
+            const recentRedirect = sessionStorage.getItem('lastAuthRedirect');
+            if (recentRedirect && (now - parseInt(recentRedirect)) < 2000) {
+                console.log('Preventing redirect loop from login');
+                return;
+            }
             // Already logged in, redirect to app
             console.log('Already authenticated, redirecting to app...');
             sessionStorage.setItem('lastAuthRedirect', now.toString());
@@ -257,6 +263,12 @@ async function initAuth() {
         } else {
             // Not authenticated, check localStorage as fallback
             if (!isAuthenticated()) {
+                // Prevent redirect loops - only redirect if we haven't just redirected
+                const recentRedirect = sessionStorage.getItem('lastAuthRedirect');
+                if (recentRedirect && (now - parseInt(recentRedirect)) < 2000) {
+                    console.log('Preventing redirect loop - waiting for session');
+                    return;
+                }
                 console.log('Not authenticated, redirecting to login...');
                 sessionStorage.setItem('lastAuthRedirect', now.toString());
                 window.location.href = 'login.html';
