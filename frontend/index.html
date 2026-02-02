@@ -435,19 +435,15 @@
 
     <!-- Authentication Check & User Info Display -->
     <script>
-        // Check authentication on page load
-        if (!requireAuth()) {
-            // requireAuth() will redirect to login if not authenticated
-            throw new Error('Not authenticated');
-        }
+        // Auth check is handled by initAuth() in supabase-auth.js
+        // which properly waits for Supabase session restoration
 
-        // Display user info
-        const user = JSON.parse(localStorage.getItem('user'));
+        // Display user info if available (will be updated by initAuth)
+        const user = JSON.parse(localStorage.getItem('user') || 'null');
         if (user) {
             const userNameElement = document.getElementById('userName');
             const userInfoElement = document.getElementById('userInfo');
 
-            // Check if elements exist before trying to update them
             if (userNameElement) {
                 userNameElement.textContent = `👤 ${user.name}`;
             }

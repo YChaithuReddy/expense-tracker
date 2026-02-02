@@ -250,6 +250,10 @@ async function initAuth() {
         if (hasSession) {
             // User is authenticated, show their info
             displayUserInfo();
+            // Trigger expense loading now that auth is confirmed
+            if (window.expenseTracker && typeof window.expenseTracker.loadExpenses === 'function') {
+                window.expenseTracker.loadExpenses();
+            }
         } else {
             // Not authenticated, check localStorage as fallback
             if (!isAuthenticated()) {
@@ -260,6 +264,10 @@ async function initAuth() {
             }
             // Has localStorage user but no session - try to restore
             displayUserInfo();
+            // Trigger expense loading
+            if (window.expenseTracker && typeof window.expenseTracker.loadExpenses === 'function') {
+                window.expenseTracker.loadExpenses();
+            }
         }
     }
 }

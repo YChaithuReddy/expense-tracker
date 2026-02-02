@@ -3537,6 +3537,14 @@ class ExpenseTracker {
 
     async loadExpenses() {
         try {
+            // Wait for auth to be ready (Supabase session restoration)
+            const user = localStorage.getItem('user');
+            if (!user) {
+                // Not authenticated yet - wait for initAuth() to handle redirect
+                console.log('Waiting for authentication...');
+                return;
+            }
+
             console.log('Loading expenses from backend...');
             const response = await api.getExpenses(1, 1000); // Get up to 1000 expenses
 
