@@ -555,10 +555,12 @@ const api = {
 
         if (error) handleError(error, 'Clear expenses');
 
+        const count = expenseImages?.length || 0;
         return {
             success: true,
             message: 'Expense data cleared. Images preserved.',
-            orphanedCount: expenseImages?.length || 0
+            orphanedCount: count,
+            orphanedImagesCount: count  // script.js expects this property name
         };
     },
 
@@ -581,13 +583,19 @@ const api = {
             await supabase.storage.from('expense-bills').remove(paths);
         }
 
+        const deletedCount = orphaned?.length || 0;
+
         // Delete records
         await supabase
             .from('orphaned_images')
             .delete()
             .eq('user_id', user.id);
 
-        return { success: true, message: 'Orphaned images cleared' };
+        return {
+            success: true,
+            message: 'Orphaned images cleared',
+            deletedCount: deletedCount  // script.js expects this
+        };
     },
 
     // Clear all data
@@ -619,13 +627,25 @@ const api = {
             await supabase.storage.from('expense-bills').remove(allPaths);
         }
 
+        // Count before deleting
+        const { count: expenseCount } = await supabase
+            .from('expenses')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', user.id);
+
         // Delete expenses (cascades to expense_images)
         await supabase.from('expenses').delete().eq('user_id', user.id);
 
         // Delete orphaned images
         await supabase.from('orphaned_images').delete().eq('user_id', user.id);
 
-        return { success: true, message: 'All data cleared' };
+        return {
+            success: true,
+            message: 'All data cleared',
+            expensesCleared: expenseCount || 0,
+            expenseImagesDeleted: expenseImages?.length || 0,
+            orphanedImagesDeleted: orphanedImages?.length || 0
+        };
     },
 
     // ==============================================
