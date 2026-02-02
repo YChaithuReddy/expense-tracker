@@ -16,11 +16,11 @@ class GoogleSheetsService {
     }
 
     /**
-     * Initialize service - load saved sheet info or create new sheet
+     * Initialize service - load sheet info from database or create new sheet
      */
     async initialize() {
         try {
-            // Load saved sheet info from localStorage
+            // First check localStorage (cache)
             const savedSheetId = localStorage.getItem('googleSheetId');
             const savedSheetUrl = localStorage.getItem('googleSheetUrl');
 
@@ -29,19 +29,53 @@ class GoogleSheetsService {
                 this.sheetUrl = savedSheetUrl;
                 this.isInitialized = true;
                 this.updateUI();
-                console.log('Google Sheet loaded:', this.sheetUrl);
-            } else {
-                // No sheet yet - check if user is logged in and create one
-                const user = JSON.parse(localStorage.getItem('user') || '{}');
-                if (user.email && user.name) {
-                    console.log('No Google Sheet found, creating one for new user...');
-                    try {
-                        await this.createSheet();
-                        console.log('Google Sheet created for new user:', this.sheetUrl);
-                    } catch (createError) {
-                        console.log('Sheet creation deferred:', createError.message);
-                        // Don't fail initialization - sheet will be created on first export
+                console.log('Google Sheet loaded from cache:', this.sheetUrl);
+                return true;
+            }
+
+            // Check database for user's sheet
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (!user.id) {
+                console.log('User not logged in, skipping sheet initialization');
+                return false;
+            }
+
+            // Try to get sheet from Supabase profile
+            try {
+                const supabase = window.supabaseClient?.get();
+                if (supabase) {
+                    const { data: profile } = await supabase
+                        .from('profiles')
+                        .select('google_sheet_id, google_sheet_url')
+                        .eq('id', user.id)
+                        .single();
+
+                    if (profile?.google_sheet_id && profile?.google_sheet_url) {
+                        this.sheetId = profile.google_sheet_id;
+                        this.sheetUrl = profile.google_sheet_url;
+
+                        // Cache in localStorage
+                        localStorage.setItem('googleSheetId', this.sheetId);
+                        localStorage.setItem('googleSheetUrl', this.sheetUrl);
+
+                        this.isInitialized = true;
+                        this.updateUI();
+                        console.log('Google Sheet loaded from database:', this.sheetUrl);
+                        return true;
                     }
+                }
+            } catch (dbError) {
+                console.log('Could not fetch sheet from database:', dbError.message);
+            }
+
+            // No sheet in database - create one for new user
+            if (user.email && user.name) {
+                console.log('No Google Sheet found, creating one for new user...');
+                try {
+                    await this.createSheet();
+                    console.log('Google Sheet created for new user:', this.sheetUrl);
+                } catch (createError) {
+                    console.log('Sheet creation deferred:', createError.message);
                 }
             }
 
@@ -199,9 +233,26 @@ class GoogleSheetsService {
                 this.sheetId = result.data.sheetId;
                 this.sheetUrl = result.data.sheetUrl;
 
-                // Save to localStorage
+                // Save to localStorage (cache)
                 localStorage.setItem('googleSheetId', this.sheetId);
                 localStorage.setItem('googleSheetUrl', this.sheetUrl);
+
+                // Save to Supabase database (persistent)
+                try {
+                    const supabase = window.supabaseClient?.get();
+                    if (supabase) {
+                        await supabase
+                            .from('profiles')
+                            .update({
+                                google_sheet_id: this.sheetId,
+                                google_sheet_url: this.sheetUrl
+                            })
+                            .eq('id', user.id);
+                        console.log('Sheet ID saved to database');
+                    }
+                } catch (dbError) {
+                    console.log('Could not save sheet to database:', dbError.message);
+                }
 
                 this.isInitialized = true;
                 this.updateUI();
