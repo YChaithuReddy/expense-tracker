@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Package visibility for Android 11+ (API 30+) -->
+    <!-- Required to query and launch UPI apps -->
+    <queries>
+        <!-- Google Pay -->
+        <package android:name="com.google.android.apps.nbu.paisa.user" />
+        <!-- PhonePe -->
+        <package android:name="com.phonepe.app" />
+        <!-- Paytm -->
+        <package android:name="net.one97.paytm" />
+    </queries>
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"

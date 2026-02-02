@@ -1,0 +1,12 @@
+{
+  "name": "expense-tracker-supabase-migration",
+  "version": "1.0.0",
+  "description": "Migration tools for Expense Tracker from MongoDB to Supabase",
+  "scripts": {
+    "migrate": "node migrate-data.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "mongoose": "^8.0.3"
+  }
+}
