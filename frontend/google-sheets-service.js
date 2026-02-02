@@ -14,7 +14,7 @@ class GoogleSheetsService {
     }
 
     /**
-     * Initialize service - load saved sheet info
+     * Initialize service - load saved sheet info or create new sheet
      */
     async initialize() {
         try {
@@ -28,6 +28,19 @@ class GoogleSheetsService {
                 this.isInitialized = true;
                 this.updateUI();
                 console.log('Google Sheet loaded:', this.sheetUrl);
+            } else {
+                // No sheet yet - check if user is logged in and create one
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                if (user.email && user.name) {
+                    console.log('No Google Sheet found, creating one for new user...');
+                    try {
+                        await this.createSheet();
+                        console.log('Google Sheet created for new user:', this.sheetUrl);
+                    } catch (createError) {
+                        console.log('Sheet creation deferred:', createError.message);
+                        // Don't fail initialization - sheet will be created on first export
+                    }
+                }
             }
 
             return true;
