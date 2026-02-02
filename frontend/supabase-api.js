@@ -650,24 +650,28 @@ const api = {
         const { data: stats } = await supabase
             .rpc('get_user_storage_stats', { p_user_id: user.id });
 
+        const images = data.map(img => ({
+            _id: img.id,
+            url: img.public_url,
+            publicId: img.storage_path,
+            filename: img.filename,
+            originalExpenseInfo: {
+                date: img.original_expense_date,
+                vendor: img.original_vendor,
+                amount: img.original_amount,
+                category: img.original_category
+            },
+            uploadDate: img.upload_date,
+            expiryDate: img.expiry_date,
+            wasExported: img.was_exported,
+            preserveIndefinitely: img.preserve_indefinitely
+        }));
+
         return {
             success: true,
-            data: data.map(img => ({
-                _id: img.id,
-                url: img.public_url,
-                publicId: img.storage_path,
-                filename: img.filename,
-                originalExpenseInfo: {
-                    date: img.original_expense_date,
-                    vendor: img.original_vendor,
-                    amount: img.original_amount,
-                    category: img.original_category
-                },
-                uploadDate: img.upload_date,
-                expiryDate: img.expiry_date,
-                wasExported: img.was_exported,
-                preserveIndefinitely: img.preserve_indefinitely
-            })),
+            status: 'success',  // script.js checks for this
+            images: images,      // script.js expects 'images' not 'data'
+            data: images,        // keep for compatibility
             stats
         };
     },
