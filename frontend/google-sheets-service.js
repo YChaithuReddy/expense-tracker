@@ -8,6 +8,8 @@ class GoogleSheetsService {
         this.sheetUrl = null;
         this.sheetId = null;
         this.isInitialized = false;
+        this.isCreating = false; // Lock to prevent multiple creations
+        this.createPromise = null; // Store pending creation promise
 
         // Google Apps Script Web App URL
         this.APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw43MwKinnOU7YpChEp75CcEnW_PF0CkDqsiEBJrWNhuTL79fFMPyV7LEWrFtxhi2eBjA/exec';
@@ -147,6 +149,34 @@ class GoogleSheetsService {
      * Create a new sheet for the user (copy of master template)
      */
     async createSheet() {
+        // If already have a sheet, return it
+        if (this.sheetId && this.sheetUrl) {
+            return { success: true, sheetId: this.sheetId, sheetUrl: this.sheetUrl };
+        }
+
+        // If creation is in progress, wait for it
+        if (this.isCreating && this.createPromise) {
+            console.log('Sheet creation already in progress, waiting...');
+            return await this.createPromise;
+        }
+
+        // Start creation with lock
+        this.isCreating = true;
+        this.createPromise = this._doCreateSheet();
+
+        try {
+            const result = await this.createPromise;
+            return result;
+        } finally {
+            this.isCreating = false;
+            this.createPromise = null;
+        }
+    }
+
+    /**
+     * Internal method to actually create the sheet
+     */
+    async _doCreateSheet() {
         try {
             const user = JSON.parse(localStorage.getItem('user') || '{}');
 
