@@ -713,8 +713,57 @@ const api = {
     },
 
     // ==============================================
-    // GOOGLE SHEETS (via Edge Functions)
+    // GOOGLE SHEETS (via Apps Script)
     // ==============================================
+
+    // Apps Script Web App URL
+    APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyfE7_WVHTtOYeVlbc8VV__e9wjnMsG1PiTX3suyUQN-2rSFwhjusvqOfzH26lHd8d5YQ/exec',
+
+    // Helper to call Apps Script
+    async callAppsScript(data) {
+        try {
+            const params = new URLSearchParams({
+                data: JSON.stringify(data)
+            });
+
+            const response = await fetch(`${this.APPS_SCRIPT_URL}?${params}`, {
+                method: 'GET',
+                redirect: 'follow'
+            });
+
+            const text = await response.text();
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                console.log('Apps Script response:', text);
+                return { status: 'success', data: {} };
+            }
+        } catch (error) {
+            console.error('Apps Script call error:', error);
+            throw error;
+        }
+    },
+
+    // Get sheet ID from googleSheetsService or database
+    async getSheetId() {
+        // First try googleSheetsService
+        if (window.googleSheetsService?.sheetId) {
+            return window.googleSheetsService.sheetId;
+        }
+
+        // Fall back to database
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('google_sheet_id')
+            .eq('id', user.id)
+            .single();
+
+        return profile?.google_sheet_id;
+    },
 
     async getGoogleSheetLink() {
         const supabase = getSupabase();
@@ -735,58 +784,89 @@ const api = {
         };
     },
 
-    async exportToGoogleSheets(expenseIds) {
-        const supabase = getSupabase();
-
-        const { data, error } = await supabase.functions.invoke('google-sheets-export', {
-            body: { expenseIds }
-        });
-
-        if (error) handleError(error, 'Export to sheets');
-
-        return data;
+    async exportToGoogleSheets(expenses) {
+        // This is handled by googleSheetsService.exportExpenses()
+        // But provide a fallback here
+        if (window.googleSheetsService) {
+            return await window.googleSheetsService.exportExpenses(expenses);
+        }
+        throw new Error('Google Sheets service not available');
     },
 
     async createGoogleSheet() {
-        const supabase = getSupabase();
-
-        const { data, error } = await supabase.functions.invoke('google-sheets-create', {});
-
-        if (error) handleError(error, 'Create sheet');
-
-        return data;
+        // This is handled by googleSheetsService.createSheet()
+        if (window.googleSheetsService) {
+            return await window.googleSheetsService.createSheet();
+        }
+        throw new Error('Google Sheets service not available');
     },
 
     async exportGoogleSheetAsPdf() {
-        const supabase = getSupabase();
+        const sheetId = await this.getSheetId();
+        if (!sheetId) {
+            throw new Error('No Google Sheet found. Please create one first.');
+        }
 
-        const { data, error } = await supabase.functions.invoke('google-sheets-pdf', {});
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
 
-        if (error) handleError(error, 'Export PDF');
+        const result = await this.callAppsScript({
+            action: 'exportPdf',
+            sheetId: sheetId,
+            userEmail: user.email
+        });
 
-        return data;
+        if (result.status === 'success' && result.data) {
+            return {
+                success: true,
+                pdfUrl: result.data.pdfUrl,
+                message: 'PDF exported successfully'
+            };
+        } else {
+            throw new Error(result.message || 'Failed to export PDF');
+        }
     },
 
     async resetGoogleSheet() {
-        const supabase = getSupabase();
+        const sheetId = await this.getSheetId();
+        if (!sheetId) {
+            throw new Error('No Google Sheet found. Please create one first.');
+        }
 
-        const { data, error } = await supabase.functions.invoke('google-sheets-reset', {});
+        const result = await this.callAppsScript({
+            action: 'resetSheet',
+            sheetId: sheetId
+        });
 
-        if (error) handleError(error, 'Reset sheet');
-
-        return data;
+        if (result.status === 'success') {
+            return {
+                success: true,
+                message: 'Sheet reset to template successfully'
+            };
+        } else {
+            throw new Error(result.message || 'Failed to reset sheet');
+        }
     },
 
     async updateEmployeeInfo(employeeData) {
-        const supabase = getSupabase();
+        const sheetId = await this.getSheetId();
+        if (!sheetId) {
+            throw new Error('No Google Sheet found. Please create one first.');
+        }
 
-        const { data, error } = await supabase.functions.invoke('google-sheets-employee', {
-            body: employeeData
+        const result = await this.callAppsScript({
+            action: 'updateEmployeeInfo',
+            sheetId: sheetId,
+            employeeData: employeeData
         });
 
-        if (error) handleError(error, 'Update employee info');
-
-        return data;
+        if (result.status === 'success') {
+            return {
+                success: true,
+                message: 'Employee information updated successfully'
+            };
+        } else {
+            throw new Error(result.message || 'Failed to update employee info');
+        }
     },
 
     // ==============================================
