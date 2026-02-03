@@ -10,6 +10,8 @@ class GoogleSheetsService {
         this.isInitialized = false;
         this.isCreating = false; // Lock to prevent multiple creations
         this.createPromise = null; // Store pending creation promise
+        this.isInitializing = false; // Lock to prevent multiple initializations
+        this.initPromise = null; // Store pending initialization promise
 
         // Google Apps Script Web App URL
         this.APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw30RWs5YAt0K3SNnwh_32KgKbYwKyjj2ii40FiaBa-yARcX5rr6KkqzJFdWtjhAPGS9Q/exec';
@@ -19,6 +21,35 @@ class GoogleSheetsService {
      * Initialize service - load sheet info from database or create new sheet
      */
     async initialize() {
+        // If already initialized with a sheet, return immediately
+        if (this.isInitialized && this.sheetId && this.sheetUrl) {
+            console.log('Google Sheets already initialized');
+            return true;
+        }
+
+        // If initialization is in progress, wait for it
+        if (this.isInitializing && this.initPromise) {
+            console.log('Google Sheets initialization already in progress, waiting...');
+            return await this.initPromise;
+        }
+
+        // Start initialization with lock
+        this.isInitializing = true;
+        this.initPromise = this._doInitialize();
+
+        try {
+            const result = await this.initPromise;
+            return result;
+        } finally {
+            this.isInitializing = false;
+            this.initPromise = null;
+        }
+    }
+
+    /**
+     * Internal method to actually initialize
+     */
+    async _doInitialize() {
         try {
             // First check localStorage (cache)
             const savedSheetId = localStorage.getItem('googleSheetId');

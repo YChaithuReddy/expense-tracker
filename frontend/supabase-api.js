@@ -109,10 +109,22 @@ const api = {
     async loginWithGoogle() {
         const supabase = getSupabase();
 
+        // Check if running in Capacitor native app
+        const isCapacitorApp = window.Capacitor &&
+            window.Capacitor.isNativePlatform &&
+            window.Capacitor.isNativePlatform();
+
+        // Use custom URL scheme for native app, web URL for browser
+        const redirectUrl = isCapacitorApp
+            ? 'expensetracker://auth'
+            : `${window.location.origin}/login.html`;
+
+        console.log('Google OAuth redirect URL:', redirectUrl, 'isCapacitorApp:', isCapacitorApp);
+
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
-                redirectTo: `${window.location.origin}/login.html`
+                redirectTo: redirectUrl
             }
         });
 
