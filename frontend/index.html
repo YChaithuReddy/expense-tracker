@@ -376,6 +376,23 @@
             </div>
         </div>
 
+        <!-- Image Viewer Modal -->
+        <div id="imageViewerModal" class="image-viewer-modal" style="display: none;">
+            <div class="image-viewer-overlay" onclick="expenseTracker.closeImageModal()"></div>
+            <div class="image-viewer-content">
+                <button class="image-viewer-close" onclick="expenseTracker.closeImageModal()">&times;</button>
+                <img id="imageViewerImg" src="" alt="Bill Image">
+                <div class="image-viewer-info">
+                    <span id="imageViewerName"></span>
+                </div>
+                <div class="image-viewer-nav">
+                    <button id="imageViewerPrev" onclick="expenseTracker.prevImage()">&#10094; Prev</button>
+                    <span id="imageViewerCounter"></span>
+                    <button id="imageViewerNext" onclick="expenseTracker.nextImage()">Next &#10095;</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Employee Info Modal for PDF Download -->
         <div id="employeeInfoModal" class="employee-info-modal" style="display: none;">
             <div class="employee-info-content">
