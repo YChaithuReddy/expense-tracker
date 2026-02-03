@@ -232,10 +232,7 @@
         // Call OAuth handler on page load
         handleOAuthCallback();
 
-        // Check if already logged in
-        if (localStorage.getItem('authToken')) {
-            window.location.href = 'index.html';
-        }
+        // Note: Auth redirect is handled by supabase-auth.js initAuth()
 
         // Debug: Show API configuration on page load (only for 3 seconds)
         window.addEventListener('load', () => {
