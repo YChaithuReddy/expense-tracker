@@ -106,6 +106,7 @@ async function logout() {
 
     // Clear all auth-related storage
     localStorage.removeItem('user');
+    localStorage.removeItem('authToken');
     localStorage.removeItem('expense-tracker-auth');
 
     // Redirect to login
