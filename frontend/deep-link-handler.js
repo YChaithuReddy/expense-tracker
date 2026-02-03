@@ -12,7 +12,7 @@
     }
 
     // Handle deep link URL
-    function handleDeepLink(url) {
+    async function handleDeepLink(url) {
         console.log('Deep link received:', url);
 
         try {
@@ -21,44 +21,83 @@
 
             // Check if it's an auth callback
             if (urlObj.protocol === 'expensetracker:' && urlObj.host === 'auth') {
-                const params = urlObj.searchParams;
-                const token = params.get('token');
-                const userParam = params.get('user');
-                const error = params.get('error');
+                console.log('Auth callback detected');
 
-                if (token) {
-                    // Save auth data
-                    localStorage.setItem('authToken', token);
+                // Supabase OAuth returns tokens in hash fragment
+                // URL format: expensetracker://auth#access_token=xxx&refresh_token=xxx&...
+                const hashParams = new URLSearchParams(urlObj.hash.substring(1));
+                const accessToken = hashParams.get('access_token');
+                const refreshToken = hashParams.get('refresh_token');
+                const error = hashParams.get('error') || urlObj.searchParams.get('error');
+                const errorDescription = hashParams.get('error_description') || urlObj.searchParams.get('error_description');
 
-                    if (userParam) {
-                        try {
-                            const user = JSON.parse(decodeURIComponent(userParam));
-                            localStorage.setItem('user', JSON.stringify(user));
-                        } catch (e) {
-                            console.error('Error parsing user data:', e);
-                        }
+                console.log('OAuth params:', { hasAccessToken: !!accessToken, hasRefreshToken: !!refreshToken, error });
+
+                if (accessToken && refreshToken) {
+                    console.log('Tokens received, setting session...');
+
+                    // Wait for Supabase client to be ready
+                    let attempts = 0;
+                    while (!window.supabaseClient?.get() && attempts < 50) {
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                        attempts++;
                     }
 
-                    console.log('OAuth login successful via deep link');
+                    const supabase = window.supabaseClient?.get();
+                    if (supabase) {
+                        try {
+                            // Set the session with the tokens
+                            const { data, error: sessionError } = await supabase.auth.setSession({
+                                access_token: accessToken,
+                                refresh_token: refreshToken
+                            });
 
-                    // Redirect to main app
+                            if (sessionError) {
+                                console.error('Error setting session:', sessionError);
+                                throw sessionError;
+                            }
+
+                            console.log('Session set successfully:', data?.user?.email);
+
+                            // Fetch and store user data
+                            if (window.auth?.fetchCurrentUser) {
+                                await window.auth.fetchCurrentUser();
+                            }
+
+                            // Redirect to main app
+                            window.location.href = 'index.html';
+                            return;
+                        } catch (e) {
+                            console.error('Error setting Supabase session:', e);
+                        }
+                    } else {
+                        console.error('Supabase client not available');
+                    }
+
+                    // Fallback: store token and redirect
+                    localStorage.setItem('authToken', accessToken);
                     window.location.href = 'index.html';
 
                 } else if (error) {
-                    console.error('OAuth error:', error);
-                    // Show error on login page
-                    if (window.location.pathname.includes('login')) {
-                        const messageEl = document.getElementById('loginMessage');
-                        if (messageEl) {
-                            messageEl.textContent = 'Google authentication failed. Please try again.';
-                            messageEl.className = 'message error';
-                            messageEl.style.display = 'block';
-                        }
+                    console.error('OAuth error:', error, errorDescription);
+                    // Redirect to login with error
+                    window.location.href = 'login.html?error=' + encodeURIComponent(errorDescription || error);
+                } else {
+                    // No tokens and no error - might be a different format
+                    // Check for legacy format with token param
+                    const legacyToken = urlObj.searchParams.get('token');
+                    if (legacyToken) {
+                        localStorage.setItem('authToken', legacyToken);
+                        window.location.href = 'index.html';
+                    } else {
+                        console.log('Unknown deep link format, redirecting to login');
+                        window.location.href = 'login.html';
                     }
                 }
             }
         } catch (e) {
             console.error('Error handling deep link:', e);
+            window.location.href = 'login.html?error=' + encodeURIComponent('Authentication failed');
         }
     }
 
