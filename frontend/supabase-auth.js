@@ -93,12 +93,22 @@ async function fetchCurrentUser() {
 async function logout() {
     const client = window.supabaseClient?.get();
 
+    // Set logout flag BEFORE signOut to prevent redirect loop
+    sessionStorage.setItem('just_logged_out', 'true');
+
     if (client) {
-        await client.auth.signOut();
+        try {
+            await client.auth.signOut({ scope: 'global' });
+        } catch (e) {
+            console.log('SignOut error (ignored):', e);
+        }
     }
 
+    // Clear all auth-related storage
     localStorage.removeItem('user');
     localStorage.removeItem('expense-tracker-auth');
+
+    // Redirect to login
     window.location.href = 'login.html';
 }
 
@@ -227,8 +237,16 @@ async function initAuth() {
 
     if (isPublicPage) {
         // On login/signup page
-        if (hasSession) {
-            // Already logged in, redirect to app
+        // Check if user just logged out - don't redirect back
+        const justLoggedOut = sessionStorage.getItem('just_logged_out');
+        if (justLoggedOut) {
+            console.log('User just logged out, staying on login page');
+            sessionStorage.removeItem('just_logged_out');
+            return;
+        }
+
+        if (hasSession && isAuthenticated()) {
+            // Already logged in (both session AND localStorage user exist), redirect to app
             console.log('Already authenticated, redirecting to app...');
             const redirect = sessionStorage.getItem('redirectAfterLogin') || 'index.html';
             sessionStorage.removeItem('redirectAfterLogin');
