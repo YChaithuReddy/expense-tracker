@@ -65,36 +65,20 @@
     }
   ],
   "categories": ["finance", "productivity", "utilities"],
-  "screenshots": [
-    {
-      "src": "icons/screenshot-wide.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Expense Tracker Dashboard"
-    },
-    {
-      "src": "icons/screenshot-mobile.png",
-      "sizes": "390x844",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Mobile View"
-    }
-  ],
   "shortcuts": [
     {
       "name": "Add Expense",
       "short_name": "Add",
       "description": "Quickly add a new expense",
       "url": "/?action=add",
-      "icons": [{ "src": "icons/icon-96x96.png", "sizes": "96x96" }]
+      "icons": [{ "src": "icons/icon-96x96.svg", "sizes": "96x96", "type": "image/svg+xml" }]
     },
     {
       "name": "Scan Bill",
       "short_name": "Scan",
       "description": "Scan a bill using camera",
       "url": "/?action=scan",
-      "icons": [{ "src": "icons/icon-96x96.png", "sizes": "96x96" }]
+      "icons": [{ "src": "icons/icon-96x96.svg", "sizes": "96x96", "type": "image/svg+xml" }]
     }
   ],
   "related_applications": [],
