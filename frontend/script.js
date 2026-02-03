@@ -219,10 +219,9 @@ class ExpenseTracker {
         return new Promise((resolve, reject) => {
             console.log(`Starting compression for ${file.name} (${(file.size/1024).toFixed(1)}KB, type: ${file.type || 'unknown'})`);
 
-            // For now, skip compression for ALL files to ensure they work
-            // We can re-enable compression once we fix the timeout issues
-            if (true || file.size < 500 * 1024) {
-                console.log(`${file.name}: Using original file (compression temporarily disabled)`);
+            // Skip compression for small files (under 200KB)
+            if (file.size < 200 * 1024) {
+                console.log(`${file.name}: Small file, skipping compression`);
                 resolve(file);
                 return;
             }
@@ -2807,32 +2806,53 @@ class ExpenseTracker {
         }
     }
 
-    processImages(files, expense, isEdit = false) {
-        let processedCount = 0;
-        console.log('Processing images:', files.length); // Debug log
+    async processImages(files, expense, isEdit = false) {
+        console.log('Processing images:', files.length);
 
-        Array.from(files).forEach((file) => {
-            const reader = new FileReader();
-            reader.onload = (e) => {
+        // Show compression progress
+        this.showNotification('📷 Compressing images...');
+
+        for (const file of Array.from(files)) {
+            try {
+                // Compress image before reading
+                const compressedFile = await this.compressImage(file, 1200, 0.8);
+
+                // Read compressed file
+                const dataUrl = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => resolve(e.target.result);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(compressedFile);
+                });
+
                 expense.images.push({
                     name: file.name,
-                    data: e.target.result
+                    data: dataUrl
                 });
-                processedCount++;
 
-                console.log(`Processed image ${processedCount}/${files.length}`); // Debug log
-
-                if (processedCount === files.length) {
-                    if (isEdit) {
-                        this.updateExpense(expense);
-                    } else {
-                        this.addExpense(expense);
-                    }
-                    this.backToScan();
+                console.log(`Processed image: ${file.name} (${(file.size/1024).toFixed(1)}KB → ${(compressedFile.size/1024).toFixed(1)}KB)`);
+            } catch (error) {
+                console.error(`Error processing image ${file.name}:`, error);
+                // Try without compression as fallback
+                const dataUrl = await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => resolve(e.target.result);
+                    reader.onerror = () => resolve(null);
+                    reader.readAsDataURL(file);
+                });
+                if (dataUrl) {
+                    expense.images.push({ name: file.name, data: dataUrl });
                 }
-            };
-            reader.readAsDataURL(file);
-        });
+            }
+        }
+
+        // Proceed with expense
+        if (isEdit) {
+            this.updateExpense(expense);
+        } else {
+            this.addExpense(expense);
+        }
+        this.backToScan();
     }
 
     async addExpense(expense) {
@@ -3210,7 +3230,7 @@ class ExpenseTracker {
                     <div class="expense-images">
                         ${expense.images.map((img, index) => {
                             const safeName = this.sanitizeHTML(img.name);
-                            return `<img src="${img.data}" alt="${safeName}">`;
+                            return `<img src="${img.data}" alt="${safeName}" data-expense-id="${expense.id}" data-image-index="${index}" onclick="expenseTracker.openImageFromCard(this)" title="Click to view full size">`;
                         }).join('')}
                     </div>
                 ` : ''}
@@ -4037,17 +4057,43 @@ class ExpenseTracker {
 
             // Step 5: Save merged PDF
             const mergedPdfBytes = await mergedPdf.save();
-            const blob = new Blob([mergedPdfBytes], { type: 'application/pdf' });
+            const fileName = `Reimbursement_Package_${new Date().toISOString().split('T')[0]}.pdf`;
 
-            // Download
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `Reimbursement_Package_${new Date().toISOString().split('T')[0]}.pdf`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            // Check if running in Capacitor (mobile app)
+            if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
+                // Mobile: Use Capacitor Filesystem API
+                try {
+                    const { Filesystem, Directory } = window.Capacitor.Plugins;
+
+                    // Convert bytes to base64
+                    const base64Data = this.arrayBufferToBase64(mergedPdfBytes);
+
+                    // Save to Downloads directory
+                    const result = await Filesystem.writeFile({
+                        path: fileName,
+                        data: base64Data,
+                        directory: Directory.Documents,
+                        recursive: true
+                    });
+
+                    console.log('📁 File saved to:', result.uri);
+
+                    // Try to open the file
+                    if (window.Capacitor.Plugins.FileOpener) {
+                        await window.Capacitor.Plugins.FileOpener.open({
+                            filePath: result.uri,
+                            contentType: 'application/pdf'
+                        });
+                    }
+                } catch (fsError) {
+                    console.error('Filesystem save failed, trying fallback:', fsError);
+                    // Fallback to blob download
+                    this.downloadBlobFallback(mergedPdfBytes, fileName);
+                }
+            } else {
+                // Web: Use standard download
+                this.downloadBlobFallback(mergedPdfBytes, fileName);
+            }
 
             // Success notification with appropriate message
             if (hasImages) {
@@ -4082,6 +4128,30 @@ class ExpenseTracker {
                 this.showError('Unable to generate the reimbursement package.\n\n' + error.message, 'Package Generation Failed');
             }
         }
+    }
+
+    // Helper: Convert ArrayBuffer to Base64 for Capacitor Filesystem
+    arrayBufferToBase64(buffer) {
+        let binary = '';
+        const bytes = new Uint8Array(buffer);
+        const len = bytes.byteLength;
+        for (let i = 0; i < len; i++) {
+            binary += String.fromCharCode(bytes[i]);
+        }
+        return btoa(binary);
+    }
+
+    // Helper: Fallback download using blob URL (for web browsers)
+    downloadBlobFallback(pdfBytes, fileName) {
+        const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
     }
 
     exportJSON() {
@@ -4401,13 +4471,112 @@ class ExpenseTracker {
         document.getElementById('templateModal').style.display = 'none';
     }
 
-    // Image viewer modal feature removed - disabled functions
+    // Image viewer modal - for viewing bill images in full size
+    openImageFromCard(imgElement) {
+        const expenseId = imgElement.getAttribute('data-expense-id');
+        const imageIndex = parseInt(imgElement.getAttribute('data-image-index'), 10);
+
+        const expense = this.expenses.find(e => e.id === expenseId);
+        if (expense && expense.images && expense.images[imageIndex]) {
+            const img = expense.images[imageIndex];
+            this.openImageModal(img.data, img.name, expenseId, imageIndex);
+        }
+    }
+
     openImageModal(imageData, imageName, expenseId, imageIndex) {
-        // Feature disabled - image viewer modal removed
+        // Store current image context for navigation
+        this.currentImageViewer = {
+            expenseId: expenseId,
+            imageIndex: imageIndex,
+            images: []
+        };
+
+        // Get all images for this expense
+        const expense = this.expenses.find(e => e.id === expenseId);
+        if (expense && expense.images) {
+            this.currentImageViewer.images = expense.images;
+        }
+
+        // Show modal
+        const modal = document.getElementById('imageViewerModal');
+        const img = document.getElementById('imageViewerImg');
+        const nameEl = document.getElementById('imageViewerName');
+        const counterEl = document.getElementById('imageViewerCounter');
+
+        img.src = imageData;
+        nameEl.textContent = imageName || 'Bill Image';
+
+        // Update counter
+        const total = this.currentImageViewer.images.length;
+        counterEl.textContent = `${imageIndex + 1} of ${total}`;
+
+        // Update nav buttons
+        this.updateImageNavButtons();
+
+        modal.style.display = 'flex';
+
+        // Add keyboard listener for navigation
+        this.imageModalKeyHandler = (e) => {
+            if (e.key === 'Escape') this.closeImageModal();
+            if (e.key === 'ArrowLeft') this.prevImage();
+            if (e.key === 'ArrowRight') this.nextImage();
+        };
+        document.addEventListener('keydown', this.imageModalKeyHandler);
     }
 
     closeImageModal() {
-        // Feature disabled - image viewer modal removed
+        const modal = document.getElementById('imageViewerModal');
+        modal.style.display = 'none';
+
+        // Remove keyboard listener
+        if (this.imageModalKeyHandler) {
+            document.removeEventListener('keydown', this.imageModalKeyHandler);
+            this.imageModalKeyHandler = null;
+        }
+
+        this.currentImageViewer = null;
+    }
+
+    prevImage() {
+        if (!this.currentImageViewer || this.currentImageViewer.imageIndex <= 0) return;
+
+        this.currentImageViewer.imageIndex--;
+        const img = this.currentImageViewer.images[this.currentImageViewer.imageIndex];
+        this.updateImageViewer(img);
+    }
+
+    nextImage() {
+        if (!this.currentImageViewer) return;
+        const maxIndex = this.currentImageViewer.images.length - 1;
+        if (this.currentImageViewer.imageIndex >= maxIndex) return;
+
+        this.currentImageViewer.imageIndex++;
+        const img = this.currentImageViewer.images[this.currentImageViewer.imageIndex];
+        this.updateImageViewer(img);
+    }
+
+    updateImageViewer(img) {
+        const imgEl = document.getElementById('imageViewerImg');
+        const nameEl = document.getElementById('imageViewerName');
+        const counterEl = document.getElementById('imageViewerCounter');
+
+        imgEl.src = img.data;
+        nameEl.textContent = img.name || 'Bill Image';
+
+        const total = this.currentImageViewer.images.length;
+        counterEl.textContent = `${this.currentImageViewer.imageIndex + 1} of ${total}`;
+
+        this.updateImageNavButtons();
+    }
+
+    updateImageNavButtons() {
+        const prevBtn = document.getElementById('imageViewerPrev');
+        const nextBtn = document.getElementById('imageViewerNext');
+
+        if (!this.currentImageViewer) return;
+
+        prevBtn.disabled = this.currentImageViewer.imageIndex <= 0;
+        nextBtn.disabled = this.currentImageViewer.imageIndex >= this.currentImageViewer.images.length - 1;
     }
 
 
