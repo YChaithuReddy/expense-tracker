@@ -4472,6 +4472,13 @@ class ExpenseTracker {
         img.src = imageData;
         nameEl.textContent = imageName || 'Bill Image';
 
+        // Reset zoom and rotation
+        this.currentZoom = 1;
+        this.currentRotation = 0;
+        img.style.transform = '';
+        document.getElementById('zoomSlider').value = 100;
+        document.getElementById('zoomLevel').textContent = '100%';
+
         // Update counter
         const total = this.currentImageViewer.images.length;
         counterEl.textContent = `${imageIndex + 1} of ${total}`;
@@ -4479,20 +4486,44 @@ class ExpenseTracker {
         // Update nav buttons
         this.updateImageNavButtons();
 
+        // Show navigation if multiple images
+        document.getElementById('imageViewerPrev').style.display = total > 1 ? 'flex' : 'none';
+        document.getElementById('imageViewerNext').style.display = total > 1 ? 'flex' : 'none';
+
         modal.style.display = 'flex';
+        modal.classList.add('is-active');
+        document.body.style.overflow = 'hidden';
 
         // Add keyboard listener for navigation
         this.imageModalKeyHandler = (e) => {
             if (e.key === 'Escape') this.closeImageModal();
             if (e.key === 'ArrowLeft') this.prevImage();
             if (e.key === 'ArrowRight') this.nextImage();
+            if (e.key === '+' || e.key === '=') this.zoomImage(0.25);
+            if (e.key === '-') this.zoomImage(-0.25);
+            if (e.key === 'r' || e.key === 'R') this.rotateImage();
         };
         document.addEventListener('keydown', this.imageModalKeyHandler);
+
+        // Auto-hide controls
+        this.setupControlsAutoHide(modal);
     }
 
     closeImageModal() {
         const modal = document.getElementById('imageViewerModal');
-        modal.style.display = 'none';
+        modal.classList.remove('is-active');
+        modal.classList.remove('controls-hidden');
+
+        setTimeout(() => {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+
+            // Reset image transform
+            const img = document.getElementById('imageViewerImg');
+            img.style.transform = '';
+            this.currentZoom = 1;
+            this.currentRotation = 0;
+        }, 300);
 
         // Remove keyboard listener
         if (this.imageModalKeyHandler) {
@@ -5112,111 +5143,137 @@ class ExpenseTracker {
                 const statsDiv = document.getElementById('orphanedImagesStats');
                 const gridDiv = document.getElementById('orphanedImagesGrid');
 
-                // Display stats with improved modern design
+                // Display stats with premium design
                 const stats = response.stats || {};
                 statsDiv.innerHTML = `
-                    <div class="stats-wrapper">
-                        <div class="stat-item">
-                            <div class="stat-label">Total Images</div>
-                            <div class="stat-value">${response.data?.length || 0}</div>
+                    <div class="img-stats__item">
+                        <div class="img-stats__label">Total Images</div>
+                        <div class="img-stats__value">${response.data?.length || 0}</div>
+                    </div>
+                    <div class="img-stats__item">
+                        <div class="img-stats__label">Total Size</div>
+                        <div class="img-stats__value">
+                            ${stats.totalSizeMB || '0.00'}
+                            <span class="img-stats__unit">MB</span>
                         </div>
-                        <div class="stat-item">
-                            <div class="stat-label">Total Size</div>
-                            <div class="stat-value">
-                                ${stats.totalSizeMB || '0.00'}
-                                <span class="stat-unit">MB</span>
-                            </div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-label">Exported</div>
-                            <div class="stat-value">${stats.exportedCount || 0}</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-label">Expiring Soon</div>
-                            <div class="stat-value warning">${stats.expiringWithin7Days || 0}</div>
-                        </div>
+                    </div>
+                    <div class="img-stats__item">
+                        <div class="img-stats__label">Exported</div>
+                        <div class="img-stats__value">${stats.exportedCount || 0}</div>
+                    </div>
+                    <div class="img-stats__item">
+                        <div class="img-stats__label">Expiring Soon</div>
+                        <div class="img-stats__value img-stats__value--warning">${stats.expiringWithin7Days || 0}</div>
                     </div>
                 `;
 
                 // Display images or empty state
                 if (!response.data || response.data.length === 0) {
                     gridDiv.innerHTML = `
-                        <div class="empty-state-modern">
-                            <div class="empty-icon-modern">📭</div>
-                            <h3>No Saved Images</h3>
-                            <p>Images will appear here when you use "Clear Data Only" option</p>
+                        <div class="img-empty">
+                            <div class="img-empty__icon img-empty__icon--animated">
+                                <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <polyline points="21 15 16 10 5 21"/>
+                                </svg>
+                            </div>
+                            <h3 class="img-empty__title">No Saved Images</h3>
+                            <p class="img-empty__description">Images will appear here when you use "Clear Data Only" option. They'll be available for future PDF exports.</p>
+                            <button class="img-empty__action" onclick="expenseTracker.closeOrphanedImagesModal()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 5v14M5 12h14"/>
+                                </svg>
+                                Upload Bills
+                            </button>
                         </div>
                     `;
                 } else {
-                    gridDiv.innerHTML = `
-                        <div class="images-grid-wrapper">
-                            ${response.data.map(img => {
-                                const uploadDate = new Date(img.uploadDate || img.createdAt).toLocaleDateString('en-IN', {
-                                    day: '2-digit',
-                                    month: '2-digit',
-                                    year: 'numeric'
-                                });
-                                const expiryDate = new Date(img.expiryDate);
-                                const daysUntilExpiry = Math.ceil((expiryDate - new Date()) / (1000 * 60 * 60 * 24));
-                                const badgeClass = daysUntilExpiry <= 7 ? 'badge-danger' :
-                                                  daysUntilExpiry <= 14 ? 'badge-warning' : 'badge-success';
+                    gridDiv.innerHTML = response.data.map(img => {
+                        const uploadDate = new Date(img.uploadDate || img.createdAt).toLocaleDateString('en-IN', {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric'
+                        });
+                        const expiryDate = new Date(img.expiryDate);
+                        const daysUntilExpiry = Math.ceil((expiryDate - new Date()) / (1000 * 60 * 60 * 24));
+                        const badgeClass = daysUntilExpiry <= 7 ? 'img-badge--danger' :
+                                          daysUntilExpiry <= 14 ? 'img-badge--warning' : 'img-badge--success';
 
-                                return `
-                                    <div class="image-card-modern">
-                                        <div class="image-preview-modern">
-                                            <img src="${img.url}" alt="${img.filename}">
-                                            <div class="image-overlay-modern">
-                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
-                                                    <path d="M15 3h6v6m0-6L10 14m-5 2H3v-6" stroke="white" stroke-width="2" stroke-linecap="round"/>
-                                                </svg>
-                                            </div>
-                                        </div>
-
-                                        <div class="image-details-modern">
-                                            <div class="detail-row-modern">
-                                                <span class="detail-icon">📅</span>
-                                                <span class="detail-text">${uploadDate}</span>
-                                            </div>
-
-                                            <div class="detail-row-modern">
-                                                <span class="detail-icon">🏪</span>
-                                                <span class="detail-text">${img.originalExpenseInfo?.vendor || 'Unknown Vendor'}</span>
-                                            </div>
-
-                                            <div class="detail-row-modern">
-                                                <span class="detail-icon">💰</span>
-                                                <span class="detail-value-modern">₹${img.originalExpenseInfo?.amount || 0}</span>
-                                            </div>
-                                        </div>
-
-                                        <div class="expiry-badge-modern ${badgeClass}">
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
-                                                <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        return `
+                            <article class="img-card" data-image-id="${img._id}">
+                                <div class="img-card__preview" onclick="expenseTracker.openSavedImageViewer('${img.url}', '${img.filename || 'Bill Image'}')">
+                                    <img class="img-card__image" src="${img.url}" alt="${img.filename || 'Bill image'}"
+                                         onload="this.classList.add('is-loaded')"
+                                         onerror="this.parentElement.innerHTML='<div class=\\'img-card__error-content\\'><svg width=\\'32\\' height=\\'32\\' viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\'><circle cx=\\'12\\' cy=\\'12\\' r=\\'10\\'/><path d=\\'M12 8v4M12 16h.01\\'/></svg><span>Failed to load</span></div>'">
+                                    <div class="img-card__overlay">
+                                        <button class="img-card__overlay-btn" onclick="event.stopPropagation(); expenseTracker.openSavedImageViewer('${img.url}', '${img.filename || 'Bill Image'}')">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                                <circle cx="12" cy="12" r="3"/>
                                             </svg>
-                                            <span>${daysUntilExpiry} days left</span>
-                                        </div>
-
-                                        <div class="action-buttons-modern">
-                                            <button class="btn-extend-modern" data-image-id="${img._id}" onclick="expenseTracker.extendImageExpiry(this.getAttribute('data-image-id'))">
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                                    <path d="M12 4v16m8-8H4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                                                </svg>
-                                                +30 days
-                                            </button>
-                                            <button class="btn-delete-modern" data-image-id="${img._id}" onclick="expenseTracker.deleteOrphanedImage(this.getAttribute('data-image-id'))">
-                                                Delete
-                                            </button>
-                                        </div>
+                                            View
+                                        </button>
+                                        <button class="img-card__overlay-btn" onclick="event.stopPropagation(); expenseTracker.downloadImage('${img.url}', '${img.filename || 'bill-image.jpg'}')">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                                            </svg>
+                                            Download
+                                        </button>
                                     </div>
-                                `;
-                            }).join('')}
-                        </div>
-                    `;
+                                </div>
+
+                                <div class="img-card__details">
+                                    <div class="img-card__meta">
+                                        <svg class="img-card__meta-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                            <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+                                            <line x1="3" y1="10" x2="21" y2="10"/>
+                                        </svg>
+                                        <span class="img-card__meta-value">${uploadDate}</span>
+                                    </div>
+                                    <div class="img-card__meta">
+                                        <svg class="img-card__meta-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                                            <polyline points="9 22 9 12 15 12 15 22"/>
+                                        </svg>
+                                        <span class="img-card__meta-value img-truncate">${img.originalExpenseInfo?.vendor || 'Unknown Vendor'}</span>
+                                    </div>
+                                    <div class="img-card__amount">₹${(img.originalExpenseInfo?.amount || 0).toLocaleString('en-IN')}</div>
+                                </div>
+
+                                <div class="img-card__badge-wrapper">
+                                    <span class="img-badge ${badgeClass}">
+                                        <svg class="img-badge__icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="10"/>
+                                            <polyline points="12 6 12 12 16 14"/>
+                                        </svg>
+                                        ${daysUntilExpiry} days left
+                                    </span>
+                                </div>
+
+                                <div class="img-card__actions">
+                                    <button class="img-btn img-btn--primary" onclick="expenseTracker.extendImageExpiry('${img._id}')">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                                        </svg>
+                                        +30 days
+                                    </button>
+                                    <button class="img-btn img-btn--ghost" onclick="expenseTracker.deleteOrphanedImage('${img._id}')">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                                        </svg>
+                                        Delete
+                                    </button>
+                                </div>
+                            </article>
+                        `;
+                    }).join('');
                 }
 
-                modal.style.display = 'block';
-                modal.classList.add('modal-modern');
+                modal.style.display = 'flex';
+                modal.classList.add('is-active');
+                document.body.style.overflow = 'hidden';
             } else {
                 throw new Error(response.message || 'Failed to fetch saved images');
             }
@@ -5227,7 +5284,127 @@ class ExpenseTracker {
     }
 
     closeOrphanedImagesModal() {
-        document.getElementById('orphanedImagesModal').style.display = 'none';
+        const modal = document.getElementById('orphanedImagesModal');
+        modal.classList.remove('is-active');
+        setTimeout(() => {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }, 300);
+    }
+
+    // Open saved image in fullscreen viewer
+    openSavedImageViewer(imageUrl, imageName) {
+        const modal = document.getElementById('imageViewerModal');
+        const img = document.getElementById('imageViewerImg');
+        const nameEl = document.getElementById('imageViewerName');
+        const counterEl = document.getElementById('imageViewerCounter');
+
+        img.src = imageUrl;
+        nameEl.textContent = imageName || 'Bill Image';
+        counterEl.textContent = 'Saved Image';
+
+        // Reset zoom
+        this.currentZoom = 1;
+        this.currentRotation = 0;
+        img.style.transform = '';
+        document.getElementById('zoomSlider').value = 100;
+        document.getElementById('zoomLevel').textContent = '100%';
+
+        // Hide navigation for single image
+        document.getElementById('imageViewerPrev').style.display = 'none';
+        document.getElementById('imageViewerNext').style.display = 'none';
+
+        modal.style.display = 'flex';
+        modal.classList.add('is-active');
+        document.body.style.overflow = 'hidden';
+
+        // Add keyboard listener
+        this.imageModalKeyHandler = (e) => {
+            if (e.key === 'Escape') this.closeImageModal();
+            if (e.key === '+' || e.key === '=') this.zoomImage(0.25);
+            if (e.key === '-') this.zoomImage(-0.25);
+            if (e.key === 'r' || e.key === 'R') this.rotateImage();
+        };
+        document.addEventListener('keydown', this.imageModalKeyHandler);
+
+        // Auto-hide controls
+        this.setupControlsAutoHide(modal);
+    }
+
+    // Download image helper
+    downloadImage(url, filename) {
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        this.showNotification('✅ Image download started');
+    }
+
+    // Download current image in viewer
+    downloadCurrentImage() {
+        const img = document.getElementById('imageViewerImg');
+        const name = document.getElementById('imageViewerName').textContent;
+        if (img.src) {
+            this.downloadImage(img.src, name || 'bill-image.jpg');
+        }
+    }
+
+    // Zoom image
+    zoomImage(delta) {
+        this.currentZoom = Math.max(0.5, Math.min(3, (this.currentZoom || 1) + delta));
+        this.applyImageTransform();
+        document.getElementById('zoomSlider').value = this.currentZoom * 100;
+        document.getElementById('zoomLevel').textContent = Math.round(this.currentZoom * 100) + '%';
+    }
+
+    // Set zoom to specific level
+    setZoom(level) {
+        this.currentZoom = Math.max(0.5, Math.min(3, level));
+        this.applyImageTransform();
+        document.getElementById('zoomLevel').textContent = Math.round(this.currentZoom * 100) + '%';
+    }
+
+    // Rotate image
+    rotateImage() {
+        this.currentRotation = ((this.currentRotation || 0) + 90) % 360;
+        this.applyImageTransform();
+    }
+
+    // Apply transform to image
+    applyImageTransform() {
+        const img = document.getElementById('imageViewerImg');
+        img.style.transform = `scale(${this.currentZoom || 1}) rotate(${this.currentRotation || 0}deg)`;
+        img.classList.toggle('is-zoomed', this.currentZoom > 1);
+    }
+
+    // Toggle fullscreen
+    toggleFullscreen() {
+        const modal = document.getElementById('imageViewerModal');
+        if (!document.fullscreenElement) {
+            modal.requestFullscreen().catch(err => {
+                this.showNotification('⚠️ Fullscreen not supported');
+            });
+        } else {
+            document.exitFullscreen();
+        }
+    }
+
+    // Auto-hide controls after inactivity
+    setupControlsAutoHide(modal) {
+        let hideTimeout;
+        const showControls = () => {
+            modal.classList.remove('controls-hidden');
+            clearTimeout(hideTimeout);
+            hideTimeout = setTimeout(() => {
+                modal.classList.add('controls-hidden');
+            }, 3000);
+        };
+
+        modal.addEventListener('mousemove', showControls);
+        modal.addEventListener('touchstart', showControls);
+        showControls();
     }
 
     /**
