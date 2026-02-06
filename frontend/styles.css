@@ -4848,195 +4848,160 @@ body.modal-open {
     }
 }
 
-/* ========== BATCH UPLOAD STYLES ========== */
+/* ========== BATCH REVIEW - Saved Bill Images Pattern ========== */
 
-/* Animations - matching Saved Bill Images */
-@keyframes batchFadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+/* Animations */
+@keyframes batchSlideIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
 }
 
-@keyframes batchSlideUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px) scale(0.98);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
+@keyframes batchFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes batchCardFadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* Design System Variables for Batch Review */
+/* Batch Review Panel - Following SavedBillImages Pattern */
 .batch-review-modal-content {
-    --batch-spacing-xs: 6px;
-    --batch-spacing-sm: 10px;
-    --batch-spacing-md: 14px;
-    --batch-spacing-lg: 18px;
-    --batch-spacing-xl: 20px;
-    --batch-radius: 16px;
-    --batch-card-min-height: 340px;
-    --batch-accent: #00d4ff;
-    --batch-gradient-start: #1a1a2e;
-    --batch-gradient-end: #16213e;
+  position: fixed;
+  right: 0;
+  top: 0;
+  height: 100vh;
+  height: 100dvh;
+  width: 90vw;
+  max-width: 900px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  overflow: hidden;
+  animation: batchSlideIn 0.3s ease-out;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
 }
 
-/* Batch Review Modal - Desktop */
-.batch-review-modal-content {
-    max-width: 1200px !important;
-    min-height: 90vh;
-    max-height: 90vh;
-    height: 90vh;
-    overflow: hidden;
-    margin: auto;
-    display: flex;
-    flex-direction: column;
-    background: linear-gradient(135deg, var(--batch-gradient-start) 0%, var(--batch-gradient-end) 100%);
-    border-radius: var(--batch-radius);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-    animation: batchSlideUp 0.3s ease-out;
-}
-
-/* Premium header styling with glassmorphism */
+/* Header - Glassmorphism */
 .batch-review-modal-content .modal-header {
-    padding: var(--batch-spacing-lg) var(--batch-spacing-xl);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    flex-shrink: 0;
-    background: rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(10px);
-    position: sticky;
-    top: 0;
-    z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  flex-shrink: 0;
 }
 
 .batch-review-modal-content .modal-header h2 {
-    margin: 0;
-    font-size: 1.4rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: var(--batch-spacing-sm);
-    color: var(--batch-accent);
-    text-shadow: 0 2px 4px rgba(0, 212, 255, 0.2);
+  color: #00d4ff;
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+  text-shadow: 0 2px 4px rgba(0, 212, 255, 0.2);
 }
 
 .batch-review-modal-content .close-modal {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 12px;
-    padding: 8px 12px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  width: 40px;
+  height: 40px;
 }
 
 .batch-review-modal-content .close-modal:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: scale(1.05);
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
 }
 
-/* Modal body with consistent padding */
+/* Body - Scrollable content area */
 .batch-review-modal-content .modal-body {
-    flex: 1 1 0;
-    min-height: 0;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: var(--batch-spacing-xl);
-    display: flex;
-    flex-direction: column;
-    gap: var(--batch-spacing-lg);
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
-/* Premium Scrollbar Styling */
+/* Scrollbar */
 .batch-review-modal-content .modal-body::-webkit-scrollbar {
-    width: 8px;
+  width: 8px;
 }
 
 .batch-review-modal-content .modal-body::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .batch-review-modal-content .modal-body::-webkit-scrollbar-thumb {
-    background: rgba(0, 212, 255, 0.3);
-    border-radius: 4px;
-    transition: background 0.2s;
+  background: rgba(0, 212, 255, 0.3);
+  border-radius: 4px;
 }
 
 .batch-review-modal-content .modal-body::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 212, 255, 0.5);
+  background: rgba(0, 212, 255, 0.5);
 }
 
-/* Footer CTA Bar - Premium glassmorphism style */
+/* Footer - Action buttons */
 .batch-review-footer {
-    display: flex;
-    justify-content: stretch;
-    align-items: center;
-    padding: var(--batch-spacing-lg) var(--batch-spacing-xl);
-    gap: var(--batch-spacing-md);
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    flex-shrink: 0;
-    z-index: 100;
-    background: rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(10px);
+  display: flex;
+  gap: 12px;
+  padding: 20px 24px;
+  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  flex-shrink: 0;
 }
 
-/* Footer buttons - equal width, consistent height with hover effects */
 .batch-review-footer button {
-    flex: 1;
-    min-width: 120px;
-    padding: var(--batch-spacing-sm) var(--batch-spacing-lg);
-    height: 52px;
-    font-size: 14px;
-    font-weight: 600;
-    pointer-events: auto;
-    cursor: pointer;
-    border-radius: 12px;
-    transition: all 0.2s ease;
+  flex: 1;
+  padding: 14px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .batch-review-footer .btn-primary {
-    background: linear-gradient(135deg, var(--batch-accent) 0%, #0099cc 100%);
-    border: none;
-    color: white;
-    box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+  background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+  border: none;
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
 }
 
 .batch-review-footer .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 212, 255, 0.4);
 }
 
 .batch-review-footer .btn-secondary {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: white;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
 }
 
 .batch-review-footer .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.15);
-    transform: translateY(-2px);
-}
-
-.bulk-vendor-input {
-    flex: 0 0 180px;
-    margin-left: var(--batch-spacing-xs);
-}
-
-.btn-apply-vendor {
-    flex-shrink: 0;
-    margin-left: var(--batch-spacing-xs);
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
 }
 
 /* Batch Actions Bar - Premium Toolbar */
