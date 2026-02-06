@@ -1771,12 +1771,41 @@ class ExpenseTracker {
         batchModal.style.display = 'flex';
         document.body.appendChild(batchModal);
 
+        // Calculate stats
+        const totalBills = this.extractedExpenses.length;
+        const selectedBills = this.extractedExpenses.filter(e => e.selected).length;
+        const totalAmount = this.extractedExpenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+        const failedOCR = this.extractedExpenses.filter(e => e.ocrFailed).length;
+
         // Set the modal content
         batchModal.innerHTML = `
             <div class="modal-content batch-review-modal-content">
                 <div class="modal-header">
-                    <h2>📋 Review Scanned Bills (${this.extractedExpenses.length})</h2>
+                    <div class="header-title">
+                        <span class="header-icon">📋</span>
+                        <h2>Review Scanned Bills</h2>
+                    </div>
                     <button class="close-modal" id="closeBatchModalBtn" type="button" aria-label="Close">&times;</button>
+                </div>
+
+                <!-- Stats Section -->
+                <div class="batch-stats-container">
+                    <div class="batch-stat-card">
+                        <div class="batch-stat-label">Total Bills</div>
+                        <div class="batch-stat-value">${totalBills}</div>
+                    </div>
+                    <div class="batch-stat-card">
+                        <div class="batch-stat-label">Selected</div>
+                        <div class="batch-stat-value success">${selectedBills}</div>
+                    </div>
+                    <div class="batch-stat-card">
+                        <div class="batch-stat-label">Total Amount</div>
+                        <div class="batch-stat-value">₹${totalAmount.toFixed(2)}</div>
+                    </div>
+                    <div class="batch-stat-card">
+                        <div class="batch-stat-label">Need Review</div>
+                        <div class="batch-stat-value warning">${failedOCR}</div>
+                    </div>
                 </div>
 
                 <div class="modal-body">
@@ -1787,7 +1816,7 @@ class ExpenseTracker {
                                 <input type="checkbox" id="selectAllBills" checked>
                                 <span>Select All</span>
                             </label>
-                            <span class="selection-count" id="selectionCount">${this.extractedExpenses.filter(e => e.selected).length} of ${this.extractedExpenses.length} selected</span>
+                            <span class="selection-count" id="selectionCount">${selectedBills} of ${totalBills} selected</span>
                         </div>
 
                         <div class="batch-bulk-actions">
@@ -1808,7 +1837,7 @@ class ExpenseTracker {
                 <div class="modal-footer batch-review-footer">
                     <button class="btn-secondary btn-cancel" id="cancelBatchBtn" type="button">Cancel</button>
                     <button class="btn-primary btn-submit" id="submitBatchBtn" type="button">
-                        📤 Submit ${this.extractedExpenses.filter(e => e.selected).length} Selected Bills
+                        📤 Submit ${selectedBills} Selected Bills
                     </button>
                 </div>
             </div>
@@ -1945,6 +1974,42 @@ class ExpenseTracker {
         }
     }
 
+    // Helper function to convert amount to words
+    amountToWords(amount) {
+        if (!amount || amount === 0) return 'Zero Rupees';
+
+        const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+        const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+        const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+
+        const num = Math.floor(parseFloat(amount));
+
+        if (num < 10) return `Rupees ${ones[num]} Only`;
+        if (num < 20) return `Rupees ${teens[num - 10]} Only`;
+        if (num < 100) {
+            const ten = Math.floor(num / 10);
+            const one = num % 10;
+            return `Rupees ${tens[ten]} ${ones[one]}`.trim() + ' Only';
+        }
+        if (num < 1000) {
+            const hundred = Math.floor(num / 100);
+            const remainder = num % 100;
+            let result = `Rupees ${ones[hundred]} Hundred`;
+            if (remainder > 0) {
+                if (remainder < 10) result += ` ${ones[remainder]}`;
+                else if (remainder < 20) result += ` ${teens[remainder - 10]}`;
+                else {
+                    const ten = Math.floor(remainder / 10);
+                    const one = remainder % 10;
+                    result += ` ${tens[ten]} ${ones[one]}`.trim();
+                }
+            }
+            return result + ' Only';
+        }
+        // For amounts >= 1000, just show simplified version
+        return `Rupees ${num.toLocaleString('en-IN')} Only`;
+    }
+
     renderBatchGallery() {
         return this.extractedExpenses.map((expense, index) => {
             // Sanitize all user-controlled data to prevent XSS
@@ -1953,55 +2018,104 @@ class ExpenseTracker {
             const safeAmount = this.sanitizeHTML(expense.amount || '');
             const safeCategory = this.sanitizeHTML(expense.category || '');
 
+            // Format date for display
+            const displayDate = safeDate ? new Date(safeDate).toLocaleDateString('en-IN', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            }) : 'Not set';
+
+            // Convert amount to words
+            const amountWords = this.amountToWords(safeAmount);
+
+            // Check if card is in edit mode
+            const isEditing = expense.editing || false;
+
             return `
             <div class="batch-card ${expense.selected ? 'selected' : ''} ${expense.ocrFailed ? 'ocr-failed' : ''}" data-index="${index}">
                 <div class="card-checkbox">
                     <input type="checkbox" class="bill-checkbox" data-index="${index}" ${expense.selected ? 'checked' : ''}>
                 </div>
 
-                <div class="card-image">
+                <div class="card-image preview-image-btn" data-index="${index}">
                     <img src="${expense.imageData}" alt="Bill ${index + 1}">
-                    ${expense.ocrFailed ? `
-                        <div class="card-ocr-failed" title="OCR failed - please enter details manually">
-                            <span>⚠️ Manual Entry Required</span>
-                        </div>
-                    ` : `
-                        <div class="card-confidence">
-                            <span title="OCR Confidence">${expense.ocrConfidence.toFixed(0)}%</span>
-                        </div>
-                    `}
+
+                    <!-- Amount Badge Overlay -->
+                    <div class="card-amount-badge ${expense.selected ? 'selected' : ''}">
+                        ${expense.selected ? `
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                            </svg>
+                        ` : ''}
+                        ₹${safeAmount || '0'}
+                    </div>
                 </div>
 
                 <div class="card-content">
-                    <div class="card-amount">₹${expense.amount || '0'}</div>
-                    <div class="card-details">
-                        <div class="detail-row">
-                            <span class="label">Vendor:</span>
-                            <input type="text" class="inline-input expense-vendor" data-index="${index}" value="${safeVendor}">
-                        </div>
-                        <div class="detail-row">
-                            <span class="label">Date:</span>
-                            <input type="date" class="inline-input expense-date" data-index="${index}" value="${safeDate}">
-                        </div>
-                        <div class="detail-row">
-                            <span class="label">Amount:</span>
-                            <input type="number" class="inline-input expense-amount" data-index="${index}" value="${safeAmount}" step="0.01">
-                        </div>
-                        <div class="detail-row">
-                            <span class="label">Category:</span>
-                            <select class="inline-input expense-category" data-index="${index}">
-                                <option value="Transportation" ${safeCategory === 'Transportation' ? 'selected' : ''}>Transportation</option>
-                                <option value="Accommodation" ${safeCategory === 'Accommodation' ? 'selected' : ''}>Accommodation</option>
-                                <option value="Meals" ${safeCategory === 'Meals' ? 'selected' : ''}>Meals</option>
-                                <option value="Fuel" ${safeCategory === 'Fuel' ? 'selected' : ''}>Fuel</option>
-                                <option value="Miscellaneous" ${safeCategory === 'Miscellaneous' ? 'selected' : ''}>Miscellaneous</option>
-                            </select>
-                        </div>
-                    </div>
+                    <!-- Amount in words -->
+                    <div class="card-amount-words">${amountWords}</div>
 
-                    <button class="btn-delete remove-bill-btn" data-index="${index}" type="button" title="Remove this bill">
-                        🗑️ Remove
-                    </button>
+                    <!-- Category Badge -->
+                    <div class="card-category-badge">${safeCategory || 'Miscellaneous'}</div>
+
+                    ${isEditing ? `
+                        <!-- Edit Mode -->
+                        <div class="card-edit-mode">
+                            <div class="detail-row">
+                                <span class="label">Vendor</span>
+                                <input type="text" class="inline-input expense-vendor" data-index="${index}" value="${safeVendor}" placeholder="Enter vendor name">
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Date</span>
+                                <input type="date" class="inline-input expense-date" data-index="${index}" value="${safeDate}">
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Amount</span>
+                                <input type="number" class="inline-input expense-amount" data-index="${index}" value="${safeAmount}" step="0.01" placeholder="0.00">
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Category</span>
+                                <select class="inline-input expense-category" data-index="${index}">
+                                    <option value="Transportation" ${safeCategory === 'Transportation' ? 'selected' : ''}>Transportation</option>
+                                    <option value="Accommodation" ${safeCategory === 'Accommodation' ? 'selected' : ''}>Accommodation</option>
+                                    <option value="Meals" ${safeCategory === 'Meals' ? 'selected' : ''}>Meals</option>
+                                    <option value="Fuel" ${safeCategory === 'Fuel' ? 'selected' : ''}>Fuel</option>
+                                    <option value="Bill Payments" ${safeCategory === 'Bill Payments' ? 'selected' : ''}>Bill Payments</option>
+                                    <option value="Food" ${safeCategory === 'Food' ? 'selected' : ''}>Food</option>
+                                    <option value="Miscellaneous" ${safeCategory === 'Miscellaneous' ? 'selected' : ''}>Miscellaneous</option>
+                                </select>
+                            </div>
+                        </div>
+                    ` : `
+                        <!-- View Mode -->
+                        <div class="card-details">
+                            <div class="detail-row">
+                                <span class="detail-icon">📅</span>
+                                <span class="detail-text">${displayDate}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-icon">🏪</span>
+                                <span class="detail-text">${safeVendor || 'Unknown Vendor'}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-icon">💰</span>
+                                <span class="detail-value-display">₹${safeAmount || '0'}</span>
+                            </div>
+                        </div>
+                    `}
+
+                    <!-- Action Buttons -->
+                    <div class="card-action-buttons">
+                        <button class="btn-edit toggle-edit-btn" data-index="${index}" type="button">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                            </svg>
+                            ${isEditing ? 'Done' : 'Edit'}
+                        </button>
+                        <button class="btn-delete-card remove-bill-btn" data-index="${index}" type="button">
+                            Delete
+                        </button>
+                    </div>
                 </div>
             </div>
         `;
@@ -2068,7 +2182,22 @@ class ExpenseTracker {
             checkbox.addEventListener('change', (e) => {
                 const index = parseInt(e.target.dataset.index);
                 this.toggleBillSelection(index, e.target.checked);
+                // Update the card to show selection state
+                this.updateBatchUI();
             });
+        });
+
+        // Attach listeners to toggle edit buttons
+        const editButtons = document.querySelectorAll('.toggle-edit-btn');
+        editButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const index = parseInt(button.dataset.index);
+                if (!isNaN(index)) {
+                    this.toggleCardEditMode(index);
+                }
+            }, { passive: false });
         });
 
         // Attach listeners to all input fields
@@ -2093,6 +2222,8 @@ class ExpenseTracker {
             input.addEventListener('change', (e) => {
                 const index = parseInt(e.target.dataset.index);
                 this.updateExpenseField(index, 'amount', e.target.value);
+                // Re-render to update amount in words and badge
+                this.updateBatchUI();
             });
         });
 
@@ -2101,6 +2232,8 @@ class ExpenseTracker {
             select.addEventListener('change', (e) => {
                 const index = parseInt(e.target.dataset.index);
                 this.updateExpenseField(index, 'category', e.target.value);
+                // Re-render to update category badge
+                this.updateBatchUI();
             });
         });
 
@@ -2117,6 +2250,53 @@ class ExpenseTracker {
                 }
             }, { passive: false });
         });
+
+        // Attach listeners to preview image buttons
+        const previewButtons = document.querySelectorAll('.preview-image-btn');
+        previewButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const index = parseInt(button.dataset.index);
+                if (!isNaN(index)) {
+                    this.previewBillImage(index);
+                }
+            });
+        });
+    }
+
+    toggleCardEditMode(index) {
+        this.extractedExpenses[index].editing = !this.extractedExpenses[index].editing;
+        this.updateBatchUI();
+    }
+
+    previewBillImage(index) {
+        const expense = this.extractedExpenses[index];
+        if (!expense || !expense.imageData) return;
+
+        // Create lightbox
+        const lightbox = document.createElement('div');
+        lightbox.className = 'lightbox';
+        lightbox.innerHTML = `
+            <div class="lightbox-content">
+                <img src="${expense.imageData}" alt="Bill ${index + 1}">
+                <button class="lightbox-close" type="button" aria-label="Close preview">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="white">
+                        <path d="M18 6L6 18M6 6l12 12" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+                    </svg>
+                </button>
+            </div>
+        `;
+
+        // Add to body
+        document.body.appendChild(lightbox);
+
+        // Close on click
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox || e.target.closest('.lightbox-close')) {
+                lightbox.remove();
+            }
+        });
     }
 
     updateSelectionCount() {
@@ -2130,6 +2310,9 @@ class ExpenseTracker {
         if (selectAllCheckbox) {
             selectAllCheckbox.checked = selectedCount === this.extractedExpenses.length;
         }
+
+        // Update stats bar
+        this.updateStatsBar();
     }
 
     updateSubmitButton() {
@@ -2138,6 +2321,25 @@ class ExpenseTracker {
         if (submitBtn) {
             submitBtn.textContent = `📤 Submit ${selectedCount} Selected Bill${selectedCount !== 1 ? 's' : ''}`;
             submitBtn.disabled = selectedCount === 0;
+        }
+    }
+
+    updateStatsBar() {
+        // Update the stats cards dynamically
+        const statsContainer = document.querySelector('.batch-stats-container');
+        if (!statsContainer) return;
+
+        const totalBills = this.extractedExpenses.length;
+        const selectedBills = this.extractedExpenses.filter(e => e.selected).length;
+        const totalAmount = this.extractedExpenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+        const failedOCR = this.extractedExpenses.filter(e => e.ocrFailed).length;
+
+        const statCards = statsContainer.querySelectorAll('.batch-stat-card');
+        if (statCards.length >= 4) {
+            statCards[0].querySelector('.batch-stat-value').textContent = totalBills;
+            statCards[1].querySelector('.batch-stat-value').textContent = selectedBills;
+            statCards[2].querySelector('.batch-stat-value').textContent = `₹${totalAmount.toFixed(2)}`;
+            statCards[3].querySelector('.batch-stat-value').textContent = failedOCR;
         }
     }
 

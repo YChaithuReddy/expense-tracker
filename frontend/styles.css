@@ -5004,6 +5004,76 @@ body.modal-open {
   transform: translateY(-2px);
 }
 
+/* Stats Section - Match SavedBillImages stats container */
+.batch-stats-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.15);
+  flex-shrink: 0;
+}
+
+@media (min-width: 640px) {
+  .batch-stats-container {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .batch-stats-container {
+    display: flex;
+    overflow-x: auto;
+    padding: 12px;
+    gap: 8px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .batch-stats-container::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.batch-stat-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 16px;
+  text-align: center;
+  transition: all 0.3s;
+}
+
+.batch-stat-card:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%);
+  border-color: rgba(0, 212, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.batch-stat-label {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.batch-stat-value {
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.batch-stat-value.warning {
+  color: #ffa500;
+}
+
+.batch-stat-value.success {
+  color: #4caf50;
+}
+
 /* Batch Actions Bar - Match SavedBillImages stats container style */
 .batch-actions-bar {
     display: flex;
@@ -5088,14 +5158,29 @@ body.modal-open {
     font-weight: 600;
 }
 
+/* Images Container - Match SavedBillImages */
+.images-container {
+    padding: 0;
+    min-height: 300px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* Images Grid - Match SavedBillImages */
+.images-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+    padding: 24px;
+}
+
 /* Batch Gallery Grid - Match SavedBillImages pattern */
 .batch-gallery {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    grid-auto-rows: min-content;
+    grid-auto-rows: auto;
     gap: 20px;
     padding: 24px;
-    height: fit-content;
 }
 
 /* Batch Card - Premium Style matching SavedBillImages */
@@ -5136,24 +5221,54 @@ body.modal-open {
 /* Checkbox - aligned badge style */
 .card-checkbox {
     position: absolute;
-    top: var(--batch-spacing-xs);
-    left: var(--batch-spacing-xs);
+    top: 12px;
+    left: 12px;
     z-index: 10;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(4px);
-    padding: 4px;
-    border-radius: 6px;
+    padding: 6px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .card-checkbox input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     cursor: pointer;
-    accent-color: var(--primary-color);
+    accent-color: #00d4ff;
     margin: 0;
+}
+
+/* Amount Badge Overlay - Match SavedBillImages style */
+.card-amount-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 10;
+    background: rgba(0, 212, 255, 0.95);
+    backdrop-filter: blur(8px);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 24px;
+    font-size: 16px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 12px rgba(0, 212, 255, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.card-amount-badge.selected {
+    background: rgba(76, 175, 80, 0.95);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+}
+
+.card-amount-badge svg {
+    width: 16px;
+    height: 16px;
 }
 
 /* Card Image - Match SavedBillImages sizing (200px) */
@@ -5287,20 +5402,33 @@ body.modal-open {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 12px;
     min-height: 0;
+}
+
+/* Amount in words - below image */
+.card-amount-words {
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.7);
+    font-style: italic;
+    padding-bottom: 8px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* Amount - Primary visual element matching SavedBillImages .detail-value */
-.card-amount {
-    font-size: 24px;
-    font-weight: 700;
+/* Category Badge - pill style */
+.card-category-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 500;
+    background: rgba(0, 212, 255, 0.15);
     color: #00d4ff;
-    padding-bottom: 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    margin-bottom: 12px;
-    text-shadow: 0 0 12px rgba(0, 212, 255, 0.3);
+    border: 1px solid rgba(0, 212, 255, 0.3);
+    align-self: flex-start;
+    margin-bottom: 4px;
 }
 
 /* Card Details - Form fields */
@@ -5318,6 +5446,17 @@ body.modal-open {
     gap: 12px;
     color: rgba(255, 255, 255, 0.9);
     font-size: 14px;
+    margin-bottom: 12px;
+}
+
+.detail-row:last-child {
+    margin-bottom: 0;
+}
+
+.detail-icon {
+    font-size: 16px;
+    opacity: 0.8;
+    flex-shrink: 0;
 }
 
 .detail-row .label {
@@ -5326,7 +5465,19 @@ body.modal-open {
     font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    min-width: 80px;
+    min-width: 60px;
+    flex-shrink: 0;
+}
+
+.detail-text {
+    flex: 1;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.detail-value-display {
+    font-weight: 600;
+    color: #00d4ff;
+    font-size: 16px;
 }
 
 /* Inline Input - Larger, more prominent */
@@ -5338,9 +5489,10 @@ body.modal-open {
     background: rgba(0, 0, 0, 0.3);
     color: #ffffff;
     font-size: 14px;
-    height: 40px;
+    min-height: 40px;
     box-sizing: border-box;
     transition: all 0.2s ease;
+    width: 100%;
 }
 
 .inline-input:focus {
@@ -5369,7 +5521,7 @@ select.inline-input {
     background-repeat: no-repeat;
     background-position: right 12px center;
     padding: 10px 32px 10px 12px;
-    height: 40px;
+    min-height: 40px;
 }
 
 /* Style dropdown options for dark theme */
@@ -5380,34 +5532,117 @@ select.inline-input option {
     padding: 10px;
 }
 
-/* Delete Button - Match SavedBillImages .btn-delete styling */
-.btn-delete {
-    width: 100%;
-    margin-top: 12px;
-    padding: 12px 16px;
-    background: linear-gradient(135deg, rgba(244, 67, 54, 0.2) 0%, rgba(244, 67, 54, 0.1) 100%);
-    color: #f44336;
-    border: 1px solid rgba(244, 67, 54, 0.3);
-    border-radius: 12px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    height: auto;
+/* Edit mode toggle */
+.card-edit-mode {
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column;
     gap: 8px;
 }
 
-.btn-delete:hover {
+.card-edit-mode .detail-row {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    margin-bottom: 8px;
+}
+
+/* Action Buttons - Match SavedBillImages */
+.card-action-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.btn-edit,
+.btn-delete-card {
+    flex: 1;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.btn-edit {
+    background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(0, 212, 255, 0.3);
+}
+
+.btn-edit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 212, 255, 0.4);
+}
+
+.btn-delete-card {
+    background: linear-gradient(135deg, rgba(244, 67, 54, 0.2) 0%, rgba(244, 67, 54, 0.1) 100%);
+    color: #f44336;
+    border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+.btn-delete-card:hover {
     background: linear-gradient(135deg, rgba(244, 67, 54, 0.3) 0%, rgba(244, 67, 54, 0.2) 100%);
     transform: translateY(-2px);
     box-shadow: 0 6px 12px rgba(244, 67, 54, 0.3);
 }
 
-.btn-delete:active {
+.btn-delete-card:active,
+.btn-edit:active {
     transform: scale(0.98);
+}
+
+/* Lightbox for Image Preview */
+.lightbox {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    padding: 20px;
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+.lightbox-content {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+}
+
+.lightbox-content img {
+    max-width: 100%;
+    max-height: 90vh;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.lightbox-close {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: white;
+}
+
+.lightbox-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
 }
 
 /* Responsive - Tablet */
@@ -5442,6 +5677,23 @@ select.inline-input option {
         --batch-card-min-height: auto;
     }
 
+    .batch-stats-container {
+        padding: 12px;
+        gap: 8px;
+    }
+
+    .batch-stat-card {
+        padding: 12px;
+    }
+
+    .batch-stat-label {
+        font-size: 11px;
+    }
+
+    .batch-stat-value {
+        font-size: 20px;
+    }
+
     .batch-gallery {
         display: flex;
         flex-direction: column;
@@ -5454,6 +5706,16 @@ select.inline-input option {
         min-height: auto;
         height: auto !important;
         flex-shrink: 0 !important;
+    }
+
+    .card-action-buttons {
+        gap: 8px;
+    }
+
+    .btn-edit,
+    .btn-delete-card {
+        padding: 8px 12px;
+        font-size: 12px;
     }
 
     .batch-actions-bar {
@@ -5508,9 +5770,9 @@ select.inline-input option {
     }
 
     .card-image {
-        height: 120px;
-        min-height: 120px;
-        max-height: 120px;
+        height: 180px;
+        min-height: 180px;
+        max-height: 180px;
     }
 
     .card-content {
@@ -5776,6 +6038,9 @@ select.inline-input option {
         justify-content: center;
         align-items: center;
         padding: 12px;
+        height: 180px;
+        min-height: 180px;
+        max-height: 180px;
     }
 
     .card-image img {
@@ -5873,7 +6138,7 @@ select.inline-input option {
 
     .card-amount {
         font-size: 32px;
-        margin-bottom: 14px;
+        margin-bottom: 8px;
     }
 
     .detail-row {
@@ -6084,7 +6349,7 @@ select.inline-input option {
 
     .card-amount {
         font-size: 24px;
-        margin-bottom: 12px;
+        margin-bottom: 4px;
     }
 
     .card-content {

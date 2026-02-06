@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Batch Review Test</title>
+    <link rel="stylesheet" href="styles.css?v=4.0">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+        }
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 9998;
+        }
+    </style>
+</head>
+<body>
+    <!-- Backdrop -->
+    <div class="modal-backdrop"></div>
+
+    <!-- Slide-in Panel - Matching SavedBillImagesModal structure -->
+    <div class="batch-review-modal-content">
+        <!-- Header -->
+        <div class="modal-header">
+            <div class="header-title">
+                <span class="header-icon">📋</span>
+                <h2>Review Scanned Bills</h2>
+            </div>
+            <button class="close-modal close-button">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Stats Section - Like SavedBillImages -->
+        <div class="stats-container batch-stats-container">
+            <div class="stat-card">
+                <div class="stat-label">Total Bills</div>
+                <div class="stat-value">4</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Selected</div>
+                <div class="stat-value" style="color: #4caf50;">4</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Amount</div>
+                <div class="stat-value">₹2,890</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Need Review</div>
+                <div class="stat-value warning">0</div>
+            </div>
+        </div>
+
+        <!-- Images Container -->
+        <div class="images-container modal-body">
+            <!-- Gallery Grid -->
+            <div class="images-grid batch-gallery">
+                <!-- Card 1 -->
+                <div class="image-card batch-card selected">
+                    <div class="card-checkbox"><input type="checkbox" checked></div>
+                    <div class="image-preview card-image">
+                        <img src="https://placehold.co/300x200/1a1a2e/00d4ff?text=Bill+1" alt="Bill">
+                        <div class="card-amount-badge selected">₹450 ✓</div>
+                    </div>
+                    <div class="image-details card-content">
+                        <div class="card-amount-words">Rupees Four Hundred Fifty Only</div>
+                        <div class="card-category-badge">Meals</div>
+                        <div class="detail-row">
+                            <span class="detail-icon">📅</span>
+                            <span class="detail-text">05 Feb 2026</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-icon">🏪</span>
+                            <span class="detail-text">Restaurant ABC</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-icon">💰</span>
+                            <span class="detail-value">₹450</span>
+                        </div>
+                    </div>
+                    <div class="expiry-badge badge-success">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                            <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <span>85% confidence</span>
+                    </div>
+                    <div class="action-buttons card-action-buttons">
+                        <button class="btn-extend btn-edit">✏️ Edit</button>
+                        <button class="btn-delete btn-delete-card">🗑️ Delete</button>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="image-card batch-card selected">
+                    <div class="card-checkbox"><input type="checkbox" checked></div>
+                    <div class="image-preview card-image">
+                        <img src="https://placehold.co/300x200/1a1a2e/00d4ff?text=Bill+2" alt="Bill">
+                        <div class="card-amount-badge selected">₹1,200 ✓</div>
+                    </div>
+                    <div class="image-details card-content">
+                        <div class="card-amount-words">Rupees One Thousand Two Hundred Only</div>
+                        <div class="card-category-badge">Miscellaneous</div>
+                        <div class="detail-row">
+                            <span class="detail-icon">📅</span>
+                            <span class="detail-text">06 Feb 2026</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-icon">🏪</span>
+                            <span class="detail-text">Office Depot</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-icon">💰</span>
+                            <span class="detail-value">₹1,200</span>
+                        </div>
+                    </div>
+                    <div class="expiry-badge badge-warning">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                            <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <span>72% confidence</span>
+                    </div>
+                    <div class="action-buttons card-action-buttons">
+                        <button class="btn-extend btn-edit">✏️ Edit</button>
+                        <button class="btn-delete btn-delete-card">🗑️ Delete</button>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="image-card batch-card selected">
+                    <div class="card-checkbox"><input type="checkbox" checked></div>
+                    <div class="image-preview card-image">
+                        <img src="https://placehold.co/300x200/1a1a2e/00d4ff?text=Bill+3" alt="Bill">
+                        <div class="card-amount-badge selected">₹850 ✓</div>
+                    </div>
+                    <div class="image-details card-content">
+                        <div class="card-amount-words">Rupees Eight Hundred Fifty Only</div>
+                        <div class="card-category-badge">Transportation</div>
+                        <div class="detail-row">
+                            <span class="detail-icon">📅</span>
+                            <span class="detail-text">07 Feb 2026</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-icon">🏪</span>
+                            <span class="detail-text">Uber</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-icon">💰</span>
+                            <span class="detail-value">₹850</span>
+                        </div>
+                    </div>
+                    <div class="expiry-badge badge-success">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                            <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <span>91% confidence</span>
+                    </div>
+                    <div class="action-buttons card-action-buttons">
+                        <button class="btn-extend btn-edit">✏️ Edit</button>
+                        <button class="btn-delete btn-delete-card">🗑️ Delete</button>
+                    </div>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="image-card batch-card selected">
+                    <div class="card-checkbox"><input type="checkbox" checked></div>
+                    <div class="image-preview card-image">
+                        <img src="https://placehold.co/300x200/1a1a2e/00d4ff?text=Bill+4" alt="Bill">
+                        <div class="card-amount-badge selected">₹390 ✓</div>
+                    </div>
+                    <div class="image-details card-content">
+                        <div class="card-amount-words">Rupees Three Hundred Ninety Only</div>
+                        <div class="card-category-badge">Meals</div>
+                        <div class="detail-row">
+                            <span class="detail-icon">📅</span>
+                            <span class="detail-text">07 Feb 2026</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-icon">🏪</span>
+                            <span class="detail-text">Starbucks</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-icon">💰</span>
+                            <span class="detail-value">₹390</span>
+                        </div>
+                    </div>
+                    <div class="expiry-badge badge-warning">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                            <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <span>68% confidence</span>
+                    </div>
+                    <div class="action-buttons card-action-buttons">
+                        <button class="btn-extend btn-edit">✏️ Edit</button>
+                        <button class="btn-delete btn-delete-card">🗑️ Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="batch-review-footer">
+            <button class="btn-secondary">Cancel</button>
+            <button class="btn-primary">📤 Submit 4 Selected Bills</button>
+        </div>
+    </div>
+</body>
+</html>
