@@ -826,55 +826,12 @@ class ExpenseTracker {
 
         // Clear previous extracted expenses
         this.extractedExpenses = [];
-        let worker = null;
 
         try {
             // Show initializing status
-            document.getElementById('ocrStatus').textContent = 'Initializing OCR engine...';
+            document.getElementById('ocrStatus').textContent = 'Connecting to OCR server...';
 
-            // Check if Tesseract is available
-            if (typeof Tesseract === 'undefined') {
-                throw new Error('Tesseract library not loaded. Please refresh the page and try again.');
-            }
-
-            console.log('🔧 Starting Tesseract worker initialization...');
-
-            // Initialize Tesseract worker with timeout and better error handling
-            const initTimeout = new Promise((_, reject) =>
-                setTimeout(() => reject(new Error('Tesseract initialization timeout (30s)')), 30000)
-            );
-
-            const workerInit = Tesseract.createWorker('eng', 1, {
-                workerPath: 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/worker.min.js',
-                corePath: 'https://cdn.jsdelivr.net/npm/tesseract.js-core@5/tesseract-core.wasm.js',
-                langPath: 'https://tessdata.projectnaptha.com/4.0.0',
-                logger: m => {
-                    console.log('Tesseract:', m.status, m.progress ? `${(m.progress * 100).toFixed(0)}%` : '');
-                    if (m.status === 'recognizing text') {
-                        const currentProgress = document.getElementById('ocrProgressText');
-                        if (currentProgress) {
-                            const percent = (m.progress * 100).toFixed(0);
-                            currentProgress.textContent = `${percent}%`;
-                        }
-                    }
-                },
-                errorHandler: err => {
-                    console.error('❌ Tesseract error:', err);
-                }
-            });
-
-            // Wait for initialization with timeout
-            worker = await Promise.race([workerInit, initTimeout]);
-            console.log('✅ Tesseract worker initialized successfully');
-
-            // Configure Tesseract for better accuracy with receipts
-            console.log('⚙️ Configuring Tesseract parameters...');
-            await worker.setParameters({
-                tessedit_pageseg_mode: Tesseract.PSM.AUTO,
-                tessedit_char_whitelist: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ₹Rs./-:,@&()',
-                preserve_interword_spaces: '1',
-            });
-            console.log('✅ Tesseract configured successfully');
+            console.log('🔧 Using PaddleOCR backend API...');
 
             // Process each image separately for batch upload
             for (let i = 0; i < this.scannedImages.length; i++) {
@@ -892,8 +849,8 @@ class ExpenseTracker {
                 console.log(`   Image: ${this.scannedImages[i].name}`);
                 console.log(`   Size: ${(this.scannedImages[i].file.size / 1024).toFixed(2)} KB`);
 
-                let result = null;
                 let ocrText = '';
+                let ocrConfidence = 0;
                 let retryCount = 0;
                 const maxRetries = 2;
 
@@ -902,20 +859,33 @@ class ExpenseTracker {
                     try {
                         console.log(`   Attempt ${retryCount + 1}/${maxRetries + 1}...`);
 
-                        // Perform OCR on this image with timeout
-                        const ocrTimeout = new Promise((_, reject) =>
-                            setTimeout(() => reject(new Error('OCR timeout for this image (60s)')), 60000)
-                        );
+                        // Call backend OCR API
+                        const response = await fetch(`${this.apiBaseUrl}/ocr/scan`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                image: this.scannedImages[i].data
+                            })
+                        });
 
-                        const ocrPromise = worker.recognize(this.scannedImages[i].data);
-                        result = await Promise.race([ocrPromise, ocrTimeout]);
+                        if (!response.ok) {
+                            throw new Error(`OCR API error: ${response.status}`);
+                        }
 
-                        ocrText = result.data.text;
-                        console.log(`✅ Bill ${i + 1} OCR confidence: ${result.data.confidence.toFixed(2)}%`);
-                        console.log(`   Extracted text length: ${ocrText.length} characters`);
+                        const result = await response.json();
 
-                        // Success - break retry loop
-                        break;
+                        if (result.success) {
+                            ocrText = result.text;
+                            ocrConfidence = result.confidence;
+                            console.log(`✅ Bill ${i + 1} OCR confidence: ${ocrConfidence.toFixed(2)}%`);
+                            console.log(`   Extracted text length: ${ocrText.length} characters`);
+                            console.log(`   Processing time: ${result.processingTime}ms`);
+                            break; // Success - exit retry loop
+                        } else {
+                            throw new Error(result.error || 'OCR failed');
+                        }
 
                     } catch (imageError) {
                         retryCount++;
@@ -925,7 +895,7 @@ class ExpenseTracker {
                             console.warn(`⚠️ Skipping bill ${i + 1} after ${maxRetries + 1} attempts`);
                             // Create expense with empty OCR text (user can edit manually)
                             ocrText = '';
-                            result = { data: { confidence: 0, text: '' } };
+                            ocrConfidence = 0;
                         } else {
                             // Wait before retry
                             await new Promise(resolve => setTimeout(resolve, 1000));
@@ -959,7 +929,7 @@ class ExpenseTracker {
                     imageData: this.scannedImages[i].data,
                     imageName: this.scannedImages[i].name,
                     ocrText: ocrText,
-                    ocrConfidence: result ? result.data.confidence : 0,
+                    ocrConfidence: ocrConfidence,
                     ocrFailed: !ocrText, // Flag for failed OCR
                     ...expenseData,
                     selected: true,
@@ -1015,50 +985,27 @@ class ExpenseTracker {
                 stack: error.stack
             });
 
-            // This catch block only triggers if Tesseract worker fails to initialize
-            // Individual image failures are handled in the retry logic above
-
-            let errorMessage = '❌ OCR Engine Failed to Initialize\n\n';
+            let errorMessage = '❌ OCR Service Error\n\n';
 
             const errorMsg = error.message || error.toString() || 'Unknown error';
 
-            if (errorMsg.includes('timeout')) {
-                errorMessage += 'The OCR engine took too long to load.\n\n';
+            if (errorMsg.includes('Failed to fetch') || errorMsg.includes('NetworkError')) {
+                errorMessage += 'Could not connect to OCR server.\n\n';
                 errorMessage += 'Possible causes:\n';
-                errorMessage += '• Slow internet connection\n';
-                errorMessage += '• Server is slow\n\n';
-                errorMessage += '✅ Solution: Refresh the page and try again.';
-            } else if (errorMsg.includes('Tesseract library not loaded')) {
-                errorMessage += 'The OCR library failed to load from CDN.\n\n';
-                errorMessage += 'Possible causes:\n';
-                errorMessage += '• Ad blocker is blocking the script\n';
-                errorMessage += '• Network/firewall restrictions\n\n';
-                errorMessage += '✅ Solution: Disable ad blocker and refresh.';
-            } else if (errorMsg.includes('NetworkError') || errorMsg.includes('importScripts')) {
-                errorMessage += 'Failed to load OCR worker script.\n\n';
-                errorMessage += 'Possible causes:\n';
-                errorMessage += '• Network connectivity issue\n';
-                errorMessage += '• CDN is blocked by your network\n';
-                errorMessage += '• Ad blocker or firewall restriction\n\n';
-                errorMessage += '✅ Solution: Try disabling ad blocker or use a different network.';
+                errorMessage += '• Server is offline or restarting\n';
+                errorMessage += '• Network connectivity issue\n\n';
+                errorMessage += '✅ Solution: Check your internet connection and try again.';
+            } else if (errorMsg.includes('500') || errorMsg.includes('Internal')) {
+                errorMessage += 'OCR server encountered an error.\n\n';
+                errorMessage += '✅ Solution: Try again in a few moments.';
             } else {
                 errorMessage += `Technical error: ${errorMsg}\n\n`;
                 errorMessage += '✅ Solution: Refresh the page and try again.';
             }
 
-            this.showError(errorMessage, 'OCR Initialization Failed');
+            this.showError(errorMessage, 'OCR Service Error');
             this.showExpenseForm();
         } finally {
-            // Clean up
-            if (worker) {
-                try {
-                    await worker.terminate();
-                    console.log('✅ Tesseract worker terminated successfully');
-                } catch (terminateError) {
-                    console.error('⚠️ Error terminating Tesseract worker:', terminateError);
-                }
-            }
-
             // Remove progress overlay
             const overlay = document.getElementById('ocrProgressOverlay');
             if (overlay) overlay.remove();
