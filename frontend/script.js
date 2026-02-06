@@ -2495,7 +2495,7 @@ class ExpenseTracker {
 
         // Update the UI to show the new expenses
         this.displayExpenses();
-        this.updateTotals();
+        this.updateTotal();
 
         // Clear the extracted expenses
         this.extractedExpenses = [];
@@ -4441,7 +4441,7 @@ class ExpenseTracker {
 
                         // Update the UI
                         this.displayExpenses();
-                        this.updateTotals();
+                        this.updateTotal();
 
                         this.hideLoading();
                         this.showNotification(`✅ All data cleared! ${response.expensesCleared || 0} expenses and ${response.expenseImagesDeleted + response.orphanedImagesDeleted || 0} images deleted.`);
