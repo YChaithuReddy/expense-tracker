@@ -896,12 +896,14 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding: var(--img-space-6);
+  padding: 20px 24px;
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0.7) 0%,
+    rgba(0, 0, 0, 0.8) 0%,
+    rgba(0, 0, 0, 0.4) 60%,
     transparent 100%
   );
+  min-height: 80px;
 
   /* Auto-hide */
   opacity: 1;
@@ -918,8 +920,8 @@
   opacity: 1;
   pointer-events: auto;
   position: fixed;
-  top: 16px;
-  right: 16px;
+  top: 24px;
+  right: 24px;
   z-index: 10001;
 }
 
@@ -958,6 +960,9 @@
   transition: all var(--img-duration-fast) var(--img-ease-out);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 15px rgba(0, 212, 255, 0.3);
   z-index: 10002;
+  /* Ensure button is not at extreme corner */
+  margin: 4px;
+  flex-shrink: 0;
 }
 
 .img-viewer__close svg {
