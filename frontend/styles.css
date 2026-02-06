@@ -4894,23 +4894,23 @@ body.modal-open {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 24px;
+  padding: 12px 20px;
   background: linear-gradient(
     135deg,
-    rgba(0, 212, 255, 0.15) 0%,
-    rgba(168, 85, 247, 0.1) 100%
+    rgba(0, 212, 255, 0.08) 0%,
+    rgba(168, 85, 247, 0.05) 100%
   );
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   backdrop-filter: blur(10px);
   flex-shrink: 0;
 }
 
 .batch-review-modal-content .modal-header h2 {
   color: #00d4ff;
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 600;
   margin: 0;
-  text-shadow: 0 2px 4px rgba(0, 212, 255, 0.2);
+  text-shadow: 0 1px 2px rgba(0, 212, 255, 0.15);
 }
 
 .batch-review-modal-content .close-modal {
@@ -4939,10 +4939,10 @@ body.modal-open {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 24px;
+  padding: 12px 20px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 12px;
 }
 
 /* Scrollbar */
@@ -4966,34 +4966,34 @@ body.modal-open {
 /* Footer - Action buttons */
 .batch-review-footer {
   display: flex;
-  gap: 12px;
-  padding: 20px 24px;
-  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(0, 0, 0, 0.2);
+  gap: 10px;
+  padding: 12px 20px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(0, 0, 0, 0.15);
   backdrop-filter: blur(10px);
   flex-shrink: 0;
 }
 
 .batch-review-footer button {
   flex: 1;
-  padding: 14px 20px;
-  border-radius: 12px;
-  font-size: 14px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.15s ease-out;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .batch-review-footer .btn-primary {
   background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
   border: none;
   color: white;
-  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 212, 255, 0.25);
 }
 
 .batch-review-footer .btn-primary:hover {
@@ -5016,9 +5016,9 @@ body.modal-open {
 .batch-stats-container {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-  padding: 24px;
-  background: rgba(0, 0, 0, 0.15);
+  gap: 10px;
+  padding: 12px 20px;
+  background: rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
 }
 
@@ -5044,34 +5044,38 @@ body.modal-open {
 }
 
 .batch-stat-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
-  padding: 16px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.015) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 10px 14px;
   text-align: center;
-  transition: all 0.3s;
+  transition: all 0.2s ease-out;
+  min-height: 52px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .batch-stat-card:hover {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%);
-  border-color: rgba(0, 212, 255, 0.3);
-  transform: translateY(-2px);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.03) 100%);
+  border-color: rgba(0, 212, 255, 0.2);
+  transform: translateY(-1px);
 }
 
 .batch-stat-label {
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 12px;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 8px;
-  font-weight: 500;
+  letter-spacing: 0.8px;
+  margin-bottom: 4px;
+  font-weight: 600;
 }
 
 .batch-stat-value {
   color: #ffffff;
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.1;
 }
 
 .batch-stat-value.warning {
@@ -5177,33 +5181,33 @@ body.modal-open {
 /* Images Grid - Match SavedBillImages */
 .images-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 20px;
-    padding: 24px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+    padding: 0;
 }
 
 /* Batch Gallery Grid - Match SavedBillImages pattern */
 .batch-gallery {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     grid-auto-rows: auto;
-    gap: 20px;
-    padding: 24px;
+    gap: 14px;
+    padding: 0;
 }
 
 /* Batch Card - Premium Style matching SavedBillImages */
 .batch-card {
     position: relative;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
     overflow: hidden;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease-out;
     display: flex;
     flex-direction: column;
     min-height: var(--batch-card-min-height);
-    height: auto; /* Changed from 100% to allow content to determine height */
-    animation: batchCardFadeIn 0.3s ease-out backwards;
+    height: auto;
+    animation: batchCardFadeIn 0.25s ease-out backwards;
 }
 
 /* Staggered animation for cards */
@@ -5215,35 +5219,36 @@ body.modal-open {
 .batch-card:nth-child(6) { animation-delay: 0.3s; }
 
 .batch-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
-    border-color: rgba(0, 212, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+    border-color: rgba(0, 212, 255, 0.2);
 }
 
 .batch-card.selected {
-    border-color: var(--batch-accent);
-    box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.3), 0 8px 24px rgba(0, 212, 255, 0.2);
-    background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(0, 212, 255, 0.05) 100%);
+    border-color: rgba(0, 212, 255, 0.25);
+    box-shadow: 0 0 0 1px rgba(0, 212, 255, 0.2), 0 6px 16px rgba(0, 212, 255, 0.15);
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.08) 0%, rgba(0, 212, 255, 0.03) 100%);
 }
 
 /* Checkbox - aligned badge style */
 .card-checkbox {
     position: absolute;
-    top: 12px;
-    left: 12px;
+    top: 8px;
+    left: 8px;
     z-index: 10;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(4px);
-    padding: 6px;
-    border-radius: 8px;
+    padding: 3px;
+    border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .card-checkbox input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
     cursor: pointer;
     accent-color: #00d4ff;
     margin: 0;
@@ -5252,52 +5257,52 @@ body.modal-open {
 /* Amount Badge Overlay - Match SavedBillImages style */
 .card-amount-badge {
     position: absolute;
-    top: 12px;
-    right: 12px;
+    top: 8px;
+    right: 8px;
     z-index: 10;
-    background: rgba(0, 212, 255, 0.95);
-    backdrop-filter: blur(8px);
+    background: rgba(76, 175, 80, 0.9);
+    backdrop-filter: blur(6px);
     color: white;
-    padding: 8px 16px;
-    border-radius: 24px;
-    font-size: 16px;
-    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 14px;
+    font-size: 12px;
+    font-weight: 600;
     display: flex;
     align-items: center;
-    gap: 6px;
-    box-shadow: 0 4px 12px rgba(0, 212, 255, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    gap: 4px;
+    box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .card-amount-badge.selected {
-    background: rgba(76, 175, 80, 0.95);
-    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+    background: rgba(76, 175, 80, 0.9);
+    box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
 }
 
 .card-amount-badge svg {
-    width: 16px;
-    height: 16px;
+    width: 12px;
+    height: 12px;
 }
 
-/* Card Image - Match SavedBillImages sizing (200px) */
+/* Card Image - Compact sizing for better card proportions */
 .card-image {
     position: relative;
     width: 100%;
-    height: 200px;
-    min-height: 200px;
-    max-height: 200px;
+    height: 180px;
+    min-height: 180px;
+    max-height: 180px;
     overflow: hidden;
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(0, 0, 0, 0.4);
     flex-shrink: 0;
     cursor: pointer;
 }
 
-/* Dark overlay to soften white bill images */
+/* Dark overlay to soften white bill images - stronger for dark theme */
 .card-image::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.05) 50%, rgba(0,0,0,0.15) 100%);
+    background: linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.08) 50%, rgba(0,0,0,0.2) 100%);
     pointer-events: none;
     z-index: 1;
 }
@@ -5306,7 +5311,7 @@ body.modal-open {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    filter: brightness(0.92);
+    filter: brightness(0.85) saturate(0.9);
     transition: transform 0.3s ease;
 }
 
@@ -5338,21 +5343,21 @@ body.modal-open {
     opacity: 1;
 }
 
-/* Confidence Badge - premium pill style */
+/* Confidence Badge - compact pill style */
 .card-confidence {
     position: absolute;
-    top: var(--batch-spacing-sm);
-    right: var(--batch-spacing-sm);
+    top: 6px;
+    right: 6px;
     z-index: 20;
     background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(8px);
     color: white;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 10px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 9px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
     line-height: 1.2;
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -5404,57 +5409,57 @@ body.modal-open {
     box-shadow: 0 8px 24px rgba(245, 158, 11, 0.3);
 }
 
-/* Card Content - Match SavedBillImages .image-details styling */
+/* Card Content - Compact styling */
 .card-content {
-    padding: 16px;
+    padding: 12px 14px;
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
     min-height: 0;
 }
 
-/* Amount in words - below image */
+/* Amount in words - compact */
 .card-amount-words {
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.6);
     font-style: italic;
-    padding-bottom: 8px;
+    padding-bottom: 6px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* Category Badge - pill style */
+/* Category Badge - compact pill style */
 .card-category-badge {
     display: inline-flex;
     align-items: center;
-    padding: 6px 12px;
-    border-radius: 16px;
-    font-size: 12px;
-    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 600;
     background: rgba(0, 212, 255, 0.15);
     color: #00d4ff;
     border: 1px solid rgba(0, 212, 255, 0.3);
     align-self: flex-start;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
 }
 
 /* Card Details - Form fields */
 .card-details {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
     flex: 1;
 }
 
-/* Detail Row - Match SavedBillImages layout */
+/* Detail Row - Compact layout */
 .detail-row {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
     color: rgba(255, 255, 255, 0.9);
-    font-size: 14px;
-    margin-bottom: 12px;
+    font-size: 12px;
+    margin-bottom: 6px;
 }
 
 .detail-row:last-child {
@@ -5462,7 +5467,7 @@ body.modal-open {
 }
 
 .detail-icon {
-    font-size: 16px;
+    font-size: 13px;
     opacity: 0.8;
     flex-shrink: 0;
 }
@@ -5470,34 +5475,35 @@ body.modal-open {
 .detail-row .label {
     font-weight: 500;
     color: rgba(255, 255, 255, 0.6);
-    font-size: 12px;
+    font-size: 10px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    min-width: 60px;
+    min-width: 50px;
     flex-shrink: 0;
 }
 
 .detail-text {
     flex: 1;
     color: rgba(255, 255, 255, 0.8);
+    font-size: 12px;
 }
 
 .detail-value-display {
     font-weight: 600;
     color: #00d4ff;
-    font-size: 16px;
+    font-size: 14px;
 }
 
-/* Inline Input - Larger, more prominent */
+/* Inline Input - Compact */
 .inline-input {
     flex: 1;
-    padding: 10px 12px;
+    padding: 8px 10px;
     border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 8px;
+    border-radius: 6px;
     background: rgba(0, 0, 0, 0.3);
     color: #ffffff;
-    font-size: 14px;
-    min-height: 40px;
+    font-size: 12px;
+    min-height: 34px;
     box-sizing: border-box;
     transition: all 0.2s ease;
     width: 100%;
@@ -5558,16 +5564,16 @@ select.inline-input option {
 /* Action Buttons - Match SavedBillImages */
 .card-action-buttons {
     display: flex;
-    gap: 12px;
-    margin-top: 8px;
+    gap: 8px;
+    margin-top: 6px;
 }
 
 .btn-edit,
 .btn-delete-card {
     flex: 1;
-    padding: 10px 14px;
-    border-radius: 12px;
-    font-size: 13px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 11px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
@@ -5575,7 +5581,7 @@ select.inline-input option {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: 4px;
 }
 
 .btn-edit {
