@@ -1650,6 +1650,15 @@ class ExpenseTracker {
             console.log('⚠️ Category: Miscellaneous (no keywords matched)');
         }
 
+        // Store main category for form population
+        data.mainCategory = data.category;
+
+        // Detect subcategory based on main category and keywords
+        data.subcategory = this.detectSubcategory(textLower, data.mainCategory);
+        if (data.subcategory) {
+            console.log(`✅ Subcategory detected: ${data.subcategory}`);
+        }
+
         // Generate description (simplified - only use category)
         if (data.amount) {
             data.description = `${data.category} - ₹${data.amount}`;
@@ -1713,6 +1722,75 @@ class ExpenseTracker {
         };
 
         return data;
+    }
+
+    // Detect subcategory based on main category and OCR text keywords
+    detectSubcategory(textLower, mainCategory) {
+        // Subcategory keyword mappings for each main category
+        const subcategoryKeywords = {
+            'Transportation': {
+                'Bus': ['bus', 'ksrtc', 'apsrtc', 'tsrtc', 'redbus', 'volvo bus'],
+                'Metro': ['metro', 'dmrc', 'bmrc', 'cmrl', 'hyderabad metro', 'delhi metro'],
+                'Auto': ['auto', 'rickshaw', 'auto rickshaw', 'three wheeler'],
+                'Cab (Uber/Rapido)': ['uber', 'ola', 'rapido', 'taxi', 'cab', 'meru'],
+                'Train': ['train', 'railway', 'irctc', 'indian railways', 'rail'],
+                'Toll': ['toll', 'fastag', 'toll plaza', 'highway']
+            },
+            'Accommodation': {
+                'Room/Hotel': ['hotel', 'room', 'resort', 'lodge', 'guest house', 'inn', 'taj', 'oberoi', 'marriott', 'hyatt'],
+                'OYO': ['oyo', 'oyo rooms', 'oyo life']
+            },
+            'Meals': {
+                'Food': ['restaurant', 'food', 'meal', 'dinner', 'lunch', 'zomato', 'swiggy', 'dominos', 'mcdonald', 'kfc', 'pizza', 'biryani', 'thali'],
+                'Snacks': ['snacks', 'chips', 'biscuit', 'namkeen', 'samosa', 'puff'],
+                'Water/Juice': ['water', 'juice', 'mineral water', 'bisleri', 'kinley', 'aquafina', 'frooti', 'maaza', 'real juice'],
+                'Tea/Coffee': ['tea', 'coffee', 'chai', 'cafe', 'starbucks', 'ccd', 'barista', 'cappuccino', 'latte'],
+                'Tiffin': ['tiffin', 'idli', 'dosa', 'breakfast', 'morning', 'poha', 'upma']
+            },
+            'Fuel': {
+                'Petrol': ['petrol', 'fuel', 'hp', 'iocl', 'bpcl', 'shell', 'nayara', 'reliance petrol', 'indian oil', 'bharat petroleum'],
+                'Service': ['service', 'car service', 'bike service', 'oil change', 'servicing']
+            },
+            'Miscellaneous': {
+                'Tools': ['tools', 'hardware', 'screwdriver', 'hammer', 'drill'],
+                'Stationery': ['stationery', 'pen', 'paper', 'notebook', 'file', 'folder'],
+                'Xerox': ['xerox', 'photocopy', 'print', 'printing', 'scan'],
+                'Wiring Material': ['wire', 'wiring', 'cable', 'electrical', 'switch', 'socket'],
+                'Plumbing Material': ['plumbing', 'pipe', 'tap', 'faucet', 'pvc'],
+                'Work Clothing': ['uniform', 'safety shoes', 'helmet', 'gloves', 'work clothes'],
+                'Porter': ['porter', 'coolie', 'labour', 'loading', 'unloading'],
+                'Dues': ['dues', 'subscription', 'membership', 'fee'],
+                'Fine': ['fine', 'penalty', 'challan', 'traffic fine']
+            }
+        };
+
+        // Get subcategories for the detected main category
+        const categorySubcategories = subcategoryKeywords[mainCategory];
+        if (!categorySubcategories) {
+            return null;
+        }
+
+        // Score each subcategory based on keyword matches
+        let bestSubcategory = null;
+        let maxScore = 0;
+
+        for (const [subcategory, keywords] of Object.entries(categorySubcategories)) {
+            let score = 0;
+            keywords.forEach(keyword => {
+                if (textLower.includes(keyword)) {
+                    score += 10;
+                    // Bonus for exact/longer matches
+                    if (keyword.length > 5) score += 5;
+                }
+            });
+
+            if (score > maxScore) {
+                maxScore = score;
+                bestSubcategory = subcategory;
+            }
+        }
+
+        return maxScore > 0 ? bestSubcategory : null;
     }
 
     addDateConfidenceWarning(element, confidence) {
@@ -2738,6 +2816,66 @@ class ExpenseTracker {
             vendorElement.removeAttribute('readonly');
             vendorElement.removeAttribute('disabled');
             console.log('⚠️  vendor field left empty (user will enter manually)');
+        }
+
+        // Auto-populate Main Category dropdown from OCR detection
+        const mainCategorySelect = document.getElementById('mainCategory');
+        const subcategorySelect = document.getElementById('subcategory');
+        const subcategoryGroup = document.getElementById('subcategoryGroup');
+        const hiddenCategory = document.getElementById('category');
+
+        if (mainCategorySelect && this.extractedData.mainCategory) {
+            const detectedMainCategory = this.extractedData.mainCategory;
+
+            // Check if the detected category exists in the dropdown
+            const categoryOption = Array.from(mainCategorySelect.options).find(
+                opt => opt.value === detectedMainCategory
+            );
+
+            if (categoryOption) {
+                mainCategorySelect.value = detectedMainCategory;
+                console.log(`✅ Auto-selected Main Category: ${detectedMainCategory}`);
+
+                // Show subcategory dropdown and populate it
+                if (subcategoryGroup && subcategorySelect && this.categorySubcategories[detectedMainCategory]) {
+                    subcategoryGroup.style.display = 'block';
+
+                    // Clear existing options
+                    subcategorySelect.innerHTML = '<option value="">Select Subcategory</option>';
+
+                    // Populate subcategories
+                    this.categorySubcategories[detectedMainCategory].forEach(sub => {
+                        const option = document.createElement('option');
+                        option.value = sub;
+                        option.textContent = sub;
+                        subcategorySelect.appendChild(option);
+                    });
+
+                    // Auto-select subcategory if detected
+                    if (this.extractedData.subcategory) {
+                        const detectedSubcategory = this.extractedData.subcategory;
+                        const subOption = Array.from(subcategorySelect.options).find(
+                            opt => opt.value === detectedSubcategory
+                        );
+                        if (subOption) {
+                            subcategorySelect.value = detectedSubcategory;
+                            console.log(`✅ Auto-selected Subcategory: ${detectedSubcategory}`);
+
+                            // Update hidden category field with combined value
+                            if (hiddenCategory) {
+                                hiddenCategory.value = `${detectedMainCategory} - ${detectedSubcategory}`;
+                            }
+                        }
+                    } else {
+                        // No subcategory detected, just set main category
+                        if (hiddenCategory) {
+                            hiddenCategory.value = detectedMainCategory;
+                        }
+                    }
+                }
+            } else {
+                console.log(`⚠️ Detected category "${detectedMainCategory}" not found in dropdown options`);
+            }
         }
 
         // Set the receipt images
