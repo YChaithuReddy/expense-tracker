@@ -2494,7 +2494,7 @@ class ExpenseTracker {
         this.closeBatchReview();
 
         // Update the UI to show the new expenses
-        this.renderExpenses();
+        this.displayExpenses();
         this.updateTotals();
 
         // Clear the extracted expenses
@@ -3230,7 +3230,7 @@ class ExpenseTracker {
                     <div class="expense-images">
                         ${expense.images.map((img, index) => {
                             const safeName = this.sanitizeHTML(img.name);
-                            return `<img src="${img.data}" alt="${safeName}" data-expense-id="${expense.id}" data-image-index="${index}" onclick="expenseTracker.openImageFromCard(this)" title="Click to view full size">`;
+                            return `<img src="${img.data}" alt="${safeName}" data-expense-id="${expense.id}" data-image-index="${index}" onclick="expenseTracker.openImageFromCard(this)" title="Click to view full size" onerror="this.style.display='none'">`;
                         }).join('')}
                     </div>
                 ` : ''}
@@ -4440,7 +4440,7 @@ class ExpenseTracker {
                         await this.loadExpenses();
 
                         // Update the UI
-                        this.renderExpenses();
+                        this.displayExpenses();
                         this.updateTotals();
 
                         this.hideLoading();
