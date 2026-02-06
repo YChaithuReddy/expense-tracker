@@ -828,7 +828,7 @@ class ExpenseTracker {
         this.extractedExpenses = [];
 
         // OCR.space API key - Get free key at https://ocr.space/ocrapi/freekey
-        const OCR_SPACE_API_KEY = 'K89674036888957'; // Free tier key
+        const OCR_SPACE_API_KEY = 'K87818719388957'; // Free tier key
 
         try {
             // Show initializing status
