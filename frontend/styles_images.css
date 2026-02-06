@@ -917,12 +917,8 @@
 
 /* Keep close button always visible even when controls are hidden */
 .img-viewer.controls-hidden .img-viewer__close {
-  opacity: 1;
-  pointer-events: auto;
-  position: fixed;
-  top: 24px;
-  right: 24px;
-  z-index: 10001;
+  opacity: 1 !important;
+  pointer-events: auto !important;
 }
 
 .img-viewer__info {
@@ -943,13 +939,16 @@
   color: var(--img-text-muted);
 }
 
-/* Close Button - Always visible with solid dark background for maximum contrast */
+/* Close Button - Fixed position, always visible inside viewport */
 .img-viewer__close {
+  position: fixed !important;
+  top: 20px !important;
+  right: 20px !important;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 52px;
-  height: 52px;
+  width: 56px;
+  height: 56px;
   background: #1a1a2e !important;
   backdrop-filter: blur(10px);
   border: 3px solid #00d4ff !important;
@@ -960,8 +959,6 @@
   transition: all var(--img-duration-fast) var(--img-ease-out);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 15px rgba(0, 212, 255, 0.3);
   z-index: 10002;
-  /* Ensure button is not at extreme corner */
-  margin: 4px;
   flex-shrink: 0;
 }
 
