@@ -4864,9 +4864,11 @@ body.modal-open {
 /* Batch Review Modal - Desktop */
 .batch-review-modal-content {
     max-width: 1200px !important;
+    min-height: 90vh;
     max-height: 90vh;
+    height: 90vh;
     overflow: hidden;
-    margin: var(--batch-spacing-lg) auto;
+    margin: auto;
     display: flex;
     flex-direction: column;
 }
@@ -4889,7 +4891,8 @@ body.modal-open {
 
 /* Modal body with consistent padding */
 .batch-review-modal-content .modal-body {
-    flex: 1;
+    flex: 1 1 0;
+    min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
     padding: var(--batch-spacing-lg);
@@ -5024,7 +5027,9 @@ body.modal-open {
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: var(--batch-spacing-md);
     padding: 0; /* Remove padding - parent modal-body has it */
-    flex: 1;
+    flex: 1 1 0;
+    min-height: 0;
+    align-content: start; /* Cards align to top */
 }
 
 /* Batch Card - Uniform Height & Clean Layout */
