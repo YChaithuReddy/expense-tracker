@@ -595,6 +595,15 @@
             e.preventDefault();
             deferredPrompt = e;
 
+            // Check if user already dismissed or installed
+            const dismissed = localStorage.getItem('pwa-install-dismissed');
+            const installed = localStorage.getItem('pwa-installed');
+
+            if (dismissed || installed) {
+                console.log('PWA banner already dismissed or app installed');
+                return;
+            }
+
             // Show install button after a delay (non-intrusive)
             setTimeout(() => {
                 showInstallPrompt();
@@ -603,6 +612,14 @@
 
         function showInstallPrompt() {
             if (!deferredPrompt) return;
+
+            // Double-check dismissal status
+            if (localStorage.getItem('pwa-install-dismissed') || localStorage.getItem('pwa-installed')) {
+                return;
+            }
+
+            // Don't show if banner already exists
+            if (document.getElementById('pwa-install-banner')) return;
 
             // Create install banner
             const banner = document.createElement('div');
@@ -632,13 +649,16 @@
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
                 console.log('PWA install outcome:', outcome);
+                if (outcome === 'accepted') {
+                    localStorage.setItem('pwa-installed', 'true');
+                }
                 deferredPrompt = null;
             });
 
             document.getElementById('pwa-dismiss-btn').addEventListener('click', () => {
                 banner.remove();
-                // Don't show again for this session
-                sessionStorage.setItem('pwa-dismissed', 'true');
+                // Don't show again permanently
+                localStorage.setItem('pwa-install-dismissed', 'true');
             });
         }
 
@@ -646,6 +666,7 @@
         window.addEventListener('appinstalled', () => {
             console.log('✅ PWA was installed');
             deferredPrompt = null;
+            localStorage.setItem('pwa-installed', 'true');
             const banner = document.getElementById('pwa-install-banner');
             if (banner) banner.remove();
         });
