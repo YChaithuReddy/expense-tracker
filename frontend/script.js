@@ -897,6 +897,10 @@ class ExpenseTracker {
                             console.log(`✅ Bill ${i + 1} OCR completed`);
                             console.log(`   Extracted text length: ${ocrText.length} characters`);
                             console.log(`   Processing time: ${result.ProcessingTimeInMilliseconds}ms`);
+                            // Add delay between requests to avoid OCR.space rate limiting
+                            if (i < this.scannedImages.length - 1) {
+                                await new Promise(resolve => setTimeout(resolve, 1000));
+                            }
                             break; // Success - exit retry loop
                         } else {
                             throw new Error(result.ErrorMessage || 'OCR failed - no results');
