@@ -4684,44 +4684,61 @@ body.modal-open {
     padding: 20px;
 }
 
+/* ============================================
+   IMAGE PREVIEW GRID - 2 IMAGES PER ROW
+   ============================================ */
 #imagesWrapper {
     display: grid !important;
-    /* Adjusted grid for larger desktop images */
-    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)) !important;
-    gap: 30px !important;
+    /* Force 2 columns for side-by-side display */
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 16px !important;
     width: 100% !important;
-    padding: 20px !important;
+    padding: 16px !important;
     margin: 0 auto !important;
     justify-items: center !important;
+    align-items: start !important;
 }
 
 .image-preview-item {
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
-    justify-content: center !important;
-    width: auto !important;
+    justify-content: flex-start !important;
+    width: 100% !important;
+    max-width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
+    gap: 8px !important;
 }
 
 .thumb-container,
 .selected-image {
-    /* Increased size for better bill visibility on desktop */
-    width: 380px !important;
-    height: 320px !important;
+    /* Compact size for 2-per-row layout */
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 180px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    border: 2px solid rgba(0, 212, 255, 0.5) !important;
-    border-radius: 12px !important;
-    background: rgba(30, 40, 60, 0.6) !important;
-    padding: 15px !important;
+    border: 2px solid rgba(0, 212, 255, 0.4) !important;
+    border-radius: 10px !important;
+    background: rgba(30, 40, 60, 0.5) !important;
+    padding: 10px !important;
     position: relative !important;
     overflow: hidden !important;
     box-shadow:
-        inset 0 0 20px rgba(0, 212, 255, 0.1),
-        0 0 20px rgba(0, 212, 255, 0.2) !important;
+        inset 0 0 15px rgba(0, 212, 255, 0.08),
+        0 4px 12px rgba(0, 0, 0, 0.2) !important;
+    transition: all 0.2s ease !important;
+}
+
+.thumb-container:hover,
+.selected-image:hover {
+    border-color: rgba(0, 212, 255, 0.7) !important;
+    transform: translateY(-2px) !important;
+    box-shadow:
+        inset 0 0 20px rgba(0, 212, 255, 0.12),
+        0 8px 20px rgba(0, 212, 255, 0.15) !important;
 }
 
 .thumb-image,
@@ -4741,12 +4758,16 @@ body.modal-open {
 
 .thumb-caption,
 .image-caption {
-    margin-top: 10px;
+    margin-top: 6px;
     color: var(--cyan-text, #00d4ff);
-    font-size: 14px;
+    font-size: 11px;
     text-align: center;
-    max-width: 380px;  /* Adjusted to match new image width */
+    max-width: 100%;
     word-break: break-word;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 0 4px;
 }
 
 /* ============================================
@@ -4822,24 +4843,38 @@ body.modal-open {
         font-size: 24px;
     }
 
-    /* Keep smaller size for mobile - easier to view on smaller screens */
+    /* Keep 2 columns on tablet, compact sizing */
     .thumb-container,
     .selected-image {
-        width: 180px !important;
         height: 150px !important;
-        padding: 10px !important;
+        padding: 8px !important;
     }
 
     .thumb-caption,
     .image-caption {
-        max-width: 180px !important;
+        font-size: 10px !important;
     }
 
-    /* Adjust grid for mobile */
+    /* Keep 2-column grid on tablet */
     #imagesWrapper {
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)) !important;
-        gap: 15px !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px !important;
+        padding: 12px !important;
+    }
+}
+
+/* Single column only on very small screens */
+@media (max-width: 420px) {
+    #imagesWrapper {
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
         padding: 10px !important;
+    }
+
+    .thumb-container,
+    .selected-image {
+        height: 200px !important;
+        max-width: 280px !important;
     }
 
     .search-input.clean {
