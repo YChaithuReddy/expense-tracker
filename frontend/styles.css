@@ -4952,13 +4952,12 @@ body.modal-open {
     color: var(--text-primary);
 }
 
-/* Batch Gallery Grid - Improved Layout */
+/* Batch Gallery Grid - Compact Layout */
 .batch-gallery {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 24px;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
     padding: 16px;
-    place-items: center;
 }
 
 /* Batch Card - More Compact & User-Friendly */
@@ -4987,18 +4986,18 @@ body.modal-open {
 
 .card-checkbox {
     position: absolute;
-    top: 16px;
-    left: 16px;
+    top: 10px;
+    left: 10px;
     z-index: 10;
     background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(4px);
-    padding: 4px;
-    border-radius: 6px;
+    padding: 3px;
+    border-radius: 4px;
 }
 
 .card-checkbox input[type="checkbox"] {
-    width: 28px;
-    height: 28px;
+    width: 20px;
+    height: 20px;
     cursor: pointer;
     accent-color: var(--primary-color);
 }
@@ -5006,32 +5005,50 @@ body.modal-open {
 .card-image {
     position: relative;
     width: 100%;
-    height: 280px;
+    height: 140px;
+    min-height: 140px;
+    max-height: 140px;
     overflow: hidden;
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(0, 0, 0, 0.4);
     border-bottom: 1px solid var(--border-color);
+}
+
+/* Dark overlay to soften white bill images */
+.card-image::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.05) 50%, rgba(0,0,0,0.15) 100%);
+    pointer-events: none;
+    z-index: 1;
 }
 
 .card-image img {
     width: 100%;
     height: 100%;
-    object-fit: contain;
-    background: rgba(0, 0, 0, 0.2);
-    padding: 8px;
+    object-fit: cover;
+    filter: brightness(0.92);
+    transition: transform 0.3s ease;
+}
+
+.batch-card:hover .card-image img {
+    transform: scale(1.05);
 }
 
 .card-confidence {
     position: absolute;
-    top: 16px;
-    right: 16px;
+    top: 10px;
+    right: 10px;
     z-index: 20;
-    background: rgba(0, 0, 0, 0.75);
+    background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(4px);
     color: white;
-    padding: 8px 14px;
-    border-radius: 8px;
-    font-size: 14px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
     font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
 }
 
 .card-ocr-failed {
@@ -5067,49 +5084,49 @@ body.modal-open {
 }
 
 .card-content {
-    padding: 20px;
+    padding: 12px 14px;
     flex: 1;
     display: flex;
     flex-direction: column;
 }
 
 .card-amount {
-    font-size: 36px;
+    font-size: 1.25rem;
     font-weight: 700;
     color: var(--primary-color);
-    margin-bottom: 16px;
-    text-shadow: 0 0 20px rgba(79, 172, 254, 0.3);
+    margin-bottom: 10px;
+    text-shadow: 0 0 12px rgba(79, 172, 254, 0.2);
 }
 
 .card-details {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 8px;
     flex: 1;
 }
 
 .detail-row {
     display: grid;
-    grid-template-columns: minmax(60px, auto) 1fr;
+    grid-template-columns: minmax(50px, auto) 1fr;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
 }
 
 .detail-row .label {
-    font-weight: 600;
+    font-weight: 500;
     color: var(--text-secondary);
-    font-size: 14px;
+    font-size: 12px;
     text-transform: capitalize;
 }
 
 .inline-input {
     flex: 1;
-    padding: 10px 14px;
+    padding: 6px 10px;
     border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border-radius: 6px;
     background: var(--background-secondary);
     color: var(--text-primary);
-    font-size: 15px;
+    font-size: 13px;
     transition: all 0.2s ease;
 }
 
@@ -5135,10 +5152,10 @@ body.modal-open {
 select.inline-input {
     cursor: pointer;
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23a1a1aa' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='%23a1a1aa' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 14px center; /* Align arrow with right padding */
-    padding: 10px 40px 10px 14px; /* Explicit padding for consistent height and arrow space */
+    background-position: right 10px center;
+    padding: 6px 28px 6px 10px;
 }
 
 /* Style dropdown options for dark theme */
@@ -5151,14 +5168,14 @@ select.inline-input option {
 
 .btn-delete {
     width: 100%;
-    margin-top: 12px;
-    padding: 8px;
+    margin-top: 8px;
+    padding: 6px;
     background: transparent;
     color: #ef4444;
-    border: 1px solid rgba(239, 68, 68, 0.5);
+    border: 1px solid rgba(239, 68, 68, 0.4);
     border-radius: 6px;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 600;
     transition: all 0.2s ease;
 }
@@ -5176,9 +5193,9 @@ select.inline-input option {
 /* Responsive */
 @media (max-width: 1024px) {
     .batch-gallery {
-        grid-template-columns: 1fr;
-        gap: 20px;
-        padding: 16px;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 12px;
+        padding: 12px;
     }
 
     .batch-review-modal-content {
@@ -5187,11 +5204,11 @@ select.inline-input option {
     }
 
     .batch-actions-bar {
-        padding: 16px;
+        padding: 12px;
     }
 
     .bulk-vendor-input {
-        width: 180px;
+        width: 160px;
     }
 }
 
@@ -5199,17 +5216,17 @@ select.inline-input option {
     .batch-gallery {
         display: flex;
         flex-direction: column;
-        align-items: center;
-        gap: 20px;
-        padding: 16px;
-        flex: 0 1 auto; /* Take only needed space, don't grow to fill */
+        align-items: stretch;
+        gap: 12px;
+        padding: 12px;
+        flex: 0 1 auto;
         width: 100%;
     }
 
     .batch-actions-bar {
         flex-direction: column;
         align-items: stretch;
-        gap: 12px;
+        gap: 10px;
         padding: 12px;
         flex-shrink: 0; /* Don't shrink, maintain size */
     }
