@@ -30,6 +30,7 @@
 
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="styles_dropdown.css">
+    <link rel="stylesheet" href="styles_images.css?v=2.0">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
@@ -360,35 +361,97 @@
         </main>
 
 
-        <!-- Orphaned Images Gallery Modal -->
-        <div id="orphanedImagesModal" class="orphaned-images-modal" style="display: none;">
-            <div class="orphaned-images-content">
-                <div class="orphaned-images-header">
-                    <h2>🖼️ Saved Bill Images</h2>
-                    <span class="close-orphaned" onclick="expenseTracker.closeOrphanedImagesModal()">&times;</span>
+        <!-- Orphaned Images Gallery Modal (Premium Redesign) -->
+        <div id="orphanedImagesModal" class="img-modal orphaned-images-modal" style="display: none;">
+            <div class="img-modal__backdrop" onclick="expenseTracker.closeOrphanedImagesModal()"></div>
+            <div class="img-modal__content orphaned-images-content">
+                <header class="img-modal__header orphaned-images-header">
+                    <div class="img-modal__title">
+                        <span class="img-modal__title-icon">🖼️</span>
+                        <h2>Saved Bill Images</h2>
+                    </div>
+                    <button class="img-modal__close close-orphaned" onclick="expenseTracker.closeOrphanedImagesModal()" aria-label="Close modal">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 6L6 18M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </header>
+                <div class="img-stats orphaned-images-stats" id="orphanedImagesStats">
+                    <!-- Stats will be populated by JavaScript -->
                 </div>
-                <div class="orphaned-images-stats" id="orphanedImagesStats">
-                    <!-- Stats will be populated here -->
-                </div>
-                <div class="orphaned-images-grid" id="orphanedImagesGrid">
-                    <!-- Images will be displayed here -->
+                <div class="img-gallery orphaned-images-grid" id="orphanedImagesGrid">
+                    <!-- Image cards will be populated by JavaScript -->
                 </div>
             </div>
         </div>
 
-        <!-- Image Viewer Modal -->
-        <div id="imageViewerModal" class="image-viewer-modal" style="display: none;">
-            <div class="image-viewer-overlay" onclick="expenseTracker.closeImageModal()"></div>
-            <div class="image-viewer-content">
-                <button class="image-viewer-close" onclick="expenseTracker.closeImageModal()">&times;</button>
-                <img id="imageViewerImg" src="" alt="Bill Image">
-                <div class="image-viewer-info">
-                    <span id="imageViewerName"></span>
+        <!-- Image Viewer Modal (Premium Redesign) -->
+        <div id="imageViewerModal" class="img-viewer image-viewer-modal">
+            <div class="img-viewer__backdrop image-viewer-overlay" onclick="expenseTracker.closeImageModal()"></div>
+            <div class="img-viewer__container">
+                <!-- Top Bar -->
+                <div class="img-viewer__topbar">
+                    <div class="img-viewer__info">
+                        <span class="img-viewer__filename" id="imageViewerName">Bill Image</span>
+                        <span class="img-viewer__counter" id="imageViewerCounter">1 of 1</span>
+                    </div>
+                    <button class="img-viewer__close image-viewer-close" onclick="expenseTracker.closeImageModal()" aria-label="Close viewer">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 6L6 18M6 6l12 12"/>
+                        </svg>
+                    </button>
                 </div>
-                <div class="image-viewer-nav">
-                    <button id="imageViewerPrev" onclick="expenseTracker.prevImage()">&#10094; Prev</button>
-                    <span id="imageViewerCounter"></span>
-                    <button id="imageViewerNext" onclick="expenseTracker.nextImage()">Next &#10095;</button>
+
+                <!-- Navigation Arrows -->
+                <button class="img-viewer__nav img-viewer__nav--prev" id="imageViewerPrev" onclick="expenseTracker.prevImage()" aria-label="Previous image">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 18l-6-6 6-6"/>
+                    </svg>
+                </button>
+                <button class="img-viewer__nav img-viewer__nav--next" id="imageViewerNext" onclick="expenseTracker.nextImage()" aria-label="Next image">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 18l6-6-6-6"/>
+                    </svg>
+                </button>
+
+                <!-- Image -->
+                <div class="img-viewer__image-wrapper image-viewer-content">
+                    <img id="imageViewerImg" class="img-viewer__image" src="" alt="Bill Image">
+                </div>
+
+                <!-- Bottom Toolbar -->
+                <div class="img-viewer__toolbar">
+                    <div class="img-viewer__zoom-group">
+                        <button class="img-viewer__zoom-btn" id="zoomOut" onclick="expenseTracker.zoomImage(-0.25)" aria-label="Zoom out">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35M8 11h6"/>
+                            </svg>
+                        </button>
+                        <input type="range" class="img-viewer__zoom-slider" id="zoomSlider" min="50" max="300" value="100"
+                               onchange="expenseTracker.setZoom(this.value / 100)" aria-label="Zoom level">
+                        <span class="img-viewer__zoom-level" id="zoomLevel">100%</span>
+                        <button class="img-viewer__zoom-btn" id="zoomIn" onclick="expenseTracker.zoomImage(0.25)" aria-label="Zoom in">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35M11 8v6M8 11h6"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="img-viewer__divider"></div>
+                    <button class="img-viewer__action" onclick="expenseTracker.rotateImage()" aria-label="Rotate image">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+                        </svg>
+                    </button>
+                    <button class="img-viewer__action" onclick="expenseTracker.downloadCurrentImage()" aria-label="Download image">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                        </svg>
+                    </button>
+                    <button class="img-viewer__action" onclick="expenseTracker.toggleFullscreen()" aria-label="Toggle fullscreen">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/>
+                        </svg>
+                    </button>
                 </div>
             </div>
         </div>
