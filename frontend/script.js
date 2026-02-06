@@ -2108,9 +2108,6 @@ class ExpenseTracker {
             // Convert amount to words
             const amountWords = this.amountToWords(safeAmount);
 
-            // Check if card is in edit mode
-            const isEditing = expense.editing || false;
-
             return `
             <div class="batch-card ${expense.selected ? 'selected' : ''} ${expense.ocrFailed ? 'ocr-failed' : ''}" data-index="${index}">
                 <div class="card-checkbox">
@@ -2135,65 +2132,38 @@ class ExpenseTracker {
                     <!-- Amount in words -->
                     <div class="card-amount-words">${amountWords}</div>
 
-                    <!-- Category Badge -->
-                    <div class="card-category-badge">${safeCategory || 'Miscellaneous'}</div>
-
-                    ${isEditing ? `
-                        <!-- Edit Mode -->
-                        <div class="card-edit-mode">
-                            <div class="detail-row">
-                                <span class="label">Vendor</span>
-                                <input type="text" class="inline-input expense-vendor" data-index="${index}" value="${safeVendor}" placeholder="Enter vendor name">
-                            </div>
-                            <div class="detail-row">
-                                <span class="label">Date</span>
-                                <input type="date" class="inline-input expense-date" data-index="${index}" value="${safeDate}">
-                            </div>
-                            <div class="detail-row">
-                                <span class="label">Amount</span>
-                                <input type="number" class="inline-input expense-amount" data-index="${index}" value="${safeAmount}" step="0.01" placeholder="0.00">
-                            </div>
-                            <div class="detail-row">
-                                <span class="label">Category</span>
-                                <select class="inline-input expense-category" data-index="${index}">
-                                    <option value="Transportation" ${safeCategory === 'Transportation' ? 'selected' : ''}>Transportation</option>
-                                    <option value="Accommodation" ${safeCategory === 'Accommodation' ? 'selected' : ''}>Accommodation</option>
-                                    <option value="Meals" ${safeCategory === 'Meals' ? 'selected' : ''}>Meals</option>
-                                    <option value="Fuel" ${safeCategory === 'Fuel' ? 'selected' : ''}>Fuel</option>
-                                    <option value="Bill Payments" ${safeCategory === 'Bill Payments' ? 'selected' : ''}>Bill Payments</option>
-                                    <option value="Food" ${safeCategory === 'Food' ? 'selected' : ''}>Food</option>
-                                    <option value="Miscellaneous" ${safeCategory === 'Miscellaneous' ? 'selected' : ''}>Miscellaneous</option>
-                                </select>
-                            </div>
+                    <!-- Inline Editable Form - Always visible -->
+                    <div class="card-inline-form">
+                        <div class="form-row">
+                            <label class="form-label">📅 Date</label>
+                            <input type="date" class="inline-input expense-date" data-index="${index}" value="${safeDate}">
                         </div>
-                    ` : `
-                        <!-- View Mode -->
-                        <div class="card-details">
-                            <div class="detail-row">
-                                <span class="detail-icon">📅</span>
-                                <span class="detail-text">${displayDate}</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-icon">🏪</span>
-                                <span class="detail-text">${safeVendor || 'Unknown Vendor'}</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-icon">💰</span>
-                                <span class="detail-value-display">₹${safeAmount || '0'}</span>
-                            </div>
+                        <div class="form-row">
+                            <label class="form-label">🏪 Vendor</label>
+                            <input type="text" class="inline-input expense-vendor" data-index="${index}" value="${safeVendor}" placeholder="Enter vendor name">
                         </div>
-                    `}
+                        <div class="form-row">
+                            <label class="form-label">💰 Amount</label>
+                            <input type="number" class="inline-input expense-amount" data-index="${index}" value="${safeAmount}" step="0.01" placeholder="0.00">
+                        </div>
+                        <div class="form-row">
+                            <label class="form-label">📁 Category</label>
+                            <select class="inline-input expense-category" data-index="${index}">
+                                <option value="Transportation" ${safeCategory === 'Transportation' ? 'selected' : ''}>Transportation</option>
+                                <option value="Accommodation" ${safeCategory === 'Accommodation' ? 'selected' : ''}>Accommodation</option>
+                                <option value="Meals" ${safeCategory === 'Meals' ? 'selected' : ''}>Meals</option>
+                                <option value="Fuel" ${safeCategory === 'Fuel' ? 'selected' : ''}>Fuel</option>
+                                <option value="Bill Payments" ${safeCategory === 'Bill Payments' ? 'selected' : ''}>Bill Payments</option>
+                                <option value="Food" ${safeCategory === 'Food' ? 'selected' : ''}>Food</option>
+                                <option value="Miscellaneous" ${safeCategory === 'Miscellaneous' ? 'selected' : ''}>Miscellaneous</option>
+                            </select>
+                        </div>
+                    </div>
 
-                    <!-- Action Buttons -->
+                    <!-- Delete Button Only -->
                     <div class="card-action-buttons">
-                        <button class="btn-edit toggle-edit-btn" data-index="${index}" type="button">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-                            </svg>
-                            ${isEditing ? 'Done' : 'Edit'}
-                        </button>
                         <button class="btn-delete-card remove-bill-btn" data-index="${index}" type="button">
-                            Delete
+                            🗑️ Delete
                         </button>
                     </div>
                 </div>
