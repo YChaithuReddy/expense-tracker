@@ -4685,16 +4685,43 @@ body.modal-open {
 }
 
 /* ============================================
-   IMAGE PREVIEW GRID - 2 IMAGES PER ROW
+   IMAGE PREVIEW GRID - CONDITIONAL LAYOUT
+   Single image: Full width display
+   Multiple images: 2-column grid
    ============================================ */
 #imagesWrapper {
-    display: grid !important;
-    /* Force 2 columns for side-by-side display */
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 16px !important;
+    display: flex !important;
+    flex-direction: column !important;
     width: 100% !important;
     padding: 16px !important;
     margin: 0 auto !important;
+    align-items: center !important;
+    gap: 16px !important;
+}
+
+/* Single image: Full width, larger display */
+#imagesWrapper.single-image {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+}
+
+#imagesWrapper.single-image .image-preview-item {
+    width: 100% !important;
+    max-width: 400px !important;
+}
+
+#imagesWrapper.single-image .thumb-container,
+#imagesWrapper.single-image .selected-image {
+    height: 280px !important;
+    max-width: 100% !important;
+}
+
+/* Multiple images: 2-column grid layout */
+#imagesWrapper.multiple-images {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 16px !important;
     justify-items: center !important;
     align-items: start !important;
 }
@@ -4855,20 +4882,33 @@ body.modal-open {
         font-size: 10px !important;
     }
 
-    /* Keep 2-column grid on tablet */
-    #imagesWrapper {
+    /* Keep 2-column grid on tablet for multiple images */
+    #imagesWrapper.multiple-images {
         grid-template-columns: repeat(2, 1fr) !important;
         gap: 12px !important;
         padding: 12px !important;
+    }
+
+    /* Single image stays full width on tablet */
+    #imagesWrapper.single-image .thumb-container,
+    #imagesWrapper.single-image .selected-image {
+        height: 240px !important;
     }
 }
 
 /* Single column only on very small screens */
 @media (max-width: 420px) {
-    #imagesWrapper {
+    #imagesWrapper.multiple-images {
         grid-template-columns: 1fr !important;
         gap: 10px !important;
         padding: 10px !important;
+    }
+
+    /* Single image: larger on mobile */
+    #imagesWrapper.single-image .thumb-container,
+    #imagesWrapper.single-image .selected-image {
+        height: 220px !important;
+        max-width: 100% !important;
     }
 
     .thumb-container,
