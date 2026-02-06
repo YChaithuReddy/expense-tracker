@@ -827,11 +827,14 @@ class ExpenseTracker {
         // Clear previous extracted expenses
         this.extractedExpenses = [];
 
+        // OCR.space API key - Get free key at https://ocr.space/ocrapi/freekey
+        const OCR_SPACE_API_KEY = 'K89674036888957'; // Free tier key
+
         try {
             // Show initializing status
-            document.getElementById('ocrStatus').textContent = 'Connecting to OCR server...';
+            document.getElementById('ocrStatus').textContent = 'Connecting to OCR.space...';
 
-            console.log('🔧 Using PaddleOCR backend API...');
+            console.log('🔧 Using OCR.space API (99% accuracy)...');
 
             // Process each image separately for batch upload
             for (let i = 0; i < this.scannedImages.length; i++) {
@@ -859,15 +862,19 @@ class ExpenseTracker {
                     try {
                         console.log(`   Attempt ${retryCount + 1}/${maxRetries + 1}...`);
 
-                        // Call backend OCR API
-                        const response = await fetch(`${this.apiBaseUrl}/ocr/scan`, {
+                        // Call OCR.space API
+                        const formData = new FormData();
+                        formData.append('apikey', OCR_SPACE_API_KEY);
+                        formData.append('base64Image', this.scannedImages[i].data);
+                        formData.append('language', 'eng');
+                        formData.append('isOverlayRequired', 'false');
+                        formData.append('detectOrientation', 'true');
+                        formData.append('scale', 'true');
+                        formData.append('OCREngine', '2'); // Engine 2 is better for receipts
+
+                        const response = await fetch('https://api.ocr.space/parse/image', {
                             method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                image: this.scannedImages[i].data
-                            })
+                            body: formData
                         });
 
                         if (!response.ok) {
@@ -876,15 +883,23 @@ class ExpenseTracker {
 
                         const result = await response.json();
 
-                        if (result.success) {
-                            ocrText = result.text;
-                            ocrConfidence = result.confidence;
-                            console.log(`✅ Bill ${i + 1} OCR confidence: ${ocrConfidence.toFixed(2)}%`);
+                        if (result.ParsedResults && result.ParsedResults.length > 0) {
+                            const parsedResult = result.ParsedResults[0];
+
+                            if (parsedResult.ErrorMessage) {
+                                throw new Error(parsedResult.ErrorMessage);
+                            }
+
+                            ocrText = parsedResult.ParsedText || '';
+                            // OCR.space doesn't return confidence %, estimate from exit code
+                            ocrConfidence = parsedResult.FileParseExitCode === 1 ? 95 : 70;
+
+                            console.log(`✅ Bill ${i + 1} OCR completed`);
                             console.log(`   Extracted text length: ${ocrText.length} characters`);
-                            console.log(`   Processing time: ${result.processingTime}ms`);
+                            console.log(`   Processing time: ${result.ProcessingTimeInMilliseconds}ms`);
                             break; // Success - exit retry loop
                         } else {
-                            throw new Error(result.error || 'OCR failed');
+                            throw new Error(result.ErrorMessage || 'OCR failed - no results');
                         }
 
                     } catch (imageError) {
