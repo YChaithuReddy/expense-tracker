@@ -714,6 +714,8 @@ class ExpenseTracker {
             const imagesWrapper = document.createElement('div');
             // Remove inline styles - let CSS handle the styling
             imagesWrapper.id = 'imagesWrapper';
+            // Add class based on image count - single image gets full width, multiple images use 2-column grid
+            imagesWrapper.className = processedImages.length === 1 ? 'single-image' : 'multiple-images';
             previewContainer.appendChild(imagesWrapper);
 
             // Display all images
