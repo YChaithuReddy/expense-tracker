@@ -4850,167 +4850,242 @@ body.modal-open {
 
 /* ========== BATCH UPLOAD STYLES ========== */
 
-/* Batch Review Modal - Desktop */
+/* Design System Variables for Batch Review */
 .batch-review-modal-content {
-    max-width: 1200px !important; /* Override .modal-content's 800px for wider batch view */
-    max-height: 90vh;
-    overflow: hidden; /* Let modal-body handle scrolling, not container */
-    margin: 20px auto; /* Center horizontally */
+    --batch-spacing-xs: 6px;
+    --batch-spacing-sm: 10px;
+    --batch-spacing-md: 14px;
+    --batch-spacing-lg: 18px;
+    --batch-spacing-xl: 20px;
+    --batch-radius: 10px;
+    --batch-card-min-height: 340px;
 }
 
+/* Batch Review Modal - Desktop */
+.batch-review-modal-content {
+    max-width: 1200px !important;
+    max-height: 90vh;
+    overflow: hidden;
+    margin: var(--batch-spacing-lg) auto;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Consistent header styling */
+.batch-review-modal-content .modal-header {
+    padding: var(--batch-spacing-md) var(--batch-spacing-lg);
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+.batch-review-modal-content .modal-header h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: var(--batch-spacing-xs);
+}
+
+/* Modal body with consistent padding */
+.batch-review-modal-content .modal-body {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: var(--batch-spacing-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--batch-spacing-md);
+}
+
+/* Footer CTA Bar - aligned with content */
 .batch-review-footer {
     display: flex;
-    justify-content: space-between;
+    justify-content: stretch;
     align-items: center;
-    padding: 20px;
-    gap: 16px;
+    padding: var(--batch-spacing-md) var(--batch-spacing-lg);
+    gap: var(--batch-spacing-md);
     border-top: 1px solid var(--border-color);
     flex-shrink: 0;
     z-index: 100;
+    background: var(--card-bg);
 }
 
-/* Make footer buttons equal width */
+/* Footer buttons - equal width, consistent height */
 .batch-review-footer button {
     flex: 1;
     min-width: 120px;
-    padding: 12px 20px;
+    padding: var(--batch-spacing-sm) var(--batch-spacing-lg);
+    height: 48px;
+    font-size: 14px;
+    font-weight: 600;
     pointer-events: auto;
     cursor: pointer;
+    border-radius: var(--batch-radius);
+    transition: all 0.2s ease;
 }
 
 .bulk-vendor-input {
-    flex: 0 0 200px;
-    margin-left: 8px;
+    flex: 0 0 180px;
+    margin-left: var(--batch-spacing-xs);
 }
 
 .btn-apply-vendor {
     flex-shrink: 0;
-    margin-left: 8px;
+    margin-left: var(--batch-spacing-xs);
 }
 
-/* Batch Actions Bar - Improved Responsive */
+/* Batch Actions Bar - Toolbar */
 .batch-actions-bar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 20px;
+    padding: var(--batch-spacing-sm) var(--batch-spacing-md);
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--border-color);
-    border-radius: 12px;
-    margin-bottom: 24px;
+    border-radius: var(--batch-radius);
     flex-wrap: wrap;
-    gap: 16px;
+    gap: var(--batch-spacing-sm);
+    flex-shrink: 0;
 }
 
 .batch-selection {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: var(--batch-spacing-sm);
     flex-wrap: wrap;
 }
 
 .batch-selection label {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--batch-spacing-xs);
     cursor: pointer;
     font-weight: 500;
-    margin: 0; /* Remove default label margin */
+    font-size: 13px;
+    margin: 0;
 }
 
 .batch-selection input[type="checkbox"] {
     width: 18px;
     height: 18px;
     cursor: pointer;
-    margin: 0; /* Remove default checkbox margin */
+    margin: 0;
     vertical-align: middle;
+    accent-color: var(--primary-color);
 }
 
 .selection-count {
     color: var(--primary-color);
     font-weight: 600;
-    padding: 8px 14px;
+    font-size: 12px;
+    padding: 6px 12px;
     background: rgba(79, 172, 254, 0.1);
     border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    line-height: 1.2;
+}
+
+.batch-bulk-actions {
     display: flex;
     align-items: center;
-    height: auto;
-    white-space: nowrap;
 }
 
 .batch-bulk-actions label {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--batch-spacing-xs);
+    font-size: 13px;
 }
 
 .batch-bulk-actions input {
-    padding: 8px 12px;
+    padding: 6px 10px;
     border: 1px solid var(--border-color);
     border-radius: 6px;
     background: var(--background-secondary);
     color: var(--text-primary);
+    font-size: 13px;
+    height: 36px;
+    box-sizing: border-box;
 }
 
-/* Batch Gallery Grid - Compact Layout */
+.batch-bulk-actions .btn-apply-vendor {
+    height: 36px;
+    padding: 0 var(--batch-spacing-sm);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* Batch Gallery Grid - Uniform Cards */
 .batch-gallery {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 16px;
-    padding: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--batch-spacing-md);
+    padding: 0; /* Remove padding - parent modal-body has it */
+    flex: 1;
 }
 
-/* Batch Card - More Compact & User-Friendly */
+/* Batch Card - Uniform Height & Clean Layout */
 .batch-card {
     position: relative;
     background: var(--card-bg);
     border: 2px solid var(--border-color);
-    border-radius: 12px;
+    border-radius: var(--batch-radius);
     overflow: hidden;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     display: flex;
     flex-direction: column;
+    min-height: var(--batch-card-min-height);
+    height: 100%; /* Ensure uniform height in grid */
 }
 
 .batch-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
     border-color: var(--primary-color);
 }
 
 .batch-card.selected {
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px var(--primary-color), 0 4px 12px rgba(79, 172, 254, 0.3);
-    background: rgba(79, 172, 254, 0.05);
+    box-shadow: 0 0 0 1px var(--primary-color), 0 4px 16px rgba(79, 172, 254, 0.25);
+    background: rgba(79, 172, 254, 0.03);
 }
 
+/* Checkbox - aligned badge style */
 .card-checkbox {
     position: absolute;
-    top: 10px;
-    left: 10px;
+    top: var(--batch-spacing-xs);
+    left: var(--batch-spacing-xs);
     z-index: 10;
     background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(4px);
-    padding: 3px;
-    border-radius: 4px;
+    padding: 4px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .card-checkbox input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     cursor: pointer;
     accent-color: var(--primary-color);
+    margin: 0;
 }
 
+/* Card Image - Fixed height for uniformity */
 .card-image {
     position: relative;
     width: 100%;
-    height: 140px;
-    min-height: 140px;
-    max-height: 140px;
+    height: 100px;
+    min-height: 100px;
+    max-height: 100px;
     overflow: hidden;
     background: rgba(0, 0, 0, 0.4);
-    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
 }
 
 /* Dark overlay to soften white bill images */
@@ -5035,20 +5110,22 @@ body.modal-open {
     transform: scale(1.05);
 }
 
+/* Confidence Badge - aligned with checkbox */
 .card-confidence {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: var(--batch-spacing-xs);
+    right: var(--batch-spacing-xs);
     z-index: 20;
     background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(4px);
     color: white;
-    padding: 4px 10px;
+    padding: 4px 8px;
     border-radius: 6px;
     font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.3px;
+    line-height: 1.2;
 }
 
 .card-ocr-failed {
@@ -5083,50 +5160,62 @@ body.modal-open {
     box-shadow: 0 8px 24px rgba(245, 158, 11, 0.3);
 }
 
+/* Card Content - Consistent padding */
 .card-content {
-    padding: 12px 14px;
+    padding: var(--batch-spacing-sm);
     flex: 1;
     display: flex;
     flex-direction: column;
+    gap: var(--batch-spacing-xs);
+    min-height: 0; /* Allow flex shrink */
 }
 
+/* Amount - Primary visual element */
 .card-amount {
-    font-size: 1.25rem;
+    font-size: 1rem;
     font-weight: 700;
     color: var(--primary-color);
-    margin-bottom: 10px;
-    text-shadow: 0 0 12px rgba(79, 172, 254, 0.2);
+    padding-bottom: 4px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    margin-bottom: 4px;
+    text-shadow: 0 0 10px rgba(79, 172, 254, 0.2);
 }
 
+/* Card Details - Form fields */
 .card-details {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px;
     flex: 1;
 }
 
+/* Detail Row - Consistent grid alignment */
 .detail-row {
     display: grid;
-    grid-template-columns: minmax(50px, auto) 1fr;
+    grid-template-columns: 68px 1fr;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
 }
 
 .detail-row .label {
     font-weight: 500;
     color: var(--text-secondary);
-    font-size: 12px;
-    text-transform: capitalize;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
 }
 
+/* Inline Input - Uniform height */
 .inline-input {
-    flex: 1;
-    padding: 6px 10px;
+    width: 100%;
+    padding: 4px 6px;
     border: 1px solid var(--border-color);
-    border-radius: 6px;
+    border-radius: 5px;
     background: var(--background-secondary);
     color: var(--text-primary);
-    font-size: 13px;
+    font-size: 11px;
+    height: 28px;
+    box-sizing: border-box;
     transition: all 0.2s ease;
 }
 
@@ -5147,15 +5236,16 @@ body.modal-open {
     border-color: var(--primary-color);
 }
 
-/* Fix select dropdown styling for dark theme */
+/* Select dropdown - same height as inputs */
 .inline-input select,
 select.inline-input {
     cursor: pointer;
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='%23a1a1aa' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 12 12'%3E%3Cpath fill='%23a1a1aa' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 10px center;
-    padding: 6px 28px 6px 10px;
+    background-position: right 6px center;
+    padding: 4px 20px 4px 6px;
+    height: 28px;
 }
 
 /* Style dropdown options for dark theme */
@@ -5163,78 +5253,99 @@ select.inline-input {
 select.inline-input option {
     background: var(--card-bg);
     color: var(--text-primary);
-    padding: 8px;
+    padding: 6px;
 }
 
+/* Delete Button - aligned at bottom */
 .btn-delete {
     width: 100%;
-    margin-top: 8px;
+    margin-top: auto;
     padding: 6px;
     background: transparent;
     color: #ef4444;
-    border: 1px solid rgba(239, 68, 68, 0.4);
-    border-radius: 6px;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 5px;
     cursor: pointer;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 600;
     transition: all 0.2s ease;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
 }
 
 .btn-delete:hover {
     background: rgba(239, 68, 68, 0.1);
     border-color: #ef4444;
-    transform: translateY(-1px);
 }
 
 .btn-delete:active {
-    transform: translateY(0);
+    transform: scale(0.98);
 }
 
-/* Responsive */
+/* Responsive - Tablet */
 @media (max-width: 1024px) {
-    .batch-gallery {
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-        gap: 12px;
-        padding: 12px;
+    .batch-review-modal-content {
+        --batch-spacing-lg: 16px;
+        max-width: 95%;
+        margin: var(--batch-spacing-sm);
     }
 
-    .batch-review-modal-content {
-        max-width: 95%;
-        margin: 10px;
+    .batch-gallery {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: var(--batch-spacing-sm);
     }
 
     .batch-actions-bar {
-        padding: 12px;
+        padding: var(--batch-spacing-sm);
     }
 
     .bulk-vendor-input {
-        width: 160px;
+        flex: 0 0 150px;
     }
 }
 
+/* Responsive - Mobile */
 @media (max-width: 768px) {
+    .batch-review-modal-content {
+        --batch-spacing-xs: 4px;
+        --batch-spacing-sm: 8px;
+        --batch-spacing-md: 10px;
+        --batch-spacing-lg: 12px;
+        --batch-card-min-height: auto;
+    }
+
     .batch-gallery {
         display: flex;
         flex-direction: column;
-        align-items: stretch;
-        gap: 12px;
-        padding: 12px;
-        flex: 0 1 auto;
-        width: 100%;
+        gap: var(--batch-spacing-sm);
+    }
+
+    .batch-card {
+        min-height: auto;
     }
 
     .batch-actions-bar {
         flex-direction: column;
         align-items: stretch;
-        gap: 10px;
-        padding: 12px;
-        flex-shrink: 0; /* Don't shrink, maintain size */
+        gap: var(--batch-spacing-sm);
+        flex-shrink: 0;
+        padding: var(--batch-spacing-sm);
     }
 
     .batch-selection {
-        flex-direction: column;
-        align-items: flex-start;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-between;
         width: 100%;
+        font-size: 12px;
+    }
+
+    .selection-count {
+        font-size: 11px;
+        padding: 4px 8px;
     }
 
     .batch-bulk-actions {
@@ -5245,8 +5356,9 @@ select.inline-input option {
         display: flex;
         flex-direction: column;
         align-items: stretch;
-        gap: 8px;
+        gap: var(--batch-spacing-xs);
         width: 100%;
+        font-size: 12px;
     }
 
     .batch-bulk-actions input,
@@ -5254,20 +5366,72 @@ select.inline-input option {
         width: 100% !important;
         margin: 0 !important;
         box-sizing: border-box;
+        height: 36px;
+        font-size: 12px;
     }
 
     .batch-bulk-actions button,
     .btn-apply-vendor {
         width: 100%;
         margin: 0 !important;
+        height: 36px;
+        font-size: 12px;
     }
 
     .card-image {
-        height: 220px;
+        height: 120px;
+        min-height: 120px;
+        max-height: 120px;
     }
 
     .card-content {
-        padding: 16px;
+        padding: var(--batch-spacing-sm);
+    }
+
+    .card-amount {
+        font-size: 1rem;
+        margin-bottom: 2px;
+        padding-bottom: 2px;
+    }
+
+    .card-details {
+        gap: 3px;
+    }
+
+    .detail-row {
+        grid-template-columns: 60px 1fr;
+        gap: 4px;
+    }
+
+    .detail-row .label {
+        font-size: 9px;
+    }
+
+    .inline-input {
+        height: 26px;
+        font-size: 11px;
+        padding: 3px 6px;
+    }
+
+    select.inline-input {
+        height: 26px;
+        padding: 3px 18px 3px 6px;
+    }
+
+    .btn-delete {
+        height: 26px;
+        font-size: 10px;
+        margin-top: 4px;
+    }
+
+    .batch-review-footer {
+        padding: var(--batch-spacing-sm) !important;
+        gap: var(--batch-spacing-xs);
+    }
+
+    .batch-review-footer button {
+        height: 40px;
+        font-size: 12px;
     }
 
     /* Mobile modal adjustments - full screen */
