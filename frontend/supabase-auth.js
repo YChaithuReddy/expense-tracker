@@ -214,6 +214,14 @@ async function handleAuthCallback() {
 async function initAuth() {
     console.log('Initializing auth...');
 
+    // Check if deep link handler is processing OAuth - wait for it
+    const hash = window.location.hash;
+    if (hash && hash.includes('access_token')) {
+        console.log('OAuth tokens in URL, waiting for deep link handler to process...');
+        // Give deep link handler time to process
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+
     // Wait for Supabase client
     let attempts = 0;
     while (!window.supabaseClient?.get() && attempts < 50) {
