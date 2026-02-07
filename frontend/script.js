@@ -4333,47 +4333,18 @@ class ExpenseTracker {
             const mergedPdfBytes = await mergedPdf.save();
             const fileName = `Reimbursement_Package_${new Date().toISOString().split('T')[0]}.pdf`;
 
-            // Check if running in Capacitor (mobile app)
-            if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
-                // Mobile: Use Capacitor Filesystem API
-                try {
-                    const { Filesystem, Directory } = window.Capacitor.Plugins;
+            // Download the PDF using the best available method
+            const downloadSuccess = await this.savePdfFile(mergedPdfBytes, fileName);
 
-                    // Convert bytes to base64
-                    const base64Data = this.arrayBufferToBase64(mergedPdfBytes);
-
-                    // Save to Downloads directory
-                    const result = await Filesystem.writeFile({
-                        path: fileName,
-                        data: base64Data,
-                        directory: Directory.Documents,
-                        recursive: true
-                    });
-
-                    console.log('📁 File saved to:', result.uri);
-
-                    // Try to open the file
-                    if (window.Capacitor.Plugins.FileOpener) {
-                        await window.Capacitor.Plugins.FileOpener.open({
-                            filePath: result.uri,
-                            contentType: 'application/pdf'
-                        });
-                    }
-                } catch (fsError) {
-                    console.error('Filesystem save failed, trying fallback:', fsError);
-                    // Fallback to blob download
-                    this.downloadBlobFallback(mergedPdfBytes, fileName);
+            // Only show success notification if download actually worked
+            if (downloadSuccess) {
+                if (hasImages) {
+                    this.showNotification(`✅ Complete reimbursement package downloaded! (${totalPages} pages with images)`);
+                } else {
+                    this.showNotification(`📋 Google Sheet downloaded! (${totalPages} pages, no bill images available)`);
                 }
             } else {
-                // Web: Use standard download
-                this.downloadBlobFallback(mergedPdfBytes, fileName);
-            }
-
-            // Success notification with appropriate message
-            if (hasImages) {
-                this.showNotification(`✅ Complete reimbursement package downloaded! (${totalPages} pages with images)`);
-            } else {
-                this.showNotification(`📋 Google Sheet downloaded! (${totalPages} pages, no bill images available)`);
+                this.showError('The package was generated but could not be saved to your device.\n\nTry using the Share option if available, or open in a desktop browser.', 'Download Failed');
             }
 
             // Log summary for debugging
@@ -4404,6 +4375,81 @@ class ExpenseTracker {
         }
     }
 
+    // Save PDF to device using best available method
+    async savePdfFile(pdfBytes, fileName) {
+        const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+        const isCapacitor = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
+
+        // Strategy 1: Capacitor Filesystem (native Android/iOS)
+        if (isCapacitor) {
+            try {
+                const { Filesystem, Directory } = window.Capacitor.Plugins;
+                if (Filesystem && Directory) {
+                    const base64Data = this.arrayBufferToBase64(pdfBytes);
+                    const result = await Filesystem.writeFile({
+                        path: fileName,
+                        data: base64Data,
+                        directory: Directory.Documents,
+                        recursive: true
+                    });
+                    console.log('📁 File saved via Capacitor Filesystem:', result.uri);
+                    this.showNotification(`📁 Saved to Documents/${fileName}`);
+                    return true;
+                }
+            } catch (fsError) {
+                console.warn('Capacitor Filesystem failed:', fsError);
+            }
+        }
+
+        // Strategy 2: Web Share API (works on Android WebView)
+        if (navigator.share && navigator.canShare) {
+            try {
+                const file = new File([blob], fileName, { type: 'application/pdf' });
+                if (navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        title: 'Reimbursement Package',
+                        files: [file]
+                    });
+                    console.log('📤 File shared via Web Share API');
+                    return true;
+                }
+            } catch (shareError) {
+                // User cancelled share = AbortError, that's OK
+                if (shareError.name === 'AbortError') {
+                    console.log('📤 Share cancelled by user');
+                    return false;
+                }
+                console.warn('Web Share API failed:', shareError);
+            }
+        }
+
+        // Strategy 3: Blob anchor download (works on desktop browsers)
+        try {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            // Small delay before revoking to let browser initiate download
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+            console.log('💾 File download triggered via blob URL');
+            // On desktop browsers this works; on Android WebView it silently fails
+            // Return true for desktop, but check if we're in a WebView
+            if (isCapacitor) {
+                // If we got here on Capacitor, strategies 1 and 2 both failed
+                // Blob download likely won't work on Android WebView either
+                console.warn('⚠️ Blob download on Android WebView - may not work');
+                return false;
+            }
+            return true;
+        } catch (blobError) {
+            console.error('Blob download failed:', blobError);
+            return false;
+        }
+    }
+
     // Helper: Convert ArrayBuffer to Base64 for Capacitor Filesystem
     arrayBufferToBase64(buffer) {
         let binary = '';
@@ -4413,19 +4459,6 @@ class ExpenseTracker {
             binary += String.fromCharCode(bytes[i]);
         }
         return btoa(binary);
-    }
-
-    // Helper: Fallback download using blob URL (for web browsers)
-    downloadBlobFallback(pdfBytes, fileName) {
-        const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
     }
 
     exportJSON() {
