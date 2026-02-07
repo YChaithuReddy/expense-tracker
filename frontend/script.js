@@ -1923,30 +1923,6 @@ class ExpenseTracker {
             </div>
         `;
 
-        // Set modal height to actual viewport height (accounts for mobile browser UI)
-        const setModalHeight = () => {
-            const vh = window.innerHeight;
-            batchModal.style.height = `${vh}px`;
-            const modalContent = batchModal.querySelector('.modal-content');
-            if (modalContent) {
-                modalContent.style.height = `${vh}px`;
-                modalContent.style.maxHeight = `${vh}px`;
-            }
-        };
-        
-        // Set height immediately
-        setModalHeight();
-        
-        // Update height on resize (for mobile browser address bar show/hide)
-        const resizeHandler = () => {
-            setModalHeight();
-        };
-        window.addEventListener('resize', resizeHandler);
-        window.addEventListener('orientationchange', resizeHandler);
-        
-        // Store handler for cleanup
-        batchModal._resizeHandler = resizeHandler;
-
         // Prevent body scroll when modal is open (important for mobile)
         document.body.classList.add('modal-open');
         document.body.style.overflow = 'hidden';
@@ -2399,12 +2375,6 @@ class ExpenseTracker {
         // First, completely remove the modal from DOM
         const modal = document.getElementById('batchReviewModal');
         if (modal) {
-            // Remove resize handlers
-            if (modal._resizeHandler) {
-                window.removeEventListener('resize', modal._resizeHandler);
-                window.removeEventListener('orientationchange', modal._resizeHandler);
-            }
-            
             if (modal.parentNode) {
                 modal.parentNode.removeChild(modal);
                 console.log('Batch review modal removed from DOM');
