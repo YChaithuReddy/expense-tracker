@@ -15,6 +15,7 @@ const filesToCopy = [
     'login.html',
     'signup.html',
     'styles.css',
+    'styles_images.css',
     'styles_dropdown.css',
     'script.js',
     'supabase-client.js',

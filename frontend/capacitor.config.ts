@@ -4,12 +4,11 @@ const config: CapacitorConfig = {
   appId: 'com.expensetracker.app',
   appName: 'Expense Tracker',
   webDir: 'www',
-  // server: {
-  //   // For development - use your Vercel URL
-  //   // Uncomment this for development/testing with live server
-  //   url: 'https://expense-tracker-delta-ashy.vercel.app',
-  //   cleartext: true
-  // },
+  server: {
+    // Use Vercel URL for proper OAuth handling
+    url: 'https://expense-tracker-delta-ashy.vercel.app',
+    cleartext: true
+  },
   plugins: {
     SplashScreen: {
       launchShowDuration: 2000,

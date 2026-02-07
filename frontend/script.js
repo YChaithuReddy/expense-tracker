@@ -3012,7 +3012,7 @@ class ExpenseTracker {
         document.getElementById('scanBills').style.display = 'none';
     }
 
-    handleSubmit(e) {
+    async handleSubmit(e) {
         e.preventDefault();
         console.log('Form submitted'); // Debug log
 
@@ -3054,9 +3054,9 @@ class ExpenseTracker {
                 };
 
                 if (files.length > 0) {
-                    this.processImages(files, expense, true);
+                    await this.processImages(files, expense, true);
                 } else {
-                    this.updateExpense(expense);
+                    await this.updateExpense(expense);
                     this.backToScan();
                 }
             }
@@ -3076,9 +3076,9 @@ class ExpenseTracker {
             console.log('Creating expense:', expense); // Debug log
 
             if (files.length > 0) {
-                this.processImages(files, expense, false);
+                await this.processImages(files, expense, false);
             } else {
-                this.addExpense(expense);
+                await this.addExpense(expense);
                 this.backToScan();
             }
         }
@@ -3126,9 +3126,9 @@ class ExpenseTracker {
 
         // Proceed with expense
         if (isEdit) {
-            this.updateExpense(expense);
+            await this.updateExpense(expense);
         } else {
-            this.addExpense(expense);
+            await this.addExpense(expense);
         }
         this.backToScan();
     }
@@ -3834,12 +3834,20 @@ class ExpenseTracker {
     }
 
     async loadExpenses() {
+        // Prevent concurrent loads from overwriting each other
+        if (this._loadingExpenses) {
+            console.log('loadExpenses already in progress, skipping...');
+            return;
+        }
+        this._loadingExpenses = true;
+
         try {
             // Wait for auth to be ready (Supabase session restoration)
             const user = localStorage.getItem('user');
             if (!user) {
                 // Not authenticated yet - wait for initAuth() to handle redirect
                 console.log('Waiting for authentication...');
+                this._loadingExpenses = false;
                 return;
             }
 
@@ -3886,6 +3894,8 @@ class ExpenseTracker {
                 this.showNotification('⚠️ Failed to load expenses. Please refresh the page.');
             }
             this.expenses = [];
+        } finally {
+            this._loadingExpenses = false;
         }
     }
 
@@ -5994,3 +6004,12 @@ class ExpenseTracker {
 
 // Create global expenseTracker instance
 window.expenseTracker = new ExpenseTracker();
+
+// Ensure image viewer modal is hidden on page load (fixes APK WebView issue)
+(function() {
+    const modal = document.getElementById('imageViewerModal');
+    if (modal) {
+        modal.style.display = 'none';
+        modal.classList.remove('is-active');
+    }
+})();
