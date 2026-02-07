@@ -3899,9 +3899,18 @@ class ExpenseTracker {
         this.lastSyncedIndex = index;
     }
 
-    generateExcel() {
+    async generateExcel() {
         if (this.expenses.length === 0) {
             this.showError('You have no expenses to export.\n\nPlease add some expenses first.', 'No Expenses');
+            return;
+        }
+
+        // Lazy load export libraries
+        try {
+            this.showNotification('Loading export libraries...');
+            await window.loadExportLibraries();
+        } catch (e) {
+            this.showError('Failed to load export libraries. Please try again.', 'Export Error');
             return;
         }
 
@@ -4006,6 +4015,9 @@ class ExpenseTracker {
      * @returns {Promise<Blob>} PDF blob
      */
     async generateBillsPdfBlob(includeOrphaned = true) {
+        // Lazy load export libraries
+        await window.loadExportLibraries();
+
         console.log('=== Starting PDF Generation ===');
         console.log('Include orphaned images:', includeOrphaned);
 
@@ -4262,6 +4274,10 @@ class ExpenseTracker {
      */
     async generateCombinedReimbursementPDFWithEmployeeInfo() {
         try {
+            // Lazy load export libraries first
+            this.showLoading('📦 Loading export tools...', 'Preparing PDF generator');
+            await window.loadExportLibraries();
+
             // Show loading indicator
             this.showLoading('📦 Generating Reimbursement Package...', 'This may take up to 30 seconds');
 
@@ -4954,9 +4970,18 @@ class ExpenseTracker {
         this.showNotification('🔄 Template configuration reset to defaults!');
     }
 
-    handleTemplateUpload(e) {
+    async handleTemplateUpload(e) {
         const file = e.target.files[0];
         if (!file) return;
+
+        // Lazy load export libraries
+        try {
+            this.showNotification('Loading Excel parser...');
+            await window.loadExportLibraries();
+        } catch (err) {
+            this.showNotification('❌ Failed to load Excel parser.');
+            return;
+        }
 
         const reader = new FileReader();
         reader.onload = (event) => {
