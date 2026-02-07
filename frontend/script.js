@@ -3983,10 +3983,15 @@ class ExpenseTracker {
         // Generate filename
         const fileName = `Expenses_Report_Format_${new Date().toISOString().split('T')[0]}.xlsx`;
 
-        // Download the file
-        XLSX.writeFile(workbook, fileName);
+        // Convert workbook to bytes and download using saveFile (works on APK + web)
+        const xlsxBytes = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+        const success = await this.saveFile(xlsxBytes, fileName, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 
-        this.showNotification(`✅ Exact template format generated! Downloaded: ${fileName}`);
+        if (success) {
+            this.showNotification(`✅ Exact template format generated! Downloaded: ${fileName}`);
+        } else {
+            this.showError('Excel file was generated but could not be saved to your device.', 'Export Failed');
+        }
     }
 
     /**
@@ -4334,7 +4339,7 @@ class ExpenseTracker {
             const fileName = `Reimbursement_Package_${new Date().toISOString().split('T')[0]}.pdf`;
 
             // Download the PDF using the best available method
-            const downloadSuccess = await this.savePdfFile(mergedPdfBytes, fileName);
+            const downloadSuccess = await this.saveFile(mergedPdfBytes, fileName, 'application/pdf');
 
             // Only show success notification if download actually worked
             if (downloadSuccess) {
@@ -4375,9 +4380,11 @@ class ExpenseTracker {
         }
     }
 
-    // Save PDF to device using best available method
-    async savePdfFile(pdfBytes, fileName) {
-        const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    // Save file to device using best available method (works on APK + web)
+    // Accepts either raw bytes (Uint8Array/ArrayBuffer) or a Blob
+    // mimeType examples: 'application/pdf', 'application/json', 'image/jpeg'
+    async saveFile(data, fileName, mimeType) {
+        const blob = data instanceof Blob ? data : new Blob([data], { type: mimeType });
         const isCapacitor = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
 
         // Strategy 1: Capacitor Filesystem (native Android/iOS)
@@ -4385,7 +4392,17 @@ class ExpenseTracker {
             try {
                 const { Filesystem, Directory } = window.Capacitor.Plugins;
                 if (Filesystem && Directory) {
-                    const base64Data = this.arrayBufferToBase64(pdfBytes);
+                    let base64Data;
+                    if (data instanceof Blob) {
+                        base64Data = await new Promise((resolve, reject) => {
+                            const reader = new FileReader();
+                            reader.onloadend = () => resolve(reader.result.split(',')[1]);
+                            reader.onerror = reject;
+                            reader.readAsDataURL(data);
+                        });
+                    } else {
+                        base64Data = this.arrayBufferToBase64(data);
+                    }
                     const result = await Filesystem.writeFile({
                         path: fileName,
                         data: base64Data,
@@ -4404,17 +4421,16 @@ class ExpenseTracker {
         // Strategy 2: Web Share API (works on Android WebView)
         if (navigator.share && navigator.canShare) {
             try {
-                const file = new File([blob], fileName, { type: 'application/pdf' });
+                const file = new File([blob], fileName, { type: mimeType });
                 if (navigator.canShare({ files: [file] })) {
                     await navigator.share({
-                        title: 'Reimbursement Package',
+                        title: fileName,
                         files: [file]
                     });
                     console.log('📤 File shared via Web Share API');
                     return true;
                 }
             } catch (shareError) {
-                // User cancelled share = AbortError, that's OK
                 if (shareError.name === 'AbortError') {
                     console.log('📤 Share cancelled by user');
                     return false;
@@ -4432,14 +4448,9 @@ class ExpenseTracker {
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-            // Small delay before revoking to let browser initiate download
             setTimeout(() => URL.revokeObjectURL(url), 1000);
             console.log('💾 File download triggered via blob URL');
-            // On desktop browsers this works; on Android WebView it silently fails
-            // Return true for desktop, but check if we're in a WebView
             if (isCapacitor) {
-                // If we got here on Capacitor, strategies 1 and 2 both failed
-                // Blob download likely won't work on Android WebView either
                 console.warn('⚠️ Blob download on Android WebView - may not work');
                 return false;
             }
@@ -4461,7 +4472,7 @@ class ExpenseTracker {
         return btoa(binary);
     }
 
-    exportJSON() {
+    async exportJSON() {
         if (this.expenses.length === 0) {
             this.showError('You have no expenses to export.\n\nPlease add some expenses first.', 'No Expenses');
             return;
@@ -4485,15 +4496,19 @@ class ExpenseTracker {
         };
 
         // Download as JSON file
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `expense_data_${new Date().toISOString().split('T')[0]}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
+        const jsonStr = JSON.stringify(data, null, 2);
+        const fileName = `expense_data_${new Date().toISOString().split('T')[0]}.json`;
+        const success = await this.saveFile(
+            new Blob([jsonStr], { type: 'application/json' }),
+            fileName,
+            'application/json'
+        );
 
-        this.showNotification('📋 JSON exported! Use with Python script to fill your template.');
+        if (success) {
+            this.showNotification('📋 JSON exported! Use with Python script to fill your template.');
+        } else {
+            this.showError('JSON file was generated but could not be saved to your device.', 'Export Failed');
+        }
     }
 
     getExpensePeriod() {
@@ -5682,14 +5697,22 @@ class ExpenseTracker {
     }
 
     // Download image helper
-    downloadImage(url, filename) {
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        this.showNotification('✅ Image download started');
+    async downloadImage(url, filename) {
+        try {
+            // Fetch the image as a blob so saveFile can handle it
+            const response = await fetch(url);
+            const blob = await response.blob();
+            const mimeType = blob.type || 'image/jpeg';
+            const success = await this.saveFile(blob, filename, mimeType);
+            if (success) {
+                this.showNotification('✅ Image downloaded');
+            } else {
+                this.showError('Image could not be saved to your device.', 'Download Failed');
+            }
+        } catch (err) {
+            console.error('Image download failed:', err);
+            this.showError('Failed to download image.\n\n' + err.message, 'Download Failed');
+        }
     }
 
     // Download current image in viewer
