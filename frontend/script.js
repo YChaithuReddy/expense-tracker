@@ -1861,11 +1861,15 @@ class ExpenseTracker {
         batchModal.innerHTML = `
             <div class="modal-content batch-review-modal-content">
                 <div class="modal-header">
-                    <div class="header-title">
-                        <span class="header-icon">📋</span>
+                    <div class="img-modal__title">
+                        <span class="img-modal__title-icon">📋</span>
                         <h2>Review Scanned Bills</h2>
                     </div>
-                    <button class="close-modal" id="closeBatchModalBtn" type="button" aria-label="Close">&times;</button>
+                    <button class="img-modal__close close-modal" id="closeBatchModalBtn" type="button" aria-label="Close">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 6L6 18M6 6l12 12"></path>
+                        </svg>
+                    </button>
                 </div>
 
                 <div class="modal-body">
