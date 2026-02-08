@@ -566,10 +566,10 @@
     background-color: rgba(0, 0, 0, 0.9);
     backdrop-filter: blur(10px);
     animation: fadeIn 0.3s ease-out;
-    overflow: hidden; /* Content box scrolls internally, not the overlay */
+    overflow: hidden !important; /* Override .img-modal overflow-y:auto — content box scrolls, not overlay */
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: center !important; /* Override .img-modal align-items:flex-start */
     padding: 20px 0;
 }
 
