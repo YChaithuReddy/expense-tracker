@@ -1923,12 +1923,8 @@ class ExpenseTracker {
             </div>
         `;
 
-        // Prevent body scroll when modal is open (important for mobile)
+        // Prevent body scroll when modal is open (CSS class handles overflow:hidden)
         document.body.classList.add('modal-open');
-        document.body.style.overflow = 'hidden';
-        document.body.style.position = 'fixed';
-        document.body.style.width = '100%';
-        document.body.style.height = `${window.innerHeight}px`;
 
         // Use direct event listeners for buttons (more reliable on mobile)
         // Get buttons immediately after innerHTML is set
@@ -2381,12 +2377,8 @@ class ExpenseTracker {
             }
         }
         
-        // Re-enable body scroll when modal is closed - CRITICAL for mobile
+        // Re-enable body scroll when modal is closed
         document.body.classList.remove('modal-open');
-        document.body.style.overflow = '';
-        document.body.style.position = '';
-        document.body.style.width = '';
-        document.body.style.height = '';
         
         // Force a reflow to ensure styles are applied
         void document.body.offsetHeight;
@@ -4848,7 +4840,7 @@ class ExpenseTracker {
 
         modal.style.display = 'flex';
         modal.classList.add('is-active');
-        document.body.style.overflow = 'hidden';
+        document.body.classList.add('modal-open');
 
         // Add keyboard listener for navigation
         this.imageModalKeyHandler = (e) => {
@@ -4872,7 +4864,7 @@ class ExpenseTracker {
 
         setTimeout(() => {
             modal.style.display = 'none';
-            document.body.style.overflow = '';
+            document.body.classList.remove('modal-open');
 
             // Reset image transform
             const img = document.getElementById('imageViewerImg');
@@ -5638,7 +5630,7 @@ class ExpenseTracker {
 
                 modal.style.display = 'flex';
                 modal.classList.add('is-active');
-                document.body.style.overflow = 'hidden';
+                document.body.classList.add('modal-open');
             } else {
                 throw new Error(response.message || 'Failed to fetch saved images');
             }
@@ -5653,7 +5645,7 @@ class ExpenseTracker {
         modal.classList.remove('is-active');
         setTimeout(() => {
             modal.style.display = 'none';
-            document.body.style.overflow = '';
+            document.body.classList.remove('modal-open');
         }, 300);
     }
 
@@ -5681,7 +5673,7 @@ class ExpenseTracker {
 
         modal.style.display = 'flex';
         modal.classList.add('is-active');
-        document.body.style.overflow = 'hidden';
+        document.body.classList.add('modal-open');
 
         // Add keyboard listener
         this.imageModalKeyHandler = (e) => {
