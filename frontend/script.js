@@ -4666,24 +4666,24 @@ class ExpenseTracker {
     }
 
     async clearDataOnly() {
-        // Show smart warning
-        const warning = `
-            <strong>Clear Expense Data Only?</strong><br><br>
-            This will:<br>
-            • Delete all expense records<br>
-            • Keep all bill photos for 30 days<br>
-            • Allow PDF generation later<br><br>
-            <small>Images will be automatically deleted after 30 days unless extended.</small>
-        `;
+        const message = `<div class="modal-details">
+This will:
+• Delete all expense records
+• Keep all bill photos for 30 days
+• Allow PDF generation later</div>
+<small style="opacity:0.6">Images will be automatically deleted after 30 days unless extended.</small>`;
 
-        if (confirm('Clear expense data but keep images?\n\nYour bill photos will be saved for 30 days for later PDF generation.')) {
+        const result = await this.showModal('Clear Expense Data?', message, 'warning', [
+            { text: 'Cancel', primary: false },
+            { text: 'Clear Data', primary: true }
+        ]);
+
+        if (result === 1) {
             try {
                 const response = await api.clearExpenseDataOnly();
 
                 if (response.success) {
-                    // Reload expenses from backend
                     await this.loadExpenses();
-
                     this.showNotification(`✅ Expense data cleared! ${response.orphanedImagesCount || 0} images saved for later use.`);
                 } else {
                     throw new Error(response.message || 'Failed to clear expense data');
@@ -4708,7 +4708,17 @@ class ExpenseTracker {
             const imageCount = orphanedResponse.images.length;
             const totalSize = orphanedResponse.stats?.totalSizeMB || 0;
 
-            if (confirm(`Clear ${imageCount} saved images (${totalSize} MB)?\n\nThis will permanently delete all saved bill photos that are not attached to expenses.`)) {
+            const message = `<div class="modal-details">
+• ${imageCount} saved image${imageCount !== 1 ? 's' : ''} (${totalSize} MB)
+• Permanently deletes all saved bill photos
+• Only affects images not attached to expenses</div>`;
+
+            const result = await this.showModal('Delete Saved Images?', message, 'warning', [
+                { text: 'Cancel', primary: false },
+                { text: 'Delete Images', primary: true }
+            ]);
+
+            if (result === 1) {
                 const response = await api.clearImagesOnly();
 
                 if (response.success) {
@@ -4724,9 +4734,17 @@ class ExpenseTracker {
     }
 
     async clearEverything() {
-        // Show strong warning
-        if (confirm('⚠️ CLEAR EVERYTHING?\n\nThis will PERMANENTLY delete:\n• All expense records\n• All bill photos\n• All saved images\n\nThis action CANNOT be undone!')) {
-            if (confirm('Are you absolutely sure? All your data and images will be permanently deleted.')) {
+        const message = `<div class="modal-details" style="border-color: rgba(255, 71, 87, 0.3); background: rgba(255, 71, 87, 0.08);">
+This will <strong style="color:#ff4757">PERMANENTLY</strong> delete:
+• All expense records
+• All bill photos
+• All saved images
+
+This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
+
+        const confirmed = await this.showDangerConfirm('Clear Everything?', message);
+
+        if (confirmed) {
                 try {
                     // Show loading indicator
                     this.showLoading('🗑️ Clearing all data...', 'This may take a few moments');
@@ -4776,7 +4794,6 @@ class ExpenseTracker {
                     console.error('Error clearing all data:', error);
                     this.showNotification('❌ Failed to clear all data: ' + error.message);
                 }
-            }
         }
     }
 
@@ -5194,6 +5211,55 @@ class ExpenseTracker {
             { text: 'Confirm', primary: true }
         ]);
         return result === 1;
+    }
+
+    showDangerConfirm(title, message, confirmWord = 'DELETE') {
+        return new Promise((resolve) => {
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-overlay';
+            overlay.innerHTML = `
+                <div class="modal-container">
+                    <div class="modal-header">
+                        <div class="modal-icon warning">⚠️</div>
+                        <h2 class="modal-title">${title}</h2>
+                    </div>
+                    <div class="modal-message">${message}</div>
+                    <input type="text" class="modal-confirm-input" placeholder="Type ${confirmWord} to confirm" autocomplete="off" spellcheck="false">
+                    <div class="modal-actions">
+                        <button class="modal-btn modal-btn-secondary" data-action="cancel">Cancel</button>
+                        <button class="modal-btn modal-btn-danger" data-action="confirm" disabled>Delete Everything</button>
+                    </div>
+                </div>
+            `;
+
+            const input = overlay.querySelector('.modal-confirm-input');
+            const confirmBtn = overlay.querySelector('[data-action="confirm"]');
+            const cancelBtn = overlay.querySelector('[data-action="cancel"]');
+
+            input.addEventListener('input', () => {
+                confirmBtn.disabled = input.value.trim().toUpperCase() !== confirmWord.toUpperCase();
+            });
+
+            confirmBtn.addEventListener('click', () => {
+                overlay.remove();
+                resolve(true);
+            });
+
+            cancelBtn.addEventListener('click', () => {
+                overlay.remove();
+                resolve(false);
+            });
+
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    overlay.remove();
+                    resolve(false);
+                }
+            });
+
+            document.body.appendChild(overlay);
+            input.focus();
+        });
     }
 
     handleSelectAll(e) {
