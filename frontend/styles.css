@@ -5069,7 +5069,7 @@ body.modal-open {
   gap: 8px;
   padding: 8px 16px;
   background: rgba(0, 0, 0, 0.1);
-  flex-shrink: 0;
+  /* No flex-shrink:0 — stats now inside .modal-body, scrolls with gallery */
 }
 
 @media (min-width: 640px) {

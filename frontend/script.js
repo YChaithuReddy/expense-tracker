@@ -1868,27 +1868,27 @@ class ExpenseTracker {
                     <button class="close-modal" id="closeBatchModalBtn" type="button" aria-label="Close">&times;</button>
                 </div>
 
-                <!-- Stats Section -->
-                <div class="batch-stats-container">
-                    <div class="batch-stat-card">
-                        <div class="batch-stat-label">Total Bills</div>
-                        <div class="batch-stat-value">${totalBills}</div>
-                    </div>
-                    <div class="batch-stat-card">
-                        <div class="batch-stat-label">Selected</div>
-                        <div class="batch-stat-value success">${selectedBills}</div>
-                    </div>
-                    <div class="batch-stat-card">
-                        <div class="batch-stat-label">Total Amount</div>
-                        <div class="batch-stat-value">₹${totalAmount.toFixed(2)}</div>
-                    </div>
-                    <div class="batch-stat-card">
-                        <div class="batch-stat-label">Need Review</div>
-                        <div class="batch-stat-value warning">${failedOCR}</div>
-                    </div>
-                </div>
-
                 <div class="modal-body">
+                    <!-- Stats Section (inside modal-body so it scrolls with gallery) -->
+                    <div class="batch-stats-container">
+                        <div class="batch-stat-card">
+                            <div class="batch-stat-label">Total Bills</div>
+                            <div class="batch-stat-value">${totalBills}</div>
+                        </div>
+                        <div class="batch-stat-card">
+                            <div class="batch-stat-label">Selected</div>
+                            <div class="batch-stat-value success">${selectedBills}</div>
+                        </div>
+                        <div class="batch-stat-card">
+                            <div class="batch-stat-label">Total Amount</div>
+                            <div class="batch-stat-value">₹${totalAmount.toFixed(2)}</div>
+                        </div>
+                        <div class="batch-stat-card">
+                            <div class="batch-stat-label">Need Review</div>
+                            <div class="batch-stat-value warning">${failedOCR}</div>
+                        </div>
+                    </div>
+
                     <!-- Bulk Actions Bar -->
                     <div class="batch-actions-bar">
                         <div class="batch-selection">
