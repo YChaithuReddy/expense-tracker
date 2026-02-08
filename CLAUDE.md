@@ -179,12 +179,79 @@ The design review agent will:
 - **Design Principles**: `context/design-principles.md` - UI standards checklist
 - **Design Review Agent**: `.claude/agents/design-review-agent.md`
 - **Premium UI Designer**: `.claude/agents/premium-ui-designer.md`
+- **Debugging Specialist**: `.claude/agents/debugging-specialist.md`
 - **Slash Commands**: `.claude/commands/design-review.md`
+
+## Active Hooks (7 total - full lifecycle coverage)
+
+| Hook | Event | What It Does |
+|------|-------|-------------|
+| `session-start-context.sh` | SessionStart | Loads fresh context: memory files, rules, checklist reminders |
+| `workflow-enforcer.sh` | UserPromptSubmit | Reminds 7-step workflow + task list. Detects bug/fix/feature/CSS context. |
+| `block-env-edits.sh` | PreToolUse (Edit/Write) | Blocks edits to .env files |
+| `pre-commit-gate.sh` | PreToolUse (Bash) | Quality gate before git commit: console.log, !important, async, build sync |
+| `auto-cap-sync.sh` | PostToolUse (Edit/Write) | Auto-syncs Capacitor after frontend file changes |
+| `pre-compact-save.sh` | PreCompact | Saves unsaved findings to memory before context compression |
+| `stop-learning-reminder.sh` | Stop | Reminds to invoke /learn-and-remember if code was changed |
+
+## Smart Debugging Resources
+
+| Resource | Purpose |
+|----------|---------|
+| `memory/anti-patterns.md` | 16 documented anti-patterns. CHECK BEFORE FIXING. |
+| `memory/file-map.md` | File dependency + blast radius map. CHECK BEFORE EDITING. |
+| `memory/workflow.md` | Full 7-step workflow with task list template. |
+| `memory/debugging-log.md` | Running log of all bugs fixed. CHECK FOR PATTERNS. |
+| `memory/regression-checklist.md` | Post-change verification. RUN AFTER EVERY FIX. |
+| `codebase-decision-trees` skill | Decision trees for CSS, async, modal, build, Supabase, OAuth. |
+
+## Mandatory Development Workflow
+
+**Every task MUST follow this 7-step process. No exceptions.**
+
+1. **Problem Understanding** - Restate, clarify what/when/where/expected. If unclear, STOP and ask.
+2. **Issue Classification** - Categorize (UI/CSS/Logic/State/Backend/API/Async/Data/Build/Security). Explain why.
+3. **Activate Agents** - Only relevant ones: UI/UX, CSS & Layout, Structure, State & Data, Async & Perf, Backend, Integration, Architecture, Responsive.
+4. **Root Cause Analysis** - REQUIRED before any fix. Exact cause with specific code/line. If uncertain, STOP.
+5. **Fix Strategy** - Global vs local, why correct, why safe, what unchanged. No code yet.
+6. **Implementation** - Minimal, targeted. Follow existing architecture. Preserve behavior.
+7. **Validation & Learning** - Verify fix, no regressions, record learnings with `/learn-and-remember`.
+
+### Mandatory Task List (NON-NEGOTIABLE)
+**Every multi-step change MUST use TaskCreate/TaskUpdate to track progress.**
+
+- **Before work**: Break into atomic tasks (`TaskCreate` with `subject`, `description`, `activeForm`)
+- **Starting a task**: `TaskUpdate` → status `in_progress`
+- **Finishing a task**: `TaskUpdate` → status `completed`
+- **After all tasks**: Final task to invoke `/learn-and-remember` → update all MD files
+- **Dependencies**: Use `addBlockedBy`/`addBlocks` when order matters
+
+This gives the user real-time visibility, prevents skipped steps, and ensures learnings are always recorded.
+
+### Non-Negotiable Rules
+- Never assume backend failure without evidence
+- Never suggest refresh/reload as solution
+- Never hide bugs with CSS tricks
+- Never create nested scroll containers unless intentional
+- Prefer single source of truth
+- If unsure → STOP and ask
+- **ALWAYS use task list for multi-step work**
+
+### Learning Protocol
+After every fix/change, record (as a tracked task):
+- What broke and why (root cause)
+- What pattern caused it (reusable lesson)
+- How to prevent it (future-proofing rule)
+- Update: MEMORY.md, workflow.md, CLAUDE.md as appropriate
+
+Full workflow details: see `memory/workflow.md`
 
 ## Custom Skills
 
 | Skill | Description |
 |-------|-------------|
+| `/learn-and-remember` | **Auto-record learnings** after code changes into CLAUDE.md and memory |
+| `/codebase-decision-trees` | **Decision trees** for debugging CSS, async, modal, build, Supabase, OAuth |
 | `/mobile-build` | Build and sync Capacitor Android APK |
 | `/mobile-debug` | Debug mobile view alignment issues |
 | `/mobile-fix` | Apply fixes for mobile responsive design |
