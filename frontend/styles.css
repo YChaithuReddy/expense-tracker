@@ -3990,32 +3990,6 @@ body.modal-open {
     line-height: 1.8;
 }
 
-.modal-confirm-input {
-    width: 100%;
-    padding: 10px 14px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 2px solid rgba(255, 71, 87, 0.3);
-    border-radius: 8px;
-    color: var(--text-primary);
-    font-size: 1rem;
-    font-weight: 600;
-    letter-spacing: 1px;
-    margin-bottom: 16px;
-    transition: border-color 0.2s;
-    box-sizing: border-box;
-}
-
-.modal-confirm-input:focus {
-    outline: none;
-    border-color: #ff4757;
-    box-shadow: 0 0 0 3px rgba(255, 71, 87, 0.15);
-}
-
-.modal-confirm-input::placeholder {
-    color: rgba(255, 255, 255, 0.3);
-    font-weight: 400;
-    letter-spacing: 0;
-}
 
 @keyframes fadeIn {
     from { opacity: 0; }
