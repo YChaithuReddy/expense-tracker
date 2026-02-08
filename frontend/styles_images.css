@@ -509,23 +509,28 @@
 
 .img-gallery {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 320px));
-  justify-content: center;
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px;
   padding: 20px;
   min-height: 200px;
   flex: 1;
 }
 
+@media (max-width: 1100px) {
+  .img-gallery {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
   .img-gallery {
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 12px;
     padding: 16px;
   }
 }
 
-@media (max-width: 540px) {
+@media (max-width: 480px) {
   .img-gallery {
     grid-template-columns: 1fr;
     gap: 12px;
@@ -579,12 +584,18 @@
 
 .img-card__preview {
   position: relative;
-  height: 140px;
-  min-height: 140px;
-  max-height: 140px;
+  height: 180px;
+  min-height: 180px;
   overflow: hidden;
   background: var(--img-bg-elevated);
   cursor: pointer;
+}
+
+@media (max-width: 480px) {
+  .img-card__preview {
+    height: 160px;
+    min-height: 160px;
+  }
 }
 
 /* Dark gradient overlay to soften white bill images */
