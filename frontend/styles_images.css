@@ -299,6 +299,7 @@
   width: 100%;
   max-width: var(--img-modal-max-width);
   max-height: calc(100vh - 2rem);
+  min-height: 0;
   margin: var(--img-space-4) auto;
   background: var(--img-glass-bg);
   backdrop-filter: var(--img-glass-blur);
