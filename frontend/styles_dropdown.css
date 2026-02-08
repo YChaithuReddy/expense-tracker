@@ -566,10 +566,10 @@
     background-color: rgba(0, 0, 0, 0.9);
     backdrop-filter: blur(10px);
     animation: fadeIn 0.3s ease-out;
-    overflow: hidden !important; /* Override .img-modal overflow-y:auto — content box scrolls, not overlay */
+    overflow-y: auto !important; /* Modal-level scrolling — the modal scrolls, not the content */
     display: flex;
     justify-content: center;
-    align-items: center !important; /* Override .img-modal align-items:flex-start */
+    align-items: flex-start !important; /* Content starts at top, scrolls down */
     padding: 20px 0;
 }
 
@@ -582,10 +582,8 @@
     border-radius: 20px;
     width: 100%;
     max-width: 1200px;
-    max-height: 90vh;
-    overflow: hidden auto !important; /* Override .img-modal__content overflow:hidden from styles_images.css */
-    display: flex;
-    flex-direction: column;
+    /* No max-height — content renders at natural height, modal scrolls around it */
+    overflow: hidden !important; /* No scroll here — modal handles scrolling */
     box-shadow:
         0 20px 40px rgba(0, 0, 0, 0.5),
         0 0 0 1px rgba(255, 255, 255, 0.05);
@@ -721,10 +719,15 @@
 /* Images Grid Container - Center aligned */
 .orphaned-images-grid {
     padding: 32px 24px;
-    /* No max-height/overflow — parent .orphaned-images-content owns the scroll */
+    /* No max-height/overflow — modal owns the scroll */
     background: transparent;
-    display: flex;
-    justify-content: center;
+}
+
+/* Fix: .img-gallery (styles_images.css) overrides display to grid.
+   Grid items with overflow:hidden get min-height:0 by default,
+   collapsing cards to just the preview height. Force full card height. */
+.orphaned-images-grid .img-card {
+    min-height: min-content;
 }
 
 .images-grid-wrapper {
@@ -956,9 +959,8 @@
         width: 100%;
         margin: 0;
         border-radius: 0;
-        min-height: 100vh;
-        max-height: 100vh;
-        max-height: 100dvh;
+        min-height: auto;
+        max-height: none;
         max-width: 100%;
     }
 
