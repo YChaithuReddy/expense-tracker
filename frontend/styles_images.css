@@ -254,10 +254,10 @@
   inset: 0;
   z-index: var(--img-z-modal-backdrop);
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
-  padding: var(--img-space-4);
-  overflow-y: auto;
+  padding: 1rem;
+  overflow: hidden;
 
   /* Hidden by default */
   opacity: 0;
@@ -265,6 +265,18 @@
   transition:
     opacity var(--img-duration-slow) var(--img-ease-out),
     visibility var(--img-duration-slow);
+}
+
+@media (max-width: 768px) {
+  .img-modal {
+    padding: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .img-modal {
+    padding: 0;
+  }
 }
 
 .img-modal.is-active {
@@ -286,13 +298,17 @@
   position: relative;
   width: 100%;
   max-width: var(--img-modal-max-width);
-  margin: var(--img-space-8) auto;
+  max-height: calc(100vh - 2rem);
+  margin: var(--img-space-4) auto;
   background: var(--img-glass-bg);
   backdrop-filter: var(--img-glass-blur);
   border: var(--img-glass-border);
   border-radius: var(--img-radius-2xl);
   box-shadow: var(--img-shadow-xl);
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 
   /* Animation */
   transform: scale(0.95) translateY(20px);
@@ -493,23 +509,27 @@
 
 .img-gallery {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 320px));
+  justify-content: center;
   gap: 16px;
   padding: 20px;
   min-height: 200px;
+  flex: 1;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .img-gallery {
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 12px;
     padding: 16px;
   }
 }
 
-@media (min-width: 1200px) {
+@media (max-width: 540px) {
   .img-gallery {
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 12px;
   }
 }
 
@@ -527,8 +547,8 @@
   overflow: hidden;
 
   /* Performance */
-  contain: layout style paint;
-  will-change: transform;
+  contain: style;
+  will-change: auto;
 
   /* Transitions */
   transition:
