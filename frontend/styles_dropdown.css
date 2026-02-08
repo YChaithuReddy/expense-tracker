@@ -583,7 +583,7 @@
     width: 100%;
     max-width: 1200px;
     max-height: 90vh;
-    overflow-y: auto; /* Stats + grid scroll together inside this box */
+    overflow: hidden auto !important; /* Override .img-modal__content overflow:hidden from styles_images.css */
     display: flex;
     flex-direction: column;
     box-shadow:
