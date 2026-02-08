@@ -4742,9 +4742,12 @@ This will <strong style="color:#ff4757">PERMANENTLY</strong> delete:
 
 This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
 
-        const confirmed = await this.showDangerConfirm('Clear Everything?', message);
+        const result = await this.showModal('Clear Everything?', message, 'warning', [
+            { text: 'Cancel', primary: false },
+            { text: 'Delete Everything', primary: true, danger: true }
+        ]);
 
-        if (confirmed) {
+        if (result === 1) {
                 try {
                     // Show loading indicator
                     this.showLoading('🗑️ Clearing all data...', 'This may take a few moments');
@@ -5162,7 +5165,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                     <div class="modal-message">${message}</div>
                     <div class="modal-actions">
                         ${buttons.map((btn, i) => `
-                            <button class="modal-btn ${btn.primary ? 'modal-btn-primary' : 'modal-btn-secondary'}" data-index="${i}">
+                            <button class="modal-btn ${btn.danger ? 'modal-btn-danger' : btn.primary ? 'modal-btn-primary' : 'modal-btn-secondary'}" data-index="${i}">
                                 ${btn.text}
                             </button>
                         `).join('')}
@@ -5211,55 +5214,6 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             { text: 'Confirm', primary: true }
         ]);
         return result === 1;
-    }
-
-    showDangerConfirm(title, message, confirmWord = 'DELETE') {
-        return new Promise((resolve) => {
-            const overlay = document.createElement('div');
-            overlay.className = 'modal-overlay';
-            overlay.innerHTML = `
-                <div class="modal-container">
-                    <div class="modal-header">
-                        <div class="modal-icon warning">⚠️</div>
-                        <h2 class="modal-title">${title}</h2>
-                    </div>
-                    <div class="modal-message">${message}</div>
-                    <input type="text" class="modal-confirm-input" placeholder="Type ${confirmWord} to confirm" autocomplete="off" spellcheck="false">
-                    <div class="modal-actions">
-                        <button class="modal-btn modal-btn-secondary" data-action="cancel">Cancel</button>
-                        <button class="modal-btn modal-btn-danger" data-action="confirm" disabled>Delete Everything</button>
-                    </div>
-                </div>
-            `;
-
-            const input = overlay.querySelector('.modal-confirm-input');
-            const confirmBtn = overlay.querySelector('[data-action="confirm"]');
-            const cancelBtn = overlay.querySelector('[data-action="cancel"]');
-
-            input.addEventListener('input', () => {
-                confirmBtn.disabled = input.value.trim().toUpperCase() !== confirmWord.toUpperCase();
-            });
-
-            confirmBtn.addEventListener('click', () => {
-                overlay.remove();
-                resolve(true);
-            });
-
-            cancelBtn.addEventListener('click', () => {
-                overlay.remove();
-                resolve(false);
-            });
-
-            overlay.addEventListener('click', (e) => {
-                if (e.target === overlay) {
-                    overlay.remove();
-                    resolve(false);
-                }
-            });
-
-            document.body.appendChild(overlay);
-            input.focus();
-        });
     }
 
     handleSelectAll(e) {
