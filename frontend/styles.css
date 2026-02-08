@@ -1158,14 +1158,15 @@ main {
 }
 
 .expense-item {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 15px;
-    padding: 15px;
-    margin-bottom: 10px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-left: 3px solid rgba(0, 212, 255, 0.5);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
     backdrop-filter: blur(10px);
     transition: all 0.3s ease;
-    animation: slideInLeft 0.4s ease-out;
+    animation: slideInLeft 0.4s ease-out backwards;
 }
 
 @keyframes slideInLeft {
@@ -1180,18 +1181,69 @@ main {
 }
 
 .expense-item:hover {
-    transform: translateY(-5px) scale(1.02);
-    box-shadow:
-        0 20px 40px rgba(0, 0, 0, 0.2),
-        0 0 0 1px var(--cyber-blue);
-    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 212, 255, 0.15);
+    border-left-color: rgba(0, 212, 255, 0.8);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%);
 }
+
+/* Staggered animation for expense cards */
+.expense-item:nth-child(1) { animation-delay: 0.05s; }
+.expense-item:nth-child(2) { animation-delay: 0.1s; }
+.expense-item:nth-child(3) { animation-delay: 0.15s; }
+.expense-item:nth-child(4) { animation-delay: 0.2s; }
+.expense-item:nth-child(5) { animation-delay: 0.25s; }
 
 .expense-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
+}
+
+.expense-category-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 14px;
+    font-size: 11px;
+    font-weight: 600;
+    background: rgba(168, 85, 247, 0.15);
+    color: #a855f7;
+    border: 1px solid rgba(168, 85, 247, 0.25);
+    letter-spacing: 0.3px;
+}
+
+.expense-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.expense-meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.expense-meta-item svg {
+    color: rgba(0, 212, 255, 0.5);
+    flex-shrink: 0;
+}
+
+.expense-description {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.7);
+    padding: 8px 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    line-height: 1.4;
 }
 
 .expense-amount {
@@ -1202,6 +1254,7 @@ main {
     cursor: pointer;
 }
 
+/* Legacy .expense-details kept for backward compat */
 .expense-details {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
@@ -1212,10 +1265,18 @@ main {
 }
 
 .expense-details div {
-    padding: 6px 8px;
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 6px;
-    border-left: 2px solid var(--cyber-blue);
+    padding: 6px 10px;
+    background: rgba(0, 212, 255, 0.06);
+    border-radius: 16px;
+    border: 1px solid rgba(0, 212, 255, 0.12);
+    text-align: center;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.expense-details div:hover {
+    background: rgba(0, 212, 255, 0.1);
+    border-color: rgba(0, 212, 255, 0.25);
 }
 
 .expense-images {
@@ -1227,19 +1288,20 @@ main {
 }
 
 .expense-images img {
-    width: 80px;
-    height: 80px;
+    width: 70px;
+    height: 70px;
     object-fit: cover;
-    border-radius: 8px;
-    border: 2px solid var(--cyber-blue);
+    border-radius: 10px;
+    border: 2px solid rgba(0, 212, 255, 0.25);
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
 }
 
 .expense-images img:hover {
-    transform: scale(1.1);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transform: scale(1.08);
+    box-shadow: 0 6px 16px rgba(0, 212, 255, 0.2);
+    border-color: rgba(0, 212, 255, 0.5);
 }
 
 /* Image Viewer Modal */
@@ -1362,44 +1424,49 @@ main {
 .expense-actions {
     display: flex;
     gap: 8px;
+    margin-top: auto;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .edit-btn {
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    color: var(--text-primary);
-    border: none;
-    padding: 8px 15px;
-    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.2) 0%, rgba(0, 212, 255, 0.1) 100%);
+    color: #00d4ff;
+    border: 1px solid rgba(0, 212, 255, 0.3);
+    padding: 7px 14px;
+    border-radius: 20px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 }
 
 .edit-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.3) 0%, rgba(0, 212, 255, 0.15) 100%);
 }
 
 .delete-btn {
-    background: linear-gradient(135deg, #ff4757, #ff3838);
-    color: var(--text-primary);
-    border: none;
-    padding: 8px 15px;
-    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(244, 67, 54, 0.2) 0%, rgba(244, 67, 54, 0.1) 100%);
+    color: #f44336;
+    border: 1px solid rgba(244, 67, 54, 0.3);
+    padding: 7px 14px;
+    border-radius: 20px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 }
 
 .delete-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+    background: linear-gradient(135deg, rgba(244, 67, 54, 0.3) 0%, rgba(244, 67, 54, 0.15) 100%);
 }
 
 .total-section {
@@ -1869,6 +1936,19 @@ main {
 
     .expense-amount {
         font-size: 1rem;
+    }
+
+    .expense-category-badge {
+        font-size: 10px;
+        padding: 3px 8px;
+    }
+
+    .expense-meta {
+        gap: 8px;
+    }
+
+    .expense-meta-item {
+        font-size: 11px;
     }
 
     .expense-details {
@@ -4978,6 +5058,31 @@ body.modal-open {
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(10px);
   flex-shrink: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Scanning hollow rectangle animation - matching Saved Bill Images */
+.batch-review-modal-content .modal-header::after {
+  content: '';
+  position: absolute;
+  top: 15%;
+  left: 0;
+  width: 40px;
+  height: 70%;
+  border: 2px solid rgba(0, 212, 255, 0.35);
+  border-radius: 4px;
+  background: transparent;
+  animation: headerScanRect 3.5s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes headerScanRect {
+  0% { transform: translateX(-60px); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateX(calc(100vw + 60px)); opacity: 0; }
 }
 
 .batch-review-modal-content .modal-header h2 {
@@ -5256,6 +5361,7 @@ body.modal-open {
     position: relative;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
     border: 1px solid rgba(255, 255, 255, 0.06);
+    border-left: 3px solid rgba(0, 212, 255, 0.4);
     border-radius: 12px;
     overflow: hidden;
     transition: all 0.2s ease-out;
@@ -5278,6 +5384,7 @@ body.modal-open {
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
     border-color: rgba(0, 212, 255, 0.2);
+    border-left-color: rgba(0, 212, 255, 0.7);
 }
 
 .batch-card.selected {
@@ -5319,15 +5426,15 @@ body.modal-open {
     background: rgba(76, 175, 80, 0.9);
     backdrop-filter: blur(6px);
     color: white;
-    padding: 4px 10px;
+    padding: 5px 12px;
     border-radius: 14px;
-    font-size: 12px;
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 700;
     display: flex;
     align-items: center;
     gap: 4px;
-    box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .card-amount-badge.selected {
@@ -5467,7 +5574,7 @@ body.modal-open {
 
 /* Card Content - Compact styling */
 .card-content {
-    padding: 12px 14px;
+    padding: 14px 16px;
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -5690,17 +5797,18 @@ select.inline-input option {
 .btn-edit,
 .btn-delete-card {
     flex: 1;
-    padding: 8px 12px;
+    padding: 10px 14px;
     border-radius: 8px;
-    font-size: 11px;
-    font-weight: 500;
+    font-size: 12px;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
     border: none;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: 5px;
+    min-height: 38px;
 }
 
 .btn-edit {

@@ -3457,19 +3457,19 @@ class ExpenseTracker {
                                onchange="expenseTracker.updateExportButton()">
                         <label for="checkbox-${safeId}" class="expense-amount">₹${this.formatAmount(expense.amount)}</label>
                     </div>
-                    <div class="expense-actions">
-                        <button class="edit-btn" onclick="expenseTracker.editExpense('${safeId}')">Edit</button>
-                        <button class="delete-btn" onclick="expenseTracker.deleteExpense('${safeId}')">Delete</button>
-                    </div>
+                    <span class="expense-category-badge">${safeCategory}</span>
                 </div>
-                <div class="expense-details">
-                    <div><strong>Date:</strong> ${this.formatDisplayDate(expense.date)}${expense.time ? ` at ${this.formatDisplayTime(expense.time)}` : ''}</div>
-                    <div><strong>Category:</strong> ${safeCategory}</div>
-                    <div><strong>Vendor:</strong> ${safeVendor}</div>
+                <div class="expense-meta">
+                    <span class="expense-meta-item">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        ${this.formatDisplayDate(expense.date)}${expense.time ? ` at ${this.formatDisplayTime(expense.time)}` : ''}
+                    </span>
+                    ${safeVendor ? `<span class="expense-meta-item">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                        ${safeVendor}
+                    </span>` : ''}
                 </div>
-                <div style="margin-top: 8px; padding: 6px 8px; background: rgba(255, 255, 255, 0.03); border-radius: 6px; font-size: 13px;">
-                    <strong>Description:</strong> ${safeDescription}
-                </div>
+                ${safeDescription ? `<div class="expense-description">${safeDescription}</div>` : ''}
                 ${expense.images.length > 0 ? `
                     <div class="expense-images">
                         ${expense.images.map((img, index) => {
@@ -3478,6 +3478,10 @@ class ExpenseTracker {
                         }).join('')}
                     </div>
                 ` : ''}
+                <div class="expense-actions">
+                    <button class="edit-btn" onclick="expenseTracker.editExpense('${safeId}')">Edit</button>
+                    <button class="delete-btn" onclick="expenseTracker.deleteExpense('${safeId}')">Delete</button>
+                </div>
             </div>
         `;
         }).join('');
