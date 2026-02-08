@@ -8,9 +8,110 @@
       "Bash(git push)",
       "Bash(node create-placeholder-icons.js:*)",
       "Bash(npm install:*)",
-      "Bash(npx cap add android)"
+      "Bash(npx cap add android)",
+      "Bash(cd frontend && node build.js)",
+      "Bash(cd frontend && npx cap sync android)",
+      "WebSearch",
+      "Bash(node build.js:*)",
+      "Bash(npx cap:*)",
+      "mcp__plugin_supabase_supabase__list_projects",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_take_screenshot",
+      "mcp__playwright__browser_resize",
+      "mcp__playwright__browser_fill_form",
+      "mcp__playwright__browser_snapshot",
+      "Bash(npx claude-code-templates@latest --command=design/web-design-reviewer --yes)",
+      "Bash(node -e:*)",
+      "Bash(git push:*)",
+      "Bash(cd:*)",
+      "Bash(tree:*)"
     ],
     "deny": [],
     "ask": []
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/session-start-context.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/workflow-enforcer.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/block-env-edits.sh",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/pre-commit-gate.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/auto-cap-sync.sh",
+            "timeout": 30,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/pre-compact-save.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/stop-learning-reminder.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
   }
 }
