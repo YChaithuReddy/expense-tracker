@@ -566,11 +566,11 @@
     background-color: rgba(0, 0, 0, 0.9);
     backdrop-filter: blur(10px);
     animation: fadeIn 0.3s ease-out;
-    overflow-y: auto !important; /* Modal-level scrolling — the modal scrolls, not the content */
+    overflow-y: auto;
     display: flex;
     justify-content: center;
-    align-items: flex-start !important; /* Content starts at top, scrolls down */
-    padding: 20px 0;
+    align-items: flex-start;
+    padding: 16px 0;
 }
 
 .orphaned-images-content {
@@ -582,8 +582,7 @@
     border-radius: 20px;
     width: 100%;
     max-width: 1200px;
-    /* No max-height — content renders at natural height, modal scrolls around it */
-    overflow: hidden !important; /* No scroll here — modal handles scrolling */
+    overflow: hidden;
     box-shadow:
         0 20px 40px rgba(0, 0, 0, 0.5),
         0 0 0 1px rgba(255, 255, 255, 0.05);
@@ -591,7 +590,7 @@
 }
 
 .orphaned-images-header {
-    padding: 25px 30px;
+    padding: 16px 20px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
     justify-content: space-between;
@@ -614,8 +613,8 @@
 .orphaned-images-stats {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-    padding: 16px 20px;
+    gap: 10px;
+    padding: 12px 16px;
     background: rgba(0, 0, 0, 0.2);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     width: 100%;
@@ -635,7 +634,7 @@
 .stats-wrapper {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 24px;
+    gap: 16px;
     width: 100%;
     max-width: 1024px;
     margin: 0 auto;
@@ -646,9 +645,9 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    min-height: 110px;
+    min-height: 90px;
     aspect-ratio: 1.5;
-    padding: 20px 16px;
+    padding: 14px 12px;
     background: #1e1e1e;
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 12px;
@@ -718,8 +717,7 @@
 
 /* Images Grid Container - Center aligned */
 .orphaned-images-grid {
-    padding: 32px 24px;
-    /* No max-height/overflow — modal owns the scroll */
+    padding: 16px;
     background: transparent;
 }
 
@@ -903,43 +901,43 @@
     }
 
     .orphaned-images-header {
-        padding: 20px;
+        padding: 14px 16px;
     }
 
     .orphaned-images-header h2 {
-        font-size: 1.5rem;
+        font-size: 1.4rem;
     }
 
     .orphaned-images-stats {
-        padding: 20px;
+        padding: 10px 14px;
     }
 
     .stats-wrapper {
         grid-template-columns: repeat(2, 1fr);
-        gap: 16px;
+        gap: 12px;
         max-width: 500px;
     }
 
     .stat-item {
-        min-height: 95px;
-        padding: 18px 14px;
+        min-height: 80px;
+        padding: 12px 10px;
     }
 
     .stat-label {
-        font-size: 0.75rem;
-        margin-bottom: 6px;
+        font-size: 0.7rem;
+        margin-bottom: 4px;
     }
 
     .stat-value {
-        font-size: 1.5rem;
+        font-size: 1.4rem;
     }
 
     .stat-unit {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
     }
 
     .orphaned-images-grid {
-        padding: 20px;
+        padding: 12px;
     }
 
     .images-grid-wrapper {
@@ -977,10 +975,10 @@
 
     /* Stats: Compact 2x2 grid on mobile */
     .orphaned-images-stats {
-        display: grid !important;
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 8px !important;
-        padding: 10px 12px !important;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        padding: 8px 10px;
     }
 
     .stats-wrapper {
@@ -1022,10 +1020,10 @@
 /* Mobile 375px - iPhone size - Keep 2x2 grid */
 @media (max-width: 375px) {
     .orphaned-images-stats {
-        display: grid !important;
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 6px !important;
-        padding: 8px 10px !important;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+        padding: 6px 8px;
     }
 
     .stats-wrapper {
