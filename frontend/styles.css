@@ -4945,10 +4945,10 @@ body.modal-open {
   padding: 12px 20px;
   background: linear-gradient(
     135deg,
-    rgba(0, 212, 255, 0.08) 0%,
-    rgba(168, 85, 247, 0.05) 100%
+    rgba(0, 212, 255, 0.15) 0%,
+    rgba(168, 85, 247, 0.1) 100%
   );
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(10px);
   flex-shrink: 0;
 }
@@ -4958,28 +4958,7 @@ body.modal-open {
   font-size: 18px;
   font-weight: 600;
   margin: 0;
-  text-shadow: 0 1px 2px rgba(0, 212, 255, 0.15);
-}
-
-.batch-review-modal-content .close-modal {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
-  padding: 8px;
-  cursor: pointer;
-  transition: all 0.2s;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  width: 40px;
-  height: 40px;
-}
-
-.batch-review-modal-content .close-modal:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: scale(1.1);
+  text-shadow: 0 2px 4px rgba(0, 212, 255, 0.2);
 }
 
 /* Body - Scrollable content area */
