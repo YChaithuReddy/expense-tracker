@@ -254,10 +254,10 @@
   inset: 0;
   z-index: var(--img-z-modal-backdrop);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   padding: 1rem;
-  overflow: hidden;
+  overflow-y: auto;
 
   /* Hidden by default */
   opacity: 0;
@@ -298,16 +298,13 @@
   position: relative;
   width: 100%;
   max-width: var(--img-modal-max-width);
-  max-height: calc(100vh - 2rem);
-  min-height: 0;
   margin: var(--img-space-4) auto;
   background: var(--img-glass-bg);
   backdrop-filter: var(--img-glass-blur);
   border: var(--img-glass-border);
   border-radius: var(--img-radius-2xl);
   box-shadow: var(--img-shadow-xl);
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: hidden;
 
   /* Animation */
   transform: scale(0.95) translateY(20px);
