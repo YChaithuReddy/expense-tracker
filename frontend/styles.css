@@ -1152,25 +1152,9 @@ main {
 }
 
 .expenses-container {
-    max-height: 500px;
-    overflow-y: auto;
+    /* No max-height — page body owns vertical scroll, not this container */
     margin-bottom: 25px;
     padding-right: 10px;
-}
-
-/* Custom scrollbar */
-.expenses-container::-webkit-scrollbar {
-    width: 6px;
-}
-
-.expenses-container::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 3px;
-}
-
-.expenses-container::-webkit-scrollbar-thumb {
-    background: var(--cyber-blue);
-    border-radius: 3px;
 }
 
 .expense-item {
@@ -1726,10 +1710,6 @@ main {
         white-space: nowrap;
     }
 
-    .expenses-container {
-        max-height: 400px;
-    }
-
     .notification {
         top: 20px;
         right: 20px;
@@ -2006,14 +1986,13 @@ main {
     backdrop-filter: blur(10px);
     animation: fadeIn 0.3s ease-out;
     overflow: hidden;
+    overscroll-behavior: contain; /* Prevent scroll chaining to body on mobile */
 }
 
 /* Prevent body scroll when modal is open */
 body.modal-open {
     overflow: hidden;
-    position: fixed;
-    width: 100%;
-    height: 100%;
+    /* No position:fixed — it causes iOS scroll-position loss and requires JS workarounds */
 }
 
 /* When modal is explicitly shown, use flexbox for proper layout */
@@ -2143,11 +2122,7 @@ body.modal-open {
     transform: scale(0.95);
 }
 
-.modal-body {
-    padding: 30px;
-    max-height: 50vh;
-    overflow-y: auto;
-}
+/* Duplicate .modal-body removed — primary rule at ~line 2032 owns modal body layout */
 
 .modal-body::-webkit-scrollbar {
     width: 6px;
@@ -5971,10 +5946,10 @@ select.inline-input option {
         font-size: 12px;
     }
 
-    /* Mobile modal adjustments - full screen */
-    .modal {
-        display: flex !important;
-        align-items: stretch; /* Stretch content to fill height */
+    /* Mobile modal adjustments - full screen (only when visible) */
+    .modal[style*="display: flex"],
+    .modal.active {
+        align-items: stretch;
         justify-content: center;
         padding: 0 !important;
         overflow: hidden;
@@ -5984,7 +5959,7 @@ select.inline-input option {
         right: 0;
         bottom: 0;
         height: 100% !important;
-        height: 100dvh !important; /* Use dynamic viewport height for mobile */
+        height: 100dvh !important;
         max-height: 100% !important;
     }
 
