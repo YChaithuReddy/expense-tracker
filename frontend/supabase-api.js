@@ -704,7 +704,13 @@ const api = {
             status: 'success',  // script.js checks for this
             images: images,      // script.js expects 'images' not 'data'
             data: images,        // keep for compatibility
-            stats
+            stats: {
+                totalImages: stats?.total_images,
+                totalSizeMB: stats?.total_size_mb ?? '0.00',
+                exportedCount: stats?.exported_count ?? 0,
+                expiringWithin7Days: stats?.expiring_within_7_days ?? 0,
+                preservedCount: stats?.preserved_count ?? 0
+            }
         };
     },
 
