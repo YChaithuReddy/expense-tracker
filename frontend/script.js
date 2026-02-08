@@ -3470,17 +3470,19 @@ class ExpenseTracker {
                     </span>` : ''}
                 </div>
                 ${safeDescription ? `<div class="expense-description">${safeDescription}</div>` : ''}
-                ${expense.images.length > 0 ? `
-                    <div class="expense-images">
-                        ${expense.images.map((img, index) => {
-                            const safeName = this.sanitizeHTML(img.name);
-                            return `<img src="${img.data}" alt="${safeName}" data-expense-id="${expense.id}" data-image-index="${index}" onclick="expenseTracker.openImageFromCard(this)" title="Click to view full size" onerror="this.style.display='none'">`;
-                        }).join('')}
+                <div class="expense-footer">
+                    ${expense.images.length > 0 ? `
+                        <div class="expense-images">
+                            ${expense.images.map((img, index) => {
+                                const safeName = this.sanitizeHTML(img.name);
+                                return `<img src="${img.data}" alt="${safeName}" data-expense-id="${expense.id}" data-image-index="${index}" onclick="expenseTracker.openImageFromCard(this)" title="Click to view full size" onerror="this.style.display='none'">`;
+                            }).join('')}
+                        </div>
+                    ` : ''}
+                    <div class="expense-actions">
+                        <button class="edit-btn" onclick="expenseTracker.editExpense('${safeId}')">Edit</button>
+                        <button class="delete-btn" onclick="expenseTracker.deleteExpense('${safeId}')">Delete</button>
                     </div>
-                ` : ''}
-                <div class="expense-actions">
-                    <button class="edit-btn" onclick="expenseTracker.editExpense('${safeId}')">Edit</button>
-                    <button class="delete-btn" onclick="expenseTracker.deleteExpense('${safeId}')">Delete</button>
                 </div>
             </div>
         `;
