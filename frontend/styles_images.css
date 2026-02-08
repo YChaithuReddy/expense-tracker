@@ -724,23 +724,50 @@
 .img-card__details {
   display: flex;
   flex-direction: column;
-  gap: var(--img-space-1);
-  padding: var(--img-space-3);
+  gap: 6px;
+  padding: 10px 12px;
   border-top: 1px solid var(--img-border-subtle);
 }
 
-.img-card__meta {
+/* Top row: Amount left, Badge right */
+.img-card__header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.img-card__amount {
+  font-size: 1.1rem;
+  font-weight: var(--img-font-bold);
+  color: var(--img-accent-primary);
+}
+
+/* Meta row: Date · Vendor inline */
+.img-card__meta-row {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.img-card__meta-dot {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.8rem;
+}
+
+.img-card__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.7rem;
   color: var(--img-text-muted);
 }
 
 .img-card__meta-icon {
-  width: 14px;
-  height: 14px;
-  opacity: 0.6;
+  width: 12px;
+  height: 12px;
+  opacity: 0.5;
   flex-shrink: 0;
 }
 
@@ -750,23 +777,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 180px;
-}
-
-.img-card__amount {
-  font-size: 1rem;
-  font-weight: var(--img-font-bold);
-  color: var(--img-accent-primary);
-  margin-top: 2px;
-}
-
-/* ─────────────────────────────────────────────────────────────────────────
-   Expiry Badge
-   ───────────────────────────────────────────────────────────────────────── */
-
-.img-card__badge-wrapper {
-  padding: 0 var(--img-space-3);
-  padding-bottom: var(--img-space-2);
+  max-width: 120px;
 }
 
 .img-badge {
