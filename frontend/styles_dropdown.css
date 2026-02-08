@@ -1438,6 +1438,7 @@
 .image-card-modern {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%);
     border: 1px solid rgba(255, 255, 255, 0.1);
+    border-left: 3px solid rgba(0, 212, 255, 0.4);
     border-radius: 16px;
     overflow: hidden;
     transition: all 0.3s;
@@ -1451,6 +1452,7 @@
     transform: translateY(-4px);
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
     border-color: rgba(0, 212, 255, 0.3);
+    border-left-color: rgba(0, 212, 255, 0.7);
 }
 
 /* Image Preview - Modern - Fixed Aspect Ratio */
@@ -1551,16 +1553,17 @@
 /* Expiry Badge - Modern - Compact */
 .expiry-badge-modern {
     margin: 8px 14px;
-    padding: 5px 12px;
+    padding: 6px 12px;
     border-radius: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
     font-size: 11px;
-    font-weight: 500;
+    font-weight: 600;
     transition: all 0.3s;
     flex-shrink: 0;
+    letter-spacing: 0.3px;
 }
 
 .expiry-badge-modern.badge-success {
@@ -1584,10 +1587,11 @@
 /* Action Buttons - Modern - Compact */
 .action-buttons-modern {
     display: flex;
-    gap: 8px;
+    gap: 10px;
     padding: 10px 14px;
     margin-top: auto;
     flex-shrink: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .btn-extend-modern,
