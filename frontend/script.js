@@ -2074,6 +2074,18 @@ class ExpenseTracker {
             const safeAmount = this.sanitizeHTML(expense.amount || '');
             const safeCategory = this.sanitizeHTML(expense.category || '');
 
+            // Parse main category and subcategory from "Category - Subcategory" format
+            const categoryParts = safeCategory.split(' - ');
+            const mainCat = categoryParts[0] || '';
+            const subCat = categoryParts[1] || '';
+
+            // Build subcategory options if main category has subcategories
+            const subOptions = this.categorySubcategories[mainCat]
+                ? this.categorySubcategories[mainCat].map(sub =>
+                    `<option value="${sub}" ${sub === subCat ? 'selected' : ''}>${sub}</option>`
+                  ).join('')
+                : '';
+
             // Format date for display
             const displayDate = safeDate ? new Date(safeDate).toLocaleDateString('en-IN', {
                 day: '2-digit',
@@ -2124,14 +2136,21 @@ class ExpenseTracker {
                         </div>
                         <div class="form-row">
                             <label class="form-label">📁 Category</label>
-                            <select class="inline-input expense-category" data-index="${index}">
-                                <option value="Transportation" ${safeCategory === 'Transportation' ? 'selected' : ''}>Transportation</option>
-                                <option value="Accommodation" ${safeCategory === 'Accommodation' ? 'selected' : ''}>Accommodation</option>
-                                <option value="Meals" ${safeCategory === 'Meals' ? 'selected' : ''}>Meals</option>
-                                <option value="Fuel" ${safeCategory === 'Fuel' ? 'selected' : ''}>Fuel</option>
-                                <option value="Bill Payments" ${safeCategory === 'Bill Payments' ? 'selected' : ''}>Bill Payments</option>
-                                <option value="Food" ${safeCategory === 'Food' ? 'selected' : ''}>Food</option>
-                                <option value="Miscellaneous" ${safeCategory === 'Miscellaneous' ? 'selected' : ''}>Miscellaneous</option>
+                            <select class="inline-input expense-main-category" data-index="${index}">
+                                <option value="Transportation" ${mainCat === 'Transportation' ? 'selected' : ''}>Transportation</option>
+                                <option value="Accommodation" ${mainCat === 'Accommodation' ? 'selected' : ''}>Accommodation</option>
+                                <option value="Meals" ${mainCat === 'Meals' ? 'selected' : ''}>Meals</option>
+                                <option value="Fuel" ${mainCat === 'Fuel' ? 'selected' : ''}>Fuel</option>
+                                <option value="Bill Payments" ${mainCat === 'Bill Payments' ? 'selected' : ''}>Bill Payments</option>
+                                <option value="Food" ${mainCat === 'Food' ? 'selected' : ''}>Food</option>
+                                <option value="Miscellaneous" ${mainCat === 'Miscellaneous' ? 'selected' : ''}>Miscellaneous</option>
+                            </select>
+                        </div>
+                        <div class="form-row batch-subcategory-row" data-index="${index}" style="${subOptions ? '' : 'display:none'}">
+                            <label class="form-label">📂 Subcategory</label>
+                            <select class="inline-input expense-subcategory" data-index="${index}">
+                                <option value="">Select Subcategory</option>
+                                ${subOptions}
                             </select>
                         </div>
                     </div>
@@ -2253,12 +2272,44 @@ class ExpenseTracker {
             });
         });
 
-        const categorySelects = document.querySelectorAll('.expense-category');
-        categorySelects.forEach(select => {
+        const mainCategorySelects = document.querySelectorAll('.expense-main-category');
+        mainCategorySelects.forEach(select => {
             select.addEventListener('change', (e) => {
                 const index = parseInt(e.target.dataset.index);
-                this.updateExpenseField(index, 'category', e.target.value);
-                // Re-render to update category badge
+                const mainCat = e.target.value;
+                const subRow = document.querySelector(`.batch-subcategory-row[data-index="${index}"]`);
+                const subSelect = document.querySelector(`.expense-subcategory[data-index="${index}"]`);
+
+                // Populate subcategory options
+                if (subSelect && this.categorySubcategories[mainCat]) {
+                    subSelect.innerHTML = '<option value="">Select Subcategory</option>';
+                    this.categorySubcategories[mainCat].forEach(sub => {
+                        const opt = document.createElement('option');
+                        opt.value = sub;
+                        opt.textContent = sub;
+                        subSelect.appendChild(opt);
+                    });
+                    if (subRow) subRow.style.display = '';
+                } else {
+                    if (subSelect) subSelect.innerHTML = '<option value="">Select Subcategory</option>';
+                    if (subRow) subRow.style.display = 'none';
+                }
+
+                // Update category (just main for now, sub will update on its own change)
+                this.updateExpenseField(index, 'category', mainCat);
+                this.updateBatchUI();
+            });
+        });
+
+        const subCategorySelects = document.querySelectorAll('.expense-subcategory');
+        subCategorySelects.forEach(select => {
+            select.addEventListener('change', (e) => {
+                const index = parseInt(e.target.dataset.index);
+                const mainSelect = document.querySelector(`.expense-main-category[data-index="${index}"]`);
+                const mainCat = mainSelect ? mainSelect.value : '';
+                const subCat = e.target.value;
+                const combined = subCat ? `${mainCat} - ${subCat}` : mainCat;
+                this.updateExpenseField(index, 'category', combined);
                 this.updateBatchUI();
             });
         });
