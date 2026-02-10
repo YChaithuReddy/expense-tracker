@@ -17,6 +17,7 @@ const filesToCopy = [
     'styles.css',
     'styles_images.css',
     'styles_dropdown.css',
+    'styles_clear_data.css',
     'script.js',
     'supabase-client.js',
     'supabase-api.js',

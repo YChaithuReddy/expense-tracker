@@ -2584,9 +2584,11 @@ class ExpenseTracker {
                 }
 
                 // Ensure category is valid for backend
-                const validCategories = ['Transportation', 'Accommodation', 'Meals', 'Fuel', 'Miscellaneous'];
+                // Category may be "Category - Subcategory" format (e.g. "Transportation - Bus")
+                const validCategories = ['Transportation', 'Accommodation', 'Meals', 'Fuel', 'Bill Payments', 'Food', 'Miscellaneous'];
                 let category = expense.category || 'Miscellaneous';
-                if (!validCategories.includes(category)) {
+                const mainCategory = category.split(' - ')[0].trim();
+                if (!validCategories.includes(mainCategory)) {
                     console.warn(`Invalid category "${category}" for bill ${i + 1}, using Miscellaneous`);
                     category = 'Miscellaneous';
                 }
@@ -4583,143 +4585,131 @@ class ExpenseTracker {
     }
 
     initializeClearDropdown() {
-        const dropdownBtn = document.getElementById('clearDropdownBtn');
-        const dropdownMenu = document.getElementById('clearDropdownMenu');
-        const dropdownBackdrop = document.getElementById('dropdownBackdrop');
+        const clearDataBtn = document.getElementById('clearDataBtn');
+        const clearDataModal = document.getElementById('clearDataModal');
+        const closeClearModal = document.getElementById('closeClearModal');
+        const clearDataBackdrop = clearDataModal?.querySelector('.clear-data-backdrop');
 
-        // Smart positioning function
-        const positionDropdown = () => {
-            const btnRect = dropdownBtn.getBoundingClientRect();
-            const menuHeight = 350; // Approximate height of the dropdown menu
-            const viewportHeight = window.innerHeight;
-            const viewportWidth = window.innerWidth;
-            const spaceBelow = viewportHeight - btnRect.bottom;
-            const spaceAbove = btnRect.top;
+        // Open modal
+        clearDataBtn?.addEventListener('click', async () => {
+            // Load stats before showing modal
+            await this.loadClearDataStats();
+            clearDataModal.style.display = 'flex';
 
-            // Remove positioning classes and inline styles
-            dropdownMenu.classList.remove('dropdown-up');
-            dropdownMenu.style.right = '';
-            dropdownMenu.style.left = '';
+            // Trigger entrance animation
+            requestAnimationFrame(() => {
+                clearDataModal.classList.add('active');
+            });
+        });
 
-            // Check if we're on mobile
-            if (viewportWidth <= 480) {
-                // Mobile: Ensure dropdown fits within viewport
-                setTimeout(() => {
-                    const menuRect = dropdownMenu.getBoundingClientRect();
-                    const menuHeight = menuRect.height;
-
-                    // If dropdown is taller than viewport, adjust max-height
-                    if (menuHeight > viewportHeight - 100) {
-                        dropdownMenu.style.maxHeight = `${viewportHeight - 100}px`;
-                        dropdownMenu.style.overflowY = 'auto';
-                    }
-                }, 50);
-                return;
-            }
-
-            // Tablet (481-768px): Center the dropdown (handled by CSS)
-            if (viewportWidth > 480 && viewportWidth <= 768) {
-                return;
-            }
-
-            // Desktop: Check vertical space
-            if (spaceBelow < menuHeight && spaceAbove > menuHeight) {
-                // Position above if not enough space below
-                dropdownMenu.classList.add('dropdown-up');
-            }
-
-            // For desktop, ensure proper right alignment
+        // Close modal
+        const closeModal = () => {
+            clearDataModal.classList.remove('active');
             setTimeout(() => {
-                const menuRect = dropdownMenu.getBoundingClientRect();
-
-                // Check if dropdown goes off-screen on the right
-                if (menuRect.right > viewportWidth - 20) {
-                    const overflow = menuRect.right - (viewportWidth - 20);
-                    dropdownMenu.style.right = `${overflow + 20}px`;
-                }
-
-                // Check if dropdown goes off-screen on the left
-                if (menuRect.left < 20) {
-                    dropdownMenu.style.left = '20px';
-                    dropdownMenu.style.right = 'auto';
-                }
-            }, 50);
+                clearDataModal.style.display = 'none';
+            }, 300);
         };
 
-        // Toggle dropdown with smart positioning
-        dropdownBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
+        closeClearModal?.addEventListener('click', closeModal);
+        clearDataBackdrop?.addEventListener('click', closeModal);
 
-            if (!dropdownMenu.classList.contains('show')) {
-                // Show backdrop on mobile
-                if (window.innerWidth <= 480) {
-                    dropdownBackdrop.classList.add('show');
-                }
-
-                // Position before showing
-                positionDropdown();
-                dropdownMenu.classList.add('show');
-
-                // Reposition after animation starts to ensure accuracy
-                setTimeout(positionDropdown, 10);
-            } else {
-                dropdownMenu.classList.remove('show');
-                dropdownBackdrop.classList.remove('show');
+        // Escape key to close
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && clearDataModal.style.display === 'flex') {
+                closeModal();
             }
         });
 
-        // Close dropdown when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!dropdownBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
-                dropdownMenu.classList.remove('show');
-                dropdownMenu.classList.remove('dropdown-up');
-                dropdownBackdrop.classList.remove('show');
-            }
-        });
+        // Card action buttons
+        const clearDataOnlyBtn = document.querySelector('#clearDataOnlyCard .clear-card-action');
+        const clearImagesOnlyBtn = document.querySelector('#clearImagesOnlyCard .clear-card-action');
+        const clearEverythingBtn = document.querySelector('#clearEverythingCard .clear-card-action');
 
-        // Click backdrop to close (mobile)
-        if (dropdownBackdrop) {
-            dropdownBackdrop.addEventListener('click', () => {
-                dropdownMenu.classList.remove('show');
-                dropdownMenu.classList.remove('dropdown-up');
-                dropdownBackdrop.classList.remove('show');
-            });
-        }
-
-        // Reposition on window resize
-        window.addEventListener('resize', () => {
-            if (dropdownMenu.classList.contains('show')) {
-                positionDropdown();
-            }
-        });
-
-        // Reposition on scroll
-        window.addEventListener('scroll', () => {
-            if (dropdownMenu.classList.contains('show')) {
-                positionDropdown();
-            }
-        }, { passive: true });
-
-        // Clear data only (keep images)
-        document.getElementById('clearDataOnly').addEventListener('click', async () => {
-            dropdownMenu.classList.remove('show');
-            dropdownBackdrop.classList.remove('show');
+        clearDataOnlyBtn?.addEventListener('click', async () => {
+            closeModal();
             await this.clearDataOnly();
         });
 
-        // Clear images only
-        document.getElementById('clearImagesOnly').addEventListener('click', async () => {
-            dropdownMenu.classList.remove('show');
-            dropdownBackdrop.classList.remove('show');
+        clearImagesOnlyBtn?.addEventListener('click', async () => {
+            closeModal();
             await this.clearImagesOnly();
         });
 
-        // Clear everything
-        document.getElementById('clearEverything').addEventListener('click', async () => {
-            dropdownMenu.classList.remove('show');
-            dropdownBackdrop.classList.remove('show');
+        clearEverythingBtn?.addEventListener('click', async () => {
+            closeModal();
             await this.clearEverything();
         });
+    }
+
+    async loadClearDataStats() {
+        const statsContainer = document.getElementById('clearDataStats');
+        if (!statsContainer) return;
+
+        // Show loading state
+        statsContainer.innerHTML = `
+            <div class="clear-stat-item clear-stat-skeleton">
+                <div class="clear-stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 2v4M15 2v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"/></svg></div>
+                <div class="clear-stat-content"><div class="clear-stat-label">Loading...</div><div class="clear-stat-value">--</div></div>
+            </div>
+        `;
+
+        try {
+            // Fetch orphaned images stats
+            const orphanedResponse = await api.getOrphanedImages();
+            const orphanedCount = orphanedResponse.images?.length || 0;
+            const orphanedSize = orphanedResponse.stats?.totalSizeMB || 0;
+
+            // Build stats HTML
+            let statsHTML = `
+                <div class="clear-stat-item">
+                    <div class="clear-stat-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                            <path d="M14 2v6h6"/>
+                        </svg>
+                    </div>
+                    <div class="clear-stat-content">
+                        <div class="clear-stat-label">Expense Records</div>
+                        <div class="clear-stat-value">${this.expenses.length}</div>
+                    </div>
+                </div>
+                <div class="clear-stat-item">
+                    <div class="clear-stat-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                            <path d="M21 15l-5-5L5 21"/>
+                        </svg>
+                    </div>
+                    <div class="clear-stat-content">
+                        <div class="clear-stat-label">Saved Images</div>
+                        <div class="clear-stat-value">${orphanedCount}</div>
+                    </div>
+                </div>
+                <div class="clear-stat-item">
+                    <div class="clear-stat-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>
+                        </svg>
+                    </div>
+                    <div class="clear-stat-content">
+                        <div class="clear-stat-label">Storage Used</div>
+                        <div class="clear-stat-value">${orphanedSize.toFixed(1)}<span class="clear-stat-unit">MB</span></div>
+                    </div>
+                </div>
+            `;
+
+            statsContainer.innerHTML = statsHTML;
+        } catch (error) {
+            console.error('Error loading clear data stats:', error);
+            statsContainer.innerHTML = `
+                <div class="clear-stat-item">
+                    <div class="clear-stat-content">
+                        <div class="clear-stat-label">Unable to load statistics</div>
+                    </div>
+                </div>
+            `;
+        }
     }
 
     async clearDataOnly() {
