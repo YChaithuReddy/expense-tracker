@@ -33,6 +33,7 @@
     <link rel="stylesheet" href="styles_dropdown.css">
     <link rel="stylesheet" href="styles_images.css?v=2.0">
     <link rel="stylesheet" href="styles_clear_data.css">
+    <link rel="stylesheet" href="styles_saved_images.css">
 
     <!-- Essential scripts with defer - loads in parallel, executes after HTML parsed -->
     <script defer src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -268,7 +269,7 @@
                             <span class="btn-icon">🔗</span>
                             <span class="btn-text">View Sheet</span>
                         </button>
-                        <button id="viewSavedImages" class="btn-secondary">
+                        <button id="viewSavedImages" class="btn-secondary btn-view-images-premium">
                             <span class="btn-icon">🖼️</span>
                             <span class="btn-text">View Images</span>
                         </button>
@@ -303,6 +304,11 @@
 
                                 <div class="clear-data-stats" id="clearDataStats">
                                     <!-- Stats will be populated by JavaScript -->
+                                </div>
+
+                                <!-- Saved Images Preview -->
+                                <div class="clear-data-images-preview" id="clearDataImagesPreview">
+                                    <!-- Saved images will be populated by JavaScript -->
                                 </div>
 
                                 <div class="clear-data-cards">
@@ -515,25 +521,36 @@
         </main>
 
 
-        <!-- Orphaned Images Gallery Modal (Premium Redesign) -->
-        <div id="orphanedImagesModal" class="img-modal orphaned-images-modal" style="display: none;">
-            <div class="img-modal__backdrop" onclick="expenseTracker.closeOrphanedImagesModal()"></div>
-            <div class="img-modal__content orphaned-images-content">
-                <header class="img-modal__header orphaned-images-header">
-                    <div class="img-modal__title">
-                        <span class="img-modal__title-icon">🖼️</span>
-                        <h2>Saved Bill Images</h2>
+        <!-- Saved Bill Images Modal (Premium Redesign) -->
+        <div id="orphanedImagesModal" class="saved-images-modal" style="display: none;">
+            <div class="saved-images-backdrop" onclick="expenseTracker.closeOrphanedImagesModal()"></div>
+            <div class="saved-images-container">
+                <div class="saved-images-header">
+                    <div class="saved-images-header-content">
+                        <div class="saved-images-icon-wrapper">
+                            <svg class="saved-images-header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                <circle cx="8.5" cy="8.5" r="1.5"/>
+                                <path d="M21 15l-5-5L5 21"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h2 class="saved-images-title">Saved Bill Images</h2>
+                            <p class="saved-images-subtitle">Images kept for 30 days after clearing data</p>
+                        </div>
                     </div>
-                    <button class="img-modal__close close-orphaned" onclick="expenseTracker.closeOrphanedImagesModal()" aria-label="Close modal">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <button class="saved-images-close" onclick="expenseTracker.closeOrphanedImagesModal()" aria-label="Close modal">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M18 6L6 18M6 6l12 12"/>
                         </svg>
                     </button>
-                </header>
-                <div class="img-stats orphaned-images-stats" id="orphanedImagesStats">
+                </div>
+
+                <div class="saved-images-stats" id="orphanedImagesStats">
                     <!-- Stats will be populated by JavaScript -->
                 </div>
-                <div class="img-gallery orphaned-images-grid" id="orphanedImagesGrid">
+
+                <div class="saved-images-grid" id="orphanedImagesGrid">
                     <!-- Image cards will be populated by JavaScript -->
                 </div>
             </div>
