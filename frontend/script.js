@@ -4592,14 +4592,18 @@ class ExpenseTracker {
 
         // Open modal
         clearDataBtn?.addEventListener('click', async () => {
-            // Load stats before showing modal
-            await this.loadClearDataStats();
+            // Show modal immediately, load stats in background
             clearDataModal.style.display = 'flex';
-
-            // Trigger entrance animation
             requestAnimationFrame(() => {
                 clearDataModal.classList.add('active');
             });
+
+            // Load stats (don't block modal opening)
+            try {
+                await this.loadClearDataStats();
+            } catch (err) {
+                console.error('Failed to load clear data stats:', err);
+            }
         });
 
         // Close modal
