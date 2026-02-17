@@ -4151,7 +4151,47 @@ class ExpenseTracker {
         let currentType = null;
         let typeHeaderAdded = false;
 
-        allImages.forEach((imageItem, index) => {
+        // Compress images before adding to PDF to reduce file size
+        const compressImage = (src, maxDim = 1200, quality = 0.7) => {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                img.onload = () => {
+                    let w = img.width;
+                    let h = img.height;
+                    // Scale down if larger than maxDim
+                    if (w > maxDim || h > maxDim) {
+                        if (w > h) {
+                            h = Math.round(h * maxDim / w);
+                            w = maxDim;
+                        } else {
+                            w = Math.round(w * maxDim / h);
+                            h = maxDim;
+                        }
+                    }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = w;
+                    canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, w, h);
+                    resolve(canvas.toDataURL('image/jpeg', quality));
+                };
+                img.onerror = () => resolve(src); // fallback to original on error
+                img.src = src;
+            });
+        };
+
+        // Compress all images in parallel
+        console.log('🗜️ Compressing images for PDF...');
+        const compressedImages = await Promise.all(
+            allImages.map(async (item) => {
+                const compressed = await compressImage(item.data);
+                return { ...item, data: compressed };
+            })
+        );
+        console.log('✅ Image compression complete');
+
+        compressedImages.forEach((imageItem, index) => {
             // Check if we're starting a new type section
             if (imageItem.type !== currentType) {
                 currentType = imageItem.type;
@@ -4329,7 +4369,7 @@ class ExpenseTracker {
             const sheetPdfBase64 = sheetPdfResponse.data.pdfBase64;
             const sheetPdfBytes = Uint8Array.from(atob(sheetPdfBase64), c => c.charCodeAt(0));
 
-            this.showNotification('📋 Google Sheet downloaded, collecting all bill images (current + saved)...');
+            this.showNotification('📋 Google Sheet downloaded, compressing bill images...');
 
             // Step 3: Generate bill photos PDF (INCLUDING orphaned/saved images)
             console.log('📸 Generating bills PDF with ALL images (current + saved)...');
@@ -4397,11 +4437,12 @@ class ExpenseTracker {
             const downloadSuccess = await this.saveFile(mergedPdfBytes, fileName, 'application/pdf');
 
             // Only show success notification if download actually worked
+            const fileSizeMB = (mergedPdfBytes.length / (1024 * 1024)).toFixed(1);
             if (downloadSuccess) {
                 if (hasImages) {
-                    this.showNotification(`✅ Complete reimbursement package downloaded! (${totalPages} pages with images)`);
+                    this.showNotification(`✅ Package downloaded! (${totalPages} pages, ${fileSizeMB} MB)`);
                 } else {
-                    this.showNotification(`📋 Google Sheet downloaded! (${totalPages} pages, no bill images available)`);
+                    this.showNotification(`📋 Google Sheet downloaded! (${totalPages} pages, ${fileSizeMB} MB)`);
                 }
             } else {
                 this.showError('The package was generated but could not be saved to your device.\n\nTry using the Share option if available, or open in a desktop browser.', 'Download Failed');
