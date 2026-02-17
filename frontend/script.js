@@ -4595,7 +4595,7 @@ class ExpenseTracker {
             // Show modal immediately, load stats in background
             clearDataModal.style.display = 'flex';
             requestAnimationFrame(() => {
-                clearDataModal.classList.add('active');
+                clearDataModal.classList.add('is-active');
             });
 
             // Load stats (don't block modal opening)
@@ -4608,7 +4608,7 @@ class ExpenseTracker {
 
         // Close modal
         const closeModal = () => {
-            clearDataModal.classList.remove('active');
+            clearDataModal.classList.remove('is-active');
             setTimeout(() => {
                 clearDataModal.style.display = 'none';
             }, 300);
