@@ -4715,7 +4715,7 @@ class ExpenseTracker {
                     title: 'Clear All Data',
                     checkboxText: 'I understand this will permanently delete all my data',
                     buttonText: 'Delete All Data',
-                    requireType: true,
+                    requireType: false,
                     items: [
                         { text: `All expense records (${this.expenses.length} entries)`, type: 'delete' },
                         { text: 'All saved bill images', type: 'delete' },
