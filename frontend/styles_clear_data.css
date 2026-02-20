@@ -208,7 +208,7 @@ html.modal-open body {
 .clear-data-container {
   position: relative;
   width: 100%;
-  max-width: 800px;
+  max-width: 1100px;
   margin: var(--clear-space-4) auto;
   background: var(--clear-glass-bg);
   backdrop-filter: var(--clear-glass-blur);
@@ -629,13 +629,14 @@ html.modal-open body {
 
 .clear-data-cards {
   display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 24px;
+  flex-direction: row;
+  gap: 14px;
+  padding: 20px;
 }
 
 @media (max-width: 768px) {
   .clear-data-cards {
+    flex-direction: column;
     gap: 14px;
     padding: 20px;
   }
@@ -653,6 +654,8 @@ html.modal-open body {
   position: relative;
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-width: 0;
   background: var(--clear-bg-card);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
@@ -897,6 +900,7 @@ html.modal-open body {
   font-weight: var(--clear-font-semibold);
   cursor: pointer;
   border: none;
+  margin-top: auto;
   transition: all var(--clear-duration-fast) var(--clear-ease-out);
 }
 
