@@ -165,9 +165,9 @@ html.modal-open body {
   inset: 0;
   z-index: var(--clear-z-modal-backdrop);
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
-  padding: 1rem;
+  padding: 0.5rem;
   overflow-y: auto;
 
   /* Hidden by default */
@@ -209,13 +209,16 @@ html.modal-open body {
   position: relative;
   width: 100%;
   max-width: 800px;
-  margin: var(--clear-space-4) auto;
+  max-height: calc(100vh - 1rem);
+  margin: 0 auto;
   background: var(--clear-glass-bg);
   backdrop-filter: var(--clear-glass-blur);
   border: var(--clear-glass-border);
   border-radius: var(--clear-radius-2xl);
   box-shadow: var(--clear-shadow-xl);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 
   /* Animation */
   transform: scale(0.95) translateY(20px);
@@ -245,7 +248,7 @@ html.modal-open body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--clear-space-5) var(--clear-space-6);
+  padding: 12px var(--clear-space-5);
   background: linear-gradient(
     135deg,
     rgba(0, 212, 255, 0.15) 0%,
@@ -254,6 +257,7 @@ html.modal-open body {
   border-bottom: 1px solid var(--clear-border-subtle);
   backdrop-filter: blur(10px);
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 /* Scanning hollow rectangle animation (identical to View Images) */
@@ -302,8 +306,8 @@ html.modal-open body {
 
 /* Icon Wrapper */
 .clear-data-icon-wrapper {
-  width: 56px;
-  height: 56px;
+  width: 44px;
+  height: 44px;
   border-radius: var(--clear-radius-xl);
   background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 212, 255, 0.08));
   border: 1px solid rgba(0, 212, 255, 0.4);
@@ -447,10 +451,11 @@ html.modal-open body {
 .clear-data-stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  padding: 16px 20px;
+  gap: 10px;
+  padding: 10px 16px;
   background: rgba(0, 0, 0, 0.2);
   border-bottom: 1px solid var(--clear-border-subtle);
+  flex-shrink: 0;
 }
 
 @media (max-width: 768px) {
@@ -474,8 +479,8 @@ html.modal-open body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 12px 10px;
-  min-height: 60px;
+  padding: 8px 10px;
+  min-height: 48px;
   background: var(--clear-glass-bg-light);
   border: 1px solid var(--clear-border-subtle);
   border-radius: var(--clear-radius-md);
@@ -513,7 +518,7 @@ html.modal-open body {
 }
 
 .clear-data-stats__value {
-  font-size: 1.35rem;
+  font-size: 1.15rem;
   font-weight: var(--clear-font-bold);
   color: var(--clear-text-primary);
   line-height: 1.1;
@@ -648,21 +653,23 @@ html.modal-open body {
 .clear-data-cards {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 24px;
+  gap: 10px;
+  padding: 14px 20px;
+  flex: 1;
+  overflow-y: auto;
 }
 
 @media (max-width: 768px) {
   .clear-data-cards {
-    gap: 14px;
-    padding: 20px;
+    gap: 10px;
+    padding: 12px 16px;
   }
 }
 
 @media (max-width: 480px) {
   .clear-data-cards {
-    gap: 12px;
-    padding: 16px;
+    gap: 8px;
+    padding: 10px 12px;
   }
 }
 
@@ -674,7 +681,7 @@ html.modal-open body {
   background: var(--clear-bg-card);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
-  padding: 20px;
+  padding: 14px 16px;
   overflow: hidden;
   cursor: pointer;
 
@@ -688,13 +695,13 @@ html.modal-open body {
 
 @media (max-width: 768px) {
   .clear-data-card {
-    padding: 18px;
+    padding: 12px 14px;
   }
 }
 
 @media (max-width: 480px) {
   .clear-data-card {
-    padding: 16px;
+    padding: 12px;
   }
 }
 
@@ -719,8 +726,8 @@ html.modal-open body {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 12px;
+  gap: 12px;
+  margin-bottom: 6px;
 }
 
 .clear-data-card__icon-title {
@@ -731,8 +738,8 @@ html.modal-open body {
 }
 
 .clear-data-card__icon {
-  width: 40px;
-  height: 40px;
+  width: 34px;
+  height: 34px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -742,8 +749,8 @@ html.modal-open body {
 
 @media (max-width: 480px) {
   .clear-data-card__icon {
-    width: 36px;
-    height: 36px;
+    width: 30px;
+    height: 30px;
   }
 }
 
@@ -849,14 +856,14 @@ html.modal-open body {
 .clear-data-card__description {
   font-size: var(--clear-text-sm);
   color: var(--clear-text-muted);
-  line-height: 1.6;
-  margin-bottom: 14px;
+  line-height: 1.4;
+  margin-bottom: 8px;
 }
 
 @media (max-width: 480px) {
   .clear-data-card__description {
     font-size: var(--clear-text-xs);
-    margin-bottom: 12px;
+    margin-bottom: 6px;
   }
 }
 
@@ -864,14 +871,14 @@ html.modal-open body {
 .clear-data-card__items {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-bottom: 16px;
+  gap: 4px;
+  margin-bottom: 10px;
 }
 
 @media (max-width: 480px) {
   .clear-data-card__items {
-    gap: 5px;
-    margin-bottom: 14px;
+    gap: 3px;
+    margin-bottom: 8px;
   }
 }
 
@@ -909,9 +916,9 @@ html.modal-open body {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 12px 20px;
+  padding: 9px 16px;
   border-radius: var(--clear-radius-md);
-  font-size: var(--clear-text-base);
+  font-size: var(--clear-text-sm);
   font-weight: var(--clear-font-semibold);
   cursor: pointer;
   border: none;
@@ -920,8 +927,8 @@ html.modal-open body {
 
 @media (max-width: 480px) {
   .clear-data-card__button {
-    padding: 10px 16px;
-    font-size: var(--clear-text-sm);
+    padding: 8px 14px;
+    font-size: var(--clear-text-xs);
   }
 }
 
@@ -1044,12 +1051,13 @@ html.modal-open body {
 .clear-data-footer {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 16px 24px;
+  gap: 8px;
+  padding: 10px 20px;
   background: rgba(0, 0, 0, 0.2);
   border-top: 1px solid var(--clear-border-subtle);
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: rgba(255, 255, 255, 0.4);
+  flex-shrink: 0;
 }
 
 .clear-data-footer svg {
