@@ -4631,58 +4631,319 @@ class ExpenseTracker {
         const closeClearModal = document.getElementById('closeClearModal');
         const clearDataBackdrop = clearDataModal?.querySelector('.clear-data-backdrop');
 
-        // Open modal
-        clearDataBtn?.addEventListener('click', async () => {
-            // Show modal immediately, load stats in background
+        // Confirmation modal elements
+        const confirmModal = document.getElementById('clearDataConfirmModal');
+        const confirmBackdrop = confirmModal?.querySelector('.clear-data-confirm-backdrop');
+        const confirmClose = document.getElementById('closeConfirmClearModal');
+        const confirmCancel = document.getElementById('confirmClearCancel');
+        const confirmDelete = document.getElementById('confirmClearDelete');
+        const confirmCheckbox = document.getElementById('confirmClearCheckbox');
+        const confirmTypeSection = document.getElementById('confirmTypeSection');
+        const confirmTypeInput = document.getElementById('confirmTypeInput');
+        const confirmTitle = document.getElementById('confirmClearTitle');
+        const confirmItems = document.getElementById('confirmClearItems');
+        const confirmAnnounce = document.getElementById('confirmClearAnnounce');
+
+        // Scroll lock counter for nested modals
+        let scrollLockCount = 0;
+        let savedScrollY = 0;
+        const lockScroll = () => {
+            scrollLockCount++;
+            if (scrollLockCount === 1) {
+                savedScrollY = window.scrollY;
+                document.documentElement.classList.add('modal-open');
+            }
+        };
+        const unlockScroll = () => {
+            scrollLockCount--;
+            if (scrollLockCount <= 0) {
+                scrollLockCount = 0;
+                document.documentElement.classList.remove('modal-open');
+                window.scrollTo(0, savedScrollY);
+            }
+        };
+
+        // Track current action for confirmation
+        let pendingAction = null;
+        let isDeleting = false;
+        let lastDeleteClick = 0;
+
+        // ── Stage 1: Options Modal ──
+        const openOptionsModal = async () => {
             clearDataModal.style.display = 'flex';
+            lockScroll();
             requestAnimationFrame(() => {
                 clearDataModal.classList.add('is-active');
             });
-
-            // Load stats (don't block modal opening)
             try {
                 await this.loadClearDataStats();
             } catch (err) {
                 console.error('Failed to load clear data stats:', err);
             }
-        });
+        };
 
-        // Close modal
-        const closeModal = () => {
+        const closeOptionsModal = () => {
             clearDataModal.classList.remove('is-active');
             setTimeout(() => {
                 clearDataModal.style.display = 'none';
             }, 300);
+            unlockScroll();
         };
 
-        closeClearModal?.addEventListener('click', closeModal);
-        clearDataBackdrop?.addEventListener('click', closeModal);
+        clearDataBtn?.addEventListener('click', openOptionsModal);
+        closeClearModal?.addEventListener('click', closeOptionsModal);
+        clearDataBackdrop?.addEventListener('click', closeOptionsModal);
 
-        // Escape key to close
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && clearDataModal.style.display === 'flex') {
-                closeModal();
+        // ── Stage 2: Confirmation Modal ──
+        const openConfirmModal = (action) => {
+            pendingAction = action;
+            isDeleting = false;
+
+            // Configure content based on action
+            const configs = {
+                images: {
+                    title: 'Clear Saved Images',
+                    checkboxText: 'I understand this will permanently delete all saved images',
+                    buttonText: 'Delete Images',
+                    requireType: false,
+                    items: [
+                        { text: `Saved bill images`, type: 'delete' },
+                        { text: 'Expense records', type: 'keep' }
+                    ]
+                },
+                everything: {
+                    title: 'Clear All Data',
+                    checkboxText: 'I understand this will permanently delete all my data',
+                    buttonText: 'Delete All Data',
+                    requireType: true,
+                    items: [
+                        { text: `All expense records (${this.expenses.length} entries)`, type: 'delete' },
+                        { text: 'All saved bill images', type: 'delete' },
+                        { text: 'Custom categories', type: 'delete' },
+                        { text: 'Transaction history', type: 'delete' }
+                    ]
+                }
+            };
+
+            const config = configs[action];
+            if (!config) return;
+
+            // Set title
+            if (confirmTitle) confirmTitle.textContent = config.title;
+
+            // Set items
+            if (confirmItems) {
+                confirmItems.innerHTML = config.items.map(item => `
+                    <div class="clear-data-confirm-item clear-data-confirm-item--${item.type}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            ${item.type === 'delete'
+                                ? '<path d="M18 6L6 18M6 6l12 12"/>'
+                                : '<path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/>'
+                            }
+                        </svg>
+                        <span>${item.text}</span>
+                    </div>
+                `).join('');
+            }
+
+            // Set checkbox text
+            const checkboxText = confirmModal?.querySelector('.clear-data-confirm-checkbox-text');
+            if (checkboxText) checkboxText.textContent = config.checkboxText;
+
+            // Set button text
+            const btnText = confirmDelete?.querySelector('.confirm-btn-text');
+            if (btnText) btnText.textContent = config.buttonText;
+
+            // Show/hide type section
+            if (confirmTypeSection) {
+                confirmTypeSection.style.display = config.requireType ? 'block' : 'none';
+            }
+
+            // Reset state
+            if (confirmCheckbox) confirmCheckbox.checked = false;
+            if (confirmTypeInput) {
+                confirmTypeInput.value = '';
+                confirmTypeInput.classList.remove('matched');
+            }
+            if (confirmDelete) {
+                confirmDelete.classList.remove('enabled', 'loading');
+                confirmDelete.setAttribute('aria-disabled', 'true');
+            }
+
+            // Show modal
+            confirmModal.style.display = 'flex';
+            lockScroll();
+
+            // Focus close button after animation
+            setTimeout(() => {
+                confirmClose?.focus();
+            }, 100);
+
+            // Setup focus trap
+            setupFocusTrap(confirmModal);
+        };
+
+        const closeConfirmModal = () => {
+            if (isDeleting) return;
+            confirmModal.style.display = 'none';
+            unlockScroll();
+            pendingAction = null;
+
+            // Return focus to the options modal
+            const activeCard = document.querySelector('.clear-data-card:focus');
+            if (!activeCard) {
+                closeClearModal?.focus();
+            }
+        };
+
+        // Focus trap
+        const setupFocusTrap = (modalEl) => {
+            const handler = (e) => {
+                if (e.key !== 'Tab') return;
+                const focusable = modalEl.querySelectorAll(
+                    'button:not([style*="display: none"]), input:not([style*="display: none"]), [tabindex]:not([tabindex="-1"])'
+                );
+                const visible = Array.from(focusable).filter(el => {
+                    return el.offsetParent !== null && !el.closest('[style*="display: none"]');
+                });
+                if (visible.length === 0) return;
+
+                const first = visible[0];
+                const last = visible[visible.length - 1];
+
+                if (e.shiftKey) {
+                    if (document.activeElement === first) {
+                        e.preventDefault();
+                        last.focus();
+                    }
+                } else {
+                    if (document.activeElement === last) {
+                        e.preventDefault();
+                        first.focus();
+                    }
+                }
+            };
+            // Remove previous listener
+            modalEl._focusTrapHandler && modalEl.removeEventListener('keydown', modalEl._focusTrapHandler);
+            modalEl._focusTrapHandler = handler;
+            modalEl.addEventListener('keydown', handler);
+        };
+
+        // Validation — update delete button state
+        const updateDeleteButtonState = () => {
+            if (!confirmDelete || !confirmCheckbox) return;
+            const checkboxValid = confirmCheckbox.checked;
+            const needsType = confirmTypeSection?.style.display !== 'none';
+            const typeValid = !needsType || (confirmTypeInput?.value.trim().toUpperCase() === 'DELETE');
+            const canDelete = checkboxValid && typeValid;
+
+            if (canDelete) {
+                confirmDelete.classList.add('enabled');
+                confirmDelete.setAttribute('aria-disabled', 'false');
+                if (confirmAnnounce) confirmAnnounce.textContent = 'Delete button is now enabled.';
+            } else {
+                confirmDelete.classList.remove('enabled');
+                confirmDelete.setAttribute('aria-disabled', 'true');
+                if (confirmAnnounce && confirmCheckbox.checked) {
+                    confirmAnnounce.textContent = 'Delete button is disabled. Complete all confirmation steps.';
+                }
+            }
+        };
+
+        // Checkbox change
+        confirmCheckbox?.addEventListener('change', updateDeleteButtonState);
+
+        // Type input
+        confirmTypeInput?.addEventListener('input', () => {
+            const matched = confirmTypeInput.value.trim().toUpperCase() === 'DELETE';
+            confirmTypeInput.classList.toggle('matched', matched);
+            updateDeleteButtonState();
+        });
+
+        // Enter in type input triggers delete if ready
+        confirmTypeInput?.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && confirmDelete?.classList.contains('enabled')) {
+                confirmDelete.click();
             }
         });
 
-        // Card action buttons
-        const clearDataOnlyBtn = document.querySelector('#clearDataOnlyCard .clear-card-action');
-        const clearImagesOnlyBtn = document.querySelector('#clearImagesOnlyCard .clear-card-action');
-        const clearEverythingBtn = document.querySelector('#clearEverythingCard .clear-card-action');
+        // Close confirm modal
+        confirmClose?.addEventListener('click', closeConfirmModal);
+        confirmCancel?.addEventListener('click', closeConfirmModal);
+        confirmBackdrop?.addEventListener('click', closeConfirmModal);
 
-        clearDataOnlyBtn?.addEventListener('click', async () => {
-            closeModal();
+        // ESC key — close topmost modal
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (confirmModal?.style.display === 'flex') {
+                    closeConfirmModal();
+                } else if (clearDataModal?.style.display === 'flex') {
+                    closeOptionsModal();
+                }
+            }
+        });
+
+        // Delete button click
+        confirmDelete?.addEventListener('click', async () => {
+            if (confirmDelete.getAttribute('aria-disabled') === 'true') return;
+            if (isDeleting) return;
+
+            // Double-click guard
+            const now = Date.now();
+            if (now - lastDeleteClick < 1000) return;
+            lastDeleteClick = now;
+
+            isDeleting = true;
+            confirmDelete.classList.add('loading');
+            confirmDelete.setAttribute('aria-disabled', 'true');
+            if (confirmAnnounce) confirmAnnounce.textContent = 'Deleting data. Please wait.';
+
+            try {
+                if (pendingAction === 'images') {
+                    await this.executeClearImages();
+                } else if (pendingAction === 'everything') {
+                    await this.executeClearEverything();
+                }
+                if (confirmAnnounce) confirmAnnounce.textContent = 'Data has been deleted successfully.';
+
+                // Close both modals
+                isDeleting = false;
+                confirmModal.style.display = 'none';
+                unlockScroll();
+                closeOptionsModal();
+            } catch (error) {
+                console.error('Delete operation failed:', error);
+                isDeleting = false;
+                confirmDelete.classList.remove('loading');
+                confirmDelete.classList.add('enabled');
+                confirmDelete.setAttribute('aria-disabled', 'false');
+                if (confirmAnnounce) confirmAnnounce.textContent = 'Deletion failed. Please try again.';
+                this.showNotification('Failed to delete: ' + error.message);
+            }
+        });
+
+        // ── Card action buttons ──
+        const clearDataOnlyBtn = document.querySelector('#clearDataOnlyCard .clear-data-card__button');
+        const clearImagesOnlyBtn = document.querySelector('#clearImagesOnlyCard .clear-data-card__button');
+        const clearEverythingBtn = document.querySelector('#clearEverythingCard .clear-data-card__button');
+
+        // Safe action — direct execute with existing showModal confirmation
+        clearDataOnlyBtn?.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            closeOptionsModal();
             await this.clearDataOnly();
         });
 
-        clearImagesOnlyBtn?.addEventListener('click', async () => {
-            closeModal();
-            await this.clearImagesOnly();
+        // Caution action — open Stage 2 confirmation
+        clearImagesOnlyBtn?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openConfirmModal('images');
         });
 
-        clearEverythingBtn?.addEventListener('click', async () => {
-            closeModal();
-            await this.clearEverything();
+        // Danger action — open Stage 2 confirmation with type-to-confirm
+        clearEverythingBtn?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openConfirmModal('everything');
         });
     }
 
@@ -4692,9 +4953,9 @@ class ExpenseTracker {
 
         // Show loading state
         statsContainer.innerHTML = `
-            <div class="clear-stat-item clear-stat-skeleton">
-                <div class="clear-stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 2v4M15 2v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"/></svg></div>
-                <div class="clear-stat-content"><div class="clear-stat-label">Loading...</div><div class="clear-stat-value">--</div></div>
+            <div class="clear-data-stats__item">
+                <div class="clear-data-stats__label">Loading...</div>
+                <div class="clear-data-stats__value">--</div>
             </div>
         `;
 
@@ -4706,41 +4967,17 @@ class ExpenseTracker {
 
             // Build stats HTML
             let statsHTML = `
-                <div class="clear-stat-item">
-                    <div class="clear-stat-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-                            <path d="M14 2v6h6"/>
-                        </svg>
-                    </div>
-                    <div class="clear-stat-content">
-                        <div class="clear-stat-label">Expense Records</div>
-                        <div class="clear-stat-value">${this.expenses.length}</div>
-                    </div>
+                <div class="clear-data-stats__item">
+                    <div class="clear-data-stats__label">Expenses</div>
+                    <div class="clear-data-stats__value">${this.expenses.length}</div>
                 </div>
-                <div class="clear-stat-item">
-                    <div class="clear-stat-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="3" y="3" width="18" height="18" rx="2"/>
-                            <circle cx="8.5" cy="8.5" r="1.5"/>
-                            <path d="M21 15l-5-5L5 21"/>
-                        </svg>
-                    </div>
-                    <div class="clear-stat-content">
-                        <div class="clear-stat-label">Saved Images</div>
-                        <div class="clear-stat-value">${orphanedCount}</div>
-                    </div>
+                <div class="clear-data-stats__item">
+                    <div class="clear-data-stats__label">Saved Images</div>
+                    <div class="clear-data-stats__value">${orphanedCount}</div>
                 </div>
-                <div class="clear-stat-item">
-                    <div class="clear-stat-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>
-                        </svg>
-                    </div>
-                    <div class="clear-stat-content">
-                        <div class="clear-stat-label">Storage Used</div>
-                        <div class="clear-stat-value">${orphanedSize.toFixed(1)}<span class="clear-stat-unit">MB</span></div>
-                    </div>
+                <div class="clear-data-stats__item">
+                    <div class="clear-data-stats__label">Storage</div>
+                    <div class="clear-data-stats__value">${orphanedSize.toFixed(1)}<span class="clear-data-stats__unit">MB</span></div>
                 </div>
             `;
 
@@ -4748,10 +4985,9 @@ class ExpenseTracker {
         } catch (error) {
             console.error('Error loading clear data stats:', error);
             statsContainer.innerHTML = `
-                <div class="clear-stat-item">
-                    <div class="clear-stat-content">
-                        <div class="clear-stat-label">Unable to load statistics</div>
-                    </div>
+                <div class="clear-data-stats__item">
+                    <div class="clear-data-stats__label">Unable to load statistics</div>
+                    <div class="clear-data-stats__value">--</div>
                 </div>
             `;
         }
@@ -4889,6 +5125,46 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                     console.error('Error clearing all data:', error);
                     this.showNotification('❌ Failed to clear all data: ' + error.message);
                 }
+        }
+    }
+
+    async executeClearImages() {
+        const orphanedResponse = await api.getOrphanedImages();
+        if (!orphanedResponse.images || orphanedResponse.images.length === 0) {
+            this.showNotification('No saved images to clear');
+            return;
+        }
+        const response = await api.clearImagesOnly();
+        if (response.success) {
+            this.showNotification(`${response.deletedCount || 0} saved images cleared!`);
+        } else {
+            throw new Error(response.message || 'Failed to clear images');
+        }
+    }
+
+    async executeClearEverything() {
+        const response = await api.clearAll();
+        if (response.success) {
+            this.expenses = [];
+            this.filteredExpenses = [];
+            this.scannedImages = [];
+            this.extractedExpenses = [];
+            this.extractedData = {};
+            this.editingExpenseId = null;
+
+            const imagePreview = document.getElementById('imagePreview');
+            if (imagePreview) imagePreview.innerHTML = '<p>No images selected</p>';
+
+            const expenseForm = document.getElementById('expenseForm');
+            if (expenseForm) expenseForm.reset();
+
+            await this.loadExpenses();
+            this.displayExpenses();
+            this.updateTotal();
+
+            this.showNotification(`All data cleared! ${response.expensesCleared || 0} expenses and ${(response.expenseImagesDeleted || 0) + (response.orphanedImagesDeleted || 0)} images deleted.`);
+        } else {
+            throw new Error(response.message || 'Failed to clear all data');
         }
     }
 
