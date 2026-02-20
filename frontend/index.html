@@ -313,35 +313,34 @@
 
                                 <div class="clear-data-cards">
                                     <!-- Safe Option -->
-                                    <div class="clear-card clear-card-safe" id="clearDataOnlyCard">
-                                        <div class="clear-card-glow"></div>
-                                        <div class="clear-card-header">
-                                            <div class="clear-card-icon clear-card-icon-safe">
+                                    <div class="clear-data-card clear-data-card--safe" id="clearDataOnlyCard" tabindex="0" role="button">
+                                        <div class="clear-data-card__header">
+                                            <div class="clear-data-card__icon clear-data-card__icon--safe">
                                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                     <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
                                                     <path d="M14 2v6h6M9 15h6"/>
                                                 </svg>
                                             </div>
-                                            <div class="clear-card-badge clear-card-badge-safe">Safe</div>
+                                            <div class="clear-data-badge clear-data-badge--safe">Safe</div>
                                         </div>
-                                        <h3 class="clear-card-title">Clear Data Only</h3>
-                                        <p class="clear-card-description">Remove expense records but keep bill images saved for 30 days</p>
-                                        <div class="clear-card-impact">
-                                            <div class="impact-item impact-delete">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <h3 class="clear-data-card__title">Clear Data Only</h3>
+                                        <p class="clear-data-card__description">Remove expense records but keep bill images saved for 30 days</p>
+                                        <div class="clear-data-card__items">
+                                            <div class="clear-data-card__item">
+                                                <svg class="clear-data-card__item-icon clear-data-card__item-icon--delete" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                     <path d="M20 6L9 17l-5-5"/>
                                                 </svg>
                                                 <span>Deletes expense records</span>
                                             </div>
-                                            <div class="impact-item impact-keep">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <div class="clear-data-card__item">
+                                                <svg class="clear-data-card__item-icon clear-data-card__item-icon--keep" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M9 12l2 2 4-4"/>
                                                     <circle cx="12" cy="12" r="10"/>
-                                                    <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/>
                                                 </svg>
                                                 <span>Keeps all bill images</span>
                                             </div>
                                         </div>
-                                        <button class="clear-card-action clear-card-action-safe">
+                                        <button class="clear-data-card__button clear-data-card__button--safe">
                                             <span>Clear Data</span>
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                 <path d="M5 12h14M12 5l7 7-7 7"/>
@@ -350,36 +349,35 @@
                                     </div>
 
                                     <!-- Warning Option -->
-                                    <div class="clear-card clear-card-warning" id="clearImagesOnlyCard">
-                                        <div class="clear-card-glow"></div>
-                                        <div class="clear-card-header">
-                                            <div class="clear-card-icon clear-card-icon-warning">
+                                    <div class="clear-data-card clear-data-card--caution" id="clearImagesOnlyCard" tabindex="0" role="button">
+                                        <div class="clear-data-card__header">
+                                            <div class="clear-data-card__icon clear-data-card__icon--caution">
                                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                     <rect x="3" y="3" width="18" height="18" rx="2"/>
                                                     <circle cx="8.5" cy="8.5" r="1.5"/>
                                                     <path d="M21 15l-5-5L5 21"/>
                                                 </svg>
                                             </div>
-                                            <div class="clear-card-badge clear-card-badge-warning">Caution</div>
+                                            <div class="clear-data-badge clear-data-badge--caution">Caution</div>
                                         </div>
-                                        <h3 class="clear-card-title">Clear Saved Images</h3>
-                                        <p class="clear-card-description">Delete saved bill photos to free up storage space</p>
-                                        <div class="clear-card-impact">
-                                            <div class="impact-item impact-delete">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <h3 class="clear-data-card__title">Clear Saved Images</h3>
+                                        <p class="clear-data-card__description">Delete saved bill photos to free up storage space</p>
+                                        <div class="clear-data-card__items">
+                                            <div class="clear-data-card__item">
+                                                <svg class="clear-data-card__item-icon clear-data-card__item-icon--delete" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                     <path d="M20 6L9 17l-5-5"/>
                                                 </svg>
                                                 <span>Deletes saved images</span>
                                             </div>
-                                            <div class="impact-item impact-keep">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <div class="clear-data-card__item">
+                                                <svg class="clear-data-card__item-icon clear-data-card__item-icon--keep" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M9 12l2 2 4-4"/>
                                                     <circle cx="12" cy="12" r="10"/>
-                                                    <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/>
                                                 </svg>
                                                 <span>Keeps expense data</span>
                                             </div>
                                         </div>
-                                        <button class="clear-card-action clear-card-action-warning">
+                                        <button class="clear-data-card__button clear-data-card__button--caution">
                                             <span>Clear Images</span>
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                 <path d="M5 12h14M12 5l7 7-7 7"/>
@@ -388,34 +386,33 @@
                                     </div>
 
                                     <!-- Danger Option -->
-                                    <div class="clear-card clear-card-danger" id="clearEverythingCard">
-                                        <div class="clear-card-glow"></div>
-                                        <div class="clear-card-header">
-                                            <div class="clear-card-icon clear-card-icon-danger">
+                                    <div class="clear-data-card clear-data-card--danger" id="clearEverythingCard" tabindex="0" role="button">
+                                        <div class="clear-data-card__header">
+                                            <div class="clear-data-card__icon clear-data-card__icon--danger">
                                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                     <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
                                                     <path d="M10 11v6M14 11v6"/>
                                                 </svg>
                                             </div>
-                                            <div class="clear-card-badge clear-card-badge-danger">Danger</div>
+                                            <div class="clear-data-badge clear-data-badge--danger">Danger</div>
                                         </div>
-                                        <h3 class="clear-card-title">Clear Everything</h3>
-                                        <p class="clear-card-description">Permanently delete all expenses and images. This cannot be undone</p>
-                                        <div class="clear-card-impact">
-                                            <div class="impact-item impact-delete">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <h3 class="clear-data-card__title">Clear Everything</h3>
+                                        <p class="clear-data-card__description">Permanently delete all expenses and images. This cannot be undone</p>
+                                        <div class="clear-data-card__items">
+                                            <div class="clear-data-card__item">
+                                                <svg class="clear-data-card__item-icon clear-data-card__item-icon--delete" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                     <path d="M20 6L9 17l-5-5"/>
                                                 </svg>
                                                 <span>Deletes all expense records</span>
                                             </div>
-                                            <div class="impact-item impact-delete">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <div class="clear-data-card__item">
+                                                <svg class="clear-data-card__item-icon clear-data-card__item-icon--delete" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                     <path d="M20 6L9 17l-5-5"/>
                                                 </svg>
                                                 <span>Deletes all bill images</span>
                                             </div>
                                         </div>
-                                        <button class="clear-card-action clear-card-action-danger">
+                                        <button class="clear-data-card__button clear-data-card__button--danger">
                                             <span>Clear Everything</span>
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                 <path d="M5 12h14M12 5l7 7-7 7"/>
@@ -433,6 +430,84 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Clear Data Confirmation Modal (Stage 2) -->
+                        <div id="clearDataConfirmModal" class="clear-data-confirm-modal" style="display: none;" role="alertdialog" aria-modal="true" aria-labelledby="confirmClearTitle" aria-describedby="confirmClearWarning">
+                            <div class="clear-data-confirm-backdrop"></div>
+                            <div class="clear-data-confirm-container">
+                                <div class="clear-data-confirm-header">
+                                    <div class="clear-data-confirm-header-content">
+                                        <div class="clear-data-confirm-icon-wrapper">
+                                            <svg class="clear-data-confirm-header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h2 id="confirmClearTitle" class="clear-data-confirm-title">Clear All Data</h2>
+                                            <p class="clear-data-confirm-subtitle">This action cannot be undone</p>
+                                        </div>
+                                    </div>
+                                    <button class="clear-data-confirm-close" id="closeConfirmClearModal" aria-label="Close confirmation">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M18 6L6 18M6 6l12 12"/>
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <div class="clear-data-confirm-warning" id="confirmClearWarning">
+                                    <div class="clear-data-confirm-warning-card">
+                                        <div class="clear-data-confirm-warning-header">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                                                <line x1="12" y1="9" x2="12" y2="13"/>
+                                                <line x1="12" y1="17" x2="12.01" y2="17"/>
+                                            </svg>
+                                            <span>You are about to permanently delete:</span>
+                                        </div>
+                                        <div class="clear-data-confirm-items" id="confirmClearItems">
+                                            <!-- Items populated by JS based on action type -->
+                                        </div>
+                                        <p class="clear-data-confirm-warning-footer">This data cannot be recovered after deletion.</p>
+                                    </div>
+                                </div>
+
+                                <div class="clear-data-confirm-body">
+                                    <label class="clear-data-confirm-checkbox-label" id="confirmCheckboxLabel">
+                                        <input type="checkbox" class="clear-data-confirm-checkbox-input" id="confirmClearCheckbox" aria-required="true">
+                                        <span class="clear-data-confirm-checkbox-visual">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                                <path d="M20 6L9 17l-5-5"/>
+                                            </svg>
+                                        </span>
+                                        <span class="clear-data-confirm-checkbox-text">I understand this will permanently delete all my data</span>
+                                    </label>
+
+                                    <div class="clear-data-confirm-type-section" id="confirmTypeSection" style="display: none;">
+                                        <label for="confirmTypeInput" class="clear-data-confirm-type-label">Type DELETE to confirm:</label>
+                                        <input type="text" id="confirmTypeInput" class="clear-data-confirm-type-input" autocomplete="off" spellcheck="false" placeholder="DELETE" aria-describedby="confirmTypeHint">
+                                        <span id="confirmTypeHint" class="clear-data-sr-only">Type the word DELETE in capital letters to enable the delete button</span>
+                                    </div>
+                                </div>
+
+                                <div class="clear-data-confirm-actions">
+                                    <button class="clear-data-confirm-btn-cancel" id="confirmClearCancel">Cancel</button>
+                                    <button class="clear-data-confirm-btn-delete" id="confirmClearDelete" aria-disabled="true" aria-describedby="deleteBtnHint">
+                                        <span class="confirm-btn-text">Delete All Data</span>
+                                        <span class="confirm-btn-spinner" style="display: none;">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <circle cx="12" cy="12" r="10" opacity="0.3"/>
+                                                <path d="M12 2a10 10 0 019.95 9" stroke-linecap="round"/>
+                                            </svg>
+                                        </span>
+                                    </button>
+                                    <span id="deleteBtnHint" class="clear-data-sr-only">Check the confirmation checkbox to enable this button</span>
+                                </div>
+
+                                <!-- Live region for screen reader announcements -->
+                                <div aria-live="polite" aria-atomic="true" class="clear-data-sr-only" id="confirmClearAnnounce"></div>
+                            </div>
+                        </div>
+
                         <button id="downloadReimbursementPackage" class="btn-highlight">
                             <span class="btn-icon">📦</span>
                             <span class="btn-text">Download Complete Package</span>
