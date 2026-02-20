@@ -105,27 +105,9 @@
     overflow: hidden;
 }
 
-/* Scanning animation in header */
+/* Scanning animation removed per user request */
 .saved-images-header::after {
-    content: '';
-    position: absolute;
-    top: 15%;
-    left: 0;
-    width: 40px;
-    height: 70%;
-    border: 2px solid rgba(139, 92, 246, 0.35);
-    border-radius: 4px;
-    background: transparent;
-    animation: headerScanRect 3.5s ease-in-out infinite;
-    pointer-events: none;
-    z-index: 1;
-}
-
-@keyframes headerScanRect {
-    0% { transform: translateX(-60px); opacity: 0; }
-    10% { opacity: 1; }
-    90% { opacity: 1; }
-    100% { transform: translateX(calc(100vw + 60px)); opacity: 0; }
+    display: none;
 }
 
 .saved-images-header-content {
@@ -296,6 +278,11 @@
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 20px;
     min-height: 200px;
+}
+
+/* Empty state should span full grid width and center */
+.saved-images-grid .img-empty {
+    grid-column: 1 / -1;
 }
 
 /* Image Card - Premium Design */
