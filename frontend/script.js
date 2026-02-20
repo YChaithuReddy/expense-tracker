@@ -4701,6 +4701,17 @@ class ExpenseTracker {
 
             // Configure content based on action
             const configs = {
+                data: {
+                    title: 'Clear Expense Data',
+                    checkboxText: 'I understand this will permanently delete all expense records',
+                    buttonText: 'Delete Expenses',
+                    requireType: false,
+                    items: [
+                        { text: `All expense records (${this.expenses.length} entries)`, type: 'delete' },
+                        { text: 'Bill photos kept for 30 days', type: 'keep' },
+                        { text: 'PDF generation still available', type: 'keep' }
+                    ]
+                },
                 images: {
                     title: 'Clear Saved Images',
                     checkboxText: 'I understand this will permanently delete all saved images',
@@ -4899,7 +4910,9 @@ class ExpenseTracker {
             if (confirmAnnounce) confirmAnnounce.textContent = 'Deleting data. Please wait.';
 
             try {
-                if (pendingAction === 'images') {
+                if (pendingAction === 'data') {
+                    await this.executeClearData();
+                } else if (pendingAction === 'images') {
                     await this.executeClearImages();
                 } else if (pendingAction === 'everything') {
                     await this.executeClearEverything();
@@ -4927,11 +4940,10 @@ class ExpenseTracker {
         const clearImagesOnlyBtn = document.querySelector('#clearImagesOnlyCard .clear-data-card__button');
         const clearEverythingBtn = document.querySelector('#clearEverythingCard .clear-data-card__button');
 
-        // Safe action — direct execute with existing showModal confirmation
-        clearDataOnlyBtn?.addEventListener('click', async (e) => {
+        // Safe action — open Stage 2 confirmation (matching other two)
+        clearDataOnlyBtn?.addEventListener('click', (e) => {
             e.stopPropagation();
-            closeOptionsModal();
-            await this.clearDataOnly();
+            openConfirmModal('data');
         });
 
         // Caution action — open Stage 2 confirmation
@@ -5125,6 +5137,16 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                     console.error('Error clearing all data:', error);
                     this.showNotification('❌ Failed to clear all data: ' + error.message);
                 }
+        }
+    }
+
+    async executeClearData() {
+        const response = await api.clearExpenseDataOnly();
+        if (response.success) {
+            await this.loadExpenses();
+            this.showNotification(`Expense data cleared! ${response.orphanedImagesCount || 0} images saved for later use.`);
+        } else {
+            throw new Error(response.message || 'Failed to clear expense data');
         }
     }
 
