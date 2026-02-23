@@ -444,9 +444,9 @@ html.modal-open body {
 
 @media (max-width: 480px) {
   .clear-data-stats {
-    grid-template-columns: 1fr;
-    gap: 8px;
-    padding: 12px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    padding: 10px;
   }
 }
 
@@ -467,8 +467,8 @@ html.modal-open body {
 
 @media (max-width: 480px) {
   .clear-data-stats__item {
-    padding: 10px 8px;
-    min-height: 56px;
+    padding: 8px 4px;
+    min-height: 48px;
   }
 }
 
@@ -503,7 +503,7 @@ html.modal-open body {
 
 @media (max-width: 480px) {
   .clear-data-stats__value {
-    font-size: 1.2rem;
+    font-size: 1rem;
   }
 }
 
