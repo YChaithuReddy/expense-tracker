@@ -4505,8 +4505,9 @@ class ExpenseTracker {
                     const dirs = ['DOCUMENTS', 'EXTERNAL_STORAGE', 'CACHE'];
                     for (const dir of dirs) {
                         try {
+                            const filePath = dir === 'EXTERNAL_STORAGE' ? `Download/${fileName}` : fileName;
                             const result = await Filesystem.writeFile({
-                                path: dir === 'EXTERNAL_STORAGE' ? `Download/${fileName}` : fileName,
+                                path: filePath,
                                 data: base64Data,
                                 directory: dir,
                                 recursive: true
@@ -4514,6 +4515,27 @@ class ExpenseTracker {
                             console.log(`📁 File saved to ${dir}:`, result.uri);
                             const location = dir === 'EXTERNAL_STORAGE' ? 'Downloads' : dir === 'DOCUMENTS' ? 'Documents' : 'Cache';
                             this.showNotification(`📁 Saved to ${location}/${fileName}`);
+
+                            // Open the saved file
+                            try {
+                                const uriResult = await Filesystem.getUri({ path: filePath, directory: dir });
+                                const fileUri = uriResult.uri;
+                                console.log('📂 File URI for opening:', fileUri);
+
+                                // Try Capacitor Browser plugin to open the file
+                                const Browser = window.Capacitor.Plugins?.Browser;
+                                if (Browser) {
+                                    await Browser.open({ url: fileUri });
+                                    console.log('📖 Opened file via Browser plugin');
+                                } else {
+                                    // Fallback: use window.open with the file URI
+                                    window.open(fileUri, '_system');
+                                    console.log('📖 Opened file via window.open');
+                                }
+                            } catch (openError) {
+                                console.warn('Could not auto-open file:', openError);
+                                this.showNotification(`📁 Saved to ${location}/${fileName} — open from your file manager`);
+                            }
                             return true;
                         } catch (dirError) {
                             console.warn(`Filesystem write to ${dir} failed:`, dirError.message || dirError);
