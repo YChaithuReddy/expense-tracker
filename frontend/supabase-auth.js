@@ -154,16 +154,14 @@ function displayUserInfo() {
 
             userInfoEl.innerHTML = `
                 <div class="user-info-content">
+                    <button class="theme-toggle-btn" onclick="expenseTracker.toggleTheme()" aria-label="Toggle Theme" title="Switch Theme">
+                        <span class="theme-icon" id="themeIcon">🎨</span>
+                    </button>
                     <div class="user-details">
                         <div class="user-name">${safeName}</div>
                         <div class="user-email">${safeEmail}</div>
                     </div>
-                    <div class="user-actions">
-                        <button class="theme-toggle-btn" onclick="expenseTracker.toggleTheme()" aria-label="Toggle Theme" title="Switch Theme">
-                            <span class="theme-icon" id="themeIcon">🎨</span>
-                        </button>
-                        <button onclick="logout()" class="logout-btn">Logout</button>
-                    </div>
+                    <button onclick="logout()" class="logout-btn">Logout</button>
                 </div>
             `;
             userInfoEl.style.display = 'flex';

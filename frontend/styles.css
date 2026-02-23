@@ -2833,13 +2833,6 @@ body.modal-open {
     text-overflow: ellipsis;
 }
 
-.user-actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-shrink: 0;
-}
-
 .logout-btn {
     background: var(--button-bg);
     color: var(--text-primary);
@@ -2916,15 +2909,20 @@ body.modal-open {
     }
 
     .user-info-content {
-        flex-direction: column;
-        gap: 12px;
+        flex-wrap: wrap;
+        gap: 10px;
         padding: 12px 16px;
         max-width: 100%;
     }
 
     .user-details {
+        flex: 1;
+        min-width: 0;
+        text-align: left;
+    }
+
+    .user-info-content .logout-btn {
         width: 100%;
-        text-align: center;
     }
 
     .user-name {
