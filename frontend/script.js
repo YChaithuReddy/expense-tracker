@@ -4483,11 +4483,31 @@ class ExpenseTracker {
         const blob = data instanceof Blob ? data : new Blob([data], { type: mimeType });
         const isCapacitor = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
 
-        // Strategy 1: Capacitor Filesystem (native Android/iOS)
+        // On mobile (Capacitor), prioritize Share API since it's most reliable
         if (isCapacitor) {
+            // Strategy 1: Web Share API (most reliable on Android)
+            if (navigator.share) {
+                try {
+                    const file = new File([blob], fileName, { type: mimeType });
+                    const shareData = { title: fileName, files: [file] };
+                    if (!navigator.canShare || navigator.canShare(shareData)) {
+                        await navigator.share(shareData);
+                        console.log('📤 File shared via Web Share API');
+                        return true;
+                    }
+                } catch (shareError) {
+                    if (shareError.name === 'AbortError') {
+                        console.log('📤 Share cancelled by user');
+                        return true; // User chose to cancel, not a failure
+                    }
+                    console.warn('Web Share API failed:', shareError);
+                }
+            }
+
+            // Strategy 2: Capacitor Filesystem (native save)
             try {
-                const { Filesystem, Directory } = window.Capacitor.Plugins;
-                if (Filesystem && Directory) {
+                const { Filesystem, Directory } = window.Capacitor.Plugins || {};
+                if (Filesystem) {
                     let base64Data;
                     if (data instanceof Blob) {
                         base64Data = await new Promise((resolve, reject) => {
@@ -4499,43 +4519,64 @@ class ExpenseTracker {
                     } else {
                         base64Data = this.arrayBufferToBase64(data);
                     }
-                    const result = await Filesystem.writeFile({
-                        path: fileName,
-                        data: base64Data,
-                        directory: Directory.Documents,
-                        recursive: true
-                    });
-                    console.log('📁 File saved via Capacitor Filesystem:', result.uri);
-                    this.showNotification(`📁 Saved to Documents/${fileName}`);
-                    return true;
+
+                    // Try Documents first, then Cache as fallback
+                    const dirs = [Directory?.Documents, Directory?.Cache].filter(Boolean);
+                    for (const dir of dirs) {
+                        try {
+                            const result = await Filesystem.writeFile({
+                                path: fileName,
+                                data: base64Data,
+                                directory: dir,
+                                recursive: true
+                            });
+                            console.log('📁 File saved via Capacitor Filesystem:', result.uri);
+                            this.showNotification(`📁 Saved: ${fileName}`);
+                            return true;
+                        } catch (dirError) {
+                            console.warn(`Filesystem write to ${dir} failed:`, dirError);
+                        }
+                    }
                 }
             } catch (fsError) {
                 console.warn('Capacitor Filesystem failed:', fsError);
             }
+
+            // Strategy 3: Open as data URL (Android can offer to save/open)
+            try {
+                const reader = new FileReader();
+                const dataUrl = await new Promise((resolve, reject) => {
+                    reader.onloadend = () => resolve(reader.result);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(blob);
+                });
+                window.open(dataUrl, '_blank');
+                console.log('🌐 Opened file as data URL in new tab');
+                return true;
+            } catch (dataUrlError) {
+                console.warn('Data URL open failed:', dataUrlError);
+            }
+
+            return false;
         }
 
-        // Strategy 2: Web Share API (works on Android WebView)
-        if (navigator.share && navigator.canShare) {
+        // Desktop: Web Share API if available
+        if (navigator.share) {
             try {
                 const file = new File([blob], fileName, { type: mimeType });
-                if (navigator.canShare({ files: [file] })) {
-                    await navigator.share({
-                        title: fileName,
-                        files: [file]
-                    });
+                const shareData = { title: fileName, files: [file] };
+                if (!navigator.canShare || navigator.canShare(shareData)) {
+                    await navigator.share(shareData);
                     console.log('📤 File shared via Web Share API');
                     return true;
                 }
             } catch (shareError) {
-                if (shareError.name === 'AbortError') {
-                    console.log('📤 Share cancelled by user');
-                    return false;
-                }
+                if (shareError.name === 'AbortError') return true;
                 console.warn('Web Share API failed:', shareError);
             }
         }
 
-        // Strategy 3: Blob anchor download (works on desktop browsers)
+        // Desktop: Blob anchor download
         try {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -4546,10 +4587,6 @@ class ExpenseTracker {
             document.body.removeChild(a);
             setTimeout(() => URL.revokeObjectURL(url), 1000);
             console.log('💾 File download triggered via blob URL');
-            if (isCapacitor) {
-                console.warn('⚠️ Blob download on Android WebView - may not work');
-                return false;
-            }
             return true;
         } catch (blobError) {
             console.error('Blob download failed:', blobError);
