@@ -1792,6 +1792,26 @@ main {
         left: 20px;
         max-width: none;
     }
+
+    /* Mobile: reduce empty state padding */
+    .empty-state {
+        padding: 30px 20px;
+        font-size: 1rem;
+    }
+
+    /* Mobile: reduce section margins */
+    .section-header {
+        margin-bottom: 15px;
+    }
+
+    .expenses-container {
+        margin-bottom: 15px;
+    }
+
+    .ocr-section p,
+    .expense-form-section p {
+        margin-bottom: 15px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1978,6 +1998,42 @@ main {
     .expense-actions button {
         padding: 6px 10px;
         font-size: 0.7rem;
+    }
+
+    /* Small phone: compact empty state */
+    .empty-state {
+        padding: 20px 16px;
+        font-size: 0.95rem;
+        border-radius: 10px;
+    }
+
+    /* Small phone: reduce section margins */
+    .section-header {
+        margin-bottom: 10px;
+    }
+
+    .expenses-container {
+        margin-bottom: 10px;
+    }
+
+    .ocr-section p,
+    .expense-form-section p {
+        margin-bottom: 10px;
+    }
+
+    /* Small phone: compact drag-drop zone (override 2-class specificity) */
+    .image-preview-container.drag-drop-zone {
+        min-height: 60px;
+        padding: 10px;
+        margin: 10px 0;
+    }
+
+    .drag-drop-hint {
+        padding: 8px;
+    }
+
+    .drag-drop-text {
+        font-size: 0.95em;
     }
 }
 
@@ -3892,17 +3948,36 @@ body.modal-open {
 
 @media (max-width: 480px) {
     header {
-        padding: 18px 12px;
-        margin-bottom: 12px;
+        padding: 14px 12px;
+        margin-bottom: 8px;
     }
 
     header h1 {
         font-size: 1.8rem;
-        margin-bottom: 6px;
+        margin-bottom: 4px;
+    }
+
+    header p {
+        font-size: 0.8rem;
+        letter-spacing: 0.3px;
+    }
+
+    .header-flex-wrapper {
+        gap: 0.75rem;
     }
 
     .header-right {
         gap: 6px;
+    }
+
+    .user-info-content {
+        gap: 8px;
+        padding: 8px 12px;
+    }
+
+    .logout-btn {
+        padding: 8px 14px;
+        font-size: 0.85rem;
     }
 }
 
