@@ -4483,30 +4483,11 @@ class ExpenseTracker {
         const blob = data instanceof Blob ? data : new Blob([data], { type: mimeType });
         const isCapacitor = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
 
-        // On mobile (Capacitor), prioritize Share API since it's most reliable
         if (isCapacitor) {
-            // Strategy 1: Web Share API (most reliable on Android)
-            if (navigator.share) {
-                try {
-                    const file = new File([blob], fileName, { type: mimeType });
-                    const shareData = { title: fileName, files: [file] };
-                    if (!navigator.canShare || navigator.canShare(shareData)) {
-                        await navigator.share(shareData);
-                        console.log('📤 File shared via Web Share API');
-                        return true;
-                    }
-                } catch (shareError) {
-                    if (shareError.name === 'AbortError') {
-                        console.log('📤 Share cancelled by user');
-                        return true; // User chose to cancel, not a failure
-                    }
-                    console.warn('Web Share API failed:', shareError);
-                }
-            }
-
-            // Strategy 2: Capacitor Filesystem (native save)
+            // Strategy 1: Capacitor Filesystem with hardcoded directory strings
+            // (Directory enum is NOT available via window.Capacitor.Plugins)
             try {
-                const { Filesystem, Directory } = window.Capacitor.Plugins || {};
+                const Filesystem = window.Capacitor.Plugins?.Filesystem;
                 if (Filesystem) {
                     let base64Data;
                     if (data instanceof Blob) {
@@ -4520,43 +4501,66 @@ class ExpenseTracker {
                         base64Data = this.arrayBufferToBase64(data);
                     }
 
-                    // Try Documents first, then Cache as fallback
-                    const dirs = [Directory?.Documents, Directory?.Cache].filter(Boolean);
+                    // Try each directory with hardcoded string values
+                    const dirs = ['DOCUMENTS', 'EXTERNAL_STORAGE', 'CACHE'];
                     for (const dir of dirs) {
                         try {
                             const result = await Filesystem.writeFile({
-                                path: fileName,
+                                path: dir === 'EXTERNAL_STORAGE' ? `Download/${fileName}` : fileName,
                                 data: base64Data,
                                 directory: dir,
                                 recursive: true
                             });
-                            console.log('📁 File saved via Capacitor Filesystem:', result.uri);
-                            this.showNotification(`📁 Saved: ${fileName}`);
+                            console.log(`📁 File saved to ${dir}:`, result.uri);
+                            const location = dir === 'EXTERNAL_STORAGE' ? 'Downloads' : dir === 'DOCUMENTS' ? 'Documents' : 'Cache';
+                            this.showNotification(`📁 Saved to ${location}/${fileName}`);
                             return true;
                         } catch (dirError) {
-                            console.warn(`Filesystem write to ${dir} failed:`, dirError);
+                            console.warn(`Filesystem write to ${dir} failed:`, dirError.message || dirError);
                         }
                     }
                 }
             } catch (fsError) {
-                console.warn('Capacitor Filesystem failed:', fsError);
+                console.warn('Capacitor Filesystem not available:', fsError);
             }
 
-            // Strategy 3: Open as data URL (Android can offer to save/open)
+            // Strategy 2: Web Share API (opens Android share sheet)
+            if (navigator.share) {
+                try {
+                    const file = new File([blob], fileName, { type: mimeType });
+                    const shareData = { title: fileName, files: [file] };
+                    if (!navigator.canShare || navigator.canShare(shareData)) {
+                        await navigator.share(shareData);
+                        console.log('📤 File shared via Web Share API');
+                        return true;
+                    }
+                } catch (shareError) {
+                    if (shareError.name === 'AbortError') {
+                        console.log('📤 Share cancelled by user');
+                        return true;
+                    }
+                    console.warn('Web Share API failed:', shareError);
+                }
+            }
+
+            // Strategy 3: Open blob URL in system browser via Capacitor Browser plugin
             try {
-                const reader = new FileReader();
-                const dataUrl = await new Promise((resolve, reject) => {
-                    reader.onloadend = () => resolve(reader.result);
-                    reader.onerror = reject;
-                    reader.readAsDataURL(blob);
-                });
-                window.open(dataUrl, '_blank');
-                console.log('🌐 Opened file as data URL in new tab');
-                return true;
-            } catch (dataUrlError) {
-                console.warn('Data URL open failed:', dataUrlError);
+                const Browser = window.Capacitor.Plugins?.Browser;
+                if (Browser) {
+                    const url = URL.createObjectURL(blob);
+                    await Browser.open({ url });
+                    console.log('🌐 Opened file via Capacitor Browser plugin');
+                    return true;
+                }
+            } catch (browserError) {
+                console.warn('Capacitor Browser failed:', browserError);
             }
 
+            // All mobile strategies failed
+            this.showError(
+                'Could not save the file on this device.\n\nPlease try opening this app in your phone\'s browser (Chrome) instead of the APK to download files.',
+                'Download Failed'
+            );
             return false;
         }
 
