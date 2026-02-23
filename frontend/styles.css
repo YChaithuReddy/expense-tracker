@@ -2833,6 +2833,13 @@ body.modal-open {
     text-overflow: ellipsis;
 }
 
+.user-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
 .logout-btn {
     background: var(--button-bg);
     color: var(--text-primary);
@@ -3800,8 +3807,8 @@ body.modal-open {
    ================================================ */
 
 .theme-toggle-btn {
-    background: transparent;
-    border: none;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 8px;
     padding: 8px;
     display: inline-flex;
@@ -3810,7 +3817,6 @@ body.modal-open {
     cursor: pointer;
     transition: all 0.2s ease;
     color: var(--text-primary);
-    margin-right: 8px;
     min-width: 36px;
     min-height: 36px;
     touch-action: manipulation;
@@ -3819,6 +3825,7 @@ body.modal-open {
     -webkit-user-select: none;
     position: relative;
     z-index: 100;
+    flex-shrink: 0;
 }
 
 .theme-toggle-btn:hover {
