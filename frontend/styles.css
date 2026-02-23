@@ -2918,8 +2918,7 @@ body.modal-open {
     .user-details {
         flex: 1;
         min-width: 0;
-        text-align: left;
-        padding-left: 2px;
+        text-align: center;
     }
 
     .user-info-content .logout-btn {
