@@ -337,28 +337,6 @@
   overflow: hidden;
 }
 
-/* Scanning hollow rectangle animation */
-.img-modal__header::after {
-  content: '';
-  position: absolute;
-  top: 15%;
-  left: 0;
-  width: 40px;
-  height: 70%;
-  border: 2px solid rgba(0, 212, 255, 0.35);
-  border-radius: 4px;
-  background: transparent;
-  animation: headerScanRect 3.5s ease-in-out infinite;
-  pointer-events: none;
-  z-index: 1;
-}
-
-@keyframes headerScanRect {
-  0% { transform: translateX(-60px); opacity: 0; }
-  10% { opacity: 1; }
-  90% { opacity: 1; }
-  100% { transform: translateX(calc(100vw + 60px)); opacity: 0; }
-}
 
 .img-modal__title {
   display: flex;
