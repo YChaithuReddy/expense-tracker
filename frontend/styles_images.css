@@ -169,9 +169,9 @@
   /* Z-Index Scale */
   --img-z-card: 1;
   --img-z-dropdown: 100;
-  --img-z-modal-backdrop: 9998;
-  --img-z-modal: 9999;
-  --img-z-toast: 10000;
+  --img-z-modal-backdrop: 100000;
+  --img-z-modal: 100001;
+  --img-z-toast: 100002;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
