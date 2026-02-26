@@ -6029,21 +6029,21 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                                           daysUntilExpiry <= 14 ? 'img-badge--warning' : 'img-badge--success';
 
                         return `
-                            <article class="img-card" data-image-id="${img._id}">
-                                <div class="img-card__preview" onclick="expenseTracker.openSavedImageViewer('${img.url}', '${img.filename || 'Bill Image'}')">
+                            <article class="img-card" data-image-id="${img._id}" data-url="${img.url}" data-filename="${(img.filename || 'Bill Image').replace(/"/g, '&quot;')}">
+                                <div class="img-card__preview" data-action="view">
                                     <img class="img-card__image" src="${img.url}" alt="${img.filename || 'Bill image'}"
                                          loading="lazy" decoding="async"
                                          onload="this.classList.add('is-loaded')"
                                          onerror="this.parentElement.innerHTML='<div class=\\'img-card__error-content\\'><svg width=\\'32\\' height=\\'32\\' viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\'><circle cx=\\'12\\' cy=\\'12\\' r=\\'10\\'/><path d=\\'M12 8v4M12 16h.01\\'/></svg><span>Failed to load</span></div>'">
                                     <div class="img-card__overlay">
-                                        <button class="img-card__overlay-btn" onclick="event.stopPropagation(); expenseTracker.openSavedImageViewer('${img.url}', '${img.filename || 'Bill Image'}')">
+                                        <button class="img-card__overlay-btn" data-action="view">
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                                                 <circle cx="12" cy="12" r="3"/>
                                             </svg>
                                             View
                                         </button>
-                                        <button class="img-card__overlay-btn" onclick="event.stopPropagation(); expenseTracker.downloadImage('${img.url}', '${img.filename || 'bill-image.jpg'}')">
+                                        <button class="img-card__overlay-btn" data-action="download">
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                 <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
                                             </svg>
@@ -6102,6 +6102,22 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                     }).join('');
                 }
 
+                // Event delegation for grid clicks (avoids inline onclick per card)
+                gridDiv.onclick = (e) => {
+                    const actionEl = e.target.closest('[data-action]');
+                    if (!actionEl) return;
+                    const card = e.target.closest('.img-card');
+                    if (!card) return;
+                    const url = card.dataset.url;
+                    const filename = card.dataset.filename;
+                    e.stopPropagation();
+                    if (actionEl.dataset.action === 'view') {
+                        this.openSavedImageViewer(url, filename);
+                    } else if (actionEl.dataset.action === 'download') {
+                        this.downloadImage(url, filename || 'bill-image.jpg');
+                    }
+                };
+
                 modal.style.display = 'flex';
                 modal.classList.add('is-active');
                 document.body.classList.add('modal-open');
@@ -6125,46 +6141,68 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
 
     // Open saved image in fullscreen viewer
     openSavedImageViewer(imageUrl, imageName) {
-        const modal = document.getElementById('imageViewerModal');
-        const img = document.getElementById('imageViewerImg');
-        const nameEl = document.getElementById('imageViewerName');
-        const counterEl = document.getElementById('imageViewerCounter');
+        // Cache DOM refs once
+        if (!this._viewerRefs) {
+            this._viewerRefs = {
+                modal: document.getElementById('imageViewerModal'),
+                img: document.getElementById('imageViewerImg'),
+                name: document.getElementById('imageViewerName'),
+                counter: document.getElementById('imageViewerCounter'),
+                prev: document.getElementById('imageViewerPrev'),
+                next: document.getElementById('imageViewerNext'),
+                slider: document.getElementById('zoomSlider'),
+                level: document.getElementById('zoomLevel')
+            };
+        }
+        const { modal, img, name: nameEl, counter, prev, next, slider, level } = this._viewerRefs;
 
-        // Show modal immediately with loading state
-        nameEl.textContent = imageName || 'Bill Image';
-        counterEl.textContent = 'Saved Image';
+        // Store pending image URL - defer ALL DOM work to next frame
+        this._pendingImageUrl = imageUrl;
+        this._pendingImageName = imageName;
 
-        // Reset zoom
-        this.currentZoom = 1;
-        this.currentRotation = 0;
-        img.style.transform = '';
-        img.style.opacity = '0';
-        document.getElementById('zoomSlider').value = 100;
-        document.getElementById('zoomLevel').textContent = '100%';
-
-        // Hide navigation for single image
-        document.getElementById('imageViewerPrev').style.display = 'none';
-        document.getElementById('imageViewerNext').style.display = 'none';
-
-        modal.style.display = 'flex';
-        modal.classList.add('is-active');
-        document.body.classList.add('modal-open');
-
-        // Load image asynchronously to avoid blocking UI
+        // Defer all DOM manipulation to avoid blocking the click handler
         requestAnimationFrame(() => {
-            const tempImg = new Image();
-            tempImg.onload = () => {
-                img.src = imageUrl;
-                img.style.opacity = '1';
-            };
-            tempImg.onerror = () => {
-                img.src = imageUrl;
-                img.style.opacity = '1';
-            };
-            tempImg.src = imageUrl;
+            nameEl.textContent = this._pendingImageName || 'Bill Image';
+            counter.textContent = 'Saved Image';
+
+            // Reset zoom
+            this.currentZoom = 1;
+            this.currentRotation = 0;
+            img.style.cssText = 'opacity: 0';
+            slider.value = 100;
+            level.textContent = '100%';
+
+            // Hide navigation for single image
+            prev.style.display = 'none';
+            next.style.display = 'none';
+
+            // Show modal
+            modal.style.display = 'flex';
+            modal.classList.add('is-active');
+            document.body.classList.add('modal-open');
+
+            // Load image in next frame after modal is painted
+            requestAnimationFrame(() => {
+                const tempImg = new Image();
+                tempImg.onload = () => {
+                    img.src = this._pendingImageUrl;
+                    img.style.opacity = '1';
+                };
+                tempImg.onerror = () => {
+                    img.src = this._pendingImageUrl;
+                    img.style.opacity = '1';
+                };
+                tempImg.src = this._pendingImageUrl;
+            });
+
+            // Auto-hide controls
+            this.setupControlsAutoHide(modal);
         });
 
-        // Add keyboard listener
+        // Keyboard listener (lightweight, OK to add synchronously)
+        if (this.imageModalKeyHandler) {
+            document.removeEventListener('keydown', this.imageModalKeyHandler);
+        }
         this.imageModalKeyHandler = (e) => {
             if (e.key === 'Escape') this.closeImageModal();
             if (e.key === '+' || e.key === '=') this.zoomImage(0.25);
@@ -6172,9 +6210,6 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             if (e.key === 'r' || e.key === 'R') this.rotateImage();
         };
         document.addEventListener('keydown', this.imageModalKeyHandler);
-
-        // Auto-hide controls
-        this.setupControlsAutoHide(modal);
     }
 
     // Download image helper
