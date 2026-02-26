@@ -1,7 +1,7 @@
 // Service Worker for Expense Tracker PWA
-const CACHE_NAME = 'expense-tracker-v32';
-const STATIC_CACHE = 'expense-tracker-static-v25';
-const DYNAMIC_CACHE = 'expense-tracker-dynamic-v25';
+const CACHE_NAME = 'expense-tracker-v33';
+const STATIC_CACHE = 'expense-tracker-static-v26';
+const DYNAMIC_CACHE = 'expense-tracker-dynamic-v26';
 
 // Files to cache immediately on install
 const STATIC_ASSETS = [
@@ -23,6 +23,8 @@ const STATIC_ASSETS = [
   '/offline-manager.js',
   '/toast.js',
   '/progress-modal.js',
+  '/deep-link-handler.js',
+  '/upi-import.js',
   '/favicon.svg',
   '/manifest.json',
   // External CDN resources
@@ -97,7 +99,7 @@ self.addEventListener('fetch', (event) => {
   }
 
   // Skip API calls - always go to network for fresh data
-  if (url.pathname.startsWith('/api/') || url.hostname.includes('railway.app') || url.hostname.includes('supabase.co')) {
+  if (url.pathname.startsWith('/api/') || url.hostname.includes('supabase.co') || url.hostname.includes('ocr.space') || url.hostname.includes('script.google.com')) {
     event.respondWith(
       fetch(request)
         .catch(() => {

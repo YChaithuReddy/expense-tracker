@@ -190,10 +190,7 @@
             btnLoading.style.display = 'none';
         }
 
-        // Check if already logged in
-        if (localStorage.getItem('authToken')) {
-            window.location.href = 'index.html';
-        }
+        // Auth redirect handled by supabase-auth.js initAuth()
     </script>
 </body>
 </html>

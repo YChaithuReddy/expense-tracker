@@ -492,14 +492,18 @@ const api = {
     async deleteExpenseImage(expenseId, storagePath) {
         const supabase = getSupabase();
 
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
         // Delete from storage
         await window.supabaseClient.deleteImage(storagePath);
 
-        // Delete record
+        // Delete record with ownership check
         const { error } = await supabase
             .from('expense_images')
             .delete()
-            .eq('storage_path', storagePath);
+            .eq('storage_path', storagePath)
+            .eq('expense_id', expenseId);
 
         if (error) handleError(error, 'Delete image');
 
@@ -646,10 +650,12 @@ const api = {
             .eq('user_id', user.id);
 
         // Delete expenses (cascades to expense_images)
-        await supabase.from('expenses').delete().eq('user_id', user.id);
+        const { error: expErr } = await supabase.from('expenses').delete().eq('user_id', user.id);
+        if (expErr) handleError(expErr, 'Clear all expenses');
 
         // Delete orphaned images
-        await supabase.from('orphaned_images').delete().eq('user_id', user.id);
+        const { error: orphErr } = await supabase.from('orphaned_images').delete().eq('user_id', user.id);
+        if (orphErr) handleError(orphErr, 'Clear all images');
 
         return {
             success: true,
@@ -721,11 +727,15 @@ const api = {
     async deleteOrphanedImage(imageId) {
         const supabase = getSupabase();
 
-        // Get image path first
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        // Get image path first with ownership check
         const { data: img } = await supabase
             .from('orphaned_images')
             .select('storage_path')
             .eq('id', imageId)
+            .eq('user_id', user.id)
             .single();
 
         if (img) {
@@ -733,11 +743,12 @@ const api = {
             await supabase.storage.from('expense-bills').remove([img.storage_path]);
         }
 
-        // Delete record
+        // Delete record with ownership check
         const { error } = await supabase
             .from('orphaned_images')
             .delete()
-            .eq('id', imageId);
+            .eq('id', imageId)
+            .eq('user_id', user.id);
 
         if (error) handleError(error, 'Delete orphaned image');
 
