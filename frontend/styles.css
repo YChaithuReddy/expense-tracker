@@ -135,6 +135,7 @@ body {
 
 header {
     background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(30px);
     border: 2px solid rgba(255, 255, 255, 0.1);
     color: var(--text-primary);
     text-align: center;
@@ -145,13 +146,35 @@ header {
     overflow: hidden;
     box-shadow:
         0 8px 32px rgba(0, 0, 0, 0.5),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        0 0 80px rgba(0, 212, 255, 0.2);
+    animation: headerFloat 6s ease-in-out infinite;
 }
 
-/* Removed headerFloat and headerShine infinite animations for performance */
+@keyframes headerFloat {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
 
 header::before {
-    display: none;
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent,
+        rgba(0, 255, 255, 0.1),
+        transparent
+    );
+    animation: headerShine 3s linear infinite;
+}
+
+@keyframes headerShine {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 header h1 {
@@ -1523,9 +1546,17 @@ main {
     animation: none;
 }
 
-/* borderGlow infinite animation removed for performance */
+@keyframes borderGlow {
+    0%, 100% {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    50% {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+}
+
 .glow {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    animation: borderGlow 2s infinite;
 }
 
 /* Mobile responsive styles */
