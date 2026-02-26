@@ -757,28 +757,27 @@
     <script>
         // Wait for DOM and deferred scripts to load
         document.addEventListener('DOMContentLoaded', () => {
-            // Display user info if available (will be updated by initAuth)
+            // Eagerly populate user info from localStorage so it appears instantly
+            // (displayUserInfo in supabase-auth.js will overwrite this once auth confirms)
             const user = JSON.parse(localStorage.getItem('user') || 'null');
             if (user) {
-                const userNameElement = document.getElementById('userName');
                 const userInfoElement = document.getElementById('userInfo');
-
-                if (userNameElement) {
-                    userNameElement.textContent = `👤 ${user.name}`;
-                }
                 if (userInfoElement) {
+                    const safeName = (user.name || '').replace(/[<>&"']/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]));
+                    const safeEmail = (user.email || '').replace(/[<>&"']/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]));
+                    userInfoElement.innerHTML = `
+                        <div class="user-info-content">
+                            <button class="theme-toggle-btn" onclick="expenseTracker.toggleTheme()" aria-label="Toggle Theme" title="Switch Theme">
+                                <span class="theme-icon" id="themeIcon">🌈</span>
+                            </button>
+                            <div class="user-details">
+                                <div class="user-email">${safeEmail}</div>
+                            </div>
+                            <button onclick="logout()" class="logout-btn">Logout</button>
+                        </div>
+                    `;
                     userInfoElement.style.display = 'flex';
                 }
-            }
-
-            // Logout handler
-            const logoutBtn = document.getElementById('logoutBtn');
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', () => {
-                    if (confirm('Are you sure you want to logout?')) {
-                        logout();
-                    }
-                });
             }
         });
     </script>
