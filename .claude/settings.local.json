@@ -36,7 +36,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/session-start-context.sh",
+            "command": "cd \"$(git rev-parse --show-toplevel 2>/dev/null || echo .)\" && bash .claude/hooks/session-start-context.sh",
             "timeout": 5
           }
         ]
@@ -48,7 +48,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/workflow-enforcer.sh",
+            "command": "cd \"$(git rev-parse --show-toplevel 2>/dev/null || echo .)\" && bash .claude/hooks/workflow-enforcer.sh",
             "timeout": 5
           }
         ]
@@ -60,7 +60,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/block-env-edits.sh",
+            "command": "cd \"$(git rev-parse --show-toplevel 2>/dev/null || echo .)\" && bash .claude/hooks/block-env-edits.sh",
             "timeout": 5
           }
         ]
@@ -70,7 +70,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/pre-commit-gate.sh",
+            "command": "cd \"$(git rev-parse --show-toplevel 2>/dev/null || echo .)\" && bash .claude/hooks/pre-commit-gate.sh",
             "timeout": 10
           }
         ]
@@ -82,7 +82,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/auto-cap-sync.sh",
+            "command": "cd \"$(git rev-parse --show-toplevel 2>/dev/null || echo .)\" && bash .claude/hooks/auto-cap-sync.sh",
             "timeout": 30,
             "async": true
           }
@@ -95,7 +95,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/pre-compact-save.sh",
+            "command": "cd \"$(git rev-parse --show-toplevel 2>/dev/null || echo .)\" && bash .claude/hooks/pre-compact-save.sh",
             "timeout": 5
           }
         ]
@@ -107,7 +107,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/stop-learning-reminder.sh",
+            "command": "cd \"$(git rev-parse --show-toplevel 2>/dev/null || echo .)\" && bash .claude/hooks/stop-learning-reminder.sh",
             "timeout": 5
           }
         ]

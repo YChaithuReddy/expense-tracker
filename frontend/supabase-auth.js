@@ -268,7 +268,9 @@ async function initAuth() {
             console.log('Already authenticated, redirecting to app...');
             const redirect = sessionStorage.getItem('redirectAfterLogin') || 'index.html';
             sessionStorage.removeItem('redirectAfterLogin');
-            window.location.href = redirect;
+            // Validate redirect to prevent open redirect attacks
+            const safeRedirect = /^[a-zA-Z0-9_./-]+\.html$/.test(redirect) ? redirect : 'index.html';
+            window.location.href = safeRedirect;
             return;
         }
         // Not logged in - stay on login page (this is correct)
@@ -282,21 +284,11 @@ async function initAuth() {
                 window.expenseTracker.loadExpenses();
             }
         } else {
-            // Not authenticated via Supabase session, check localStorage as fallback
-            if (!isAuthenticated()) {
-                // No session and no localStorage - redirect to login
-                console.log('Not authenticated, redirecting to login...');
-                sessionStorage.setItem('redirectAfterLogin', pathname);
-                window.location.href = 'login.html';
-                return;
-            }
-            // Has localStorage user but no Supabase session - show UI anyway
-            // (API calls will fail and trigger proper logout if session is truly invalid)
-            displayUserInfo();
-            // Trigger expense loading
-            if (window.expenseTracker && typeof window.expenseTracker.loadExpenses === 'function') {
-                window.expenseTracker.loadExpenses();
-            }
+            // No active Supabase session - redirect to login
+            console.log('Not authenticated, redirecting to login...');
+            sessionStorage.setItem('redirectAfterLogin', pathname);
+            window.location.href = 'login.html';
+            return;
         }
     }
 }

@@ -147,7 +147,7 @@ class GoogleSheetsService {
 
             // Handle response via postMessage
             const messageHandler = (event) => {
-                if (event.origin.includes('google.com')) {
+                if (event.origin === 'https://script.google.com') {
                     window.removeEventListener('message', messageHandler);
                     document.body.removeChild(iframe);
                     document.body.removeChild(form);

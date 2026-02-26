@@ -204,26 +204,12 @@
             }
         }
 
-        // Handle OAuth callback
+        // Handle OAuth error messages from URL params
         function handleOAuthCallback() {
             const urlParams = new URLSearchParams(window.location.search);
-            const token = urlParams.get('token');
             const error = urlParams.get('error');
 
-            if (token) {
-                localStorage.setItem('authToken', token);
-                const userParam = urlParams.get('user');
-                if (userParam) {
-                    try {
-                        const user = JSON.parse(decodeURIComponent(userParam));
-                        localStorage.setItem('user', JSON.stringify(user));
-                    } catch (e) {
-                        console.error('Error parsing user data:', e);
-                    }
-                }
-                showMessage('Google login successful! Redirecting...', 'success');
-                setTimeout(() => window.location.href = 'index.html', 1000);
-            } else if (error === 'google_auth_failed') {
+            if (error === 'google_auth_failed') {
                 showMessage('Google authentication failed. Please try again.', 'error');
             } else if (error === 'auth_error') {
                 showMessage('Authentication error occurred. Please try again.', 'error');
@@ -235,14 +221,6 @@
 
         // Note: Auth redirect is handled by supabase-auth.js initAuth()
 
-        // Debug: Show API configuration on page load (only for 3 seconds)
-        window.addEventListener('load', () => {
-            const debugInfo = document.createElement('div');
-            debugInfo.style.cssText = 'position: fixed; bottom: 10px; left: 10px; background: rgba(0,0,0,0.8); color: lime; padding: 10px; font-size: 10px; border-radius: 5px; z-index: 9999;';
-            debugInfo.innerHTML = `API: ${window.location.origin}<br>Backend ready: ${typeof api !== 'undefined'}`;
-            document.body.appendChild(debugInfo);
-            setTimeout(() => debugInfo.remove(), 5000);
-        });
     </script>
 </body>
 </html>
