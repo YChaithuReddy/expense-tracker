@@ -5977,14 +5977,26 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
 
     // Orphaned Images Gallery Methods
     async openOrphanedImagesModal() {
+        // Show modal immediately with loading state (don't wait for API)
+        const modal = document.getElementById('orphanedImagesModal');
+        const statsDiv = document.getElementById('orphanedImagesStats');
+        const gridDiv = document.getElementById('orphanedImagesGrid');
+
+        statsDiv.innerHTML = '';
+        gridDiv.innerHTML = `
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:16px;color:var(--text-secondary);">
+                <div style="width:40px;height:40px;border:3px solid rgba(0,212,255,0.3);border-top-color:#00d4ff;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+                <span>Loading saved images...</span>
+            </div>`;
+        modal.style.display = 'flex';
+        modal.classList.add('is-active');
+        document.body.classList.add('modal-open');
+
         try {
             // Fetch orphaned images from backend
             const response = await api.getOrphanedImages();
 
             if (response.success) {
-                const modal = document.getElementById('orphanedImagesModal');
-                const statsDiv = document.getElementById('orphanedImagesStats');
-                const gridDiv = document.getElementById('orphanedImagesGrid');
 
                 // Display stats with premium design
                 const stats = response.stats || {};
@@ -6133,15 +6145,18 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                     }
                 };
 
-                modal.style.display = 'flex';
-                modal.classList.add('is-active');
-                document.body.classList.add('modal-open');
+                // Modal already shown above — no need to show again
             } else {
                 throw new Error(response.message || 'Failed to fetch saved images');
             }
         } catch (error) {
             console.error('Error opening orphaned images modal:', error);
-            this.showNotification('❌ Failed to load saved images: ' + error.message);
+            // Show error inside the already-open modal
+            gridDiv.innerHTML = `
+                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:12px;color:#ff6b6b;">
+                    <span style="font-size:2rem;">⚠️</span>
+                    <span>Failed to load images: ${error.message}</span>
+                </div>`;
         }
     }
 

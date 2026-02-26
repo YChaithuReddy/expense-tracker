@@ -670,17 +670,21 @@ const api = {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error('Not authenticated');
 
-        const { data, error } = await supabase
-            .from('orphaned_images')
-            .select('*')
-            .eq('user_id', user.id)
-            .order('upload_date', { ascending: false });
+        // Fetch images and stats in parallel instead of sequentially
+        const [imagesResult, statsResult] = await Promise.all([
+            supabase
+                .from('orphaned_images')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('upload_date', { ascending: false }),
+            supabase
+                .rpc('get_user_storage_stats', { p_user_id: user.id })
+        ]);
+
+        const { data, error } = imagesResult;
+        const { data: stats } = statsResult;
 
         if (error) handleError(error, 'Get orphaned images');
-
-        // Get storage stats
-        const { data: stats } = await supabase
-            .rpc('get_user_storage_stats', { p_user_id: user.id });
 
         const images = data.map(img => ({
             _id: img.id,
