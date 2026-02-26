@@ -4159,6 +4159,8 @@ class ExpenseTracker {
                 img.onload = () => {
                     let w = img.width;
                     let h = img.height;
+                    const originalWidth = w;
+                    const originalHeight = h;
                     // Scale down if larger than maxDim
                     if (w > maxDim || h > maxDim) {
                         if (w > h) {
@@ -4174,9 +4176,9 @@ class ExpenseTracker {
                     canvas.height = h;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, w, h);
-                    resolve(canvas.toDataURL('image/jpeg', quality));
+                    resolve({ dataUrl: canvas.toDataURL('image/jpeg', quality), width: w, height: h });
                 };
-                img.onerror = () => resolve(src); // fallback to original on error
+                img.onerror = () => resolve({ dataUrl: src, width: 0, height: 0 }); // fallback to original on error
                 img.src = src;
             });
         };
@@ -4186,7 +4188,7 @@ class ExpenseTracker {
         const compressedImages = await Promise.all(
             allImages.map(async (item) => {
                 const compressed = await compressImage(item.data);
-                return { ...item, data: compressed };
+                return { ...item, data: compressed.dataUrl, imgWidth: compressed.width, imgHeight: compressed.height };
             })
         );
         console.log('✅ Image compression complete');
@@ -4239,12 +4241,10 @@ class ExpenseTracker {
             const y = margin + headerHeight + (row * (imageHeight + gapY));
 
             try {
-                // Create a temporary image to get aspect ratio
-                const img = new Image();
-                img.src = imageItem.data;
-
-                // Calculate dimensions to maintain aspect ratio and center perfectly
-                const imgAspectRatio = img.width / img.height;
+                // Use pre-loaded dimensions from compression step
+                const imgW = imageItem.imgWidth || 1;
+                const imgH = imageItem.imgHeight || 1;
+                const imgAspectRatio = imgW / imgH;
                 const boxAspectRatio = imageWidth / imageHeight;
 
                 let finalWidth = imageWidth;
@@ -4522,15 +4522,25 @@ class ExpenseTracker {
                                 const fileUri = uriResult.uri;
                                 console.log('📂 File URI for opening:', fileUri);
 
-                                // Try Capacitor Browser plugin to open the file
-                                const Browser = window.Capacitor.Plugins?.Browser;
-                                if (Browser) {
-                                    await Browser.open({ url: fileUri });
-                                    console.log('📖 Opened file via Browser plugin');
+                                // Use native AppLauncher bridge to open via FileProvider Intent
+                                if (window.AppLauncher && window.AppLauncher.openFile) {
+                                    const opened = window.AppLauncher.openFile(fileUri, mimeType);
+                                    if (opened) {
+                                        console.log('📖 Opened file via AppLauncher.openFile');
+                                    } else {
+                                        console.warn('AppLauncher.openFile returned false');
+                                        this.showNotification(`📁 Saved to ${location}/${fileName} — open from your file manager`);
+                                    }
                                 } else {
-                                    // Fallback: use window.open with the file URI
-                                    window.open(fileUri, '_system');
-                                    console.log('📖 Opened file via window.open');
+                                    // Fallback: try Browser plugin or window.open
+                                    const Browser = window.Capacitor.Plugins?.Browser;
+                                    if (Browser) {
+                                        await Browser.open({ url: fileUri });
+                                        console.log('📖 Opened file via Browser plugin');
+                                    } else {
+                                        window.open(fileUri, '_system');
+                                        console.log('📖 Opened file via window.open');
+                                    }
                                 }
                             } catch (openError) {
                                 console.warn('Could not auto-open file:', openError);
@@ -4586,23 +4596,7 @@ class ExpenseTracker {
             return false;
         }
 
-        // Desktop: Web Share API if available
-        if (navigator.share) {
-            try {
-                const file = new File([blob], fileName, { type: mimeType });
-                const shareData = { title: fileName, files: [file] };
-                if (!navigator.canShare || navigator.canShare(shareData)) {
-                    await navigator.share(shareData);
-                    console.log('📤 File shared via Web Share API');
-                    return true;
-                }
-            } catch (shareError) {
-                if (shareError.name === 'AbortError') return true;
-                console.warn('Web Share API failed:', shareError);
-            }
-        }
-
-        // Desktop: Blob anchor download
+        // Desktop: Blob anchor download (primary method - avoids user gesture issues with Share API)
         try {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');

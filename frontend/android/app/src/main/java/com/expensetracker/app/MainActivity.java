@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -12,7 +13,11 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.webkit.WebSettings;
 
+import androidx.core.content.FileProvider;
+
 import com.getcapacitor.BridgeActivity;
+
+import java.io.File;
 
 public class MainActivity extends BridgeActivity {
 
@@ -198,6 +203,81 @@ public class MainActivity extends BridgeActivity {
         @JavascriptInterface
         public String getPlatform() {
             return "android";
+        }
+
+        @JavascriptInterface
+        public boolean openFile(String fileUri, String mimeType) {
+            Log.d(TAG, "openFile called with URI: " + fileUri + ", MIME: " + mimeType);
+
+            final boolean[] result = {false};
+            final Object lock = new Object();
+
+            runOnUiThread(() -> {
+                try {
+                    File file = null;
+
+                    // Convert Capacitor file URI to a File object
+                    if (fileUri.startsWith("file://")) {
+                        file = new File(Uri.parse(fileUri).getPath());
+                    } else if (fileUri.startsWith("/")) {
+                        file = new File(fileUri);
+                    } else if (fileUri.startsWith("content://")) {
+                        // Already a content URI, open directly
+                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                        intent.setDataAndType(Uri.parse(fileUri), mimeType);
+                        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                        Log.d(TAG, "Opened content URI directly");
+                        synchronized (lock) {
+                            result[0] = true;
+                            lock.notify();
+                        }
+                        return;
+                    }
+
+                    if (file != null && file.exists()) {
+                        Uri contentUri = FileProvider.getUriForFile(
+                            MainActivity.this,
+                            getApplicationContext().getPackageName() + ".fileprovider",
+                            file
+                        );
+
+                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                        intent.setDataAndType(contentUri, mimeType);
+                        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                        Log.d(TAG, "Opened file via FileProvider: " + contentUri);
+                        synchronized (lock) {
+                            result[0] = true;
+                            lock.notify();
+                        }
+                    } else {
+                        Log.w(TAG, "File not found: " + fileUri);
+                        synchronized (lock) {
+                            result[0] = false;
+                            lock.notify();
+                        }
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "Error opening file: " + e.getMessage(), e);
+                    synchronized (lock) {
+                        result[0] = false;
+                        lock.notify();
+                    }
+                }
+            });
+
+            synchronized (lock) {
+                try {
+                    lock.wait(3000);
+                } catch (InterruptedException e) {
+                    Log.e(TAG, "Interrupted while waiting for file open");
+                }
+            }
+
+            return result[0];
         }
 
         private void notifyJavaScript(String callback, String packageName, boolean success, String message) {
