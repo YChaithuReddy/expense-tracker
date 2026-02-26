@@ -6032,6 +6032,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                             <article class="img-card" data-image-id="${img._id}">
                                 <div class="img-card__preview" onclick="expenseTracker.openSavedImageViewer('${img.url}', '${img.filename || 'Bill Image'}')">
                                     <img class="img-card__image" src="${img.url}" alt="${img.filename || 'Bill image'}"
+                                         loading="lazy" decoding="async"
                                          onload="this.classList.add('is-loaded')"
                                          onerror="this.parentElement.innerHTML='<div class=\\'img-card__error-content\\'><svg width=\\'32\\' height=\\'32\\' viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\'><circle cx=\\'12\\' cy=\\'12\\' r=\\'10\\'/><path d=\\'M12 8v4M12 16h.01\\'/></svg><span>Failed to load</span></div>'">
                                     <div class="img-card__overlay">
@@ -6129,7 +6130,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         const nameEl = document.getElementById('imageViewerName');
         const counterEl = document.getElementById('imageViewerCounter');
 
-        img.src = imageUrl;
+        // Show modal immediately with loading state
         nameEl.textContent = imageName || 'Bill Image';
         counterEl.textContent = 'Saved Image';
 
@@ -6137,6 +6138,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         this.currentZoom = 1;
         this.currentRotation = 0;
         img.style.transform = '';
+        img.style.opacity = '0';
         document.getElementById('zoomSlider').value = 100;
         document.getElementById('zoomLevel').textContent = '100%';
 
@@ -6147,6 +6149,20 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         modal.style.display = 'flex';
         modal.classList.add('is-active');
         document.body.classList.add('modal-open');
+
+        // Load image asynchronously to avoid blocking UI
+        requestAnimationFrame(() => {
+            const tempImg = new Image();
+            tempImg.onload = () => {
+                img.src = imageUrl;
+                img.style.opacity = '1';
+            };
+            tempImg.onerror = () => {
+                img.src = imageUrl;
+                img.style.opacity = '1';
+            };
+            tempImg.src = imageUrl;
+        });
 
         // Add keyboard listener
         this.imageModalKeyHandler = (e) => {
@@ -6231,18 +6247,24 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
 
     // Auto-hide controls after inactivity
     setupControlsAutoHide(modal) {
-        let hideTimeout;
-        const showControls = () => {
+        // Remove previous listeners to prevent leak
+        if (this._autoHideShowControls) {
+            modal.removeEventListener('mousemove', this._autoHideShowControls);
+            modal.removeEventListener('touchstart', this._autoHideShowControls);
+            clearTimeout(this._autoHideTimeout);
+        }
+
+        this._autoHideShowControls = () => {
             modal.classList.remove('controls-hidden');
-            clearTimeout(hideTimeout);
-            hideTimeout = setTimeout(() => {
+            clearTimeout(this._autoHideTimeout);
+            this._autoHideTimeout = setTimeout(() => {
                 modal.classList.add('controls-hidden');
             }, 3000);
         };
 
-        modal.addEventListener('mousemove', showControls);
-        modal.addEventListener('touchstart', showControls);
-        showControls();
+        modal.addEventListener('mousemove', this._autoHideShowControls);
+        modal.addEventListener('touchstart', this._autoHideShowControls);
+        this._autoHideShowControls();
     }
 
     /**
