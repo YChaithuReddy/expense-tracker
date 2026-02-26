@@ -3445,6 +3445,12 @@ class ExpenseTracker {
     }
 
     displayExpenses() {
+        // Coalesce rapid calls (search debounce, filter changes) into a single render frame
+        if (this._displayRAF) cancelAnimationFrame(this._displayRAF);
+        this._displayRAF = requestAnimationFrame(() => this._renderExpenses());
+    }
+
+    _renderExpenses() {
         const container = document.getElementById('expensesList');
         const selectAllContainer = document.getElementById('selectAllContainer');
         const searchFilterContainer = document.getElementById('searchFilterContainer');
@@ -3588,7 +3594,11 @@ class ExpenseTracker {
         if (clearBtn) {
             clearBtn.style.display = this.searchTerm ? 'block' : 'none';
         }
-        this.applyFilters();
+        // Debounce search to avoid excessive re-renders on every keystroke
+        if (this._searchDebounceTimer) clearTimeout(this._searchDebounceTimer);
+        this._searchDebounceTimer = setTimeout(() => {
+            this.applyFilters();
+        }, 250);
     }
 
     clearSearch() {
@@ -3688,6 +3698,11 @@ class ExpenseTracker {
 
         // Get unique categories from expenses
         const categories = [...new Set(this.expenses.map(exp => exp.category))].sort();
+
+        // Skip rebuild if categories haven't changed
+        const categoryKey = categories.join('|');
+        if (this._lastCategoryKey === categoryKey) return;
+        this._lastCategoryKey = categoryKey;
 
         // Keep "All Categories" option and add unique categories
         const currentValue = categoryFilter.value;

@@ -384,7 +384,7 @@ html.modal-open body {
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease, transform 0.25s ease;
   flex-shrink: 0;
   position: relative;
   z-index: 2;
@@ -394,7 +394,7 @@ html.modal-open body {
   width: 20px;
   height: 20px;
   color: rgba(255, 255, 255, 0.6);
-  transition: all 0.25s;
+  transition: background-color 0.25s, border-color 0.25s, box-shadow 0.25s, opacity 0.25s, transform 0.25s;
 }
 
 .clear-data-close:hover {
@@ -462,7 +462,7 @@ html.modal-open body {
   border: 1px solid var(--clear-border-subtle);
   border-radius: var(--clear-radius-md);
   text-align: center;
-  transition: all var(--clear-duration-fast) var(--clear-ease-out);
+  transition: background-color var(--clear-duration-fast) var(--clear-ease-out), border-color var(--clear-duration-fast) var(--clear-ease-out), box-shadow var(--clear-duration-fast) var(--clear-ease-out), opacity var(--clear-duration-fast) var(--clear-ease-out), transform var(--clear-duration-fast) var(--clear-ease-out);
 }
 
 @media (max-width: 480px) {
@@ -589,7 +589,7 @@ html.modal-open body {
   overflow: hidden;
   background: var(--clear-bg-elevated);
   border: 1px solid var(--clear-border-subtle);
-  transition: all var(--clear-duration-fast) var(--clear-ease-out);
+  transition: background-color var(--clear-duration-fast) var(--clear-ease-out), border-color var(--clear-duration-fast) var(--clear-ease-out), box-shadow var(--clear-duration-fast) var(--clear-ease-out), opacity var(--clear-duration-fast) var(--clear-ease-out), transform var(--clear-duration-fast) var(--clear-ease-out);
 }
 
 .clear-data-image-thumb:hover {
@@ -901,7 +901,7 @@ html.modal-open body {
   cursor: pointer;
   border: none;
   margin-top: auto;
-  transition: all var(--clear-duration-fast) var(--clear-ease-out);
+  transition: background-color var(--clear-duration-fast) var(--clear-ease-out), border-color var(--clear-duration-fast) var(--clear-ease-out), box-shadow var(--clear-duration-fast) var(--clear-ease-out), opacity var(--clear-duration-fast) var(--clear-ease-out), transform var(--clear-duration-fast) var(--clear-ease-out);
 }
 
 @media (max-width: 480px) {
@@ -1285,7 +1285,7 @@ html.modal-open body {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease, transform 0.25s ease;
   flex-shrink: 0;
   position: relative;
   z-index: 2;
@@ -1295,7 +1295,7 @@ html.modal-open body {
   width: 20px;
   height: 20px;
   color: rgba(255, 255, 255, 0.6);
-  transition: all 0.25s;
+  transition: background-color 0.25s, border-color 0.25s, box-shadow 0.25s, opacity 0.25s, transform 0.25s;
 }
 
 .clear-data-confirm-close:hover {
@@ -1415,7 +1415,7 @@ html.modal-open body {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
   flex-shrink: 0;
   margin-top: 1px;
 }
@@ -1426,7 +1426,7 @@ html.modal-open body {
   color: white;
   opacity: 0;
   transform: scale(0.5);
-  transition: all 0.2s;
+  transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s, opacity 0.2s, transform 0.2s;
 }
 
 .clear-data-confirm-checkbox-input:checked + .clear-data-confirm-checkbox-visual {
@@ -1479,7 +1479,7 @@ html.modal-open body {
   letter-spacing: 3px;
   text-transform: uppercase;
   caret-color: #f59e0b;
-  transition: all 0.2s;
+  transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s, opacity 0.2s, transform 0.2s;
   box-sizing: border-box;
 }
 
@@ -1520,7 +1520,7 @@ html.modal-open body {
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease, transform 0.25s ease;
 }
 
 .clear-data-confirm-btn-cancel:hover {
@@ -1547,7 +1547,7 @@ html.modal-open body {
   font-size: 0.95rem;
   font-weight: 600;
   cursor: not-allowed;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
