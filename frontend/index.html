@@ -281,10 +281,6 @@
                             <span class="btn-icon">📦</span>
                             <span class="btn-text">Download Complete Package</span>
                         </button>
-                        <button id="submitToKodoBtn" class="btn-kodo">
-                            <span class="btn-icon">🏢</span>
-                            <span class="btn-text">Submit to Kodo</span>
-                        </button>
                         <button id="resetGoogleSheet" class="btn-reset">
                             <span class="btn-icon">🔄</span>
                             <span class="btn-text">Reset Sheet</span>
@@ -746,10 +742,13 @@
                             <small>Describe the business purpose or project related to these expenses</small>
                         </div>
 
-                        <div class="form-actions">
+                        <div class="form-actions reimbursement-actions">
                             <button type="button" class="btn-secondary" onclick="expenseTracker.closeEmployeeInfoModal()">Cancel</button>
-                            <button type="submit" class="btn-primary">
-                                <span>📦 Generate Package</span>
+                            <button type="submit" class="btn-primary" data-action="download">
+                                <span>📥 Download PDF</span>
+                            </button>
+                            <button type="button" class="btn-kodo-submit" id="submitToKodoBtn" data-action="kodo">
+                                <span>🏢 Submit to Kodo</span>
                             </button>
                         </div>
                     </form>

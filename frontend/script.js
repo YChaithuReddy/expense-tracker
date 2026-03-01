@@ -97,9 +97,6 @@ class ExpenseTracker {
         // Download combined reimbursement package
         document.getElementById('downloadReimbursementPackage').addEventListener('click', () => this.generateCombinedReimbursementPDF());
 
-        // Submit to Kodo
-        document.getElementById('submitToKodoBtn').addEventListener('click', () => this.submitToKodo());
-
         // Reset Google Sheet
         document.getElementById('resetGoogleSheet').addEventListener('click', () => this.resetGoogleSheet());
 
@@ -6441,6 +6438,16 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             await this.handleEmployeeInfoSubmit(e);
         });
 
+        // Wire up "Submit to Kodo" button inside the modal
+        const kodoBtn = newForm.querySelector('#submitToKodoBtn');
+        if (kodoBtn) {
+            kodoBtn.addEventListener('click', async () => {
+                // Validate the form fields first
+                if (!newForm.reportValidity()) return;
+                await this.handleEmployeeInfoSubmitThenKodo(newForm);
+            });
+        }
+
         // Auto-fill dates from actual expense data
         try {
             // Get the current loaded expenses (they're already sorted by date)
@@ -6672,32 +6679,60 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
 
     // ===== Kodo Reimbursement Integration =====
 
-    async submitToKodo() {
+    async handleEmployeeInfoSubmitThenKodo(form) {
         const kodo = window.kodoService;
         if (!kodo) {
             this.showNotification('Kodo service not available');
             return;
         }
 
-        // Check if configured
+        // Check if configured - show settings modal if not
         if (!kodo.hasSettings()) {
             await kodo.initialize();
         }
-
         if (!kodo.hasSettings()) {
+            this.closeEmployeeInfoModal();
             this.showKodoSettingsModal();
             return;
         }
 
-        // Get selected expenses (or all filtered)
-        const selectedExpenses = this.getSelectedExpenses();
-        if (selectedExpenses.length === 0) {
-            this.showNotification('Please select expenses to submit to Kodo');
-            return;
-        }
+        try {
+            const formData = {
+                employeeName: form.querySelector('#empName').value.trim(),
+                employeeCode: form.querySelector('#empCode').value.trim() || '',
+                expensePeriodFrom: form.querySelector('#expensePeriodFrom').value,
+                expensePeriodTo: form.querySelector('#expensePeriodTo').value,
+                businessPurpose: form.querySelector('#businessPurpose').value.trim()
+            };
 
-        // Show confirmation modal
-        this.showKodoConfirmModal(selectedExpenses);
+            if (new Date(formData.expensePeriodFrom) > new Date(formData.expensePeriodTo)) {
+                this.showError('"From" date cannot be after "To" date.\n\nPlease adjust your date range.', 'Invalid Date Range');
+                return;
+            }
+
+            this.closeEmployeeInfoModal();
+
+            this.showNotification('Updating employee details in Google Sheet...');
+            await googleSheetsService.updateEmployeeInfo(formData);
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
+            // Now show Kodo confirmation modal with selected expenses
+            const selectedExpenses = this.getSelectedExpenses();
+            if (selectedExpenses.length === 0) {
+                // Fall back to all expenses if none selected
+                const allExpenses = this.isFilterActive() ? this.filteredExpenses : this.expenses;
+                if (allExpenses.length === 0) {
+                    this.showNotification('No expenses available to submit');
+                    return;
+                }
+                this.showKodoConfirmModal(allExpenses);
+            } else {
+                this.showKodoConfirmModal(selectedExpenses);
+            }
+        } catch (error) {
+            console.error('Error in Kodo submission flow:', error);
+            this.showError('Failed to prepare Kodo submission.\n\n' + (error.message || 'Please try again.'), 'Submission Failed');
+        }
     }
 
     showKodoSettingsModal() {
