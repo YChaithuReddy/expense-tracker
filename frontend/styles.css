@@ -6823,6 +6823,252 @@ select.inline-input option {
     transform: translateY(0);
 }
 
+/* ===== Kodo Reimbursement ===== */
+
+.btn-kodo {
+    background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+    color: white;
+    padding: 16px 24px;
+    border: none;
+    border-radius: 16px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    box-shadow: 0 2px 8px rgba(14, 165, 233, 0.25);
+    width: 100%;
+    min-height: 64px;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-kodo::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.btn-kodo:hover::before {
+    left: 100%;
+}
+
+.btn-kodo:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 4px 16px rgba(14, 165, 233, 0.35);
+}
+
+.btn-kodo:active {
+    transform: translateY(-1px) scale(0.98);
+}
+
+.action-buttons .btn-kodo {
+    grid-column: 1 / -1;
+    margin-top: 5px;
+}
+
+/* Kodo Modal Overlay */
+.kodo-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    padding: 20px;
+}
+
+.kodo-modal {
+    background: var(--card-bg, #fff);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 480px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.kodo-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border-color, #e5e7eb);
+}
+
+.kodo-modal-header h3 {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-primary, #1f2937);
+}
+
+.kodo-modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-secondary, #6b7280);
+    padding: 4px 8px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+.kodo-modal-close:hover {
+    background: var(--hover-bg, #f3f4f6);
+}
+
+.kodo-modal-body {
+    padding: 24px;
+}
+
+.kodo-form-group {
+    margin-bottom: 16px;
+}
+
+.kodo-form-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary, #6b7280);
+    margin-bottom: 6px;
+}
+
+.kodo-form-group input,
+.kodo-form-group select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid var(--border-color, #d1d5db);
+    border-radius: 12px;
+    font-size: 0.95rem;
+    background: var(--input-bg, #fff);
+    color: var(--text-primary, #1f2937);
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.kodo-form-group input:focus,
+.kodo-form-group select:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.kodo-form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.kodo-btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    flex: 1;
+}
+
+.kodo-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.kodo-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #6366f1);
+    color: white;
+}
+
+.kodo-btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.kodo-btn-secondary {
+    background: var(--hover-bg, #f3f4f6);
+    color: var(--text-primary, #374151);
+}
+
+.kodo-btn-secondary:hover:not(:disabled) {
+    background: var(--border-color, #e5e7eb);
+}
+
+.kodo-status {
+    margin-top: 16px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.kodo-status-success {
+    background: #ecfdf5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+.kodo-status-error {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+
+/* Kodo Confirmation Summary */
+.kodo-confirm-summary {
+    background: var(--hover-bg, #f9fafb);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.kodo-summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+}
+
+.kodo-summary-row + .kodo-summary-row {
+    border-top: 1px solid var(--border-color, #e5e7eb);
+}
+
+.kodo-summary-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary, #6b7280);
+}
+
+.kodo-summary-value {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary, #1f2937);
+}
+
+.kodo-summary-total .kodo-summary-value {
+    font-size: 1.2rem;
+    color: #0ea5e9;
+}
+
+.kodo-confirm-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+
 /* UPI Screenshot Modal */
 .upi-screenshot-modal {
     position: fixed;
