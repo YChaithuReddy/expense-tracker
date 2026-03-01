@@ -102,6 +102,7 @@ async function kodoCreateClaim(accessToken: string, input: {
       checkerAccountId: checkerId,
       expenseCategoryId: categoryId,
       comment: input.comment,
+      expenseTags: [],
     }},
     accessToken
   );
@@ -121,9 +122,10 @@ async function kodoSubmitForReview(accessToken: string, requestId: string): Prom
   return data.startCheckerFlowForOutgoingPaymentRequest;
 }
 
-async function fetchKodoConfig(accessToken: string): Promise<{ categories: any[]; checkers: any[] }> {
+async function fetchKodoConfig(accessToken: string, diagnostic = false): Promise<{ categories: any[]; checkers: any[]; rawCheckers?: any[] }> {
   const categories: any[] = [];
   const checkers: any[] = [];
+  let rawCheckers: any[] = [];
 
   try {
     const data = await kodoGraphQL(
@@ -147,12 +149,17 @@ async function fetchKodoConfig(accessToken: string): Promise<{ categories: any[]
       accessToken
     );
     const avail = data.initiateOutgoingPaymentRequest?.availableCheckers || [];
-    // IMPORTANT: checkerAccountId expects user.id, NOT checker.id
+    rawCheckers = avail;
+    // Use checker.id (the account-level ID from availableCheckers) for checkerAccountId
     checkers.push(...avail.map((c: any) => ({
-      id: c.user?.id || c.id, name: c.user?.displayName || "", email: c.user?.emailId || "",
+      id: c.id, name: c.user?.displayName || "", email: c.user?.emailId || "",
+      userId: c.user?.id,
     })).filter((c: any) => c.id && c.name));
   } catch (e) { console.error("Checkers:", (e as Error).message); }
 
+  if (diagnostic) {
+    return { categories, checkers, rawCheckers };
+  }
   return { categories, checkers };
 }
 
@@ -214,7 +221,8 @@ Deno.serve(async (req: Request) => {
       const { data: settings } = await supabase.from("kodo_settings").select("*").eq("user_id", user.id).single();
       if (!settings) return fail("Kodo not configured. Set up your credentials first.");
       const token = await ensureToken(supabase, user.id, settings);
-      return ok(await fetchKodoConfig(token));
+      const diagnostic = body.diagnostic === true;
+      return ok(await fetchKodoConfig(token, diagnostic));
     }
 
     if (action === "submit") {
