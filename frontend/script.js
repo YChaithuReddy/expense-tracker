@@ -6693,6 +6693,14 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             return;
         }
 
+        // Check Google Sheets exists first
+        const sheetUrl = googleSheetsService.getSheetUrl();
+        if (!sheetUrl) {
+            this.closeEmployeeInfoModal();
+            this.showError('You need to export your expenses to Google Sheets first.\n\nThis creates the expense report needed for the reimbursement PDF.', 'Export to Google Sheets First');
+            return;
+        }
+
         // Check if configured - show settings modal if not
         if (!kodo.hasSettings()) {
             await kodo.initialize();
@@ -6897,13 +6905,23 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         `;
 
         // Fetch real IDs from Kodo API and populate dropdowns
-        this.showLoading('Loading Kodo config...', 'Fetching checkers & categories from Kodo');
+        this.showLoading('Loading Kodo config...', 'Logging into Kodo & fetching checkers/categories');
         try {
+            kodo.config = null; // Always fetch fresh config
             const config = await kodo.getKodoConfig();
             this.populateKodoDropdowns(config, 'kodoConfirmChecker', 'kodoConfirmCategory');
+
+            if (!config.checkers?.length || !config.categories?.length) {
+                this.hideLoading();
+                const missing = [];
+                if (!config.checkers?.length) missing.push('checkers');
+                if (!config.categories?.length) missing.push('categories');
+                this.showError(`Could not fetch ${missing.join(' and ')} from Kodo.\n\nPlease check your Kodo credentials in Settings.`, 'Kodo Config Error');
+                return;
+            }
         } catch (err) {
             this.hideLoading();
-            this.showNotification('Failed to load Kodo config: ' + err.message);
+            this.showError('Failed to load Kodo config:\n\n' + (err.message || 'Please check your credentials.'), 'Kodo Error');
             return;
         }
         this.hideLoading();
