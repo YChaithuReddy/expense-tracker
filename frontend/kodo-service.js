@@ -39,19 +39,37 @@ class KodoService {
             throw new Error('No active session. Please log in again.');
         }
 
-        const response = await fetch(`${window.supabaseClient.SUPABASE_URL}/functions/v1/kodo-submit`, {
+        const supabaseUrl = window.supabaseClient.SUPABASE_URL;
+        const anonKey = window.supabaseClient.SUPABASE_ANON_KEY;
+
+        console.log('Edge Function call:', {
+            url: `${supabaseUrl}/functions/v1/kodo-submit`,
+            hasToken: !!session.access_token,
+            tokenPrefix: session.access_token?.substring(0, 20) + '...',
+            hasAnonKey: !!anonKey,
+            anonKeyPrefix: anonKey?.substring(0, 20) + '...',
+            action: body.action,
+        });
+
+        const response = await fetch(`${supabaseUrl}/functions/v1/kodo-submit`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${session.access_token}`,
-                'apikey': window.supabaseClient.SUPABASE_ANON_KEY,
+                'apikey': anonKey,
             },
             body: JSON.stringify(body),
         });
 
+        if (!response.ok) {
+            const text = await response.text();
+            console.error('Edge Function error:', response.status, text);
+            throw new Error(`Edge function failed (${response.status}): ${text}`);
+        }
+
         const result = await response.json();
         if (!result.success) {
-            throw new Error(result.error || 'Edge function call failed');
+            throw new Error(result.error || 'Edge function returned error');
         }
         return result;
     }
