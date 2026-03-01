@@ -4284,9 +4284,19 @@ body.modal-open {
 
 .filter-row {
     display: grid;
-    grid-template-columns: 2fr 1.5fr 1.5fr auto;
+    grid-template-columns: 1.5fr 1.5fr 1.2fr 1.2fr auto;
     gap: 12px;
     align-items: end;
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .filter-row {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+    .filter-row .reset-filters-btn {
+        grid-column: 1 / -1;
+    }
 }
 
 .date-input-wrapper {
