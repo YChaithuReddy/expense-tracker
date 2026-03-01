@@ -164,6 +164,7 @@ window.supabaseClient = {
     uploadImage,
     deleteImage,
     SUPABASE_URL,
+    SUPABASE_ANON_KEY,
     STORAGE_BUCKET
 };
 
