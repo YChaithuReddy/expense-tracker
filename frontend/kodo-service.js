@@ -33,19 +33,27 @@ class KodoService {
      */
     async _callEdgeFunction(body) {
         const supabase = this._getSupabase();
+        const { data: { session } } = await supabase.auth.getSession();
 
-        const { data, error } = await supabase.functions.invoke('kodo-submit', {
-            body,
+        if (!session?.access_token) {
+            throw new Error('No active session. Please log in again.');
+        }
+
+        const response = await fetch(`${window.supabaseClient.SUPABASE_URL}/functions/v1/kodo-submit`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${session.access_token}`,
+                'apikey': window.supabaseClient.SUPABASE_ANON_KEY,
+            },
+            body: JSON.stringify(body),
         });
 
-        if (error) {
-            throw new Error(error.message || 'Edge function call failed');
+        const result = await response.json();
+        if (!result.success) {
+            throw new Error(result.error || 'Edge function call failed');
         }
-
-        if (!data.success) {
-            throw new Error(data.error || 'Edge function returned error');
-        }
-        return data;
+        return result;
     }
 
     /**
