@@ -1905,8 +1905,8 @@ class ExpenseTracker {
 
                         <div class="batch-bulk-actions">
                             <label>
-                                <span>Apply vendor to all:</span>
-                                <input type="text" id="bulkVendor" placeholder="Enter vendor name" class="bulk-vendor-input">
+                                <span>Apply project name to all:</span>
+                                <input type="text" id="bulkVendor" placeholder="Enter project name" class="bulk-vendor-input">
                                 <button class="btn-secondary btn-apply-vendor" id="applyBulkVendorBtn" type="button">Apply</button>
                             </label>
                         </div>
@@ -2127,8 +2127,8 @@ class ExpenseTracker {
                             <input type="date" class="inline-input expense-date" data-index="${index}" value="${safeDate}">
                         </div>
                         <div class="form-row">
-                            <label class="form-label">🏪 Vendor</label>
-                            <input type="text" class="inline-input expense-vendor" data-index="${index}" value="${safeVendor}" placeholder="Enter vendor name">
+                            <label class="form-label">📋 Project Name</label>
+                            <input type="text" class="inline-input expense-vendor" data-index="${index}" value="${safeVendor}" placeholder="Enter project name">
                         </div>
                         <div class="form-row">
                             <label class="form-label">💰 Amount</label>
@@ -2187,7 +2187,7 @@ class ExpenseTracker {
     applyBulkVendor() {
         const vendor = document.getElementById('bulkVendor').value.trim();
         if (!vendor) {
-            this.showError('Please enter a vendor name', 'Bulk Edit');
+            this.showError('Please enter a project name', 'Bulk Edit');
             return;
         }
 
@@ -2199,7 +2199,7 @@ class ExpenseTracker {
         });
 
         this.updateBatchUI();
-        this.showNotification(`✅ Applied vendor "${vendor}" to ${this.extractedExpenses.filter(e => e.selected).length} bills`);
+        this.showNotification(`✅ Applied project name "${vendor}" to ${this.extractedExpenses.filter(e => e.selected).length} bills`);
     }
 
     removeBillFromBatch(index) {
