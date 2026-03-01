@@ -33,8 +33,7 @@ async function kodoGraphQL(query: string, variables: Record<string, unknown>, to
   return json.data;
 }
 
-// Login - exact format from app.kodo.in Angular bundle
-// appName enum: KODO_APP | KODO_MANAGEMENT_PORTAL | KODO_KONSOLE
+// Login - returns { token, ... } on success or { needsOtp: true, otpToken, email } if OTP required
 async function kodoLogin(email: string, passcode: string, deviceToken?: string): Promise<any> {
   const data = await kodoGraphQL(
     `mutation userLogin($emailId: String, $passcode: String, $deviceToken: String, $appName: String) {
@@ -45,8 +44,38 @@ async function kodoLogin(email: string, passcode: string, deviceToken?: string):
   return typeof data.userLogin === "string" ? JSON.parse(data.userLogin) : data.userLogin;
 }
 
-// Upload PDF - REST endpoint with exact form fields from Kodo bundle
-// Response: { billSoftCopyDetails: [{ id, fileName, url, mimeType }] }
+// OTP Verification - returns { token, refreshToken, deviceToken, user }
+async function kodoVerifyOtp(email: string, otp: number): Promise<any> {
+  const data = await kodoGraphQL(
+    `mutation otpValidation($emailId: String, $otp: Int, $appName: String) {
+      otpValidation(validOtp: {emailId: $emailId, otp: $otp, appName: $appName})
+    }`,
+    { emailId: email, otp, appName: "KODO_APP" }
+  );
+  return typeof data.otpValidation === "string" ? JSON.parse(data.otpValidation) : data.otpValidation;
+}
+
+// Ensure we have a valid access token - handles OTP requirement
+async function ensureToken(supabase: any, userId: string, settings: any): Promise<string> {
+  const loginResult = await kodoLogin(settings.kodo_email, settings.kodo_passcode, settings.kodo_device_token);
+
+  if (loginResult.needsOtp) {
+    throw new Error("OTP_REQUIRED: Your Kodo session has expired. Please re-authenticate in Kodo Settings.");
+  }
+
+  if (!loginResult.token) {
+    throw new Error("Kodo login did not return an access token. Response keys: " + Object.keys(loginResult).join(", "));
+  }
+
+  // Save tokens for future use
+  await supabase.from("kodo_settings").update({
+    kodo_device_token: loginResult.deviceToken || null,
+    kodo_refresh_token: loginResult.refreshToken || null,
+  }).eq("user_id", userId);
+
+  return loginResult.token;
+}
+
 async function kodoUploadPDF(pdfBytes: Uint8Array, filename: string, accessToken: string): Promise<string> {
   const formData = new FormData();
   formData.append("invoice", new Blob([pdfBytes], { type: "application/pdf" }), filename);
@@ -63,7 +92,6 @@ async function kodoUploadPDF(pdfBytes: Uint8Array, filename: string, accessToken
   return id;
 }
 
-// Create claim - exact mutation from Kodo bundle
 async function kodoCreateClaim(accessToken: string, input: {
   billAmount: number; attachmentId: string; checkerAccountId: string;
   expenseCategoryId: string; comment: string;
@@ -84,7 +112,6 @@ async function kodoCreateClaim(accessToken: string, input: {
   return data.createOutgoingPaymentRequest.id;
 }
 
-// Submit for review - exact mutation from Kodo bundle
 async function kodoSubmitForReview(accessToken: string, requestId: string): Promise<any> {
   const data = await kodoGraphQL(
     `mutation startCheckerFlowForOutgoingPaymentRequest($outgoingPaymentRequestId: String!) {
@@ -98,12 +125,10 @@ async function kodoSubmitForReview(accessToken: string, requestId: string): Prom
   return data.startCheckerFlowForOutgoingPaymentRequest;
 }
 
-// Fetch categories + checkers - exact queries from Kodo bundle
 async function fetchKodoConfig(accessToken: string): Promise<{ categories: any[]; checkers: any[] }> {
   const categories: any[] = [];
   const checkers: any[] = [];
 
-  // Categories: getExpenseCategoriesMaster (exact query name from Kodo)
   try {
     const data = await kodoGraphQL(
       `query getExpenseCategoriesMaster($includeArchivedResults: Boolean) {
@@ -115,7 +140,6 @@ async function fetchKodoConfig(accessToken: string): Promise<{ categories: any[]
     categories.push(...(data.getExpenseCategoriesMaster || []).filter((c: any) => !c.isArchived));
   } catch (e) { console.error("Categories:", (e as Error).message); }
 
-  // Checkers: initiateOutgoingPaymentRequest returns availableCheckers (exact from Kodo)
   try {
     const data = await kodoGraphQL(
       `mutation initiateOutgoingPaymentRequest($isBulkRequest: Boolean) {
@@ -161,27 +185,52 @@ Deno.serve(async (req: Request) => {
       status, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
 
-    // --- LOGIN ---
+    // --- LOGIN (step 1: email + passcode) ---
     if (action === "login") {
       const { email, passcode } = body;
       if (!email || !passcode) return fail("Email and passcode required");
       const loginResult = await kodoLogin(email, passcode);
+
+      if (loginResult.needsOtp) {
+        await supabase.from("kodo_settings").upsert({
+          user_id: user.id, kodo_email: email, kodo_passcode: passcode,
+        }, { onConflict: "user_id" });
+        return ok({ needsOtp: true, email: loginResult.email || email });
+      }
+
       await supabase.from("kodo_settings").upsert({
         user_id: user.id, kodo_email: email, kodo_passcode: passcode,
         kodo_device_token: loginResult.deviceToken, kodo_refresh_token: loginResult.refreshToken,
       }, { onConflict: "user_id" });
-      return ok({ user: loginResult.user });
+      return ok({ user: loginResult.user, authenticated: true });
+    }
+
+    // --- VERIFY OTP (step 2) ---
+    if (action === "verify-otp") {
+      const { email, otp } = body;
+      if (!email || !otp) return fail("Email and OTP required");
+
+      const otpResult = await kodoVerifyOtp(email, parseInt(otp, 10));
+
+      if (!otpResult.token) {
+        return fail("OTP verification failed: no token returned");
+      }
+
+      await supabase.from("kodo_settings").update({
+        kodo_device_token: otpResult.deviceToken || null,
+        kodo_refresh_token: otpResult.refreshToken || null,
+      }).eq("user_id", user.id);
+
+      return ok({ user: otpResult.user, authenticated: true, hasDeviceToken: !!otpResult.deviceToken });
     }
 
     // --- GET CONFIG ---
     if (action === "get-config") {
       const { data: settings } = await supabase.from("kodo_settings").select("*").eq("user_id", user.id).single();
       if (!settings) return fail("Kodo not configured. Set up your credentials first.");
-      const loginResult = await kodoLogin(settings.kodo_email, settings.kodo_passcode, settings.kodo_device_token);
-      await supabase.from("kodo_settings").update({
-        kodo_device_token: loginResult.deviceToken, kodo_refresh_token: loginResult.refreshToken,
-      }).eq("user_id", user.id);
-      return ok(await fetchKodoConfig(loginResult.token));
+
+      const token = await ensureToken(supabase, user.id, settings);
+      return ok(await fetchKodoConfig(token));
     }
 
     // --- SUBMIT ---
@@ -191,34 +240,32 @@ Deno.serve(async (req: Request) => {
       const { data: settings } = await supabase.from("kodo_settings").select("*").eq("user_id", user.id).single();
       if (!settings) return fail("Kodo not configured");
 
-      // Step 1: Login to Kodo
-      const loginResult = await kodoLogin(settings.kodo_email, settings.kodo_passcode, settings.kodo_device_token);
-      const token = loginResult.token;
-      await supabase.from("kodo_settings").update({
-        kodo_device_token: loginResult.deviceToken, kodo_refresh_token: loginResult.refreshToken,
-      }).eq("user_id", user.id);
+      const token = await ensureToken(supabase, user.id, settings);
 
-      // Step 2: Upload PDF
       const pdfBytes = Uint8Array.from(atob(pdfBase64), (c) => c.charCodeAt(0));
       const attachmentId = await kodoUploadPDF(
         pdfBytes, `reimbursement_${new Date().toISOString().split("T")[0]}.pdf`, token
       );
 
-      // Step 3: Create claim
       const { totalAmount, checkerId, categoryId, comment } = expenseDetails;
       const claimId = await kodoCreateClaim(token, {
         billAmount: totalAmount, attachmentId, checkerAccountId: checkerId,
         expenseCategoryId: categoryId, comment: comment || "Reimbursement claim from Expense Tracker",
       });
 
-      // Step 4: Submit for review
       const submitResult = await kodoSubmitForReview(token, claimId);
       return ok({ claimId, message: "Claim submitted successfully", submitResult });
     }
 
     return fail(`Unknown action: ${action}`);
   } catch (error) {
-    return new Response(JSON.stringify({ success: false, error: error.message || "Internal server error" }), {
+    const msg = error.message || "Internal server error";
+    if (msg.startsWith("OTP_REQUIRED:")) {
+      return new Response(JSON.stringify({ success: false, error: msg, needsReauth: true }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    return new Response(JSON.stringify({ success: false, error: msg }), {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }

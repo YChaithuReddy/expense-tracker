@@ -6780,6 +6780,20 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         closeBtn.onclick = closeModal;
         modal.onclick = (e) => { if (e.target === modal) closeModal(); };
 
+        // After OTP verified or direct login, fetch config
+        const onAuthenticated = async () => {
+            showStatus('Authenticated! Loading checkers & categories...');
+            await kodo.saveSettings({ email: document.getElementById('kodoEmail').value.trim(), passcode: document.getElementById('kodoPasscode').value.trim() });
+            try {
+                kodo.config = null;
+                const config = await kodo.getKodoConfig();
+                this.populateKodoDropdowns(config);
+                showStatus(`Connected! Found ${config.checkers?.length || 0} checkers and ${config.categories?.length || 0} categories.`);
+            } catch (configErr) {
+                showStatus('Authenticated but could not load config: ' + configErr.message, true);
+            }
+        };
+
         testBtn.onclick = async () => {
             const email = document.getElementById('kodoEmail').value.trim();
             const passcode = document.getElementById('kodoPasscode').value.trim();
@@ -6793,19 +6807,19 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             testBtn.textContent = 'Testing...';
 
             try {
-                await kodo.testConnection(email, passcode);
-                // Save credentials so get-config can use them
-                await kodo.saveSettings({ email, passcode });
-                showStatus('Connected! Loading checkers & categories...');
-                // Fetch real IDs from Kodo API
-                try {
-                    const config = await kodo.getKodoConfig();
-                    this.populateKodoDropdowns(config);
-                    const count = (config.checkers?.length || 0) + (config.categories?.length || 0);
-                    showStatus(`Connection successful! Found ${config.checkers?.length || 0} checkers and ${config.categories?.length || 0} categories.`);
-                } catch (configErr) {
-                    showStatus('Connected but could not load dropdowns: ' + configErr.message, true);
+                const loginData = await kodo.testConnection(email, passcode);
+
+                if (loginData.needsOtp) {
+                    // Show OTP input inline
+                    showStatus('OTP sent to your email. Enter the 6-digit code below.');
+                    this._showKodoOtpInput(statusDiv, email, async () => {
+                        await onAuthenticated();
+                    });
+                    return;
                 }
+
+                // Direct login (device token was valid)
+                await onAuthenticated();
             } catch (err) {
                 showStatus('Connection failed: ' + err.message, true);
             } finally {
@@ -6848,6 +6862,57 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         };
 
         modal.style.display = 'flex';
+    }
+
+    /**
+     * Show inline OTP input after login requires OTP
+     */
+    _showKodoOtpInput(container, email, onSuccess) {
+        const otpDiv = document.createElement('div');
+        otpDiv.style.cssText = 'margin-top: 12px; display: flex; gap: 8px; align-items: center;';
+        otpDiv.innerHTML = `
+            <input type="text" id="kodoOtpInput" placeholder="Enter 6-digit OTP" maxlength="6"
+                style="flex: 1; padding: 8px 12px; border: 1px solid var(--border-color, #ddd); border-radius: 8px; font-size: 14px; text-align: center; letter-spacing: 4px;" />
+            <button id="kodoOtpSubmit" style="padding: 8px 16px; background: var(--primary-color, #6c5ce7); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px;">
+                Verify
+            </button>
+        `;
+        container.parentNode.insertBefore(otpDiv, container.nextSibling);
+
+        const otpInput = otpDiv.querySelector('#kodoOtpInput');
+        const otpBtn = otpDiv.querySelector('#kodoOtpSubmit');
+        otpInput.focus();
+
+        const verify = async () => {
+            const otp = otpInput.value.trim();
+            if (!otp || otp.length !== 6) {
+                container.textContent = 'Please enter a valid 6-digit OTP';
+                container.className = 'kodo-status kodo-status-error';
+                return;
+            }
+
+            otpBtn.disabled = true;
+            otpBtn.textContent = 'Verifying...';
+            container.textContent = 'Verifying OTP...';
+            container.className = 'kodo-status kodo-status-success';
+
+            try {
+                const kodo = window.kodoService;
+                await kodo.verifyOtp(email, otp);
+                // Refresh settings to get the new device token
+                await kodo.getSettings();
+                otpDiv.remove();
+                await onSuccess();
+            } catch (err) {
+                container.textContent = 'OTP failed: ' + err.message;
+                container.className = 'kodo-status kodo-status-error';
+                otpBtn.disabled = false;
+                otpBtn.textContent = 'Verify';
+            }
+        };
+
+        otpBtn.onclick = verify;
+        otpInput.onkeydown = (e) => { if (e.key === 'Enter') verify(); };
     }
 
     populateKodoDropdowns(config, checkerSelectId = 'kodoChecker', categorySelectId = 'kodoCategory') {
@@ -6907,9 +6972,8 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         // Fetch real IDs from Kodo API and populate dropdowns
         this.showLoading('Loading Kodo config...', 'Logging into Kodo & fetching checkers/categories');
         try {
-            kodo.config = null; // Always fetch fresh config
+            kodo.config = null;
             const config = await kodo.getKodoConfig();
-            console.log('Kodo config response:', JSON.stringify(config, null, 2));
             this.populateKodoDropdowns(config, 'kodoConfirmChecker', 'kodoConfirmCategory');
 
             if (!config.checkers?.length || !config.categories?.length) {
@@ -6917,13 +6981,16 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                 const missing = [];
                 if (!config.checkers?.length) missing.push('checkers');
                 if (!config.categories?.length) missing.push('categories');
-                const debugInfo = config._debug ? `\n\nDebug: token=${config._debug.tokenField}, catErrors=${JSON.stringify(config._debug.catResponse?.errors)}, checkErrors=${JSON.stringify(config._debug.checkResponse?.errors)}` : '';
-                this.showError(`Could not fetch ${missing.join(' and ')} from Kodo.${debugInfo}`, 'Kodo Config Error');
+                this.showError(`Could not fetch ${missing.join(' and ')} from Kodo.\n\nPlease check your Kodo credentials in Settings.`, 'Kodo Config Error');
                 return;
             }
         } catch (err) {
             this.hideLoading();
-            this.showError('Failed to load Kodo config:\n\n' + (err.message || 'Please check your credentials.'), 'Kodo Error');
+            if (err.needsReauth || (err.message && err.message.includes('OTP_REQUIRED'))) {
+                this.showError('Your Kodo session has expired.\n\nPlease go to Kodo Settings and click "Test Connection" to re-authenticate with OTP.', 'Kodo Re-authentication Required');
+            } else {
+                this.showError('Failed to load Kodo config:\n\n' + (err.message || 'Please check your credentials.'), 'Kodo Error');
+            }
             return;
         }
         this.hideLoading();
