@@ -2227,8 +2227,11 @@ class ExpenseTracker {
             checkbox.addEventListener('change', (e) => {
                 const index = parseInt(e.target.dataset.index);
                 this.toggleBillSelection(index, e.target.checked);
-                // Update the card to show selection state
-                this.updateBatchUI();
+                // Update selection visuals without full re-render
+                const card = e.target.closest('.batch-bill-card');
+                if (card) card.classList.toggle('selected', e.target.checked);
+                this.updateSelectionCount();
+                this.updateSubmitButton();
             });
         });
 
@@ -2267,8 +2270,14 @@ class ExpenseTracker {
             input.addEventListener('change', (e) => {
                 const index = parseInt(e.target.dataset.index);
                 this.updateExpenseField(index, 'amount', e.target.value);
-                // Re-render to update amount in words and badge
-                this.updateBatchUI();
+                // Update amount badge and stats without full re-render
+                const card = e.target.closest('.batch-bill-card');
+                if (card) {
+                    const badge = card.querySelector('.expense-category-badge, .batch-amount-badge');
+                    if (badge) badge.textContent = `₹${this.formatAmount(parseFloat(e.target.value) || 0)}`;
+                }
+                this.updateSelectionCount();
+                this.updateSubmitButton();
             });
         });
 
@@ -2297,7 +2306,12 @@ class ExpenseTracker {
 
                 // Update category (just main for now, sub will update on its own change)
                 this.updateExpenseField(index, 'category', mainCat);
-                this.updateBatchUI();
+                // Update badge text without full re-render
+                const card = e.target.closest('.batch-bill-card');
+                if (card) {
+                    const badge = card.querySelector('.batch-category-label');
+                    if (badge) badge.textContent = mainCat;
+                }
             });
         });
 
@@ -2310,7 +2324,7 @@ class ExpenseTracker {
                 const subCat = e.target.value;
                 const combined = subCat ? `${mainCat} - ${subCat}` : mainCat;
                 this.updateExpenseField(index, 'category', combined);
-                this.updateBatchUI();
+                // No full re-render needed - data model is updated
             });
         });
 
