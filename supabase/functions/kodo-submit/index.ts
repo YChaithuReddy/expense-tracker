@@ -33,7 +33,6 @@ async function kodoGraphQL(query: string, variables: Record<string, unknown>, to
   return json.data;
 }
 
-// Login - returns { token, ... } on success or { needsOtp: true, otpToken, email } if OTP required
 async function kodoLogin(email: string, passcode: string, deviceToken?: string): Promise<any> {
   const data = await kodoGraphQL(
     `mutation userLogin($emailId: String, $passcode: String, $deviceToken: String, $appName: String) {
@@ -44,7 +43,6 @@ async function kodoLogin(email: string, passcode: string, deviceToken?: string):
   return typeof data.userLogin === "string" ? JSON.parse(data.userLogin) : data.userLogin;
 }
 
-// OTP Verification - returns { token, refreshToken, deviceToken, user }
 async function kodoVerifyOtp(email: string, otp: number): Promise<any> {
   const data = await kodoGraphQL(
     `mutation otpValidation($emailId: String, $otp: Int, $appName: String) {
@@ -55,24 +53,18 @@ async function kodoVerifyOtp(email: string, otp: number): Promise<any> {
   return typeof data.otpValidation === "string" ? JSON.parse(data.otpValidation) : data.otpValidation;
 }
 
-// Ensure we have a valid access token - handles OTP requirement
 async function ensureToken(supabase: any, userId: string, settings: any): Promise<string> {
   const loginResult = await kodoLogin(settings.kodo_email, settings.kodo_passcode, settings.kodo_device_token);
-
   if (loginResult.needsOtp) {
     throw new Error("OTP_REQUIRED: Your Kodo session has expired. Please re-authenticate in Kodo Settings.");
   }
-
   if (!loginResult.token) {
-    throw new Error("Kodo login did not return an access token. Response keys: " + Object.keys(loginResult).join(", "));
+    throw new Error("Kodo login did not return an access token.");
   }
-
-  // Save tokens for future use
   await supabase.from("kodo_settings").update({
     kodo_device_token: loginResult.deviceToken || null,
     kodo_refresh_token: loginResult.refreshToken || null,
   }).eq("user_id", userId);
-
   return loginResult.token;
 }
 
@@ -96,6 +88,10 @@ async function kodoCreateClaim(accessToken: string, input: {
   billAmount: number; attachmentId: string; checkerAccountId: string;
   expenseCategoryId: string; comment: string;
 }): Promise<string> {
+  // Coerce IDs to proper types - Kodo schema uses Int for some, String for others
+  const categoryId = /^\d+$/.test(input.expenseCategoryId) ? parseInt(input.expenseCategoryId, 10) : input.expenseCategoryId;
+  const checkerId = /^\d+$/.test(input.checkerAccountId) ? parseInt(input.checkerAccountId, 10) : input.checkerAccountId;
+
   const data = await kodoGraphQL(
     `mutation createOutgoingPaymentRequest($input: OutgoingPaymentRequestCreationInput!) {
       createOutgoingPaymentRequest(input: $input) { id currentlyAssignedTo { user { id } } }
@@ -103,8 +99,8 @@ async function kodoCreateClaim(accessToken: string, input: {
     { input: {
       billData: { billAmount: input.billAmount, payableAmount: input.billAmount },
       attachmentId: input.attachmentId,
-      checkerAccountId: input.checkerAccountId,
-      expenseCategoryId: input.expenseCategoryId,
+      checkerAccountId: checkerId,
+      expenseCategoryId: categoryId,
       comment: input.comment,
     }},
     accessToken
@@ -159,7 +155,6 @@ async function fetchKodoConfig(accessToken: string): Promise<{ categories: any[]
   return { categories, checkers };
 }
 
-// --- Main handler ---
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
@@ -185,19 +180,16 @@ Deno.serve(async (req: Request) => {
       status, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
 
-    // --- LOGIN (step 1: email + passcode) ---
     if (action === "login") {
       const { email, passcode } = body;
       if (!email || !passcode) return fail("Email and passcode required");
       const loginResult = await kodoLogin(email, passcode);
-
       if (loginResult.needsOtp) {
         await supabase.from("kodo_settings").upsert({
           user_id: user.id, kodo_email: email, kodo_passcode: passcode,
         }, { onConflict: "user_id" });
         return ok({ needsOtp: true, email: loginResult.email || email });
       }
-
       await supabase.from("kodo_settings").upsert({
         user_id: user.id, kodo_email: email, kodo_passcode: passcode,
         kodo_device_token: loginResult.deviceToken, kodo_refresh_token: loginResult.refreshToken,
@@ -205,54 +197,40 @@ Deno.serve(async (req: Request) => {
       return ok({ user: loginResult.user, authenticated: true });
     }
 
-    // --- VERIFY OTP (step 2) ---
     if (action === "verify-otp") {
       const { email, otp } = body;
       if (!email || !otp) return fail("Email and OTP required");
-
       const otpResult = await kodoVerifyOtp(email, parseInt(otp, 10));
-
-      if (!otpResult.token) {
-        return fail("OTP verification failed: no token returned");
-      }
-
+      if (!otpResult.token) return fail("OTP verification failed: no token returned");
       await supabase.from("kodo_settings").update({
         kodo_device_token: otpResult.deviceToken || null,
         kodo_refresh_token: otpResult.refreshToken || null,
       }).eq("user_id", user.id);
-
       return ok({ user: otpResult.user, authenticated: true, hasDeviceToken: !!otpResult.deviceToken });
     }
 
-    // --- GET CONFIG ---
     if (action === "get-config") {
       const { data: settings } = await supabase.from("kodo_settings").select("*").eq("user_id", user.id).single();
       if (!settings) return fail("Kodo not configured. Set up your credentials first.");
-
       const token = await ensureToken(supabase, user.id, settings);
       return ok(await fetchKodoConfig(token));
     }
 
-    // --- SUBMIT ---
     if (action === "submit") {
       const { pdfBase64, expenseDetails } = body;
       if (!pdfBase64 || !expenseDetails) return fail("PDF and expense details required");
       const { data: settings } = await supabase.from("kodo_settings").select("*").eq("user_id", user.id).single();
       if (!settings) return fail("Kodo not configured");
-
       const token = await ensureToken(supabase, user.id, settings);
-
       const pdfBytes = Uint8Array.from(atob(pdfBase64), (c) => c.charCodeAt(0));
       const attachmentId = await kodoUploadPDF(
         pdfBytes, `reimbursement_${new Date().toISOString().split("T")[0]}.pdf`, token
       );
-
       const { totalAmount, checkerId, categoryId, comment } = expenseDetails;
       const claimId = await kodoCreateClaim(token, {
         billAmount: totalAmount, attachmentId, checkerAccountId: checkerId,
         expenseCategoryId: categoryId, comment: comment || "Reimbursement claim from Expense Tracker",
       });
-
       const submitResult = await kodoSubmitForReview(token, claimId);
       return ok({ claimId, message: "Claim submitted successfully", submitResult });
     }
