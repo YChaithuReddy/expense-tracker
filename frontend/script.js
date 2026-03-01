@@ -6448,6 +6448,13 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             });
         }
 
+        // Auto-fill employee name from logged-in user
+        const empNameField = newForm.querySelector('#empName');
+        if (empNameField && !empNameField.value) {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (user.name) empNameField.value = user.name;
+        }
+
         // Auto-fill dates from actual expense data
         try {
             // Get the current loaded expenses (they're already sorted by date)
