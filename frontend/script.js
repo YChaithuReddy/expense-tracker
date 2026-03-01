@@ -6750,10 +6750,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         const statusDiv = document.getElementById('kodoSettingsStatus');
 
         const kodo = window.kodoService;
-
-        // Populate dropdowns immediately (hardcoded data)
-        const config = kodo.getKodoConfig();
-        this.populateKodoDropdowns(config);
+        kodo.config = null; // Clear cached config so Test Connection fetches fresh
 
         // Load existing settings into form
         if (kodo.settings) {
@@ -6789,7 +6786,18 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
 
             try {
                 await kodo.testConnection(email, passcode);
-                showStatus('Connection successful! Select your defaults and save.');
+                // Save credentials so get-config can use them
+                await kodo.saveSettings({ email, passcode });
+                showStatus('Connected! Loading checkers & categories...');
+                // Fetch real IDs from Kodo API
+                try {
+                    const config = await kodo.getKodoConfig();
+                    this.populateKodoDropdowns(config);
+                    const count = (config.checkers?.length || 0) + (config.categories?.length || 0);
+                    showStatus(`Connection successful! Found ${config.checkers?.length || 0} checkers and ${config.categories?.length || 0} categories.`);
+                } catch (configErr) {
+                    showStatus('Connected but could not load dropdowns: ' + configErr.message, true);
+                }
             } catch (err) {
                 showStatus('Connection failed: ' + err.message, true);
             } finally {
@@ -6888,9 +6896,17 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             </div>
         `;
 
-        // Populate dropdowns from hardcoded config
-        const config = kodo.getKodoConfig();
-        this.populateKodoDropdowns(config, 'kodoConfirmChecker', 'kodoConfirmCategory');
+        // Fetch real IDs from Kodo API and populate dropdowns
+        this.showLoading('Loading Kodo config...', 'Fetching checkers & categories from Kodo');
+        try {
+            const config = await kodo.getKodoConfig();
+            this.populateKodoDropdowns(config, 'kodoConfirmChecker', 'kodoConfirmCategory');
+        } catch (err) {
+            this.hideLoading();
+            this.showNotification('Failed to load Kodo config: ' + err.message);
+            return;
+        }
+        this.hideLoading();
 
         // Set default comment
         const commentInput = document.getElementById('kodoConfirmComment');
