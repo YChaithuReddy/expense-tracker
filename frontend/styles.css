@@ -6934,7 +6934,7 @@ select.inline-input option {
     border: 1.5px solid var(--border-color, #d1d5db);
     border-radius: 12px;
     font-size: 0.95rem;
-    background: var(--input-bg, #fff);
+    background: var(--background-secondary, var(--card-bg, #fff));
     color: var(--text-primary, #1f2937);
     transition: border-color 0.2s;
     box-sizing: border-box;
@@ -6997,20 +6997,20 @@ select.inline-input option {
 }
 
 .kodo-status-success {
-    background: #ecfdf5;
-    color: #065f46;
-    border: 1px solid #a7f3d0;
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 .kodo-status-error {
-    background: #fef2f2;
-    color: #991b1b;
-    border: 1px solid #fecaca;
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 /* Kodo Confirmation Summary */
 .kodo-confirm-summary {
-    background: var(--hover-bg, #f9fafb);
+    background: var(--background-secondary, var(--card-bg, #f9fafb));
     border-radius: 14px;
     padding: 16px;
     margin-bottom: 20px;

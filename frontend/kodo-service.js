@@ -83,11 +83,9 @@ class KodoService {
             .from('kodo_settings')
             .select('*')
             .eq('user_id', userId)
-            .single();
+            .maybeSingle();
 
-        if (error && error.code !== 'PGRST116') { // PGRST116 = no rows
-            throw error;
-        }
+        if (error) throw error;
 
         this.settings = data;
         return data;
@@ -136,13 +134,46 @@ class KodoService {
     }
 
     /**
-     * Fetch Kodo config (categories, checkers)
+     * Get Kodo config (categories, checkers) - hardcoded from known Kodo data
      */
-    async getKodoConfig() {
+    getKodoConfig() {
         if (this.config) return this.config;
 
-        const result = await this._callEdgeFunction({ action: 'get-config' });
-        this.config = result.data;
+        this.config = {
+            checkers: [
+                { id: 'bob', name: 'Bob Mathew Pulickan', email: 'bob@fluxgentech.com' },
+                { id: 'chetan', name: 'Chetan Kharade', email: 'chetan@fluxgentech.com' },
+                { id: 'emanuel', name: 'Emanuel A', email: 'emanuel@fluxgentech.com' },
+                { id: 'ganesh', name: 'Ganesh Shankar', email: 'ganesh@fluxgentech.com' },
+                { id: 'manoj', name: 'Manoj Chandy', email: 'manoj@fluxgentech.com' },
+                { id: 'sharan', name: 'Sharan K', email: 'sharan@fluxgentech.com' },
+                { id: 'shreem', name: 'Shreem Kohli', email: 'shreem@fluxgentech.com' },
+            ],
+            categories: [
+                { id: 'project-materials', name: 'Project materials' },
+                { id: 'plumbing-materials', name: 'Plumbing materials' },
+                { id: 'food', name: 'Food' },
+                { id: 'hotel', name: 'Hotel' },
+                { id: 'marketing', name: 'Marketing' },
+                { id: 'fuel', name: 'Fuel' },
+                { id: 'commute', name: 'Commute' },
+                { id: 'atm', name: 'ATM' },
+                { id: 'travel', name: 'Travel' },
+                { id: 'utilities', name: 'Utilities' },
+                { id: 'flight-booking', name: 'Flight Booking' },
+                { id: 'grocery', name: 'Grocery' },
+                { id: 'logistics', name: 'Logistics' },
+                { id: 'auto', name: 'Auto' },
+                { id: 'vendor-payment', name: 'Vendor payment' },
+                { id: 'printout', name: 'Printout' },
+                { id: 'air-travel', name: 'Air Travel' },
+                { id: 'insurance', name: 'Insurance' },
+                { id: 'office-supplies', name: 'Office Supplies' },
+                { id: 'it', name: 'IT' },
+                { id: 'rent', name: 'Rent' },
+                { id: 'others', name: 'Others' },
+            ],
+        };
         return this.config;
     }
 
