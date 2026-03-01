@@ -6916,7 +6916,8 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                 const missing = [];
                 if (!config.checkers?.length) missing.push('checkers');
                 if (!config.categories?.length) missing.push('categories');
-                this.showError(`Could not fetch ${missing.join(' and ')} from Kodo.\n\nPlease check your Kodo credentials in Settings.`, 'Kodo Config Error');
+                const errorDetail = config.errors?.length ? '\n\nAPI errors:\n' + config.errors.join('\n') : '';
+                this.showError(`Could not fetch ${missing.join(' and ')} from Kodo.${errorDetail}`, 'Kodo Config Error');
                 return;
             }
         } catch (err) {
