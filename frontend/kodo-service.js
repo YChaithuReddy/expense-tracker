@@ -42,15 +42,6 @@ class KodoService {
         const supabaseUrl = window.supabaseClient.SUPABASE_URL;
         const anonKey = window.supabaseClient.SUPABASE_ANON_KEY;
 
-        console.log('Edge Function call:', {
-            url: `${supabaseUrl}/functions/v1/kodo-submit`,
-            hasToken: !!session.access_token,
-            tokenPrefix: session.access_token?.substring(0, 20) + '...',
-            hasAnonKey: !!anonKey,
-            anonKeyPrefix: anonKey?.substring(0, 20) + '...',
-            action: body.action,
-        });
-
         const response = await fetch(`${supabaseUrl}/functions/v1/kodo-submit`, {
             method: 'POST',
             headers: {
@@ -63,8 +54,14 @@ class KodoService {
 
         if (!response.ok) {
             const text = await response.text();
-            console.error('Edge Function error:', response.status, text);
-            throw new Error(`Edge function failed (${response.status}): ${text}`);
+            let errorMsg;
+            try {
+                const errJson = JSON.parse(text);
+                errorMsg = errJson.error || text;
+            } catch {
+                errorMsg = text;
+            }
+            throw new Error(errorMsg);
         }
 
         const result = await response.json();
