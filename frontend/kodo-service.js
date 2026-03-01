@@ -10,18 +10,12 @@ class KodoService {
         this.config = null; // categories, checkers from Kodo
     }
 
-    /**
-     * Get Supabase client
-     */
     _getSupabase() {
         const client = window.supabaseClient?.get();
         if (!client) throw new Error('Supabase client not initialized');
         return client;
     }
 
-    /**
-     * Get current user ID
-     */
     _getUserId() {
         const user = JSON.parse(localStorage.getItem('user') || '{}');
         if (!user.id) throw new Error('Not logged in');
@@ -30,6 +24,7 @@ class KodoService {
 
     /**
      * Call the kodo-submit Edge Function
+     * Returns parsed result with { success, data } or throws
      */
     async _callEdgeFunction(body) {
         const supabase = this._getSupabase();
@@ -52,28 +47,24 @@ class KodoService {
             body: JSON.stringify(body),
         });
 
-        if (!response.ok) {
-            const text = await response.text();
-            let errorMsg;
-            try {
-                const errJson = JSON.parse(text);
-                errorMsg = errJson.error || text;
-            } catch {
-                errorMsg = text;
-            }
-            throw new Error(errorMsg);
+        const text = await response.text();
+        let result;
+        try {
+            result = JSON.parse(text);
+        } catch {
+            throw new Error(text || `Request failed (${response.status})`);
         }
 
-        const result = await response.json();
-        if (!result.success) {
-            throw new Error(result.error || 'Edge function returned error');
+        if (!response.ok || !result.success) {
+            const err = new Error(result.error || `Request failed (${response.status})`);
+            err.needsReauth = result.needsReauth || false;
+            err.needsOtp = result.data?.needsOtp || false;
+            throw err;
         }
+
         return result;
     }
 
-    /**
-     * Initialize - check if Kodo is configured
-     */
     async initialize() {
         try {
             const settings = await this.getSettings();
@@ -86,9 +77,6 @@ class KodoService {
         }
     }
 
-    /**
-     * Get Kodo settings from Supabase
-     */
     async getSettings() {
         const supabase = this._getSupabase();
         const userId = this._getUserId();
@@ -105,9 +93,6 @@ class KodoService {
         return data;
     }
 
-    /**
-     * Save Kodo settings
-     */
     async saveSettings({ email, passcode, checkerId, checkerName, categoryId, categoryName }) {
         const supabase = this._getSupabase();
         const userId = this._getUserId();
@@ -136,7 +121,9 @@ class KodoService {
     }
 
     /**
-     * Test Kodo connection (login)
+     * Login to Kodo (step 1: email + passcode)
+     * Returns { needsOtp: true, email } if OTP required
+     * Returns { authenticated: true, user } if deviceToken valid
      */
     async testConnection(email, passcode) {
         const result = await this._callEdgeFunction({
@@ -148,8 +135,21 @@ class KodoService {
     }
 
     /**
-     * Fetch real Kodo config (categories, checkers) from Edge Function
-     * The Edge Function logs into Kodo, introspects the API, and returns real UUIDs
+     * Verify OTP (step 2)
+     * Returns { authenticated: true, user, hasDeviceToken }
+     */
+    async verifyOtp(email, otp) {
+        const result = await this._callEdgeFunction({
+            action: 'verify-otp',
+            email,
+            otp: String(otp),
+        });
+        return result.data;
+    }
+
+    /**
+     * Fetch Kodo config (categories, checkers)
+     * Throws with needsReauth if OTP session expired
      */
     async getKodoConfig() {
         if (this.config) return this.config;
@@ -161,11 +161,8 @@ class KodoService {
 
     /**
      * Submit reimbursement to Kodo
-     * @param {Uint8Array|ArrayBuffer} pdfBytes - The PDF file bytes
-     * @param {Object} expenseDetails - { totalAmount, checkerId, categoryId, comment, billDate }
      */
     async submitToKodo(pdfBytes, expenseDetails) {
-        // Convert to base64
         const bytes = pdfBytes instanceof ArrayBuffer ? new Uint8Array(pdfBytes) : pdfBytes;
         let binary = '';
         const chunkSize = 8192;
@@ -184,16 +181,17 @@ class KodoService {
         return result.data;
     }
 
-    /**
-     * Check if Kodo is configured
-     */
     hasSettings() {
         return this.isConfigured;
     }
 
     /**
-     * Clear Kodo settings
+     * Check if Kodo has a valid device token (OTP already completed)
      */
+    hasDeviceToken() {
+        return !!(this.settings?.kodo_device_token);
+    }
+
     async clearSettings() {
         const supabase = this._getSupabase();
         const userId = this._getUserId();
