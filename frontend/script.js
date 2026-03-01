@@ -6742,8 +6742,13 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         const saveBtn = document.getElementById('kodoSaveSettings');
         const statusDiv = document.getElementById('kodoSettingsStatus');
 
-        // Load existing settings
         const kodo = window.kodoService;
+
+        // Populate dropdowns immediately (hardcoded data)
+        const config = kodo.getKodoConfig();
+        this.populateKodoDropdowns(config);
+
+        // Load existing settings into form
         if (kodo.settings) {
             document.getElementById('kodoEmail').value = kodo.settings.kodo_email || '';
             document.getElementById('kodoPasscode').value = kodo.settings.kodo_passcode || '';
@@ -6757,6 +6762,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
 
         const closeModal = () => {
             modal.style.display = 'none';
+            statusDiv.style.display = 'none';
         };
 
         closeBtn.onclick = closeModal;
@@ -6776,16 +6782,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
 
             try {
                 await kodo.testConnection(email, passcode);
-                showStatus('Connection successful! You can now load checkers/categories and save.');
-
-                // After successful login, load config for dropdowns
-                try {
-                    await kodo.saveSettings({ email, passcode });
-                    const config = await kodo.getKodoConfig();
-                    this.populateKodoDropdowns(config);
-                } catch (configErr) {
-                    console.log('Could not load config:', configErr.message);
-                }
+                showStatus('Connection successful! Select your defaults and save.');
             } catch (err) {
                 showStatus('Connection failed: ' + err.message, true);
             } finally {
@@ -6828,11 +6825,6 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         };
 
         modal.style.display = 'flex';
-
-        // If already configured, try to load config
-        if (kodo.settings?.kodo_email) {
-            this.loadKodoConfig();
-        }
     }
 
     populateKodoDropdowns(config, checkerSelectId = 'kodoChecker', categorySelectId = 'kodoCategory') {
@@ -6863,18 +6855,6 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         }
     }
 
-    async loadKodoConfig() {
-        try {
-            const kodo = window.kodoService;
-            const config = await kodo.getKodoConfig();
-            this.populateKodoDropdowns(config);
-            return config;
-        } catch (err) {
-            console.log('Could not load Kodo config:', err.message);
-            return null;
-        }
-    }
-
     async showKodoConfirmModal(expenses) {
         const modal = document.getElementById('kodoConfirmModal');
         const closeBtn = document.getElementById('closeKodoConfirm');
@@ -6901,17 +6881,9 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             </div>
         `;
 
-        // Load config and populate dropdowns
-        this.showLoading('Loading Kodo config...', 'Fetching categories and checkers');
-        try {
-            const config = await kodo.getKodoConfig();
-            this.populateKodoDropdowns(config, 'kodoConfirmChecker', 'kodoConfirmCategory');
-        } catch (err) {
-            this.hideLoading();
-            this.showNotification('Failed to load Kodo config: ' + err.message);
-            return;
-        }
-        this.hideLoading();
+        // Populate dropdowns from hardcoded config
+        const config = kodo.getKodoConfig();
+        this.populateKodoDropdowns(config, 'kodoConfirmChecker', 'kodoConfirmCategory');
 
         // Set default comment
         const commentInput = document.getElementById('kodoConfirmComment');
