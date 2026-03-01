@@ -44,6 +44,7 @@
     <script defer src="supabase-auth.js"></script>
     <script defer src="supabase-api.js"></script>
     <script defer src="google-sheets-service.js"></script>
+    <script defer src="kodo-service.js"></script>
     <script defer src="whatsapp-service.js"></script>
     <script defer src="deep-link-handler.js"></script>
     <script defer src="upi-import.js"></script>
@@ -279,6 +280,10 @@
                         <button id="downloadReimbursementPackage" class="btn-highlight">
                             <span class="btn-icon">📦</span>
                             <span class="btn-text">Download Complete Package</span>
+                        </button>
+                        <button id="submitToKodoBtn" class="btn-kodo">
+                            <span class="btn-icon">🏢</span>
+                            <span class="btn-text">Submit to Kodo</span>
                         </button>
                         <button id="resetGoogleSheet" class="btn-reset">
                             <span class="btn-icon">🔄</span>
@@ -909,5 +914,73 @@
             if (banner) banner.remove();
         });
     </script>
+
+    <!-- Kodo Settings Modal -->
+    <div id="kodoSettingsModal" class="kodo-modal-overlay" style="display: none;">
+        <div class="kodo-modal">
+            <div class="kodo-modal-header">
+                <h3>Kodo Reimbursement Settings</h3>
+                <button class="kodo-modal-close" id="closeKodoSettings">&times;</button>
+            </div>
+            <div class="kodo-modal-body">
+                <div class="kodo-form-group">
+                    <label for="kodoEmail">Kodo Email</label>
+                    <input type="email" id="kodoEmail" placeholder="your.email@company.com" autocomplete="email">
+                </div>
+                <div class="kodo-form-group">
+                    <label for="kodoPasscode">Kodo Passcode</label>
+                    <input type="password" id="kodoPasscode" placeholder="Your Kodo passcode" autocomplete="current-password">
+                </div>
+                <div class="kodo-form-group">
+                    <label for="kodoChecker">Default Checker (Approver)</label>
+                    <select id="kodoChecker">
+                        <option value="">-- Select Checker --</option>
+                    </select>
+                </div>
+                <div class="kodo-form-group">
+                    <label for="kodoCategory">Default Category</label>
+                    <select id="kodoCategory">
+                        <option value="">-- Select Category --</option>
+                    </select>
+                </div>
+                <div class="kodo-form-actions">
+                    <button id="kodoTestConnection" class="kodo-btn kodo-btn-secondary">Test Connection</button>
+                    <button id="kodoSaveSettings" class="kodo-btn kodo-btn-primary">Save Settings</button>
+                </div>
+                <div id="kodoSettingsStatus" class="kodo-status" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kodo Confirmation Modal -->
+    <div id="kodoConfirmModal" class="kodo-modal-overlay" style="display: none;">
+        <div class="kodo-modal">
+            <div class="kodo-modal-header">
+                <h3>Confirm Kodo Submission</h3>
+                <button class="kodo-modal-close" id="closeKodoConfirm">&times;</button>
+            </div>
+            <div class="kodo-modal-body">
+                <div class="kodo-confirm-summary" id="kodoConfirmSummary">
+                    <!-- Populated dynamically -->
+                </div>
+                <div class="kodo-form-group">
+                    <label for="kodoConfirmChecker">Checker (Approver)</label>
+                    <select id="kodoConfirmChecker"></select>
+                </div>
+                <div class="kodo-form-group">
+                    <label for="kodoConfirmCategory">Category</label>
+                    <select id="kodoConfirmCategory"></select>
+                </div>
+                <div class="kodo-form-group">
+                    <label for="kodoConfirmComment">Comment</label>
+                    <input type="text" id="kodoConfirmComment" placeholder="Reimbursement claim from Expense Tracker">
+                </div>
+                <div class="kodo-confirm-actions">
+                    <button id="kodoCancelSubmit" class="kodo-btn kodo-btn-secondary">Cancel</button>
+                    <button id="kodoConfirmSubmit" class="kodo-btn kodo-btn-primary">Confirm & Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

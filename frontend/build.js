@@ -24,6 +24,7 @@ const filesToCopy = [
     'supabase-api.js',
     'supabase-auth.js',
     'google-sheets-service.js',
+    'kodo-service.js',
     'whatsapp-service.js',
     'offline-manager.js',
     'toast.js',

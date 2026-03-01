@@ -97,6 +97,9 @@ class ExpenseTracker {
         // Download combined reimbursement package
         document.getElementById('downloadReimbursementPackage').addEventListener('click', () => this.generateCombinedReimbursementPDF());
 
+        // Submit to Kodo
+        document.getElementById('submitToKodoBtn').addEventListener('click', () => this.submitToKodo());
+
         // Reset Google Sheet
         document.getElementById('resetGoogleSheet').addEventListener('click', () => this.resetGoogleSheet());
 
@@ -117,6 +120,11 @@ class ExpenseTracker {
         // Initialize Google Sheets service
         if (window.googleSheetsService) {
             window.googleSheetsService.initialize();
+        }
+
+        // Initialize Kodo service
+        if (window.kodoService) {
+            window.kodoService.initialize();
         }
 
         // Select All checkbox
@@ -6659,6 +6667,315 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         } else if (theme === 'minimalist') {
             if (themeIcon) themeIcon.textContent = '🌿';
             if (themeLabel) themeLabel.textContent = 'Green Minimal';
+        }
+    }
+
+    // ===== Kodo Reimbursement Integration =====
+
+    async submitToKodo() {
+        const kodo = window.kodoService;
+        if (!kodo) {
+            this.showNotification('Kodo service not available');
+            return;
+        }
+
+        // Check if configured
+        if (!kodo.hasSettings()) {
+            await kodo.initialize();
+        }
+
+        if (!kodo.hasSettings()) {
+            this.showKodoSettingsModal();
+            return;
+        }
+
+        // Get selected expenses (or all filtered)
+        const selectedExpenses = this.getSelectedExpenses();
+        if (selectedExpenses.length === 0) {
+            this.showNotification('Please select expenses to submit to Kodo');
+            return;
+        }
+
+        // Show confirmation modal
+        this.showKodoConfirmModal(selectedExpenses);
+    }
+
+    showKodoSettingsModal() {
+        const modal = document.getElementById('kodoSettingsModal');
+        const closeBtn = document.getElementById('closeKodoSettings');
+        const testBtn = document.getElementById('kodoTestConnection');
+        const saveBtn = document.getElementById('kodoSaveSettings');
+        const statusDiv = document.getElementById('kodoSettingsStatus');
+
+        // Load existing settings
+        const kodo = window.kodoService;
+        if (kodo.settings) {
+            document.getElementById('kodoEmail').value = kodo.settings.kodo_email || '';
+            document.getElementById('kodoPasscode').value = kodo.settings.kodo_passcode || '';
+        }
+
+        const showStatus = (msg, isError = false) => {
+            statusDiv.style.display = 'block';
+            statusDiv.textContent = msg;
+            statusDiv.className = 'kodo-status ' + (isError ? 'kodo-status-error' : 'kodo-status-success');
+        };
+
+        const closeModal = () => {
+            modal.style.display = 'none';
+        };
+
+        closeBtn.onclick = closeModal;
+        modal.onclick = (e) => { if (e.target === modal) closeModal(); };
+
+        testBtn.onclick = async () => {
+            const email = document.getElementById('kodoEmail').value.trim();
+            const passcode = document.getElementById('kodoPasscode').value.trim();
+
+            if (!email || !passcode) {
+                showStatus('Email and passcode are required', true);
+                return;
+            }
+
+            testBtn.disabled = true;
+            testBtn.textContent = 'Testing...';
+
+            try {
+                await kodo.testConnection(email, passcode);
+                showStatus('Connection successful! You can now load checkers/categories and save.');
+
+                // After successful login, load config for dropdowns
+                try {
+                    await kodo.saveSettings({ email, passcode });
+                    const config = await kodo.getKodoConfig();
+                    this.populateKodoDropdowns(config);
+                } catch (configErr) {
+                    console.log('Could not load config:', configErr.message);
+                }
+            } catch (err) {
+                showStatus('Connection failed: ' + err.message, true);
+            } finally {
+                testBtn.disabled = false;
+                testBtn.textContent = 'Test Connection';
+            }
+        };
+
+        saveBtn.onclick = async () => {
+            const email = document.getElementById('kodoEmail').value.trim();
+            const passcode = document.getElementById('kodoPasscode').value.trim();
+            const checkerSelect = document.getElementById('kodoChecker');
+            const categorySelect = document.getElementById('kodoCategory');
+
+            if (!email || !passcode) {
+                showStatus('Email and passcode are required', true);
+                return;
+            }
+
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Saving...';
+
+            try {
+                await kodo.saveSettings({
+                    email,
+                    passcode,
+                    checkerId: checkerSelect.value || null,
+                    checkerName: checkerSelect.options[checkerSelect.selectedIndex]?.text || null,
+                    categoryId: categorySelect.value || null,
+                    categoryName: categorySelect.options[categorySelect.selectedIndex]?.text || null,
+                });
+                showStatus('Settings saved successfully!');
+                setTimeout(closeModal, 1000);
+            } catch (err) {
+                showStatus('Failed to save: ' + err.message, true);
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Save Settings';
+            }
+        };
+
+        modal.style.display = 'flex';
+
+        // If already configured, try to load config
+        if (kodo.settings?.kodo_email) {
+            this.loadKodoConfig();
+        }
+    }
+
+    populateKodoDropdowns(config, checkerSelectId = 'kodoChecker', categorySelectId = 'kodoCategory') {
+        const checkerSelect = document.getElementById(checkerSelectId);
+        const categorySelect = document.getElementById(categorySelectId);
+        const kodo = window.kodoService;
+
+        if (checkerSelect && config.checkers) {
+            checkerSelect.innerHTML = '<option value="">-- Select Checker --</option>';
+            config.checkers.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.id;
+                opt.textContent = c.name || c.email;
+                if (kodo.settings?.default_checker_id === c.id) opt.selected = true;
+                checkerSelect.appendChild(opt);
+            });
+        }
+
+        if (categorySelect && config.categories) {
+            categorySelect.innerHTML = '<option value="">-- Select Category --</option>';
+            config.categories.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.id;
+                opt.textContent = c.name;
+                if (kodo.settings?.default_category_id === c.id) opt.selected = true;
+                categorySelect.appendChild(opt);
+            });
+        }
+    }
+
+    async loadKodoConfig() {
+        try {
+            const kodo = window.kodoService;
+            const config = await kodo.getKodoConfig();
+            this.populateKodoDropdowns(config);
+            return config;
+        } catch (err) {
+            console.log('Could not load Kodo config:', err.message);
+            return null;
+        }
+    }
+
+    async showKodoConfirmModal(expenses) {
+        const modal = document.getElementById('kodoConfirmModal');
+        const closeBtn = document.getElementById('closeKodoConfirm');
+        const cancelBtn = document.getElementById('kodoCancelSubmit');
+        const confirmBtn = document.getElementById('kodoConfirmSubmit');
+        const summaryDiv = document.getElementById('kodoConfirmSummary');
+
+        const totalAmount = expenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+        const kodo = window.kodoService;
+
+        // Build summary
+        summaryDiv.innerHTML = `
+            <div class="kodo-summary-row">
+                <span class="kodo-summary-label">Bills</span>
+                <span class="kodo-summary-value">${expenses.length} selected</span>
+            </div>
+            <div class="kodo-summary-row kodo-summary-total">
+                <span class="kodo-summary-label">Total Amount</span>
+                <span class="kodo-summary-value">${this.formatAmount(totalAmount)}</span>
+            </div>
+            <div class="kodo-summary-row">
+                <span class="kodo-summary-label">Date Range</span>
+                <span class="kodo-summary-value">${expenses[expenses.length - 1]?.date || ''} to ${expenses[0]?.date || ''}</span>
+            </div>
+        `;
+
+        // Load config and populate dropdowns
+        this.showLoading('Loading Kodo config...', 'Fetching categories and checkers');
+        try {
+            const config = await kodo.getKodoConfig();
+            this.populateKodoDropdowns(config, 'kodoConfirmChecker', 'kodoConfirmCategory');
+        } catch (err) {
+            this.hideLoading();
+            this.showNotification('Failed to load Kodo config: ' + err.message);
+            return;
+        }
+        this.hideLoading();
+
+        // Set default comment
+        const commentInput = document.getElementById('kodoConfirmComment');
+        const projectNames = [...new Set(expenses.map(e => e.vendor).filter(v => v && v !== 'N/A'))];
+        commentInput.value = projectNames.length > 0
+            ? `Reimbursement: ${projectNames.join(', ')}`
+            : 'Reimbursement claim from Expense Tracker';
+
+        const closeModal = () => { modal.style.display = 'none'; };
+
+        closeBtn.onclick = closeModal;
+        cancelBtn.onclick = closeModal;
+        modal.onclick = (e) => { if (e.target === modal) closeModal(); };
+
+        confirmBtn.onclick = async () => {
+            const checkerSelect = document.getElementById('kodoConfirmChecker');
+            const categorySelect = document.getElementById('kodoConfirmCategory');
+
+            if (!checkerSelect.value) {
+                this.showNotification('Please select a checker (approver)');
+                return;
+            }
+            if (!categorySelect.value) {
+                this.showNotification('Please select a category');
+                return;
+            }
+
+            closeModal();
+            await this.executeKodoSubmission(expenses, {
+                totalAmount,
+                checkerId: checkerSelect.value,
+                checkerName: checkerSelect.options[checkerSelect.selectedIndex].text,
+                categoryId: categorySelect.value,
+                categoryName: categorySelect.options[categorySelect.selectedIndex].text,
+                comment: commentInput.value,
+                billDate: expenses[0]?.date || new Date().toISOString().split('T')[0],
+            });
+        };
+
+        modal.style.display = 'flex';
+    }
+
+    async executeKodoSubmission(expenses, details) {
+        const kodo = window.kodoService;
+
+        try {
+            // Step 1: Generate PDF
+            this.showLoading('Generating PDF...', 'Creating reimbursement package');
+
+            // Lazy load export libraries
+            await window.loadExportLibraries();
+
+            // Download Google Sheet PDF
+            const sheetPdfResponse = await api.exportGoogleSheetAsPdf();
+            const sheetPdfBase64 = sheetPdfResponse.data.pdfBase64;
+            const sheetPdfBytes = Uint8Array.from(atob(sheetPdfBase64), c => c.charCodeAt(0));
+
+            // Try to get bill images PDF
+            let mergedPdfBytes;
+            const { PDFDocument } = PDFLib;
+
+            try {
+                const billsPdfBlob = await this.generateBillsPdfBlob(true);
+                const billsPdfArrayBuffer = await billsPdfBlob.arrayBuffer();
+
+                // Merge both
+                const mergedPdf = await PDFDocument.create();
+                const sheetPdf = await PDFDocument.load(sheetPdfBytes);
+                const billsPdf = await PDFDocument.load(billsPdfArrayBuffer);
+
+                const sheetPages = await mergedPdf.copyPages(sheetPdf, sheetPdf.getPageIndices());
+                sheetPages.forEach(p => mergedPdf.addPage(p));
+                const billsPages = await mergedPdf.copyPages(billsPdf, billsPdf.getPageIndices());
+                billsPages.forEach(p => mergedPdf.addPage(p));
+
+                mergedPdfBytes = await mergedPdf.save();
+            } catch {
+                // No images - just use the sheet PDF
+                mergedPdfBytes = sheetPdfBytes;
+            }
+
+            // Step 2: Upload & submit via Edge Function
+            this.showLoading('Submitting to Kodo...', `Uploading ${this.formatAmount(details.totalAmount)} claim to ${details.checkerName}`);
+
+            const result = await kodo.submitToKodo(mergedPdfBytes, {
+                totalAmount: details.totalAmount,
+                checkerId: details.checkerId,
+                categoryId: details.categoryId,
+                comment: details.comment,
+                billDate: details.billDate,
+            });
+
+            this.hideLoading();
+            this.showNotification(`Reimbursement claim ${this.formatAmount(details.totalAmount)} submitted to ${details.checkerName} for review`);
+
+        } catch (err) {
+            this.hideLoading();
+            console.error('Kodo submission error:', err);
+            this.showNotification('Kodo submission failed: ' + err.message);
         }
     }
 }
