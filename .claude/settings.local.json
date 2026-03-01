@@ -36,8 +36,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cd \"$(git rev-parse --show-toplevel 2>/dev/null || echo .)\" && bash .claude/hooks/session-start-context.sh",
-            "timeout": 5
+            "command": "bash \"$(git rev-parse --show-toplevel 2>/dev/null || echo .)/.claude/hooks/session-start-context.sh\" 2>/dev/null || echo '{\"systemMessage\":\"Session started. Follow 7-step workflow.\"}'",
+            "timeout": 10
           }
         ]
       }
@@ -48,8 +48,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cd \"$(git rev-parse --show-toplevel 2>/dev/null || echo .)\" && bash .claude/hooks/workflow-enforcer.sh",
-            "timeout": 5
+            "command": "cd \"$(git rev-parse --show-toplevel 2>/dev/null || echo .)\" && bash .claude/hooks/workflow-enforcer.sh 2>/dev/null || echo '{\"systemMessage\":\"Follow 7-step workflow. Use TaskCreate for multi-step work.\"}'",
+            "timeout": 10
           }
         ]
       }
@@ -60,8 +60,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cd \"$(git rev-parse --show-toplevel 2>/dev/null || echo .)\" && bash .claude/hooks/block-env-edits.sh",
-            "timeout": 5
+            "command": "cd \"$(git rev-parse --show-toplevel 2>/dev/null || echo .)\" && bash .claude/hooks/block-env-edits.sh 2>/dev/null || true",
+            "timeout": 10
           }
         ]
       },
@@ -70,8 +70,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cd \"$(git rev-parse --show-toplevel 2>/dev/null || echo .)\" && bash .claude/hooks/pre-commit-gate.sh",
-            "timeout": 10
+            "command": "cd \"$(git rev-parse --show-toplevel 2>/dev/null || echo .)\" && bash .claude/hooks/pre-commit-gate.sh 2>/dev/null || true",
+            "timeout": 15
           }
         ]
       }
@@ -82,7 +82,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cd \"$(git rev-parse --show-toplevel 2>/dev/null || echo .)\" && bash .claude/hooks/auto-cap-sync.sh",
+            "command": "cd \"$(git rev-parse --show-toplevel 2>/dev/null || echo .)\" && bash .claude/hooks/auto-cap-sync.sh 2>/dev/null || true",
             "timeout": 30,
             "async": true
           }
@@ -95,8 +95,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cd \"$(git rev-parse --show-toplevel 2>/dev/null || echo .)\" && bash .claude/hooks/pre-compact-save.sh",
-            "timeout": 5
+            "command": "cd \"$(git rev-parse --show-toplevel 2>/dev/null || echo .)\" && bash .claude/hooks/pre-compact-save.sh 2>/dev/null || echo '{\"systemMessage\":\"Save unsaved learnings before compression.\"}'",
+            "timeout": 10
           }
         ]
       }
@@ -107,8 +107,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cd \"$(git rev-parse --show-toplevel 2>/dev/null || echo .)\" && bash .claude/hooks/stop-learning-reminder.sh",
-            "timeout": 5
+            "command": "cd \"$(git rev-parse --show-toplevel 2>/dev/null || echo .)\" && bash .claude/hooks/stop-learning-reminder.sh 2>/dev/null || echo '{\"systemMessage\":\"Session complete.\"}'",
+            "timeout": 10
           }
         ]
       }

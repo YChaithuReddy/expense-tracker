@@ -1,7 +1,7 @@
 // Service Worker for Expense Tracker PWA
-const CACHE_NAME = 'expense-tracker-v33';
-const STATIC_CACHE = 'expense-tracker-static-v26';
-const DYNAMIC_CACHE = 'expense-tracker-dynamic-v26';
+const CACHE_NAME = 'expense-tracker-v34';
+const STATIC_CACHE = 'expense-tracker-static-v27';
+const DYNAMIC_CACHE = 'expense-tracker-dynamic-v27';
 
 // Files to cache immediately on install
 const STATIC_ASSETS = [
@@ -69,7 +69,7 @@ self.addEventListener('activate', (event) => {
       .then((cacheNames) => {
         return Promise.all(
           cacheNames
-            .filter((name) => name !== STATIC_CACHE && name !== DYNAMIC_CACHE)
+            .filter((name) => name !== STATIC_CACHE && name !== DYNAMIC_CACHE && name !== CACHE_NAME)
             .map((name) => {
               console.log('[SW] Deleting old cache:', name);
               return caches.delete(name);
