@@ -14,6 +14,7 @@ class ExpenseTracker {
         // Performance optimization flags
         this.isProcessingImages = false;
         this.uploadProgress = 0;
+        this.filterProject = '';
         this.filterCategory = '';
         this.filterDateFrom = '';
         this.filterDateTo = '';
@@ -133,12 +134,16 @@ class ExpenseTracker {
         // Search and filter event listeners
         const searchInput = document.getElementById('searchInput');
         const clearSearchBtn = document.getElementById('clearSearch');
+        const projectFilter = document.getElementById('projectFilter');
         const categoryFilter = document.getElementById('categoryFilter');
         const dateFromFilter = document.getElementById('dateFromFilter');
         const dateToFilter = document.getElementById('dateToFilter');
         const resetFiltersBtn = document.getElementById('resetFilters');
         const expandFiltersBtn = document.getElementById('expandFiltersBtn');
 
+        if (projectFilter) {
+            projectFilter.addEventListener('change', (e) => this.handleProjectFilter(e.target.value));
+        }
         if (searchInput) {
             searchInput.addEventListener('input', (e) => this.handleSearch(e.target.value));
             // Also expand filters when user starts typing on mobile
@@ -3478,6 +3483,18 @@ class ExpenseTracker {
 
         // Show search/filter and select all if there are expenses
         selectAllContainer.style.display = 'flex';
+
+        // Update Select All label with project name when filtered
+        const selectAllTextEl = selectAllContainer.querySelector('.select-all-text');
+        if (selectAllTextEl) {
+            const displayList = this.isFilterActive() ? this.filteredExpenses : this.expenses;
+            if (this.filterProject) {
+                selectAllTextEl.textContent = `Select All ${this.filterProject} (${displayList.length})`;
+            } else {
+                selectAllTextEl.textContent = `Select All (${displayList.length})`;
+            }
+        }
+
         if (searchFilterContainer) {
             searchFilterContainer.classList.remove('hidden');
 
@@ -3563,12 +3580,13 @@ class ExpenseTracker {
 
         container.innerHTML = expensesHTML;
         this.updateExportButton();
+        this.populateProjectFilter();
         this.populateCategoryFilter();
     }
 
     // Search and Filter Methods
     isFilterActive() {
-        return this.searchTerm || this.filterCategory || this.filterDateFrom || this.filterDateTo;
+        return this.searchTerm || this.filterProject || this.filterCategory || this.filterDateFrom || this.filterDateTo;
     }
 
     applyFilters() {
@@ -3582,6 +3600,11 @@ class ExpenseTracker {
                 expense.description.toLowerCase().includes(term) ||
                 expense.category.toLowerCase().includes(term)
             );
+        }
+
+        // Apply project filter
+        if (this.filterProject) {
+            results = results.filter(expense => expense.vendor === this.filterProject);
         }
 
         // Apply category filter
@@ -3599,6 +3622,14 @@ class ExpenseTracker {
         }
 
         this.filteredExpenses = results;
+
+        // Uncheck Select All when filters change (visible set changed)
+        const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+        if (selectAllCheckbox) {
+            selectAllCheckbox.checked = false;
+            selectAllCheckbox.indeterminate = false;
+        }
+
         this.displayExpenses();
     }
 
@@ -3622,6 +3653,11 @@ class ExpenseTracker {
         this.applyFilters();
     }
 
+    handleProjectFilter(value) {
+        this.filterProject = value;
+        this.applyFilters();
+    }
+
     handleCategoryFilter(value) {
         this.filterCategory = value;
         this.applyFilters();
@@ -3641,12 +3677,14 @@ class ExpenseTracker {
         // Clear all filter inputs
         document.getElementById('searchInput').value = '';
         document.getElementById('clearSearch').style.display = 'none';
+        document.getElementById('projectFilter').value = '';
         document.getElementById('categoryFilter').value = '';
         document.getElementById('dateFromFilter').value = '';
         document.getElementById('dateToFilter').value = '';
 
         // Reset filter state
         this.searchTerm = '';
+        this.filterProject = '';
         this.filterCategory = '';
         this.filterDateFrom = '';
         this.filterDateTo = '';
@@ -3731,6 +3769,33 @@ class ExpenseTracker {
         // Restore previous selection if it still exists
         if (currentValue && categories.includes(currentValue)) {
             categoryFilter.value = currentValue;
+        }
+    }
+
+    populateProjectFilter() {
+        const projectFilter = document.getElementById('projectFilter');
+        if (!projectFilter) return;
+
+        // Get unique non-empty vendors (project names) from expenses
+        const projects = [...new Set(this.expenses.map(exp => exp.vendor).filter(v => v && v.trim()))].sort();
+
+        // Skip rebuild if projects haven't changed
+        const projectKey = projects.join('|');
+        if (this._lastProjectKey === projectKey) return;
+        this._lastProjectKey = projectKey;
+
+        const currentValue = projectFilter.value;
+        projectFilter.innerHTML = '<option value="">All Projects</option>';
+        projects.forEach(proj => {
+            const option = document.createElement('option');
+            option.value = proj;
+            option.textContent = proj;
+            projectFilter.appendChild(option);
+        });
+
+        // Restore previous selection if it still exists
+        if (currentValue && projects.includes(currentValue)) {
+            projectFilter.value = currentValue;
         }
     }
 
@@ -4095,9 +4160,13 @@ class ExpenseTracker {
         let currentExpenseImages = 0;
         let orphanedImages = 0;
 
+        // Use selected expenses if any are checked, otherwise fall back to all
+        const selectedExpenses = this.getSelectedExpenses();
+        const expensesToInclude = selectedExpenses.length > 0 ? selectedExpenses : this.expenses;
+
         // Add current expense images
-        if (this.expenses.length > 0) {
-            this.expenses.forEach((expense, expenseIndex) => {
+        if (expensesToInclude.length > 0) {
+            expensesToInclude.forEach((expense, expenseIndex) => {
                 expense.images.forEach((image, imageIndex) => {
                     allImages.push({
                         data: image.data,
