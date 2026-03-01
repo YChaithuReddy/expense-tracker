@@ -89,8 +89,8 @@ async function kodoCreateClaim(accessToken: string, input: {
   expenseCategoryId: string; comment: string;
 }): Promise<string> {
   // Coerce IDs to proper types - Kodo schema uses Int for some, String for others
-  const categoryId = /^\d+$/.test(input.expenseCategoryId) ? parseInt(input.expenseCategoryId, 10) : input.expenseCategoryId;
-  const checkerId = /^\d+$/.test(input.checkerAccountId) ? parseInt(input.checkerAccountId, 10) : input.checkerAccountId;
+  const categoryId = /^\d+$/.test(String(input.expenseCategoryId)) ? parseInt(String(input.expenseCategoryId), 10) : input.expenseCategoryId;
+  const checkerId = input.checkerAccountId;
 
   const data = await kodoGraphQL(
     `mutation createOutgoingPaymentRequest($input: OutgoingPaymentRequestCreationInput!) {
@@ -147,8 +147,9 @@ async function fetchKodoConfig(accessToken: string): Promise<{ categories: any[]
       accessToken
     );
     const avail = data.initiateOutgoingPaymentRequest?.availableCheckers || [];
+    // IMPORTANT: checkerAccountId expects user.id, NOT checker.id
     checkers.push(...avail.map((c: any) => ({
-      id: c.id, name: c.user?.displayName || "", email: c.user?.emailId || "",
+      id: c.user?.id || c.id, name: c.user?.displayName || "", email: c.user?.emailId || "",
     })).filter((c: any) => c.id && c.name));
   } catch (e) { console.error("Checkers:", (e as Error).message); }
 
