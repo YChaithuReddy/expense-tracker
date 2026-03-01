@@ -109,6 +109,9 @@ class ExpenseTracker {
         // View saved images gallery
         document.getElementById('viewSavedImages').addEventListener('click', () => this.openOrphanedImagesModal());
 
+        // Kodo Settings
+        document.getElementById('kodoSettingsBtn')?.addEventListener('click', () => this.showKodoSettingsModal());
+
         // Category and subcategory handling
         document.getElementById('mainCategory').addEventListener('change', (e) => this.handleMainCategoryChange(e));
         document.getElementById('subcategory').addEventListener('change', (e) => this.handleSubcategoryChange(e));
