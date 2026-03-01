@@ -6909,6 +6909,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         try {
             kodo.config = null; // Always fetch fresh config
             const config = await kodo.getKodoConfig();
+            console.log('Kodo config response:', JSON.stringify(config, null, 2));
             this.populateKodoDropdowns(config, 'kodoConfirmChecker', 'kodoConfirmCategory');
 
             if (!config.checkers?.length || !config.categories?.length) {
@@ -6916,8 +6917,8 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                 const missing = [];
                 if (!config.checkers?.length) missing.push('checkers');
                 if (!config.categories?.length) missing.push('categories');
-                const errorDetail = config.errors?.length ? '\n\nAPI errors:\n' + config.errors.join('\n') : '';
-                this.showError(`Could not fetch ${missing.join(' and ')} from Kodo.${errorDetail}`, 'Kodo Config Error');
+                const debugInfo = config._debug ? `\n\nDebug: token=${config._debug.tokenField}, catErrors=${JSON.stringify(config._debug.catResponse?.errors)}, checkErrors=${JSON.stringify(config._debug.checkResponse?.errors)}` : '';
+                this.showError(`Could not fetch ${missing.join(' and ')} from Kodo.${debugInfo}`, 'Kodo Config Error');
                 return;
             }
         } catch (err) {
