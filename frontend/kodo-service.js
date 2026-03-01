@@ -160,6 +160,14 @@ class KodoService {
     }
 
     /**
+     * Diagnostic: fetch config with raw checker data
+     */
+    async getKodoConfigDiagnostic() {
+        const result = await this._callEdgeFunction({ action: 'get-config', diagnostic: true });
+        return result.data;
+    }
+
+    /**
      * Submit reimbursement to Kodo
      */
     async submitToKodo(pdfBytes, expenseDetails) {
