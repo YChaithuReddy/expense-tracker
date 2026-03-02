@@ -231,6 +231,22 @@ Deno.serve(async (req: Request) => {
       const { data: settings } = await supabase.from("kodo_settings").select("*").eq("user_id", user.id).single();
       if (!settings) return fail("Kodo not configured");
       const token = await ensureToken(supabase, user.id, settings);
+
+      // IMPORTANT: Call initiateOutgoingPaymentRequest to set up server-side draft
+      // This must happen in the same session before createOutgoingPaymentRequest
+      try {
+        await kodoGraphQL(
+          `mutation initiateOutgoingPaymentRequest($isBulkRequest: Boolean) {
+            initiateOutgoingPaymentRequest(isBulkRequest: $isBulkRequest) {
+              availableCheckers { id }
+              employeeDetails { id }
+            }
+          }`,
+          { isBulkRequest: false },
+          token
+        );
+      } catch (e) { console.error("Initiate:", (e as Error).message); }
+
       const pdfBytes = Uint8Array.from(atob(pdfBase64), (c) => c.charCodeAt(0));
       const attachmentId = await kodoUploadPDF(
         pdfBytes, `reimbursement_${new Date().toISOString().split("T")[0]}.pdf`, token
