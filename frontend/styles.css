@@ -6911,6 +6911,28 @@ select.inline-input option {
     background: var(--hover-bg, #f3f4f6);
 }
 
+.kodo-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.kodo-settings-link {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 8px;
+    opacity: 0.6;
+    transition: opacity 0.2s, background 0.2s;
+}
+
+.kodo-settings-link:hover {
+    opacity: 1;
+    background: var(--hover-bg, #f3f4f6);
+}
+
 .kodo-modal-body {
     padding: 24px;
 }
