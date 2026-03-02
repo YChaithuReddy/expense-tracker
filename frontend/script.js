@@ -116,9 +116,6 @@ class ExpenseTracker {
             this.showKodoSettingsModal();
         });
 
-        // Email to Accounts
-        document.getElementById('emailToAccountsBtn')?.addEventListener('click', () => this.showEmailAccountsModal());
-
         // Category and subcategory handling
         document.getElementById('mainCategory').addEventListener('change', (e) => this.handleMainCategoryChange(e));
         document.getElementById('subcategory').addEventListener('change', (e) => this.handleSubcategoryChange(e));
@@ -4573,10 +4570,6 @@ class ExpenseTracker {
             // Only show success notification if download actually worked
             const fileSizeMB = (mergedPdfBytes.length / (1024 * 1024)).toFixed(1);
             if (downloadSuccess) {
-                // Show "Email to Accounts" button now that PDF is ready
-                const emailBtn = document.getElementById('emailToAccountsBtn');
-                if (emailBtn) emailBtn.style.display = '';
-
                 if (hasImages) {
                     this.showNotification(`✅ Package downloaded! (${totalPages} pages, ${fileSizeMB} MB)`);
                 } else {
@@ -6477,9 +6470,17 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         const kodoBtn = newForm.querySelector('#submitToKodoBtn');
         if (kodoBtn) {
             kodoBtn.addEventListener('click', async () => {
-                // Validate the form fields first
                 if (!newForm.reportValidity()) return;
                 await this.handleEmployeeInfoSubmitThenKodo(newForm);
+            });
+        }
+
+        // Wire up "Email to Accounts" button inside the modal
+        const emailBtn = newForm.querySelector('#emailToAccountsBtn');
+        if (emailBtn) {
+            emailBtn.addEventListener('click', async () => {
+                if (!newForm.reportValidity()) return;
+                await this.handleEmployeeInfoSubmitThenEmail(newForm);
             });
         }
 
@@ -6782,6 +6783,47 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         } catch (error) {
             console.error('Error in Kodo submission flow:', error);
             this.showError('Failed to prepare Kodo submission.\n\n' + (error.message || 'Please try again.'), 'Submission Failed');
+        }
+    }
+
+    async handleEmployeeInfoSubmitThenEmail(form) {
+        // Check Google Sheets exists first
+        const sheetUrl = googleSheetsService.getSheetUrl();
+        if (!sheetUrl) {
+            this.closeEmployeeInfoModal();
+            this.showError('You need to export your expenses to Google Sheets first.\n\nThis creates the expense report needed for the reimbursement PDF.', 'Export to Google Sheets First');
+            return;
+        }
+
+        try {
+            const formData = {
+                employeeName: form.querySelector('#empName').value.trim(),
+                employeeCode: form.querySelector('#empCode').value.trim() || '',
+                expensePeriodFrom: form.querySelector('#expensePeriodFrom').value,
+                expensePeriodTo: form.querySelector('#expensePeriodTo').value,
+                businessPurpose: form.querySelector('#businessPurpose').value.trim()
+            };
+
+            if (new Date(formData.expensePeriodFrom) > new Date(formData.expensePeriodTo)) {
+                this.showError('"From" date cannot be after "To" date.\n\nPlease adjust your date range.', 'Invalid Date Range');
+                return;
+            }
+
+            this.closeEmployeeInfoModal();
+
+            this.showNotification('Updating employee details in Google Sheet...');
+            await googleSheetsService.updateEmployeeInfo(formData);
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
+            this.showNotification('Generating reimbursement PDF...');
+            await this.generateCombinedReimbursementPDFWithEmployeeInfo();
+
+            // PDF is now cached in this.lastGeneratedPdf — show email modal
+            this.showEmailAccountsModal();
+
+        } catch (error) {
+            console.error('Error in email submission flow:', error);
+            this.showError('Failed to prepare email.\n\n' + (error.message || 'Please try again.'), 'Email Failed');
         }
     }
 
