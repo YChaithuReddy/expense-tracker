@@ -220,31 +220,31 @@ main {
 
     /* Optimize action buttons for tablet */
     .action-buttons {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 8px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
     }
 
     .action-buttons button {
-        min-height: 40px;
-        font-size: 0.8rem;
-        padding: 8px 12px;
+        min-height: 60px;
+        font-size: 0.9rem;
+        padding: 14px 20px;
     }
 
     .btn-icon {
-        font-size: 1rem;
+        font-size: 1.3rem;
     }
 }
 
 /* Large tablet optimization */
 @media (max-width: 1024px) {
     .action-buttons {
-        gap: 8px;
+        gap: 10px;
     }
 
     .action-buttons button {
-        min-height: 40px;
-        font-size: 0.8rem;
-        padding: 8px 12px;
+        min-height: 58px;
+        font-size: 0.875rem;
+        padding: 12px 16px;
     }
 
     .section-header {
@@ -751,28 +751,28 @@ main {
 
 .action-buttons {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
     margin: 0;
     padding: 0;
 }
 
 .action-buttons button {
     width: 100%;
-    min-height: 42px;
+    min-height: 64px;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 8px !important;
-    font-size: 0.8rem;
+    gap: 12px !important;
+    font-size: 0.95rem;
     font-weight: 600;
     transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
-    border-radius: 10px;
+    border-radius: 16px;
     border: none;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    padding: 10px 14px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    padding: 16px 24px;
 }
 
 /* Handle hidden buttons in grid - they should not break layout */
@@ -796,8 +796,8 @@ main {
 }
 
 .action-buttons button:hover {
-    transform: translateY(-2px) scale(1.01);
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
 }
 
 .action-buttons button:active {
@@ -805,12 +805,12 @@ main {
 }
 
 .btn-icon {
-    font-size: 1.1rem;
+    font-size: 1.5rem;
     filter: none;
 }
 
 .btn-text {
-    letter-spacing: 0.3px;
+    letter-spacing: 0.5px;
     text-shadow: none;
 }
 
@@ -872,27 +872,27 @@ main {
 /* Make the button span full width in action-buttons grid */
 .action-buttons .btn-highlight {
     grid-column: 1 / -1;
-    margin-top: 2px;
+    margin-top: 5px;
 }
 
 /* Reset sheet button - same style as other action buttons */
 .btn-reset {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    padding: 10px 14px;
+    padding: 16px 24px;
     border: none;
-    border-radius: 10px;
-    font-size: 0.8rem;
+    border-radius: 16px;
+    font-size: 0.95rem;
     font-weight: 600;
     cursor: pointer;
     transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    gap: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     width: 100%;
-    min-height: 42px;
+    min-height: 64px;
     position: relative;
     overflow: hidden;
 }
@@ -1665,7 +1665,7 @@ main {
     .action-buttons {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 8px;
+        gap: 10px;
         width: 100%;
         max-width: 100%;
         box-sizing: border-box;
@@ -1677,9 +1677,8 @@ main {
         min-width: 0;
         max-width: 100%;
         box-sizing: border-box;
-        font-size: 0.75rem;
-        padding: 8px 8px;
-        min-height: 38px;
+        font-size: 0.85rem;
+        padding: 14px 12px;
     }
 
     .btn-text {
@@ -1859,28 +1858,26 @@ main {
     }
 
     .action-buttons {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 6px;
+        gap: 8px;
         width: 100%;
         max-width: 100%;
         overflow-x: hidden;
     }
 
     .action-buttons button {
-        font-size: 0.7rem;
-        padding: 8px 6px;
-        min-height: 38px;
+        font-size: 0.8rem;
+        padding: 12px 10px;
+        min-height: 56px;
         min-width: 0;
         max-width: 100%;
-        border-radius: 8px;
     }
 
     .btn-primary,
     .btn-secondary,
     .btn-danger {
-        padding: 10px 14px;
-        font-size: 13px;
-        min-height: 38px;
+        padding: 16px 24px;
+        font-size: 14px;
+        min-height: 52px;
     }
 
     .expense-form-section {
@@ -3614,27 +3611,27 @@ body.modal-open {
 }
 
 #employeeInfoForm .form-actions {
-    display: flex;
-    gap: 1rem;
-    margin-top: 2rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid rgba(0, 212, 255, 0.2);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(0, 212, 255, 0.15);
     width: 100%;
 }
 
 #employeeInfoForm .form-actions button {
-    flex: 1;
-    padding: 1rem 1.5rem;
+    padding: 10px 12px;
     margin: 0;
-    font-size: 0.9375rem;
+    font-size: 0.78rem;
     font-weight: 600;
     cursor: pointer;
-    border-radius: 12px;
-    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
+    border-radius: 10px;
+    transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
     font-family: 'Space Grotesk', sans-serif;
-    min-height: 48px;
+    min-height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -3690,17 +3687,7 @@ body.modal-open {
 }
 
 #employeeInfoForm .reimbursement-actions {
-    flex-wrap: wrap;
-}
-
-#employeeInfoForm .reimbursement-actions .btn-secondary {
-    flex: 0 0 100%;
-    order: 3;
-}
-
-#employeeInfoForm .reimbursement-actions .btn-primary,
-#employeeInfoForm .reimbursement-actions .btn-kodo-submit {
-    flex: 1 1 0;
+    grid-template-columns: 1fr 1fr;
 }
 
 /* ================================================
@@ -3718,7 +3705,7 @@ body.modal-open {
     }
 
     #employeeInfoForm .form-actions {
-        gap: 0.875rem;
+        gap: 10px;
     }
 }
 
@@ -3791,16 +3778,16 @@ body.modal-open {
     }
 
     #employeeInfoForm .form-actions {
-        flex-direction: column-reverse;
-        gap: 0.75rem;
-        margin-top: 1.5rem;
-        padding-top: 1.25rem;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-top: 1rem;
+        padding-top: 1rem;
     }
 
     #employeeInfoForm .form-actions button {
-        width: 100%;
-        padding: 0.875rem 1.25rem;
-        font-size: 0.875rem;
+        padding: 9px 8px;
+        font-size: 0.7rem;
+        min-height: 36px;
     }
 }
 
