@@ -51,54 +51,54 @@ Deno.serve(async (req: Request) => {
       if (!emailRegex.test(email)) return fail(`Invalid email address: ${email}`);
     }
 
-    // Check PDF size (practical limit ~10MB for email)
+    // Check PDF size (Brevo limit: 4MB per attachment, 20MB total)
     const estimatedSizeMB = (pdfBase64.length * 0.75) / (1024 * 1024);
-    if (estimatedSizeMB > 10) return fail(`PDF too large (${estimatedSizeMB.toFixed(1)}MB). Maximum is 10MB.`);
+    if (estimatedSizeMB > 4) return fail(`PDF too large (${estimatedSizeMB.toFixed(1)}MB). Brevo limit is 4MB per attachment.`);
 
-    const resendApiKey = Deno.env.get("RESEND_API_KEY");
-    if (!resendApiKey) return fail("Email service not configured. RESEND_API_KEY secret is missing.", 500);
+    const brevoApiKey = Deno.env.get("BREVO_API_KEY");
+    if (!brevoApiKey) return fail("Email service not configured. BREVO_API_KEY secret is missing.", 500);
 
-    const baseFrom = Deno.env.get("EMAIL_FROM_ADDRESS") || "onboarding@resend.dev";
-    // Include sender's name in the "from" field so receiver knows who sent it
-    const fromAddress = senderName ? `${senderName} via Expense Tracker <${baseFrom.replace(/^.*</, '').replace(/>$/, '') || baseFrom}>` : `Expense Tracker <${baseFrom.replace(/^.*</, '').replace(/>$/, '') || baseFrom}>`;
+    const senderEmail = Deno.env.get("EMAIL_FROM_ADDRESS") || user.email || "noreply@example.com";
+    const senderDisplayName = senderName ? `${senderName} via Expense Tracker` : "Expense Tracker";
 
     // Convert plain text to HTML preserving line breaks
     const htmlBody = emailBody
       ? `<div style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #333;">${emailBody.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>")}</div>`
       : "";
 
-    console.log(`Sending email: to=${to.join(",")}, subject="${subject}", attachment=${fileName} (${estimatedSizeMB.toFixed(1)}MB), from=${user.email}`);
+    console.log(`Sending email via Brevo: to=${to.join(",")}, subject="${subject}", attachment=${fileName} (${estimatedSizeMB.toFixed(1)}MB), from=${senderEmail}`);
 
-    const resendResponse = await fetch("https://api.resend.com/emails", {
+    const brevoResponse = await fetch("https://api.brevo.com/v3/smtp/email", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${resendApiKey}`,
+        "api-key": brevoApiKey,
         "Content-Type": "application/json",
+        "accept": "application/json",
       },
       body: JSON.stringify({
-        from: fromAddress,
-        to,
+        sender: { name: senderDisplayName, email: senderEmail },
+        to: to.map((email: string) => ({ email })),
         subject,
-        html: htmlBody,
-        text: emailBody || "",
-        ...(replyTo ? { reply_to: replyTo } : {}),
-        attachments: [{
-          filename: fileName,
+        htmlContent: htmlBody,
+        textContent: emailBody || "",
+        ...(replyTo ? { replyTo: { email: replyTo } } : {}),
+        attachment: [{
           content: pdfBase64,
+          name: fileName,
         }],
       }),
     });
 
-    const resendData = await resendResponse.json();
+    const brevoData = await brevoResponse.json();
 
-    if (!resendResponse.ok) {
-      console.error("Resend API error:", JSON.stringify(resendData));
-      const errMsg = resendData.message || resendData.error?.message || "Failed to send email";
-      return fail(`Email service error: ${errMsg}`, resendResponse.status >= 500 ? 502 : 400);
+    if (!brevoResponse.ok) {
+      console.error("Brevo API error:", JSON.stringify(brevoData));
+      const errMsg = brevoData.message || "Failed to send email";
+      return fail(`Email service error: ${errMsg}`, brevoResponse.status >= 500 ? 502 : 400);
     }
 
-    console.log(`Email sent: id=${resendData.id}`);
-    return ok({ emailId: resendData.id, recipients: to });
+    console.log(`Email sent via Brevo: messageId=${brevoData.messageId}`);
+    return ok({ emailId: brevoData.messageId, recipients: to });
 
   } catch (error) {
     console.error("send-email error:", error);
