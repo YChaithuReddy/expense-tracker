@@ -4547,14 +4547,24 @@ class ExpenseTracker {
             const fileName = `Reimbursement_Package_${new Date().toISOString().split('T')[0]}.pdf`;
 
             // Cache PDF for "Email to Accounts" feature
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const currentExpenses = this.isFilterActive() ? this.filteredExpenses : this.expenses;
             this.lastGeneratedPdf = {
                 bytes: mergedPdfBytes,
                 fileName,
-                employeeName: document.getElementById('empName')?.value?.trim() || '',
+                employeeName: document.getElementById('empName')?.value?.trim() || user.name || '',
+                employeeEmail: user.email || '',
+                businessPurpose: document.getElementById('businessPurpose')?.value?.trim() || '',
                 dateFrom: document.getElementById('expensePeriodFrom')?.value || '',
                 dateTo: document.getElementById('expensePeriodTo')?.value || '',
-                totalAmount: this.expenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0),
-                billCount: this.expenses.length,
+                totalAmount: currentExpenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0),
+                billCount: currentExpenses.length,
+                expenses: currentExpenses.map(e => ({
+                    date: e.date || '',
+                    vendor: e.vendor || 'N/A',
+                    description: e.description || '',
+                    amount: parseFloat(e.amount) || 0,
+                })),
             };
 
             // Download the PDF using the best available method
@@ -7170,7 +7180,16 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         const dateRange = pdf.dateFrom && pdf.dateTo ? `${pdf.dateFrom} to ${pdf.dateTo}` : new Date().toISOString().split('T')[0];
         subjectInput.value = `Reimbursement Claim - ${pdf.employeeName || 'Employee'} - ${dateRange}`;
 
-        bodyInput.value = `Dear Accounts Team,\n\nPlease find attached my reimbursement claim for the period ${dateRange}.\n\nSummary:\n- Employee: ${pdf.employeeName || 'N/A'}\n- Total Amount: ${this.formatAmount(pdf.totalAmount)}\n- Number of Bills: ${pdf.billCount}\n- Period: ${dateRange}\n\nKindly process the reimbursement at your earliest convenience.\n\nThank you.`;
+        // Build expense line items
+        let expenseLines = '';
+        if (pdf.expenses && pdf.expenses.length > 0) {
+            pdf.expenses.forEach((exp, i) => {
+                expenseLines += `${i + 1}. ${exp.date} - ${exp.vendor}${exp.description ? ' (' + exp.description + ')' : ''} - ${this.formatAmount(exp.amount)}\n`;
+            });
+        }
+
+        const purpose = pdf.businessPurpose || 'business expenses';
+        bodyInput.value = `Dear Sir/Madam,\n\nI am writing to submit my reimbursement claim for ${purpose}.\n\nDetails of Expenses:\n${expenseLines}\nTotal Amount: ${this.formatAmount(pdf.totalAmount)}\nPeriod: ${dateRange}\n\nPlease find the attached documentation for your review and processing. Let me know if you require any further information.\n\nBest regards,\n${pdf.employeeName || 'Employee'}`;
 
         statusDiv.style.display = 'none';
 
@@ -7227,6 +7246,8 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                     body: emailBody,
                     pdfBase64,
                     fileName: pdf.fileName,
+                    replyTo: pdf.employeeEmail || undefined,
+                    senderName: pdf.employeeName || undefined,
                 },
             });
 

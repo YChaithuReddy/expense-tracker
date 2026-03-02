@@ -31,7 +31,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const body = await req.json();
-    const { to, subject, body: emailBody, pdfBase64, fileName } = body;
+    const { to, subject, body: emailBody, pdfBase64, fileName, replyTo, senderName } = body;
 
     const ok = (data: any) => new Response(JSON.stringify({ success: true, data }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -58,7 +58,9 @@ Deno.serve(async (req: Request) => {
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
     if (!resendApiKey) return fail("Email service not configured. RESEND_API_KEY secret is missing.", 500);
 
-    const fromAddress = Deno.env.get("EMAIL_FROM_ADDRESS") || "Expense Tracker <onboarding@resend.dev>";
+    const baseFrom = Deno.env.get("EMAIL_FROM_ADDRESS") || "onboarding@resend.dev";
+    // Include sender's name in the "from" field so receiver knows who sent it
+    const fromAddress = senderName ? `${senderName} via Expense Tracker <${baseFrom.replace(/^.*</, '').replace(/>$/, '') || baseFrom}>` : `Expense Tracker <${baseFrom.replace(/^.*</, '').replace(/>$/, '') || baseFrom}>`;
 
     // Convert plain text to HTML preserving line breaks
     const htmlBody = emailBody
@@ -79,6 +81,7 @@ Deno.serve(async (req: Request) => {
         subject,
         html: htmlBody,
         text: emailBody || "",
+        ...(replyTo ? { reply_to: replyTo } : {}),
         attachments: [{
           filename: fileName,
           content: pdfBase64,
