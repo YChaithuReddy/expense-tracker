@@ -3366,7 +3366,7 @@ body.modal-open {
     border: 2px solid rgba(0, 212, 255, 0.35);
     border-radius: 20px;
     width: 100%;
-    max-width: 540px;
+    max-width: 900px;
     max-height: 90vh;
     overflow-y: auto;
     overflow-x: hidden;
@@ -7178,7 +7178,7 @@ select.inline-input option {
     background: var(--card-bg, #1a1a2e);
     border-radius: 24px;
     width: 100%;
-    max-width: 500px;
+    max-width: 900px;
     max-height: 92vh;
     overflow-y: auto;
     overflow-x: hidden;
