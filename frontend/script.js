@@ -6,6 +6,7 @@ class ExpenseTracker {
         this.extractedExpenses = []; // Store multiple extracted bills for batch upload
         this.lastSyncedIndex = this.loadLastSyncedIndex(); // Track last synced expense
         this.editingExpenseId = null; // Track which expense is being edited
+        this.lastGeneratedPdf = null; // Cached PDF for email feature
 
         // Search and filter state
         this.filteredExpenses = [];
@@ -114,6 +115,9 @@ class ExpenseTracker {
             document.getElementById('kodoConfirmModal').style.display = 'none';
             this.showKodoSettingsModal();
         });
+
+        // Email to Accounts
+        document.getElementById('emailToAccountsBtn')?.addEventListener('click', () => this.showEmailAccountsModal());
 
         // Category and subcategory handling
         document.getElementById('mainCategory').addEventListener('change', (e) => this.handleMainCategoryChange(e));
@@ -4542,12 +4546,27 @@ class ExpenseTracker {
             const mergedPdfBytes = await mergedPdf.save();
             const fileName = `Reimbursement_Package_${new Date().toISOString().split('T')[0]}.pdf`;
 
+            // Cache PDF for "Email to Accounts" feature
+            this.lastGeneratedPdf = {
+                bytes: mergedPdfBytes,
+                fileName,
+                employeeName: document.getElementById('empName')?.value?.trim() || '',
+                dateFrom: document.getElementById('expensePeriodFrom')?.value || '',
+                dateTo: document.getElementById('expensePeriodTo')?.value || '',
+                totalAmount: this.expenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0),
+                billCount: this.expenses.length,
+            };
+
             // Download the PDF using the best available method
             const downloadSuccess = await this.saveFile(mergedPdfBytes, fileName, 'application/pdf');
 
             // Only show success notification if download actually worked
             const fileSizeMB = (mergedPdfBytes.length / (1024 * 1024)).toFixed(1);
             if (downloadSuccess) {
+                // Show "Email to Accounts" button now that PDF is ready
+                const emailBtn = document.getElementById('emailToAccountsBtn');
+                if (emailBtn) emailBtn.style.display = '';
+
                 if (hasImages) {
                     this.showNotification(`✅ Package downloaded! (${totalPages} pages, ${fileSizeMB} MB)`);
                 } else {
@@ -7099,6 +7118,140 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             this.hideLoading();
             console.error('Kodo submission error:', err);
             this.showNotification('Kodo submission failed: ' + err.message);
+        }
+    }
+
+    // ===== Email to Accounts =====
+
+    showEmailAccountsModal() {
+        if (!this.lastGeneratedPdf) {
+            this.showNotification('Please download the reimbursement package first');
+            return;
+        }
+
+        const modal = document.getElementById('emailAccountsModal');
+        const closeBtn = document.getElementById('closeEmailAccounts');
+        const cancelBtn = document.getElementById('emailAccountsCancel');
+        const sendBtn = document.getElementById('emailAccountsSend');
+        const summaryDiv = document.getElementById('emailAccountsSummary');
+        const statusDiv = document.getElementById('emailAccountsStatus');
+        const toInput = document.getElementById('emailAccountsTo');
+        const subjectInput = document.getElementById('emailAccountsSubject');
+        const bodyInput = document.getElementById('emailAccountsBody');
+        const rememberCheck = document.getElementById('emailAccountsRemember');
+
+        const pdf = this.lastGeneratedPdf;
+        const fileSizeMB = (pdf.bytes.length / (1024 * 1024)).toFixed(1);
+
+        summaryDiv.innerHTML = `
+            <div class="kodo-summary-row">
+                <span class="kodo-summary-label">PDF File</span>
+                <span class="kodo-summary-value">${pdf.fileName}</span>
+            </div>
+            <div class="kodo-summary-row">
+                <span class="kodo-summary-label">File Size</span>
+                <span class="kodo-summary-value">${fileSizeMB} MB</span>
+            </div>
+            <div class="kodo-summary-row kodo-summary-total">
+                <span class="kodo-summary-label">Total Amount</span>
+                <span class="kodo-summary-value">${this.formatAmount(pdf.totalAmount)}</span>
+            </div>
+            <div class="kodo-summary-row">
+                <span class="kodo-summary-label">Period</span>
+                <span class="kodo-summary-value">${pdf.dateFrom} to ${pdf.dateTo}</span>
+            </div>
+        `;
+
+        // Pre-fill from saved default
+        const savedEmail = localStorage.getItem('accountsEmailDefault') || '';
+        toInput.value = savedEmail;
+        rememberCheck.checked = !!savedEmail;
+
+        const dateRange = pdf.dateFrom && pdf.dateTo ? `${pdf.dateFrom} to ${pdf.dateTo}` : new Date().toISOString().split('T')[0];
+        subjectInput.value = `Reimbursement Claim - ${pdf.employeeName || 'Employee'} - ${dateRange}`;
+
+        bodyInput.value = `Dear Accounts Team,\n\nPlease find attached my reimbursement claim for the period ${dateRange}.\n\nSummary:\n- Employee: ${pdf.employeeName || 'N/A'}\n- Total Amount: ${this.formatAmount(pdf.totalAmount)}\n- Number of Bills: ${pdf.billCount}\n- Period: ${dateRange}\n\nKindly process the reimbursement at your earliest convenience.\n\nThank you.`;
+
+        statusDiv.style.display = 'none';
+
+        const closeModal = () => { modal.style.display = 'none'; };
+        closeBtn.onclick = closeModal;
+        cancelBtn.onclick = closeModal;
+        modal.onclick = (e) => { if (e.target === modal) closeModal(); };
+
+        sendBtn.onclick = async () => {
+            const toEmails = toInput.value.split(',').map(e => e.trim()).filter(e => e);
+            if (toEmails.length === 0) {
+                this.showNotification('Please enter at least one recipient email');
+                return;
+            }
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const invalid = toEmails.filter(e => !emailRegex.test(e));
+            if (invalid.length > 0) {
+                this.showNotification('Invalid email: ' + invalid[0]);
+                return;
+            }
+
+            if (rememberCheck.checked) {
+                localStorage.setItem('accountsEmailDefault', toInput.value.trim());
+            } else {
+                localStorage.removeItem('accountsEmailDefault');
+            }
+
+            closeModal();
+            await this.sendEmailToAccounts(toEmails, subjectInput.value, bodyInput.value, pdf);
+        };
+
+        modal.style.display = 'flex';
+    }
+
+    async sendEmailToAccounts(toEmails, subject, emailBody, pdf) {
+        try {
+            this.showLoading('Sending email...', `Emailing PDF to ${toEmails[0]}${toEmails.length > 1 ? ' and ' + (toEmails.length - 1) + ' more' : ''}`);
+
+            const bytes = pdf.bytes instanceof ArrayBuffer ? new Uint8Array(pdf.bytes) : pdf.bytes;
+            let binary = '';
+            const chunkSize = 8192;
+            for (let i = 0; i < bytes.length; i += chunkSize) {
+                const chunk = bytes.subarray(i, i + chunkSize);
+                binary += String.fromCharCode(...chunk);
+            }
+            const pdfBase64 = btoa(binary);
+
+            const supabase = window.supabaseClient.get();
+            const { data, error } = await supabase.functions.invoke('send-email', {
+                body: {
+                    to: toEmails,
+                    subject,
+                    body: emailBody,
+                    pdfBase64,
+                    fileName: pdf.fileName,
+                },
+            });
+
+            if (error) {
+                let errorMessage = error.message || 'Failed to send email';
+                if (error.context && typeof error.context.json === 'function') {
+                    try {
+                        const errorBody = await error.context.json();
+                        errorMessage = errorBody.error || errorMessage;
+                    } catch {}
+                }
+                throw new Error(errorMessage);
+            }
+
+            if (!data?.success) {
+                throw new Error(data?.error || 'Failed to send email');
+            }
+
+            this.hideLoading();
+            this.showNotification('Email sent successfully to ' + toEmails.join(', '));
+
+        } catch (err) {
+            this.hideLoading();
+            console.error('Email send error:', err);
+            this.showError('Failed to send email.\n\n' + err.message, 'Email Error');
         }
     }
 }
