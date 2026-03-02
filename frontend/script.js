@@ -4479,7 +4479,7 @@ class ExpenseTracker {
             const sheetPdfBase64 = sheetPdfResponse.data.pdfBase64;
             const sheetPdfBytes = Uint8Array.from(atob(sheetPdfBase64), c => c.charCodeAt(0));
 
-            this.showNotification('📋 Google Sheet downloaded, compressing bill images...');
+            this.updateLoadingText('📋 Google Sheet downloaded', 'Compressing bill images...');
 
             // Step 3: Generate bill photos PDF (INCLUDING orphaned/saved images)
             console.log('📸 Generating bills PDF with ALL images (current + saved)...');
@@ -4492,11 +4492,11 @@ class ExpenseTracker {
                 billsPdfBlob = await this.generateBillsPdfBlob(true); // Explicitly include orphaned images
                 billsPdfBytes = await billsPdfBlob.arrayBuffer();
                 hasImages = true;
-                this.showNotification('🔗 Merging documents...');
+                this.updateLoadingText('🔗 Merging documents...', 'Combining sheet and bill images');
             } catch (error) {
                 if (error.message === 'No images available') {
                     console.log('No bill images available, continuing with Google Sheet only');
-                    this.showNotification('📋 No bill images found. Downloading Google Sheet only...');
+                    this.updateLoadingText('📋 No bill images found', 'Downloading Google Sheet only...');
                     hasImages = false;
                 } else {
                     throw error; // Re-throw other errors
@@ -4537,7 +4537,7 @@ class ExpenseTracker {
                 totalPages = mergedPdf.getPageCount();
             }
 
-            this.showNotification('💾 Saving package...');
+            this.updateLoadingText('💾 Saving package...', 'Almost done');
 
             // Step 5: Save merged PDF
             const mergedPdfBytes = await mergedPdf.save();
@@ -5716,6 +5716,23 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         `;
 
         document.body.appendChild(overlay);
+    }
+
+    updateLoadingText(message, subtext) {
+        const overlay = document.getElementById('loadingOverlay');
+        if (overlay) {
+            const textEl = overlay.querySelector('.loading-text');
+            const subtextEl = overlay.querySelector('.loading-subtext');
+            if (textEl) textEl.textContent = message;
+            if (subtextEl) {
+                subtextEl.textContent = subtext || '';
+            } else if (subtext) {
+                const sub = document.createElement('div');
+                sub.className = 'loading-subtext';
+                sub.textContent = subtext;
+                overlay.appendChild(sub);
+            }
+        }
     }
 
     hideLoading() {
