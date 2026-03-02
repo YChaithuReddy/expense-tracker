@@ -158,7 +158,12 @@
                 }
             } catch (error) {
                 console.error('Login error:', error);
-                showMessage(error.message || 'Login failed. Please try again.', 'error');
+                const msg = error.message || '';
+                if (msg.toLowerCase().includes('failed to fetch') || msg.toLowerCase().includes('networkerror') || msg.toLowerCase().includes('network')) {
+                    showMessage('Network error: Could not reach the server. Please check your internet connection and try again. If the issue persists, clear your browser cache/site data.', 'error');
+                } else {
+                    showMessage(msg || 'Login failed. Please try again.', 'error');
+                }
                 resetButton();
             }
         });
