@@ -743,7 +743,6 @@
                         </div>
 
                         <div class="form-actions reimbursement-actions">
-                            <button type="button" class="btn-secondary" onclick="expenseTracker.closeEmployeeInfoModal()">Cancel</button>
                             <button type="submit" class="btn-primary" data-action="download">
                                 <span>📥 Download PDF</span>
                             </button>
@@ -753,6 +752,7 @@
                             <button type="button" class="btn-secondary" id="emailToAccountsBtn" data-action="email">
                                 <span>📧 Email to Accounts</span>
                             </button>
+                            <button type="button" class="btn-secondary" onclick="expenseTracker.closeEmployeeInfoModal()">Cancel</button>
                         </div>
                     </form>
                 </div>
@@ -1071,41 +1071,41 @@
                 <!-- Dynamic summary injected by JS -->
                 <div class="email-modal__summary" id="emailAccountsSummary"></div>
 
-                <!-- Recipients -->
-                <div class="email-modal__field">
-                    <label class="email-modal__label" for="emailAccountsTo">
-                        <svg class="email-modal__label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
-                            <circle cx="9" cy="7" r="4"/>
-                            <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
-                        </svg>
-                        To (Recipients)
-                    </label>
-                    <input
-                        class="email-modal__input"
-                        type="text"
-                        id="emailAccountsTo"
-                        placeholder="accounts@company.com, finance@company.com"
-                        autocomplete="email"
-                    >
-                    <span class="email-modal__hint">Separate multiple addresses with commas</span>
-                </div>
-
-                <!-- Subject -->
-                <div class="email-modal__field">
-                    <label class="email-modal__label" for="emailAccountsSubject">
-                        <svg class="email-modal__label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="4" y1="9" x2="20" y2="9"/>
-                            <line x1="4" y1="15" x2="14" y2="15"/>
-                        </svg>
-                        Subject
-                    </label>
-                    <input
-                        class="email-modal__input"
-                        type="text"
-                        id="emailAccountsSubject"
-                        placeholder="Reimbursement Claim - [Month Year]"
-                    >
+                <!-- Recipients + Subject side by side -->
+                <div class="email-modal__field-row">
+                    <div class="email-modal__field">
+                        <label class="email-modal__label" for="emailAccountsTo">
+                            <svg class="email-modal__label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                                <circle cx="9" cy="7" r="4"/>
+                                <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+                            </svg>
+                            To (Recipients)
+                        </label>
+                        <input
+                            class="email-modal__input"
+                            type="text"
+                            id="emailAccountsTo"
+                            placeholder="accounts@company.com"
+                            autocomplete="email"
+                        >
+                        <span class="email-modal__hint">Separate multiple with commas</span>
+                    </div>
+                    <div class="email-modal__field">
+                        <label class="email-modal__label" for="emailAccountsSubject">
+                            <svg class="email-modal__label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="4" y1="9" x2="20" y2="9"/>
+                                <line x1="4" y1="15" x2="14" y2="15"/>
+                            </svg>
+                            Subject
+                        </label>
+                        <input
+                            class="email-modal__input"
+                            type="text"
+                            id="emailAccountsSubject"
+                            placeholder="Reimbursement Claim - [Month Year]"
+                        >
+                    </div>
                 </div>
 
                 <!-- Message -->
