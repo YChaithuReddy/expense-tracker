@@ -109,8 +109,11 @@ class ExpenseTracker {
         // View saved images gallery
         document.getElementById('viewSavedImages').addEventListener('click', () => this.openOrphanedImagesModal());
 
-        // Kodo Settings
-        document.getElementById('kodoSettingsBtn')?.addEventListener('click', () => this.showKodoSettingsModal());
+        // Kodo Settings (gear icon inside confirmation modal)
+        document.getElementById('kodoSettingsBtn')?.addEventListener('click', () => {
+            document.getElementById('kodoConfirmModal').style.display = 'none';
+            this.showKodoSettingsModal();
+        });
 
         // Category and subcategory handling
         document.getElementById('mainCategory').addEventListener('change', (e) => this.handleMainCategoryChange(e));

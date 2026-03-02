@@ -277,10 +277,6 @@
                             <span class="btn-text">Clear Data</span>
                         </button>
 
-                        <button id="kodoSettingsBtn" class="btn-secondary">
-                            <span class="btn-icon">🏢</span>
-                            <span class="btn-text">Kodo Settings</span>
-                        </button>
                         <button id="downloadReimbursementPackage" class="btn-highlight">
                             <span class="btn-icon">📦</span>
                             <span class="btn-text">Download Complete Package</span>
@@ -960,7 +956,10 @@
         <div class="kodo-modal">
             <div class="kodo-modal-header">
                 <h3>Confirm Kodo Submission</h3>
-                <button class="kodo-modal-close" id="closeKodoConfirm">&times;</button>
+                <div class="kodo-header-actions">
+                    <button class="kodo-settings-link" id="kodoSettingsBtn" title="Kodo Settings">⚙️</button>
+                    <button class="kodo-modal-close" id="closeKodoConfirm">&times;</button>
+                </div>
             </div>
             <div class="kodo-modal-body">
                 <div class="kodo-confirm-summary" id="kodoConfirmSummary">
