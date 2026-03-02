@@ -53,7 +53,7 @@ async function kodoVerifyOtp(email: string, otp: number): Promise<any> {
   return typeof data.otpValidation === "string" ? JSON.parse(data.otpValidation) : data.otpValidation;
 }
 
-async function ensureToken(supabase: any, userId: string, settings: any): Promise<string> {
+async function ensureToken(supabase: any, userId: string, settings: any): Promise<{ token: string; displayName: string }> {
   const loginResult = await kodoLogin(settings.kodo_email, settings.kodo_passcode, settings.kodo_device_token);
   if (loginResult.needsOtp) {
     throw new Error("OTP_REQUIRED: Your Kodo session has expired. Please re-authenticate in Kodo Settings.");
@@ -61,11 +61,13 @@ async function ensureToken(supabase: any, userId: string, settings: any): Promis
   if (!loginResult.token) {
     throw new Error("Kodo login did not return an access token.");
   }
+  const displayName = loginResult.user?.displayName || loginResult.user?.username || loginResult.user?.fullName || "";
+  console.log(`Kodo login success. User: "${displayName}" (${loginResult.user?.email || settings.kodo_email})`);
   await supabase.from("kodo_settings").update({
     kodo_device_token: loginResult.deviceToken || null,
     kodo_refresh_token: loginResult.refreshToken || null,
   }).eq("user_id", userId);
-  return loginResult.token;
+  return { token: loginResult.token, displayName };
 }
 
 async function kodoUploadPDF(pdfBytes: Uint8Array, filename: string, accessToken: string): Promise<string> {
@@ -84,42 +86,84 @@ async function kodoUploadPDF(pdfBytes: Uint8Array, filename: string, accessToken
   return id;
 }
 
-async function kodoCreateClaim(accessToken: string, input: {
-  billAmount: number; attachmentId: string; checkerAccountId: string;
-  expenseCategoryId: string; comment: string;
-}): Promise<string> {
-  // Coerce IDs to proper types - Kodo schema uses Int for some, String for others
-  const categoryId = /^\d+$/.test(String(input.expenseCategoryId)) ? parseInt(String(input.expenseCategoryId), 10) : input.expenseCategoryId;
-  const checkerId = input.checkerAccountId;
-
+async function fetchReimbursementDetails(accessToken: string): Promise<{
+  beneficiaryId: string;
+  fullName: string;
+  bankAccounts: any[];
+  upiVpaList: any[];
+} | null> {
   const data = await kodoGraphQL(
-    `mutation createOutgoingPaymentRequest($input: OutgoingPaymentRequestCreationInput!) {
-      createOutgoingPaymentRequest(input: $input) { id currentlyAssignedTo { user { id } } }
-    }`,
-    { input: {
-      billData: { billAmount: input.billAmount, payableAmount: input.billAmount },
-      attachmentId: input.attachmentId,
-      checkerAccountId: checkerId,
-      expenseCategoryId: categoryId,
-      comment: input.comment,
-      expenseTags: [],
-    }},
-    accessToken
-  );
-  return data.createOutgoingPaymentRequest.id;
-}
-
-async function kodoSubmitForReview(accessToken: string, requestId: string): Promise<any> {
-  const data = await kodoGraphQL(
-    `mutation startCheckerFlowForOutgoingPaymentRequest($outgoingPaymentRequestId: String!) {
-      startCheckerFlowForOutgoingPaymentRequest(outgoingPaymentRequestId: $outgoingPaymentRequestId) {
-        savedRequest { id version }
+    `query reimbursementDetails {
+      reimbursementDetails {
+        beneficiary {
+          id
+          fullName
+          nickname
+          bankAccounts { id accountNumber ifsc branchName isDisabled }
+          upiVpaList { id upiHandle registeredName isDisabled }
+        }
       }
     }`,
-    { outgoingPaymentRequestId: requestId },
+    {},
     accessToken
   );
-  return data.startCheckerFlowForOutgoingPaymentRequest;
+
+  const beneficiary = data.reimbursementDetails?.beneficiary;
+  if (!beneficiary || !beneficiary.id) return null;
+
+  return {
+    beneficiaryId: beneficiary.id,
+    fullName: beneficiary.fullName || beneficiary.nickname || "",
+    bankAccounts: (beneficiary.bankAccounts || []).filter((a: any) => !a.isDisabled),
+    upiVpaList: (beneficiary.upiVpaList || []).filter((v: any) => !v.isDisabled),
+  };
+}
+
+async function kodoCreateReimbursementClaim(accessToken: string, input: {
+  beneficiaryId: string;
+  billAmount: number;
+  attachmentId: string;
+  checkerAccountId: string;
+  expenseCategoryId: string;
+  comment: string;
+  bankAccountId?: string;
+  upiVpaId?: string;
+}): Promise<string> {
+  const categoryId = /^\d+$/.test(String(input.expenseCategoryId))
+    ? parseInt(String(input.expenseCategoryId), 10)
+    : input.expenseCategoryId;
+
+  const mutationInput: Record<string, unknown> = {
+    beneficiaryId: input.beneficiaryId,
+    billData: { billAmount: input.billAmount, payableAmount: input.billAmount },
+    attachmentId: input.attachmentId,
+    checkerAccountId: input.checkerAccountId,
+    expenseCategoryId: categoryId,
+    comment: input.comment,
+    expenseTags: [],
+  };
+
+  // Payment method: bank account or UPI (at least one required for reimbursement)
+  if (input.bankAccountId) {
+    mutationInput.bankAccountIdToUse = input.bankAccountId;
+  } else if (input.upiVpaId) {
+    mutationInput.upiVpaToUse = { id: input.upiVpaId };
+  }
+
+  console.log("createReimbursementOPR input:", JSON.stringify(mutationInput));
+
+  const data = await kodoGraphQL(
+    `mutation createReimbursementOPR($input: ReimbursementOprCreationInput!) {
+      createReimbursementOPR(input: $input) {
+        id
+        version
+        currentlyAssignedTo { user { id } }
+      }
+    }`,
+    { input: mutationInput },
+    accessToken
+  );
+  return data.createReimbursementOPR.id;
 }
 
 async function fetchKodoConfig(accessToken: string, diagnostic = false): Promise<{ categories: any[]; checkers: any[]; rawCheckers?: any[] }> {
@@ -150,7 +194,6 @@ async function fetchKodoConfig(accessToken: string, diagnostic = false): Promise
     );
     const avail = data.initiateOutgoingPaymentRequest?.availableCheckers || [];
     rawCheckers = avail;
-    // Use checker.id (the account-level ID from availableCheckers) for checkerAccountId
     checkers.push(...avail.map((c: any) => ({
       id: c.id, name: c.user?.displayName || "", email: c.user?.emailId || "",
       userId: c.user?.id,
@@ -220,9 +263,35 @@ Deno.serve(async (req: Request) => {
     if (action === "get-config") {
       const { data: settings } = await supabase.from("kodo_settings").select("*").eq("user_id", user.id).single();
       if (!settings) return fail("Kodo not configured. Set up your credentials first.");
-      const token = await ensureToken(supabase, user.id, settings);
+      const { token } = await ensureToken(supabase, user.id, settings);
       const diagnostic = body.diagnostic === true;
-      return ok(await fetchKodoConfig(token, diagnostic));
+      const config = await fetchKodoConfig(token, diagnostic);
+      const reimbursement = await fetchReimbursementDetails(token);
+      return ok({
+        ...config,
+        beneficiary: reimbursement ? {
+          id: reimbursement.beneficiaryId,
+          name: reimbursement.fullName,
+          bankAccounts: reimbursement.bankAccounts,
+          upiVpaList: reimbursement.upiVpaList,
+        } : null,
+      });
+    }
+
+    if (action === "get-beneficiary") {
+      const { data: settings } = await supabase.from("kodo_settings").select("*").eq("user_id", user.id).single();
+      if (!settings) return fail("Kodo not configured");
+      const { token } = await ensureToken(supabase, user.id, settings);
+      const reimbursement = await fetchReimbursementDetails(token);
+      return ok({
+        beneficiary: reimbursement ? {
+          id: reimbursement.beneficiaryId,
+          name: reimbursement.fullName,
+          bankAccounts: reimbursement.bankAccounts,
+          upiVpaList: reimbursement.upiVpaList,
+        } : null,
+        errors: reimbursement ? [] : ["No reimbursement beneficiary found. Ensure your Kodo account has reimbursement access."],
+      });
     }
 
     if (action === "submit") {
@@ -230,34 +299,59 @@ Deno.serve(async (req: Request) => {
       if (!pdfBase64 || !expenseDetails) return fail("PDF and expense details required");
       const { data: settings } = await supabase.from("kodo_settings").select("*").eq("user_id", user.id).single();
       if (!settings) return fail("Kodo not configured");
-      const token = await ensureToken(supabase, user.id, settings);
+      const { token } = await ensureToken(supabase, user.id, settings);
 
-      // IMPORTANT: Call initiateOutgoingPaymentRequest to set up server-side draft
-      // This must happen in the same session before createOutgoingPaymentRequest
+      // Fetch reimbursement details (self-beneficiary + bank/UPI accounts)
+      const reimbursement = await fetchReimbursementDetails(token);
+      if (!reimbursement) {
+        return fail("No reimbursement beneficiary found. Ensure your Kodo account has reimbursement access enabled.");
+      }
+      console.log(`Reimbursement beneficiary: ${reimbursement.beneficiaryId} (${reimbursement.fullName}), banks: ${reimbursement.bankAccounts.length}, UPI: ${reimbursement.upiVpaList.length}`);
+
+      // Determine payment method (bank account preferred, then UPI)
+      const bankAccountId = reimbursement.bankAccounts[0]?.id;
+      const upiVpaId = reimbursement.upiVpaList[0]?.id;
+      if (!bankAccountId && !upiVpaId) {
+        return fail("No active bank account or UPI found on your Kodo reimbursement profile. Add a bank account or UPI in Kodo first.");
+      }
+
+      // Step 1: Upload PDF
+      let attachmentId: string;
       try {
-        await kodoGraphQL(
-          `mutation initiateOutgoingPaymentRequest($isBulkRequest: Boolean) {
-            initiateOutgoingPaymentRequest(isBulkRequest: $isBulkRequest) {
-              availableCheckers { id }
-              employeeDetails { id }
-            }
-          }`,
-          { isBulkRequest: false },
-          token
+        const pdfBytes = Uint8Array.from(atob(pdfBase64), (c) => c.charCodeAt(0));
+        console.log(`Uploading PDF: ${pdfBytes.length} bytes`);
+        attachmentId = await kodoUploadPDF(
+          pdfBytes, `reimbursement_${new Date().toISOString().split("T")[0]}.pdf`, token
         );
-      } catch (e) { console.error("Initiate:", (e as Error).message); }
+        console.log(`Upload success, attachmentId: ${attachmentId}`);
+      } catch (e) {
+        throw new Error(`[UPLOAD] ${(e as Error).message}`);
+      }
 
-      const pdfBytes = Uint8Array.from(atob(pdfBase64), (c) => c.charCodeAt(0));
-      const attachmentId = await kodoUploadPDF(
-        pdfBytes, `reimbursement_${new Date().toISOString().split("T")[0]}.pdf`, token
-      );
-      const { totalAmount, checkerId, categoryId, comment } = expenseDetails;
-      const claimId = await kodoCreateClaim(token, {
-        billAmount: totalAmount, attachmentId, checkerAccountId: checkerId,
-        expenseCategoryId: categoryId, comment: comment || "Reimbursement claim from Expense Tracker",
+      // Step 2: Create reimbursement claim (auto-routes to checker)
+      let claimId: string;
+      try {
+        const { totalAmount, checkerId, categoryId, comment } = expenseDetails;
+        console.log(`Creating reimbursement claim: amount=${totalAmount}, checker=${checkerId}, category=${categoryId}, beneficiary=${reimbursement.beneficiaryId} (${reimbursement.fullName}), payment=${bankAccountId ? "bank:" + bankAccountId : "upi:" + upiVpaId}`);
+        claimId = await kodoCreateReimbursementClaim(token, {
+          beneficiaryId: reimbursement.beneficiaryId,
+          billAmount: totalAmount,
+          attachmentId,
+          checkerAccountId: checkerId,
+          expenseCategoryId: categoryId,
+          comment: comment || "Reimbursement claim from Expense Tracker",
+          bankAccountId,
+          upiVpaId: bankAccountId ? undefined : upiVpaId,
+        });
+        console.log(`Reimbursement claim created: ${claimId}`);
+      } catch (e) {
+        throw new Error(`[CREATE_CLAIM] ${(e as Error).message}`);
+      }
+
+      return ok({
+        claimId,
+        message: "Reimbursement claim submitted successfully",
       });
-      const submitResult = await kodoSubmitForReview(token, claimId);
-      return ok({ claimId, message: "Claim submitted successfully", submitResult });
     }
 
     return fail(`Unknown action: ${action}`);
