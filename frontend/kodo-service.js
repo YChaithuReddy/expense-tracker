@@ -28,7 +28,13 @@ class KodoService {
      */
     async _callEdgeFunction(body) {
         const supabase = this._getSupabase();
-        const { data: { session } } = await supabase.auth.getSession();
+        let { data: { session } } = await supabase.auth.getSession();
+
+        // If session is expired or missing, try refreshing
+        if (!session?.access_token || (session.expires_at && session.expires_at * 1000 < Date.now())) {
+            const { data: refreshed } = await supabase.auth.refreshSession();
+            session = refreshed?.session;
+        }
 
         if (!session?.access_token) {
             throw new Error('No active session. Please log in again.');
