@@ -7197,10 +7197,11 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         const pdf = this.lastGeneratedPdf;
         const fileSizeMB = (pdf.bytes.length / (1024 * 1024)).toFixed(1);
 
+        const periodText = pdf.dateFrom && pdf.dateTo ? `${pdf.dateFrom} to ${pdf.dateTo}` : pdf.dateFrom || pdf.dateTo || 'N/A';
         summaryDiv.innerHTML = `
             <div class="kodo-summary-row">
                 <span class="kodo-summary-label">PDF File</span>
-                <span class="kodo-summary-value">${pdf.fileName}</span>
+                <span class="kodo-summary-value" title="${pdf.fileName}">${pdf.fileName}</span>
             </div>
             <div class="kodo-summary-row">
                 <span class="kodo-summary-label">File Size</span>
@@ -7212,7 +7213,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             </div>
             <div class="kodo-summary-row">
                 <span class="kodo-summary-label">Period</span>
-                <span class="kodo-summary-value">${pdf.dateFrom} to ${pdf.dateTo}</span>
+                <span class="kodo-summary-value">${periodText}</span>
             </div>
         `;
 

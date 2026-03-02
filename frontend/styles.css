@@ -7793,6 +7793,9 @@ select.inline-input option {
     font-weight: 600;
     color: var(--text-primary, #fff);
     display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .email-modal__summary .kodo-summary-total .kodo-summary-value {
