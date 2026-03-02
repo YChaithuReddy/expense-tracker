@@ -7736,19 +7736,22 @@ select.inline-input option {
     gap: 0;
 }
 
-/* ---- Summary card ---- */
-/* JS populates .kodo-summary-row rows inside #emailAccountsSummary */
+/* ---- Summary card - compact inline row ---- */
 .email-modal__summary {
     background: linear-gradient(135deg,
         rgba(6, 182, 212, 0.06) 0%,
         rgba(99, 102, 241, 0.06) 100%
     );
     border: 1px solid rgba(6, 182, 212, 0.18);
-    border-radius: 16px;
-    padding: 14px 16px;
-    margin-bottom: 20px;
+    border-radius: 14px;
+    padding: 10px 20px;
+    margin-bottom: 18px;
     position: relative;
     overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-wrap: wrap;
 }
 
 /* Decorative corner accent on summary */
@@ -7763,35 +7766,37 @@ select.inline-input option {
     pointer-events: none;
 }
 
-/* Summary rows rendered by JS use .kodo-summary-row / .kodo-summary-label / .kodo-summary-value
-   Override those inside the email-modal__summary scope for premium look */
 .email-modal__summary .kodo-summary-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 7px 0;
+    padding: 6px 16px 6px 0;
+    flex: 1;
+    min-width: 120px;
 }
 
 .email-modal__summary .kodo-summary-row + .kodo-summary-row {
-    border-top: 1px solid rgba(6, 182, 212, 0.1);
+    border-top: none;
+    border-left: 1px solid rgba(6, 182, 212, 0.12);
+    padding-left: 16px;
 }
 
 .email-modal__summary .kodo-summary-label {
-    font-size: 0.78rem;
-    font-weight: 500;
+    font-size: 0.7rem;
+    font-weight: 600;
     color: var(--text-secondary, #a1a1aa);
     text-transform: uppercase;
     letter-spacing: 0.04em;
+    display: block;
+    margin-bottom: 2px;
 }
 
 .email-modal__summary .kodo-summary-value {
-    font-size: 0.875rem;
+    font-size: 0.9rem;
     font-weight: 600;
     color: var(--text-primary, #fff);
+    display: block;
 }
 
 .email-modal__summary .kodo-summary-total .kodo-summary-value {
-    font-size: 1.05rem;
+    font-size: 1.1rem;
     font-weight: 700;
     background: linear-gradient(90deg, #06b6d4, #818cf8);
     -webkit-background-clip: text;
@@ -7800,20 +7805,26 @@ select.inline-input option {
 }
 
 /* ---- Form fields ---- */
+.email-modal__field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
 .email-modal__field {
-    margin-bottom: 16px;
+    margin-bottom: 14px;
 }
 
 .email-modal__label {
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 0.78rem;
+    font-size: 0.75rem;
     font-weight: 600;
     color: var(--text-secondary, #a1a1aa);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
 }
 
 .email-modal__label-icon {
@@ -7860,8 +7871,8 @@ select.inline-input option {
 
 .email-modal__textarea {
     resize: vertical;
-    min-height: 140px;
-    line-height: 1.55;
+    min-height: 100px;
+    line-height: 1.5;
 }
 
 .email-modal__hint {
@@ -8113,7 +8124,28 @@ select.inline-input option {
     }
 
     .email-modal__textarea {
-        min-height: 120px;
+        min-height: 100px;
+    }
+
+    .email-modal__summary {
+        flex-direction: column;
+        gap: 0;
+        padding: 8px 14px;
+    }
+
+    .email-modal__summary .kodo-summary-row {
+        padding: 5px 0;
+    }
+
+    .email-modal__summary .kodo-summary-row + .kodo-summary-row {
+        border-left: none;
+        border-top: 1px solid rgba(6, 182, 212, 0.10);
+        padding-left: 0;
+    }
+
+    .email-modal__field-row {
+        grid-template-columns: 1fr;
+        gap: 0;
     }
 }
 
