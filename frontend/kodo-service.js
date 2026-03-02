@@ -24,51 +24,49 @@ class KodoService {
 
     /**
      * Call the kodo-submit Edge Function
+     * Uses supabase.functions.invoke() for automatic auth handling
      * Returns parsed result with { success, data } or throws
      */
     async _callEdgeFunction(body) {
         const supabase = this._getSupabase();
-        let { data: { session } } = await supabase.auth.getSession();
 
-        // If session is expired or missing, try refreshing
-        if (!session?.access_token || (session.expires_at && session.expires_at * 1000 < Date.now())) {
-            const { data: refreshed } = await supabase.auth.refreshSession();
-            session = refreshed?.session;
-        }
-
-        if (!session?.access_token) {
-            throw new Error('No active session. Please log in again.');
-        }
-
-        const supabaseUrl = window.supabaseClient.SUPABASE_URL;
-        const anonKey = window.supabaseClient.SUPABASE_ANON_KEY;
-
-        const response = await fetch(`${supabaseUrl}/functions/v1/kodo-submit`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${session.access_token}`,
-                'apikey': anonKey,
-            },
-            body: JSON.stringify(body),
+        const { data, error } = await supabase.functions.invoke('kodo-submit', {
+            body: body,
         });
 
-        const text = await response.text();
-        let result;
-        try {
-            result = JSON.parse(text);
-        } catch {
-            throw new Error(text || `Request failed (${response.status})`);
-        }
+        // Handle SDK-level errors (network, relay, or HTTP errors)
+        if (error) {
+            let errorMessage = error.message || 'Edge function call failed';
+            let needsReauth = false;
+            let needsOtp = false;
 
-        if (!response.ok || !result.success) {
-            const err = new Error(result.error || `Request failed (${response.status})`);
-            err.needsReauth = result.needsReauth || false;
-            err.needsOtp = result.data?.needsOtp || false;
+            // For HTTP errors, the response body is in error.context (a Response object)
+            if (error.context && typeof error.context.json === 'function') {
+                try {
+                    const errorBody = await error.context.json();
+                    errorMessage = errorBody.error || errorMessage;
+                    needsReauth = errorBody.needsReauth || false;
+                    needsOtp = errorBody.data?.needsOtp || false;
+                } catch {
+                    // Could not parse error body, use default message
+                }
+            }
+
+            const err = new Error(errorMessage);
+            err.needsReauth = needsReauth;
+            err.needsOtp = needsOtp;
             throw err;
         }
 
-        return result;
+        // data is the parsed JSON response body
+        if (!data?.success) {
+            const err = new Error(data?.error || 'Request failed');
+            err.needsReauth = data?.needsReauth || false;
+            err.needsOtp = data?.data?.needsOtp || false;
+            throw err;
+        }
+
+        return data;
     }
 
     async initialize() {
