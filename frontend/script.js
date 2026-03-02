@@ -4462,7 +4462,7 @@ class ExpenseTracker {
      * - Following pages: All bill receipt images
      * This is called AFTER employee info is collected and sheet is updated
      */
-    async generateCombinedReimbursementPDFWithEmployeeInfo() {
+    async generateCombinedReimbursementPDFWithEmployeeInfo({ skipDownload = false } = {}) {
         try {
             // Lazy load export libraries first
             this.showLoading('📦 Loading export tools...', 'Preparing PDF generator');
@@ -4564,19 +4564,21 @@ class ExpenseTracker {
                 })),
             };
 
-            // Download the PDF using the best available method
-            const downloadSuccess = await this.saveFile(mergedPdfBytes, fileName, 'application/pdf');
+            if (!skipDownload) {
+                // Download the PDF using the best available method
+                const downloadSuccess = await this.saveFile(mergedPdfBytes, fileName, 'application/pdf');
 
-            // Only show success notification if download actually worked
-            const fileSizeMB = (mergedPdfBytes.length / (1024 * 1024)).toFixed(1);
-            if (downloadSuccess) {
-                if (hasImages) {
-                    this.showNotification(`✅ Package downloaded! (${totalPages} pages, ${fileSizeMB} MB)`);
+                // Only show success notification if download actually worked
+                const fileSizeMB = (mergedPdfBytes.length / (1024 * 1024)).toFixed(1);
+                if (downloadSuccess) {
+                    if (hasImages) {
+                        this.showNotification(`✅ Package downloaded! (${totalPages} pages, ${fileSizeMB} MB)`);
+                    } else {
+                        this.showNotification(`📋 Google Sheet downloaded! (${totalPages} pages, ${fileSizeMB} MB)`);
+                    }
                 } else {
-                    this.showNotification(`📋 Google Sheet downloaded! (${totalPages} pages, ${fileSizeMB} MB)`);
+                    this.showError('The package was generated but could not be saved to your device.\n\nTry using the Share option if available, or open in a desktop browser.', 'Download Failed');
                 }
-            } else {
-                this.showError('The package was generated but could not be saved to your device.\n\nTry using the Share option if available, or open in a desktop browser.', 'Download Failed');
             }
 
             // Log summary for debugging
@@ -6816,7 +6818,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             await new Promise(resolve => setTimeout(resolve, 1500));
 
             this.showNotification('Generating reimbursement PDF...');
-            await this.generateCombinedReimbursementPDFWithEmployeeInfo();
+            await this.generateCombinedReimbursementPDFWithEmployeeInfo({ skipDownload: true });
 
             // PDF is now cached in this.lastGeneratedPdf — show email modal
             this.showEmailAccountsModal();
