@@ -991,27 +991,27 @@
                 <!-- Dynamic summary -->
                 <div class="kodo-confirm-modal__summary" id="kodoConfirmSummary"></div>
 
-                <!-- Checker -->
-                <div class="kodo-confirm-modal__field">
-                    <label class="kodo-confirm-modal__label" for="kodoConfirmChecker">
-                        <svg class="kodo-confirm-modal__label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/>
-                            <polyline points="17 11 19 13 23 9"/>
-                        </svg>
-                        Checker (Approver)
-                    </label>
-                    <select class="kodo-confirm-modal__select" id="kodoConfirmChecker"></select>
-                </div>
-
-                <!-- Category -->
-                <div class="kodo-confirm-modal__field">
-                    <label class="kodo-confirm-modal__label" for="kodoConfirmCategory">
-                        <svg class="kodo-confirm-modal__label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M4 7h16M4 12h16M4 17h10"/>
-                        </svg>
-                        Category
-                    </label>
-                    <select class="kodo-confirm-modal__select" id="kodoConfirmCategory"></select>
+                <!-- Checker + Category side by side -->
+                <div class="kodo-confirm-modal__field-row">
+                    <div class="kodo-confirm-modal__field">
+                        <label class="kodo-confirm-modal__label" for="kodoConfirmChecker">
+                            <svg class="kodo-confirm-modal__label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/>
+                                <polyline points="17 11 19 13 23 9"/>
+                            </svg>
+                            Checker (Approver)
+                        </label>
+                        <select class="kodo-confirm-modal__select" id="kodoConfirmChecker"></select>
+                    </div>
+                    <div class="kodo-confirm-modal__field">
+                        <label class="kodo-confirm-modal__label" for="kodoConfirmCategory">
+                            <svg class="kodo-confirm-modal__label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 7h16M4 12h16M4 17h10"/>
+                            </svg>
+                            Category
+                        </label>
+                        <select class="kodo-confirm-modal__select" id="kodoConfirmCategory"></select>
+                    </div>
                 </div>
 
                 <!-- Comment -->
