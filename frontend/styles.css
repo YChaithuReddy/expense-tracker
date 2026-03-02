@@ -6949,6 +6949,7 @@ select.inline-input option {
     margin-bottom: 6px;
 }
 
+.kodo-form-group textarea,
 .kodo-form-group input,
 .kodo-form-group select {
     width: 100%;
@@ -6962,11 +6963,17 @@ select.inline-input option {
     box-sizing: border-box;
 }
 
+.kodo-form-group textarea:focus,
 .kodo-form-group input:focus,
 .kodo-form-group select:focus {
     outline: none;
     border-color: #6366f1;
     box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.kodo-form-group textarea {
+    font-family: inherit;
+    resize: vertical;
 }
 
 .kodo-form-actions {
