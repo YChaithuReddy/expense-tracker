@@ -315,8 +315,11 @@ class GoogleSheetsService {
 
             console.log(`Exporting ${expenses.length} expenses to sheet:`, this.sheetId);
 
+            // Sort expenses chronologically (oldest first) before exporting
+            const sorted = [...expenses].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+
             // Format expenses for the Apps Script
-            const formattedExpenses = expenses.map(exp => ({
+            const formattedExpenses = sorted.map(exp => ({
                 date: exp.date,
                 vendor: exp.vendor || 'N/A',
                 category: exp.category,
