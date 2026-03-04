@@ -13,35 +13,24 @@ const pdfLibrary = (() => {
     let kodoConfig = null;          // { checkers, categories } from Edge Function
 
     // ---- Init ----
-    async function init() {
+    function init() {
         setupUploadZone();
-        // Wait for auth to initialise (supabase-auth.js calls initAuth which calls displayUserInfo)
-        // Then load the gallery
-        await waitForAuth();
+    }
+
+    // ---- Library Modal Open/Close ----
+    function openLibrary() {
+        const overlay = document.getElementById('pdfLibraryModal');
+        if (!overlay) return;
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
         loadGallery();
     }
 
-    async function waitForAuth() {
-        let attempts = 0;
-        while (!window.supabaseClient?.get() && attempts < 60) {
-            await sleep(100);
-            attempts++;
-        }
-    }
-
-    function sleep(ms) {
-        return new Promise(r => setTimeout(r, ms));
-    }
-
-    // ---- User Info (override supabase-auth displayUserInfo for our header) ----
-    function renderUserInfo() {
-        const user = window.auth?.getCurrentUser?.() || JSON.parse(localStorage.getItem('user') || 'null');
-        const el = document.getElementById('pdfUserInfo');
-        if (!el || !user) return;
-        el.innerHTML = `
-            <span class="pdfs-user-name">${sanitize(user.name || user.email)}</span>
-            <button class="pdfs-logout-btn" onclick="logout()">Logout</button>
-        `;
+    function closeLibrary() {
+        const overlay = document.getElementById('pdfLibraryModal');
+        if (!overlay) return;
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
     }
 
     function sanitize(str) {
@@ -53,7 +42,6 @@ const pdfLibrary = (() => {
 
     // ---- Gallery ----
     async function loadGallery() {
-        renderUserInfo();
         const gallery = document.getElementById('pdfGallery');
         gallery.innerHTML = `<div class="pdfs-loading"><div class="pdfs-loading__spinner"></div><span>Loading PDFs...</span></div>`;
 
@@ -661,18 +649,11 @@ const pdfLibrary = (() => {
         return btoa(binary);
     }
 
-    // ---- Override displayUserInfo from supabase-auth.js for our page header ----
-    // supabase-auth.js looks for #userInfo — we don't have that, but it calls displayUserInfo
-    // We'll intercept after auth completes
-    const _origDisplayUserInfo = window.displayUserInfo;
-    window.displayUserInfo = function() {
-        if (_origDisplayUserInfo) _origDisplayUserInfo();
-        renderUserInfo();
-    };
-
     // ---- Public API ----
     return {
         init,
+        openLibrary,
+        closeLibrary,
         cancelUpload,
         confirmUpload,
         downloadPdf,
