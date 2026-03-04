@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#0f172a">
+    <meta name="theme-color" content="#0a0a0f">
     <title>PDF Library — Expense Tracker</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="manifest" href="manifest.json">
@@ -15,13 +15,16 @@
     <!-- Header -->
     <header class="pdfs-header">
         <div class="pdfs-header__left">
-            <a href="index.html" class="pdfs-back-btn">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <a href="index.html" class="pdfs-back-btn" aria-label="Back to main app">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
                     <polyline points="15 18 9 12 15 6"></polyline>
                 </svg>
-                Back to App
+                <span>Back to App</span>
             </a>
-            <h1 class="pdfs-title">📄 PDF Library</h1>
+            <h1 class="pdfs-title">
+                <span aria-hidden="true">📄</span>
+                PDF Library
+            </h1>
         </div>
         <div id="pdfUserInfo" class="pdfs-header__user"></div>
     </header>
@@ -30,15 +33,23 @@
     <main class="pdfs-content">
 
         <!-- Upload Zone -->
-        <div class="pdfs-upload-zone" id="uploadZone">
-            <input type="file" id="pdfFileInput" accept=".pdf,application/pdf" multiple>
-            <span class="pdfs-upload-zone__icon">📁</span>
-            <div class="pdfs-upload-zone__title">Drop your PDF here or click to upload</div>
+        <div class="pdfs-upload-zone" id="uploadZone" role="button" tabindex="0" aria-label="Upload a PDF file — click or drag and drop">
+            <input type="file" id="pdfFileInput" accept=".pdf,application/pdf" aria-label="Select PDF file to upload">
+            <span class="pdfs-upload-zone__icon" aria-hidden="true">📁</span>
+            <div class="pdfs-upload-zone__title">Choose a PDF to upload</div>
+            <div class="pdfs-upload-zone__subtitle">or drag &amp; drop your PDF here</div>
+            <button class="pdfs-upload-zone__cta" tabindex="-1" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                Choose PDF File
+            </button>
             <div class="pdfs-upload-zone__hint">
-                Supports <strong>multi-page PDFs</strong> with multiple bills arranged in one file.
-                The whole PDF will be submitted as one reimbursement claim.
+                Supports <strong>single and multi-page PDFs</strong> &bull; Max 50MB
             </div>
-            <div class="pdfs-upload-progress" id="uploadProgress">
+            <div class="pdfs-upload-progress" id="uploadProgress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Upload progress">
                 <div class="pdfs-upload-progress__bar" id="uploadProgressBar"></div>
             </div>
         </div>
@@ -46,11 +57,11 @@
         <!-- Gallery -->
         <div class="pdfs-section-title">
             Saved PDFs
-            <span class="pdfs-count-badge" id="pdfCount">0</span>
+            <span class="pdfs-count-badge" id="pdfCount" aria-live="polite" aria-label="PDF count">0</span>
         </div>
-        <div id="pdfGallery" class="pdfs-gallery">
+        <div id="pdfGallery" class="pdfs-gallery" aria-live="polite" aria-label="PDF library">
             <div class="pdfs-loading">
-                <div class="pdfs-loading__spinner"></div>
+                <div class="pdfs-loading__spinner" role="status" aria-label="Loading PDFs"></div>
                 <span>Loading your PDFs...</span>
             </div>
         </div>
@@ -58,29 +69,32 @@
     </main>
 
     <!-- Upload Metadata Modal -->
-    <div class="pdfs-modal-overlay" id="uploadMetaModal">
+    <div class="pdfs-modal-overlay" id="uploadMetaModal" role="dialog" aria-modal="true" aria-labelledby="uploadMetaTitle">
         <div class="pdfs-modal">
-            <h2 class="pdfs-modal__title">📋 PDF Details</h2>
+            <h2 class="pdfs-modal__title" id="uploadMetaTitle">
+                <span aria-hidden="true">📋</span>
+                PDF Details
+            </h2>
 
             <div class="pdfs-modal__field">
-                <label class="pdfs-modal__label">Total Amount (₹) *</label>
+                <label class="pdfs-modal__label" for="metaAmount">Total Amount (₹) *</label>
                 <input type="number" id="metaAmount" class="pdfs-modal__input" placeholder="e.g. 12500" min="0" step="0.01" required>
             </div>
 
             <div class="pdfs-modal__field">
                 <label class="pdfs-modal__label">Period</label>
                 <div class="pdfs-modal__row">
-                    <input type="date" id="metaDateFrom" class="pdfs-modal__input" placeholder="From">
-                    <input type="date" id="metaDateTo" class="pdfs-modal__input" placeholder="To">
+                    <input type="date" id="metaDateFrom" class="pdfs-modal__input" aria-label="Period start date">
+                    <input type="date" id="metaDateTo" class="pdfs-modal__input" aria-label="Period end date">
                 </div>
             </div>
 
             <div class="pdfs-modal__field">
-                <label class="pdfs-modal__label">Purpose / Description</label>
+                <label class="pdfs-modal__label" for="metaPurpose">Purpose / Description</label>
                 <textarea id="metaPurpose" class="pdfs-modal__textarea" placeholder="e.g. Business travel expenses for March 2026" rows="2"></textarea>
             </div>
 
-            <div class="pdfs-modal__field" id="metaFileInfo" style="font-size:0.8rem;color:#94a3b8;"></div>
+            <div class="pdfs-modal__field" id="metaFileInfo" style="font-size:0.8rem;color:#8892b0;" aria-live="polite"></div>
 
             <div class="pdfs-modal__actions">
                 <button class="pdfs-modal__btn pdfs-modal__btn--secondary" onclick="pdfLibrary.cancelUpload()">Cancel</button>
@@ -92,36 +106,39 @@
     </div>
 
     <!-- Kodo Submit Modal -->
-    <div class="pdfs-modal-overlay" id="kodoModal">
+    <div class="pdfs-modal-overlay" id="kodoModal" role="dialog" aria-modal="true" aria-labelledby="kodoModalTitle">
         <div class="pdfs-modal">
-            <h2 class="pdfs-modal__title">🏢 Submit to Kodo</h2>
+            <h2 class="pdfs-modal__title" id="kodoModalTitle">
+                <span aria-hidden="true">🏢</span>
+                Submit to Kodo
+            </h2>
 
             <div class="pdfs-modal__field">
-                <label class="pdfs-modal__label">Total Amount (₹) *</label>
+                <label class="pdfs-modal__label" for="kodoAmount">Total Amount (₹) *</label>
                 <input type="number" id="kodoAmount" class="pdfs-modal__input" min="0" step="0.01" required>
             </div>
 
             <div class="pdfs-modal__field">
-                <label class="pdfs-modal__label">Bill Date *</label>
+                <label class="pdfs-modal__label" for="kodoBillDate">Bill Date *</label>
                 <input type="date" id="kodoBillDate" class="pdfs-modal__input" required>
             </div>
 
             <div class="pdfs-modal__field">
-                <label class="pdfs-modal__label">Category</label>
+                <label class="pdfs-modal__label" for="kodoCategory">Category</label>
                 <select id="kodoCategory" class="pdfs-modal__select">
                     <option value="">Loading categories...</option>
                 </select>
             </div>
 
             <div class="pdfs-modal__field">
-                <label class="pdfs-modal__label">Checker (Approver)</label>
+                <label class="pdfs-modal__label" for="kodoChecker">Checker (Approver)</label>
                 <select id="kodoChecker" class="pdfs-modal__select">
                     <option value="">Loading checkers...</option>
                 </select>
             </div>
 
             <div class="pdfs-modal__field">
-                <label class="pdfs-modal__label">Comment</label>
+                <label class="pdfs-modal__label" for="kodoComment">Comment</label>
                 <textarea id="kodoComment" class="pdfs-modal__textarea" placeholder="Optional comment for the approver" rows="2"></textarea>
             </div>
 
@@ -135,22 +152,25 @@
     </div>
 
     <!-- Email Modal -->
-    <div class="pdfs-modal-overlay" id="emailModal">
+    <div class="pdfs-modal-overlay" id="emailModal" role="dialog" aria-modal="true" aria-labelledby="emailModalTitle">
         <div class="pdfs-modal">
-            <h2 class="pdfs-modal__title">📧 Email to Accounts</h2>
+            <h2 class="pdfs-modal__title" id="emailModalTitle">
+                <span aria-hidden="true">📧</span>
+                Email to Accounts
+            </h2>
 
             <div class="pdfs-modal__field">
-                <label class="pdfs-modal__label">To (email address) *</label>
+                <label class="pdfs-modal__label" for="emailTo">To (email address) *</label>
                 <input type="email" id="emailTo" class="pdfs-modal__input" placeholder="accounts@company.com">
             </div>
 
             <div class="pdfs-modal__field">
-                <label class="pdfs-modal__label">Subject</label>
+                <label class="pdfs-modal__label" for="emailSubject">Subject</label>
                 <input type="text" id="emailSubject" class="pdfs-modal__input" placeholder="Reimbursement Request">
             </div>
 
             <div class="pdfs-modal__field">
-                <label class="pdfs-modal__label">Message Body</label>
+                <label class="pdfs-modal__label" for="emailBody">Message Body</label>
                 <textarea id="emailBody" class="pdfs-modal__textarea" rows="5" placeholder="Hi team, please find attached..."></textarea>
             </div>
 
@@ -164,16 +184,25 @@
     </div>
 
     <!-- Delete Confirm Modal -->
-    <div class="pdfs-modal-overlay" id="deleteModal">
+    <div class="pdfs-modal-overlay" id="deleteModal" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
         <div class="pdfs-modal">
-            <h2 class="pdfs-modal__title">🗑️ Delete PDF</h2>
-            <p style="color:#94a3b8;font-size:0.9rem;margin:0 0 20px;">
-                Are you sure you want to delete <strong id="deleteFileName" style="color:#e2e8f0;"></strong>?
-                This cannot be undone.
+            <h2 class="pdfs-modal__title" id="deleteModalTitle">
+                <span aria-hidden="true">🗑️</span>
+                Delete PDF
+            </h2>
+            <p style="color:#8892b0;font-size:0.9rem;margin:0 0 20px;line-height:1.6;">
+                Are you sure you want to permanently delete
+                <strong id="deleteFileName" style="color:#e0e0ff;"></strong>?
             </p>
+            <div class="pdfs-modal__field">
+                <label class="pdfs-modal__delete-confirm" for="deleteConfirmCheck">
+                    <input type="checkbox" id="deleteConfirmCheck" onchange="pdfLibrary.onDeleteCheckChange(this)">
+                    <span>I understand this cannot be undone and the PDF will be permanently deleted</span>
+                </label>
+            </div>
             <div class="pdfs-modal__actions">
                 <button class="pdfs-modal__btn pdfs-modal__btn--secondary" onclick="pdfLibrary.closeDeleteModal()">Cancel</button>
-                <button class="pdfs-modal__btn pdfs-modal__btn--danger" id="deleteConfirmBtn" onclick="pdfLibrary.confirmDelete()">
+                <button class="pdfs-modal__btn pdfs-modal__btn--danger" id="deleteConfirmBtn" onclick="pdfLibrary.confirmDelete()" disabled>
                     Delete
                 </button>
             </div>
@@ -181,7 +210,7 @@
     </div>
 
     <!-- Toast -->
-    <div class="pdfs-toast" id="pdfToast"></div>
+    <div class="pdfs-toast" id="pdfToast" role="status" aria-live="polite"></div>
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

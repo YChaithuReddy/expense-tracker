@@ -74,9 +74,22 @@ const pdfLibrary = (() => {
         if (rows.length === 0) {
             gallery.innerHTML = `
                 <div class="pdfs-empty">
-                    <div class="pdfs-empty__icon">📄</div>
-                    <div class="pdfs-empty__title">No PDFs saved yet</div>
-                    <div class="pdfs-empty__hint">Upload a PDF above to get started.</div>
+                    <svg class="pdfs-empty__illustration" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <rect x="14" y="10" width="38" height="50" rx="5" stroke="rgba(0,212,255,0.5)" stroke-width="2" fill="rgba(0,212,255,0.06)"/>
+                        <rect x="20" y="22" width="26" height="2.5" rx="1.25" fill="rgba(0,212,255,0.35)"/>
+                        <rect x="20" y="30" width="20" height="2.5" rx="1.25" fill="rgba(0,212,255,0.25)"/>
+                        <rect x="20" y="38" width="16" height="2.5" rx="1.25" fill="rgba(0,212,255,0.15)"/>
+                        <rect x="10" y="18" width="38" height="50" rx="5" stroke="rgba(124,58,237,0.4)" stroke-width="1.5" fill="rgba(124,58,237,0.04)" stroke-dasharray="4 3"/>
+                        <circle cx="58" cy="58" r="14" fill="rgba(0,212,255,0.12)" stroke="rgba(0,212,255,0.4)" stroke-width="1.5"/>
+                        <line x1="58" y1="52" x2="58" y2="64" stroke="rgba(0,212,255,0.8)" stroke-width="2" stroke-linecap="round"/>
+                        <line x1="52" y1="58" x2="64" y2="58" stroke="rgba(0,212,255,0.8)" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <div class="pdfs-empty__title">Your PDF Library is empty</div>
+                    <div class="pdfs-empty__hint">Upload your bills PDF to submit reimbursements in one click &mdash; no re-entering data needed.</div>
+                    <button class="pdfs-empty__cta" onclick="document.getElementById('pdfFileInput').click()" aria-label="Upload your first PDF">
+                        <span aria-hidden="true">📁</span>
+                        Upload Your First PDF
+                    </button>
                 </div>`;
             return;
         }
@@ -105,13 +118,15 @@ const pdfLibrary = (() => {
         const escapedId = sanitize(row.id);
         const escapedName = sanitize(row.filename);
 
+        const sourceClass = row.source === 'generated' ? 'pdf-card--generated' : 'pdf-card--uploaded';
+
         return `
-            <div class="pdf-card" data-id="${escapedId}">
+            <div class="pdf-card ${sourceClass}" data-id="${escapedId}">
                 <div class="pdf-card__thumb">
                     ${sourceBadge}
                     <span class="pdf-card__page-badge">${sanitize(pages)}</span>
-                    <svg class="pdf-card__icon" viewBox="0 0 48 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="2" y="2" width="36" height="46" rx="4" stroke="currentColor" stroke-width="2.5" fill="rgba(6,182,212,0.08)"/>
+                    <svg class="pdf-card__icon" viewBox="0 0 48 60" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <rect x="2" y="2" width="36" height="46" rx="4" stroke="currentColor" stroke-width="2.5" fill="rgba(0,212,255,0.08)"/>
                         <path d="M10 4 L10 14 L2 14" stroke="currentColor" stroke-width="2" fill="none"/>
                         <rect x="7" y="22" width="24" height="2.5" rx="1.25" fill="currentColor" opacity="0.5"/>
                         <rect x="7" y="29" width="20" height="2.5" rx="1.25" fill="currentColor" opacity="0.5"/>
@@ -127,10 +142,22 @@ const pdfLibrary = (() => {
                     </div>
                 </div>
                 <div class="pdf-card__actions">
-                    <button class="pdf-action-btn pdf-action-btn--download" onclick="pdfLibrary.downloadPdf('${escapedId}')" title="Download">⬇️</button>
-                    <button class="pdf-action-btn pdf-action-btn--kodo" onclick="pdfLibrary.openKodoModal('${escapedId}')" title="Submit to Kodo">🏢</button>
-                    <button class="pdf-action-btn pdf-action-btn--email" onclick="pdfLibrary.openEmailModal('${escapedId}')" title="Email to Accounts">📧</button>
-                    <button class="pdf-action-btn pdf-action-btn--delete" onclick="pdfLibrary.openDeleteModal('${escapedId}')" title="Delete">🗑️</button>
+                    <button class="pdf-action-btn pdf-action-btn--download" onclick="pdfLibrary.downloadPdf('${escapedId}')" title="Download" aria-label="Download PDF">
+                        <span aria-hidden="true">⬇️</span>
+                        <span class="pdf-action-btn__label">Save</span>
+                    </button>
+                    <button class="pdf-action-btn pdf-action-btn--kodo" onclick="pdfLibrary.openKodoModal('${escapedId}')" title="Submit to Kodo" aria-label="Submit to Kodo">
+                        <span aria-hidden="true">🏢</span>
+                        <span class="pdf-action-btn__label">Kodo</span>
+                    </button>
+                    <button class="pdf-action-btn pdf-action-btn--email" onclick="pdfLibrary.openEmailModal('${escapedId}')" title="Email to Accounts" aria-label="Email to Accounts">
+                        <span aria-hidden="true">📧</span>
+                        <span class="pdf-action-btn__label">Email</span>
+                    </button>
+                    <button class="pdf-action-btn pdf-action-btn--delete" onclick="pdfLibrary.openDeleteModal('${escapedId}')" title="Delete" aria-label="Delete PDF">
+                        <span aria-hidden="true">🗑️</span>
+                        <span class="pdf-action-btn__label">Del</span>
+                    </button>
                 </div>
             </div>`;
     }
@@ -281,12 +308,14 @@ const pdfLibrary = (() => {
         const bar = document.getElementById('uploadProgress');
         const fill = document.getElementById('uploadProgressBar');
         bar.classList.add('active');
+        bar.setAttribute('aria-valuenow', pct);
         fill.style.width = pct + '%';
     }
     function hideProgress() {
         setTimeout(() => {
             const bar = document.getElementById('uploadProgress');
             bar.classList.remove('active');
+            bar.setAttribute('aria-valuenow', 0);
             document.getElementById('uploadProgressBar').style.width = '0%';
         }, 600);
     }
@@ -537,12 +566,27 @@ const pdfLibrary = (() => {
         activePdfRow = await getRowById(id);
         if (!activePdfRow) return;
         document.getElementById('deleteFileName').textContent = activePdfRow.filename;
+        // Reset checkbox and disable delete button each time modal opens
+        const checkbox = document.getElementById('deleteConfirmCheck');
+        const deleteBtn = document.getElementById('deleteConfirmBtn');
+        if (checkbox) checkbox.checked = false;
+        if (deleteBtn) deleteBtn.disabled = true;
         openModal('deleteModal');
     }
 
     function closeDeleteModal() {
         activePdfRow = null;
+        // Reset checkbox state on close
+        const checkbox = document.getElementById('deleteConfirmCheck');
+        const deleteBtn = document.getElementById('deleteConfirmBtn');
+        if (checkbox) checkbox.checked = false;
+        if (deleteBtn) deleteBtn.disabled = true;
         closeModal('deleteModal');
+    }
+
+    function onDeleteCheckChange(checkbox) {
+        const deleteBtn = document.getElementById('deleteConfirmBtn');
+        if (deleteBtn) deleteBtn.disabled = !checkbox.checked;
     }
 
     async function confirmDelete() {
@@ -640,7 +684,8 @@ const pdfLibrary = (() => {
         sendEmail,
         openDeleteModal,
         closeDeleteModal,
-        confirmDelete
+        confirmDelete,
+        onDeleteCheckChange
     };
 })();
 
