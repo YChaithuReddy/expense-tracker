@@ -426,7 +426,7 @@ class ExpenseTracker {
         const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB per file (increased)
         const MAX_TOTAL_SIZE = 100 * 1024 * 1024; // 100MB total (for batch uploads)
         const MAX_FILES = 20; // Maximum 20 files for batch upload
-        const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic', 'image/gif', 'image/bmp'];
+        const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic', 'image/gif', 'image/bmp', 'application/pdf'];
 
         // Prevent multiple simultaneous processing
         if (this.isProcessingImages) {
@@ -538,11 +538,11 @@ class ExpenseTracker {
             for (const file of files) {
                 // Check file type - sometimes file.type is empty for certain images
                 const fileExtension = file.name.split('.').pop().toLowerCase();
-                const isValidExtension = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'heic'].includes(fileExtension);
+                const isValidExtension = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'heic', 'pdf'].includes(fileExtension);
 
                 if (!ALLOWED_TYPES.includes(file.type) && !isValidExtension) {
                     console.error(`Invalid file type for ${file.name}: type="${file.type}", extension="${fileExtension}"`);
-                    this.showNotification(`❌ Invalid file type: ${file.name}. Only image files are allowed (JPG, PNG, WEBP, GIF, BMP).`, 'error');
+                    this.showNotification(`❌ Invalid file type: ${file.name}. Only image files and PDFs are allowed (JPG, PNG, WEBP, GIF, BMP, PDF).`, 'error');
                     e.target.value = '';
                     this.isProcessingImages = false;
                     return;
@@ -3137,31 +3137,36 @@ class ExpenseTracker {
     async processImages(files, expense, isEdit = false) {
         console.log('Processing images:', files.length);
 
-        // Show compression progress
-        this.showNotification('📷 Compressing images...');
+        const hasNonPdf = Array.from(files).some(f => f.type !== 'application/pdf' && !f.name.toLowerCase().endsWith('.pdf'));
+        if (hasNonPdf) this.showNotification('📷 Compressing images...');
 
         for (const file of Array.from(files)) {
+            const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
             try {
-                // Compress image before reading
-                const compressedFile = await this.compressImage(file, 1200, 0.8);
-
-                // Read compressed file
-                const dataUrl = await new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = (e) => resolve(e.target.result);
-                    reader.onerror = reject;
-                    reader.readAsDataURL(compressedFile);
-                });
-
-                expense.images.push({
-                    name: file.name,
-                    data: dataUrl
-                });
-
-                console.log(`Processed image: ${file.name} (${(file.size/1024).toFixed(1)}KB → ${(compressedFile.size/1024).toFixed(1)}KB)`);
+                if (isPdf) {
+                    // PDFs: read directly, no compression
+                    const dataUrl = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = (e) => resolve(e.target.result);
+                        reader.onerror = reject;
+                        reader.readAsDataURL(file);
+                    });
+                    expense.images.push({ name: file.name, data: dataUrl, isPdf: true });
+                    console.log(`Processed PDF: ${file.name} (${(file.size/1024).toFixed(1)}KB)`);
+                } else {
+                    // Images: compress as before
+                    const compressedFile = await this.compressImage(file, 1200, 0.8);
+                    const dataUrl = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = (e) => resolve(e.target.result);
+                        reader.onerror = reject;
+                        reader.readAsDataURL(compressedFile);
+                    });
+                    expense.images.push({ name: file.name, data: dataUrl });
+                    console.log(`Processed image: ${file.name} (${(file.size/1024).toFixed(1)}KB → ${(compressedFile.size/1024).toFixed(1)}KB)`);
+                }
             } catch (error) {
-                console.error(`Error processing image ${file.name}:`, error);
-                // Try without compression as fallback
+                console.error(`Error processing ${file.name}:`, error);
                 const dataUrl = await new Promise((resolve) => {
                     const reader = new FileReader();
                     reader.onload = (e) => resolve(e.target.result);
@@ -3169,7 +3174,7 @@ class ExpenseTracker {
                     reader.readAsDataURL(file);
                 });
                 if (dataUrl) {
-                    expense.images.push({ name: file.name, data: dataUrl });
+                    expense.images.push({ name: file.name, data: dataUrl, isPdf });
                 }
             }
         }
@@ -3577,6 +3582,13 @@ class ExpenseTracker {
                         <div class="expense-images">
                             ${expense.images.map((img, index) => {
                                 const safeName = this.sanitizeHTML(img.name);
+                                const isPdf = img.isPdf || img.name?.toLowerCase().endsWith('.pdf');
+                                if (isPdf) {
+                                    return `<div class="expense-pdf-thumb" data-expense-id="${expense.id}" data-image-index="${index}" onclick="expenseTracker.openImageFromCard(this)" title="${safeName}">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
+                                        <span>PDF</span>
+                                    </div>`;
+                                }
                                 return `<img src="${img.data}" alt="${safeName}" data-expense-id="${expense.id}" data-image-index="${index}" onclick="expenseTracker.openImageFromCard(this)" title="Click to view full size" onerror="this.style.display='none'">`;
                             }).join('')}
                         </div>
@@ -4180,11 +4192,14 @@ class ExpenseTracker {
         if (expensesToInclude.length > 0) {
             expensesToInclude.forEach((expense, expenseIndex) => {
                 expense.images.forEach((image, imageIndex) => {
+                    const isPdf = image.isPdf || image.name?.toLowerCase().endsWith('.pdf');
                     allImages.push({
                         data: image.data,
                         label: `Expense ${expenseIndex + 1}`,
                         expense: expense,
-                        type: 'current'
+                        type: 'current',
+                        isPdf,
+                        name: image.name
                     });
                     currentExpenseImages++;
                 });
@@ -4228,6 +4243,11 @@ class ExpenseTracker {
             throw new Error('No images available');
         }
 
+        // Separate PDF bills from image bills
+        const pdfItems = allImages.filter(item => item.isPdf);
+        const imageItems = allImages.filter(item => !item.isPdf);
+        console.log(`Image bills: ${imageItems.length}, PDF bills: ${pdfItems.length}`);
+
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF('p', 'mm', 'a4'); // Portrait, millimeters, A4
 
@@ -4241,7 +4261,7 @@ class ExpenseTracker {
 
         // Determine layout: 6 images per page (3x2 grid) or 4 images per page (2x2 grid) if fewer
         let imagesPerRow, imagesPerColumn, imagesPerPage;
-        if (allImages.length >= 6) {
+        if (imageItems.length >= 6) {
             imagesPerRow = 3;
             imagesPerColumn = 2;
             imagesPerPage = 6;
@@ -4293,10 +4313,10 @@ class ExpenseTracker {
             });
         };
 
-        // Compress all images in parallel
+        // Compress all images in parallel (image items only, not PDFs)
         console.log('🗜️ Compressing images for PDF...');
         const compressedImages = await Promise.all(
-            allImages.map(async (item) => {
+            imageItems.map(async (item) => {
                 const compressed = await compressImage(item.data);
                 return { ...item, data: compressed.dataUrl, imgWidth: compressed.width, imgHeight: compressed.height };
             })
@@ -4426,7 +4446,45 @@ class ExpenseTracker {
             pdf.setTextColor(0, 0, 0);
         }
 
-        // Return as blob instead of downloading
+        // If only PDF bills (no images), return null to signal skipping jsPDF output
+        // If no image items at all, the pdf object has one empty page — handle that
+        let imagesBlobBytes = null;
+        if (imageItems.length > 0) {
+            imagesBlobBytes = pdf.output('arraybuffer');
+        }
+
+        // Merge PDF bills using pdf-lib
+        if (pdfItems.length > 0 && typeof PDFLib !== 'undefined') {
+            const { PDFDocument } = PDFLib;
+            const merged = await PDFDocument.create();
+
+            // Add image pages first (if any)
+            if (imagesBlobBytes) {
+                const imgPdf = await PDFDocument.load(imagesBlobBytes);
+                const pages = await merged.copyPages(imgPdf, imgPdf.getPageIndices());
+                pages.forEach(p => merged.addPage(p));
+            }
+
+            // Add each PDF bill's pages
+            for (const item of pdfItems) {
+                try {
+                    const base64 = item.data.includes(',') ? item.data.split(',')[1] : item.data;
+                    const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+                    const billPdf = await PDFDocument.load(bytes);
+                    const pages = await merged.copyPages(billPdf, billPdf.getPageIndices());
+                    pages.forEach(p => merged.addPage(p));
+                    console.log(`Merged PDF bill: ${item.name || 'PDF'} (${billPdf.getPageCount()} pages)`);
+                } catch (err) {
+                    console.error(`Failed to merge PDF bill ${item.name}:`, err);
+                }
+            }
+
+            const mergedBytes = await merged.save();
+            return new Blob([mergedBytes], { type: 'application/pdf' });
+        }
+
+        // No PDF bills — return jsPDF blob as before
+        if (imageItems.length === 0) throw new Error('No images available');
         return pdf.output('blob');
     }
 
@@ -5390,9 +5448,9 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
     }
 
     // Image viewer modal - for viewing bill images in full size
-    openImageFromCard(imgElement) {
-        const expenseId = imgElement.getAttribute('data-expense-id');
-        const imageIndex = parseInt(imgElement.getAttribute('data-image-index'), 10);
+    openImageFromCard(el) {
+        const expenseId = el.getAttribute('data-expense-id');
+        const imageIndex = parseInt(el.getAttribute('data-image-index'), 10);
 
         const expense = this.expenses.find(e => e.id === expenseId);
         if (expense && expense.images && expense.images[imageIndex]) {
@@ -5421,10 +5479,34 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         const nameEl = document.getElementById('imageViewerName');
         const counterEl = document.getElementById('imageViewerCounter');
 
-        img.src = imageData;
-        nameEl.textContent = imageName || 'Bill Image';
+        nameEl.textContent = imageName || 'Bill';
 
-        // Reset zoom and rotation
+        const isPdf = imageName?.toLowerCase().endsWith('.pdf');
+
+        // Show PDF in iframe, images in img tag
+        let pdfViewer = document.getElementById('imageViewerPdf');
+        if (isPdf) {
+            if (!pdfViewer) {
+                pdfViewer = document.createElement('iframe');
+                pdfViewer.id = 'imageViewerPdf';
+                pdfViewer.style.cssText = 'width:100%;height:75vh;border:none;border-radius:8px;background:#fff;';
+                img.parentNode.insertBefore(pdfViewer, img);
+            }
+            pdfViewer.src = imageData;
+            pdfViewer.style.display = 'block';
+            img.style.display = 'none';
+            // Hide zoom/rotate controls for PDFs
+            const controls = document.getElementById('imageControls');
+            if (controls) controls.style.display = 'none';
+        } else {
+            if (pdfViewer) { pdfViewer.style.display = 'none'; pdfViewer.src = ''; }
+            img.src = imageData;
+            img.style.display = '';
+            const controls = document.getElementById('imageControls');
+            if (controls) controls.style.display = '';
+        }
+
+        // Reset zoom and rotation (images only)
         this.currentZoom = 1;
         this.currentRotation = 0;
         img.style.transform = '';

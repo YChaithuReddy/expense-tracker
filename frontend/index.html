@@ -117,10 +117,10 @@
                     </div>
                     <!-- Hidden inputs for camera and gallery -->
                     <input type="file" id="cameraInput" name="cameraInput" accept="image/*" capture="environment" style="display: none;" multiple>
-                    <input type="file" id="galleryInput" name="galleryInput" accept="image/*" style="display: none;" multiple>
+                    <input type="file" id="galleryInput" name="galleryInput" accept="image/*,.pdf,application/pdf" style="display: none;" multiple>
                     <!-- Original hidden input for compatibility -->
-                    <input type="file" id="billImages" name="billImages" accept="image/*" style="display: none;" multiple>
-                    <small>Drag & drop receipts, take a photo with camera, or select from gallery</small>
+                    <input type="file" id="billImages" name="billImages" accept="image/*,.pdf,application/pdf" style="display: none;" multiple>
+                    <small>Drag & drop receipts (images or PDF), take a photo with camera, or select from gallery</small>
                 </div>
 
                 <div id="imagePreview" class="image-preview-container drag-drop-zone">
@@ -243,7 +243,7 @@
 
                     <div class="form-group">
                         <label for="receipt">Receipt/Bill Image (Optional):</label>
-                        <input type="file" id="receipt" name="receipt" accept="image/*" multiple>
+                        <input type="file" id="receipt" name="receipt" accept="image/*,.pdf,application/pdf" multiple>
                         <small>You can attach receipt images later or leave empty for manual entries</small>
                     </div>
 
@@ -284,10 +284,6 @@
                         <button id="resetGoogleSheet" class="btn-reset">
                             <span class="btn-icon">🔄</span>
                             <span class="btn-text">Reset Sheet</span>
-                        </button>
-                        <button id="upiImportBtn" class="btn-upi-import" title="Import from UPI App">
-                            <span class="btn-icon">📱</span>
-                            <span class="btn-text">UPI Import</span>
                         </button>
                     </div>
                 </div>
