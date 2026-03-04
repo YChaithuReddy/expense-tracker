@@ -1,7 +1,7 @@
 // Service Worker for Expense Tracker PWA
-const CACHE_NAME = 'expense-tracker-v50';
-const STATIC_CACHE = 'expense-tracker-static-v43';
-const DYNAMIC_CACHE = 'expense-tracker-dynamic-v43';
+const CACHE_NAME = 'expense-tracker-v51';
+const STATIC_CACHE = 'expense-tracker-static-v44';
+const DYNAMIC_CACHE = 'expense-tracker-dynamic-v44';
 
 // Files to cache immediately on install
 const STATIC_ASSETS = [
@@ -26,6 +26,9 @@ const STATIC_ASSETS = [
   '/progress-modal.js',
   '/deep-link-handler.js',
   '/upi-import.js',
+  '/pdfs.html',
+  '/pdfs.js',
+  '/styles_pdfs.css',
   '/favicon.svg',
   '/manifest.json',
   // External CDN resources
