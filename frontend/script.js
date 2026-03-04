@@ -6601,18 +6601,15 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             // Close modal
             this.closeEmployeeInfoModal();
 
-            // Show loading notification
-            this.showNotification('📝 Updating employee details in Google Sheet...');
+            // Show loading spinner immediately — no freeze
+            this.showLoading('📝 Updating Google Sheet...', 'Saving employee details');
 
             // Update Google Sheet with employee information
             await googleSheetsService.updateEmployeeInfo(formData);
 
-            this.showNotification('✅ Employee details updated! Generating PDF...');
+            this.updateLoadingText('✅ Sheet updated!', 'Preparing reimbursement package...');
 
-            // Wait a bit to ensure Google Sheets is updated
-            await new Promise(resolve => setTimeout(resolve, 1500));
-
-            // Proceed with PDF download
+            // Proceed with PDF download (showLoading is already visible)
             await this.generateCombinedReimbursementPDFWithEmployeeInfo();
 
         } catch (error) {
@@ -6782,9 +6779,9 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
 
             this.closeEmployeeInfoModal();
 
-            this.showNotification('Updating employee details in Google Sheet...');
+            this.showLoading('📝 Updating Google Sheet...', 'Saving employee details');
             await googleSheetsService.updateEmployeeInfo(formData);
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            this.hideLoading();
 
             // Now show Kodo confirmation modal with selected expenses
             const selectedExpenses = this.getSelectedExpenses();
@@ -6830,11 +6827,10 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
 
             this.closeEmployeeInfoModal();
 
-            this.showNotification('Updating employee details in Google Sheet...');
+            this.showLoading('📝 Updating Google Sheet...', 'Saving employee details');
             await googleSheetsService.updateEmployeeInfo(formData);
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            this.updateLoadingText('✅ Sheet updated!', 'Preparing reimbursement PDF...');
 
-            this.showNotification('Generating reimbursement PDF...');
             await this.generateCombinedReimbursementPDFWithEmployeeInfo({ skipDownload: true });
 
             // PDF is now cached in this.lastGeneratedPdf — show email modal

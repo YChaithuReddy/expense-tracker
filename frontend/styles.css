@@ -7761,7 +7761,8 @@ select.inline-input option {
 .email-modal__summary .kodo-summary-row {
     padding: 6px 16px 6px 0;
     flex: 1;
-    min-width: 120px;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .email-modal__summary .kodo-summary-row + .kodo-summary-row {
@@ -7778,6 +7779,9 @@ select.inline-input option {
     letter-spacing: 0.04em;
     display: block;
     margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .email-modal__summary .kodo-summary-value {
