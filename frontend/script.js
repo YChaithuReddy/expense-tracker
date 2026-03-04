@@ -4634,6 +4634,8 @@ class ExpenseTracker {
                     } else {
                         this.showNotification(`📋 Google Sheet downloaded! (${totalPages} pages, ${fileSizeMB} MB)`);
                     }
+                    // Offer to save to PDF Library
+                    this.showSaveToLibraryBanner();
                 } else {
                     this.showError('The package was generated but could not be saved to your device.\n\nTry using the Share option if available, or open in a desktop browser.', 'Download Failed');
                 }
@@ -5782,6 +5784,84 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                 notification.remove();
             }, 300);
         }, 4000);
+    }
+
+    showSaveToLibraryBanner() {
+        // Remove any existing banner
+        document.getElementById('saveToLibraryBanner')?.remove();
+
+        const banner = document.createElement('div');
+        banner.id = 'saveToLibraryBanner';
+        banner.style.cssText = `
+            position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+            background: #1e293b; border: 1px solid rgba(6,182,212,0.35);
+            border-radius: 12px; padding: 12px 16px;
+            display: flex; align-items: center; gap: 12px;
+            font-size: 0.85rem; color: #e2e8f0;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            z-index: 9000; white-space: nowrap;
+        `;
+        banner.innerHTML = `
+            <span>💾 Save this PDF to your library?</span>
+            <button onclick="expenseTracker.saveCurrentPdfToLibrary()" style="
+                background: linear-gradient(135deg,#06b6d4,#0e7490); color:#fff;
+                border:none; border-radius:8px; padding:6px 14px;
+                font-size:0.82rem; font-weight:600; cursor:pointer;
+            ">Save</button>
+            <button onclick="document.getElementById('saveToLibraryBanner').remove()" style="
+                background:transparent; border:none; color:#64748b;
+                cursor:pointer; font-size:1.1rem; padding:2px 6px;
+            ">✕</button>
+        `;
+        document.body.appendChild(banner);
+
+        // Auto-dismiss after 8s
+        setTimeout(() => banner.remove(), 8000);
+    }
+
+    async saveCurrentPdfToLibrary() {
+        document.getElementById('saveToLibraryBanner')?.remove();
+
+        const pdf = this.lastGeneratedPdf;
+        if (!pdf?.bytes) {
+            this.showNotification('⚠️ No PDF available to save', 'warning');
+            return;
+        }
+
+        try {
+            const supabase = window.supabaseClient?.get();
+            if (!supabase) throw new Error('Not connected');
+
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error('Not authenticated');
+
+            const uuid = crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36);
+            const storagePath = `${user.id}/reimbursement-pdfs/${uuid}.pdf`;
+
+            const blob = new Blob([pdf.bytes], { type: 'application/pdf' });
+            const { error: uploadError } = await supabase.storage
+                .from('expense-bills')
+                .upload(storagePath, blob, { cacheControl: '3600', upsert: false });
+
+            if (uploadError) throw uploadError;
+
+            await window.api.saveReimbursementPdf({
+                storagePath,
+                filename: pdf.fileName || 'Reimbursement_Package.pdf',
+                fileSize: pdf.bytes.length,
+                pageCount: 1,
+                totalAmount: pdf.totalAmount || null,
+                dateFrom: pdf.dateFrom || null,
+                dateTo: pdf.dateTo || null,
+                purpose: pdf.businessPurpose || null,
+                source: 'generated'
+            });
+
+            this.showNotification('✅ Saved to PDF Library');
+        } catch (err) {
+            console.error('Save to library error:', err);
+            this.showNotification('❌ Failed to save: ' + err.message, 'error');
+        }
     }
 
     showLoading(message = 'Processing...', subtext = '') {

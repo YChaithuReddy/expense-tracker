@@ -995,6 +995,72 @@ const api = {
         if (error) handleError(error, 'Test WhatsApp');
 
         return data;
+    },
+
+    // ==============================================
+    // REIMBURSEMENT PDF LIBRARY
+    // ==============================================
+
+    async saveReimbursementPdf({ storagePath, filename, fileSize, pageCount, totalAmount, dateFrom, dateTo, purpose, source = 'uploaded' }) {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        const { data, error } = await supabase
+            .from('reimbursement_pdfs')
+            .insert({
+                user_id: user.id,
+                storage_path: storagePath,
+                filename,
+                file_size: fileSize || null,
+                page_count: pageCount || 1,
+                total_amount: totalAmount || null,
+                date_from: dateFrom || null,
+                date_to: dateTo || null,
+                purpose: purpose || null,
+                source
+            })
+            .select()
+            .single();
+
+        if (error) handleError(error, 'Save PDF');
+        return data;
+    },
+
+    async listReimbursementPdfs() {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        const { data, error } = await supabase
+            .from('reimbursement_pdfs')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false });
+
+        if (error) handleError(error, 'List PDFs');
+        return data || [];
+    },
+
+    async deleteReimbursementPdf(id, storagePath) {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        // Delete from storage
+        if (storagePath) {
+            await supabase.storage.from('expense-bills').remove([storagePath]);
+        }
+
+        // Delete DB row
+        const { error } = await supabase
+            .from('reimbursement_pdfs')
+            .delete()
+            .eq('id', id)
+            .eq('user_id', user.id);
+
+        if (error) handleError(error, 'Delete PDF');
+        return { success: true };
     }
 };
 
