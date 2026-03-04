@@ -11,6 +11,8 @@ const pdfLibrary = (() => {
     let pendingPageCount = 0;
     let activePdfRow = null;        // DB row for Kodo/Email/Delete actions
     let kodoConfig = null;          // { checkers, categories } from Edge Function
+    let cachedRows = [];            // Gallery rows cached to avoid redundant API calls
+    let _previousFocus = null;      // Element focused before library opened (restored on close)
 
     // ---- Init ----
     function init() {
@@ -21,8 +23,20 @@ const pdfLibrary = (() => {
     function openLibrary() {
         const overlay = document.getElementById('pdfLibraryModal');
         if (!overlay) return;
+
+        // Save current focus so we can restore it on close (B1)
+        _previousFocus = document.activeElement;
+
         overlay.classList.add('active');
         document.body.style.overflow = 'hidden';
+
+        // Focus the close button immediately (B1)
+        const closeBtn = overlay.querySelector('.pdfs-library-close');
+        if (closeBtn) closeBtn.focus();
+
+        // Attach the focus-trap + Escape keydown listener (B1)
+        overlay.addEventListener('keydown', _handleLibraryKeydown);
+
         loadGallery();
     }
 
@@ -31,6 +45,52 @@ const pdfLibrary = (() => {
         if (!overlay) return;
         overlay.classList.remove('active');
         document.body.style.overflow = '';
+
+        // Remove the focus-trap listener (B1)
+        overlay.removeEventListener('keydown', _handleLibraryKeydown);
+
+        // Restore focus to the element that opened the modal (B1)
+        if (_previousFocus && typeof _previousFocus.focus === 'function') {
+            _previousFocus.focus();
+        }
+        _previousFocus = null;
+    }
+
+    // Focus trap + Escape handler for #pdfLibraryModal (B1)
+    function _handleLibraryKeydown(e) {
+        const overlay = document.getElementById('pdfLibraryModal');
+        if (!overlay) return;
+
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            closeLibrary();
+            return;
+        }
+
+        if (e.key !== 'Tab') return;
+
+        const focusable = Array.from(
+            overlay.querySelectorAll(
+                'button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])'
+            )
+        ).filter(el => !el.closest('.pdfs-modal-overlay:not(.active)'));
+
+        if (focusable.length === 0) return;
+
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+
+        if (e.shiftKey) {
+            if (document.activeElement === first) {
+                e.preventDefault();
+                last.focus();
+            }
+        } else {
+            if (document.activeElement === last) {
+                e.preventDefault();
+                first.focus();
+            }
+        }
     }
 
     function sanitize(str) {
@@ -47,6 +107,7 @@ const pdfLibrary = (() => {
 
         try {
             const rows = await window.api.listReimbursementPdfs();
+            cachedRows = rows;
             renderGallery(rows);
         } catch (err) {
             console.error('Load gallery error:', err);
@@ -132,7 +193,7 @@ const pdfLibrary = (() => {
                 <div class="pdf-card__actions">
                     <button class="pdf-action-btn pdf-action-btn--download" onclick="pdfLibrary.downloadPdf('${escapedId}')" title="Download" aria-label="Download PDF">
                         <span aria-hidden="true">⬇️</span>
-                        <span class="pdf-action-btn__label">Save</span>
+                        <span class="pdf-action-btn__label">Download</span>
                     </button>
                     <button class="pdf-action-btn pdf-action-btn--kodo" onclick="pdfLibrary.openKodoModal('${escapedId}')" title="Submit to Kodo" aria-label="Submit to Kodo">
                         <span aria-hidden="true">🏢</span>
@@ -180,6 +241,14 @@ const pdfLibrary = (() => {
         input.addEventListener('change', () => {
             if (input.files.length) handleFileSelected(input.files[0]);
             input.value = ''; // reset so same file can be re-selected
+        });
+
+        // Keyboard operability for the upload zone (H4)
+        zone.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                input.click();
+            }
         });
     }
 
@@ -554,27 +623,34 @@ const pdfLibrary = (() => {
         activePdfRow = await getRowById(id);
         if (!activePdfRow) return;
         document.getElementById('deleteFileName').textContent = activePdfRow.filename;
-        // Reset checkbox and disable delete button each time modal opens
+        // Reset checkbox, disable delete button, and show hint each time modal opens (M3)
         const checkbox = document.getElementById('deleteConfirmCheck');
         const deleteBtn = document.getElementById('deleteConfirmBtn');
+        const hint = document.getElementById('deleteHint');
         if (checkbox) checkbox.checked = false;
         if (deleteBtn) deleteBtn.disabled = true;
+        if (hint) hint.style.display = '';
         openModal('deleteModal');
     }
 
     function closeDeleteModal() {
         activePdfRow = null;
-        // Reset checkbox state on close
+        // Reset checkbox state and restore hint on close (M3)
         const checkbox = document.getElementById('deleteConfirmCheck');
         const deleteBtn = document.getElementById('deleteConfirmBtn');
+        const hint = document.getElementById('deleteHint');
         if (checkbox) checkbox.checked = false;
         if (deleteBtn) deleteBtn.disabled = true;
+        if (hint) hint.style.display = '';
         closeModal('deleteModal');
     }
 
     function onDeleteCheckChange(checkbox) {
         const deleteBtn = document.getElementById('deleteConfirmBtn');
         if (deleteBtn) deleteBtn.disabled = !checkbox.checked;
+        // Hide hint when checkbox is checked; show it when unchecked (M3)
+        const hint = document.getElementById('deleteHint');
+        if (hint) hint.style.display = checkbox.checked ? 'none' : '';
     }
 
     async function confirmDelete() {
@@ -598,10 +674,10 @@ const pdfLibrary = (() => {
     }
 
     // ---- Row Lookup ----
+    // Synchronous lookup against cachedRows populated by loadGallery (M5)
     async function getRowById(id) {
         try {
-            const rows = await window.api.listReimbursementPdfs();
-            return rows.find(r => r.id === id) || null;
+            return cachedRows.find(r => r.id === id) || null;
         } catch (err) {
             showToast('Error: ' + err.message, 'error');
             return null;
