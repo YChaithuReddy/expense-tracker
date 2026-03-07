@@ -6980,42 +6980,35 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             return;
         }
 
-        try {
-            const formData = {
-                employeeName: form.querySelector('#empName').value.trim(),
-                employeeCode: form.querySelector('#empCode').value.trim() || '',
-                expensePeriodFrom: form.querySelector('#expensePeriodFrom').value,
-                expensePeriodTo: form.querySelector('#expensePeriodTo').value,
-                businessPurpose: form.querySelector('#businessPurpose').value.trim()
-            };
+        const formData = {
+            employeeName: form.querySelector('#empName').value.trim(),
+            employeeCode: form.querySelector('#empCode').value.trim() || '',
+            expensePeriodFrom: form.querySelector('#expensePeriodFrom').value,
+            expensePeriodTo: form.querySelector('#expensePeriodTo').value,
+            businessPurpose: form.querySelector('#businessPurpose').value.trim()
+        };
 
-            if (new Date(formData.expensePeriodFrom) > new Date(formData.expensePeriodTo)) {
-                this.showError('"From" date cannot be after "To" date.\n\nPlease adjust your date range.', 'Invalid Date Range');
+        if (new Date(formData.expensePeriodFrom) > new Date(formData.expensePeriodTo)) {
+            this.showError('"From" date cannot be after "To" date.\n\nPlease adjust your date range.', 'Invalid Date Range');
+            return;
+        }
+
+        // Save form data for later use when Confirm is clicked
+        this._pendingKodoFormData = formData;
+
+        this.closeEmployeeInfoModal();
+
+        // Show Kodo confirmation modal instantly
+        const selectedExpenses = this.getSelectedExpenses();
+        if (selectedExpenses.length === 0) {
+            const allExpenses = this.isFilterActive() ? this.filteredExpenses : this.expenses;
+            if (allExpenses.length === 0) {
+                this.showNotification('No expenses available to submit');
                 return;
             }
-
-            this.closeEmployeeInfoModal();
-
-            this.showLoading('📝 Updating Google Sheet...', 'Saving employee details');
-            await googleSheetsService.updateEmployeeInfo(formData);
-            this.hideLoading();
-
-            // Now show Kodo confirmation modal with selected expenses
-            const selectedExpenses = this.getSelectedExpenses();
-            if (selectedExpenses.length === 0) {
-                // Fall back to all expenses if none selected
-                const allExpenses = this.isFilterActive() ? this.filteredExpenses : this.expenses;
-                if (allExpenses.length === 0) {
-                    this.showNotification('No expenses available to submit');
-                    return;
-                }
-                this.showKodoConfirmModal(allExpenses);
-            } else {
-                this.showKodoConfirmModal(selectedExpenses);
-            }
-        } catch (error) {
-            console.error('Error in Kodo submission flow:', error);
-            this.showError('Failed to prepare Kodo submission.\n\n' + (error.message || 'Please try again.'), 'Submission Failed');
+            this.showKodoConfirmModal(allExpenses);
+        } else {
+            this.showKodoConfirmModal(selectedExpenses);
         }
     }
 
@@ -7028,35 +7021,25 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             return;
         }
 
-        try {
-            const formData = {
-                employeeName: form.querySelector('#empName').value.trim(),
-                employeeCode: form.querySelector('#empCode').value.trim() || '',
-                expensePeriodFrom: form.querySelector('#expensePeriodFrom').value,
-                expensePeriodTo: form.querySelector('#expensePeriodTo').value,
-                businessPurpose: form.querySelector('#businessPurpose').value.trim()
-            };
+        const formData = {
+            employeeName: form.querySelector('#empName').value.trim(),
+            employeeCode: form.querySelector('#empCode').value.trim() || '',
+            expensePeriodFrom: form.querySelector('#expensePeriodFrom').value,
+            expensePeriodTo: form.querySelector('#expensePeriodTo').value,
+            businessPurpose: form.querySelector('#businessPurpose').value.trim()
+        };
 
-            if (new Date(formData.expensePeriodFrom) > new Date(formData.expensePeriodTo)) {
-                this.showError('"From" date cannot be after "To" date.\n\nPlease adjust your date range.', 'Invalid Date Range');
-                return;
-            }
-
-            this.closeEmployeeInfoModal();
-
-            this.showLoading('📝 Updating Google Sheet...', 'Saving employee details');
-            await googleSheetsService.updateEmployeeInfo(formData);
-            this.updateLoadingText('✅ Sheet updated!', 'Preparing reimbursement PDF...');
-
-            await this.generateCombinedReimbursementPDFWithEmployeeInfo({ skipDownload: true });
-
-            // PDF is now cached in this.lastGeneratedPdf — show email modal
-            this.showEmailAccountsModal();
-
-        } catch (error) {
-            console.error('Error in email submission flow:', error);
-            this.showError('Failed to prepare email.\n\n' + (error.message || 'Please try again.'), 'Email Failed');
+        if (new Date(formData.expensePeriodFrom) > new Date(formData.expensePeriodTo)) {
+            this.showError('"From" date cannot be after "To" date.\n\nPlease adjust your date range.', 'Invalid Date Range');
+            return;
         }
+
+        // Save form data for later use when Send is clicked
+        this._pendingEmailFormData = formData;
+
+        // Close employee info modal and open email modal instantly
+        this.closeEmployeeInfoModal();
+        this.showEmailAccountsModal();
     }
 
     showKodoSettingsModal() {
@@ -7349,7 +7332,15 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         const kodo = window.kodoService;
 
         try {
-            // Step 1: Generate PDF
+            // Step 1: Update Google Sheet with employee info
+            const formData = this._pendingKodoFormData;
+            if (formData) {
+                this.showLoading('Updating Google Sheet...', 'Saving employee details');
+                await googleSheetsService.updateEmployeeInfo(formData);
+                this._pendingKodoFormData = null;
+            }
+
+            // Step 2: Generate PDF
             this.showLoading('Generating PDF...', 'Creating reimbursement package');
 
             // Lazy load export libraries
@@ -7409,11 +7400,6 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
     // ===== Email to Accounts =====
 
     showEmailAccountsModal() {
-        if (!this.lastGeneratedPdf) {
-            this.showNotification('Please download the reimbursement package first');
-            return;
-        }
-
         const modal = document.getElementById('emailAccountsModal');
         const closeBtn = document.getElementById('closeEmailAccounts');
         const cancelBtn = document.getElementById('emailAccountsCancel');
@@ -7425,22 +7411,24 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         const bodyInput = document.getElementById('emailAccountsBody');
         const rememberCheck = document.getElementById('emailAccountsRemember');
 
-        const pdf = this.lastGeneratedPdf;
-        const fileSizeMB = (pdf.bytes.length / (1024 * 1024)).toFixed(1);
+        const formData = this._pendingEmailFormData || {};
+        const currentExpenses = this.isFilterActive() ? this.filteredExpenses : this.expenses;
+        const totalAmount = currentExpenses.reduce((sum, exp) => sum + (parseFloat(exp.amount) || 0), 0);
+        const periodText = formData.expensePeriodFrom && formData.expensePeriodTo
+            ? `${formData.expensePeriodFrom} to ${formData.expensePeriodTo}` : 'N/A';
 
-        const periodText = pdf.dateFrom && pdf.dateTo ? `${pdf.dateFrom} to ${pdf.dateTo}` : pdf.dateFrom || pdf.dateTo || 'N/A';
         summaryDiv.innerHTML = `
             <div class="kodo-summary-row">
-                <span class="kodo-summary-label">PDF File</span>
-                <span class="kodo-summary-value" title="${pdf.fileName}">${pdf.fileName}</span>
+                <span class="kodo-summary-label">Employee</span>
+                <span class="kodo-summary-value">${formData.employeeName || 'Employee'}</span>
             </div>
             <div class="kodo-summary-row">
-                <span class="kodo-summary-label">File Size</span>
-                <span class="kodo-summary-value">${fileSizeMB} MB</span>
+                <span class="kodo-summary-label">Bills</span>
+                <span class="kodo-summary-value">${currentExpenses.length} expense(s)</span>
             </div>
             <div class="kodo-summary-row kodo-summary-total">
                 <span class="kodo-summary-label">Total Amount</span>
-                <span class="kodo-summary-value">${this.formatAmount(pdf.totalAmount)}</span>
+                <span class="kodo-summary-value">${this.formatAmount(totalAmount)}</span>
             </div>
             <div class="kodo-summary-row">
                 <span class="kodo-summary-label">Period</span>
@@ -7453,19 +7441,21 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         toInput.value = savedEmail;
         rememberCheck.checked = !!savedEmail;
 
-        const dateRange = pdf.dateFrom && pdf.dateTo ? `${pdf.dateFrom} to ${pdf.dateTo}` : new Date().toISOString().split('T')[0];
-        subjectInput.value = `Reimbursement Claim - ${pdf.employeeName || 'Employee'} - ${dateRange}`;
+        const dateRange = formData.expensePeriodFrom && formData.expensePeriodTo
+            ? `${formData.expensePeriodFrom} to ${formData.expensePeriodTo}`
+            : new Date().toISOString().split('T')[0];
+        subjectInput.value = `Reimbursement Claim - ${formData.employeeName || 'Employee'} - ${dateRange}`;
 
         // Build expense line items
         let expenseLines = '';
-        if (pdf.expenses && pdf.expenses.length > 0) {
-            pdf.expenses.forEach((exp, i) => {
+        if (currentExpenses.length > 0) {
+            currentExpenses.forEach((exp, i) => {
                 expenseLines += `${i + 1}. ${exp.date} - ${exp.vendor}${exp.description ? ' (' + exp.description + ')' : ''} - ${this.formatAmount(exp.amount)}\n`;
             });
         }
 
-        const purpose = pdf.businessPurpose || 'business expenses';
-        bodyInput.value = `Dear Sir/Madam,\n\nI am writing to submit my reimbursement claim for ${purpose}.\n\nDetails of Expenses:\n${expenseLines}\nTotal Amount: ${this.formatAmount(pdf.totalAmount)}\nPeriod: ${dateRange}\n\nPlease find the attached documentation for your review and processing. Let me know if you require any further information.\n\nBest regards,\n${pdf.employeeName || 'Employee'}`;
+        const purpose = formData.businessPurpose || 'business expenses';
+        bodyInput.value = `Dear Sir/Madam,\n\nI am writing to submit my reimbursement claim for ${purpose}.\n\nDetails of Expenses:\n${expenseLines}\nTotal Amount: ${this.formatAmount(totalAmount)}\nPeriod: ${dateRange}\n\nPlease find the attached documentation for your review and processing. Let me know if you require any further information.\n\nBest regards,\n${formData.employeeName || 'Employee'}`;
 
         statusDiv.style.display = 'none';
 
@@ -7495,7 +7485,24 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             }
 
             closeModal();
-            await this.sendEmailToAccounts(toEmails, subjectInput.value, bodyInput.value, pdf);
+
+            // Now do the heavy work: Sheets update → PDF generation → send email
+            try {
+                this.showLoading('Updating Google Sheet...', 'Saving employee details');
+                await googleSheetsService.updateEmployeeInfo(formData);
+
+                this.updateLoadingText('Generating PDF...', 'Preparing reimbursement package');
+                await this.generateCombinedReimbursementPDFWithEmployeeInfo({ skipDownload: true });
+
+                const pdf = this.lastGeneratedPdf;
+                if (!pdf) throw new Error('PDF generation failed');
+
+                await this.sendEmailToAccounts(toEmails, subjectInput.value, bodyInput.value, pdf);
+            } catch (error) {
+                console.error('Error in email submission flow:', error);
+                this.hideLoading();
+                this.showError('Failed to send email.\n\n' + (error.message || 'Please try again.'), 'Email Failed');
+            }
         };
 
         modal.style.display = 'flex';
