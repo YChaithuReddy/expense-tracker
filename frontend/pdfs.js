@@ -398,11 +398,9 @@ const pdfLibrary = (() => {
         document.getElementById('kodoBillDate').value = new Date().toISOString().split('T')[0];
         document.getElementById('kodoComment').value = activePdfRow.purpose || '';
 
-        // Load Kodo config (categories + checkers)
-        const categorySelect = document.getElementById('kodoCategory');
-        const checkerSelect = document.getElementById('kodoChecker');
-        categorySelect.innerHTML = '<option value="">Loading...</option>';
-        checkerSelect.innerHTML = '<option value="">Loading...</option>';
+        // Load Kodo config using the same kodoService as main app
+        document.getElementById('kodoCategory').innerHTML = '<option value="">Loading categories...</option>';
+        document.getElementById('kodoChecker').innerHTML = '<option value="">Loading checkers...</option>';
 
         // Show modal (display:none → display:flex)
         const modal = document.getElementById('kodoModal');
@@ -411,47 +409,40 @@ const pdfLibrary = (() => {
             modal.onclick = e => { if (e.target === modal) closeKodoModal(); };
         }
 
-        loadKodoConfig(categorySelect, checkerSelect);
+        loadKodoConfig();
     }
 
-    async function loadKodoConfig(categorySelect, checkerSelect) {
-        if (kodoConfig) {
-            populateKodoSelects(categorySelect, checkerSelect, kodoConfig);
+    async function loadKodoConfig() {
+        const kodo = window.kodoService;
+        const tracker = window.expenseTracker;
+
+        if (!kodo || !tracker) {
+            showToast('Kodo service not available', 'error');
             return;
         }
 
         try {
-            const supabase = window.supabaseClient.get();
-            const { data, error } = await supabase.functions.invoke('kodo-submit', {
-                body: { action: 'get-config' }
-            });
-            if (error) throw error;
+            kodo.config = null; // Force fresh fetch
+            const config = await kodo.getKodoConfig();
+            tracker.populateKodoDropdowns(config, 'kodoChecker', 'kodoCategory');
 
-            kodoConfig = data;
-            populateKodoSelects(categorySelect, checkerSelect, data);
+            if (!config.checkers?.length || !config.categories?.length) {
+                const missing = [];
+                if (!config.checkers?.length) missing.push('checkers');
+                if (!config.categories?.length) missing.push('categories');
+                showToast('Could not load ' + missing.join(' and ') + ' from Kodo', 'error');
+            }
         } catch (err) {
-            categorySelect.innerHTML = '<option value="">Failed to load</option>';
-            checkerSelect.innerHTML = '<option value="">Failed to load</option>';
-            showToast('Could not load Kodo config: ' + err.message, 'error');
+            console.error('Kodo config error:', err);
+            document.getElementById('kodoCategory').innerHTML = '<option value="">Failed to load</option>';
+            document.getElementById('kodoChecker').innerHTML = '<option value="">Failed to load</option>';
+
+            if (err.needsReauth || (err.message && err.message.includes('OTP_REQUIRED'))) {
+                showToast('Kodo session expired. Re-authenticate in Kodo Settings.', 'error');
+            } else {
+                showToast('Could not load Kodo config: ' + err.message, 'error');
+            }
         }
-    }
-
-    function populateKodoSelects(categorySelect, checkerSelect, config) {
-        // Categories
-        const categories = config?.categories || config?.expenseCategories || [];
-        categorySelect.innerHTML = categories.length
-            ? categories.map(c => `<option value="${sanitize(String(c.id))}">${sanitize(c.name)}</option>`).join('')
-            : '<option value="">No categories found</option>';
-
-        // Checkers
-        const checkers = config?.checkers || config?.approvers || [];
-        checkerSelect.innerHTML = checkers.length
-            ? checkers.map(c => `<option value="${sanitize(c.id)}">${sanitize(c.name || c.email || c.id)}</option>`).join('')
-            : '<option value="">No checkers found</option>';
-
-        // Pre-select defaults from config
-        if (config?.defaultCategoryId) categorySelect.value = config.defaultCategoryId;
-        if (config?.defaultCheckerId) checkerSelect.value = config.defaultCheckerId;
     }
 
     function closeKodoModal() {
