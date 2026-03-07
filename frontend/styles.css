@@ -205,19 +205,13 @@ header p {
 
 main {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 20px;
     animation: fadeInUp 0.8s ease-out;
-    align-items: start; /* Prevents height mismatch between columns */
 }
 
-/* Tablet and smaller: Single column layout */
+/* Tablet and smaller */
 @media (max-width: 1200px) {
-    main {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-
     /* Optimize action buttons for tablet */
     .action-buttons {
         grid-template-columns: repeat(2, 1fr);
