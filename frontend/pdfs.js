@@ -382,8 +382,18 @@ const pdfLibrary = (() => {
         activePdfRow = await getRowById(id);
         if (!activePdfRow) return;
 
-        // Pre-fill amount
-        document.getElementById('kodoAmount').value = activePdfRow.total_amount || '';
+        // Populate summary bar
+        const filenameEl = document.getElementById('pdfKodoFilename');
+        const amountEl = document.getElementById('pdfKodoAmount');
+        const pagesEl = document.getElementById('pdfKodoPages');
+        if (filenameEl) filenameEl.textContent = activePdfRow.filename || '—';
+        if (amountEl) {
+            amountEl.textContent = activePdfRow.total_amount != null
+                ? Number(activePdfRow.total_amount).toLocaleString('en-IN')
+                : '—';
+        }
+        if (pagesEl) pagesEl.textContent = activePdfRow.page_count > 1 ? `${activePdfRow.page_count} pages` : '1 page';
+
         // Default bill date to today
         document.getElementById('kodoBillDate').value = new Date().toISOString().split('T')[0];
         document.getElementById('kodoComment').value = activePdfRow.purpose || '';
@@ -394,7 +404,13 @@ const pdfLibrary = (() => {
         categorySelect.innerHTML = '<option value="">Loading...</option>';
         checkerSelect.innerHTML = '<option value="">Loading...</option>';
 
-        openModal('kodoModal');
+        // Show modal (display:none → display:flex)
+        const modal = document.getElementById('kodoModal');
+        if (modal) {
+            modal.style.display = 'flex';
+            modal.onclick = e => { if (e.target === modal) closeKodoModal(); };
+        }
+
         loadKodoConfig(categorySelect, checkerSelect);
     }
 
@@ -440,13 +456,14 @@ const pdfLibrary = (() => {
 
     function closeKodoModal() {
         activePdfRow = null;
-        closeModal('kodoModal');
+        const modal = document.getElementById('kodoModal');
+        if (modal) modal.style.display = 'none';
     }
 
     async function submitToKodo() {
         if (!activePdfRow) return;
 
-        const amount = parseFloat(document.getElementById('kodoAmount').value);
+        const amount = parseFloat(activePdfRow.total_amount);
         const billDate = document.getElementById('kodoBillDate').value;
         const categoryId = document.getElementById('kodoCategory').value;
         const checkerId = document.getElementById('kodoChecker').value;
@@ -462,8 +479,9 @@ const pdfLibrary = (() => {
         }
 
         const btn = document.getElementById('kodoSubmitBtn');
+        const btnOriginalHTML = btn.innerHTML;
         btn.disabled = true;
-        btn.textContent = 'Submitting...';
+        btn.innerHTML = 'Submitting...';
 
         try {
             // Download PDF bytes from storage
@@ -500,7 +518,7 @@ const pdfLibrary = (() => {
             showToast('Kodo submit failed: ' + (err.message || 'Unknown error'), 'error');
         } finally {
             btn.disabled = false;
-            btn.textContent = 'Submit to Kodo';
+            btn.innerHTML = btnOriginalHTML;
         }
     }
 
