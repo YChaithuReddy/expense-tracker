@@ -7386,15 +7386,126 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                 billDate: details.billDate,
             });
 
+            // Step 3: Save claim for status tracking
+            if (result?.claimId) {
+                try {
+                    await kodo.saveClaim({
+                        claimId: result.claimId,
+                        amount: details.totalAmount,
+                        checkerName: details.checkerName,
+                        categoryName: details.categoryName || null,
+                        comment: details.comment || null,
+                    });
+                } catch (saveErr) {
+                    console.warn('Failed to save claim for tracking:', saveErr.message);
+                }
+            }
+
             this.hideLoading();
             this.showNotification(`Reimbursement claim ${this.formatAmount(details.totalAmount)} submitted to ${details.checkerName} for review`);
-            window.api?.logActivity?.('kodo_submitted', `Submitted ₹${Math.round(details.totalAmount)} to Kodo — checker: ${details.checkerName}`, { amount: details.totalAmount, checker: details.checkerName });
+            window.api?.logActivity?.('kodo_submitted', `Submitted ₹${Math.round(details.totalAmount)} to Kodo — checker: ${details.checkerName}`, { claimId: result?.claimId, amount: details.totalAmount, checker: details.checkerName });
 
         } catch (err) {
             this.hideLoading();
             console.error('Kodo submission error:', err);
             this.showNotification('Kodo submission failed: ' + err.message);
         }
+    }
+
+    // ===== Kodo Claims Status =====
+
+    async showKodoClaimsModal() {
+        const modal = document.getElementById('kodoClaimsModal');
+        const closeBtn = document.getElementById('closeKodoClaims');
+        const closeBtn2 = document.getElementById('kodoClaimsClose');
+        const refreshBtn = document.getElementById('kodoClaimsRefresh');
+        const listDiv = document.getElementById('kodoClaimsList');
+
+        if (!modal) return;
+
+        modal.style.display = 'flex';
+        this.lockScroll();
+
+        const close = () => {
+            modal.style.display = 'none';
+            this.unlockScroll();
+        };
+
+        closeBtn.onclick = close;
+        closeBtn2.onclick = close;
+        modal.onclick = (e) => { if (e.target === modal) close(); };
+
+        // Load claims
+        await this.renderKodoClaims(listDiv);
+
+        refreshBtn.onclick = async () => {
+            refreshBtn.disabled = true;
+            refreshBtn.innerHTML = `
+                <svg class="kodo-confirm-modal__btn-icon" style="animation: spin 1s linear infinite;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+                    <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+                </svg>
+                Checking...`;
+            try {
+                const updated = await window.kodoService.checkClaimStatuses();
+                await this.renderKodoClaims(listDiv);
+                if (updated.length > 0) {
+                    const msgs = updated.map(c => `${c.claim_id}: ${c.status}`).join(', ');
+                    this.showNotification(`Status updated: ${msgs}`);
+                } else {
+                    this.showNotification('No status changes found');
+                }
+            } catch (err) {
+                this.showNotification('Failed to check status: ' + err.message);
+            } finally {
+                refreshBtn.disabled = false;
+                refreshBtn.innerHTML = `
+                    <svg class="kodo-confirm-modal__btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+                        <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+                    </svg>
+                    Check Status`;
+            }
+        };
+    }
+
+    async renderKodoClaims(container) {
+        try {
+            const claims = await window.kodoService.getClaims();
+            if (!claims || claims.length === 0) {
+                container.innerHTML = '<div class="kodo-claims-empty">No claims submitted yet</div>';
+                return;
+            }
+
+            container.innerHTML = claims.map(claim => {
+                const date = new Date(claim.submitted_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+                const checkedAgo = claim.last_checked_at
+                    ? this.timeAgo(new Date(claim.last_checked_at))
+                    : 'never';
+                return `
+                    <div class="kodo-claim-card">
+                        <div class="kodo-claim-card__status-dot kodo-claim-card__status-dot--${claim.status}"></div>
+                        <div class="kodo-claim-card__info">
+                            <div class="kodo-claim-card__amount">${this.formatAmount(claim.amount)}</div>
+                            <div class="kodo-claim-card__meta">${claim.checker_name || 'Unknown checker'} &middot; ${date} &middot; checked ${checkedAgo}</div>
+                        </div>
+                        <span class="kodo-claim-card__badge kodo-claim-card__badge--${claim.status}">${claim.status}</span>
+                    </div>`;
+            }).join('');
+        } catch (err) {
+            container.innerHTML = `<div class="kodo-claims-empty">Failed to load claims: ${err.message}</div>`;
+        }
+    }
+
+    timeAgo(date) {
+        const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+        if (seconds < 60) return 'just now';
+        const minutes = Math.floor(seconds / 60);
+        if (minutes < 60) return `${minutes}m ago`;
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `${hours}h ago`;
+        const days = Math.floor(hours / 24);
+        return `${days}d ago`;
     }
 
     // ===== Email to Accounts =====

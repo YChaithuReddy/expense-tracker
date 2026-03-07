@@ -193,6 +193,56 @@ class KodoService {
         return result.data;
     }
 
+    /**
+     * Save a claim after successful submission
+     */
+    async saveClaim({ claimId, amount, checkerName, categoryName, comment }) {
+        return await window.api.saveKodoClaim({ claimId, amount, checkerName, categoryName, comment });
+    }
+
+    /**
+     * Get all tracked claims
+     */
+    async getClaims(statusFilter = null) {
+        return await window.api.getKodoClaims(statusFilter);
+    }
+
+    /**
+     * Check status of pending claims via Kodo API
+     * Returns array of claims with updated statuses
+     */
+    async checkClaimStatuses() {
+        const pendingClaims = await this.getClaims('pending');
+        if (pendingClaims.length === 0) return [];
+
+        const claimIds = pendingClaims.map(c => c.claim_id);
+        const result = await this._callEdgeFunction({
+            action: 'check-status',
+            claimIds,
+        });
+
+        const statuses = result.data.statuses || {};
+        const updated = [];
+
+        for (const claim of pendingClaims) {
+            const statusInfo = statuses[claim.claim_id];
+            if (statusInfo && statusInfo.status !== claim.status) {
+                await window.api.updateKodoClaimStatus(claim.claim_id, statusInfo.status, statusInfo.raw);
+                await window.api.logActivity(
+                    `kodo_${statusInfo.status}`,
+                    `Claim ${claim.claim_id} ${statusInfo.status}: ${claim.amount}`,
+                    { claimId: claim.claim_id, oldStatus: claim.status, newStatus: statusInfo.status, ...statusInfo.raw }
+                );
+                updated.push({ ...claim, status: statusInfo.status, raw: statusInfo.raw });
+            } else if (statusInfo) {
+                // Update last_checked_at even if status didn't change
+                await window.api.updateKodoClaimStatus(claim.claim_id, claim.status, statusInfo.raw);
+            }
+        }
+
+        return updated;
+    }
+
     hasSettings() {
         return this.isConfigured;
     }

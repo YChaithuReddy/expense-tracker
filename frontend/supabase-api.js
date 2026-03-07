@@ -1089,6 +1089,77 @@ const api = {
         }
     },
 
+    // ==============================================
+    // KODO CLAIMS TRACKING
+    // ==============================================
+
+    async saveKodoClaim({ claimId, amount, checkerName, categoryName, comment }) {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        const { data, error } = await supabase
+            .from('kodo_claims')
+            .insert({
+                user_id: user.id,
+                claim_id: claimId,
+                amount,
+                checker_name: checkerName || null,
+                category_name: categoryName || null,
+                comment: comment || null,
+                status: 'pending'
+            })
+            .select()
+            .single();
+
+        if (error) handleError(error, 'Save Kodo claim');
+        return data;
+    },
+
+    async getKodoClaims(statusFilter = null) {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        let query = supabase
+            .from('kodo_claims')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('submitted_at', { ascending: false });
+
+        if (statusFilter) {
+            query = query.eq('status', statusFilter);
+        }
+
+        const { data, error } = await query;
+        if (error) handleError(error, 'Get Kodo claims');
+        return data || [];
+    },
+
+    async updateKodoClaimStatus(claimId, status, rawStatus = null) {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        const updateObj = {
+            status,
+            last_checked_at: new Date().toISOString(),
+            status_updated_at: new Date().toISOString()
+        };
+        if (rawStatus) updateObj.kodo_status_raw = rawStatus;
+
+        const { data, error } = await supabase
+            .from('kodo_claims')
+            .update(updateObj)
+            .eq('claim_id', claimId)
+            .eq('user_id', user.id)
+            .select()
+            .single();
+
+        if (error) handleError(error, 'Update claim status');
+        return data;
+    },
+
     async getActivityLog(limit = 50) {
         const supabase = getSupabase();
         const { data: { user } } = await supabase.auth.getUser();
