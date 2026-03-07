@@ -828,54 +828,167 @@ main > * {
 
 /* Combined reimbursement package button */
 .btn-highlight {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #0891b2 0%, #6366f1 50%, #7c3aed 100%);
     color: white;
-    padding: 16px 24px;
+    padding: 16px 20px;
     border: none;
     border-radius: 16px;
     font-size: 0.95rem;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
+    transition: transform 0.25s cubic-bezier(0.34, 1.3, 0.64, 1),
+                box-shadow 0.3s ease,
+                background 0.3s ease;
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    gap: 14px;
+    box-shadow:
+        0 4px 20px rgba(6, 182, 212, 0.25),
+        0 1px 3px rgba(0, 0, 0, 0.15);
     width: 100%;
     min-height: 64px;
     position: relative;
     overflow: hidden;
 }
 
+/* Shimmer sweep */
 .btn-highlight::before {
     content: '';
     position: absolute;
     top: 0;
     left: -100%;
-    width: 100%;
+    width: 60%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.5s;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+    transition: left 0.6s ease;
 }
 
 .btn-highlight:hover::before {
-    left: 100%;
+    left: 160%;
+}
+
+/* Ambient glow behind button */
+.btn-highlight::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #06b6d4, #6366f1, #7c3aed);
+    z-index: -1;
+    opacity: 0;
+    filter: blur(12px);
+    transition: opacity 0.3s ease;
+}
+
+.btn-highlight:hover::after {
+    opacity: 0.5;
 }
 
 .btn-highlight:hover {
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-3px) scale(1.01);
+    box-shadow:
+        0 8px 32px rgba(6, 182, 212, 0.35),
+        0 4px 12px rgba(99, 102, 241, 0.25);
 }
 
 .btn-highlight:active {
-    transform: translateY(-1px) scale(0.98);
+    transform: translateY(-1px) scale(0.99);
+    box-shadow: 0 2px 8px rgba(6, 182, 212, 0.2);
+}
+
+/* Icon wrap */
+.btn-highlight__icon-wrap {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.2s, transform 0.3s cubic-bezier(0.34, 1.3, 0.64, 1);
+}
+
+.btn-highlight:hover .btn-highlight__icon-wrap {
+    background: rgba(255, 255, 255, 0.22);
+    transform: scale(1.08);
+}
+
+.btn-highlight__svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+/* Text content */
+.btn-highlight__content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1px;
+    flex: 1;
+    min-width: 0;
+}
+
+.btn-highlight__label {
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+}
+
+.btn-highlight__sub {
+    font-size: 0.72rem;
+    font-weight: 500;
+    opacity: 0.7;
+    letter-spacing: 0.02em;
+}
+
+/* Arrow */
+.btn-highlight__arrow {
+    opacity: 0.5;
+    flex-shrink: 0;
+    transition: opacity 0.2s, transform 0.25s cubic-bezier(0.34, 1.3, 0.64, 1);
+}
+
+.btn-highlight:hover .btn-highlight__arrow {
+    opacity: 1;
+    transform: translateX(3px);
 }
 
 /* Make the button span full width in action-buttons grid */
 .action-buttons .btn-highlight {
     grid-column: 1 / -1;
     margin-top: 5px;
+}
+
+/* Mobile adjustments */
+@media (max-width: 480px) {
+    .btn-highlight {
+        padding: 14px 16px;
+        min-height: 58px;
+        gap: 12px;
+    }
+
+    .btn-highlight__icon-wrap {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+    }
+
+    .btn-highlight__svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .btn-highlight__label {
+        font-size: 0.92rem;
+    }
+
+    .btn-highlight__sub {
+        font-size: 0.68rem;
+    }
 }
 
 /* Reset sheet button - same style as other action buttons */
