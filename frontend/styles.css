@@ -8243,22 +8243,7 @@ select.inline-input option {
     contain: layout style;
 }
 
-/* ===== Activity Log Button ===== */
-.btn-activity-log {
-    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-    color: #fff;
-    border: none;
-    border-radius: 12px;
-    padding: 10px 16px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    transition: all 0.2s;
-}
-.btn-activity-log:hover { filter: brightness(1.15); transform: translateY(-1px); }
+/* Activity Log button now uses .theme-toggle-btn in user-info row */
 
 /* ===== Submit All Button ===== */
 .btn-submit-all {
