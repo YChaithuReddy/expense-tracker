@@ -118,97 +118,68 @@ const pdfLibrary = (() => {
     function renderGallery(rows) {
         const gallery = document.getElementById('pdfGallery');
         const countBadge = document.getElementById('pdfCount');
+        const sizeBadge = document.getElementById('pdfTotalSize');
         countBadge.textContent = rows.length;
+
+        // Calculate total size
+        const totalBytes = rows.reduce((s, r) => s + (r.file_size || 0), 0);
+        sizeBadge.textContent = formatFileSize(totalBytes);
 
         if (rows.length === 0) {
             gallery.innerHTML = `
                 <div class="pdfs-empty">
-                    <svg class="pdfs-empty__illustration" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                        <rect x="14" y="10" width="38" height="50" rx="5" stroke="rgba(0,212,255,0.5)" stroke-width="2" fill="rgba(0,212,255,0.06)"/>
-                        <rect x="20" y="22" width="26" height="2.5" rx="1.25" fill="rgba(0,212,255,0.35)"/>
-                        <rect x="20" y="30" width="20" height="2.5" rx="1.25" fill="rgba(0,212,255,0.25)"/>
-                        <rect x="20" y="38" width="16" height="2.5" rx="1.25" fill="rgba(0,212,255,0.15)"/>
-                        <rect x="10" y="18" width="38" height="50" rx="5" stroke="rgba(124,58,237,0.4)" stroke-width="1.5" fill="rgba(124,58,237,0.04)" stroke-dasharray="4 3"/>
-                        <circle cx="58" cy="58" r="14" fill="rgba(0,212,255,0.12)" stroke="rgba(0,212,255,0.4)" stroke-width="1.5"/>
-                        <line x1="58" y1="52" x2="58" y2="64" stroke="rgba(0,212,255,0.8)" stroke-width="2" stroke-linecap="round"/>
-                        <line x1="52" y1="58" x2="64" y2="58" stroke="rgba(0,212,255,0.8)" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                    <div class="pdfs-empty__title">Your PDF Library is empty</div>
-                    <div class="pdfs-empty__hint">Upload your bills PDF to submit reimbursements in one click &mdash; no re-entering data needed.</div>
-                    <button class="pdfs-empty__cta" onclick="document.getElementById('pdfFileInput').click()" aria-label="Upload your first PDF">
-                        <span aria-hidden="true">📁</span>
-                        Upload Your First PDF
-                    </button>
+                    <div class="pdfs-empty__icon">📁</div>
+                    <div class="pdfs-empty__title">No files yet</div>
+                    <div class="pdfs-empty__hint">Upload your bills PDF to submit reimbursements in one click.</div>
+                    <button class="pdfs-empty__cta" onclick="document.getElementById('pdfFileInput').click()" aria-label="Upload your first PDF">Upload PDF</button>
                 </div>`;
             return;
         }
 
-        gallery.innerHTML = rows.map(row => renderCard(row)).join('');
+        gallery.innerHTML = rows.map(row => renderRow(row)).join('');
     }
 
-    function renderCard(row) {
-        const amount = row.total_amount != null
-            ? `₹${Number(row.total_amount).toLocaleString('en-IN', { maximumFractionDigits: 2 })}`
-            : '—';
-
-        const pages = row.page_count > 1 ? `${row.page_count} pages` : '1 page';
-
-        let dateStr = '';
-        if (row.date_from || row.date_to) {
-            const from = row.date_from ? fmtDate(row.date_from) : '';
-            const to = row.date_to ? fmtDate(row.date_to) : '';
-            dateStr = from && to ? `${from} – ${to}` : (from || to);
-        }
-        const createdAt = fmtDate(row.created_at);
-        const sourceBadge = row.source === 'generated'
-            ? `<span class="pdf-card__source-badge pdf-card__source-badge--generated">Generated</span>`
-            : `<span class="pdf-card__source-badge pdf-card__source-badge--uploaded">Uploaded</span>`;
-
+    function renderRow(row) {
         const escapedId = sanitize(row.id);
         const escapedName = sanitize(row.filename);
-
-        const sourceClass = row.source === 'generated' ? 'pdf-card--generated' : 'pdf-card--uploaded';
+        const size = formatFileSize(row.file_size || 0);
+        const createdAt = fmtDate(row.created_at);
+        const pages = row.page_count > 1 ? `${row.page_count} pg` : '1 pg';
+        const amount = row.total_amount != null
+            ? `₹${Number(row.total_amount).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`
+            : '';
+        const sourceIcon = row.source === 'generated'
+            ? `<svg class="pdf-row__icon pdf-row__icon--generated" width="32" height="32" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="14" height="18" rx="2" stroke="currentColor" stroke-width="1.5" fill="rgba(16,185,129,0.1)"/><path d="M9 3V7H3" stroke="currentColor" stroke-width="1.5"/><rect x="6" y="11" width="8" height="1.5" rx=".75" fill="currentColor" opacity=".4"/><rect x="6" y="14" width="6" height="1.5" rx=".75" fill="currentColor" opacity=".3"/></svg>`
+            : `<svg class="pdf-row__icon pdf-row__icon--uploaded" width="32" height="32" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="14" height="18" rx="2" stroke="currentColor" stroke-width="1.5" fill="rgba(0,212,255,0.1)"/><path d="M9 3V7H3" stroke="currentColor" stroke-width="1.5"/><rect x="6" y="11" width="8" height="1.5" rx=".75" fill="currentColor" opacity=".4"/><rect x="6" y="14" width="6" height="1.5" rx=".75" fill="currentColor" opacity=".3"/></svg>`;
 
         return `
-            <div class="pdf-card ${sourceClass}" data-id="${escapedId}">
-                <div class="pdf-card__thumb">
-                    ${sourceBadge}
-                    <span class="pdf-card__page-badge">${sanitize(pages)}</span>
-                    <svg class="pdf-card__icon" viewBox="0 0 48 60" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                        <rect x="2" y="2" width="36" height="46" rx="4" stroke="currentColor" stroke-width="2.5" fill="rgba(0,212,255,0.08)"/>
-                        <path d="M10 4 L10 14 L2 14" stroke="currentColor" stroke-width="2" fill="none"/>
-                        <rect x="7" y="22" width="24" height="2.5" rx="1.25" fill="currentColor" opacity="0.5"/>
-                        <rect x="7" y="29" width="20" height="2.5" rx="1.25" fill="currentColor" opacity="0.5"/>
-                        <rect x="7" y="36" width="16" height="2.5" rx="1.25" fill="currentColor" opacity="0.5"/>
-                    </svg>
+            <div class="pdf-row" data-id="${escapedId}" data-name="${escapedName.toLowerCase()}">
+                ${sourceIcon}
+                <div class="pdf-row__info">
+                    <div class="pdf-row__name" title="${escapedName}">${escapedName}</div>
+                    <div class="pdf-row__meta">${size} &bull; ${pages}${amount ? ` &bull; ${sanitize(amount)}` : ''} &bull; ${sanitize(createdAt)}</div>
                 </div>
-                <div class="pdf-card__body">
-                    <div class="pdf-card__filename" title="${escapedName}">${escapedName}</div>
-                    <div class="pdf-card__amount">${sanitize(amount)}</div>
-                    <div class="pdf-card__meta">
-                        ${dateStr ? `${sanitize(dateStr)}<br>` : ''}
-                        ${sanitize(createdAt)}
-                    </div>
-                </div>
-                <div class="pdf-card__actions">
-                    <button class="pdf-action-btn pdf-action-btn--download" onclick="pdfLibrary.downloadPdf('${escapedId}')" title="Download" aria-label="Download PDF">
-                        <span aria-hidden="true">⬇️</span>
-                        <span class="pdf-action-btn__label">Download</span>
+                <div class="pdf-row__actions">
+                    <button class="pdf-row-btn pdf-row-btn--view" onclick="pdfLibrary.downloadPdf('${escapedId}')" title="View / Download" aria-label="Download PDF">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                     </button>
-                    <button class="pdf-action-btn pdf-action-btn--kodo" onclick="pdfLibrary.openKodoModal('${escapedId}')" title="Submit to Kodo" aria-label="Submit to Kodo">
-                        <span aria-hidden="true">🏢</span>
-                        <span class="pdf-action-btn__label">Kodo</span>
+                    <button class="pdf-row-btn pdf-row-btn--download" onclick="pdfLibrary.downloadPdf('${escapedId}')" title="Download" aria-label="Download PDF">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                     </button>
-                    <button class="pdf-action-btn pdf-action-btn--email" onclick="pdfLibrary.openEmailModal('${escapedId}')" title="Email to Accounts" aria-label="Email to Accounts">
-                        <span aria-hidden="true">📧</span>
-                        <span class="pdf-action-btn__label">Email</span>
-                    </button>
-                    <button class="pdf-action-btn pdf-action-btn--delete" onclick="pdfLibrary.openDeleteModal('${escapedId}')" title="Delete" aria-label="Delete PDF">
-                        <span aria-hidden="true">🗑️</span>
-                        <span class="pdf-action-btn__label">Del</span>
+                    <button class="pdf-row-btn pdf-row-btn--delete" onclick="pdfLibrary.openDeleteModal('${escapedId}')" title="Delete" aria-label="Delete PDF">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
                     </button>
                 </div>
             </div>`;
+    }
+
+    function filterFiles(query) {
+        const q = (query || '').toLowerCase().trim();
+        const rows = document.querySelectorAll('.pdf-row');
+        rows.forEach(row => {
+            const name = row.getAttribute('data-name') || '';
+            row.style.display = !q || name.includes(q) ? '' : 'none';
+        });
     }
 
     function fmtDate(dateStr) {
@@ -742,7 +713,8 @@ const pdfLibrary = (() => {
         openDeleteModal,
         closeDeleteModal,
         confirmDelete,
-        onDeleteCheckChange
+        onDeleteCheckChange,
+        filterFiles
     };
 })();
 
