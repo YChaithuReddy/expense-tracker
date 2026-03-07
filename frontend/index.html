@@ -1077,46 +1077,83 @@
                 </button>
             </div>
 
+            <!-- Step indicator -->
+            <div class="email-modal__steps">
+                <div class="email-modal__step email-modal__step--done">
+                    <span class="email-modal__step-num">
+                        <svg width="12" height="12" viewBox="0 0 12 10" fill="none"><polyline points="1,5 4,8 11,1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </span>
+                    <span class="email-modal__step-text">Employee Info</span>
+                </div>
+                <div class="email-modal__step-line"></div>
+                <div class="email-modal__step email-modal__step--active">
+                    <span class="email-modal__step-num">2</span>
+                    <span class="email-modal__step-text">Compose Email</span>
+                </div>
+                <div class="email-modal__step-line email-modal__step-line--pending"></div>
+                <div class="email-modal__step email-modal__step--pending">
+                    <span class="email-modal__step-num">3</span>
+                    <span class="email-modal__step-text">Send</span>
+                </div>
+            </div>
+
             <!-- Body -->
             <div class="email-modal__body">
                 <!-- Dynamic summary injected by JS -->
                 <div class="email-modal__summary" id="emailAccountsSummary"></div>
 
-                <!-- Recipients + Subject side by side -->
-                <div class="email-modal__field-row">
-                    <div class="email-modal__field">
-                        <label class="email-modal__label" for="emailAccountsTo">
-                            <svg class="email-modal__label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
-                                <circle cx="9" cy="7" r="4"/>
-                                <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
-                            </svg>
-                            To (Recipients)
-                        </label>
-                        <input
-                            class="email-modal__input"
-                            type="text"
-                            id="emailAccountsTo"
-                            placeholder="accounts@company.com"
-                            autocomplete="email"
-                        >
-                        <span class="email-modal__hint">Separate multiple with commas</span>
+                <!-- Attachment preview -->
+                <div class="email-modal__attachment">
+                    <div class="email-modal__attachment-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                        </svg>
                     </div>
-                    <div class="email-modal__field">
-                        <label class="email-modal__label" for="emailAccountsSubject">
-                            <svg class="email-modal__label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="4" y1="9" x2="20" y2="9"/>
-                                <line x1="4" y1="15" x2="14" y2="15"/>
-                            </svg>
-                            Subject
-                        </label>
-                        <input
-                            class="email-modal__input"
-                            type="text"
-                            id="emailAccountsSubject"
-                            placeholder="Reimbursement Claim - [Month Year]"
-                        >
+                    <div class="email-modal__attachment-info">
+                        <span class="email-modal__attachment-name" id="emailAttachmentName">Reimbursement_Package.pdf</span>
+                        <span class="email-modal__attachment-meta" id="emailAttachmentMeta">PDF with expense sheet + bill images</span>
                     </div>
+                    <div class="email-modal__attachment-badge">PDF</div>
+                </div>
+
+                <!-- Recipients -->
+                <div class="email-modal__field">
+                    <label class="email-modal__label" for="emailAccountsTo">
+                        <svg class="email-modal__label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+                        </svg>
+                        To (Recipients)
+                    </label>
+                    <input
+                        class="email-modal__input"
+                        type="text"
+                        id="emailAccountsTo"
+                        placeholder="accounts@company.com"
+                        autocomplete="email"
+                    >
+                    <span class="email-modal__hint">Separate multiple with commas</span>
+                </div>
+
+                <!-- Subject -->
+                <div class="email-modal__field">
+                    <label class="email-modal__label" for="emailAccountsSubject">
+                        <svg class="email-modal__label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="4" y1="9" x2="20" y2="9"/>
+                            <line x1="4" y1="15" x2="14" y2="15"/>
+                        </svg>
+                        Subject
+                    </label>
+                    <input
+                        class="email-modal__input"
+                        type="text"
+                        id="emailAccountsSubject"
+                        placeholder="Reimbursement Claim - [Month Year]"
+                    >
                 </div>
 
                 <!-- Message -->

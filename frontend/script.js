@@ -7436,6 +7436,19 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             </div>
         `;
 
+        // Populate attachment preview
+        const attachName = document.getElementById('emailAttachmentName');
+        const attachMeta = document.getElementById('emailAttachmentMeta');
+        if (attachName) {
+            const now = new Date();
+            const yyyymm = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}`;
+            attachName.textContent = `Reimbursement_${yyyymm}_${Math.round(totalAmount)}INR_${currentExpenses.length}bills.pdf`;
+        }
+        if (attachMeta) {
+            const imgCount = currentExpenses.filter(e => e.image_url || e.imageUrl).length;
+            attachMeta.textContent = `Expense sheet + ${imgCount} bill image${imgCount !== 1 ? 's' : ''} — auto-generated on send`;
+        }
+
         // Pre-fill from saved default
         const savedEmail = localStorage.getItem('accountsEmailDefault') || '';
         toInput.value = savedEmail;
