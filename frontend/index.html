@@ -1356,11 +1356,30 @@
     <div id="activityLogModal" class="activity-log-overlay" role="dialog" aria-modal="true" aria-labelledby="activityLogTitle">
         <div class="activity-log-header">
             <h2 class="activity-log-title" id="activityLogTitle">
-                <span aria-hidden="true">📋</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg>
                 Activity Log
             </h2>
             <button class="activity-log-close" onclick="activityLog.close()" aria-label="Close Activity Log">&times;</button>
         </div>
+
+        <!-- Stats Bar + Search -->
+        <div class="activity-stats-bar">
+            <div class="activity-stats-pills">
+                <span class="activity-stat-pill activity-stat-pill--total">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+                    <span id="activityTotalCount">0</span> events
+                </span>
+                <span class="activity-stat-pill activity-stat-pill--today">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <span id="activityTodayCount">0</span> today
+                </span>
+            </div>
+            <div class="activity-search-wrap">
+                <svg class="activity-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" class="activity-search-input" id="activitySearchInput" placeholder="Filter activity..." oninput="activityLog.filter(this.value)" aria-label="Filter activity log">
+            </div>
+        </div>
+
         <div class="activity-log-body" id="activityLogBody">
             <div class="activity-log-loading">Loading activity...</div>
         </div>
