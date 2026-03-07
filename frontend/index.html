@@ -96,6 +96,9 @@
 
                 <!-- Theme Toggle & User Info - Right Side -->
                 <div class="header-right">
+                    <button class="theme-toggle-btn" onclick="activityLog.open()" aria-label="Activity Log" title="Activity Log">
+                        <span class="theme-icon">📋</span>
+                    </button>
                     <!-- User Info Section (includes theme toggle) -->
                     <div id="userInfo">
                         <!-- User info will be populated by auth.js -->
@@ -787,9 +790,6 @@
                     const safeEmail = (user.email || '').replace(/[<>&"']/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]));
                     userInfoElement.innerHTML = `
                         <div class="user-info-content">
-                            <button class="theme-toggle-btn" onclick="activityLog.open()" aria-label="Activity Log" title="Activity Log">
-                                <span class="theme-icon">📋</span>
-                            </button>
                             <button class="theme-toggle-btn" onclick="expenseTracker.toggleTheme()" aria-label="Toggle Theme" title="Switch Theme">
                                 <span class="theme-icon" id="themeIcon">🌈</span>
                             </button>
