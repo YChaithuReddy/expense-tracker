@@ -3879,6 +3879,34 @@ body.modal-open {
 }
 
 /* ================================================
+   REALTIME STATUS DOT
+   ================================================ */
+.realtime-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: background 0.3s, box-shadow 0.3s;
+}
+.realtime-dot--connected {
+    background: #22c55e;
+    box-shadow: 0 0 6px rgba(34, 197, 94, 0.6);
+    animation: realtime-pulse 2s infinite;
+}
+.realtime-dot--connecting {
+    background: #f59e0b;
+    box-shadow: 0 0 6px rgba(245, 158, 11, 0.5);
+    animation: realtime-pulse 1s infinite;
+}
+.realtime-dot--disconnected {
+    background: #5a6180;
+}
+@keyframes realtime-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* ================================================
    THEME TOGGLE BUTTON
    ================================================ */
 

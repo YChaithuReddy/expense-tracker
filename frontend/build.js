@@ -35,6 +35,7 @@ const filesToCopy = [
     'activity-log.js',
     'submit-wizard.js',
     'expense-detail.js',
+    'realtime.js',
     'styles_pdfs.css',
     'sw.js',
     'manifest.json',
