@@ -1014,6 +1014,38 @@ html.modal-open body {
   color: var(--clear-accent-danger);
 }
 
+/* Info Card - Blue (Reset Sheet) */
+.clear-data-card--info {
+  border-color: rgba(59, 130, 246, 0.15);
+}
+.clear-data-card--info:hover {
+  border-color: rgba(59, 130, 246, 0.3);
+}
+.clear-data-badge--info {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+.clear-data-card:hover .clear-data-badge--info {
+  background: rgba(59, 130, 246, 0.2);
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.25);
+}
+.clear-data-card__icon--info {
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+.clear-data-card__icon--info svg {
+  color: #60a5fa;
+}
+.clear-data-card__button--info {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+}
+.clear-data-card__button--info:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+}
+
 /* Item Icon Color Variants */
 .clear-data-card__item-icon--delete {
   color: rgba(255, 107, 107, 0.8);
