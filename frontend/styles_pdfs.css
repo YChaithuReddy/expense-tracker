@@ -138,8 +138,8 @@
 /* ---- Upload Zone ---- */
 .pdfs-upload-zone {
     border: 2px dashed rgba(0, 212, 255, 0.55);
-    border-radius: 20px;
-    padding: 28px 20px 24px;
+    border-radius: 14px;
+    padding: 14px 16px 12px;
     text-align: center;
     cursor: pointer;
     transition: all 0.25s ease;
@@ -148,7 +148,6 @@
         rgba(0, 212, 255, 0.06) 0%,
         rgba(124, 58, 237, 0.04) 100%
     );
-    margin-bottom: 20px;
     position: relative;
     overflow: hidden;
 }
@@ -192,29 +191,24 @@
 }
 
 .pdfs-upload-zone__icon {
-    font-size: 3rem;
-    margin-bottom: 14px;
+    font-size: 1.6rem;
+    margin-bottom: 6px;
     display: block;
-    filter: drop-shadow(0 0 12px rgba(0, 212, 255, 0.4));
-    animation: pdfs-float 3s ease-in-out infinite;
-}
-@keyframes pdfs-float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-6px); }
+    filter: drop-shadow(0 0 8px rgba(0, 212, 255, 0.4));
 }
 
 .pdfs-upload-zone__title {
-    font-size: 1.1rem;
+    font-size: 0.9rem;
     font-weight: 700;
     color: #e0e0ff;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
     letter-spacing: -0.01em;
 }
 
 .pdfs-upload-zone__subtitle {
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     color: #8892b0;
-    margin-bottom: 22px;
+    margin-bottom: 10px;
 }
 
 /* CTA button inside upload zone — sits above the invisible file input */
@@ -224,20 +218,20 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 11px 24px;
+    padding: 8px 18px;
     background: linear-gradient(135deg, #00d4ff, #0099bb);
     border: none;
-    border-radius: 12px;
+    border-radius: 10px;
     color: #0a0a0f;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     font-weight: 700;
     cursor: pointer;
-    pointer-events: none; /* clicks pass through to the file input above */
+    pointer-events: none;
     box-shadow:
         0 4px 20px rgba(0, 212, 255, 0.4),
         0 0 0 1px rgba(0, 212, 255, 0.3);
     transition: all 0.2s ease;
-    margin-bottom: 14px;
+    margin-bottom: 6px;
 }
 .pdfs-upload-zone:hover .pdfs-upload-zone__cta {
     box-shadow:
@@ -247,9 +241,9 @@
 }
 
 .pdfs-upload-zone__hint {
-    font-size: 0.78rem;
+    font-size: 0.7rem;
     color: #8892b0;
-    margin-top: 10px;
+    margin-top: 4px;
 }
 .pdfs-upload-zone__hint strong {
     color: #00d4ff;

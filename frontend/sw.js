@@ -1,5 +1,5 @@
 // Service Worker for Expense Tracker PWA
-const CACHE_NAME = 'expense-tracker-v71';
+const CACHE_NAME = 'expense-tracker-v72';
 const STATIC_CACHE = 'expense-tracker-static-v61';
 const DYNAMIC_CACHE = 'expense-tracker-dynamic-v61';
 
