@@ -4503,11 +4503,48 @@ class ExpenseTracker {
      */
     async generateCombinedReimbursementPDF() {
         try {
-            // Step 1: Check if user has a Google Sheet
+            if (this.expenses.length === 0) {
+                this.showNotification('⚠️ No expenses to package');
+                return;
+            }
+
+            // Step 1: Auto-export to Google Sheets if not done yet
             const sheetUrl = googleSheetsService.getSheetUrl();
             if (!sheetUrl) {
-                this.showError('You need to export your expenses to Google Sheets first.\n\nThis creates the expense report that will be included in your package.', 'Export to Google Sheets First');
-                return;
+                this.showNotification('☁️ Exporting to Google Sheets first...');
+
+                // Select all expenses if none selected
+                const checked = document.querySelectorAll('.expense-checkbox:checked');
+                if (checked.length === 0) {
+                    document.querySelectorAll('.expense-checkbox').forEach(cb => { cb.checked = true; });
+                    this.updateExportButton();
+                }
+
+                const selectedExpenses = this.getSelectedExpenses();
+                if (selectedExpenses.length === 0) {
+                    this.showNotification('⚠️ No expenses to export');
+                    return;
+                }
+
+                this.showLoading(
+                    `Exporting ${selectedExpenses.length} expense${selectedExpenses.length > 1 ? 's' : ''} to Google Sheets...`,
+                    'This is required before generating the package'
+                );
+
+                const result = await googleSheetsService.exportExpenses(selectedExpenses);
+                this.hideLoading();
+
+                if (!result.success) {
+                    this.showNotification('❌ Google Sheets export failed: ' + result.message);
+                    return;
+                }
+
+                this.showNotification(`✅ Exported ${selectedExpenses.length} expenses to Google Sheets`);
+                window.api?.logActivity?.('sheets_exported', `Auto-exported ${selectedExpenses.length} expenses before PDF package`, { count: selectedExpenses.length });
+
+                // Uncheck after export
+                document.querySelectorAll('.expense-checkbox:checked').forEach(cb => { cb.checked = false; });
+                this.updateExportButton();
             }
 
             // Step 2: Open modal to collect employee information (auto-fills dates from expenses)
@@ -4515,6 +4552,7 @@ class ExpenseTracker {
 
         } catch (error) {
             console.error('❌ Error initiating PDF download:', error);
+            this.hideLoading();
             this.showNotification('❌ Failed to start PDF download: ' + error.message);
         }
     }
