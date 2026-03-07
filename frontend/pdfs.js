@@ -377,140 +377,147 @@ const pdfLibrary = (() => {
         }
     }
 
-    // ---- Kodo Submit ----
+    // ---- Kodo Submit (reuses main app's kodoConfirmModal) ----
     async function openKodoModal(id) {
         activePdfRow = await getRowById(id);
         if (!activePdfRow) return;
 
-        // Populate summary bar
-        const filenameEl = document.getElementById('pdfKodoFilename');
-        const amountEl = document.getElementById('pdfKodoAmount');
-        const pagesEl = document.getElementById('pdfKodoPages');
-        if (filenameEl) filenameEl.textContent = activePdfRow.filename || '—';
-        if (amountEl) {
-            amountEl.textContent = activePdfRow.total_amount != null
-                ? Number(activePdfRow.total_amount).toLocaleString('en-IN')
-                : '—';
-        }
-        if (pagesEl) pagesEl.textContent = activePdfRow.page_count > 1 ? `${activePdfRow.page_count} pages` : '1 page';
-
-        // Default bill date to today
-        document.getElementById('kodoBillDate').value = new Date().toISOString().split('T')[0];
-        document.getElementById('kodoComment').value = activePdfRow.purpose || '';
-
-        // Load Kodo config using the same kodoService as main app
-        document.getElementById('kodoCategory').innerHTML = '<option value="">Loading categories...</option>';
-        document.getElementById('kodoChecker').innerHTML = '<option value="">Loading checkers...</option>';
-
-        // Show modal (display:none → display:flex)
-        const modal = document.getElementById('kodoModal');
-        if (modal) {
-            modal.style.display = 'flex';
-            modal.onclick = e => { if (e.target === modal) closeKodoModal(); };
-        }
-
-        loadKodoConfig();
-    }
-
-    async function loadKodoConfig() {
-        const kodo = window.kodoService;
+        const modal = document.getElementById('kodoConfirmModal');
+        const closeBtn = document.getElementById('closeKodoConfirm');
+        const cancelBtn = document.getElementById('kodoCancelSubmit');
+        const confirmBtn = document.getElementById('kodoConfirmSubmit');
+        const summaryDiv = document.getElementById('kodoConfirmSummary');
+        const commentInput = document.getElementById('kodoConfirmComment');
         const tracker = window.expenseTracker;
+        const kodo = window.kodoService;
 
-        if (!kodo || !tracker) {
+        if (!modal || !kodo || !tracker) {
             showToast('Kodo service not available', 'error');
             return;
         }
 
+        const totalAmount = parseFloat(activePdfRow.total_amount) || 0;
+        const pages = activePdfRow.page_count > 1 ? `${activePdfRow.page_count} pages` : '1 page';
+        const dateFrom = activePdfRow.date_from || '';
+        const dateTo = activePdfRow.date_to || '';
+        const dateRange = dateFrom && dateTo ? `${dateFrom} to ${dateTo}` : (dateFrom || dateTo || 'N/A');
+
+        // Build summary — same style as main app
+        summaryDiv.innerHTML = `
+            <div class="kodo-summary-row">
+                <span class="kodo-summary-label">File</span>
+                <span class="kodo-summary-value">${sanitize(activePdfRow.filename)}</span>
+            </div>
+            <div class="kodo-summary-row kodo-summary-total">
+                <span class="kodo-summary-label">Total Amount</span>
+                <span class="kodo-summary-value">${tracker.formatAmount(totalAmount)}</span>
+            </div>
+            <div class="kodo-summary-row">
+                <span class="kodo-summary-label">Pages</span>
+                <span class="kodo-summary-value">${pages}</span>
+            </div>
+        `;
+
+        // Set default comment
+        commentInput.value = activePdfRow.purpose || 'Reimbursement claim from PDF Library';
+
+        // Load Kodo config
+        tracker.showLoading('Loading Kodo config...', 'Logging into Kodo & fetching checkers/categories');
         try {
-            kodo.config = null; // Force fresh fetch
+            kodo.config = null;
             const config = await kodo.getKodoConfig();
-            tracker.populateKodoDropdowns(config, 'kodoChecker', 'kodoCategory');
+            tracker.populateKodoDropdowns(config, 'kodoConfirmChecker', 'kodoConfirmCategory');
 
             if (!config.checkers?.length || !config.categories?.length) {
+                tracker.hideLoading();
                 const missing = [];
                 if (!config.checkers?.length) missing.push('checkers');
                 if (!config.categories?.length) missing.push('categories');
-                showToast('Could not load ' + missing.join(' and ') + ' from Kodo', 'error');
+                tracker.showError('Could not fetch ' + missing.join(' and ') + ' from Kodo.\n\nPlease check your Kodo credentials in Settings.', 'Kodo Config Error');
+                return;
             }
         } catch (err) {
-            console.error('Kodo config error:', err);
-            document.getElementById('kodoCategory').innerHTML = '<option value="">Failed to load</option>';
-            document.getElementById('kodoChecker').innerHTML = '<option value="">Failed to load</option>';
-
+            tracker.hideLoading();
             if (err.needsReauth || (err.message && err.message.includes('OTP_REQUIRED'))) {
-                showToast('Kodo session expired. Re-authenticate in Kodo Settings.', 'error');
+                tracker.showError('Your Kodo session has expired.\n\nPlease go to Kodo Settings and click "Test Connection" to re-authenticate with OTP.', 'Kodo Re-authentication Required');
             } else {
-                showToast('Could not load Kodo config: ' + err.message, 'error');
+                tracker.showError('Failed to load Kodo config:\n\n' + (err.message || 'Please check your credentials.'), 'Kodo Error');
             }
+            return;
         }
+        tracker.hideLoading();
+
+        const closeModal = () => { modal.style.display = 'none'; activePdfRow = null; };
+        closeBtn.onclick = closeModal;
+        cancelBtn.onclick = closeModal;
+        modal.onclick = (e) => { if (e.target === modal) closeModal(); };
+
+        confirmBtn.onclick = async () => {
+            const checkerSelect = document.getElementById('kodoConfirmChecker');
+            const categorySelect = document.getElementById('kodoConfirmCategory');
+
+            if (!checkerSelect.value) { tracker.showNotification('Please select a checker (approver)'); return; }
+            if (!categorySelect.value) { tracker.showNotification('Please select a category'); return; }
+
+            closeModal();
+            await submitToKodo({
+                totalAmount,
+                checkerId: checkerSelect.value,
+                checkerName: checkerSelect.options[checkerSelect.selectedIndex].text,
+                categoryId: categorySelect.value,
+                comment: commentInput.value,
+                billDate: activePdfRow?.date_from || new Date().toISOString().split('T')[0],
+            });
+        };
+
+        modal.style.display = 'flex';
     }
 
     function closeKodoModal() {
         activePdfRow = null;
-        const modal = document.getElementById('kodoModal');
+        const modal = document.getElementById('kodoConfirmModal');
         if (modal) modal.style.display = 'none';
     }
 
-    async function submitToKodo() {
-        if (!activePdfRow) return;
+    async function submitToKodo(details) {
+        const tracker = window.expenseTracker;
+        const kodo = window.kodoService;
+        const row = activePdfRow;
 
-        const amount = parseFloat(activePdfRow.total_amount);
-        const billDate = document.getElementById('kodoBillDate').value;
-        const categoryId = document.getElementById('kodoCategory').value;
-        const checkerId = document.getElementById('kodoChecker').value;
-        const comment = document.getElementById('kodoComment').value.trim();
-
-        if (!amount || isNaN(amount) || amount <= 0) {
-            showToast('Please enter the amount', 'error');
-            return;
-        }
-        if (!billDate) {
-            showToast('Please enter the bill date', 'error');
-            return;
-        }
-
-        const btn = document.getElementById('kodoSubmitBtn');
-        const btnOriginalHTML = btn.innerHTML;
-        btn.disabled = true;
-        btn.innerHTML = 'Submitting...';
+        if (!row) return;
 
         try {
             // Download PDF bytes from storage
+            tracker.showLoading('Downloading PDF...', 'Fetching from storage');
             const supabase = window.supabaseClient.get();
             const { data: blob, error: dlError } = await supabase.storage
                 .from('expense-bills')
-                .download(activePdfRow.storage_path);
+                .download(row.storage_path);
             if (dlError) throw dlError;
 
-            const arrayBuffer = await blob.arrayBuffer();
-            const pdfBase64 = arrayBufferToBase64(arrayBuffer);
+            const pdfBytes = new Uint8Array(await blob.arrayBuffer());
 
-            // Call kodo-submit Edge Function
-            const { data, error } = await supabase.functions.invoke('kodo-submit', {
-                body: {
-                    action: 'submit',
-                    pdfBase64,
-                    fileName: activePdfRow.filename,
-                    totalAmount: amount,
-                    billDate,
-                    categoryId,
-                    checkerId,
-                    comment
-                }
+            // Submit via kodoService (same as main app)
+            tracker.showLoading('Submitting to Kodo...', `Uploading ${tracker.formatAmount(details.totalAmount)} claim to ${details.checkerName}`);
+
+            await kodo.submitToKodo(pdfBytes, {
+                totalAmount: details.totalAmount,
+                checkerId: details.checkerId,
+                categoryId: details.categoryId,
+                comment: details.comment,
+                billDate: details.billDate,
             });
 
-            if (error) throw error;
-            if (data?.error) throw new Error(data.error);
-
-            closeKodoModal();
-            showToast('✅ Submitted to Kodo successfully!', 'success');
+            tracker.hideLoading();
+            tracker.showNotification(`Reimbursement claim ${tracker.formatAmount(details.totalAmount)} submitted to ${details.checkerName} for review`);
+            window.api?.logActivity?.('kodo_submitted', `PDF Library: Submitted ₹${Math.round(details.totalAmount)} to Kodo — checker: ${details.checkerName}`, { amount: details.totalAmount, checker: details.checkerName });
         } catch (err) {
+            tracker.hideLoading();
             console.error('Kodo submit error:', err);
-            showToast('Kodo submit failed: ' + (err.message || 'Unknown error'), 'error');
-        } finally {
-            btn.disabled = false;
-            btn.innerHTML = btnOriginalHTML;
+            tracker.showNotification('Kodo submission failed: ' + err.message);
         }
+
+        activePdfRow = null;
     }
 
     // ---- Email Submit ----
