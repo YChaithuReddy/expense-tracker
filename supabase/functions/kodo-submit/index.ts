@@ -166,6 +166,52 @@ async function kodoCreateReimbursementClaim(accessToken: string, input: {
   return data.createReimbursementOPR.id;
 }
 
+async function fetchClaimStatus(accessToken: string, claimId: string): Promise<{
+  status: string;
+  raw: Record<string, unknown>;
+} | null> {
+  try {
+    const data = await kodoGraphQL(
+      `query getOutgoingPaymentRequest($id: String!) {
+        getOutgoingPaymentRequest(id: $id) {
+          id
+          status
+          billData { billAmount payableAmount }
+          currentlyAssignedTo { user { displayName emailId } }
+          remarks
+          updatedAt
+        }
+      }`,
+      { id: claimId },
+      accessToken
+    );
+    const opr = data.getOutgoingPaymentRequest;
+    if (!opr) return null;
+
+    // Map Kodo status to our simplified status
+    const rawStatus = (opr.status || "").toUpperCase();
+    let mappedStatus = "pending";
+    if (rawStatus.includes("APPROVED") || rawStatus.includes("ACCEPT")) mappedStatus = "approved";
+    else if (rawStatus.includes("REJECT") || rawStatus.includes("DENIED") || rawStatus.includes("DECLINE")) mappedStatus = "rejected";
+    else if (rawStatus.includes("PAID") || rawStatus.includes("SETTLED") || rawStatus.includes("COMPLETE")) mappedStatus = "paid";
+    else if (rawStatus.includes("PENDING") || rawStatus.includes("SUBMITTED") || rawStatus.includes("INITIAT")) mappedStatus = "pending";
+
+    return {
+      status: mappedStatus,
+      raw: {
+        kodoStatus: opr.status,
+        assignedTo: opr.currentlyAssignedTo?.user?.displayName || null,
+        remarks: opr.remarks || null,
+        updatedAt: opr.updatedAt || null,
+        billAmount: opr.billData?.billAmount,
+      },
+    };
+  } catch (e) {
+    console.error(`Failed to fetch claim ${claimId}:`, (e as Error).message);
+    return null;
+  }
+}
+
 async function fetchKodoConfig(accessToken: string, diagnostic = false): Promise<{ categories: any[]; checkers: any[]; rawCheckers?: any[] }> {
   const categories: any[] = [];
   const checkers: any[] = [];
@@ -352,6 +398,28 @@ Deno.serve(async (req: Request) => {
         claimId,
         message: "Reimbursement claim submitted successfully",
       });
+    }
+
+    if (action === "check-status") {
+      const { claimIds } = body;
+      if (!claimIds || !Array.isArray(claimIds) || claimIds.length === 0) {
+        return fail("claimIds array required");
+      }
+      if (claimIds.length > 20) return fail("Maximum 20 claims per request");
+
+      const { data: settings } = await supabase.from("kodo_settings").select("*").eq("user_id", user.id).single();
+      if (!settings) return fail("Kodo not configured");
+      const { token } = await ensureToken(supabase, user.id, settings);
+
+      const results: Record<string, any> = {};
+      for (const cid of claimIds) {
+        const result = await fetchClaimStatus(token, cid);
+        if (result) {
+          results[cid] = result;
+        }
+      }
+
+      return ok({ statuses: results, checkedAt: new Date().toISOString() });
     }
 
     return fail(`Unknown action: ${action}`);

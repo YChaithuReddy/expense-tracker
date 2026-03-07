@@ -7710,6 +7710,125 @@ select.inline-input option {
     flex-shrink: 0;
 }
 
+/* Kodo Claims Status List */
+.kodo-claims-list {
+    max-height: 360px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 2px;
+}
+
+.kodo-claims-empty {
+    text-align: center;
+    padding: 32px 16px;
+    color: #94a3b8;
+    font-size: 0.9rem;
+}
+
+.kodo-claim-card {
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: border-color 0.2s ease;
+}
+
+.kodo-claim-card:hover {
+    border-color: rgba(148, 163, 184, 0.25);
+}
+
+.kodo-claim-card__status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.kodo-claim-card__status-dot--pending {
+    background: #f59e0b;
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+    animation: claimPulse 2s ease-in-out infinite;
+}
+
+.kodo-claim-card__status-dot--approved {
+    background: #10b981;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+}
+
+.kodo-claim-card__status-dot--rejected {
+    background: #ef4444;
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+}
+
+.kodo-claim-card__status-dot--paid {
+    background: #06b6d4;
+    box-shadow: 0 0 8px rgba(6, 182, 212, 0.4);
+}
+
+@keyframes claimPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.kodo-claim-card__info {
+    flex: 1;
+    min-width: 0;
+}
+
+.kodo-claim-card__amount {
+    font-weight: 600;
+    font-size: 1rem;
+    color: #f1f5f9;
+}
+
+.kodo-claim-card__meta {
+    font-size: 0.78rem;
+    color: #94a3b8;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.kodo-claim-card__badge {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    flex-shrink: 0;
+}
+
+.kodo-claim-card__badge--pending {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.kodo-claim-card__badge--approved {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.kodo-claim-card__badge--rejected {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.kodo-claim-card__badge--paid {
+    background: rgba(6, 182, 212, 0.15);
+    color: #06b6d4;
+    border: 1px solid rgba(6, 182, 212, 0.25);
+}
+
 /* Reimbursement modal action grid */
 .reimb-actions {
     display: grid;
