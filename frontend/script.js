@@ -3334,6 +3334,7 @@ class ExpenseTracker {
 
                 this.resetForm();
                 this.showNotification('✅ Expense added successfully!');
+                window.api?.logActivity?.('expense_added', `Added ₹${expenseData.amount} — ${expenseData.vendor || 'Unknown vendor'}`, { amount: expenseData.amount, vendor: expenseData.vendor, category: expenseData.category });
             } else {
                 throw new Error(response.message || 'Failed to add expense');
             }
@@ -3385,6 +3386,7 @@ class ExpenseTracker {
                     await this.loadExpenses();
 
                     this.showNotification('✅ Expense deleted successfully!');
+                    window.api?.logActivity?.('expense_deleted', `Deleted expense ₹${expense.amount} — ${expense.vendor || 'Unknown'}`, { amount: expense.amount, vendor: expense.vendor });
                 } else {
                     throw new Error(response.message || 'Failed to delete expense');
                 }
@@ -3554,7 +3556,7 @@ class ExpenseTracker {
             const safeDescription = this.sanitizeHTML(expense.description);
 
             return `
-            <div class="expense-item" id="expense-${safeId}">
+            <div class="expense-item" id="expense-${safeId}" onclick="if(event.target.tagName!=='INPUT'&&event.target.tagName!=='BUTTON'&&!event.target.closest('button')&&!event.target.closest('.expense-checkbox'))expenseDetail.open('${safeId}')" style="cursor:pointer;">
                 <div class="expense-header">
                     <div class="expense-header-left">
                         <input type="checkbox"
@@ -4154,7 +4156,10 @@ class ExpenseTracker {
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Expense Report');
 
         // Generate filename
-        const fileName = `Expenses_Report_Format_${new Date().toISOString().split('T')[0]}.xlsx`;
+        // Smart naming: Expenses_YYYYMM_Nbills.xlsx
+        const xlsNow = new Date();
+        const xlsYYMM = `${xlsNow.getFullYear()}${String(xlsNow.getMonth() + 1).padStart(2, '0')}`;
+        const fileName = `Expenses_${xlsYYMM}_${expenses.length}bills.xlsx`;
 
         // Convert workbook to bytes and download using saveFile (works on APK + web)
         const xlsxBytes = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
@@ -4599,7 +4604,13 @@ class ExpenseTracker {
 
             // Step 5: Save merged PDF
             const mergedPdfBytes = await mergedPdf.save();
-            const fileName = `Reimbursement_Package_${new Date().toISOString().split('T')[0]}.pdf`;
+            // Smart naming: Reimbursement_YYYYMM_AmountINR_Nbills.pdf
+            const currentExpensesForName = this.isFilterActive() ? this.filteredExpenses : this.expenses;
+            const totalAmt = Math.round(currentExpensesForName.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0));
+            const billCount = currentExpensesForName.length;
+            const now = new Date();
+            const yyyymm = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}`;
+            const fileName = `Reimbursement_${yyyymm}_${totalAmt}INR_${billCount}bills.pdf`;
 
             // Cache PDF for "Email to Accounts" feature
             const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -4636,6 +4647,7 @@ class ExpenseTracker {
                     }
                     // Offer to save to PDF Library
                     this.showSaveToLibraryBanner();
+                    window.api?.logActivity?.('pdf_generated', `Generated reimbursement PDF (${totalPages} pages, ${fileSizeMB} MB)`, { pages: totalPages, sizeMB: fileSizeMB, fileName });
                 } else {
                     this.showError('The package was generated but could not be saved to your device.\n\nTry using the Share option if available, or open in a desktop browser.', 'Download Failed');
                 }
@@ -4843,7 +4855,9 @@ class ExpenseTracker {
 
         // Download as JSON file
         const jsonStr = JSON.stringify(data, null, 2);
-        const fileName = `expense_data_${new Date().toISOString().split('T')[0]}.json`;
+        const jsonNow = new Date();
+        const jsonYYMM = `${jsonNow.getFullYear()}${String(jsonNow.getMonth() + 1).padStart(2, '0')}`;
+        const fileName = `Expenses_Backup_${jsonYYMM}_${this.expenses.length}items.json`;
         const success = await this.saveFile(
             new Blob([jsonStr], { type: 'application/json' }),
             fileName,
@@ -5275,6 +5289,7 @@ This will:
                 if (response.success) {
                     await this.loadExpenses();
                     this.showNotification(`✅ Expense data cleared! ${response.orphanedImagesCount || 0} images saved for later use.`);
+                    window.api?.logActivity?.('data_cleared', 'Cleared expense data (images preserved)');
                 } else {
                     throw new Error(response.message || 'Failed to clear expense data');
                 }
@@ -6046,6 +6061,8 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
 
             if (result.success) {
                 this.showNotification(`✅ Exported ${selectedExpenses.length} expenses to Google Sheets`);
+                const totalExported = selectedExpenses.reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
+                window.api?.logActivity?.('sheets_exported', `Exported ${selectedExpenses.length} expenses (₹${Math.round(totalExported)}) to Google Sheets`, { count: selectedExpenses.length, total: totalExported });
                 console.log(`Data exported to rows ${result.startRow} to ${result.endRow}`);
 
                 // Uncheck all checkboxes after successful export
@@ -7342,6 +7359,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
 
             this.hideLoading();
             this.showNotification(`Reimbursement claim ${this.formatAmount(details.totalAmount)} submitted to ${details.checkerName} for review`);
+            window.api?.logActivity?.('kodo_submitted', `Submitted ₹${Math.round(details.totalAmount)} to Kodo — checker: ${details.checkerName}`, { amount: details.totalAmount, checker: details.checkerName });
 
         } catch (err) {
             this.hideLoading();
@@ -7488,6 +7506,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
 
             this.hideLoading();
             this.showNotification('Email sent successfully to ' + toEmails.join(', '));
+            window.api?.logActivity?.('email_sent', `Emailed reimbursement to ${toEmails.join(', ')}`, { recipients: toEmails });
 
         } catch (err) {
             this.hideLoading();

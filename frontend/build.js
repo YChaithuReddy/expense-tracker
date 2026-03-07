@@ -31,6 +31,11 @@ const filesToCopy = [
     'progress-modal.js',
     'deep-link-handler.js',
     'upi-import.js',
+    'pdfs.js',
+    'activity-log.js',
+    'submit-wizard.js',
+    'expense-detail.js',
+    'styles_pdfs.css',
     'sw.js',
     'manifest.json',
     'favicon.svg'

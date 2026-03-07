@@ -1061,6 +1061,48 @@ const api = {
 
         if (error) handleError(error, 'Delete PDF');
         return { success: true };
+    },
+
+    // ---- Activity Log ----
+    async logActivity(action, details = '', metadata = {}) {
+        try {
+            const supabase = getSupabase();
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return null;
+
+            const { data, error } = await supabase
+                .from('activity_log')
+                .insert({
+                    user_id: user.id,
+                    action,
+                    details: details || null,
+                    metadata: metadata || {}
+                })
+                .select()
+                .single();
+
+            if (error) console.warn('Activity log error:', error.message);
+            return data;
+        } catch (err) {
+            console.warn('Activity log failed:', err.message);
+            return null;
+        }
+    },
+
+    async getActivityLog(limit = 50) {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        const { data, error } = await supabase
+            .from('activity_log')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false })
+            .limit(limit);
+
+        if (error) handleError(error, 'Get Activity Log');
+        return data || [];
     }
 };
 
