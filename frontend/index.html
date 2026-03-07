@@ -815,20 +815,20 @@
                         </div>
 
                         <!-- Action buttons -->
-                        <div class="kodo-confirm-modal__actions" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-                            <button type="submit" class="kodo-confirm-modal__btn kodo-confirm-modal__btn--submit" data-action="download">
+                        <div class="kodo-confirm-modal__actions reimb-actions">
+                            <button type="submit" class="kodo-confirm-modal__btn reimb-act reimb-act--download" data-action="download">
                                 <svg class="kodo-confirm-modal__btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
                                 </svg>
                                 Download PDF
                             </button>
-                            <button type="button" class="kodo-confirm-modal__btn kodo-confirm-modal__btn--submit" id="submitToKodoBtn" data-action="kodo" style="background:linear-gradient(135deg,#0ea5e9 0%,#7c3aed 100%)">
+                            <button type="button" class="kodo-confirm-modal__btn reimb-act reimb-act--kodo" id="submitToKodoBtn" data-action="kodo">
                                 <svg class="kodo-confirm-modal__btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 00-8 0v2"/><circle cx="12" cy="14" r="1.5"/>
                                 </svg>
                                 Submit to Kodo
                             </button>
-                            <button type="button" class="kodo-confirm-modal__btn kodo-confirm-modal__btn--submit" id="emailToAccountsBtn" data-action="email" style="background:linear-gradient(135deg,#6366f1 0%,#a855f7 100%)">
+                            <button type="button" class="kodo-confirm-modal__btn reimb-act reimb-act--email" id="emailToAccountsBtn" data-action="email">
                                 <svg class="kodo-confirm-modal__btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
                                 </svg>
