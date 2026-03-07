@@ -547,15 +547,27 @@
     color: #00d4ff;
 }
 
+/* Fixed top section: upload zone + stats/search bar */
+.pdfs-library-fixed {
+    flex-shrink: 0;
+    padding: 16px 16px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+    padding-bottom: 16px;
+}
+
+/* Scrollable file list area */
 .pdfs-library-body {
     flex: 1;
     min-height: 0;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    padding: 20px 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+    padding: 16px;
     max-width: 1200px;
     margin: 0 auto;
     width: 100%;

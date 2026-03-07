@@ -1178,10 +1178,8 @@
             <button class="pdfs-library-close" onclick="pdfLibrary.closeLibrary()" aria-label="Close PDF Library">✕</button>
         </div>
 
-        <!-- Scrollable body -->
-        <div class="pdfs-library-body">
-
-            <!-- Upload Zone -->
+        <!-- Fixed: Upload Zone -->
+        <div class="pdfs-library-fixed">
             <div class="pdfs-upload-zone" id="uploadZone" role="button" tabindex="0" aria-label="Upload a PDF file — click or drag and drop">
                 <input type="file" id="pdfFileInput" accept=".pdf,application/pdf" aria-label="Select PDF file to upload">
                 <span class="pdfs-upload-zone__icon" aria-hidden="true">📁</span>
@@ -1203,7 +1201,7 @@
                 </div>
             </div>
 
-            <!-- Stats Bar + Search (like FluxGen file manager) -->
+            <!-- Fixed: Stats Bar + Search -->
             <div class="pdfs-stats-bar">
                 <div class="pdfs-stats-pills">
                     <span class="pdfs-stat-pill"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> <span id="pdfCount">0</span> files</span>
@@ -1214,16 +1212,17 @@
                     <input type="text" class="pdfs-search-input" id="pdfSearchInput" placeholder="Search files..." oninput="pdfLibrary.filterFiles(this.value)" aria-label="Search PDF files">
                 </div>
             </div>
+        </div>
 
-            <!-- File List -->
+        <!-- Scrollable: File List only -->
+        <div class="pdfs-library-body">
             <div id="pdfGallery" class="pdfs-file-list" aria-live="polite" aria-label="PDF library">
                 <div class="pdfs-loading">
                     <div class="pdfs-loading__spinner" role="status" aria-label="Loading PDFs"></div>
                     <span>Loading your PDFs...</span>
                 </div>
             </div>
-
-        </div><!-- /pdfs-library-body -->
+        </div>
 
         <!-- Upload Metadata Sub-modal -->
         <div class="pdfs-modal-overlay" id="uploadMetaModal" role="dialog" aria-modal="true" aria-labelledby="uploadMetaTitle">
