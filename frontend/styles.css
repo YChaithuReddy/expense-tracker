@@ -3592,73 +3592,111 @@ body.modal-open {
 }
 
 .employee-info-header {
-    padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+    position: relative;
+    padding: 20px 24px 18px;
+    border-bottom: 1px solid rgba(0, 212, 255, 0.15);
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 1rem;
-    background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(157, 0, 255, 0.1));
-    border-radius: 18px 18px 0 0;
+    overflow: hidden;
 }
 
-.employee-info-header h2 {
-    margin: 0;
-    padding: 0;
-    color: var(--neon-cyan);
-    font-family: 'Orbitron', sans-serif;
-    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
-    font-weight: 700;
-    text-shadow: none;
+.employee-info-header__accent {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #06b6d4 0%, #6366f1 55%, #8b5cf6 100%);
+    border-radius: 20px 20px 0 0;
+}
+
+.employee-info-header__left {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    line-height: 1.2;
+    gap: 14px;
     flex: 1;
-    white-space: nowrap;
+    min-width: 0;
 }
 
-.close-employee-info {
-    font-size: 2rem;
-    font-weight: 300;
-    color: var(--text-secondary);
-    cursor: pointer;
-    background: none;
-    border: none;
-    padding: 0;
-    min-width: 44px;
-    min-height: 44px;
+.employee-info-header__icon {
     width: 44px;
     height: 44px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(99, 102, 241, 0.2));
+    border: 1px solid rgba(6, 182, 212, 0.25);
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50%;
-    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
-    line-height: 1;
     flex-shrink: 0;
+    color: #06b6d4;
+}
+
+.employee-info-header__text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.employee-info-header__text h2 {
+    margin: 0;
+    padding: 0;
+    color: var(--text-primary, #fff);
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.employee-info-header__sub {
+    font-size: 0.73rem;
+    font-weight: 500;
+    color: #06b6d4;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    opacity: 0.85;
+}
+
+.close-employee-info {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    background: transparent;
+    color: var(--text-secondary, #a1a1aa);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+    flex-shrink: 0;
+    font-size: 0;
+    padding: 0;
+    min-width: 34px;
+    min-height: 34px;
 }
 
 .close-employee-info:hover {
-    background: rgba(255, 71, 87, 0.2);
-    color: #ff4757;
-    transform: rotate(90deg) scale(1.05);
+    background: rgba(239, 68, 68, 0.12);
+    border-color: rgba(239, 68, 68, 0.35);
+    color: #f87171;
 }
 
 .employee-info-body {
-    padding: 2rem 1.75rem;
+    padding: 20px 24px 24px;
 }
 
-.modal-instruction {
-    color: var(--text-secondary);
-    margin: 0 0 1.875rem 0;
-    font-size: 0.9375rem;
-    line-height: 1.6;
-    text-align: left;
-    padding: 1rem 1.125rem;
-    background: rgba(0, 212, 255, 0.05);
-    border-left: 3px solid var(--cyber-blue);
-    border-radius: 8px;
+/* Form label icons */
+.form-label-icon {
+    opacity: 0.6;
+    flex-shrink: 0;
+    vertical-align: -2px;
+    margin-right: 2px;
 }
 
 #employeeInfoForm .form-group {
@@ -3797,75 +3835,113 @@ body.modal-open {
     grid-template-columns: 1fr 1fr;
     gap: 10px;
     margin-top: 1.25rem;
-    padding-top: 1rem;
-    border-top: 1px solid rgba(0, 212, 255, 0.15);
+    padding-top: 1.25rem;
+    border-top: 1px solid rgba(0, 212, 255, 0.12);
     width: 100%;
 }
 
-#employeeInfoForm .form-actions button {
-    padding: 10px 12px;
+/* Reimbursement action buttons — shared base */
+.reimb-btn {
+    padding: 12px 14px;
     margin: 0;
-    font-size: 0.78rem;
+    font-size: 0.8rem;
     font-weight: 600;
     cursor: pointer;
-    border-radius: 10px;
-    transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    font-family: 'Space Grotesk', sans-serif;
-    min-height: 40px;
+    border-radius: 12px;
+    border: none;
+    transition: transform 0.2s cubic-bezier(0.34, 1.3, 0.64, 1),
+                box-shadow 0.25s ease,
+                background 0.2s ease;
+    font-family: inherit;
+    min-height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 8px;
     text-align: center;
+    position: relative;
+    overflow: hidden;
+    letter-spacing: 0.01em;
 }
 
-#employeeInfoForm .btn-primary {
-    background: linear-gradient(135deg, var(--cyber-blue), var(--cyber-purple));
-    border: none;
-    color: white;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.reimb-btn svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
 }
 
-#employeeInfoForm .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-#employeeInfoForm .btn-primary:active {
-    transform: translateY(0);
-}
-
-#employeeInfoForm .btn-secondary {
-    background: rgba(108, 117, 125, 0.2);
-    border: 2px solid rgba(108, 117, 125, 0.4);
-    color: var(--text-secondary);
-}
-
-#employeeInfoForm .btn-secondary:hover {
-    background: rgba(108, 117, 125, 0.3);
-    border-color: rgba(108, 117, 125, 0.6);
+.reimb-btn:hover {
     transform: translateY(-2px);
 }
 
-#employeeInfoForm .btn-secondary:active {
+.reimb-btn:active {
     transform: translateY(0);
 }
 
-#employeeInfoForm .btn-kodo-submit {
-    background: linear-gradient(135deg, #0ea5e9, #6366f1);
-    border: none;
-    color: white;
-    box-shadow: 0 2px 8px rgba(14, 165, 233, 0.25);
+/* Download PDF */
+.reimb-btn--download {
+    background: linear-gradient(135deg, #0891b2 0%, #6366f1 100%);
+    color: #fff;
+    box-shadow: 0 3px 14px rgba(6, 182, 212, 0.25);
 }
 
-#employeeInfoForm .btn-kodo-submit:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.35);
+.reimb-btn--download:hover {
+    box-shadow: 0 6px 22px rgba(6, 182, 212, 0.4);
 }
 
-#employeeInfoForm .btn-kodo-submit:active {
-    transform: translateY(0);
+/* Submit to Kodo */
+.reimb-btn--kodo {
+    background: linear-gradient(135deg, #0ea5e9 0%, #7c3aed 100%);
+    color: #fff;
+    box-shadow: 0 3px 14px rgba(14, 165, 233, 0.25);
+}
+
+.reimb-btn--kodo:hover {
+    box-shadow: 0 6px 22px rgba(14, 165, 233, 0.4);
+}
+
+/* Email to Accounts */
+.reimb-btn--email {
+    background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    color: #fff;
+    box-shadow: 0 3px 14px rgba(99, 102, 241, 0.25);
+}
+
+.reimb-btn--email:hover {
+    box-shadow: 0 6px 22px rgba(99, 102, 241, 0.4);
+}
+
+/* Cancel */
+.reimb-btn--cancel {
+    background: transparent;
+    border: 1.5px solid rgba(255, 255, 255, 0.12);
+    color: var(--text-secondary, #a1a1aa);
+}
+
+.reimb-btn--cancel:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.22);
+    color: var(--text-primary, #fff);
+}
+
+/* Shimmer on primary buttons */
+.reimb-btn--download::before,
+.reimb-btn--kodo::before,
+.reimb-btn--email::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+    transition: left 0.5s ease;
+}
+
+.reimb-btn--download:hover::before,
+.reimb-btn--kodo:hover::before,
+.reimb-btn--email:hover::before {
+    left: 160%;
 }
 
 #employeeInfoForm .reimbursement-actions {
@@ -3904,30 +3980,30 @@ body.modal-open {
     }
 
     .employee-info-header {
-        padding: 1rem 1.25rem;
-        border-radius: 14px 14px 0 0;
+        padding: 16px 18px 14px;
     }
 
-    .employee-info-header h2 {
-        font-size: 0.875rem;
-        gap: 0.375rem;
+    .employee-info-header__icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
     }
 
-    .close-employee-info {
-        min-width: 40px;
-        min-height: 40px;
-        width: 40px;
-        height: 40px;
+    .employee-info-header__icon svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .employee-info-header__text h2 {
+        font-size: 0.92rem;
+    }
+
+    .employee-info-header__sub {
+        font-size: 0.67rem;
     }
 
     .employee-info-body {
-        padding: 1.5rem 1.25rem;
-    }
-
-    .modal-instruction {
-        font-size: 0.875rem;
-        padding: 0.875rem 1rem;
-        margin-bottom: 1.5rem;
+        padding: 16px 18px 20px;
     }
 
     #employeeInfoForm .form-group {
@@ -3966,10 +4042,16 @@ body.modal-open {
         padding-top: 1rem;
     }
 
-    #employeeInfoForm .form-actions button {
-        padding: 9px 8px;
-        font-size: 0.7rem;
-        min-height: 36px;
+    .reimb-btn {
+        padding: 10px 10px;
+        font-size: 0.72rem;
+        min-height: 40px;
+        gap: 6px;
+    }
+
+    .reimb-btn svg {
+        width: 16px;
+        height: 16px;
     }
 }
 
@@ -3979,12 +4061,16 @@ body.modal-open {
         padding: 0.5rem;
     }
 
-    .employee-info-header h2 {
-        font-size: 0.8125rem;
+    .employee-info-header {
+        padding: 14px 16px 12px;
+    }
+
+    .employee-info-header__text h2 {
+        font-size: 0.85rem;
     }
 
     .employee-info-body {
-        padding: 1.25rem 1rem;
+        padding: 14px 16px 18px;
     }
 
     #employeeInfoForm input[type="text"],
