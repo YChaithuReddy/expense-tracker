@@ -108,14 +108,24 @@
 
         <main>
             <!-- Bill OCR Section -->
-            <section id="ocrSection" class="ocr-section">
+            <section id="ocrSection" class="ocr-section ocr-dropzone">
+                <!-- Drag overlay shown when dragging files over the card -->
+                <div class="ocr-drag-overlay" id="ocrDragOverlay">
+                    <div class="ocr-drag-overlay__content">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                        <div class="ocr-drag-overlay__text">Drop receipt images or PDFs here</div>
+                    </div>
+                </div>
+
                 <h2>📷 Scan Your Bill</h2>
                 <p>Upload bill images to automatically extract expense details</p>
 
                 <div class="form-group">
-                    <label>Upload Bill Images:</label>
-
-                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <div style="display: flex; gap: 10px;">
                         <button type="button" id="cameraBtn" class="btn-secondary" style="flex: 1;">
                             📷 Camera
                         </button>
@@ -128,11 +138,12 @@
                     <input type="file" id="galleryInput" name="galleryInput" accept="image/*,.pdf,application/pdf" style="display: none;" multiple>
                     <!-- Original hidden input for compatibility -->
                     <input type="file" id="billImages" name="billImages" accept="image/*,.pdf,application/pdf" style="display: none;" multiple>
-                    <small>Drag & drop receipts (images or PDF), take a photo with camera, or select from gallery</small>
+                    <small style="text-align: center; display: block; margin-top: 8px;">Drag & drop anywhere on this card, use camera, or select from gallery</small>
                 </div>
 
-                <div id="imagePreview" class="image-preview-container drag-drop-zone">
-                    <div id="dragDropHint" class="drag-drop-hint">
+                <!-- Image preview (shown only when images are added) -->
+                <div id="imagePreview" class="image-preview-container drag-drop-zone" style="display: none;">
+                    <div id="dragDropHint" class="drag-drop-hint" style="display: none;">
                         <div class="drag-drop-text">Drag & Drop Receipt Images Here</div>
                         <div class="drag-drop-subtext">or click to browse files</div>
                     </div>
@@ -143,16 +154,16 @@
                     <span id="scanProgress" style="display: none;">Processing... <span id="progressText">0%</span></span>
                 </button>
 
-                <div style="text-align: center; margin-top: 20px;">
-                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+                <div style="text-align: center; margin-top: 15px;">
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 12px;">
                         <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
-                        <span style="color: var(--text-secondary); font-size: 0.9rem;">OR</span>
+                        <span style="color: var(--text-secondary); font-size: 0.85rem;">OR</span>
                         <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
                     </div>
                     <button type="button" id="skipToManualEntry" class="btn-secondary" style="width: 100%;">
                         ✍️ Enter Expense Manually (Without Bill)
                     </button>
-                    <small style="display: block; margin-top: 8px; color: var(--text-secondary);">
+                    <small style="display: block; margin-top: 6px; color: var(--text-secondary);">
                         Perfect for cash payments or when you don't have a receipt
                     </small>
                 </div>

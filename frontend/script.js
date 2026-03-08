@@ -329,11 +329,13 @@ class ExpenseTracker {
     }
 
     initializeDragAndDrop() {
-        const dropZone = document.getElementById('imagePreview');
+        const ocrSection = document.getElementById('ocrSection');
+        const overlay = document.getElementById('ocrDragOverlay');
         const billImagesInput = document.getElementById('billImages');
+        let dragCounter = 0; // Track nested dragenter/dragleave
 
-        if (!dropZone) {
-            console.warn('Image preview element not found');
+        if (!ocrSection) {
+            console.warn('OCR section element not found');
             return;
         }
 
@@ -345,54 +347,65 @@ class ExpenseTracker {
             }, false);
         });
 
-        // Highlight drop zone when item is dragged over it
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropZone.addEventListener(eventName, (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                dropZone.classList.add('drag-over');
-            }, false);
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                dropZone.classList.remove('drag-over');
-            }, false);
-        });
-
-        // Handle dropped files
-        dropZone.addEventListener('drop', (e) => {
+        // Show overlay when dragging over the card
+        ocrSection.addEventListener('dragenter', (e) => {
             e.preventDefault();
             e.stopPropagation();
+            dragCounter++;
+            ocrSection.classList.add('drag-over');
+        }, false);
+
+        ocrSection.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        }, false);
+
+        ocrSection.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dragCounter--;
+            if (dragCounter <= 0) {
+                dragCounter = 0;
+                ocrSection.classList.remove('drag-over');
+            }
+        }, false);
+
+        // Handle dropped files on the entire card
+        ocrSection.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dragCounter = 0;
+            ocrSection.classList.remove('drag-over');
 
             const dt = e.dataTransfer;
             const files = dt.files;
 
             if (files.length > 0) {
-                // Validate that files are images
-                const imageFiles = Array.from(files).filter(file => {
-                    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic', 'image/gif', 'image/bmp'];
+                // Validate files (images + PDFs)
+                const validFiles = Array.from(files).filter(file => {
+                    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic', 'image/gif', 'image/bmp', 'application/pdf'];
                     const fileExtension = file.name.split('.').pop().toLowerCase();
-                    const validExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'heic'];
-                    // Check both MIME type and file extension
+                    const validExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'heic', 'pdf'];
                     return validTypes.includes(file.type?.toLowerCase()) || validExtensions.includes(fileExtension);
                 });
 
-                if (imageFiles.length === 0) {
-                    this.showNotification('❌ Please drop only image files (JPEG, PNG, WebP, HEIC, GIF)');
+                if (validFiles.length === 0) {
+                    this.showNotification('❌ Please drop image files (JPEG, PNG, WebP, HEIC, GIF) or PDFs');
                     return;
                 }
 
-                if (imageFiles.length < files.length) {
-                    const skipped = files.length - imageFiles.length;
-                    this.showNotification(`⚠️ ${skipped} non-image file(s) were skipped`);
+                if (validFiles.length < files.length) {
+                    const skipped = files.length - validFiles.length;
+                    this.showNotification(`⚠️ ${skipped} unsupported file(s) were skipped`);
                 }
+
+                // Show the imagePreview container for incoming images
+                const previewContainer = document.getElementById('imagePreview');
+                if (previewContainer) previewContainer.style.display = '';
 
                 // Create a new DataTransfer object to set files programmatically
                 const dataTransfer = new DataTransfer();
-                imageFiles.forEach(file => dataTransfer.items.add(file));
+                validFiles.forEach(file => dataTransfer.items.add(file));
 
                 // Set the files to the hidden input
                 billImagesInput.files = dataTransfer.files;
@@ -401,18 +414,9 @@ class ExpenseTracker {
                 this.handleImageUpload({ target: billImagesInput });
 
                 // Provide visual feedback
-                this.showNotification(`✅ ${imageFiles.length} image(s) added successfully!`);
+                this.showNotification(`✅ ${validFiles.length} file(s) added successfully!`);
             }
         }, false);
-
-        // Allow clicking on drop zone to open file browser
-        dropZone.addEventListener('click', (e) => {
-            // Check if clicking on the hint or drop zone when it only has the hint
-            const dragHint = document.getElementById('dragDropHint');
-            if (e.target.closest('#dragDropHint') || (dropZone.children.length === 1 && dropZone.contains(dragHint))) {
-                billImagesInput.click();
-            }
-        });
 
         console.log('✅ Drag and drop functionality initialized');
     }
@@ -436,8 +440,9 @@ class ExpenseTracker {
 
         this.isProcessingImages = true;
 
-        // Show loading indicator immediately
+        // Show the preview container and loading indicator
         const previewContainer = document.getElementById('imagePreview');
+        if (previewContainer) previewContainer.style.display = '';
         // Hide the drag hint
         const dragHint = document.getElementById('dragDropHint');
         if (dragHint) {
@@ -579,16 +584,11 @@ class ExpenseTracker {
 
             if (files.length === 0) {
                 document.getElementById('scanBills').style.display = 'none';
-                // Clear preview but restore the drag hint
+                // Clear preview and hide the container
                 const previewContainer = document.getElementById('imagePreview');
                 const existingItems = previewContainer.querySelectorAll(':not(#dragDropHint)');
                 existingItems.forEach(item => item.remove());
-
-                // Show the drag hint again
-                const dragHint = document.getElementById('dragDropHint');
-                if (dragHint) {
-                    dragHint.style.display = 'block';
-                }
+                previewContainer.style.display = 'none';
                 previewContainer.className = 'image-preview-container drag-drop-zone';
 
                 this.isProcessingImages = false;
@@ -702,11 +702,8 @@ class ExpenseTracker {
                     processingOverlay.parentElement.remove();
                 }
 
-                // Show drag hint again
-                const dragHint = document.getElementById('dragDropHint');
-                if (dragHint) {
-                    dragHint.style.display = 'block';
-                }
+                // Hide preview container since no images
+                previewContainer.style.display = 'none';
 
                 return;
             }
@@ -2486,19 +2483,11 @@ class ExpenseTracker {
         this.extractedExpenses = [];
         this.extractedData = {};
 
-        // Reset the image preview to show drag hint
+        // Reset and hide the image preview container
         const imagePreview = document.getElementById('imagePreview');
         if (imagePreview) {
-            // Clear all content
             imagePreview.innerHTML = '';
-            // Restore the drag hint
-            const dragHintHtml = `
-                <div id="dragDropHint" class="drag-drop-hint">
-                    <div class="drag-drop-text">Drag & Drop Receipt Images Here</div>
-                    <div class="drag-drop-subtext">or click to browse files</div>
-                </div>
-            `;
-            imagePreview.innerHTML = dragHintHtml;
+            imagePreview.style.display = 'none';
             imagePreview.className = 'image-preview-container drag-drop-zone';
         }
 
@@ -2996,16 +2985,11 @@ class ExpenseTracker {
             extractedDataDiv.remove();
         }
 
-        // Clear image preview in OCR section but restore hint
+        // Clear image preview in OCR section and hide container
         const previewContainer = document.getElementById('imagePreview');
         const existingItems = previewContainer.querySelectorAll(':not(#dragDropHint)');
         existingItems.forEach(item => item.remove());
-
-        // Show the drag hint again
-        const dragHint = document.getElementById('dragDropHint');
-        if (dragHint) {
-            dragHint.style.display = 'block';
-        }
+        previewContainer.style.display = 'none';
         previewContainer.className = 'image-preview-container drag-drop-zone';
 
         document.getElementById('scanBills').style.display = 'none';
@@ -3047,16 +3031,11 @@ class ExpenseTracker {
         this.extractedData = {};
         document.getElementById('billImages').value = '';
 
-        // Clear preview but restore the drag hint
+        // Clear preview and hide container
         const previewContainer = document.getElementById('imagePreview');
         const existingItems = previewContainer.querySelectorAll(':not(#dragDropHint)');
         existingItems.forEach(item => item.remove());
-
-        // Show the drag hint again
-        const dragHint = document.getElementById('dragDropHint');
-        if (dragHint) {
-            dragHint.style.display = 'block';
-        }
+        previewContainer.style.display = 'none';
         previewContainer.className = 'image-preview-container drag-drop-zone';
 
         document.getElementById('scanBills').style.display = 'none';
