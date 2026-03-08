@@ -376,6 +376,8 @@ main > * {
 /* Drag-and-drop overlay for OCR section */
 .ocr-dropzone {
     position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
 .ocr-drag-overlay {
@@ -5021,9 +5023,10 @@ body.modal-open {
     transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
     background: linear-gradient(135deg, rgba(0, 212, 255, 0.03), rgba(157, 0, 255, 0.03));
     position: relative;
-    margin: 15px 0;
+    margin: 10px 0 0;
     overflow: hidden;
-    min-height: 120px;
+    min-height: 60px;
+    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -5032,16 +5035,16 @@ body.modal-open {
 
 /* Drag drop hint styling */
 .drag-drop-hint {
-    padding: 20px;
+    padding: 10px;
     text-align: center;
     width: 100%;
 }
 
 .drag-drop-text {
     color: var(--text-primary);
-    font-size: 1.1em;
+    font-size: 0.95em;
     font-weight: 500;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
     opacity: 0.9;
 }
 

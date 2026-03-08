@@ -584,11 +584,12 @@ class ExpenseTracker {
 
             if (files.length === 0) {
                 document.getElementById('scanBills').style.display = 'none';
-                // Clear preview and hide the container
+                // Clear preview and restore drag hint
                 const previewContainer = document.getElementById('imagePreview');
                 const existingItems = previewContainer.querySelectorAll(':not(#dragDropHint)');
                 existingItems.forEach(item => item.remove());
-                previewContainer.style.display = 'none';
+                const dragHint = document.getElementById('dragDropHint');
+                if (dragHint) dragHint.style.display = '';
                 previewContainer.className = 'image-preview-container drag-drop-zone';
 
                 this.isProcessingImages = false;
@@ -702,8 +703,9 @@ class ExpenseTracker {
                     processingOverlay.parentElement.remove();
                 }
 
-                // Hide preview container since no images
-                previewContainer.style.display = 'none';
+                // Restore drag hint
+                const hintEl = document.getElementById('dragDropHint');
+                if (hintEl) hintEl.style.display = '';
 
                 return;
             }
@@ -2483,11 +2485,14 @@ class ExpenseTracker {
         this.extractedExpenses = [];
         this.extractedData = {};
 
-        // Reset and hide the image preview container
+        // Reset the image preview and restore drag hint
         const imagePreview = document.getElementById('imagePreview');
         if (imagePreview) {
-            imagePreview.innerHTML = '';
-            imagePreview.style.display = 'none';
+            imagePreview.innerHTML = `
+                <div id="dragDropHint" class="drag-drop-hint">
+                    <div class="drag-drop-text">Drag & Drop Receipt Images Here</div>
+                    <div class="drag-drop-subtext">or click to browse files</div>
+                </div>`;
             imagePreview.className = 'image-preview-container drag-drop-zone';
         }
 
@@ -2985,11 +2990,12 @@ class ExpenseTracker {
             extractedDataDiv.remove();
         }
 
-        // Clear image preview in OCR section and hide container
+        // Clear image preview in OCR section and restore hint
         const previewContainer = document.getElementById('imagePreview');
         const existingItems = previewContainer.querySelectorAll(':not(#dragDropHint)');
         existingItems.forEach(item => item.remove());
-        previewContainer.style.display = 'none';
+        const dragHint = document.getElementById('dragDropHint');
+        if (dragHint) dragHint.style.display = '';
         previewContainer.className = 'image-preview-container drag-drop-zone';
 
         document.getElementById('scanBills').style.display = 'none';
@@ -3031,11 +3037,12 @@ class ExpenseTracker {
         this.extractedData = {};
         document.getElementById('billImages').value = '';
 
-        // Clear preview and hide container
+        // Clear preview and restore hint
         const previewContainer = document.getElementById('imagePreview');
         const existingItems = previewContainer.querySelectorAll(':not(#dragDropHint)');
         existingItems.forEach(item => item.remove());
-        previewContainer.style.display = 'none';
+        const dragHint = document.getElementById('dragDropHint');
+        if (dragHint) dragHint.style.display = '';
         previewContainer.className = 'image-preview-container drag-drop-zone';
 
         document.getElementById('scanBills').style.display = 'none';
