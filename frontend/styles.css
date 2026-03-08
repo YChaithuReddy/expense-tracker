@@ -214,6 +214,12 @@ main > * {
     min-width: 0;
 }
 
+/* Full-width expense list below the 2-column grid */
+.expenses-fullwidth-section {
+    margin-top: 20px;
+    animation: fadeInUp 0.8s ease-out;
+}
+
 /* Tablet and smaller: Single column layout */
 @media (max-width: 1200px) {
     main {
@@ -274,7 +280,8 @@ main > * {
 
 .ocr-section,
 .expense-form-section,
-.expenses-list-section {
+.expenses-list-section,
+.expenses-fullwidth-section {
     background: var(--glass-bg);
     border: 1px solid rgba(255, 255, 255, 0.1);
     padding: 20px;
@@ -289,7 +296,8 @@ main > * {
 
 .ocr-section::after,
 .expense-form-section::after,
-.expenses-list-section::after {
+.expenses-list-section::after,
+.expenses-fullwidth-section::after {
     content: '';
     position: absolute;
     top: 0;
@@ -303,7 +311,8 @@ main > * {
 
 .ocr-section:hover,
 .expense-form-section:hover,
-.expenses-list-section:hover {
+.expenses-list-section:hover,
+.expenses-fullwidth-section:hover {
     transform: translateY(-5px);
     box-shadow:
         0 30px 60px rgba(0, 0, 0, 0.4),
@@ -313,7 +322,8 @@ main > * {
 
 .ocr-section::before,
 .expense-form-section::before,
-.expenses-list-section::before {
+.expenses-list-section::before,
+.expenses-fullwidth-section::before {
     content: '';
     position: absolute;
     top: 0;
@@ -328,7 +338,8 @@ main > * {
 
 .ocr-section h2,
 .expense-form-section h2,
-.expenses-list-section h2 {
+.expenses-list-section h2,
+.expenses-fullwidth-section h2 {
     font-family: 'Orbitron', sans-serif;
     margin-bottom: 15px;
     color: var(--neon-cyan);
@@ -345,7 +356,8 @@ main > * {
 
 .ocr-section h2::after,
 .expense-form-section h2::after,
-.expenses-list-section h2::after {
+.expenses-list-section h2::after,
+.expenses-fullwidth-section h2::after {
     content: '';
     flex: 1;
     height: 1px;
