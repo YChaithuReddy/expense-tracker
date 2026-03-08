@@ -200,6 +200,7 @@ html.modal-open body {
   position: fixed;
   inset: 0;
   background: var(--clear-bg-overlay);
+  -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   cursor: pointer;
 }
@@ -211,6 +212,7 @@ html.modal-open body {
   max-width: 1100px;
   margin: var(--clear-space-4) auto;
   background: var(--clear-glass-bg);
+  -webkit-backdrop-filter: var(--clear-glass-blur);
   backdrop-filter: var(--clear-glass-blur);
   border: var(--clear-glass-border);
   border-radius: var(--clear-radius-2xl);
@@ -252,6 +254,7 @@ html.modal-open body {
     rgba(168, 85, 247, 0.1) 100%
   );
   border-bottom: 1px solid var(--clear-border-subtle);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   overflow: hidden;
 }
@@ -1171,6 +1174,7 @@ html.modal-open body {
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.85);
+  -webkit-backdrop-filter: blur(10px) saturate(150%);
   backdrop-filter: blur(10px) saturate(150%);
   animation: backdropFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
@@ -1196,6 +1200,7 @@ html.modal-open body {
     inset 0 1px 0 rgba(255, 255, 255, 0.1),
     inset 0 -1px 0 rgba(0, 0, 0, 0.5);
   animation: modalSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
   backdrop-filter: blur(40px) saturate(180%);
 }
 
@@ -1679,7 +1684,9 @@ html.modal-open body {
   .clear-data-confirm-container {
     border-radius: 0;
     max-height: 100vh;
+    max-height: 100dvh;
     height: 100vh;
+    height: 100dvh;
   }
 
   .clear-data-confirm-header {

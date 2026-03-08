@@ -6,6 +6,7 @@
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.7);
+  -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
   z-index: 9998;
   animation: fadeIn 0.2s ease-in-out;
@@ -16,6 +17,7 @@
   right: 0;
   top: 0;
   height: 100vh;
+  height: 100dvh;
   width: 480px;
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   box-shadow: -4px 0 24px rgba(0, 0, 0, 0.5);
@@ -44,6 +46,7 @@
   position: sticky;
   top: 0;
   z-index: 10;
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
 

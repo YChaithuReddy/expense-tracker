@@ -16,6 +16,7 @@
     top: calc(100% + 8px);
     right: 0;
     background: linear-gradient(145deg, rgba(18, 18, 35, 0.98) 0%, rgba(28, 28, 50, 0.95) 100%);
+    -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
     border: 2px solid transparent;
     border-radius: 20px;
@@ -567,6 +568,7 @@
         right: 0;
         bottom: 0;
         background: rgba(0, 0, 0, 0.7);
+        -webkit-backdrop-filter: blur(5px);
         backdrop-filter: blur(5px);
         z-index: 99999;
     }
@@ -611,6 +613,7 @@
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.9);
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     animation: fadeIn 0.3s ease-out;
     overflow-y: auto;
@@ -622,6 +625,7 @@
 
 .orphaned-images-content {
     background: #1a1a1a;
+    -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     margin: 0 auto;
@@ -1181,6 +1185,7 @@
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.8);
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     display: flex;
     align-items: center;
@@ -1190,6 +1195,7 @@
 
 .warning-content {
     background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
     border: 2px solid rgba(255, 71, 87, 0.3);
     border-radius: 20px;

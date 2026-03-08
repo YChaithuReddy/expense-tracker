@@ -289,6 +289,7 @@
   position: fixed;
   inset: 0;
   background: var(--img-bg-overlay);
+  -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   cursor: pointer;
 }
@@ -300,6 +301,7 @@
   max-width: var(--img-modal-max-width);
   margin: var(--img-space-4) auto;
   background: var(--img-glass-bg);
+  -webkit-backdrop-filter: var(--img-glass-blur);
   backdrop-filter: var(--img-glass-blur);
   border: var(--img-glass-border);
   border-radius: var(--img-radius-2xl);
@@ -333,6 +335,7 @@
     rgba(168, 85, 247, 0.1) 100%
   );
   border-bottom: 1px solid var(--img-border-subtle);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   overflow: hidden;
 }
@@ -670,6 +673,7 @@
   gap: var(--img-space-1);
   padding: var(--img-space-3);
   background: rgba(255, 255, 255, 0.15);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: var(--img-radius-md);
@@ -892,6 +896,7 @@
   position: absolute;
   inset: 0;
   background: rgba(0, 0, 0, 0.95);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   cursor: pointer;
 }
@@ -1013,6 +1018,7 @@
   width: 56px;
   height: 56px;
   background: #1a1a2e !important;
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   border: 3px solid #00d4ff !important;
   border-radius: 50%;
@@ -1062,6 +1068,7 @@
   width: 56px;
   height: 56px;
   background: rgba(255, 255, 255, 0.1);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: var(--img-radius-full);
@@ -1125,6 +1132,7 @@
   gap: var(--img-space-3);
   padding: var(--img-space-3) var(--img-space-5);
   background: var(--img-glass-bg);
+  -webkit-backdrop-filter: var(--img-glass-blur);
   backdrop-filter: var(--img-glass-blur);
   border: 1px solid var(--img-border-default);
   border-radius: var(--img-radius-xl);
@@ -1181,11 +1189,13 @@
   height: 4px;
   background: rgba(255, 255, 255, 0.2);
   border-radius: var(--img-radius-full);
+  -webkit-appearance: none;
   appearance: none;
   cursor: pointer;
 }
 
 .img-viewer__zoom-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
   appearance: none;
   width: 16px;
   height: 16px;
@@ -1653,6 +1663,7 @@
   gap: var(--img-space-3);
   padding: var(--img-space-4);
   background: var(--img-glass-bg);
+  -webkit-backdrop-filter: var(--img-glass-blur);
   backdrop-filter: var(--img-glass-blur);
   border: 1px solid var(--img-border-default);
   border-radius: var(--img-radius-lg);

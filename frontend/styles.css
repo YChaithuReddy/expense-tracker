@@ -112,6 +112,7 @@ body {
     color: var(--text-primary);
     background: var(--background-primary);
     min-height: 100vh;
+    min-height: 100dvh;
     overflow-x: hidden;
     position: relative;
     width: 100%;
@@ -135,6 +136,7 @@ body {
 
 header {
     background: rgba(255, 255, 255, 0.03);
+    -webkit-backdrop-filter: blur(30px);
     backdrop-filter: blur(30px);
     border: 2px solid rgba(255, 255, 255, 0.1);
     color: var(--text-primary);
@@ -387,6 +389,7 @@ main > * {
     z-index: 50;
     border-radius: 20px;
     background: rgba(0, 212, 255, 0.08);
+    -webkit-backdrop-filter: blur(4px);
     backdrop-filter: blur(4px);
     border: 2px dashed var(--neon-cyan);
     pointer-events: none;
@@ -975,6 +978,7 @@ main > * {
     height: 40px;
     border-radius: 12px;
     background: rgba(255, 255, 255, 0.15);
+    -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
     display: flex;
     align-items: center;
@@ -1584,6 +1588,7 @@ main > * {
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.9);
+    -webkit-backdrop-filter: blur(5px);
     backdrop-filter: blur(5px);
 }
 
@@ -1735,6 +1740,7 @@ main > * {
     font-weight: 700;
     padding: 15px;
     background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 15px;
@@ -1769,6 +1775,7 @@ main > * {
     top: 30px;
     right: 30px;
     background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.2);
     color: var(--text-primary);
@@ -2328,6 +2335,7 @@ main > * {
     justify-content: center;
     border-radius: 50%;
     background: rgba(0, 0, 0, 0.7);
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     border: none;
     padding: 0;
@@ -2361,6 +2369,7 @@ main > * {
     margin-top: 20px;
     padding: 15px 25px;
     background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 10px;
@@ -2379,6 +2388,7 @@ main > * {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.8);
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     animation: fadeIn 0.3s ease-out;
     overflow: hidden;
@@ -2402,6 +2412,7 @@ body.modal-open {
 
 .modal-content {
     background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.2);
     margin: 5% auto;
@@ -2625,7 +2636,9 @@ body.modal-open {
     .image-modal-content {
         width: 100% !important;
         height: 100vh !important;
+        height: 100dvh !important;
         max-height: 100vh !important;
+        max-height: 100dvh !important;
         margin: 0 !important;
         display: flex;
         flex-direction: column;
@@ -2687,6 +2700,7 @@ body.modal-open {
         width: 100%;
         text-align: center;
         background: rgba(0, 0, 0, 0.6);
+        -webkit-backdrop-filter: blur(10px);
         backdrop-filter: blur(10px);
         border-radius: 10px;
         margin-top: 16px;
@@ -3237,6 +3251,7 @@ body.modal-open {
 /* Main Flatpickr Container */
 .flatpickr-calendar {
     background: rgba(26, 26, 46, 0.98) !important;
+    -webkit-backdrop-filter: blur(30px) !important;
     backdrop-filter: blur(30px) !important;
     border: 2px solid rgba(0, 212, 255, 0.4) !important;
     border-radius: 20px !important;
@@ -3606,6 +3621,7 @@ body.modal-open {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.92);
+    -webkit-backdrop-filter: blur(15px);
     backdrop-filter: blur(15px);
     animation: fadeIn 0.3s ease-out;
     overflow-y: auto;
@@ -3618,6 +3634,7 @@ body.modal-open {
 
 .employee-info-content {
     background: linear-gradient(135deg, rgba(26, 26, 46, 0.98) 0%, rgba(22, 33, 62, 0.98) 100%);
+    -webkit-backdrop-filter: blur(30px);
     backdrop-filter: blur(30px);
     border: 2px solid rgba(0, 212, 255, 0.35);
     border-radius: 20px;
@@ -4384,6 +4401,7 @@ body.modal-open {
     justify-content: center;
     align-items: center;
     z-index: 9999;
+    -webkit-backdrop-filter: blur(6px);
     backdrop-filter: blur(6px);
 }
 
@@ -4433,6 +4451,7 @@ body.modal-open {
     justify-content: center;
     align-items: center;
     z-index: 10000;
+    -webkit-backdrop-filter: blur(4px);
     backdrop-filter: blur(4px);
     animation: fadeIn 0.2s ease-out;
 }
@@ -5144,6 +5163,7 @@ body.modal-open {
     bottom: 0;
     background: rgba(10, 15, 30, 0.9);
     z-index: 9999;
+    -webkit-backdrop-filter: blur(4px);
     backdrop-filter: blur(4px);
     animation: fadeIn 0.3s ease;
 }
@@ -5593,6 +5613,7 @@ body.modal-open {
   padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   background: rgba(0, 0, 0, 0.15);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   flex-shrink: 0;
 }
@@ -5861,6 +5882,7 @@ body.modal-open {
     left: 8px;
     z-index: 10;
     background: rgba(0, 0, 0, 0.6);
+    -webkit-backdrop-filter: blur(4px);
     backdrop-filter: blur(4px);
     padding: 3px;
     border-radius: 6px;
@@ -5885,6 +5907,7 @@ body.modal-open {
     right: 8px;
     z-index: 10;
     background: rgba(76, 175, 80, 0.9);
+    -webkit-backdrop-filter: blur(6px);
     backdrop-filter: blur(6px);
     color: white;
     padding: 5px 12px;
@@ -5974,6 +5997,7 @@ body.modal-open {
     right: 6px;
     z-index: 20;
     background: rgba(0, 0, 0, 0.7);
+    -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
     color: white;
     padding: 4px 8px;
@@ -6008,6 +6032,7 @@ body.modal-open {
     left: 16px;
     z-index: 20;
     background: rgba(239, 68, 68, 0.9);
+    -webkit-backdrop-filter: blur(4px);
     backdrop-filter: blur(4px);
     color: white;
     padding: 10px 14px;
@@ -6154,6 +6179,7 @@ body.modal-open {
 .inline-input select,
 select.inline-input {
     cursor: pointer;
+    -webkit-appearance: none;
     appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2300d4ff' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
@@ -6224,6 +6250,7 @@ select.inline-input option {
 
 .card-inline-form select.inline-input {
     cursor: pointer;
+    -webkit-appearance: none;
     appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2300d4ff' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
@@ -7226,6 +7253,7 @@ select.inline-input option {
     right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0.6);
+    -webkit-backdrop-filter: blur(4px);
     backdrop-filter: blur(4px);
     display: flex;
     align-items: center;
@@ -9000,6 +9028,15 @@ select.inline-input option {
 }
 
 /* ================================================
+   iOS: Prevent auto-zoom on input focus (requires >= 16px)
+   ================================================ */
+@supports (-webkit-touch-callout: none) {
+    input, select, textarea {
+        font-size: max(16px, 1em);
+    }
+}
+
+/* ================================================
    PERFORMANCE: Reduced motion & rendering hints
    ================================================ */
 @media (prefers-reduced-motion: reduce) {
@@ -9279,6 +9316,7 @@ select.inline-input option {
     align-items: center;
     justify-content: center;
     background: rgba(0,0,0,0.7);
+    -webkit-backdrop-filter: blur(6px);
     backdrop-filter: blur(6px);
     padding: 16px;
 }
@@ -9484,6 +9522,7 @@ select.inline-input option {
     align-items: center;
     justify-content: center;
     background: rgba(0,0,0,0.7);
+    -webkit-backdrop-filter: blur(6px);
     backdrop-filter: blur(6px);
     padding: 16px;
 }
