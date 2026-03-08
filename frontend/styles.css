@@ -208,20 +208,10 @@ main {
     grid-template-columns: 1fr 1fr;
     gap: 20px;
     animation: fadeInUp 0.8s ease-out;
-    align-items: stretch;
+    align-items: start;
 }
 main > * {
     min-width: 0;
-}
-
-/* Right column: buttons-only section fills height */
-.expenses-list-section {
-    display: flex;
-    flex-direction: column;
-}
-
-.expenses-list-section .section-header {
-    flex: 1;
 }
 
 /* Full-width expense list below the 2-column grid */
@@ -770,10 +760,7 @@ main > * {
 .section-header {
     display: flex;
     flex-direction: column;
-    align-items: stretch;
     gap: 15px;
-    margin-bottom: 0;
-    height: 100%;
 }
 
 .action-buttons {
