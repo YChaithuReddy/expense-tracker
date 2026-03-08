@@ -208,7 +208,7 @@ main {
     grid-template-columns: 1fr 1fr;
     gap: 20px;
     animation: fadeInUp 0.8s ease-out;
-    align-items: start;
+    align-items: stretch;
 }
 main > * {
     min-width: 0;
@@ -366,7 +366,7 @@ main > * {
 
 .ocr-section p,
 .expense-form-section p {
-    margin-bottom: 25px;
+    margin-bottom: 15px;
     color: var(--text-secondary);
     font-weight: 400;
     font-size: 0.95rem;
@@ -374,16 +374,16 @@ main > * {
 }
 
 .image-preview-container {
-    margin: 12px 0;
-    padding: 15px 12px;
+    margin: 8px 0;
+    padding: 12px 12px;
     border: 2px dashed rgba(0, 212, 255, 0.3);
     border-radius: 15px;
     text-align: center;
-    min-height: 120px;
+    min-height: 80px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 20px;
+    gap: 15px;
     background: rgba(0, 212, 255, 0.02);
     transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
     position: relative;
