@@ -226,6 +226,10 @@ class ToastManager {
             return null;
         }
 
+        // Remove any existing toasts so only one shows at a time
+        const existing = this.container.querySelectorAll('.toast:not(.exiting)');
+        existing.forEach(t => this.remove(t));
+
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
         toast.style.position = 'relative';
