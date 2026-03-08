@@ -8106,6 +8106,21 @@ select.inline-input option {
         max-height: 100dvh;
         border-radius: 0;
         overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .kodo-modal-overlay--bottomsheet > .kodo-confirm-modal > .kodo-confirm-modal__body,
+    .kodo-modal-overlay--bottomsheet > .email-modal > .email-modal-body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+    }
+
+    .kodo-modal-overlay--bottomsheet > .kodo-confirm-modal > .kodo-confirm-modal__body > .kodo-confirm-modal__actions {
+        margin-top: auto;
+        padding-bottom: env(safe-area-inset-bottom, 16px);
     }
 }
 
