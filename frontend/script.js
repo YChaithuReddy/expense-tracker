@@ -3556,7 +3556,7 @@ class ExpenseTracker {
             const safeDescription = this.sanitizeHTML(expense.description);
 
             return `
-            <div class="expense-item" id="expense-${safeId}" onclick="if(event.target.tagName!=='INPUT'&&event.target.tagName!=='BUTTON'&&!event.target.closest('button')&&!event.target.closest('.expense-checkbox'))expenseDetail.open('${safeId}')" style="cursor:pointer;">
+            <div class="expense-item" id="expense-${safeId}" onclick="if(event.target.tagName!=='INPUT'&&event.target.tagName!=='BUTTON'&&event.target.tagName!=='IMG'&&!event.target.closest('button')&&!event.target.closest('.expense-checkbox')&&!event.target.closest('.expense-images'))expenseDetail.open('${safeId}')" style="cursor:pointer;">
                 <div class="expense-header">
                     <div class="expense-header-left">
                         <input type="checkbox"
