@@ -23,12 +23,32 @@ class KodoService {
     }
 
     /**
+     * Ensure Supabase session is fresh before making authenticated calls.
+     * Refreshes the token if expired, throws if no valid session exists.
+     */
+    async _ensureSession() {
+        const supabase = this._getSupabase();
+        const { data: { session }, error } = await supabase.auth.getSession();
+
+        if (error || !session) {
+            // Try to refresh explicitly
+            const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+            if (refreshError || !refreshData?.session) {
+                throw new Error('Session expired. Please log out and log back in.');
+            }
+        }
+    }
+
+    /**
      * Call the kodo-submit Edge Function
      * Uses supabase.functions.invoke() for automatic auth handling
      * Returns parsed result with { success, data } or throws
      */
     async _callEdgeFunction(body) {
         const supabase = this._getSupabase();
+
+        // Ensure valid auth session before calling edge function
+        await this._ensureSession();
 
         const { data, error } = await supabase.functions.invoke('kodo-submit', {
             body: body,
