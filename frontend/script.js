@@ -7123,8 +7123,6 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         saveBtn.onclick = async () => {
             const email = document.getElementById('kodoEmail').value.trim();
             const passcode = document.getElementById('kodoPasscode').value.trim();
-            const checkerSelect = document.getElementById('kodoChecker');
-            const categorySelect = document.getElementById('kodoCategory');
 
             if (!email || !passcode) {
                 showStatus('Email and passcode are required', true);
@@ -7135,14 +7133,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             saveBtn.textContent = 'Saving...';
 
             try {
-                await kodo.saveSettings({
-                    email,
-                    passcode,
-                    checkerId: checkerSelect.value || null,
-                    checkerName: checkerSelect.options[checkerSelect.selectedIndex]?.text || null,
-                    categoryId: categorySelect.value || null,
-                    categoryName: categorySelect.options[categorySelect.selectedIndex]?.text || null,
-                });
+                await kodo.saveSettings({ email, passcode });
                 showStatus('Settings saved successfully!');
                 setTimeout(closeModal, 1000);
             } catch (err) {
@@ -7210,7 +7201,6 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
     populateKodoDropdowns(config, checkerSelectId = 'kodoChecker', categorySelectId = 'kodoCategory') {
         const checkerSelect = document.getElementById(checkerSelectId);
         const categorySelect = document.getElementById(categorySelectId);
-        const kodo = window.kodoService;
 
         if (checkerSelect && config.checkers) {
             checkerSelect.innerHTML = '<option value="">-- Select Checker --</option>';
@@ -7218,7 +7208,6 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                 const opt = document.createElement('option');
                 opt.value = c.id;
                 opt.textContent = c.name || c.email;
-                if (kodo.settings?.default_checker_id === c.id) opt.selected = true;
                 checkerSelect.appendChild(opt);
             });
         }
@@ -7229,7 +7218,6 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                 const opt = document.createElement('option');
                 opt.value = c.id;
                 opt.textContent = c.name;
-                if (kodo.settings?.default_category_id === c.id) opt.selected = true;
                 categorySelect.appendChild(opt);
             });
         }

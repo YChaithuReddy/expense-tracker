@@ -117,7 +117,7 @@ class KodoService {
         return data;
     }
 
-    async saveSettings({ email, passcode, checkerId, checkerName, categoryId, categoryName }) {
+    async saveSettings({ email, passcode }) {
         const supabase = this._getSupabase();
         const userId = this._getUserId();
 
@@ -125,10 +125,6 @@ class KodoService {
             user_id: userId,
             kodo_email: email,
             kodo_passcode: passcode,
-            default_checker_id: checkerId || null,
-            default_checker_name: checkerName || null,
-            default_category_id: categoryId || null,
-            default_category_name: categoryName || null,
         };
 
         const { data, error } = await supabase
