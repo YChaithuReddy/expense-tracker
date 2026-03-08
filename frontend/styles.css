@@ -8067,12 +8067,13 @@ select.inline-input option {
 }
 
 @media (max-width: 480px) {
-    .kodo-modal-overlay:has(.kodo-confirm-modal) {
+    .kodo-modal-overlay--bottomsheet {
         align-items: flex-end;
         padding: 0;
     }
 
-    .kodo-confirm-modal {
+    .kodo-modal-overlay--bottomsheet > .kodo-confirm-modal,
+    .kodo-modal-overlay--bottomsheet > .email-modal {
         max-width: 100%;
         width: 100%;
     }
@@ -9014,18 +9015,7 @@ select.inline-input option {
     }
 }
 
-/* Align overlay for bottom-sheet on mobile */
-@media (max-width: 480px) {
-    .kodo-modal-overlay:has(.email-modal) {
-        align-items: flex-end;
-        padding: 0;
-    }
-
-    .email-modal {
-        max-width: 100%;
-        width: 100%;
-    }
-}
+/* Bottom-sheet alignment handled by .kodo-modal-overlay--bottomsheet above */
 
 /* ================================================
    iOS: Prevent auto-zoom on input focus (requires >= 16px)
