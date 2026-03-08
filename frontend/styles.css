@@ -8804,21 +8804,25 @@ select.inline-input option {
 @media (max-width: 480px) {
     .email-modal {
         border-radius: 20px 20px 0 0;
-        max-height: 95vh;
+        max-height: 92vh;
     }
 
     .email-modal__header {
-        padding: 20px 18px 16px;
+        padding: 16px 16px 12px;
+    }
+
+    .email-modal__header-content {
+        gap: 10px;
     }
 
     .email-modal__body {
-        padding: 4px 18px 20px;
+        padding: 8px 16px 20px;
     }
 
     .email-modal__icon-wrap {
-        width: 38px;
-        height: 38px;
-        border-radius: 12px;
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
     }
 
     .email-modal__icon {
@@ -8830,12 +8834,33 @@ select.inline-input option {
         font-size: 0.95rem;
     }
 
+    .email-modal__subtitle {
+        font-size: 0.72rem;
+    }
+
+    .email-modal__close {
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+    }
+
+    .email-modal__close svg {
+        width: 16px;
+        height: 16px;
+    }
+
     .email-modal__actions {
         flex-direction: column-reverse;
+        gap: 8px;
+    }
+
+    .email-modal__btn {
+        width: 100%;
+        justify-content: center;
     }
 
     .email-modal__btn--cancel {
-        flex: 1;
+        padding: 12px 16px;
     }
 
     .email-modal__btn--send {
@@ -8843,13 +8868,29 @@ select.inline-input option {
     }
 
     .email-modal__textarea {
-        min-height: 100px;
+        min-height: 90px;
+    }
+
+    .email-modal__field {
+        margin-bottom: 12px;
+    }
+
+    .email-modal__input,
+    .email-modal__textarea {
+        padding: 10px 12px;
+        font-size: 0.85rem;
+    }
+
+    .email-modal__label {
+        font-size: 0.72rem;
+        margin-bottom: 5px;
     }
 
     .email-modal__summary {
         flex-direction: column;
         gap: 0;
-        padding: 8px 14px;
+        padding: 8px 12px;
+        margin-bottom: 14px;
     }
 
     .email-modal__summary .kodo-summary-row {
@@ -8868,7 +8909,7 @@ select.inline-input option {
     }
 
     .email-modal__steps {
-        padding: 0 18px 14px;
+        padding: 0 16px 12px;
         gap: 0;
     }
 
@@ -8884,6 +8925,7 @@ select.inline-input option {
     .email-modal__step-num {
         width: 22px;
         height: 22px;
+        font-size: 0.65rem;
     }
 
     .email-modal__attachment {
@@ -8892,14 +8934,35 @@ select.inline-input option {
     }
 
     .email-modal__attachment-icon {
-        width: 34px;
-        height: 34px;
+        width: 32px;
+        height: 32px;
         border-radius: 8px;
     }
 
     .email-modal__attachment-icon svg {
-        width: 16px;
-        height: 16px;
+        width: 15px;
+        height: 15px;
+    }
+
+    .email-modal__attachment-name {
+        font-size: 0.8rem;
+    }
+
+    .email-modal__attachment-meta {
+        font-size: 0.68rem;
+    }
+
+    .email-modal__remember {
+        margin-bottom: 14px;
+        padding: 8px 10px;
+    }
+
+    .email-modal__remember-text {
+        font-size: 0.8rem;
+    }
+
+    .email-modal__hint {
+        font-size: 0.7rem;
     }
 }
 
