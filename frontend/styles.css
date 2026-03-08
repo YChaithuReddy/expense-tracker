@@ -7623,40 +7623,41 @@ select.inline-input option {
     padding: 6px 28px 24px;
 }
 
-/* Summary - compact inline row */
+/* Summary - compact inline grid */
 .kodo-confirm-modal__summary {
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: 14px;
-    padding: 10px 20px;
+    padding: 12px 20px;
     margin-bottom: 18px;
     margin-top: 12px;
-    display: flex;
-    align-items: center;
+    display: grid;
+    grid-template-columns: auto auto 1fr;
     gap: 0;
-    flex-wrap: wrap;
 }
 
 .kodo-confirm-modal__summary .kodo-summary-row {
-    padding: 6px 16px 6px 0;
-    flex: 1;
-    min-width: 120px;
+    padding: 8px 20px 8px 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
 }
 
 .kodo-confirm-modal__summary .kodo-summary-row + .kodo-summary-row {
     border-top: none;
     border-left: 1px solid rgba(255, 255, 255, 0.06);
-    padding-left: 16px;
+    padding-left: 20px;
 }
 
 .kodo-confirm-modal__summary .kodo-summary-label {
-    font-size: 0.7rem;
+    font-size: 0.68rem;
     font-weight: 600;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
     color: var(--text-secondary, #64748b);
     display: block;
-    margin-bottom: 2px;
+    white-space: nowrap;
 }
 
 .kodo-confirm-modal__summary .kodo-summary-value {
@@ -8043,7 +8044,14 @@ select.inline-input option {
     }
 
     .kodo-confirm-modal__summary {
-        flex-direction: column;
+        grid-template-columns: 1fr;
+    }
+
+    .kodo-confirm-modal__summary .kodo-summary-row {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
     }
 
     .kodo-confirm-modal__summary .kodo-summary-row + .kodo-summary-row {
