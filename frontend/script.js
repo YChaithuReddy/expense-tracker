@@ -6867,8 +6867,8 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
      * Initialize theme system - load saved theme preference
      */
     initializeTheme() {
-        // Get saved theme from localStorage, default to 'cyberpunk'
-        const savedTheme = localStorage.getItem('expenseTrackerTheme') || 'cyberpunk';
+        // Get saved theme from localStorage, default to 'teal'
+        const savedTheme = localStorage.getItem('expenseTrackerTheme') || 'teal';
 
         // Apply theme
         this.applyTheme(savedTheme);
