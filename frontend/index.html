@@ -919,15 +919,24 @@
 
                         newWorker.addEventListener('statechange', () => {
                             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                // New version available
-                                if (confirm('New version available! Reload to update?')) {
-                                    window.location.reload();
-                                }
+                                // New version available - auto reload
+                                console.log('🔄 New version detected, reloading...');
+                                window.location.reload();
                             }
                         });
                     });
                 } catch (error) {
                     console.warn('⚠️ Service Worker registration failed:', error);
+                }
+            });
+
+            // Auto-reload when new SW takes control
+            let refreshing = false;
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                if (!refreshing) {
+                    refreshing = true;
+                    console.log('🔄 New Service Worker active, reloading...');
+                    window.location.reload();
                 }
             });
         }

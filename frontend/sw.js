@@ -1,7 +1,7 @@
 // Service Worker for Expense Tracker PWA
-const CACHE_NAME = 'expense-tracker-v74';
-const STATIC_CACHE = 'expense-tracker-static-v61';
-const DYNAMIC_CACHE = 'expense-tracker-dynamic-v61';
+const CACHE_NAME = 'expense-tracker-v75';
+const STATIC_CACHE = 'expense-tracker-static-v62';
+const DYNAMIC_CACHE = 'expense-tracker-dynamic-v62';
 
 // Files to cache immediately on install
 const STATIC_ASSETS = [
@@ -129,35 +129,21 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // For static assets - Cache First strategy
+  // For static assets - Network First strategy (always get fresh content)
   if (STATIC_ASSETS.some(asset => request.url.includes(asset) || url.pathname === asset)) {
     event.respondWith(
-      caches.match(request)
-        .then((cachedResponse) => {
-          if (cachedResponse) {
-            // Return cached version, but also fetch update in background
-            fetch(request)
-              .then((networkResponse) => {
-                if (networkResponse.ok) {
-                  caches.open(STATIC_CACHE)
-                    .then((cache) => cache.put(request, networkResponse));
-                }
-              })
-              .catch(() => {}); // Ignore network errors for background updates
-
-            return cachedResponse;
+      fetch(request)
+        .then((networkResponse) => {
+          if (networkResponse.ok) {
+            const responseClone = networkResponse.clone();
+            caches.open(STATIC_CACHE)
+              .then((cache) => cache.put(request, responseClone));
           }
-
-          // Not in cache, fetch from network
-          return fetch(request)
-            .then((networkResponse) => {
-              if (networkResponse.ok) {
-                const responseClone = networkResponse.clone();
-                caches.open(STATIC_CACHE)
-                  .then((cache) => cache.put(request, responseClone));
-              }
-              return networkResponse;
-            });
+          return networkResponse;
+        })
+        .catch(() => {
+          // Network failed, fall back to cache
+          return caches.match(request);
         })
     );
     return;
