@@ -7424,11 +7424,11 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         if (!modal) return;
 
         modal.style.display = 'flex';
-        this.lockScroll();
+        document.body.style.overflow = 'hidden';
 
         const close = () => {
             modal.style.display = 'none';
-            this.unlockScroll();
+            document.body.style.overflow = '';
         };
 
         closeBtn.onclick = close;
