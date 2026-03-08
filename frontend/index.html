@@ -98,10 +98,7 @@
                 <!-- Theme Toggle & User Info - Right Side -->
                 <div class="header-right">
                     <span id="realtimeStatus" class="realtime-dot realtime-dot--disconnected" title="Realtime sync"></span>
-                    <button class="theme-toggle-btn" onclick="activityLog.open()" aria-label="Activity Log" title="Activity Log">
-                        <span class="theme-icon">📋</span>
-                    </button>
-                    <!-- User Info Section (includes theme toggle) -->
+                    <!-- User Info Section (includes theme toggle + activity log) -->
                     <div id="userInfo">
                         <!-- User info will be populated by auth.js -->
                     </div>
@@ -867,6 +864,9 @@
                             <div class="user-details">
                                 <div class="user-email">${safeEmail}</div>
                             </div>
+                            <button class="theme-toggle-btn" onclick="activityLog.open()" aria-label="Activity Log" title="Activity Log">
+                                <span class="theme-icon">📋</span>
+                            </button>
                             <button onclick="logout()" class="logout-btn">Logout</button>
                         </div>
                     `;

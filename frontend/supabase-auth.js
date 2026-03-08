@@ -161,6 +161,9 @@ function displayUserInfo() {
                         <div class="user-name">${safeName}</div>
                         <div class="user-email">${safeEmail}</div>
                     </div>
+                    <button class="theme-toggle-btn" onclick="activityLog.open()" aria-label="Activity Log" title="Activity Log">
+                        <span class="theme-icon">📋</span>
+                    </button>
                     <button onclick="logout()" class="logout-btn">Logout</button>
                 </div>
             `;
