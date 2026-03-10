@@ -3362,6 +3362,7 @@ class ExpenseTracker {
     async deleteExpense(id) {
         if (confirm('Are you sure you want to delete this expense?')) {
             try {
+                const expense = this.expenses.find(exp => exp.id === String(id));
                 console.log('Deleting expense:', id);
                 const response = await api.deleteExpense(id);
 
@@ -3372,7 +3373,9 @@ class ExpenseTracker {
                     await this.loadExpenses();
 
                     this.showNotification('✅ Expense deleted successfully!');
-                    window.api?.logActivity?.('expense_deleted', `Deleted expense ₹${expense.amount} — ${expense.vendor || 'Unknown'}`, { amount: expense.amount, vendor: expense.vendor });
+                    if (expense) {
+                        window.api?.logActivity?.('expense_deleted', `Deleted expense ₹${expense.amount} — ${expense.vendor || 'Unknown'}`, { amount: expense.amount, vendor: expense.vendor });
+                    }
                 } else {
                     throw new Error(response.message || 'Failed to delete expense');
                 }
