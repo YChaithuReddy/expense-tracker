@@ -7391,6 +7391,20 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                 mergedPdfBytes = sheetPdfBytes;
             }
 
+            // Cache PDF for library save
+            const currentExpensesForName = this.isFilterActive() ? this.filteredExpenses : this.expenses;
+            const now = new Date();
+            const yyyymm = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}`;
+            const fileName = `Reimbursement_${yyyymm}_${Math.round(details.totalAmount)}INR_${expenses.length}bills.pdf`;
+            this.lastGeneratedPdf = {
+                bytes: mergedPdfBytes,
+                fileName,
+                totalAmount: details.totalAmount,
+                dateFrom: formData?.expensePeriodFrom || null,
+                dateTo: formData?.expensePeriodTo || null,
+                businessPurpose: formData?.businessPurpose || details.comment || '',
+            };
+
             // Step 2: Upload & submit via Edge Function
             this.showLoading('Submitting to Kodo...', `Uploading ${this.formatAmount(details.totalAmount)} claim to ${details.checkerName}`);
 
@@ -7420,6 +7434,9 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             this.hideLoading();
             this.showNotification(`Reimbursement claim ${this.formatAmount(details.totalAmount)} submitted to ${details.checkerName} for review`);
             window.api?.logActivity?.('kodo_submitted', `Submitted ₹${Math.round(details.totalAmount)} to Kodo — checker: ${details.checkerName}`, { claimId: result?.claimId, amount: details.totalAmount, checker: details.checkerName });
+
+            // Auto-save to PDF Library
+            this.autoSavePdfToLibrary();
 
         } catch (err) {
             this.hideLoading();
@@ -7638,6 +7655,9 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                 if (!pdf) throw new Error('PDF generation failed');
 
                 await this.sendEmailToAccounts(toEmails, subjectInput.value, bodyInput.value, pdf);
+
+                // Auto-save to PDF Library
+                this.autoSavePdfToLibrary();
             } catch (error) {
                 console.error('Error in email submission flow:', error);
                 this.hideLoading();
