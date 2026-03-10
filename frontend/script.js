@@ -4672,8 +4672,8 @@ class ExpenseTracker {
                     } else {
                         this.showNotification(`📋 Google Sheet downloaded! (${totalPages} pages, ${fileSizeMB} MB)`);
                     }
-                    // Offer to save to PDF Library
-                    this.showSaveToLibraryBanner();
+                    // Auto-save to PDF Library
+                    this.autoSavePdfToLibrary();
                     window.api?.logActivity?.('pdf_generated', `Generated reimbursement PDF (${totalPages} pages, ${fileSizeMB} MB)`, { pages: totalPages, sizeMB: fileSizeMB, fileName });
                 } else {
                     this.showError('The package was generated but could not be saved to your device.\n\nTry using the Share option if available, or open in a desktop browser.', 'Download Failed');
@@ -5903,6 +5903,45 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         } catch (err) {
             console.error('Save to library error:', err);
             this.showNotification('❌ Failed to save: ' + err.message, 'error');
+        }
+    }
+
+    async autoSavePdfToLibrary() {
+        const pdf = this.lastGeneratedPdf;
+        if (!pdf?.bytes) return;
+
+        try {
+            const supabase = window.supabaseClient?.get();
+            if (!supabase) return;
+
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return;
+
+            const uuid = crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36);
+            const storagePath = `${user.id}/reimbursement-pdfs/${uuid}.pdf`;
+
+            const blob = new Blob([pdf.bytes], { type: 'application/pdf' });
+            const { error: uploadError } = await supabase.storage
+                .from('expense-bills')
+                .upload(storagePath, blob, { cacheControl: '3600', upsert: false });
+
+            if (uploadError) throw uploadError;
+
+            await window.api.saveReimbursementPdf({
+                storagePath,
+                filename: pdf.fileName || 'Reimbursement_Package.pdf',
+                fileSize: pdf.bytes.length,
+                pageCount: 1,
+                totalAmount: pdf.totalAmount || null,
+                dateFrom: pdf.dateFrom || null,
+                dateTo: pdf.dateTo || null,
+                purpose: pdf.businessPurpose || null,
+                source: 'generated'
+            });
+
+            console.log('✅ PDF auto-saved to library');
+        } catch (err) {
+            console.error('Auto-save to library failed:', err);
         }
     }
 
