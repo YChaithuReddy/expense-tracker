@@ -160,6 +160,9 @@ const pdfLibrary = (() => {
                     <div class="pdf-row__meta">${size} &bull; ${pages}${amount ? ` &bull; ${sanitize(amount)}` : ''} &bull; ${sanitize(createdAt)}</div>
                 </div>
                 <div class="pdf-row__actions">
+                    <button class="pdf-row-btn pdf-row-btn--view" onclick="pdfLibrary.viewPdf('${escapedId}')" title="View PDF" aria-label="View PDF">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
                     <button class="pdf-row-btn pdf-row-btn--kodo" onclick="pdfLibrary.openKodoModal('${escapedId}')" title="Submit to Kodo" aria-label="Submit to Kodo">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 00-8 0v2"/><circle cx="12" cy="14" r="1.5"/></svg>
                     </button>
@@ -374,6 +377,27 @@ const pdfLibrary = (() => {
             showToast('Download started', 'success');
         } catch (err) {
             showToast('Download failed: ' + err.message, 'error');
+        }
+    }
+
+    // ---- View PDF ----
+    async function viewPdf(id) {
+        const row = await getRowById(id);
+        if (!row) return;
+
+        try {
+            showToast('Loading PDF...', '');
+            const supabase = window.supabaseClient.get();
+            const { data, error } = await supabase.storage
+                .from('expense-bills')
+                .download(row.storage_path);
+
+            if (error) throw error;
+
+            const url = URL.createObjectURL(data);
+            window.open(url, '_blank');
+        } catch (err) {
+            showToast('Failed to open PDF: ' + err.message, 'error');
         }
     }
 
@@ -722,6 +746,7 @@ const pdfLibrary = (() => {
         closeLibrary,
         cancelUpload,
         confirmUpload,
+        viewPdf,
         downloadPdf,
         openKodoModal,
         closeKodoModal,
