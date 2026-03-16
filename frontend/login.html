@@ -91,6 +91,17 @@
                     Continue with Google
                 </button>
 
+                <!-- Download APK (only on web, hidden inside native app) -->
+                <div id="apkDownloadBanner" style="display: none; margin-top: 20px; padding: 14px 16px; background: linear-gradient(135deg, rgba(20,184,166,0.08), rgba(0,212,255,0.08)); border: 1px solid rgba(20,184,166,0.25); border-radius: 10px; text-align: center;">
+                    <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 8px;">Get the Android app for the best experience</div>
+                    <a href="https://github.com/YChaithuReddy/expense-tracker/releases/latest/download/expense-tracker.apk"
+                       style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 24px; background: var(--neon-cyan); color: #000; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; transition: opacity 0.2s;"
+                       onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Download APK
+                    </a>
+                </div>
+
                 <div class="auth-footer">
                     <p>Don't have an account? <a href="signup.html" class="auth-link">Sign up here</a></p>
                 </div>
@@ -223,6 +234,12 @@
 
         // Call OAuth handler on page load
         handleOAuthCallback();
+
+        // Show APK download only on web (not inside the native app)
+        if (!isCapacitorApp()) {
+            const banner = document.getElementById('apkDownloadBanner');
+            if (banner) banner.style.display = 'block';
+        }
 
         // Note: Auth redirect is handled by supabase-auth.js initAuth()
 
