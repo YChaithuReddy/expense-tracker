@@ -4186,14 +4186,16 @@ class ExpenseTracker {
         if (expensesToInclude.length > 0) {
             expensesToInclude.forEach((expense, expenseIndex) => {
                 expense.images.forEach((image, imageIndex) => {
-                    const isPdf = image.isPdf || image.name?.toLowerCase().endsWith('.pdf');
+                    const name = image.name || image.filename || '';
+                    const data = image.data || image.url || '';
+                    const isPdf = image.isPdf || name.toLowerCase().endsWith('.pdf');
                     allImages.push({
-                        data: image.data,
+                        data,
                         label: `Expense ${expenseIndex + 1}`,
                         expense: expense,
                         type: 'current',
                         isPdf,
-                        name: image.name
+                        name
                     });
                     currentExpenseImages++;
                 });
@@ -4462,8 +4464,20 @@ class ExpenseTracker {
             // Add each PDF bill's pages
             for (const item of pdfItems) {
                 try {
-                    const base64 = item.data.includes(',') ? item.data.split(',')[1] : item.data;
-                    const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+                    let bytes;
+                    if (item.data.startsWith('data:')) {
+                        // Base64 data URL — decode directly
+                        const base64 = item.data.split(',')[1];
+                        bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+                    } else if (item.data.startsWith('http')) {
+                        // Remote URL — fetch the PDF bytes
+                        const response = await fetch(item.data);
+                        const arrayBuffer = await response.arrayBuffer();
+                        bytes = new Uint8Array(arrayBuffer);
+                    } else {
+                        // Raw base64 string
+                        bytes = Uint8Array.from(atob(item.data), c => c.charCodeAt(0));
+                    }
                     const billPdf = await PDFDocument.load(bytes);
                     const pages = await merged.copyPages(billPdf, billPdf.getPageIndices());
                     pages.forEach(p => merged.addPage(p));
