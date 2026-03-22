@@ -9,6 +9,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.webkit.WebSettings;
@@ -23,6 +24,8 @@ public class MainActivity extends BridgeActivity {
 
     private static final String TAG = "ExpenseTracker";
     private WebView webView;
+    private long volumeDownPressTime = 0;
+    private static final long LONG_PRESS_THRESHOLD = 800; // ms
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -49,6 +52,36 @@ public class MainActivity extends BridgeActivity {
                 null
             );
         }, 500);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            if (event.getAction() == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0) {
+                volumeDownPressTime = System.currentTimeMillis();
+            }
+            return true; // consume the event
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            long pressDuration = System.currentTimeMillis() - volumeDownPressTime;
+            if (pressDuration >= LONG_PRESS_THRESHOLD) {
+                Log.d(TAG, "Volume down long press detected (" + pressDuration + "ms) — opening Quick Add");
+                runOnUiThread(() -> {
+                    webView.evaluateJavascript(
+                        "if (window.expenseTracker) { window.expenseTracker.openQuickAdd(); }",
+                        null
+                    );
+                });
+            }
+            volumeDownPressTime = 0;
+            return true;
+        }
+        return super.onKeyUp(keyCode, event);
     }
 
     // JavaScript interface to launch Android apps
