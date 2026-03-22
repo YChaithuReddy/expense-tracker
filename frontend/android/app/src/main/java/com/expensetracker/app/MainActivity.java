@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -52,6 +53,47 @@ public class MainActivity extends BridgeActivity {
                 null
             );
         }, 500);
+
+        // Start shake detection background service
+        startShakeService();
+
+        // Handle Quick Add intent if launched via shake
+        handleQuickAddIntent(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleQuickAddIntent(intent);
+    }
+
+    private void handleQuickAddIntent(Intent intent) {
+        if (intent != null && "com.expensetracker.QUICK_ADD".equals(intent.getAction())) {
+            Log.d(TAG, "Quick Add intent received — opening wizard");
+            // Wait for WebView to be ready, then open Quick Add
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                if (webView != null) {
+                    webView.evaluateJavascript(
+                        "if (window.expenseTracker) { window.expenseTracker.openQuickAdd(); }",
+                        null
+                    );
+                }
+            }, 1000);
+        }
+    }
+
+    private void startShakeService() {
+        try {
+            Intent serviceIntent = new Intent(this, ShakeService.class);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(serviceIntent);
+            } else {
+                startService(serviceIntent);
+            }
+            Log.d(TAG, "ShakeService started");
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to start ShakeService: " + e.getMessage());
+        }
     }
 
     @Override
