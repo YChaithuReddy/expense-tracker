@@ -7733,10 +7733,289 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             this.showError('Failed to send email.\n\n' + err.message, 'Email Error');
         }
     }
+
+    // ===== Quick Add Wizard =====
+
+    openQuickAdd() {
+        const overlay = document.getElementById('quickAddOverlay');
+        if (!overlay) return;
+
+        // Reset to step 1
+        document.getElementById('quickAddStep1').style.display = '';
+        document.getElementById('quickAddStep2').style.display = 'none';
+        document.getElementById('qaPreview').style.display = 'none';
+        document.getElementById('qaScanStatus').style.display = 'none';
+        document.getElementById('qaScanBtn').disabled = true;
+        document.getElementById('qaCameraInput').value = '';
+        document.getElementById('qaGalleryInput').value = '';
+        this._quickAddFile = null;
+        this._quickAddImageData = null;
+
+        overlay.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+
+        // Wire up camera/gallery inputs
+        document.getElementById('qaCamera').onclick = () => document.getElementById('qaCameraInput').click();
+        document.getElementById('qaGallery').onclick = () => document.getElementById('qaGalleryInput').click();
+        document.getElementById('qaCameraInput').onchange = (e) => this._quickAddFileSelected(e);
+        document.getElementById('qaGalleryInput').onchange = (e) => this._quickAddFileSelected(e);
+
+        console.log('⚡ Quick Add wizard opened');
+    }
+
+    closeQuickAdd() {
+        const overlay = document.getElementById('quickAddOverlay');
+        if (overlay) overlay.style.display = 'none';
+        document.body.style.overflow = '';
+        this._quickAddFile = null;
+        this._quickAddImageData = null;
+    }
+
+    _quickAddFileSelected(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        this._quickAddFile = file;
+        const preview = document.getElementById('qaPreview');
+        const img = document.getElementById('qaPreviewImg');
+        const pdfDiv = document.getElementById('qaPreviewPdf');
+        const pdfName = document.getElementById('qaPdfName');
+
+        const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+
+        if (isPdf) {
+            img.style.display = 'none';
+            pdfDiv.style.display = 'flex';
+            pdfName.textContent = file.name;
+        } else {
+            pdfDiv.style.display = 'none';
+            img.style.display = '';
+            const reader = new FileReader();
+            reader.onload = (ev) => { img.src = ev.target.result; };
+            reader.readAsDataURL(file);
+        }
+
+        preview.style.display = 'flex';
+        document.getElementById('qaScanBtn').disabled = false;
+    }
+
+    async quickAddScan() {
+        const file = this._quickAddFile;
+        if (!file) return;
+
+        const scanBtn = document.getElementById('qaScanBtn');
+        const scanStatus = document.getElementById('qaScanStatus');
+        scanBtn.disabled = true;
+        scanStatus.style.display = 'flex';
+
+        try {
+            // Read file as data URL
+            const dataUrl = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+            this._quickAddImageData = dataUrl;
+
+            // Call OCR.space API
+            const formData = new FormData();
+            formData.append('apikey', typeof OCR_SPACE_API_KEY !== 'undefined' ? OCR_SPACE_API_KEY : 'K86784458388957');
+            formData.append('base64Image', dataUrl);
+            formData.append('language', 'eng');
+            formData.append('isOverlayRequired', 'false');
+            formData.append('detectOrientation', 'true');
+            formData.append('scale', 'true');
+            formData.append('OCREngine', '2');
+
+            const response = await fetch('https://api.ocr.space/parse/image', {
+                method: 'POST',
+                body: formData
+            });
+
+            let ocrText = '';
+            if (response.ok) {
+                const result = await response.json();
+                if (result.ParsedResults?.[0]?.ParsedText) {
+                    ocrText = result.ParsedResults[0].ParsedText;
+                }
+            }
+
+            // Extract data using existing parser
+            const expenseData = this.parseReceiptText(ocrText);
+
+            // Move to step 2 and fill fields
+            document.getElementById('quickAddStep1').style.display = 'none';
+            document.getElementById('quickAddStep2').style.display = '';
+
+            document.getElementById('qaAmount').value = expenseData.amount || '';
+            document.getElementById('qaVendor').value = expenseData.vendor || '';
+            document.getElementById('qaDate').value = expenseData.date || new Date().toISOString().split('T')[0];
+            document.getElementById('qaDescription').value = expenseData.description || '';
+            document.getElementById('qaCategory').value = expenseData.category || 'Miscellaneous';
+
+            // Focus amount if empty for quick manual entry
+            if (!expenseData.amount) {
+                document.getElementById('qaAmount').focus();
+            }
+
+            console.log('⚡ Quick Add OCR complete:', expenseData);
+
+        } catch (err) {
+            console.error('Quick Add scan error:', err);
+            // Move to step 2 anyway for manual entry
+            document.getElementById('quickAddStep1').style.display = 'none';
+            document.getElementById('quickAddStep2').style.display = '';
+            document.getElementById('qaDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('qaAmount').focus();
+            this.showNotification('Could not read bill — enter details manually');
+        } finally {
+            scanStatus.style.display = 'none';
+        }
+    }
+
+    quickAddBack() {
+        document.getElementById('quickAddStep2').style.display = 'none';
+        document.getElementById('quickAddStep1').style.display = '';
+    }
+
+    async quickAddSave() {
+        const amount = parseFloat(document.getElementById('qaAmount').value);
+        if (!amount || amount <= 0) {
+            this.showNotification('Please enter an amount');
+            document.getElementById('qaAmount').focus();
+            return;
+        }
+
+        const saveBtn = document.getElementById('qaSaveBtn');
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<div class="quick-add-spinner"></div> Saving...';
+
+        try {
+            const expense = {
+                amount,
+                vendor: document.getElementById('qaVendor').value.trim() || '',
+                date: document.getElementById('qaDate').value || new Date().toISOString().split('T')[0],
+                description: document.getElementById('qaDescription').value.trim() || '',
+                category: document.getElementById('qaCategory').value || 'Miscellaneous',
+                images: []
+            };
+
+            // Add image if captured
+            if (this._quickAddFile && this._quickAddImageData) {
+                const isPdf = this._quickAddFile.type === 'application/pdf' || this._quickAddFile.name.toLowerCase().endsWith('.pdf');
+                expense.images.push({
+                    name: this._quickAddFile.name,
+                    data: this._quickAddImageData,
+                    isPdf
+                });
+            }
+
+            // Process and save using existing flow
+            const imageFiles = [];
+            if (expense.images.length > 0) {
+                for (const img of expense.images) {
+                    const blob = await fetch(img.data).then(r => r.blob());
+                    const file = new File([blob], img.name, { type: blob.type });
+                    imageFiles.push(file);
+                }
+            }
+
+            const expenseData = {
+                amount: expense.amount,
+                vendor: expense.vendor,
+                date: expense.date,
+                description: expense.description,
+                category: expense.category,
+            };
+
+            const response = await api.createExpense(expenseData, imageFiles);
+
+            if (response.success) {
+                this.closeQuickAdd();
+                await this.loadExpenses();
+                this.showNotification('Expense added!');
+                window.api?.logActivity?.('expense_added', `Quick Add: ₹${expense.amount} — ${expense.vendor || 'Unknown'}`, { amount: expense.amount, vendor: expense.vendor, source: 'quick_add' });
+                // Haptic feedback
+                if (navigator.vibrate) navigator.vibrate(50);
+            } else {
+                throw new Error(response.message || 'Failed to save');
+            }
+
+        } catch (err) {
+            console.error('Quick Add save error:', err);
+            this.showNotification('Failed to save: ' + err.message);
+        } finally {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Save';
+        }
+    }
 }
 
 // Create global expenseTracker instance
 window.expenseTracker = new ExpenseTracker();
+
+// ===== Shake to Add Detection =====
+(function initShakeDetection() {
+    let lastShakeTime = 0;
+    let shakeEnabled = localStorage.getItem('shakeToAdd') !== 'false'; // enabled by default
+
+    // Shake detection variables
+    let lastX = 0, lastY = 0, lastZ = 0;
+    let lastUpdate = 0;
+
+    window.addEventListener('devicemotion', (event) => {
+        if (!shakeEnabled) return;
+        if (!event.accelerationIncludingGravity) return;
+
+        const now = Date.now();
+        if (now - lastUpdate < 100) return; // throttle to 10hz
+
+        const { x, y, z } = event.accelerationIncludingGravity;
+        const deltaX = Math.abs(x - lastX);
+        const deltaY = Math.abs(y - lastY);
+        const deltaZ = Math.abs(z - lastZ);
+
+        lastX = x; lastY = y; lastZ = z;
+        lastUpdate = now;
+
+        // Shake threshold — requires significant movement on multiple axes
+        if ((deltaX + deltaY + deltaZ) > 35) {
+            // Debounce — minimum 2 seconds between shakes
+            if (now - lastShakeTime > 2000) {
+                lastShakeTime = now;
+                console.log('📳 Shake detected! Opening Quick Add...');
+
+                // Haptic feedback
+                if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
+
+                // Open Quick Add
+                if (window.expenseTracker) {
+                    window.expenseTracker.openQuickAdd();
+                }
+            }
+        }
+    });
+
+    // Expose toggle function
+    window.toggleShakeToAdd = (enabled) => {
+        shakeEnabled = enabled;
+        localStorage.setItem('shakeToAdd', enabled);
+        console.log(`📳 Shake to Add: ${enabled ? 'ON' : 'OFF'}`);
+    };
+
+    // Request motion permission on iOS 13+
+    if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+        document.addEventListener('click', function requestMotion() {
+            DeviceMotionEvent.requestPermission().then(permission => {
+                if (permission === 'granted') {
+                    console.log('📳 Motion permission granted');
+                }
+            }).catch(console.error);
+            document.removeEventListener('click', requestMotion);
+        }, { once: true });
+    }
+})();
 
 // Ensure image viewer modal is hidden on page load (fixes APK WebView issue)
 (function() {
