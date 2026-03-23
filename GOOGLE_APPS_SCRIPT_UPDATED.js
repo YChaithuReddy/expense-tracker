@@ -406,10 +406,12 @@ function exportExpensesToSheet(data) {
 
     // ===== NEW: Append to permanent "By Project" ledger tab =====
     try {
-      appendToProjectSheet(sheetId, expenses);
+      Logger.log('Calling appendToProjectSheet with sheetId: ' + data.sheetId + ', expenses count: ' + expenses.length);
+      appendToProjectSheet(data.sheetId, expenses);
       Logger.log('✅ Project ledger tab updated successfully');
     } catch (projectError) {
       Logger.log('⚠️ Failed to update project sheet (non-fatal): ' + projectError.toString());
+      Logger.log('⚠️ sheetId was: ' + JSON.stringify(data.sheetId));
       // Don't fail the whole export if project sheet fails
     }
 
