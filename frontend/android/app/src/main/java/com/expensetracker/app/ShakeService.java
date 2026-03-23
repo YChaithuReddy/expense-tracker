@@ -98,26 +98,44 @@ public class ShakeService extends Service implements SensorEventListener {
     }
 
     private void launchQuickAdd() {
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.setAction("com.expensetracker.QUICK_ADD");
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        Intent launchIntent = new Intent(this, MainActivity.class);
+        launchIntent.setAction("com.expensetracker.QUICK_ADD");
+        launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        launchIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        launchIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 
-        // Wake the screen and bring app to front
-        android.os.PowerManager pm = (android.os.PowerManager) getSystemService(Context.POWER_SERVICE);
-        if (pm != null) {
-            android.os.PowerManager.WakeLock wakeLock = pm.newWakeLock(
-                android.os.PowerManager.FULL_WAKE_LOCK |
-                android.os.PowerManager.ACQUIRE_CAUSES_WAKEUP |
-                android.os.PowerManager.ON_AFTER_RELEASE,
-                "expensetracker:shake_wake"
+        PendingIntent fullScreenIntent = PendingIntent.getActivity(
+            this, 1, launchIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+
+        // Use a high-priority full-screen intent notification
+        // This is the Android-approved way to launch from background (like alarms/calls)
+        String channelId = "shake_alert_channel";
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel alertChannel = new NotificationChannel(
+                channelId, "Quick Add Alert", NotificationManager.IMPORTANCE_HIGH
             );
-            wakeLock.acquire(3000); // hold for 3 seconds
+            alertChannel.setDescription("Shake detected — quick add expense");
+            NotificationManager nm = getSystemService(NotificationManager.class);
+            if (nm != null) nm.createNotificationChannel(alertChannel);
         }
 
-        startActivity(intent);
+        Notification alertNotification = new NotificationCompat.Builder(this, channelId)
+            .setContentTitle("Quick Add Expense")
+            .setContentText("Shake detected — tap to add expense")
+            .setSmallIcon(android.R.drawable.ic_input_add)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_ALARM)
+            .setFullScreenIntent(fullScreenIntent, true)
+            .setContentIntent(fullScreenIntent)
+            .setAutoCancel(true)
+            .build();
+
+        NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (nm != null) {
+            nm.notify(2002, alertNotification);
+        }
     }
 
     private void createNotificationChannel() {
