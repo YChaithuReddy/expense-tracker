@@ -406,14 +406,10 @@ function exportExpensesToSheet(data) {
 
     // ===== NEW: Append to permanent "By Project" ledger tab =====
     try {
-      // Re-open spreadsheet fresh to avoid GET handler scope issues
-      var projectSpreadsheet = SpreadsheetApp.openById(String(sheetId));
-      Logger.log('Opened spreadsheet for project tab: ' + projectSpreadsheet.getName());
-      appendToProjectSheet(projectSpreadsheet, expenses);
+      appendToProjectSheet(data);
       Logger.log('✅ Project ledger tab updated successfully');
     } catch (projectError) {
       Logger.log('⚠️ Failed to update project sheet: ' + projectError.toString());
-      Logger.log('⚠️ sheetId type: ' + typeof sheetId + ', value: ' + sheetId);
     }
 
     return createResponse(true, 'Successfully exported ' + numExpenses + ' expenses', {
@@ -787,10 +783,15 @@ function createResponse(success, message, data = null) {
  * Groups by vendor (project), appends to existing sections or creates new ones
  * Skips duplicate expenses (same date + amount + description already in that section)
  */
-function appendToProjectSheet(spreadsheet, expenses) {
+function appendToProjectSheet(data) {
   var PROJECT_TAB = 'By Project';
   var MARKER_COL = 6; // Column F is used for hidden markers to identify sections
 
+  Logger.log('appendToProjectSheet called, sheetId: ' + data.sheetId);
+
+  // Open spreadsheet fresh using the original data object (avoids scope issues)
+  var spreadsheet = SpreadsheetApp.openById(data.sheetId);
+  var expenses = data.expenses;
   var sheet = spreadsheet.getSheetByName(PROJECT_TAB);
 
   // ─── Create the tab if this is the first time ───
