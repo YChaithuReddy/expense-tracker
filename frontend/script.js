@@ -6140,7 +6140,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             this.hideLoading();
 
             if (result.success) {
-                this.showNotification(`✅ Exported ${selectedExpenses.length} expenses to Google Sheets`);
+                this.showNotification(`✅ Exported ${selectedExpenses.length} expenses (project ledger updated)`);
                 const totalExported = selectedExpenses.reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
                 window.api?.logActivity?.('sheets_exported', `Exported ${selectedExpenses.length} expenses (₹${Math.round(totalExported)}) to Google Sheets`, { count: selectedExpenses.length, total: totalExported });
                 console.log(`Data exported to rows ${result.startRow} to ${result.endRow}`);
