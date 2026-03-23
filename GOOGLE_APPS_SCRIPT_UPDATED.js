@@ -406,13 +406,14 @@ function exportExpensesToSheet(data) {
 
     // ===== NEW: Append to permanent "By Project" ledger tab =====
     try {
-      Logger.log('Calling appendToProjectSheet with sheetId: ' + data.sheetId + ', expenses count: ' + expenses.length);
-      appendToProjectSheet(data.sheetId, expenses);
+      // Re-open spreadsheet fresh to avoid GET handler scope issues
+      var projectSpreadsheet = SpreadsheetApp.openById(String(sheetId));
+      Logger.log('Opened spreadsheet for project tab: ' + projectSpreadsheet.getName());
+      appendToProjectSheet(projectSpreadsheet, expenses);
       Logger.log('✅ Project ledger tab updated successfully');
     } catch (projectError) {
-      Logger.log('⚠️ Failed to update project sheet (non-fatal): ' + projectError.toString());
-      Logger.log('⚠️ sheetId was: ' + JSON.stringify(data.sheetId));
-      // Don't fail the whole export if project sheet fails
+      Logger.log('⚠️ Failed to update project sheet: ' + projectError.toString());
+      Logger.log('⚠️ sheetId type: ' + typeof sheetId + ', value: ' + sheetId);
     }
 
     return createResponse(true, 'Successfully exported ' + numExpenses + ' expenses', {
@@ -786,12 +787,10 @@ function createResponse(success, message, data = null) {
  * Groups by vendor (project), appends to existing sections or creates new ones
  * Skips duplicate expenses (same date + amount + description already in that section)
  */
-function appendToProjectSheet(sheetId, expenses) {
+function appendToProjectSheet(spreadsheet, expenses) {
   var PROJECT_TAB = 'By Project';
   var MARKER_COL = 6; // Column F is used for hidden markers to identify sections
 
-  // Open the spreadsheet fresh by ID (avoids scope issues with GET handler)
-  var spreadsheet = SpreadsheetApp.openById(sheetId);
   var sheet = spreadsheet.getSheetByName(PROJECT_TAB);
 
   // ─── Create the tab if this is the first time ───
