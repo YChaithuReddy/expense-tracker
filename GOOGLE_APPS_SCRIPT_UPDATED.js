@@ -405,24 +405,172 @@ function exportExpensesToSheet(data) {
     Logger.log('Export completed successfully');
 
     // ===== NEW: Append to permanent "By Project" ledger tab =====
+    // Inlined directly to avoid Apps Script GET handler scope/parameter issues
     try {
-      Logger.log('DEBUG: typeof data = ' + typeof data);
-      Logger.log('DEBUG: data is null? ' + (data === null));
-      Logger.log('DEBUG: data is undefined? ' + (data === undefined));
-      Logger.log('DEBUG: sheetId from destructured var = ' + sheetId);
-      Logger.log('DEBUG: expenses length from destructured var = ' + expenses.length);
+      var PROJECT_TAB = 'By Project';
+      var MARKER_COL = 6;
 
-      // Build a fresh object from the destructured variables that we KNOW work
-      var projectData = {
-        sheetId: sheetId,
-        expenses: expenses
-      };
-      Logger.log('DEBUG: projectData.sheetId = ' + projectData.sheetId);
-      appendToProjectSheet(projectData);
-      Logger.log('✅ Project ledger tab updated successfully');
+      Logger.log('Starting project sheet update, sheetId: ' + sheetId);
+
+      var projSS = SpreadsheetApp.openById(sheetId);
+      var projSheet = projSS.getSheetByName(PROJECT_TAB);
+
+      // Create tab if first time
+      if (!projSheet) {
+        projSheet = projSS.insertSheet(PROJECT_TAB);
+        projSheet.getRange(1, 1).setValue('Project-wise Expense Ledger').setFontSize(14).setFontWeight('bold').setFontColor('#0e7490');
+        projSheet.getRange(1, 4).setValue('Last Updated: ' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd-MMM-yyyy HH:mm')).setFontColor('#64748b').setFontSize(9);
+        projSheet.getRange(3, 1).setValue('GRAND TOTAL').setFontWeight('bold').setFontSize(12).setFontColor('#0e7490');
+        projSheet.getRange(3, 3).setValue(0).setNumberFormat('₹#,##0.00').setFontWeight('bold').setFontSize(12).setFontColor('#0e7490');
+        projSheet.getRange(3, MARKER_COL).setValue('GRAND_TOTAL');
+        projSheet.setColumnWidth(1, 110);
+        projSheet.setColumnWidth(2, 160);
+        projSheet.setColumnWidth(3, 130);
+        projSheet.setColumnWidth(4, 300);
+        projSheet.hideColumns(MARKER_COL);
+        Logger.log('Created new "By Project" tab');
+      }
+
+      // Group expenses by vendor
+      var grouped = {};
+      for (var ei = 0; ei < expenses.length; ei++) {
+        var ek = expenses[ei].vendor || 'Uncategorized';
+        if (!grouped[ek]) grouped[ek] = [];
+        grouped[ek].push(expenses[ei]);
+      }
+
+      var projects = Object.keys(grouped).sort();
+
+      for (var pi = 0; pi < projects.length; pi++) {
+        var project = projects[pi];
+        var items = grouped[project];
+
+        Logger.log('Processing project: ' + project + ' (' + items.length + ' expenses)');
+
+        // Re-read data each iteration (rows shift after inserts)
+        var allData = projSheet.getDataRange().getValues();
+        var allMarkers = [];
+        for (var ri = 0; ri < allData.length; ri++) {
+          allMarkers.push(allData[ri].length >= MARKER_COL ? String(allData[ri][MARKER_COL - 1]) : '');
+        }
+
+        // Find project header
+        var headerRow = -1;
+        for (var ri = 0; ri < allMarkers.length; ri++) {
+          if (allMarkers[ri] === 'PROJECT:' + project) { headerRow = ri + 1; break; }
+        }
+
+        if (headerRow > 0) {
+          // EXISTING project — find subtotal and append before it
+          var subtotalRow = -1;
+          for (var ri = headerRow; ri < allMarkers.length; ri++) {
+            if (allMarkers[ri] === 'SUBTOTAL:' + project) { subtotalRow = ri + 1; break; }
+          }
+
+          if (subtotalRow > 0) {
+            // Check for duplicates
+            var existingRows = [];
+            for (var ri = headerRow + 1; ri < subtotalRow - 1; ri++) {
+              existingRows.push({ date: String(allData[ri][0]), amount: Number(allData[ri][2]), description: String(allData[ri][3]) });
+            }
+
+            var newItems = [];
+            for (var ii = 0; ii < items.length; ii++) {
+              var fDate = '';
+              try { fDate = Utilities.formatDate(new Date(items[ii].date), Session.getScriptTimeZone(), 'dd-MMM-yyyy'); } catch(de) { fDate = items[ii].date || ''; }
+              var fAmt = parseFloat(items[ii].amount) || 0;
+              var fDesc = items[ii].description || '';
+              var isDup = false;
+              for (var ei2 = 0; ei2 < existingRows.length; ei2++) {
+                if (existingRows[ei2].date === fDate && existingRows[ei2].amount === fAmt && existingRows[ei2].description === fDesc) { isDup = true; break; }
+              }
+              if (!isDup) newItems.push(items[ii]);
+            }
+
+            if (newItems.length > 0) {
+              projSheet.insertRowsBefore(subtotalRow, newItems.length);
+              for (var ii = 0; ii < newItems.length; ii++) {
+                var rw = subtotalRow + ii;
+                var fd2 = '';
+                try { fd2 = Utilities.formatDate(new Date(newItems[ii].date), Session.getScriptTimeZone(), 'dd-MMM-yyyy'); } catch(de) { fd2 = newItems[ii].date || ''; }
+                projSheet.getRange(rw, 1).setValue(fd2);
+                projSheet.getRange(rw, 2).setValue(newItems[ii].category || 'Miscellaneous');
+                projSheet.getRange(rw, 3).setValue(parseFloat(newItems[ii].amount) || 0).setNumberFormat('₹#,##0.00');
+                projSheet.getRange(rw, 4).setValue(newItems[ii].description || '');
+              }
+              // Update subtotal
+              var newSubRow = subtotalRow + newItems.length;
+              var subTotal = 0;
+              for (var ri = headerRow + 2; ri < newSubRow; ri++) {
+                subTotal += (parseFloat(projSheet.getRange(ri, 3).getValue()) || 0);
+              }
+              projSheet.getRange(newSubRow, 3).setValue(subTotal).setNumberFormat('₹#,##0.00').setFontWeight('bold').setFontColor('#0e7490');
+            }
+          }
+        } else {
+          // NEW project — insert section before grand total
+          var grandTotalRow = -1;
+          for (var ri = 0; ri < allMarkers.length; ri++) {
+            if (allMarkers[ri] === 'GRAND_TOTAL') { grandTotalRow = ri + 1; break; }
+          }
+          if (grandTotalRow < 0) grandTotalRow = projSheet.getLastRow() + 1;
+
+          var rowsNeeded = items.length + 4;
+          projSheet.insertRowsBefore(grandTotalRow, rowsNeeded);
+          var cr = grandTotalRow;
+
+          // Project header
+          projSheet.getRange(cr, 1).setValue('▸ ' + project).setFontWeight('bold').setFontSize(11);
+          projSheet.getRange(cr, 1, 1, 4).setBackground('#0e7490').setFontColor('#ffffff');
+          projSheet.getRange(cr, MARKER_COL).setValue('PROJECT:' + project);
+          cr++;
+
+          // Column headers
+          projSheet.getRange(cr, 1, 1, 4).setValues([['Date', 'Category', 'Amount', 'Description']]);
+          projSheet.getRange(cr, 1, 1, 4).setFontWeight('bold').setFontColor('#64748b').setFontSize(9).setBackground('#f1f5f9');
+          cr++;
+
+          // Expense rows
+          var subAmt = 0;
+          for (var ii = 0; ii < items.length; ii++) {
+            var fd3 = '';
+            try { fd3 = Utilities.formatDate(new Date(items[ii].date), Session.getScriptTimeZone(), 'dd-MMM-yyyy'); } catch(de) { fd3 = items[ii].date || ''; }
+            projSheet.getRange(cr, 1).setValue(fd3);
+            projSheet.getRange(cr, 2).setValue(items[ii].category || 'Miscellaneous');
+            projSheet.getRange(cr, 3).setValue(parseFloat(items[ii].amount) || 0).setNumberFormat('₹#,##0.00');
+            projSheet.getRange(cr, 4).setValue(items[ii].description || '');
+            if (ii % 2 === 1) projSheet.getRange(cr, 1, 1, 4).setBackground('#f8fafc');
+            subAmt += (parseFloat(items[ii].amount) || 0);
+            cr++;
+          }
+
+          // Subtotal
+          projSheet.getRange(cr, 1).setValue('Subtotal').setFontWeight('bold').setFontColor('#0e7490');
+          projSheet.getRange(cr, 3).setValue(subAmt).setNumberFormat('₹#,##0.00').setFontWeight('bold').setFontColor('#0e7490');
+          projSheet.getRange(cr, MARKER_COL).setValue('SUBTOTAL:' + project);
+        }
+      }
+
+      // Update grand total
+      var gtData = projSheet.getDataRange().getValues();
+      var gtTotal = 0;
+      var gtRow = -1;
+      for (var ri = 0; ri < gtData.length; ri++) {
+        var mk = gtData[ri].length >= MARKER_COL ? String(gtData[ri][MARKER_COL - 1]) : '';
+        if (mk.indexOf('SUBTOTAL:') === 0) gtTotal += (parseFloat(gtData[ri][2]) || 0);
+        if (mk === 'GRAND_TOTAL') gtRow = ri + 1;
+      }
+      if (gtRow > 0) {
+        projSheet.getRange(gtRow, 3).setValue(gtTotal).setNumberFormat('₹#,##0.00').setFontWeight('bold').setFontSize(12).setFontColor('#0e7490');
+      }
+
+      // Update timestamp
+      projSheet.getRange(1, 4).setValue('Last Updated: ' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd-MMM-yyyy HH:mm')).setFontColor('#64748b').setFontSize(9);
+
+      Logger.log('✅ Project ledger updated successfully');
     } catch (projectError) {
       Logger.log('⚠️ Failed to update project sheet: ' + projectError.toString());
-      Logger.log('⚠️ Error stack: ' + projectError.stack);
+      Logger.log('⚠️ Stack: ' + projectError.stack);
     }
 
     return createResponse(true, 'Successfully exported ' + numExpenses + ' expenses', {
