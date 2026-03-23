@@ -102,6 +102,21 @@ public class ShakeService extends Service implements SensorEventListener {
         intent.setAction("com.expensetracker.QUICK_ADD");
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+        // Wake the screen and bring app to front
+        android.os.PowerManager pm = (android.os.PowerManager) getSystemService(Context.POWER_SERVICE);
+        if (pm != null) {
+            android.os.PowerManager.WakeLock wakeLock = pm.newWakeLock(
+                android.os.PowerManager.FULL_WAKE_LOCK |
+                android.os.PowerManager.ACQUIRE_CAUSES_WAKEUP |
+                android.os.PowerManager.ON_AFTER_RELEASE,
+                "expensetracker:shake_wake"
+            );
+            wakeLock.acquire(3000); // hold for 3 seconds
+        }
+
         startActivity(intent);
     }
 
