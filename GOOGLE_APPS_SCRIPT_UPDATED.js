@@ -406,10 +406,23 @@ function exportExpensesToSheet(data) {
 
     // ===== NEW: Append to permanent "By Project" ledger tab =====
     try {
-      appendToProjectSheet(data);
+      Logger.log('DEBUG: typeof data = ' + typeof data);
+      Logger.log('DEBUG: data is null? ' + (data === null));
+      Logger.log('DEBUG: data is undefined? ' + (data === undefined));
+      Logger.log('DEBUG: sheetId from destructured var = ' + sheetId);
+      Logger.log('DEBUG: expenses length from destructured var = ' + expenses.length);
+
+      // Build a fresh object from the destructured variables that we KNOW work
+      var projectData = {
+        sheetId: sheetId,
+        expenses: expenses
+      };
+      Logger.log('DEBUG: projectData.sheetId = ' + projectData.sheetId);
+      appendToProjectSheet(projectData);
       Logger.log('✅ Project ledger tab updated successfully');
     } catch (projectError) {
       Logger.log('⚠️ Failed to update project sheet: ' + projectError.toString());
+      Logger.log('⚠️ Error stack: ' + projectError.stack);
     }
 
     return createResponse(true, 'Successfully exported ' + numExpenses + ' expenses', {
