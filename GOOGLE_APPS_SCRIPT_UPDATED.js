@@ -59,24 +59,22 @@ function doGet(e) {
         return createSheetForUser(data);
 
       case 'exportExpenses':
-        // CRITICAL ORDER: Do log/project work FIRST, then exportExpensesToSheet LAST.
-        // exportExpensesToSheet creates a ContentService response object, and after
-        // that returns, the V8 GET handler context degrades — subsequent function
-        // calls receive undefined parameters. By doing the non-response work first
-        // (while data is still intact), then calling the response-creating function
-        // last, we avoid the issue entirely.
-
-        Logger.log('doGet exportExpenses: sheetId=' + data.sheetId + ', count=' + data.expenses.length);
-
-        // Step 1: Log sheet (no ContentService, just SpreadsheetApp writes)
-        try { addToLogSheet(data); } catch (err) { Logger.log('Log sheet error: ' + err.toString()); }
-        // Step 2: "By Project" grouped tab
-        try { addToProjectSheets(data); } catch (err) { Logger.log('By Project tab error: ' + err.toString()); }
-        // Step 3: Individual project tabs (Ace, Biocon, etc.)
-        try { addToIndividualProjectTabs(data); } catch (err) { Logger.log('Individual project tabs error: ' + err.toString()); }
-
-        // Step 4: Main export to ExpenseReport tab — LAST (creates ContentService response)
+        // Main export to ExpenseReport tab only
         return exportExpensesToSheet(data);
+
+      // These are called as SEPARATE GET requests from the frontend
+      // to avoid V8 scope issues with function chaining in doGet
+      case 'addToLogSheet':
+        addToLogSheet(data);
+        return createResponse(true, 'Log sheet updated');
+
+      case 'addToProjectSheets':
+        addToProjectSheets(data);
+        return createResponse(true, 'By Project tab updated');
+
+      case 'addToIndividualProjectTabs':
+        addToIndividualProjectTabs(data);
+        return createResponse(true, 'Individual project tabs updated');
 
       case 'verifySheet':
         return verifySheetAccess(data);
@@ -118,11 +116,19 @@ function doPost(e) {
         return createSheetForUser(data);
 
       case 'exportExpenses':
-        // Same order as doGet: log/project FIRST, main export LAST
-        try { addToLogSheet(data); } catch (err) { Logger.log('Log sheet error: ' + err.toString()); }
-        try { addToProjectSheets(data); } catch (err) { Logger.log('By Project tab error: ' + err.toString()); }
-        try { addToIndividualProjectTabs(data); } catch (err) { Logger.log('Individual project tabs error: ' + err.toString()); }
         return exportExpensesToSheet(data);
+
+      case 'addToLogSheet':
+        addToLogSheet(data);
+        return createResponse(true, 'Log sheet updated');
+
+      case 'addToProjectSheets':
+        addToProjectSheets(data);
+        return createResponse(true, 'By Project tab updated');
+
+      case 'addToIndividualProjectTabs':
+        addToIndividualProjectTabs(data);
+        return createResponse(true, 'Individual project tabs updated');
 
       case 'verifySheet':
         return verifySheetAccess(data);

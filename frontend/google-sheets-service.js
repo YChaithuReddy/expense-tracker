@@ -333,22 +333,39 @@ class GoogleSheetsService {
                 expenses: formattedExpenses
             };
 
+            // Step 1: Main export to ExpenseReport tab
             const result = await this.fetchAppsScript(data);
 
-            if (result.status === 'success') {
-                this.updateUI();
-
-                return {
-                    success: true,
-                    message: `Exported ${result.data?.exportedCount || expenses.length} expenses to Google Sheets`,
-                    sheetUrl: this.sheetUrl,
-                    exportedCount: result.data?.exportedCount || expenses.length,
-                    startRow: result.data?.startRow,
-                    endRow: result.data?.endRow
-                };
-            } else {
+            if (result.status !== 'success') {
                 throw new Error(result.message || 'Export failed');
             }
+
+            // Step 2-4: Log sheet, By Project tab, Individual project tabs
+            // Separate API calls to avoid Apps Script V8 GET handler scope issues
+            const projectData = {
+                action: 'addToProjectSheets',
+                sheetId: this.sheetId,
+                expenses: formattedExpenses
+            };
+
+            // Fire all 3 calls in parallel (non-blocking, errors don't fail the export)
+            this.fetchAppsScript({ action: 'addToLogSheet', sheetId: this.sheetId, expenses: formattedExpenses })
+                .catch(err => console.warn('Log sheet update failed (non-fatal):', err));
+            this.fetchAppsScript({ action: 'addToProjectSheets', sheetId: this.sheetId, expenses: formattedExpenses })
+                .catch(err => console.warn('By Project tab update failed (non-fatal):', err));
+            this.fetchAppsScript({ action: 'addToIndividualProjectTabs', sheetId: this.sheetId, expenses: formattedExpenses })
+                .catch(err => console.warn('Project tabs update failed (non-fatal):', err));
+
+            this.updateUI();
+
+            return {
+                success: true,
+                message: `Exported ${result.data?.exportedCount || expenses.length} expenses (project ledger updated)`,
+                sheetUrl: this.sheetUrl,
+                exportedCount: result.data?.exportedCount || expenses.length,
+                startRow: result.data?.startRow,
+                endRow: result.data?.endRow
+            };
 
         } catch (error) {
             console.error('❌ Error exporting to Google Sheets:', error);
