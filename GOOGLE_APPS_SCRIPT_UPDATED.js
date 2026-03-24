@@ -4,46 +4,129 @@
  * This script handles:
  * 1. Creating a new copy of the master template for each user
  * 2. Sharing the copy with the user's email
- * 3. Accepting data exports from the backend
+ * 3. Accepting data exports from the frontend (via GET with ?data= parameter)
+ * 4. Maintaining a permanent Project_Expenses_Log tab
+ * 5. Creating per-project tabs with running subtotals
+ * 6. Updating employee information on the sheet
+ * 7. Exporting sheet as PDF
+ * 8. Resetting sheet from master template
  *
  * Deploy this as a Web App with "Execute as: Me" and "Access: Anyone"
+ *
+ * FRONTEND CALLS THIS VIA GET:
+ *   fetch(`${APPS_SCRIPT_URL}?data=${encodeURIComponent(JSON.stringify(data))}`, { method: 'GET', redirect: 'follow' })
  */
 
-const MASTER_TEMPLATE_ID = '1dcq8HKP1j4NocCMgAY9YSXlwCrzHwIiRCd0t4mun25E';
-const TAB_NAME = 'ExpenseReport';
+var MASTER_TEMPLATE_ID = '1dcq8HKP1j4NocCMgAY9YSXlwCrzHwIiRCd0t4mun25E';
+var TAB_NAME = 'ExpenseReport';
+var LOG_TAB_NAME = 'Project_Expenses_Log';
+
+// ============================================================================
+// ROUTING: doGet and doPost
+// ============================================================================
 
 /**
- * HTTP GET handler - for browser testing
+ * HTTP GET handler - the frontend sends data as a URL parameter
+ * URL format: ?data={"action":"exportExpenses","sheetId":"...","expenses":[...]}
+ *
+ * CRITICAL ARCHITECTURE NOTE:
+ * For 'exportExpenses', we call addToLogSheet and addToProjectSheets SEPARATELY
+ * from the router level — NOT from inside exportExpensesToSheet. This avoids
+ * an Apps Script V8 runtime issue where parameters passed to nested functions
+ * become undefined inside the GET handler context.
  */
 function doGet(e) {
-  return ContentService.createTextOutput(JSON.stringify({
-    status: 'success',
-    message: 'Expense Tracker Google Apps Script is running',
-    info: 'This script handles POST requests from the backend',
-    version: '1.0',
-    timestamp: new Date().toISOString()
-  })).setMimeType(ContentService.MimeType.JSON);
-}
-
-/**
- * HTTP POST handler - called by backend
- */
-function doPost(e) {
   try {
-    const data = JSON.parse(e.postData.contents);
-    const action = data.action;
+    // If no data parameter, return status message
+    if (!e || !e.parameter || !e.parameter.data) {
+      return ContentService.createTextOutput(JSON.stringify({
+        status: 'success',
+        message: 'Expense Tracker Google Apps Script is running',
+        info: 'Send data as ?data={JSON} parameter',
+        version: '2.0',
+        timestamp: new Date().toISOString()
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    var data = JSON.parse(e.parameter.data);
+    var action = data.action;
+
+    Logger.log('doGet action: ' + action);
+    Logger.log('doGet data keys: ' + Object.keys(data).join(', '));
 
     switch (action) {
       case 'createSheet':
         return createSheetForUser(data);
+
       case 'exportExpenses':
-        return exportExpensesToSheet(data);
+        // Step 1: Main export to ExpenseReport tab (existing, works perfectly)
+        var exportResult = exportExpensesToSheet(data);
+        // Step 2: Log sheet (called from router level, NOT nested)
+        try { addToLogSheet(data); } catch (err) { Logger.log('Log sheet error: ' + err.toString()); }
+        // Step 3: Project-specific sheets (called from router level, NOT nested)
+        try { addToProjectSheets(data); } catch (err) { Logger.log('Project sheets error: ' + err.toString()); }
+        return exportResult;
+
       case 'verifySheet':
         return verifySheetAccess(data);
+
       case 'exportPdf':
         return exportSheetAsPdf(data);
+
       case 'resetSheet':
         return resetSheetFromMaster(data);
+
+      case 'updateEmployeeInformation':
+        return updateEmployeeInformation(data);
+
+      default:
+        return createResponse(false, 'Unknown action: ' + action);
+    }
+  } catch (error) {
+    Logger.log('Error in doGet: ' + error.toString());
+    Logger.log('Error stack: ' + (error.stack || 'no stack'));
+    return createResponse(false, 'Server error: ' + error.toString());
+  }
+}
+
+/**
+ * HTTP POST handler - called by backend or direct POST requests
+ *
+ * Same routing logic as doGet. For 'exportExpenses', log and project sheet
+ * functions are called at the router level to avoid scope issues.
+ */
+function doPost(e) {
+  try {
+    var data = JSON.parse(e.postData.contents);
+    var action = data.action;
+
+    Logger.log('doPost action: ' + action);
+
+    switch (action) {
+      case 'createSheet':
+        return createSheetForUser(data);
+
+      case 'exportExpenses':
+        // Step 1: Main export to ExpenseReport tab
+        var exportResult = exportExpensesToSheet(data);
+        // Step 2: Log sheet (called from router level, NOT nested)
+        try { addToLogSheet(data); } catch (err) { Logger.log('Log sheet error: ' + err.toString()); }
+        // Step 3: Project-specific sheets (called from router level, NOT nested)
+        try { addToProjectSheets(data); } catch (err) { Logger.log('Project sheets error: ' + err.toString()); }
+        return exportResult;
+
+      case 'verifySheet':
+        return verifySheetAccess(data);
+
+      case 'exportPdf':
+        return exportSheetAsPdf(data);
+
+      case 'resetSheet':
+        return resetSheetFromMaster(data);
+
+      case 'updateEmployeeInformation':
+        return updateEmployeeInformation(data);
+
       default:
         return createResponse(false, 'Unknown action: ' + action);
     }
@@ -52,6 +135,10 @@ function doPost(e) {
     return createResponse(false, 'Server error: ' + error.toString());
   }
 }
+
+// ============================================================================
+// EXISTING FUNCTIONS (unchanged)
+// ============================================================================
 
 /**
  * Create a new sheet for a user by copying the master template
@@ -341,6 +428,10 @@ function verifySheetAccess(data) {
  * Clears all data and restores original structure:
  * - Data section (rows 14-66) with borders
  * - Summary section (rows 67-83) without borders
+ *
+ * NOTE: This does NOT clear the Project_Expenses_Log tab or any
+ * project-specific tabs (e.g., "Ace", "Biocon"). Those are permanent
+ * and must be manually deleted if needed.
  */
 function resetSheetFromMaster(data) {
   try {
@@ -472,6 +563,7 @@ function resetSheetFromMaster(data) {
     Logger.log('Sheet reset completed:');
     Logger.log('- Data section (rows 14-66): Formatted with borders');
     Logger.log('- Summary section (rows 67-83): Formatted without borders');
+    Logger.log('- Project_Expenses_Log and project tabs: NOT cleared (permanent)');
 
     return createResponse(true, 'Sheet reset successfully - all data cleared, template restored', {
       sheetId: sheetId,
@@ -563,8 +655,8 @@ function exportSheetAsPdf(data) {
 /**
  * Create a standardized JSON response
  */
-function createResponse(success, message, data = null) {
-  const response = {
+function createResponse(success, message, data) {
+  var response = {
     status: success ? 'success' : 'error',
     message: message
   };
@@ -576,6 +668,357 @@ function createResponse(success, message, data = null) {
   return ContentService.createTextOutput(JSON.stringify(response))
     .setMimeType(ContentService.MimeType.JSON);
 }
+
+// ============================================================================
+// NEW FUNCTIONS
+// ============================================================================
+
+/**
+ * Update employee information on the ExpenseReport tab
+ * Updates:
+ *   D4  = Employee Name
+ *   D5  = Employee Code
+ *   F5  = From Date
+ *   F6  = To Date
+ *   D9  = Business Purpose
+ */
+function updateEmployeeInformation(data) {
+  try {
+    var sheetId = data.sheetId;
+    var employeeName = data.employeeName || '';
+    var employeeCode = data.employeeCode || '';
+    var fromDate = data.fromDate || '';
+    var toDate = data.toDate || '';
+    var businessPurpose = data.businessPurpose || '';
+
+    if (!sheetId) {
+      return createResponse(false, 'Missing required field: sheetId');
+    }
+
+    Logger.log('Updating employee information for sheet: ' + sheetId);
+
+    var spreadsheet = SpreadsheetApp.openById(String(sheetId));
+    var sheet = spreadsheet.getSheetByName(TAB_NAME);
+
+    if (!sheet) {
+      return createResponse(false, 'Tab "' + TAB_NAME + '" not found in sheet');
+    }
+
+    // Update cells
+    if (employeeName) {
+      sheet.getRange('D4').setValue(employeeName);
+      Logger.log('Set D4 (Employee Name): ' + employeeName);
+    }
+    if (employeeCode) {
+      sheet.getRange('D5').setValue(employeeCode);
+      Logger.log('Set D5 (Employee Code): ' + employeeCode);
+    }
+    if (fromDate) {
+      sheet.getRange('F5').setValue(fromDate);
+      Logger.log('Set F5 (From Date): ' + fromDate);
+    }
+    if (toDate) {
+      sheet.getRange('F6').setValue(toDate);
+      Logger.log('Set F6 (To Date): ' + toDate);
+    }
+    if (businessPurpose) {
+      sheet.getRange('D9').setValue(businessPurpose);
+      Logger.log('Set D9 (Business Purpose): ' + businessPurpose);
+    }
+
+    Logger.log('Employee information updated successfully');
+
+    return createResponse(true, 'Employee information updated successfully', {
+      sheetId: sheetId,
+      updated: {
+        employeeName: employeeName,
+        employeeCode: employeeCode,
+        fromDate: fromDate,
+        toDate: toDate,
+        businessPurpose: businessPurpose
+      }
+    });
+
+  } catch (error) {
+    Logger.log('Error updating employee information: ' + error.toString());
+    return createResponse(false, 'Failed to update employee information: ' + error.toString());
+  }
+}
+
+/**
+ * Add expenses to the permanent Project_Expenses_Log tab
+ *
+ * This tab is NEVER cleared by resetSheetFromMaster — it is a permanent
+ * append-only log of all expenses ever exported.
+ *
+ * Header row: Date | Project | Amount | Category | Notes
+ * Each expense from data.expenses is appended as a new row.
+ *
+ * IMPORTANT: This function opens the spreadsheet fresh via data.sheetId.
+ * It must be called from the doGet/doPost router level, NOT from inside
+ * exportExpensesToSheet, to avoid V8 scope issues.
+ */
+function addToLogSheet(data) {
+  var sheetId = data.sheetId;
+  var expenses = data.expenses;
+
+  if (!sheetId || !expenses || !Array.isArray(expenses) || expenses.length === 0) {
+    Logger.log('addToLogSheet: skipping — missing sheetId or empty expenses');
+    return;
+  }
+
+  Logger.log('addToLogSheet: opening spreadsheet ' + sheetId + ' with ' + expenses.length + ' expenses');
+
+  var spreadsheet = SpreadsheetApp.openById(String(sheetId));
+  var logSheet = spreadsheet.getSheetByName(LOG_TAB_NAME);
+
+  // Create the tab if it doesn't exist
+  if (!logSheet) {
+    Logger.log('addToLogSheet: creating new "' + LOG_TAB_NAME + '" tab');
+    logSheet = spreadsheet.insertSheet(LOG_TAB_NAME);
+
+    // Set up header row
+    var headers = [['Date', 'Project', 'Amount', 'Category', 'Notes']];
+    logSheet.getRange(1, 1, 1, 5).setValues(headers);
+
+    // Bold header
+    logSheet.getRange(1, 1, 1, 5).setFontWeight('bold');
+
+    // Set amount column format
+    logSheet.getRange('C:C').setNumberFormat('\u20B9#,##0.00');
+
+    // Freeze header row
+    logSheet.setFrozenRows(1);
+
+    // Set column widths for readability
+    logSheet.setColumnWidth(1, 120); // Date
+    logSheet.setColumnWidth(2, 180); // Project
+    logSheet.setColumnWidth(3, 120); // Amount
+    logSheet.setColumnWidth(4, 150); // Category
+    logSheet.setColumnWidth(5, 250); // Notes
+
+    Logger.log('addToLogSheet: header row created and formatted');
+  }
+
+  // Find the next empty row (after header)
+  var lastRow = logSheet.getLastRow();
+  var nextRow = lastRow + 1;
+
+  Logger.log('addToLogSheet: appending at row ' + nextRow);
+
+  // Build rows to append
+  var rows = [];
+  for (var i = 0; i < expenses.length; i++) {
+    var expense = expenses[i];
+    var date = new Date(expense.date);
+    var formattedDate = Utilities.formatDate(date, Session.getScriptTimeZone(), 'dd-MMM-yyyy');
+
+    rows.push([
+      formattedDate,
+      expense.vendor || 'Unknown',
+      parseFloat(expense.amount) || 0,
+      expense.category || 'Miscellaneous',
+      expense.description || expense.notes || ''
+    ]);
+  }
+
+  // Batch write all rows at once
+  logSheet.getRange(nextRow, 1, rows.length, 5).setValues(rows);
+
+  // Format the amount column for the new rows
+  logSheet.getRange(nextRow, 3, rows.length, 1).setNumberFormat('\u20B9#,##0.00');
+
+  Logger.log('addToLogSheet: appended ' + rows.length + ' rows successfully');
+}
+
+/**
+ * Add expenses to per-project tabs (grouped by vendor/project name)
+ *
+ * For each unique vendor in data.expenses:
+ *   - Gets or creates a tab named after the vendor (e.g., "Ace", "Biocon")
+ *   - Appends expense rows (skipping duplicates based on date+amount+notes)
+ *   - Updates a running subtotal in cell E1 (header row last column)
+ *
+ * Header row: Date | Amount | Category | Notes
+ * Subtotal formula is placed in E1 and auto-updates.
+ *
+ * IMPORTANT: This function opens the spreadsheet fresh via data.sheetId.
+ * It must be called from the doGet/doPost router level, NOT from inside
+ * exportExpensesToSheet, to avoid V8 scope issues.
+ */
+function addToProjectSheets(data) {
+  var sheetId = data.sheetId;
+  var expenses = data.expenses;
+
+  if (!sheetId || !expenses || !Array.isArray(expenses) || expenses.length === 0) {
+    Logger.log('addToProjectSheets: skipping — missing sheetId or empty expenses');
+    return;
+  }
+
+  Logger.log('addToProjectSheets: opening spreadsheet ' + sheetId + ' with ' + expenses.length + ' expenses');
+
+  var spreadsheet = SpreadsheetApp.openById(String(sheetId));
+
+  // Group expenses by vendor (project name)
+  var projectMap = {};
+  for (var i = 0; i < expenses.length; i++) {
+    var expense = expenses[i];
+    var project = expense.vendor || 'Unknown';
+
+    // Clean the project name for use as a tab name (max 100 chars, no invalid chars)
+    var cleanProject = project
+      .replace(/[\/\\?*\[\]:]/g, '-')  // Replace invalid sheet name chars
+      .substring(0, 100)
+      .trim();
+
+    if (!cleanProject) {
+      cleanProject = 'Unknown';
+    }
+
+    if (!projectMap[cleanProject]) {
+      projectMap[cleanProject] = [];
+    }
+    projectMap[cleanProject].push(expense);
+  }
+
+  var projectNames = Object.keys(projectMap);
+  Logger.log('addToProjectSheets: found ' + projectNames.length + ' unique projects: ' + projectNames.join(', '));
+
+  // Process each project
+  for (var p = 0; p < projectNames.length; p++) {
+    var projectName = projectNames[p];
+    var projectExpenses = projectMap[projectName];
+
+    Logger.log('addToProjectSheets: processing project "' + projectName + '" with ' + projectExpenses.length + ' expenses');
+
+    var projectSheet = spreadsheet.getSheetByName(projectName);
+
+    // Create the tab if it doesn't exist
+    if (!projectSheet) {
+      Logger.log('addToProjectSheets: creating new tab "' + projectName + '"');
+      projectSheet = spreadsheet.insertSheet(projectName);
+
+      // Set up header row: Date | Amount | Category | Notes | Subtotal label
+      var headers = [['Date', 'Amount', 'Category', 'Notes', 'Subtotal \u2192']];
+      projectSheet.getRange(1, 1, 1, 5).setValues(headers);
+
+      // Bold header
+      projectSheet.getRange(1, 1, 1, 5).setFontWeight('bold');
+
+      // Set amount column format
+      projectSheet.getRange('B:B').setNumberFormat('\u20B9#,##0.00');
+
+      // Freeze header row
+      projectSheet.setFrozenRows(1);
+
+      // Set column widths
+      projectSheet.setColumnWidth(1, 120); // Date
+      projectSheet.setColumnWidth(2, 120); // Amount
+      projectSheet.setColumnWidth(3, 150); // Category
+      projectSheet.setColumnWidth(4, 250); // Notes
+      projectSheet.setColumnWidth(5, 120); // Subtotal
+
+      Logger.log('addToProjectSheets: header row created for "' + projectName + '"');
+    }
+
+    // Get existing data for duplicate detection
+    var lastRow = projectSheet.getLastRow();
+    var existingData = [];
+
+    if (lastRow > 1) {
+      // Read existing rows (skip header): columns A, B, D (date, amount, notes)
+      var existingRange = projectSheet.getRange(2, 1, lastRow - 1, 4);
+      var existingValues = existingRange.getValues();
+
+      for (var e = 0; e < existingValues.length; e++) {
+        // Build a key from date + amount + notes for duplicate detection
+        var existingKey = String(existingValues[e][0]) + '|' + String(existingValues[e][1]) + '|' + String(existingValues[e][3]);
+        existingData.push(existingKey);
+      }
+    }
+
+    // Build rows to append (skipping duplicates)
+    var newRows = [];
+    for (var j = 0; j < projectExpenses.length; j++) {
+      var exp = projectExpenses[j];
+      var expDate = new Date(exp.date);
+      var formattedDate = Utilities.formatDate(expDate, Session.getScriptTimeZone(), 'dd-MMM-yyyy');
+      var amount = parseFloat(exp.amount) || 0;
+      var notes = exp.description || exp.notes || '';
+
+      // Duplicate check: match date + amount + notes
+      var newKey = formattedDate + '|' + amount + '|' + notes;
+      var isDuplicate = false;
+      for (var d = 0; d < existingData.length; d++) {
+        if (existingData[d].indexOf(formattedDate) !== -1 &&
+            existingData[d].indexOf(String(amount)) !== -1 &&
+            existingData[d].indexOf(notes) !== -1) {
+          isDuplicate = true;
+          break;
+        }
+      }
+
+      if (isDuplicate) {
+        Logger.log('addToProjectSheets: skipping duplicate in "' + projectName + '": ' + formattedDate + ' ' + amount);
+        continue;
+      }
+
+      newRows.push([
+        formattedDate,
+        amount,
+        exp.category || 'Miscellaneous',
+        notes
+      ]);
+    }
+
+    if (newRows.length === 0) {
+      Logger.log('addToProjectSheets: no new rows for "' + projectName + '" (all duplicates)');
+      // Still update subtotal formula in case sheet was just created
+      updateProjectSubtotal(projectSheet);
+      continue;
+    }
+
+    // Append new rows
+    var appendRow = projectSheet.getLastRow() + 1;
+    projectSheet.getRange(appendRow, 1, newRows.length, 4).setValues(newRows);
+
+    // Format the amount column for new rows
+    projectSheet.getRange(appendRow, 2, newRows.length, 1).setNumberFormat('\u20B9#,##0.00');
+
+    Logger.log('addToProjectSheets: appended ' + newRows.length + ' rows to "' + projectName + '"');
+
+    // Update running subtotal
+    updateProjectSubtotal(projectSheet);
+  }
+
+  Logger.log('addToProjectSheets: all projects processed');
+}
+
+/**
+ * Helper: Update the running subtotal formula in cell E1 of a project sheet
+ * Formula: =SUM(B2:B{lastRow}) so it always covers all data rows
+ */
+function updateProjectSubtotal(projectSheet) {
+  var lastRow = projectSheet.getLastRow();
+  if (lastRow < 2) {
+    // No data rows yet, set subtotal to 0
+    projectSheet.getRange('E1').setValue(0);
+    projectSheet.getRange('E1').setNumberFormat('\u20B9#,##0.00');
+    return;
+  }
+
+  // Set a SUM formula covering all data rows
+  var formula = '=SUM(B2:B' + lastRow + ')';
+  projectSheet.getRange('E1').setFormula(formula);
+  projectSheet.getRange('E1').setNumberFormat('\u20B9#,##0.00');
+  projectSheet.getRange('E1').setFontWeight('bold');
+
+  Logger.log('updateProjectSubtotal: set formula ' + formula);
+}
+
+// ============================================================================
+// TEST FUNCTIONS
+// ============================================================================
 
 /**
  * Test function - can be run manually from Apps Script editor
@@ -638,5 +1081,113 @@ function testResetSheet() {
   };
 
   const result = resetSheetFromMaster(testData);
+  Logger.log(result.getContent());
+}
+
+/**
+ * Test function - addToLogSheet
+ * Tests the permanent log sheet with sample expenses.
+ * Replace sheetId with your actual Google Sheet ID.
+ */
+function testLogSheet() {
+  var testData = {
+    sheetId: 'YOUR_TEST_SHEET_ID_HERE',  // <-- Replace with actual ID
+    expenses: [
+      {
+        date: '2025-03-20',
+        vendor: 'Ace Constructions',
+        amount: 2500.00,
+        category: 'Materials',
+        description: 'Cement bags x10'
+      },
+      {
+        date: '2025-03-21',
+        vendor: 'Biocon Pharma',
+        amount: 1800.50,
+        category: 'Travel',
+        description: 'Cab to Biocon campus'
+      },
+      {
+        date: '2025-03-22',
+        vendor: 'Ace Constructions',
+        amount: 750.00,
+        category: 'Labour',
+        description: 'Daily wages for helpers'
+      },
+      {
+        date: '2025-03-22',
+        vendor: 'Office Supplies',
+        amount: 320.00,
+        category: 'Stationery',
+        description: 'Printer cartridge'
+      }
+    ]
+  };
+
+  Logger.log('=== Testing addToLogSheet ===');
+  addToLogSheet(testData);
+  Logger.log('=== testLogSheet complete ===');
+}
+
+/**
+ * Test function - addToProjectSheets
+ * Tests per-project tab creation with sample expenses.
+ * Replace sheetId with your actual Google Sheet ID.
+ */
+function testProjectSheets() {
+  var testData = {
+    sheetId: 'YOUR_TEST_SHEET_ID_HERE',  // <-- Replace with actual ID
+    expenses: [
+      {
+        date: '2025-03-20',
+        vendor: 'Ace Constructions',
+        amount: 2500.00,
+        category: 'Materials',
+        description: 'Cement bags x10'
+      },
+      {
+        date: '2025-03-21',
+        vendor: 'Biocon Pharma',
+        amount: 1800.50,
+        category: 'Travel',
+        description: 'Cab to Biocon campus'
+      },
+      {
+        date: '2025-03-22',
+        vendor: 'Ace Constructions',
+        amount: 750.00,
+        category: 'Labour',
+        description: 'Daily wages for helpers'
+      },
+      {
+        date: '2025-03-22',
+        vendor: 'Office Supplies',
+        amount: 320.00,
+        category: 'Stationery',
+        description: 'Printer cartridge'
+      }
+    ]
+  };
+
+  Logger.log('=== Testing addToProjectSheets ===');
+  addToProjectSheets(testData);
+  Logger.log('=== testProjectSheets complete ===');
+}
+
+/**
+ * Test function - updateEmployeeInformation
+ * Replace sheetId with your actual Google Sheet ID.
+ */
+function testUpdateEmployeeInfo() {
+  var testData = {
+    sheetId: 'YOUR_TEST_SHEET_ID_HERE',  // <-- Replace with actual ID
+    employeeName: 'John Doe',
+    employeeCode: 'EMP-001',
+    fromDate: '01-Mar-2025',
+    toDate: '31-Mar-2025',
+    businessPurpose: 'Site visit expenses for Q1 2025'
+  };
+
+  var result = updateEmployeeInformation(testData);
   Logger.log(result.getContent());
 }
