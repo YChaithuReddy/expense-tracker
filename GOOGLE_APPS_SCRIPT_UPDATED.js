@@ -819,22 +819,43 @@ function addToLogSheet(data) {
   var lastRow = logSheet.getLastRow();
   var nextRow = lastRow + 1;
 
-  Logger.log('addToLogSheet: appending at row ' + nextRow);
+  // Read existing data for duplicate detection
+  var existingKeys = [];
+  if (lastRow > 1) {
+    var existingRange = logSheet.getRange(2, 1, lastRow - 1, 5).getValues();
+    for (var e = 0; e < existingRange.length; e++) {
+      // Key = date + vendor + amount + description
+      existingKeys.push(String(existingRange[e][0]) + '|' + String(existingRange[e][1]) + '|' + Number(existingRange[e][2]) + '|' + String(existingRange[e][4]));
+    }
+  }
 
-  // Build rows to append
+  // Build rows to append (skip duplicates)
   var rows = [];
+  var skipped = 0;
   for (var i = 0; i < expenses.length; i++) {
     var expense = expenses[i];
-    var date = new Date(expense.date);
-    var formattedDate = Utilities.formatDate(date, Session.getScriptTimeZone(), 'dd-MMM-yyyy');
+    var formattedDate = formatDateSafe(expense.date);
+    var vendor = expense.vendor || 'Unknown';
+    var amount = parseFloat(expense.amount) || 0;
+    var desc = expense.description || expense.notes || '';
 
-    rows.push([
-      formattedDate,
-      expense.vendor || 'Unknown',
-      parseFloat(expense.amount) || 0,
-      expense.category || 'Miscellaneous',
-      expense.description || expense.notes || ''
-    ]);
+    var key = formattedDate + '|' + vendor + '|' + amount + '|' + desc;
+    var isDup = false;
+    for (var d = 0; d < existingKeys.length; d++) {
+      if (existingKeys[d] === key) { isDup = true; break; }
+    }
+
+    if (isDup) {
+      skipped++;
+      continue;
+    }
+
+    rows.push([formattedDate, vendor, amount, expense.category || 'Miscellaneous', desc]);
+  }
+
+  if (rows.length === 0) {
+    Logger.log('addToLogSheet: no new rows (all ' + skipped + ' duplicates skipped)');
+    return;
   }
 
   // Batch write all rows at once
@@ -843,7 +864,7 @@ function addToLogSheet(data) {
   // Format the amount column for the new rows
   logSheet.getRange(nextRow, 3, rows.length, 1).setNumberFormat('\u20B9#,##0.00');
 
-  Logger.log('addToLogSheet: appended ' + rows.length + ' rows successfully');
+  Logger.log('addToLogSheet: appended ' + rows.length + ' rows, skipped ' + skipped + ' duplicates');
 }
 
 /**
