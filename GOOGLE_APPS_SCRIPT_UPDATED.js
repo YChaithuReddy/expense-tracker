@@ -832,188 +832,220 @@ function addToLogSheet(data) {
 }
 
 /**
- * Add expenses to per-project tabs (grouped by vendor/project name)
+ * Add expenses to ONE "By Project" tab with grouped sections
  *
- * For each unique vendor in data.expenses:
- *   - Gets or creates a tab named after the vendor (e.g., "Ace", "Biocon")
- *   - Appends expense rows (skipping duplicates based on date+amount+notes)
- *   - Updates a running subtotal in cell E1 (header row last column)
+ * Layout (single tab, all projects in sections):
+ *   Row 1: "Project-wise Expense Ledger"    |    | Last Updated: dd-MMM-yyyy
+ *   Row 2: (blank)
+ *   Row 3: [PROJECT HEADER - cyan bg] "▸ Ace Constructions"
+ *   Row 4: Date | Category | Amount | Description  (column headers)
+ *   Row 5: 01-Mar | Transportation | ₹1,500 | Cab to site
+ *   Row 6: Subtotal | | ₹1,500 |
+ *   Row 7: (blank)
+ *   Row 8: [PROJECT HEADER] "▸ Biocon Pharma"
+ *   ...
+ *   Last: GRAND TOTAL | | ₹X,XXX |
  *
- * Header row: Date | Amount | Category | Notes
- * Subtotal formula is placed in E1 and auto-updates.
+ * Uses hidden markers in column E to identify sections:
+ *   PROJECT:{name}, SUBTOTAL:{name}, GRAND_TOTAL
  *
- * IMPORTANT: This function opens the spreadsheet fresh via data.sheetId.
- * It must be called from the doGet/doPost router level, NOT from inside
- * exportExpensesToSheet, to avoid V8 scope issues.
+ * Skips duplicates (date + amount + description match within project section).
+ * This tab is PERMANENT — never cleared on reset.
+ *
+ * IMPORTANT: Called from doGet/doPost router level, NOT nested.
  */
 function addToProjectSheets(data) {
   var sheetId = data.sheetId;
   var expenses = data.expenses;
+  var BY_PROJECT_TAB = 'By Project';
+  var MARKER_COL = 5; // Column E for hidden markers
 
   if (!sheetId || !expenses || !Array.isArray(expenses) || expenses.length === 0) {
     Logger.log('addToProjectSheets: skipping — missing sheetId or empty expenses');
     return;
   }
 
-  Logger.log('addToProjectSheets: opening spreadsheet ' + sheetId + ' with ' + expenses.length + ' expenses');
+  Logger.log('addToProjectSheets: opening spreadsheet ' + sheetId);
 
   var spreadsheet = SpreadsheetApp.openById(String(sheetId));
+  var sheet = spreadsheet.getSheetByName(BY_PROJECT_TAB);
 
-  // Group expenses by vendor (project name)
-  var projectMap = {};
-  for (var i = 0; i < expenses.length; i++) {
-    var expense = expenses[i];
-    var project = expense.vendor || 'Unknown';
-
-    // Clean the project name for use as a tab name (max 100 chars, no invalid chars)
-    var cleanProject = project
-      .replace(/[\/\\?*\[\]:]/g, '-')  // Replace invalid sheet name chars
-      .substring(0, 100)
-      .trim();
-
-    if (!cleanProject) {
-      cleanProject = 'Unknown';
-    }
-
-    if (!projectMap[cleanProject]) {
-      projectMap[cleanProject] = [];
-    }
-    projectMap[cleanProject].push(expense);
+  // --- Create the tab if first time ---
+  if (!sheet) {
+    sheet = spreadsheet.insertSheet(BY_PROJECT_TAB);
+    sheet.getRange(1, 1).setValue('Project-wise Expense Ledger').setFontSize(14).setFontWeight('bold').setFontColor('#0e7490');
+    sheet.getRange(1, 4).setValue('Last Updated: ' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd-MMM-yyyy HH:mm')).setFontColor('#64748b').setFontSize(9);
+    // Grand total at row 3
+    sheet.getRange(3, 1).setValue('GRAND TOTAL').setFontWeight('bold').setFontSize(12).setFontColor('#0e7490');
+    sheet.getRange(3, 3).setValue(0).setNumberFormat('\u20B9#,##0.00').setFontWeight('bold').setFontSize(12).setFontColor('#0e7490');
+    sheet.getRange(3, MARKER_COL).setValue('GRAND_TOTAL');
+    sheet.setColumnWidth(1, 120);
+    sheet.setColumnWidth(2, 160);
+    sheet.setColumnWidth(3, 130);
+    sheet.setColumnWidth(4, 280);
+    sheet.hideColumns(MARKER_COL);
+    Logger.log('addToProjectSheets: created "By Project" tab');
   }
 
-  var projectNames = Object.keys(projectMap);
-  Logger.log('addToProjectSheets: found ' + projectNames.length + ' unique projects: ' + projectNames.join(', '));
+  // --- Group expenses by vendor ---
+  var grouped = {};
+  for (var i = 0; i < expenses.length; i++) {
+    var key = expenses[i].vendor || 'Uncategorized';
+    if (!grouped[key]) grouped[key] = [];
+    grouped[key].push(expenses[i]);
+  }
 
-  // Process each project
-  for (var p = 0; p < projectNames.length; p++) {
-    var projectName = projectNames[p];
-    var projectExpenses = projectMap[projectName];
+  var projects = Object.keys(grouped).sort();
+  Logger.log('addToProjectSheets: ' + projects.length + ' projects: ' + projects.join(', '));
 
-    Logger.log('addToProjectSheets: processing project "' + projectName + '" with ' + projectExpenses.length + ' expenses');
+  // --- Process each project ---
+  for (var p = 0; p < projects.length; p++) {
+    var project = projects[p];
+    var items = grouped[project];
 
-    var projectSheet = spreadsheet.getSheetByName(projectName);
+    Logger.log('addToProjectSheets: processing "' + project + '" (' + items.length + ' expenses)');
 
-    // Create the tab if it doesn't exist
-    if (!projectSheet) {
-      Logger.log('addToProjectSheets: creating new tab "' + projectName + '"');
-      projectSheet = spreadsheet.insertSheet(projectName);
-
-      // Set up header row: Date | Amount | Category | Notes | Subtotal label
-      var headers = [['Date', 'Amount', 'Category', 'Notes', 'Subtotal \u2192']];
-      projectSheet.getRange(1, 1, 1, 5).setValues(headers);
-
-      // Bold header
-      projectSheet.getRange(1, 1, 1, 5).setFontWeight('bold');
-
-      // Set amount column format
-      projectSheet.getRange('B:B').setNumberFormat('\u20B9#,##0.00');
-
-      // Freeze header row
-      projectSheet.setFrozenRows(1);
-
-      // Set column widths
-      projectSheet.setColumnWidth(1, 120); // Date
-      projectSheet.setColumnWidth(2, 120); // Amount
-      projectSheet.setColumnWidth(3, 150); // Category
-      projectSheet.setColumnWidth(4, 250); // Notes
-      projectSheet.setColumnWidth(5, 120); // Subtotal
-
-      Logger.log('addToProjectSheets: header row created for "' + projectName + '"');
+    // Re-read markers each iteration (rows shift after inserts)
+    var allData = sheet.getDataRange().getValues();
+    var allMarkers = [];
+    for (var r = 0; r < allData.length; r++) {
+      allMarkers.push(allData[r].length >= MARKER_COL ? String(allData[r][MARKER_COL - 1]) : '');
     }
 
-    // Get existing data for duplicate detection
-    var lastRow = projectSheet.getLastRow();
-    var existingData = [];
+    // Find this project's header row
+    var headerRow = -1;
+    for (var r = 0; r < allMarkers.length; r++) {
+      if (allMarkers[r] === 'PROJECT:' + project) { headerRow = r + 1; break; }
+    }
 
-    if (lastRow > 1) {
-      // Read existing rows (skip header): columns A, B, D (date, amount, notes)
-      var existingRange = projectSheet.getRange(2, 1, lastRow - 1, 4);
-      var existingValues = existingRange.getValues();
-
-      for (var e = 0; e < existingValues.length; e++) {
-        // Build a key from date + amount + notes for duplicate detection
-        var existingKey = String(existingValues[e][0]) + '|' + String(existingValues[e][1]) + '|' + String(existingValues[e][3]);
-        existingData.push(existingKey);
+    if (headerRow > 0) {
+      // === EXISTING PROJECT — find subtotal and insert before it ===
+      var subtotalRow = -1;
+      for (var r = headerRow; r < allMarkers.length; r++) {
+        if (allMarkers[r] === 'SUBTOTAL:' + project) { subtotalRow = r + 1; break; }
       }
-    }
 
-    // Build rows to append (skipping duplicates)
-    var newRows = [];
-    for (var j = 0; j < projectExpenses.length; j++) {
-      var exp = projectExpenses[j];
-      var expDate = new Date(exp.date);
-      var formattedDate = Utilities.formatDate(expDate, Session.getScriptTimeZone(), 'dd-MMM-yyyy');
-      var amount = parseFloat(exp.amount) || 0;
-      var notes = exp.description || exp.notes || '';
+      if (subtotalRow > 0) {
+        // Read existing rows for duplicate detection
+        var existingRows = [];
+        for (var r = headerRow + 1; r < subtotalRow - 1; r++) {
+          existingRows.push({
+            date: String(allData[r][0]),
+            amount: Number(allData[r][2]),
+            description: String(allData[r][3])
+          });
+        }
 
-      // Duplicate check: match date + amount + notes
-      var newKey = formattedDate + '|' + amount + '|' + notes;
-      var isDuplicate = false;
-      for (var d = 0; d < existingData.length; d++) {
-        if (existingData[d].indexOf(formattedDate) !== -1 &&
-            existingData[d].indexOf(String(amount)) !== -1 &&
-            existingData[d].indexOf(notes) !== -1) {
-          isDuplicate = true;
-          break;
+        // Filter duplicates
+        var newItems = [];
+        for (var i = 0; i < items.length; i++) {
+          var fDate = formatDateSafe(items[i].date);
+          var fAmt = parseFloat(items[i].amount) || 0;
+          var fDesc = items[i].description || '';
+          var isDup = false;
+          for (var e = 0; e < existingRows.length; e++) {
+            if (existingRows[e].date === fDate && existingRows[e].amount === fAmt && existingRows[e].description === fDesc) {
+              isDup = true; break;
+            }
+          }
+          if (!isDup) newItems.push(items[i]);
+        }
+
+        Logger.log('  ' + newItems.length + ' new, ' + (items.length - newItems.length) + ' duplicates skipped');
+
+        if (newItems.length > 0) {
+          sheet.insertRowsBefore(subtotalRow, newItems.length);
+          for (var i = 0; i < newItems.length; i++) {
+            var row = subtotalRow + i;
+            sheet.getRange(row, 1).setValue(formatDateSafe(newItems[i].date));
+            sheet.getRange(row, 2).setValue(newItems[i].category || 'Miscellaneous');
+            sheet.getRange(row, 3).setValue(parseFloat(newItems[i].amount) || 0).setNumberFormat('\u20B9#,##0.00');
+            sheet.getRange(row, 4).setValue(newItems[i].description || '');
+          }
+          // Recalculate subtotal
+          var newSubRow = subtotalRow + newItems.length;
+          var subTotal = 0;
+          for (var r = headerRow + 2; r < newSubRow; r++) {
+            subTotal += (parseFloat(sheet.getRange(r, 3).getValue()) || 0);
+          }
+          sheet.getRange(newSubRow, 3).setValue(subTotal).setNumberFormat('\u20B9#,##0.00').setFontWeight('bold').setFontColor('#0e7490');
         }
       }
+    } else {
+      // === NEW PROJECT — insert section before grand total ===
+      var grandTotalRow = -1;
+      for (var r = 0; r < allMarkers.length; r++) {
+        if (allMarkers[r] === 'GRAND_TOTAL') { grandTotalRow = r + 1; break; }
+      }
+      if (grandTotalRow < 0) grandTotalRow = sheet.getLastRow() + 1;
 
-      if (isDuplicate) {
-        Logger.log('addToProjectSheets: skipping duplicate in "' + projectName + '": ' + formattedDate + ' ' + amount);
-        continue;
+      var rowsNeeded = items.length + 4; // header + col header + items + subtotal + blank
+      sheet.insertRowsBefore(grandTotalRow, rowsNeeded);
+      var cr = grandTotalRow;
+
+      // Project header (cyan)
+      sheet.getRange(cr, 1).setValue('\u25B8 ' + project).setFontWeight('bold').setFontSize(11);
+      sheet.getRange(cr, 1, 1, 4).setBackground('#0e7490').setFontColor('#ffffff');
+      sheet.getRange(cr, MARKER_COL).setValue('PROJECT:' + project);
+      cr++;
+
+      // Column headers
+      sheet.getRange(cr, 1, 1, 4).setValues([['Date', 'Category', 'Amount', 'Description']]);
+      sheet.getRange(cr, 1, 1, 4).setFontWeight('bold').setFontColor('#64748b').setFontSize(9).setBackground('#f1f5f9');
+      cr++;
+
+      // Expense rows
+      var subAmt = 0;
+      for (var i = 0; i < items.length; i++) {
+        sheet.getRange(cr, 1).setValue(formatDateSafe(items[i].date));
+        sheet.getRange(cr, 2).setValue(items[i].category || 'Miscellaneous');
+        sheet.getRange(cr, 3).setValue(parseFloat(items[i].amount) || 0).setNumberFormat('\u20B9#,##0.00');
+        sheet.getRange(cr, 4).setValue(items[i].description || '');
+        if (i % 2 === 1) sheet.getRange(cr, 1, 1, 4).setBackground('#f8fafc');
+        subAmt += (parseFloat(items[i].amount) || 0);
+        cr++;
       }
 
-      newRows.push([
-        formattedDate,
-        amount,
-        exp.category || 'Miscellaneous',
-        notes
-      ]);
+      // Subtotal row
+      sheet.getRange(cr, 1).setValue('Subtotal').setFontWeight('bold').setFontColor('#0e7490');
+      sheet.getRange(cr, 3).setValue(subAmt).setNumberFormat('\u20B9#,##0.00').setFontWeight('bold').setFontColor('#0e7490');
+      sheet.getRange(cr, MARKER_COL).setValue('SUBTOTAL:' + project);
+
+      Logger.log('  Created section with ' + items.length + ' expenses, subtotal: ' + subAmt);
     }
-
-    if (newRows.length === 0) {
-      Logger.log('addToProjectSheets: no new rows for "' + projectName + '" (all duplicates)');
-      // Still update subtotal formula in case sheet was just created
-      updateProjectSubtotal(projectSheet);
-      continue;
-    }
-
-    // Append new rows
-    var appendRow = projectSheet.getLastRow() + 1;
-    projectSheet.getRange(appendRow, 1, newRows.length, 4).setValues(newRows);
-
-    // Format the amount column for new rows
-    projectSheet.getRange(appendRow, 2, newRows.length, 1).setNumberFormat('\u20B9#,##0.00');
-
-    Logger.log('addToProjectSheets: appended ' + newRows.length + ' rows to "' + projectName + '"');
-
-    // Update running subtotal
-    updateProjectSubtotal(projectSheet);
   }
 
-  Logger.log('addToProjectSheets: all projects processed');
+  // --- Update grand total ---
+  var gtData = sheet.getDataRange().getValues();
+  var gtTotal = 0;
+  var gtRow = -1;
+  for (var r = 0; r < gtData.length; r++) {
+    var mk = gtData[r].length >= MARKER_COL ? String(gtData[r][MARKER_COL - 1]) : '';
+    if (mk.indexOf('SUBTOTAL:') === 0) gtTotal += (parseFloat(gtData[r][2]) || 0);
+    if (mk === 'GRAND_TOTAL') gtRow = r + 1;
+  }
+  if (gtRow > 0) {
+    sheet.getRange(gtRow, 1).setValue('GRAND TOTAL').setFontWeight('bold').setFontSize(12).setFontColor('#0e7490');
+    sheet.getRange(gtRow, 3).setValue(gtTotal).setNumberFormat('\u20B9#,##0.00').setFontWeight('bold').setFontSize(12).setFontColor('#0e7490');
+  }
+
+  // --- Update timestamp ---
+  sheet.getRange(1, 4).setValue('Last Updated: ' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd-MMM-yyyy HH:mm')).setFontColor('#64748b').setFontSize(9);
+
+  Logger.log('addToProjectSheets: done, grand total = ' + gtTotal);
 }
 
 /**
- * Helper: Update the running subtotal formula in cell E1 of a project sheet
- * Formula: =SUM(B2:B{lastRow}) so it always covers all data rows
+ * Helper: Safely format a date string to dd-MMM-yyyy
  */
-function updateProjectSubtotal(projectSheet) {
-  var lastRow = projectSheet.getLastRow();
-  if (lastRow < 2) {
-    // No data rows yet, set subtotal to 0
-    projectSheet.getRange('E1').setValue(0);
-    projectSheet.getRange('E1').setNumberFormat('\u20B9#,##0.00');
-    return;
+function formatDateSafe(dateStr) {
+  try {
+    var d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr || '';
+    return Utilities.formatDate(d, Session.getScriptTimeZone(), 'dd-MMM-yyyy');
+  } catch (e) {
+    return dateStr || '';
   }
-
-  // Set a SUM formula covering all data rows
-  var formula = '=SUM(B2:B' + lastRow + ')';
-  projectSheet.getRange('E1').setFormula(formula);
-  projectSheet.getRange('E1').setNumberFormat('\u20B9#,##0.00');
-  projectSheet.getRange('E1').setFontWeight('bold');
-
-  Logger.log('updateProjectSubtotal: set formula ' + formula);
 }
 
 // ============================================================================
@@ -1131,7 +1163,7 @@ function testLogSheet() {
 
 /**
  * Test function - addToProjectSheets
- * Tests per-project tab creation with sample expenses.
+ * Tests the single "By Project" tab with grouped sections.
  * Replace sheetId with your actual Google Sheet ID.
  */
 function testProjectSheets() {
