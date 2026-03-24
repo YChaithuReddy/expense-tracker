@@ -63,8 +63,10 @@ function doGet(e) {
         var exportResult = exportExpensesToSheet(data);
         // Step 2: Log sheet (called from router level, NOT nested)
         try { addToLogSheet(data); } catch (err) { Logger.log('Log sheet error: ' + err.toString()); }
-        // Step 3: Project-specific sheets (called from router level, NOT nested)
-        try { addToProjectSheets(data); } catch (err) { Logger.log('Project sheets error: ' + err.toString()); }
+        // Step 3: "By Project" grouped tab (called from router level, NOT nested)
+        try { addToProjectSheets(data); } catch (err) { Logger.log('By Project tab error: ' + err.toString()); }
+        // Step 4: Individual project tabs (Ace, Biocon, etc.)
+        try { addToIndividualProjectTabs(data); } catch (err) { Logger.log('Individual project tabs error: ' + err.toString()); }
         return exportResult;
 
       case 'verifySheet':
@@ -111,8 +113,10 @@ function doPost(e) {
         var exportResult = exportExpensesToSheet(data);
         // Step 2: Log sheet (called from router level, NOT nested)
         try { addToLogSheet(data); } catch (err) { Logger.log('Log sheet error: ' + err.toString()); }
-        // Step 3: Project-specific sheets (called from router level, NOT nested)
-        try { addToProjectSheets(data); } catch (err) { Logger.log('Project sheets error: ' + err.toString()); }
+        // Step 3: "By Project" grouped tab (called from router level, NOT nested)
+        try { addToProjectSheets(data); } catch (err) { Logger.log('By Project tab error: ' + err.toString()); }
+        // Step 4: Individual project tabs (Ace, Biocon, etc.)
+        try { addToIndividualProjectTabs(data); } catch (err) { Logger.log('Individual project tabs error: ' + err.toString()); }
         return exportResult;
 
       case 'verifySheet':
@@ -1046,6 +1050,141 @@ function formatDateSafe(dateStr) {
   } catch (e) {
     return dateStr || '';
   }
+}
+
+/**
+ * Create/update individual project tabs (one tab per project)
+ * Styled to match the "By Project" grouped layout:
+ *   Row 1: [Cyan header] "▸ Project Name"
+ *   Row 2: Date | Category | Amount | Description (column headers)
+ *   Row 3+: expense data (alternating row shading)
+ *   Last:  Subtotal row (bold, teal)
+ *
+ * Skips duplicates (date + amount + description).
+ * These tabs are PERMANENT — never cleared on reset.
+ *
+ * IMPORTANT: Called from doGet/doPost router level, NOT nested.
+ */
+function addToIndividualProjectTabs(data) {
+  var sheetId = data.sheetId;
+  var expenses = data.expenses;
+
+  if (!sheetId || !expenses || !Array.isArray(expenses) || expenses.length === 0) {
+    Logger.log('addToIndividualProjectTabs: skipping — missing data');
+    return;
+  }
+
+  var spreadsheet = SpreadsheetApp.openById(String(sheetId));
+
+  // Group by vendor
+  var grouped = {};
+  for (var i = 0; i < expenses.length; i++) {
+    var key = (expenses[i].vendor || 'Uncategorized')
+      .replace(/[\/\\?*\[\]:]/g, '-').substring(0, 100).trim() || 'Uncategorized';
+    if (!grouped[key]) grouped[key] = [];
+    grouped[key].push(expenses[i]);
+  }
+
+  var projects = Object.keys(grouped).sort();
+  Logger.log('addToIndividualProjectTabs: ' + projects.length + ' projects');
+
+  for (var p = 0; p < projects.length; p++) {
+    var project = projects[p];
+    var items = grouped[project];
+    var tab = spreadsheet.getSheetByName(project);
+
+    // --- Create tab if new ---
+    if (!tab) {
+      Logger.log('  Creating tab: "' + project + '"');
+      tab = spreadsheet.insertSheet(project);
+
+      // Row 1: Project header (cyan, matching By Project style)
+      tab.getRange(1, 1).setValue('\u25B8 ' + project).setFontWeight('bold').setFontSize(12);
+      tab.getRange(1, 1, 1, 4).setBackground('#0e7490').setFontColor('#ffffff');
+
+      // Row 2: Column headers
+      tab.getRange(2, 1, 1, 4).setValues([['Date', 'Category', 'Amount', 'Description']]);
+      tab.getRange(2, 1, 1, 4).setFontWeight('bold').setFontColor('#64748b').setFontSize(9).setBackground('#f1f5f9');
+
+      // Row 3: Subtotal (starts at 0)
+      tab.getRange(3, 1).setValue('Subtotal').setFontWeight('bold').setFontColor('#0e7490');
+      tab.getRange(3, 3).setValue(0).setNumberFormat('\u20B9#,##0.00').setFontWeight('bold').setFontColor('#0e7490');
+
+      // Column widths
+      tab.setColumnWidth(1, 120);
+      tab.setColumnWidth(2, 160);
+      tab.setColumnWidth(3, 130);
+      tab.setColumnWidth(4, 280);
+
+      // Freeze header rows
+      tab.setFrozenRows(2);
+    }
+
+    // --- Find subtotal row (last row with "Subtotal" in col A) ---
+    var lastRow = tab.getLastRow();
+    var subtotalRow = -1;
+    if (lastRow >= 3) {
+      var colA = tab.getRange(3, 1, lastRow - 2, 1).getValues();
+      for (var r = colA.length - 1; r >= 0; r--) {
+        if (String(colA[r][0]) === 'Subtotal') { subtotalRow = r + 3; break; }
+      }
+    }
+    if (subtotalRow < 0) subtotalRow = lastRow + 1; // fallback
+
+    // --- Read existing data for duplicate detection ---
+    var existingKeys = [];
+    if (subtotalRow > 3) {
+      var existing = tab.getRange(3, 1, subtotalRow - 3, 4).getValues();
+      for (var r = 0; r < existing.length; r++) {
+        existingKeys.push(String(existing[r][0]) + '|' + Number(existing[r][2]) + '|' + String(existing[r][3]));
+      }
+    }
+
+    // --- Filter duplicates ---
+    var newItems = [];
+    for (var i = 0; i < items.length; i++) {
+      var fDate = formatDateSafe(items[i].date);
+      var fAmt = parseFloat(items[i].amount) || 0;
+      var fDesc = items[i].description || '';
+      var key = fDate + '|' + fAmt + '|' + fDesc;
+      var isDup = false;
+      for (var d = 0; d < existingKeys.length; d++) {
+        if (existingKeys[d] === key) { isDup = true; break; }
+      }
+      if (!isDup) newItems.push(items[i]);
+    }
+
+    Logger.log('  "' + project + '": ' + newItems.length + ' new, ' + (items.length - newItems.length) + ' dupes skipped');
+
+    if (newItems.length === 0) continue;
+
+    // --- Insert rows before subtotal ---
+    tab.insertRowsBefore(subtotalRow, newItems.length);
+
+    for (var i = 0; i < newItems.length; i++) {
+      var row = subtotalRow + i;
+      tab.getRange(row, 1).setValue(formatDateSafe(newItems[i].date));
+      tab.getRange(row, 2).setValue(newItems[i].category || 'Miscellaneous');
+      tab.getRange(row, 3).setValue(parseFloat(newItems[i].amount) || 0).setNumberFormat('\u20B9#,##0.00');
+      tab.getRange(row, 4).setValue(newItems[i].description || '');
+      // Alternating row shading (check row number relative to data start)
+      var dataRowIndex = row - 3; // 0-based from first data row
+      if (dataRowIndex % 2 === 1) tab.getRange(row, 1, 1, 4).setBackground('#f8fafc');
+    }
+
+    // --- Recalculate subtotal ---
+    var newSubRow = subtotalRow + newItems.length;
+    var total = 0;
+    for (var r = 3; r < newSubRow; r++) {
+      total += (parseFloat(tab.getRange(r, 3).getValue()) || 0);
+    }
+    tab.getRange(newSubRow, 1).setValue('Subtotal').setFontWeight('bold').setFontColor('#0e7490');
+    tab.getRange(newSubRow, 3).setValue(total).setNumberFormat('\u20B9#,##0.00').setFontWeight('bold').setFontColor('#0e7490');
+
+    Logger.log('  "' + project + '": subtotal = ' + total);
+  }
+
+  Logger.log('addToIndividualProjectTabs: done');
 }
 
 // ============================================================================
