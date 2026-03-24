@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Modals Preview</title>
+    <style>
+:root {
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --text-primary: #e2e8f0;
+    --text-secondary: #94a3b8;
+    --border-color: rgba(255,255,255,0.08);
+}
+body { margin: 0; background: #0f172a; padding: 32px; box-sizing: border-box; }
+.section { margin-bottom: 48px; }
+.section-label { color: #94a3b8; font-family: sans-serif; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px; }
+.modals-row { display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start; }
+    </style>
+    <link rel="stylesheet" href="frontend/styles_pdfs.css">
+</head>
+<body>
+
+<div class="section">
+    <div class="section-label">Upload Metadata Modal</div>
+    <div class="modals-row">
+        <div class="pdfs-modal" style="max-width:440px;">
+            <h2 class="pdfs-modal__title">PDF Details</h2>
+            <div class="pdfs-modal__field">
+                <label class="pdfs-modal__label">Total Amount (&#8377;) *</label>
+                <input type="number" class="pdfs-modal__input" placeholder="e.g. 12500" value="12500">
+            </div>
+            <div class="pdfs-modal__field">
+                <label class="pdfs-modal__label">Period</label>
+                <div class="pdfs-modal__row">
+                    <input type="date" class="pdfs-modal__input" value="2026-03-01">
+                    <input type="date" class="pdfs-modal__input" value="2026-03-31">
+                </div>
+            </div>
+            <div class="pdfs-modal__field">
+                <label class="pdfs-modal__label">Purpose / Description</label>
+                <textarea class="pdfs-modal__textarea" rows="2">Business travel expenses for March 2026</textarea>
+            </div>
+            <div class="pdfs-modal__field" style="font-size:0.8rem;color:#94a3b8;">March-Travel-Expenses.pdf - 4 pages, 2.3 MB</div>
+            <div class="pdfs-modal__actions">
+                <button class="pdfs-modal__btn pdfs-modal__btn--secondary">Cancel</button>
+                <button class="pdfs-modal__btn pdfs-modal__btn--primary">Upload PDF</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="section">
+    <div class="section-label">Kodo Submit Modal</div>
+    <div class="modals-row">
+        <div class="pdfs-modal" style="max-width:440px;">
+            <h2 class="pdfs-modal__title">Submit to Kodo</h2>
+            <div class="pdfs-modal__field">
+                <label class="pdfs-modal__label">Total Amount (&#8377;) *</label>
+                <input type="number" class="pdfs-modal__input" value="12500">
+            </div>
+            <div class="pdfs-modal__field">
+                <label class="pdfs-modal__label">Bill Date *</label>
+                <input type="date" class="pdfs-modal__input" value="2026-03-31">
+            </div>
+            <div class="pdfs-modal__field">
+                <label class="pdfs-modal__label">Category</label>
+                <select class="pdfs-modal__select">
+                    <option>Travel</option>
+                    <option>Accommodation</option>
+                    <option>Meals</option>
+                </select>
+            </div>
+            <div class="pdfs-modal__field">
+                <label class="pdfs-modal__label">Checker (Approver)</label>
+                <select class="pdfs-modal__select">
+                    <option>Manager A</option>
+                    <option>Manager B</option>
+                </select>
+            </div>
+            <div class="pdfs-modal__field">
+                <label class="pdfs-modal__label">Comment</label>
+                <textarea class="pdfs-modal__textarea" rows="2" placeholder="Optional comment for the approver"></textarea>
+            </div>
+            <div class="pdfs-modal__actions">
+                <button class="pdfs-modal__btn pdfs-modal__btn--secondary">Cancel</button>
+                <button class="pdfs-modal__btn pdfs-modal__btn--kodo">Submit to Kodo</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="section">
+    <div class="section-label">Email Modal</div>
+    <div class="modals-row">
+        <div class="pdfs-modal" style="max-width:440px;">
+            <h2 class="pdfs-modal__title">Email to Accounts</h2>
+            <div class="pdfs-modal__field">
+                <label class="pdfs-modal__label">To (email address) *</label>
+                <input type="email" class="pdfs-modal__input" placeholder="accounts@company.com">
+            </div>
+            <div class="pdfs-modal__field">
+                <label class="pdfs-modal__label">Subject</label>
+                <input type="text" class="pdfs-modal__input" value="Reimbursement Request - March 2026">
+            </div>
+            <div class="pdfs-modal__field">
+                <label class="pdfs-modal__label">Message Body</label>
+                <textarea class="pdfs-modal__textarea" rows="5">Hi team, please find attached the reimbursement request for March 2026. Total: Rs 12,500. Kindly process at the earliest.</textarea>
+            </div>
+            <div class="pdfs-modal__actions">
+                <button class="pdfs-modal__btn pdfs-modal__btn--secondary">Cancel</button>
+                <button class="pdfs-modal__btn pdfs-modal__btn--email">Send Email</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="section">
+    <div class="section-label">Delete Confirm Modal</div>
+    <div class="modals-row">
+        <div class="pdfs-modal" style="max-width:440px;">
+            <h2 class="pdfs-modal__title">Delete PDF</h2>
+            <p style="color:#94a3b8;font-size:0.9rem;margin:0 0 20px;">
+                Are you sure you want to delete <strong style="color:#e2e8f0;">March-Travel-Expenses.pdf</strong>?
+                This cannot be undone.
+            </p>
+            <div class="pdfs-modal__actions">
+                <button class="pdfs-modal__btn pdfs-modal__btn--secondary">Cancel</button>
+                <button class="pdfs-modal__btn pdfs-modal__btn--danger">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="section">
+    <div class="section-label">Empty State</div>
+    <div class="pdfs-empty">
+        <div class="pdfs-empty__icon">&#128196;</div>
+        <div class="pdfs-empty__title">No PDFs saved yet</div>
+        <div class="pdfs-empty__hint">Upload a PDF above to get started.</div>
+    </div>
+</div>
+
+</body>
+</html>

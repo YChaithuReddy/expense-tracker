@@ -341,14 +341,8 @@ class GoogleSheetsService {
             }
 
             // Step 2-4: Log sheet, By Project tab, Individual project tabs
-            // Separate API calls to avoid Apps Script V8 GET handler scope issues
-            const projectData = {
-                action: 'addToProjectSheets',
-                sheetId: this.sheetId,
-                expenses: formattedExpenses
-            };
-
-            // Fire all 3 calls in parallel (non-blocking, errors don't fail the export)
+            // Separate API calls — each gets its own fresh doGet context
+            // Fire all 3 in parallel (non-blocking, errors don't fail the export)
             this.fetchAppsScript({ action: 'addToLogSheet', sheetId: this.sheetId, expenses: formattedExpenses })
                 .catch(err => console.warn('Log sheet update failed (non-fatal):', err));
             this.fetchAppsScript({ action: 'addToProjectSheets', sheetId: this.sheetId, expenses: formattedExpenses })

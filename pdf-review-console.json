@@ -1,0 +1,170 @@
+[
+  {
+    "type": "log",
+    "text": "Supabase client initialized successfully"
+  },
+  {
+    "type": "log",
+    "text": "Initializing auth..."
+  },
+  {
+    "type": "log",
+    "text": "initDeepLinkHandler called, isCapacitor: undefined listenerAdded: false"
+  },
+  {
+    "type": "log",
+    "text": "Not a Capacitor app, skipping deep link handler"
+  },
+  {
+    "type": "log",
+    "text": "Auth state changed: INITIAL_SESSION"
+  },
+  {
+    "type": "log",
+    "text": "Auth check: {pathname: /login.html, isPublicPage: true, hasSession: false, hasLocalStorage: false}"
+  },
+  {
+    "type": "log",
+    "text": "initDeepLinkHandler called, isCapacitor: undefined listenerAdded: false"
+  },
+  {
+    "type": "log",
+    "text": "Not a Capacitor app, skipping deep link handler"
+  },
+  {
+    "type": "log",
+    "text": "initDeepLinkHandler called, isCapacitor: undefined listenerAdded: false"
+  },
+  {
+    "type": "log",
+    "text": "Not a Capacitor app, skipping deep link handler"
+  },
+  {
+    "type": "log",
+    "text": "Auth state changed: SIGNED_IN"
+  },
+  {
+    "type": "log",
+    "text": "User signed in: chaithanya@fluxgentech.com"
+  },
+  {
+    "type": "log",
+    "text": "Supabase client initialized successfully"
+  },
+  {
+    "type": "log",
+    "text": "Initializing auth..."
+  },
+  {
+    "type": "log",
+    "text": "initDeepLinkHandler called, isCapacitor: undefined listenerAdded: false"
+  },
+  {
+    "type": "log",
+    "text": "Not a Capacitor app, skipping deep link handler"
+  },
+  {
+    "type": "log",
+    "text": "UPI Import buttons initialized"
+  },
+  {
+    "type": "log",
+    "text": "✅ Drag and drop functionality initialized"
+  },
+  {
+    "type": "log",
+    "text": "📅 No existing date, setting today: 2026-03-04"
+  },
+  {
+    "type": "log",
+    "text": "✅ Flatpickr initialized with date: 2026-03-04"
+  },
+  {
+    "type": "log",
+    "text": "🎨 Theme initialized: cyberpunk"
+  },
+  {
+    "type": "log",
+    "text": "Google Sheets initialization already in progress, waiting..."
+  },
+  {
+    "type": "log",
+    "text": "✅ IndexedDB schema created"
+  },
+  {
+    "type": "log",
+    "text": "Auth state changed: SIGNED_IN"
+  },
+  {
+    "type": "log",
+    "text": "User signed in: chaithanya@fluxgentech.com"
+  },
+  {
+    "type": "log",
+    "text": "Auth state changed: INITIAL_SESSION"
+  },
+  {
+    "type": "log",
+    "text": "✅ IndexedDB opened"
+  },
+  {
+    "type": "log",
+    "text": "📴 Offline Manager initialized"
+  },
+  {
+    "type": "log",
+    "text": "Session found, user is authenticated"
+  },
+  {
+    "type": "log",
+    "text": "✅ PWA Service Worker registered: https://expense-tracker-delta-ashy.vercel.app/"
+  },
+  {
+    "type": "log",
+    "text": "🔄 New Service Worker installing..."
+  },
+  {
+    "type": "log",
+    "text": "initDeepLinkHandler called, isCapacitor: undefined listenerAdded: false"
+  },
+  {
+    "type": "log",
+    "text": "Not a Capacitor app, skipping deep link handler"
+  },
+  {
+    "type": "log",
+    "text": "Auth check: {pathname: /index.html, isPublicPage: false, hasSession: true, hasLocalStorage: true}"
+  },
+  {
+    "type": "log",
+    "text": "Loading expenses from backend..."
+  },
+  {
+    "type": "log",
+    "text": "Google Sheet loaded from database: https://docs.google.com/spreadsheets/d/1wwLjGatNsSSUQs_vuVYCirpKXhaQOMFzRyoIfIKsC0E"
+  },
+  {
+    "type": "log",
+    "text": "Google Sheets service initialized"
+  },
+  {
+    "type": "log",
+    "text": "💾 Cached 6 expenses for offline viewing"
+  },
+  {
+    "type": "log",
+    "text": "✅ Loaded 6 expenses from backend"
+  },
+  {
+    "type": "log",
+    "text": "UPI Import buttons initialized"
+  },
+  {
+    "type": "log",
+    "text": "initDeepLinkHandler called, isCapacitor: undefined listenerAdded: false"
+  },
+  {
+    "type": "log",
+    "text": "Not a Capacitor app, skipping deep link handler"
+  }
+]
