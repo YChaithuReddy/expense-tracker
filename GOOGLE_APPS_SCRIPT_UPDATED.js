@@ -5,7 +5,6 @@
  * 1. Creating a new copy of the master template for each user
  * 2. Sharing the copy with the user's email
  * 3. Accepting data exports from the backend
- * 4. Maintaining a permanent "By Project" ledger tab
  *
  * Deploy this as a Web App with "Execute as: Me" and "Access: Anyone"
  */
@@ -14,62 +13,16 @@ const MASTER_TEMPLATE_ID = '1dcq8HKP1j4NocCMgAY9YSXlwCrzHwIiRCd0t4mun25E';
 const TAB_NAME = 'ExpenseReport';
 
 /**
- * HTTP GET handler - handles actions via URL parameters from frontend
+ * HTTP GET handler - for browser testing
  */
 function doGet(e) {
-  try {
-    Logger.log('doGet called with: ' + JSON.stringify(e));
-
-    // Check for data in different ways
-    let data = null;
-
-    if (e && e.parameter && e.parameter.data) {
-      Logger.log('Found data in e.parameter.data');
-      data = JSON.parse(e.parameter.data);
-    } else if (e && e.parameters && e.parameters.data) {
-      Logger.log('Found data in e.parameters.data');
-      data = JSON.parse(e.parameters.data[0]);
-    } else if (e && e.queryString) {
-      Logger.log('Trying to parse queryString: ' + e.queryString);
-      const params = new URLSearchParams(e.queryString);
-      if (params.has('data')) {
-        data = JSON.parse(params.get('data'));
-      }
-    }
-
-    if (data && data.action) {
-      Logger.log('Action: ' + data.action);
-
-      switch (data.action) {
-        case 'createSheet':
-          return createSheetForUser(data);
-        case 'exportExpenses':
-          return exportExpensesToSheet(data);
-        case 'verifySheet':
-          return verifySheetAccess(data);
-        case 'exportPdf':
-          return exportSheetAsPdf(data);
-        case 'resetSheet':
-          return resetSheetFromMaster(data);
-        case 'updateEmployeeInfo':
-          return updateEmployeeInformation(data);
-        default:
-          return createResponse(false, 'Unknown action: ' + data.action);
-      }
-    }
-
-    // Default response if no data parameter
-    return ContentService.createTextOutput(JSON.stringify({
-      status: 'success',
-      message: 'Expense Tracker Google Apps Script is running',
-      version: '3.0 — with By Project ledger',
-      receivedParams: e ? JSON.stringify(e.parameter) : 'none'
-    })).setMimeType(ContentService.MimeType.JSON);
-
-  } catch (error) {
-    Logger.log('Error in doGet: ' + error.toString());
-    return createResponse(false, 'Server error: ' + error.toString());
-  }
+  return ContentService.createTextOutput(JSON.stringify({
+    status: 'success',
+    message: 'Expense Tracker Google Apps Script is running',
+    info: 'This script handles POST requests from the backend',
+    version: '1.0',
+    timestamp: new Date().toISOString()
+  })).setMimeType(ContentService.MimeType.JSON);
 }
 
 /**
@@ -91,8 +44,6 @@ function doPost(e) {
         return exportSheetAsPdf(data);
       case 'resetSheet':
         return resetSheetFromMaster(data);
-      case 'updateEmployeeInfo':
-        return updateEmployeeInformation(data);
       default:
         return createResponse(false, 'Unknown action: ' + action);
     }
@@ -141,24 +92,9 @@ function createSheetForUser(data) {
 }
 
 /**
- * Test function to trigger authorization
- * Run this once to grant permissions
- */
-function authorizeScript() {
-  try {
-    const testUrl = 'https://www.google.com';
-    const response = UrlFetchApp.fetch(testUrl);
-    Logger.log('Authorization successful! Status: ' + response.getResponseCode());
-  } catch (e) {
-    Logger.log('Error (but authorization should still work): ' + e.toString());
-  }
-}
-
-/**
  * Export expenses to an existing sheet
  * Data section is dynamic - always starts at row 14
  * Summary section (17 rows) always follows data immediately
- * Also updates the permanent "By Project" ledger tab
  */
 function exportExpensesToSheet(data) {
   try {
@@ -182,52 +118,27 @@ function exportExpensesToSheet(data) {
     const DATA_START_ROW = 14; // Data always starts at row 14
     const SUMMARY_ROW_COUNT = 17; // Summary section is always 17 rows (A67:F83 in master)
 
-    // Find the last row with actual expense data (check column B for dates)
-    // Summary section has text like "SUBTOTAL" in column E, not dates in column B
+    // Find next empty row in data section (starting from row 14)
     const lastRow = sheet.getLastRow();
-    let lastDataRow = DATA_START_ROW - 1; // Start before first data row
+    let nextRow = DATA_START_ROW;
 
+    // Check existing data to find first empty row
     if (lastRow >= DATA_START_ROW) {
-      // Check each row for date data in column B
-      const dateColumn = sheet.getRange(DATA_START_ROW, 2, lastRow - DATA_START_ROW + 1, 1).getValues();
+      const dataRange = sheet.getRange(DATA_START_ROW, 2, lastRow - DATA_START_ROW + 1, 1);
+      const values = dataRange.getValues();
 
-      for (let i = 0; i < dateColumn.length; i++) {
-        const cellValue = dateColumn[i][0];
-        // If cell has a date or any value (not empty), it's data
-        if (cellValue && cellValue !== '') {
-          lastDataRow = DATA_START_ROW + i;
-        } else {
-          // Hit empty row, stop searching
+      for (let i = 0; i < values.length; i++) {
+        if (!values[i][0] || values[i][0] === '') {
+          nextRow = DATA_START_ROW + i;
           break;
+        } else if (i === values.length - 1) {
+          // All rows have data, start after the last row
+          nextRow = lastRow + 1;
         }
       }
-
-      Logger.log('Last data row found: ' + lastDataRow);
     }
 
-    // Next row to insert data is after the last data row
-    const nextRow = lastDataRow + 1;
-    Logger.log('Appending new expenses starting at row: ' + nextRow);
-
-    // If there's existing data beyond nextRow (like summary), clear it
-    // We'll re-add the summary after the new data
-    if (lastRow >= nextRow) {
-      Logger.log('Clearing old summary section from row ' + nextRow + ' onwards');
-      const clearRange = sheet.getRange(nextRow, 1, lastRow - nextRow + 1, 6);
-
-      // Unmerge any cells in this range to prevent conflicts
-      try {
-        const mergedRanges = clearRange.getMergedRanges();
-        for (let i = 0; i < mergedRanges.length; i++) {
-          mergedRanges[i].breakApart();
-        }
-        Logger.log('Unmerged ' + mergedRanges.length + ' ranges in summary area');
-      } catch (e) {
-        Logger.log('No merged cells to unmerge: ' + e);
-      }
-
-      clearRange.clear();
-    }
+    Logger.log('Starting export at row: ' + nextRow);
 
     // Prepare data arrays for batch update
     const serialNumbers = [];
@@ -292,10 +203,6 @@ function exportExpensesToSheet(data) {
     sheet.getRange(nextRow, 5, numExpenses, 1).setValues(categories);
     sheet.getRange(nextRow, 6, numExpenses, 1).setValues(costs);
 
-    // Explicitly format date column (B) to display as "10-Sep-2025" format
-    const dateRange = sheet.getRange(nextRow, 2, numExpenses, 1);
-    dateRange.setNumberFormat('dd-mmm-yyyy');
-
     // Merge vendor cells (columns C and D) for each row
     for (let i = 0; i < numExpenses; i++) {
       const vendorRange = sheet.getRange(nextRow + i, 3, 1, 2);
@@ -341,33 +248,15 @@ function exportExpensesToSheet(data) {
       const userSummaryRange = sheet.getRange(summaryStartRow, 1, SUMMARY_ROW_COUNT, 6);
 
       // Apply formulas/values (formulas take priority)
-      const MASTER_SUMMARY_START_ROW = 67; // Master template summary starts at row 67
-      const rowOffset = summaryStartRow - MASTER_SUMMARY_START_ROW;
-
       for (let i = 0; i < summaryFormulas.length; i++) {
         for (let j = 0; j < summaryFormulas[i].length; j++) {
           if (summaryFormulas[i][j]) {
-            // Has formula - update row references
+            // Has formula - update row references for SUBTOTAL
             let formula = summaryFormulas[i][j];
 
             // Update SUBTOTAL formula to reference actual data range (14 to dataEndRow)
             if (formula.includes('=SUM(F14:F66)')) {
               formula = '=SUM(F14:F' + dataEndRow + ')';
-            }
-
-            // Update all other cell references to match new summary position
-            // This handles formulas like =F67-F68, =F69*F70, etc.
-            // Replace row numbers 67-83 (master summary range) with new row numbers
-            if (rowOffset !== 0) {
-              // Use regex to find and replace row numbers in cell references
-              formula = formula.replace(/([A-Z]+)(\d+)/g, function(match, col, row) {
-                const rowNum = parseInt(row);
-                // Only update rows in the summary section range (67-83)
-                if (rowNum >= MASTER_SUMMARY_START_ROW && rowNum <= 83) {
-                  return col + (rowNum + rowOffset);
-                }
-                return match; // Keep other row references unchanged
-              });
             }
 
             userSummaryRange.getCell(i + 1, j + 1).setFormula(formula);
@@ -406,166 +295,6 @@ function exportExpensesToSheet(data) {
     }
 
     Logger.log('Export completed successfully');
-
-    // =====================================================================
-    // INLINED: Append to permanent "By Project" ledger tab
-    // Uses sheetId and expenses variables directly from this function scope
-    // =====================================================================
-    try {
-      var PROJECT_TAB = 'By Project';
-      var MARKER_COL = 6;
-
-      Logger.log('Starting project sheet update, sheetId=' + sheetId + ', count=' + expenses.length);
-
-      var projSS = SpreadsheetApp.openById(sheetId);
-      var projSheet = projSS.getSheetByName(PROJECT_TAB);
-
-      if (!projSheet) {
-        projSheet = projSS.insertSheet(PROJECT_TAB);
-        projSheet.getRange(1, 1).setValue('Project-wise Expense Ledger').setFontSize(14).setFontWeight('bold').setFontColor('#0e7490');
-        projSheet.getRange(1, 4).setValue('Last Updated: ' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd-MMM-yyyy HH:mm')).setFontColor('#64748b').setFontSize(9);
-        projSheet.getRange(3, 1).setValue('GRAND TOTAL').setFontWeight('bold').setFontSize(12).setFontColor('#0e7490');
-        projSheet.getRange(3, 3).setValue(0).setNumberFormat('₹#,##0.00').setFontWeight('bold').setFontSize(12).setFontColor('#0e7490');
-        projSheet.getRange(3, MARKER_COL).setValue('GRAND_TOTAL');
-        projSheet.setColumnWidth(1, 110);
-        projSheet.setColumnWidth(2, 160);
-        projSheet.setColumnWidth(3, 130);
-        projSheet.setColumnWidth(4, 300);
-        projSheet.hideColumns(MARKER_COL);
-        Logger.log('Created new "By Project" tab');
-      }
-
-      var grouped = {};
-      for (var ei = 0; ei < expenses.length; ei++) {
-        var ek = expenses[ei].vendor || 'Uncategorized';
-        if (!grouped[ek]) grouped[ek] = [];
-        grouped[ek].push(expenses[ei]);
-      }
-
-      var projects = Object.keys(grouped).sort();
-
-      for (var pi = 0; pi < projects.length; pi++) {
-        var project = projects[pi];
-        var items = grouped[project];
-
-        Logger.log('Processing project: ' + project + ' (' + items.length + ' expenses)');
-
-        var allData = projSheet.getDataRange().getValues();
-        var allMarkers = [];
-        for (var ri = 0; ri < allData.length; ri++) {
-          allMarkers.push(allData[ri].length >= MARKER_COL ? String(allData[ri][MARKER_COL - 1]) : '');
-        }
-
-        var headerRow = -1;
-        for (var ri = 0; ri < allMarkers.length; ri++) {
-          if (allMarkers[ri] === 'PROJECT:' + project) { headerRow = ri + 1; break; }
-        }
-
-        if (headerRow > 0) {
-          var subtotalRow = -1;
-          for (var ri = headerRow; ri < allMarkers.length; ri++) {
-            if (allMarkers[ri] === 'SUBTOTAL:' + project) { subtotalRow = ri + 1; break; }
-          }
-
-          if (subtotalRow > 0) {
-            var existingRows = [];
-            for (var ri = headerRow + 1; ri < subtotalRow - 1; ri++) {
-              existingRows.push({ date: String(allData[ri][0]), amount: Number(allData[ri][2]), description: String(allData[ri][3]) });
-            }
-
-            var newItems = [];
-            for (var ii = 0; ii < items.length; ii++) {
-              var fDate = '';
-              try { fDate = Utilities.formatDate(new Date(items[ii].date), Session.getScriptTimeZone(), 'dd-MMM-yyyy'); } catch(de) { fDate = items[ii].date || ''; }
-              var fAmt = parseFloat(items[ii].amount) || 0;
-              var fDesc = items[ii].description || '';
-              var isDup = false;
-              for (var ei2 = 0; ei2 < existingRows.length; ei2++) {
-                if (existingRows[ei2].date === fDate && existingRows[ei2].amount === fAmt && existingRows[ei2].description === fDesc) { isDup = true; break; }
-              }
-              if (!isDup) newItems.push(items[ii]);
-            }
-
-            if (newItems.length > 0) {
-              projSheet.insertRowsBefore(subtotalRow, newItems.length);
-              for (var ii = 0; ii < newItems.length; ii++) {
-                var rw = subtotalRow + ii;
-                var fd2 = '';
-                try { fd2 = Utilities.formatDate(new Date(newItems[ii].date), Session.getScriptTimeZone(), 'dd-MMM-yyyy'); } catch(de) { fd2 = newItems[ii].date || ''; }
-                projSheet.getRange(rw, 1).setValue(fd2);
-                projSheet.getRange(rw, 2).setValue(newItems[ii].category || 'Miscellaneous');
-                projSheet.getRange(rw, 3).setValue(parseFloat(newItems[ii].amount) || 0).setNumberFormat('₹#,##0.00');
-                projSheet.getRange(rw, 4).setValue(newItems[ii].description || '');
-              }
-              var newSubRow = subtotalRow + newItems.length;
-              var subTotal = 0;
-              for (var ri = headerRow + 2; ri < newSubRow; ri++) {
-                subTotal += (parseFloat(projSheet.getRange(ri, 3).getValue()) || 0);
-              }
-              projSheet.getRange(newSubRow, 3).setValue(subTotal).setNumberFormat('₹#,##0.00').setFontWeight('bold').setFontColor('#0e7490');
-            }
-          }
-        } else {
-          var grandTotalRow = -1;
-          for (var ri = 0; ri < allMarkers.length; ri++) {
-            if (allMarkers[ri] === 'GRAND_TOTAL') { grandTotalRow = ri + 1; break; }
-          }
-          if (grandTotalRow < 0) grandTotalRow = projSheet.getLastRow() + 1;
-
-          var rowsNeeded = items.length + 4;
-          projSheet.insertRowsBefore(grandTotalRow, rowsNeeded);
-          var cr = grandTotalRow;
-
-          projSheet.getRange(cr, 1).setValue('▸ ' + project).setFontWeight('bold').setFontSize(11);
-          projSheet.getRange(cr, 1, 1, 4).setBackground('#0e7490').setFontColor('#ffffff');
-          projSheet.getRange(cr, MARKER_COL).setValue('PROJECT:' + project);
-          cr++;
-
-          projSheet.getRange(cr, 1, 1, 4).setValues([['Date', 'Category', 'Amount', 'Description']]);
-          projSheet.getRange(cr, 1, 1, 4).setFontWeight('bold').setFontColor('#64748b').setFontSize(9).setBackground('#f1f5f9');
-          cr++;
-
-          var subAmt = 0;
-          for (var ii = 0; ii < items.length; ii++) {
-            var fd3 = '';
-            try { fd3 = Utilities.formatDate(new Date(items[ii].date), Session.getScriptTimeZone(), 'dd-MMM-yyyy'); } catch(de) { fd3 = items[ii].date || ''; }
-            projSheet.getRange(cr, 1).setValue(fd3);
-            projSheet.getRange(cr, 2).setValue(items[ii].category || 'Miscellaneous');
-            projSheet.getRange(cr, 3).setValue(parseFloat(items[ii].amount) || 0).setNumberFormat('₹#,##0.00');
-            projSheet.getRange(cr, 4).setValue(items[ii].description || '');
-            if (ii % 2 === 1) projSheet.getRange(cr, 1, 1, 4).setBackground('#f8fafc');
-            subAmt += (parseFloat(items[ii].amount) || 0);
-            cr++;
-          }
-
-          projSheet.getRange(cr, 1).setValue('Subtotal').setFontWeight('bold').setFontColor('#0e7490');
-          projSheet.getRange(cr, 3).setValue(subAmt).setNumberFormat('₹#,##0.00').setFontWeight('bold').setFontColor('#0e7490');
-          projSheet.getRange(cr, MARKER_COL).setValue('SUBTOTAL:' + project);
-        }
-      }
-
-      var gtData = projSheet.getDataRange().getValues();
-      var gtTotal = 0;
-      var gtRow = -1;
-      for (var ri = 0; ri < gtData.length; ri++) {
-        var mk = gtData[ri].length >= MARKER_COL ? String(gtData[ri][MARKER_COL - 1]) : '';
-        if (mk.indexOf('SUBTOTAL:') === 0) gtTotal += (parseFloat(gtData[ri][2]) || 0);
-        if (mk === 'GRAND_TOTAL') gtRow = ri + 1;
-      }
-      if (gtRow > 0) {
-        projSheet.getRange(gtRow, 3).setValue(gtTotal).setNumberFormat('₹#,##0.00').setFontWeight('bold').setFontSize(12).setFontColor('#0e7490');
-      }
-
-      projSheet.getRange(1, 4).setValue('Last Updated: ' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd-MMM-yyyy HH:mm')).setFontColor('#64748b').setFontSize(9);
-
-      Logger.log('✅ Project ledger updated successfully');
-    } catch (projectError) {
-      Logger.log('⚠️ Failed to update project sheet: ' + projectError.toString());
-      Logger.log('⚠️ Stack: ' + (projectError.stack || 'no stack'));
-    }
-    // =====================================================================
-    // END: Project sheet logic
-    // =====================================================================
 
     return createResponse(true, 'Successfully exported ' + numExpenses + ' expenses', {
       exportedCount: numExpenses,
@@ -612,7 +341,6 @@ function verifySheetAccess(data) {
  * Clears all data and restores original structure:
  * - Data section (rows 14-66) with borders
  * - Summary section (rows 67-83) without borders
- * NOTE: "By Project" tab is NOT touched — it's a permanent ledger
  */
 function resetSheetFromMaster(data) {
   try {
@@ -740,12 +468,10 @@ function resetSheetFromMaster(data) {
     }
 
     // DO NOT apply borders to summary section - leave it border-free
-    // NOTE: "By Project" tab is NOT cleared — it's a permanent ledger
 
     Logger.log('Sheet reset completed:');
     Logger.log('- Data section (rows 14-66): Formatted with borders');
     Logger.log('- Summary section (rows 67-83): Formatted without borders');
-    Logger.log('- By Project tab: Preserved (permanent ledger)');
 
     return createResponse(true, 'Sheet reset successfully - all data cleared, template restored', {
       sheetId: sheetId,
@@ -831,80 +557,6 @@ function exportSheetAsPdf(data) {
   } catch (error) {
     Logger.log('Error exporting PDF: ' + error.toString());
     return createResponse(false, 'Failed to export PDF: ' + error.toString());
-  }
-}
-
-/**
- * Update employee information in Google Sheet
- * Updates specific cells: D4 (Employee Name), D5 (Employee Code), F5 (From Date), F6 (To Date), D9:E11 (Business Purpose)
- */
-function updateEmployeeInformation(data) {
-  try {
-    const { sheetId, employeeData } = data;
-
-    if (!sheetId) {
-      return createResponse(false, 'Missing sheetId');
-    }
-
-    if (!employeeData) {
-      return createResponse(false, 'Missing employeeData');
-    }
-
-    Logger.log('Updating employee info in sheet: ' + sheetId);
-
-    // Open the user's sheet
-    const sheet = SpreadsheetApp.openById(sheetId);
-    const activeSheet = sheet.getActiveSheet();
-
-    // Update Employee Name (Cell D4)
-    if (employeeData.employeeName) {
-      activeSheet.getRange('D4').setValue(employeeData.employeeName);
-      Logger.log('✅ Updated D4 (Employee Name): ' + employeeData.employeeName);
-    }
-
-    // Update Employee Code (Cell D5) - Optional
-    if (employeeData.employeeCode) {
-      activeSheet.getRange('D5').setValue(employeeData.employeeCode);
-      Logger.log('✅ Updated D5 (Employee Code): ' + employeeData.employeeCode);
-    } else {
-      activeSheet.getRange('D5').setValue(''); // Clear if not provided
-      Logger.log('✅ Cleared D5 (Employee Code)');
-    }
-
-    // Update Expense Period From (Cell F5) - Format as dd-mmm-yyyy
-    if (employeeData.expensePeriodFrom) {
-      const fromDate = new Date(employeeData.expensePeriodFrom);
-      const formattedFromDate = Utilities.formatDate(fromDate, Session.getScriptTimeZone(), 'dd-MMM-yyyy');
-      const cellF5 = activeSheet.getRange('F5');
-      cellF5.setValue(formattedFromDate);
-      cellF5.setNumberFormat('dd-mmm-yyyy');
-      Logger.log('✅ Updated F5 (From Date): ' + formattedFromDate);
-    }
-
-    // Update Expense Period To (Cell F6) - Format as dd-mmm-yyyy
-    if (employeeData.expensePeriodTo) {
-      const toDate = new Date(employeeData.expensePeriodTo);
-      const formattedToDate = Utilities.formatDate(toDate, Session.getScriptTimeZone(), 'dd-MMM-yyyy');
-      const cellF6 = activeSheet.getRange('F6');
-      cellF6.setValue(formattedToDate);
-      cellF6.setNumberFormat('dd-mmm-yyyy');
-      Logger.log('✅ Updated F6 (To Date): ' + formattedToDate);
-    }
-
-    // Update Business Purpose (Cells D9:E11 merged range)
-    if (employeeData.businessPurpose) {
-      // Set the value in the top-left cell of the merged range (D9)
-      activeSheet.getRange('D9').setValue(employeeData.businessPurpose);
-      Logger.log('✅ Updated D9:E11 (Business Purpose): ' + employeeData.businessPurpose);
-    }
-
-    Logger.log('✅ Employee information updated successfully');
-
-    return createResponse(true, 'Employee information updated successfully');
-
-  } catch (error) {
-    Logger.log('❌ Error updating employee info: ' + error.toString());
-    return createResponse(false, 'Failed to update employee information: ' + error.toString());
   }
 }
 
