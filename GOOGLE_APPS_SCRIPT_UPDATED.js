@@ -85,7 +85,7 @@ function doGet(e) {
       case 'resetSheet':
         return resetSheetFromMaster(data);
 
-      case 'updateEmployeeInformation':
+      case 'updateEmployeeInfo':
         return updateEmployeeInformation(data);
 
       default:
@@ -139,7 +139,7 @@ function doPost(e) {
       case 'resetSheet':
         return resetSheetFromMaster(data);
 
-      case 'updateEmployeeInformation':
+      case 'updateEmployeeInfo':
         return updateEmployeeInformation(data);
 
       default:

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Library Static Preview</title>
+    <style>
+:root {
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --text-primary: #e2e8f0;
+    --text-secondary: #94a3b8;
+    --border-color: rgba(255,255,255,0.08);
+}
+body { margin: 0; }
+    </style>
+    <link rel="stylesheet" href="frontend/styles_pdfs.css">
+</head>
+<body class="pdfs-page">
+
+    <header class="pdfs-header">
+        <div class="pdfs-header__left">
+            <a href="#" class="pdfs-back-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+                Back to App
+            </a>
+            <h1 class="pdfs-title">PDF Library</h1>
+        </div>
+        <div class="pdfs-header__user">
+            <span class="pdfs-user-name">user@example.com</span>
+            <button class="pdfs-logout-btn">Logout</button>
+        </div>
+    </header>
+
+    <main class="pdfs-content">
+
+        <div class="pdfs-upload-zone">
+            <span class="pdfs-upload-zone__icon">&#128193;</span>
+            <div class="pdfs-upload-zone__title">Drop your PDF here or click to upload</div>
+            <div class="pdfs-upload-zone__hint">
+                Supports <strong>multi-page PDFs</strong> with multiple bills arranged in one file.
+                The whole PDF will be submitted as one reimbursement claim.
+            </div>
+        </div>
+
+        <div class="pdfs-section-title">
+            Saved PDFs
+            <span class="pdfs-count-badge">3</span>
+        </div>
+
+        <div class="pdfs-gallery">
+
+            <div class="pdf-card">
+                <div class="pdf-card__thumb">
+                    <span class="pdf-card__source-badge pdf-card__source-badge--uploaded">Uploaded</span>
+                    <span class="pdf-card__page-badge">4 pages</span>
+                    <svg class="pdf-card__icon" viewBox="0 0 48 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="2" y="2" width="36" height="46" rx="4" stroke="currentColor" stroke-width="2.5" fill="rgba(6,182,212,0.08)"/>
+                        <path d="M10 4 L10 14 L2 14" stroke="currentColor" stroke-width="2" fill="none"/>
+                        <rect x="7" y="22" width="24" height="2.5" rx="1.25" fill="currentColor" opacity="0.5"/>
+                        <rect x="7" y="29" width="20" height="2.5" rx="1.25" fill="currentColor" opacity="0.5"/>
+                        <rect x="7" y="36" width="16" height="2.5" rx="1.25" fill="currentColor" opacity="0.5"/>
+                    </svg>
+                </div>
+                <div class="pdf-card__body">
+                    <div class="pdf-card__filename" title="March-Travel-Expenses.pdf">March-Travel-Expenses.pdf</div>
+                    <div class="pdf-card__amount">&#8377;12,500</div>
+                    <div class="pdf-card__meta">1 Mar - 31 Mar 2026<br>2 Mar 2026</div>
+                </div>
+                <div class="pdf-card__actions">
+                    <button class="pdf-action-btn pdf-action-btn--download" title="Download">&#11015;&#65039;</button>
+                    <button class="pdf-action-btn pdf-action-btn--kodo" title="Submit to Kodo">&#127970;</button>
+                    <button class="pdf-action-btn pdf-action-btn--email" title="Email">&#128231;</button>
+                    <button class="pdf-action-btn pdf-action-btn--delete" title="Delete">&#128465;&#65039;</button>
+                </div>
+            </div>
+
+            <div class="pdf-card">
+                <div class="pdf-card__thumb">
+                    <span class="pdf-card__source-badge pdf-card__source-badge--generated">Generated</span>
+                    <span class="pdf-card__page-badge">1 page</span>
+                    <svg class="pdf-card__icon" viewBox="0 0 48 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="2" y="2" width="36" height="46" rx="4" stroke="currentColor" stroke-width="2.5" fill="rgba(6,182,212,0.08)"/>
+                        <path d="M10 4 L10 14 L2 14" stroke="currentColor" stroke-width="2" fill="none"/>
+                        <rect x="7" y="22" width="24" height="2.5" rx="1.25" fill="currentColor" opacity="0.5"/>
+                        <rect x="7" y="29" width="20" height="2.5" rx="1.25" fill="currentColor" opacity="0.5"/>
+                        <rect x="7" y="36" width="16" height="2.5" rx="1.25" fill="currentColor" opacity="0.5"/>
+                    </svg>
+                </div>
+                <div class="pdf-card__body">
+                    <div class="pdf-card__filename" title="expense-report-feb-2026.pdf">expense-report-feb-2026.pdf</div>
+                    <div class="pdf-card__amount">&#8377;8,750</div>
+                    <div class="pdf-card__meta">28 Feb 2026</div>
+                </div>
+                <div class="pdf-card__actions">
+                    <button class="pdf-action-btn pdf-action-btn--download" title="Download">&#11015;&#65039;</button>
+                    <button class="pdf-action-btn pdf-action-btn--kodo" title="Submit to Kodo">&#127970;</button>
+                    <button class="pdf-action-btn pdf-action-btn--email" title="Email">&#128231;</button>
+                    <button class="pdf-action-btn pdf-action-btn--delete" title="Delete">&#128465;&#65039;</button>
+                </div>
+            </div>
+
+            <div class="pdf-card">
+                <div class="pdf-card__thumb">
+                    <span class="pdf-card__source-badge pdf-card__source-badge--uploaded">Uploaded</span>
+                    <span class="pdf-card__page-badge">12 pages</span>
+                    <svg class="pdf-card__icon" viewBox="0 0 48 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="2" y="2" width="36" height="46" rx="4" stroke="currentColor" stroke-width="2.5" fill="rgba(6,182,212,0.08)"/>
+                        <path d="M10 4 L10 14 L2 14" stroke="currentColor" stroke-width="2" fill="none"/>
+                        <rect x="7" y="22" width="24" height="2.5" rx="1.25" fill="currentColor" opacity="0.5"/>
+                        <rect x="7" y="29" width="20" height="2.5" rx="1.25" fill="currentColor" opacity="0.5"/>
+                        <rect x="7" y="36" width="16" height="2.5" rx="1.25" fill="currentColor" opacity="0.5"/>
+                    </svg>
+                </div>
+                <div class="pdf-card__body">
+                    <div class="pdf-card__filename" title="Quarterly-Business-Travel-Reimbursement-Q1-2026.pdf">Quarterly-Business-Travel-Reimbursement-Q1-2026.pdf</div>
+                    <div class="pdf-card__amount">-</div>
+                    <div class="pdf-card__meta">15 Jan 2026</div>
+                </div>
+                <div class="pdf-card__actions">
+                    <button class="pdf-action-btn pdf-action-btn--download" title="Download">&#11015;&#65039;</button>
+                    <button class="pdf-action-btn pdf-action-btn--kodo" title="Submit to Kodo">&#127970;</button>
+                    <button class="pdf-action-btn pdf-action-btn--email" title="Email">&#128231;</button>
+                    <button class="pdf-action-btn pdf-action-btn--delete" title="Delete">&#128465;&#65039;</button>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+</body>
+</html>

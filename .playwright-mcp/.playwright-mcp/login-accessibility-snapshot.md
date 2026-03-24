@@ -1,0 +1,29 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - heading "Expense Tracker" [level=1] [ref=e4]
+    - paragraph [ref=e5]: Login to manage your expenses
+  - main [ref=e6]:
+    - generic [ref=e7]:
+      - heading "🔐 Login" [level=2] [ref=e8]
+      - paragraph [ref=e9]: Enter your credentials to access your account
+      - generic [ref=e10]:
+        - generic [ref=e11]:
+          - generic [ref=e12]: "Email:"
+          - textbox "Email:" [ref=e13]:
+            - /placeholder: your@email.com
+        - generic [ref=e14]:
+          - generic [ref=e15]: "Password:"
+          - generic [ref=e16]:
+            - textbox "Password:" [ref=e17]:
+              - /placeholder: Enter your password
+            - generic [ref=e18] [cursor=pointer]: 👁️
+        - button "🔓 Login" [ref=e19] [cursor=pointer]:
+          - generic [ref=e20]: 🔓 Login
+      - generic [ref=e21]: OR
+      - button "Continue with Google" [ref=e23] [cursor=pointer]:
+        - img [ref=e24]
+        - text: Continue with Google
+      - paragraph [ref=e30]:
+        - text: Don't have an account?
+        - link "Sign up here" [ref=e31] [cursor=pointer]:
+          - /url: signup.html

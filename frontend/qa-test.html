@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles_dropdown.css">
+    <link rel="stylesheet" href="styles_images.css">
+    <style>
+        body { background: #0a0e27; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; }
+    </style>
+</head>
+<body>
+    <h2 style="text-align:center;padding:20px;">QA: Saved Bill Images Modal (Real Card Structure)</h2>
+    <button onclick="openModal()" style="display:block;margin:0 auto;padding:15px 30px;background:#00d4ff;border:none;border-radius:12px;color:white;cursor:pointer;font-size:16px;">Open Saved Bill Images Modal</button>
+
+    <!-- Exact same structure as index.html -->
+    <div id="orphanedImagesModal" class="img-modal orphaned-images-modal" style="display: none;">
+        <div class="img-modal__backdrop" onclick="closeModal()"></div>
+        <div class="img-modal__content orphaned-images-content">
+            <header class="img-modal__header orphaned-images-header">
+                <div class="img-modal__title">
+                    <span class="img-modal__title-icon">🖼️</span>
+                    <h2>Saved Bill Images</h2>
+                </div>
+                <button class="img-modal__close close-orphaned" onclick="closeModal()" aria-label="Close modal">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18M6 6l12 12"/>
+                    </svg>
+                </button>
+            </header>
+            <div class="img-stats orphaned-images-stats" id="orphanedImagesStats">
+                <div class="img-stats__item">
+                    <div class="img-stats__label">Total Images</div>
+                    <div class="img-stats__value">8</div>
+                </div>
+                <div class="img-stats__item">
+                    <div class="img-stats__label">Total Size</div>
+                    <div class="img-stats__value">2.45 <span class="img-stats__unit">MB</span></div>
+                </div>
+                <div class="img-stats__item">
+                    <div class="img-stats__label">Exported</div>
+                    <div class="img-stats__value">0</div>
+                </div>
+                <div class="img-stats__item">
+                    <div class="img-stats__label">Expiring Soon</div>
+                    <div class="img-stats__value img-stats__value--warning">0</div>
+                </div>
+            </div>
+            <!-- Cards rendered directly in grid (same as JS does in production) -->
+            <div class="img-gallery orphaned-images-grid" id="orphanedImagesGrid"></div>
+        </div>
+    </div>
+
+    <script>
+        // Generate 8 cards using the REAL .img-card structure from script.js
+        const grid = document.getElementById('orphanedImagesGrid');
+        const vendors = ['ACE Store', 'Microsoft hyd', 'Flipkart', 'Amazon'];
+        const amounts = [300, 2355, 80, 3734, 2131, 740, 40, 780];
+        let html = '';
+        for (let i = 0; i < 8; i++) {
+            html += `
+                <article class="img-card" data-image-id="card-${i}">
+                    <div class="img-card__preview">
+                        <div style="width:100%;height:100%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;color:#333;font-weight:bold;font-size:14px;">
+                            Bill Image ${i+1}
+                        </div>
+                        <div class="img-card__overlay">
+                            <button class="img-card__overlay-btn">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                                View
+                            </button>
+                            <button class="img-card__overlay-btn">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"></path>
+                                </svg>
+                                Download
+                            </button>
+                        </div>
+                    </div>
+                    <div class="img-card__details">
+                        <div class="img-card__meta">
+                            <svg class="img-card__meta-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            <span class="img-card__meta-value">08 Feb 2026</span>
+                        </div>
+                        <div class="img-card__meta">
+                            <svg class="img-card__meta-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path>
+                                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                            </svg>
+                            <span class="img-card__meta-value img-truncate">${vendors[i % 4]}</span>
+                        </div>
+                        <div class="img-card__amount">₹${amounts[i].toLocaleString('en-IN')}</div>
+                    </div>
+                    <div class="img-card__badge-wrapper">
+                        <span class="img-badge img-badge--success">
+                            <svg class="img-badge__icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                            30 days left
+                        </span>
+                    </div>
+                    <div class="img-card__actions">
+                        <button class="img-btn img-btn--primary">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            +30 days
+                        </button>
+                        <button class="img-btn img-btn--ghost">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
+                            </svg>
+                            Delete
+                        </button>
+                    </div>
+                </article>`;
+        }
+        grid.innerHTML = html;
+
+        function openModal() {
+            const modal = document.getElementById('orphanedImagesModal');
+            modal.style.display = 'flex';
+            modal.classList.add('is-active');
+            document.body.classList.add('modal-open');
+        }
+        function closeModal() {
+            const modal = document.getElementById('orphanedImagesModal');
+            modal.classList.remove('is-active');
+            modal.style.display = 'none';
+            document.body.classList.remove('modal-open');
+        }
+    </script>
+</body>
+</html>
