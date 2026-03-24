@@ -59,14 +59,25 @@ function doGet(e) {
         return createSheetForUser(data);
 
       case 'exportExpenses':
-        // Step 1: Main export to ExpenseReport tab (existing, works perfectly)
+        // CRITICAL: Save values into local vars BEFORE any function call.
+        // Apps Script V8 GET handler can garbage-collect the parsed data object
+        // after a function returns a ContentService response.
+        var _sheetId = String(data.sheetId);
+        var _expenses = JSON.parse(JSON.stringify(data.expenses)); // deep copy
+        Logger.log('doGet exportExpenses: sheetId=' + _sheetId + ', count=' + _expenses.length);
+
+        // Step 1: Main export to ExpenseReport tab
         var exportResult = exportExpensesToSheet(data);
-        // Step 2: Log sheet (called from router level, NOT nested)
-        try { addToLogSheet(data); } catch (err) { Logger.log('Log sheet error: ' + err.toString()); }
-        // Step 3: "By Project" grouped tab (called from router level, NOT nested)
-        try { addToProjectSheets(data); } catch (err) { Logger.log('By Project tab error: ' + err.toString()); }
+
+        // Steps 2-4: Build fresh data objects from saved local vars
+        var freshData = { sheetId: _sheetId, expenses: _expenses };
+
+        // Step 2: Log sheet
+        try { addToLogSheet(freshData); } catch (err) { Logger.log('Log sheet error: ' + err.toString()); }
+        // Step 3: "By Project" grouped tab
+        try { addToProjectSheets(freshData); } catch (err) { Logger.log('By Project tab error: ' + err.toString()); }
         // Step 4: Individual project tabs (Ace, Biocon, etc.)
-        try { addToIndividualProjectTabs(data); } catch (err) { Logger.log('Individual project tabs error: ' + err.toString()); }
+        try { addToIndividualProjectTabs(freshData); } catch (err) { Logger.log('Individual project tabs error: ' + err.toString()); }
         return exportResult;
 
       case 'verifySheet':
@@ -109,14 +120,15 @@ function doPost(e) {
         return createSheetForUser(data);
 
       case 'exportExpenses':
-        // Step 1: Main export to ExpenseReport tab
+        var _sheetId2 = String(data.sheetId);
+        var _expenses2 = JSON.parse(JSON.stringify(data.expenses));
+
         var exportResult = exportExpensesToSheet(data);
-        // Step 2: Log sheet (called from router level, NOT nested)
-        try { addToLogSheet(data); } catch (err) { Logger.log('Log sheet error: ' + err.toString()); }
-        // Step 3: "By Project" grouped tab (called from router level, NOT nested)
-        try { addToProjectSheets(data); } catch (err) { Logger.log('By Project tab error: ' + err.toString()); }
-        // Step 4: Individual project tabs (Ace, Biocon, etc.)
-        try { addToIndividualProjectTabs(data); } catch (err) { Logger.log('Individual project tabs error: ' + err.toString()); }
+        var freshData2 = { sheetId: _sheetId2, expenses: _expenses2 };
+
+        try { addToLogSheet(freshData2); } catch (err) { Logger.log('Log sheet error: ' + err.toString()); }
+        try { addToProjectSheets(freshData2); } catch (err) { Logger.log('By Project tab error: ' + err.toString()); }
+        try { addToIndividualProjectTabs(freshData2); } catch (err) { Logger.log('Individual project tabs error: ' + err.toString()); }
         return exportResult;
 
       case 'verifySheet':
