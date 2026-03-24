@@ -13,64 +13,65 @@
 const MASTER_TEMPLATE_ID = '1dcq8HKP1j4NocCMgAY9YSXlwCrzHwIiRCd0t4mun25E';
 const TAB_NAME = 'ExpenseReport';
 
-  /**
-   * HTTP GET handler - handles actions via URL parameters
-   */
-  function doGet(e) {
-    try {
-      Logger.log('doGet called with: ' + JSON.stringify(e));
+/**
+ * HTTP GET handler - handles actions via URL parameters from frontend
+ */
+function doGet(e) {
+  try {
+    Logger.log('doGet called with: ' + JSON.stringify(e));
 
-      // Check for data in different ways
-      let data = null;
+    // Check for data in different ways
+    let data = null;
 
-      if (e && e.parameter && e.parameter.data) {
-        Logger.log('Found data in e.parameter.data');
-        data = JSON.parse(e.parameter.data);
-      } else if (e && e.parameters && e.parameters.data) {
-        Logger.log('Found data in e.parameters.data');
-        data = JSON.parse(e.parameters.data[0]);
-      } else if (e && e.queryString) {
-        Logger.log('Trying to parse queryString: ' + e.queryString);
-        const params = new URLSearchParams(e.queryString);
-        if (params.has('data')) {
-          data = JSON.parse(params.get('data'));
-        }
+    if (e && e.parameter && e.parameter.data) {
+      Logger.log('Found data in e.parameter.data');
+      data = JSON.parse(e.parameter.data);
+    } else if (e && e.parameters && e.parameters.data) {
+      Logger.log('Found data in e.parameters.data');
+      data = JSON.parse(e.parameters.data[0]);
+    } else if (e && e.queryString) {
+      Logger.log('Trying to parse queryString: ' + e.queryString);
+      const params = new URLSearchParams(e.queryString);
+      if (params.has('data')) {
+        data = JSON.parse(params.get('data'));
       }
-
-      if (data && data.action) {
-        Logger.log('Action: ' + data.action);
-
-        switch (data.action) {
-          case 'createSheet':
-            return createSheetForUser(data);
-          case 'exportExpenses':
-            return exportExpensesToSheet(data);
-          case 'verifySheet':
-            return verifySheetAccess(data);
-          case 'exportPdf':
-            return exportSheetAsPdf(data);
-          case 'resetSheet':
-            return resetSheetFromMaster(data);
-          case 'updateEmployeeInfo':
-            return updateEmployeeInformation(data);
-          default:
-            return createResponse(false, 'Unknown action: ' + data.action);
-        }
-      }
-
-      // Default response if no data parameter
-      return ContentService.createTextOutput(JSON.stringify({
-        status: 'success',
-        message: 'Expense Tracker Google Apps Script is running',
-        version: '3.0 — with By Project ledger',
-        receivedParams: e ? JSON.stringify(e.parameter) : 'none'
-      })).setMimeType(ContentService.MimeType.JSON);
-
-    } catch (error) {
-      Logger.log('Error in doGet: ' + error.toString());
-      return createResponse(false, 'Server error: ' + error.toString());
     }
+
+    if (data && data.action) {
+      Logger.log('Action: ' + data.action);
+
+      switch (data.action) {
+        case 'createSheet':
+          return createSheetForUser(data);
+        case 'exportExpenses':
+          return exportExpensesToSheet(data);
+        case 'verifySheet':
+          return verifySheetAccess(data);
+        case 'exportPdf':
+          return exportSheetAsPdf(data);
+        case 'resetSheet':
+          return resetSheetFromMaster(data);
+        case 'updateEmployeeInfo':
+          return updateEmployeeInformation(data);
+        default:
+          return createResponse(false, 'Unknown action: ' + data.action);
+      }
+    }
+
+    // Default response if no data parameter
+    return ContentService.createTextOutput(JSON.stringify({
+      status: 'success',
+      message: 'Expense Tracker Google Apps Script is running',
+      version: '3.0 — with By Project ledger',
+      receivedParams: e ? JSON.stringify(e.parameter) : 'none'
+    })).setMimeType(ContentService.MimeType.JSON);
+
+  } catch (error) {
+    Logger.log('Error in doGet: ' + error.toString());
+    return createResponse(false, 'Server error: ' + error.toString());
   }
+}
+
 /**
  * HTTP POST handler - called by backend
  */
@@ -138,24 +139,26 @@ function createSheetForUser(data) {
     return createResponse(false, 'Failed to create sheet: ' + error.toString());
   }
 }
+
 /**
-   * Test function to trigger authorization
-   * Run this once to grant permissions
-   */
-  function authorizeScript() {
-    // This triggers authorization for UrlFetchApp
-    try {
-      const testUrl = 'https://www.google.com';
-      const response = UrlFetchApp.fetch(testUrl);
-      Logger.log('Authorization successful! Status: ' + response.getResponseCode());
-    } catch (e) {
-      Logger.log('Error (but authorization should still work): ' + e.toString());
-    }
+ * Test function to trigger authorization
+ * Run this once to grant permissions
+ */
+function authorizeScript() {
+  try {
+    const testUrl = 'https://www.google.com';
+    const response = UrlFetchApp.fetch(testUrl);
+    Logger.log('Authorization successful! Status: ' + response.getResponseCode());
+  } catch (e) {
+    Logger.log('Error (but authorization should still work): ' + e.toString());
   }
+}
+
 /**
  * Export expenses to an existing sheet
  * Data section is dynamic - always starts at row 14
  * Summary section (17 rows) always follows data immediately
+ * Also updates the permanent "By Project" ledger tab
  */
 function exportExpensesToSheet(data) {
   try {
@@ -404,18 +407,19 @@ function exportExpensesToSheet(data) {
 
     Logger.log('Export completed successfully');
 
-    // ===== NEW: Append to permanent "By Project" ledger tab =====
-    // Inlined directly to avoid Apps Script GET handler scope/parameter issues
+    // =====================================================================
+    // INLINED: Append to permanent "By Project" ledger tab
+    // Uses sheetId and expenses variables directly from this function scope
+    // =====================================================================
     try {
       var PROJECT_TAB = 'By Project';
       var MARKER_COL = 6;
 
-      Logger.log('Starting project sheet update, sheetId: ' + sheetId);
+      Logger.log('Starting project sheet update, sheetId=' + sheetId + ', count=' + expenses.length);
 
       var projSS = SpreadsheetApp.openById(sheetId);
       var projSheet = projSS.getSheetByName(PROJECT_TAB);
 
-      // Create tab if first time
       if (!projSheet) {
         projSheet = projSS.insertSheet(PROJECT_TAB);
         projSheet.getRange(1, 1).setValue('Project-wise Expense Ledger').setFontSize(14).setFontWeight('bold').setFontColor('#0e7490');
@@ -431,7 +435,6 @@ function exportExpensesToSheet(data) {
         Logger.log('Created new "By Project" tab');
       }
 
-      // Group expenses by vendor
       var grouped = {};
       for (var ei = 0; ei < expenses.length; ei++) {
         var ek = expenses[ei].vendor || 'Uncategorized';
@@ -447,28 +450,24 @@ function exportExpensesToSheet(data) {
 
         Logger.log('Processing project: ' + project + ' (' + items.length + ' expenses)');
 
-        // Re-read data each iteration (rows shift after inserts)
         var allData = projSheet.getDataRange().getValues();
         var allMarkers = [];
         for (var ri = 0; ri < allData.length; ri++) {
           allMarkers.push(allData[ri].length >= MARKER_COL ? String(allData[ri][MARKER_COL - 1]) : '');
         }
 
-        // Find project header
         var headerRow = -1;
         for (var ri = 0; ri < allMarkers.length; ri++) {
           if (allMarkers[ri] === 'PROJECT:' + project) { headerRow = ri + 1; break; }
         }
 
         if (headerRow > 0) {
-          // EXISTING project — find subtotal and append before it
           var subtotalRow = -1;
           for (var ri = headerRow; ri < allMarkers.length; ri++) {
             if (allMarkers[ri] === 'SUBTOTAL:' + project) { subtotalRow = ri + 1; break; }
           }
 
           if (subtotalRow > 0) {
-            // Check for duplicates
             var existingRows = [];
             for (var ri = headerRow + 1; ri < subtotalRow - 1; ri++) {
               existingRows.push({ date: String(allData[ri][0]), amount: Number(allData[ri][2]), description: String(allData[ri][3]) });
@@ -498,7 +497,6 @@ function exportExpensesToSheet(data) {
                 projSheet.getRange(rw, 3).setValue(parseFloat(newItems[ii].amount) || 0).setNumberFormat('₹#,##0.00');
                 projSheet.getRange(rw, 4).setValue(newItems[ii].description || '');
               }
-              // Update subtotal
               var newSubRow = subtotalRow + newItems.length;
               var subTotal = 0;
               for (var ri = headerRow + 2; ri < newSubRow; ri++) {
@@ -508,7 +506,6 @@ function exportExpensesToSheet(data) {
             }
           }
         } else {
-          // NEW project — insert section before grand total
           var grandTotalRow = -1;
           for (var ri = 0; ri < allMarkers.length; ri++) {
             if (allMarkers[ri] === 'GRAND_TOTAL') { grandTotalRow = ri + 1; break; }
@@ -519,18 +516,15 @@ function exportExpensesToSheet(data) {
           projSheet.insertRowsBefore(grandTotalRow, rowsNeeded);
           var cr = grandTotalRow;
 
-          // Project header
           projSheet.getRange(cr, 1).setValue('▸ ' + project).setFontWeight('bold').setFontSize(11);
           projSheet.getRange(cr, 1, 1, 4).setBackground('#0e7490').setFontColor('#ffffff');
           projSheet.getRange(cr, MARKER_COL).setValue('PROJECT:' + project);
           cr++;
 
-          // Column headers
           projSheet.getRange(cr, 1, 1, 4).setValues([['Date', 'Category', 'Amount', 'Description']]);
           projSheet.getRange(cr, 1, 1, 4).setFontWeight('bold').setFontColor('#64748b').setFontSize(9).setBackground('#f1f5f9');
           cr++;
 
-          // Expense rows
           var subAmt = 0;
           for (var ii = 0; ii < items.length; ii++) {
             var fd3 = '';
@@ -544,14 +538,12 @@ function exportExpensesToSheet(data) {
             cr++;
           }
 
-          // Subtotal
           projSheet.getRange(cr, 1).setValue('Subtotal').setFontWeight('bold').setFontColor('#0e7490');
           projSheet.getRange(cr, 3).setValue(subAmt).setNumberFormat('₹#,##0.00').setFontWeight('bold').setFontColor('#0e7490');
           projSheet.getRange(cr, MARKER_COL).setValue('SUBTOTAL:' + project);
         }
       }
 
-      // Update grand total
       var gtData = projSheet.getDataRange().getValues();
       var gtTotal = 0;
       var gtRow = -1;
@@ -564,14 +556,16 @@ function exportExpensesToSheet(data) {
         projSheet.getRange(gtRow, 3).setValue(gtTotal).setNumberFormat('₹#,##0.00').setFontWeight('bold').setFontSize(12).setFontColor('#0e7490');
       }
 
-      // Update timestamp
       projSheet.getRange(1, 4).setValue('Last Updated: ' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd-MMM-yyyy HH:mm')).setFontColor('#64748b').setFontSize(9);
 
       Logger.log('✅ Project ledger updated successfully');
     } catch (projectError) {
       Logger.log('⚠️ Failed to update project sheet: ' + projectError.toString());
-      Logger.log('⚠️ Stack: ' + projectError.stack);
+      Logger.log('⚠️ Stack: ' + (projectError.stack || 'no stack'));
     }
+    // =====================================================================
+    // END: Project sheet logic
+    // =====================================================================
 
     return createResponse(true, 'Successfully exported ' + numExpenses + ' expenses', {
       exportedCount: numExpenses,
@@ -930,362 +924,6 @@ function createResponse(success, message, data = null) {
   return ContentService.createTextOutput(JSON.stringify(response))
     .setMimeType(ContentService.MimeType.JSON);
 }
-
-// ====================================================================
-// NEW: "BY PROJECT" PERMANENT LEDGER
-// This tab is created automatically on first export and never deleted.
-// Every export appends expenses under the correct project section.
-// Duplicates (same date + amount + description) are skipped.
-// Reset Sheet does NOT clear this tab.
-// ====================================================================
-
-/**
- * Append expenses to the permanent "By Project" tab
- * Groups by vendor (project), appends to existing sections or creates new ones
- * Skips duplicate expenses (same date + amount + description already in that section)
- */
-function appendToProjectSheet(data) {
-  var PROJECT_TAB = 'By Project';
-  var MARKER_COL = 6; // Column F is used for hidden markers to identify sections
-
-  Logger.log('appendToProjectSheet called, sheetId: ' + data.sheetId);
-
-  // Open spreadsheet fresh using the original data object (avoids scope issues)
-  var spreadsheet = SpreadsheetApp.openById(data.sheetId);
-  var expenses = data.expenses;
-  var sheet = spreadsheet.getSheetByName(PROJECT_TAB);
-
-  // ─── Create the tab if this is the first time ───
-  if (!sheet) {
-    sheet = spreadsheet.insertSheet(PROJECT_TAB);
-
-    // Title row
-    sheet.getRange(1, 1).setValue('Project-wise Expense Ledger')
-      .setFontSize(14)
-      .setFontWeight('bold')
-      .setFontColor('#0e7490');
-    sheet.getRange(1, 4).setValue('Last Updated: ' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd-MMM-yyyy HH:mm'))
-      .setFontColor('#64748b')
-      .setFontSize(9);
-
-    // Row 2: blank separator
-
-    // Row 3: Grand total placeholder
-    sheet.getRange(3, 1).setValue('GRAND TOTAL')
-      .setFontWeight('bold')
-      .setFontSize(12)
-      .setFontColor('#0e7490');
-    sheet.getRange(3, 3).setValue(0)
-      .setNumberFormat('₹#,##0.00')
-      .setFontWeight('bold')
-      .setFontSize(12)
-      .setFontColor('#0e7490');
-    sheet.getRange(3, MARKER_COL).setValue('GRAND_TOTAL');
-
-    // Set column widths for readability
-    sheet.setColumnWidth(1, 110);  // Date
-    sheet.setColumnWidth(2, 160);  // Category
-    sheet.setColumnWidth(3, 130);  // Amount
-    sheet.setColumnWidth(4, 300);  // Description
-    sheet.setColumnWidth(5, 80);   // Spacer
-    sheet.setColumnWidth(MARKER_COL, 10); // Marker column (tiny)
-
-    // Hide the marker column so user doesn't see it
-    sheet.hideColumns(MARKER_COL);
-
-    Logger.log('Created new "By Project" tab');
-  }
-
-  // ─── Group the incoming expenses by vendor (project) ───
-  var grouped = {};
-  for (var i = 0; i < expenses.length; i++) {
-    var exp = expenses[i];
-    var key = exp.vendor || 'Uncategorized';
-    if (!grouped[key]) {
-      grouped[key] = [];
-    }
-    grouped[key].push(exp);
-  }
-
-  // Sort project names alphabetically
-  var projects = Object.keys(grouped).sort();
-
-  // ─── Process each project ───
-  for (var p = 0; p < projects.length; p++) {
-    var project = projects[p];
-    var items = grouped[project];
-
-    Logger.log('Processing project: ' + project + ' (' + items.length + ' expenses)');
-
-    // Re-read sheet data each iteration because we may have inserted rows
-    var allData = sheet.getDataRange().getValues();
-    var allMarkers = [];
-    for (var r = 0; r < allData.length; r++) {
-      allMarkers.push(allData[r].length >= MARKER_COL ? String(allData[r][MARKER_COL - 1]) : '');
-    }
-
-    // Look for this project's header row
-    var headerRow = -1;
-    for (var r = 0; r < allMarkers.length; r++) {
-      if (allMarkers[r] === 'PROJECT:' + project) {
-        headerRow = r + 1; // Convert to 1-indexed
-        break;
-      }
-    }
-
-    if (headerRow > 0) {
-      // ═══ EXISTING PROJECT: Find subtotal row and insert before it ═══
-      var subtotalRow = -1;
-      for (var r = headerRow; r < allMarkers.length; r++) {
-        if (allMarkers[r] === 'SUBTOTAL:' + project) {
-          subtotalRow = r + 1; // 1-indexed
-          break;
-        }
-      }
-
-      if (subtotalRow > 0) {
-        // Read existing expense rows to detect duplicates
-        // Rows between (headerRow + 1 for col headers) and (subtotalRow - 1) are expense data
-        var existingRows = [];
-        for (var r = headerRow + 1; r < subtotalRow - 1; r++) {
-          existingRows.push({
-            date: String(allData[r][0]),
-            amount: Number(allData[r][2]),
-            description: String(allData[r][3])
-          });
-        }
-
-        // Filter out duplicates
-        var newItems = [];
-        for (var i = 0; i < items.length; i++) {
-          var exp = items[i];
-          var fDate = formatDateSafe_(exp.date);
-          var fAmount = parseFloat(exp.amount) || 0;
-          var fDesc = exp.description || '';
-
-          var isDuplicate = false;
-          for (var e = 0; e < existingRows.length; e++) {
-            if (existingRows[e].date === fDate &&
-                existingRows[e].amount === fAmount &&
-                existingRows[e].description === fDesc) {
-              isDuplicate = true;
-              Logger.log('  Skipping duplicate: ' + fDate + ' / ₹' + fAmount + ' / ' + fDesc);
-              break;
-            }
-          }
-
-          if (!isDuplicate) {
-            newItems.push(exp);
-          }
-        }
-
-        Logger.log('  ' + newItems.length + ' new expenses (skipped ' + (items.length - newItems.length) + ' duplicates)');
-
-        if (newItems.length > 0) {
-          // Insert empty rows right before the subtotal row
-          sheet.insertRowsBefore(subtotalRow, newItems.length);
-
-          // Write the new expense rows
-          for (var i = 0; i < newItems.length; i++) {
-            var exp = newItems[i];
-            var row = subtotalRow + i; // These rows were just inserted
-
-            sheet.getRange(row, 1).setValue(formatDateSafe_(exp.date));
-            sheet.getRange(row, 2).setValue(exp.category || 'Miscellaneous');
-            sheet.getRange(row, 3).setValue(parseFloat(exp.amount) || 0).setNumberFormat('₹#,##0.00');
-            sheet.getRange(row, 4).setValue(exp.description || '');
-          }
-
-          // Subtotal row has now shifted down
-          var newSubtotalRow = subtotalRow + newItems.length;
-
-          // Recalculate the subtotal
-          updateProjectSubtotal_(sheet, headerRow, newSubtotalRow, MARKER_COL);
-
-          Logger.log('  Updated subtotal at row ' + newSubtotalRow);
-        }
-      } else {
-        Logger.log('  WARNING: Found header but no subtotal for project: ' + project);
-      }
-
-    } else {
-      // ═══ NEW PROJECT: Create section before grand total ═══
-      Logger.log('  Creating new section for project: ' + project);
-
-      // Find grand total row
-      var grandTotalRow = -1;
-      for (var r = 0; r < allMarkers.length; r++) {
-        if (allMarkers[r] === 'GRAND_TOTAL') {
-          grandTotalRow = r + 1; // 1-indexed
-          break;
-        }
-      }
-
-      if (grandTotalRow < 0) {
-        grandTotalRow = sheet.getLastRow() + 1;
-      }
-
-      // Calculate how many rows we need:
-      // 1 project header + 1 column header + N expense rows + 1 subtotal + 1 blank separator
-      var rowsNeeded = items.length + 4;
-
-      // Insert rows before grand total
-      sheet.insertRowsBefore(grandTotalRow, rowsNeeded);
-
-      var currentRow = grandTotalRow;
-
-      // --- Project Header Row (cyan background) ---
-      sheet.getRange(currentRow, 1).setValue('▸ ' + project)
-        .setFontWeight('bold')
-        .setFontSize(11);
-      sheet.getRange(currentRow, 1, 1, 4)
-        .setBackground('#0e7490')
-        .setFontColor('#ffffff');
-      // Hidden marker to identify this section
-      sheet.getRange(currentRow, MARKER_COL).setValue('PROJECT:' + project);
-      currentRow++;
-
-      // --- Column Headers Row ---
-      sheet.getRange(currentRow, 1, 1, 4).setValues([['Date', 'Category', 'Amount', 'Description']]);
-      sheet.getRange(currentRow, 1, 1, 4)
-        .setFontWeight('bold')
-        .setFontColor('#64748b')
-        .setFontSize(9)
-        .setBackground('#f1f5f9');
-      currentRow++;
-
-      // --- Expense Data Rows ---
-      for (var i = 0; i < items.length; i++) {
-        var exp = items[i];
-
-        sheet.getRange(currentRow, 1).setValue(formatDateSafe_(exp.date));
-        sheet.getRange(currentRow, 2).setValue(exp.category || 'Miscellaneous');
-        sheet.getRange(currentRow, 3).setValue(parseFloat(exp.amount) || 0).setNumberFormat('₹#,##0.00');
-        sheet.getRange(currentRow, 4).setValue(exp.description || '');
-
-        // Alternate row shading for readability
-        if (i % 2 === 1) {
-          sheet.getRange(currentRow, 1, 1, 4).setBackground('#f8fafc');
-        }
-
-        currentRow++;
-      }
-
-      // --- Subtotal Row ---
-      var subtotalAmount = 0;
-      for (var i = 0; i < items.length; i++) {
-        subtotalAmount += (parseFloat(items[i].amount) || 0);
-      }
-
-      sheet.getRange(currentRow, 1).setValue('Subtotal')
-        .setFontWeight('bold')
-        .setFontColor('#0e7490');
-      sheet.getRange(currentRow, 3).setValue(subtotalAmount)
-        .setNumberFormat('₹#,##0.00')
-        .setFontWeight('bold')
-        .setFontColor('#0e7490');
-      // Hidden marker for subtotal
-      sheet.getRange(currentRow, MARKER_COL).setValue('SUBTOTAL:' + project);
-      currentRow++;
-
-      // Blank separator row (currentRow is now blank — grand total has shifted down)
-
-      Logger.log('  Created section with ' + items.length + ' expenses, subtotal: ₹' + subtotalAmount);
-    }
-  }
-
-  // ─── Update grand total across all projects ───
-  updateGrandTotal_(sheet, MARKER_COL);
-
-  // ─── Update timestamp ───
-  sheet.getRange(1, 4).setValue('Last Updated: ' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd-MMM-yyyy HH:mm'))
-    .setFontColor('#64748b')
-    .setFontSize(9);
-
-  Logger.log('✅ "By Project" tab updated successfully');
-}
-
-/**
- * Safely format a date string to dd-MMM-yyyy
- * Returns original string if parsing fails
- */
-function formatDateSafe_(dateStr) {
-  try {
-    var d = new Date(dateStr);
-    if (isNaN(d.getTime())) {
-      return dateStr || '';
-    }
-    return Utilities.formatDate(d, Session.getScriptTimeZone(), 'dd-MMM-yyyy');
-  } catch (e) {
-    return dateStr || '';
-  }
-}
-
-/**
- * Recalculate a project's subtotal by summing the amount column
- * between the header row and the subtotal row
- */
-function updateProjectSubtotal_(sheet, headerRow, subtotalRow, markerCol) {
-  var total = 0;
-  // Data rows start at headerRow + 2 (skip column header row)
-  // and end at subtotalRow - 1
-  for (var r = headerRow + 2; r < subtotalRow; r++) {
-    var val = sheet.getRange(r, 3).getValue();
-    total += (parseFloat(val) || 0);
-  }
-
-  sheet.getRange(subtotalRow, 3).setValue(total)
-    .setNumberFormat('₹#,##0.00')
-    .setFontWeight('bold')
-    .setFontColor('#0e7490');
-
-  // Also update the header row with count
-  var expenseCount = subtotalRow - headerRow - 2; // Subtract header + col header rows
-  // We don't update header text to avoid breaking the marker — subtotal is enough
-}
-
-/**
- * Recalculate the grand total by summing all project subtotals
- */
-function updateGrandTotal_(sheet, markerCol) {
-  var allData = sheet.getDataRange().getValues();
-  var grandTotal = 0;
-  var grandTotalRow = -1;
-
-  for (var r = 0; r < allData.length; r++) {
-    var marker = allData[r].length >= markerCol ? String(allData[r][markerCol - 1]) : '';
-
-    // Sum all subtotals
-    if (marker.indexOf('SUBTOTAL:') === 0) {
-      grandTotal += (parseFloat(allData[r][2]) || 0);
-    }
-
-    // Find the grand total row
-    if (marker === 'GRAND_TOTAL') {
-      grandTotalRow = r + 1; // 1-indexed
-    }
-  }
-
-  if (grandTotalRow > 0) {
-    sheet.getRange(grandTotalRow, 1).setValue('GRAND TOTAL')
-      .setFontWeight('bold')
-      .setFontSize(12)
-      .setFontColor('#0e7490');
-    sheet.getRange(grandTotalRow, 3).setValue(grandTotal)
-      .setNumberFormat('₹#,##0.00')
-      .setFontWeight('bold')
-      .setFontSize(12)
-      .setFontColor('#0e7490');
-
-    Logger.log('Grand total updated: ₹' + grandTotal);
-  } else {
-    Logger.log('WARNING: Grand total row not found');
-  }
-}
-
-// ====================================================================
-// TEST FUNCTIONS
-// ====================================================================
 
 /**
  * Test function - can be run manually from Apps Script editor
