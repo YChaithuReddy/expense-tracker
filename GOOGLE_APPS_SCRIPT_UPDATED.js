@@ -59,26 +59,24 @@ function doGet(e) {
         return createSheetForUser(data);
 
       case 'exportExpenses':
-        // CRITICAL: Save values into local vars BEFORE any function call.
-        // Apps Script V8 GET handler can garbage-collect the parsed data object
-        // after a function returns a ContentService response.
-        var _sheetId = String(data.sheetId);
-        var _expenses = JSON.parse(JSON.stringify(data.expenses)); // deep copy
-        Logger.log('doGet exportExpenses: sheetId=' + _sheetId + ', count=' + _expenses.length);
+        // CRITICAL ORDER: Do log/project work FIRST, then exportExpensesToSheet LAST.
+        // exportExpensesToSheet creates a ContentService response object, and after
+        // that returns, the V8 GET handler context degrades — subsequent function
+        // calls receive undefined parameters. By doing the non-response work first
+        // (while data is still intact), then calling the response-creating function
+        // last, we avoid the issue entirely.
 
-        // Step 1: Main export to ExpenseReport tab
-        var exportResult = exportExpensesToSheet(data);
+        Logger.log('doGet exportExpenses: sheetId=' + data.sheetId + ', count=' + data.expenses.length);
 
-        // Steps 2-4: Build fresh data objects from saved local vars
-        var freshData = { sheetId: _sheetId, expenses: _expenses };
+        // Step 1: Log sheet (no ContentService, just SpreadsheetApp writes)
+        try { addToLogSheet(data); } catch (err) { Logger.log('Log sheet error: ' + err.toString()); }
+        // Step 2: "By Project" grouped tab
+        try { addToProjectSheets(data); } catch (err) { Logger.log('By Project tab error: ' + err.toString()); }
+        // Step 3: Individual project tabs (Ace, Biocon, etc.)
+        try { addToIndividualProjectTabs(data); } catch (err) { Logger.log('Individual project tabs error: ' + err.toString()); }
 
-        // Step 2: Log sheet
-        try { addToLogSheet(freshData); } catch (err) { Logger.log('Log sheet error: ' + err.toString()); }
-        // Step 3: "By Project" grouped tab
-        try { addToProjectSheets(freshData); } catch (err) { Logger.log('By Project tab error: ' + err.toString()); }
-        // Step 4: Individual project tabs (Ace, Biocon, etc.)
-        try { addToIndividualProjectTabs(freshData); } catch (err) { Logger.log('Individual project tabs error: ' + err.toString()); }
-        return exportResult;
+        // Step 4: Main export to ExpenseReport tab — LAST (creates ContentService response)
+        return exportExpensesToSheet(data);
 
       case 'verifySheet':
         return verifySheetAccess(data);
@@ -120,16 +118,11 @@ function doPost(e) {
         return createSheetForUser(data);
 
       case 'exportExpenses':
-        var _sheetId2 = String(data.sheetId);
-        var _expenses2 = JSON.parse(JSON.stringify(data.expenses));
-
-        var exportResult = exportExpensesToSheet(data);
-        var freshData2 = { sheetId: _sheetId2, expenses: _expenses2 };
-
-        try { addToLogSheet(freshData2); } catch (err) { Logger.log('Log sheet error: ' + err.toString()); }
-        try { addToProjectSheets(freshData2); } catch (err) { Logger.log('By Project tab error: ' + err.toString()); }
-        try { addToIndividualProjectTabs(freshData2); } catch (err) { Logger.log('Individual project tabs error: ' + err.toString()); }
-        return exportResult;
+        // Same order as doGet: log/project FIRST, main export LAST
+        try { addToLogSheet(data); } catch (err) { Logger.log('Log sheet error: ' + err.toString()); }
+        try { addToProjectSheets(data); } catch (err) { Logger.log('By Project tab error: ' + err.toString()); }
+        try { addToIndividualProjectTabs(data); } catch (err) { Logger.log('Individual project tabs error: ' + err.toString()); }
+        return exportExpensesToSheet(data);
 
       case 'verifySheet':
         return verifySheetAccess(data);
