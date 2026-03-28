@@ -260,6 +260,15 @@
                         <input type="text" id="vendor" name="vendor" placeholder="Enter project name">
                     </div>
 
+                    <div class="form-group" id="expenseVisitTypeGroup">
+                        <label>Visit Type:</label>
+                        <div class="visit-type-toggle" id="expenseVisitType">
+                            <button type="button" class="visit-type-btn visit-type-btn--project active" data-type="project">Project</button>
+                            <button type="button" class="visit-type-btn visit-type-btn--service" data-type="service">Service</button>
+                            <button type="button" class="visit-type-btn visit-type-btn--survey" data-type="survey">Survey</button>
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <label for="receipt">Receipt/Bill Image (Optional):</label>
                         <input type="file" id="receipt" name="receipt" accept="image/*,.pdf,application/pdf" multiple>
@@ -368,6 +377,12 @@
                             </select>
                             <select id="categoryFilter" class="filter-select">
                                 <option value="">All Categories</option>
+                            </select>
+                            <select id="visitTypeFilter" class="filter-select">
+                                <option value="">All Types</option>
+                                <option value="project">Project</option>
+                                <option value="service">Service</option>
+                                <option value="survey">Survey</option>
                             </select>
                             <div class="date-input-wrapper">
                                 <label for="dateFromFilter" class="date-label">From Date</label>
@@ -1663,6 +1678,14 @@
                 <div class="advance-modal__field">
                     <label for="advanceAmount">Advance Amount (₹)</label>
                     <input type="number" id="advanceAmount" step="0.01" min="1" placeholder="50000" required>
+                </div>
+                <div class="advance-modal__field">
+                    <label>Visit Type</label>
+                    <div class="visit-type-toggle" id="advanceVisitType">
+                        <button type="button" class="visit-type-btn visit-type-btn--project active" data-type="project">Project</button>
+                        <button type="button" class="visit-type-btn visit-type-btn--service" data-type="service">Service</button>
+                        <button type="button" class="visit-type-btn visit-type-btn--survey" data-type="survey">Survey</button>
+                    </div>
                 </div>
                 <div class="advance-modal__field">
                     <label for="advanceNotes">Notes (Optional)</label>

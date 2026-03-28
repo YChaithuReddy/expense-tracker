@@ -1175,13 +1175,14 @@ function addToIndividualProjectTabs(data) {
       Logger.log('  Creating tab: "' + project + '"');
       tab = spreadsheet.insertSheet(project);
 
-      // Row 1: Project header (cyan, matching By Project style)
-      tab.getRange(1, 1).setValue('\u25B8 ' + project).setFontWeight('bold').setFontSize(12);
-      tab.getRange(1, 1, 1, 4).setBackground('#0e7490').setFontColor('#ffffff');
+      // Row 1: Project header with visit type (cyan)
+      var visitType = (items[0] && items[0].visitType) ? ' (' + items[0].visitType.charAt(0).toUpperCase() + items[0].visitType.slice(1) + ')' : '';
+      tab.getRange(1, 1).setValue('\u25B8 ' + project + visitType).setFontWeight('bold').setFontSize(12);
+      tab.getRange(1, 1, 1, 5).setBackground('#0e7490').setFontColor('#ffffff');
 
       // Row 2: Column headers
-      tab.getRange(2, 1, 1, 4).setValues([['Date', 'Category', 'Amount', 'Description']]);
-      tab.getRange(2, 1, 1, 4).setFontWeight('bold').setFontColor('#64748b').setFontSize(9).setBackground('#f1f5f9');
+      tab.getRange(2, 1, 1, 5).setValues([['Date', 'Category', 'Amount', 'Type', 'Description']]);
+      tab.getRange(2, 1, 1, 5).setFontWeight('bold').setFontColor('#64748b').setFontSize(9).setBackground('#f1f5f9');
 
       // Row 3: Subtotal (starts at 0)
       tab.getRange(3, 1).setValue('Subtotal').setFontWeight('bold').setFontColor('#0e7490');
@@ -1191,7 +1192,8 @@ function addToIndividualProjectTabs(data) {
       tab.setColumnWidth(1, 120);
       tab.setColumnWidth(2, 160);
       tab.setColumnWidth(3, 130);
-      tab.setColumnWidth(4, 280);
+      tab.setColumnWidth(4, 90);
+      tab.setColumnWidth(5, 280);
 
       // Freeze header rows
       tab.setFrozenRows(2);
@@ -1243,10 +1245,10 @@ function addToIndividualProjectTabs(data) {
       tab.getRange(row, 1).setValue(formatDateSafe(newItems[i].date));
       tab.getRange(row, 2).setValue(newItems[i].category || 'Miscellaneous');
       tab.getRange(row, 3).setValue(parseFloat(newItems[i].amount) || 0).setNumberFormat('\u20B9#,##0.00');
-      tab.getRange(row, 4).setValue(newItems[i].description || '');
-      // Alternating row shading (check row number relative to data start)
-      var dataRowIndex = row - 3; // 0-based from first data row
-      if (dataRowIndex % 2 === 1) tab.getRange(row, 1, 1, 4).setBackground('#f8fafc');
+      tab.getRange(row, 4).setValue(newItems[i].visitType ? newItems[i].visitType.charAt(0).toUpperCase() + newItems[i].visitType.slice(1) : '');
+      tab.getRange(row, 5).setValue(newItems[i].description || '');
+      var dataRowIndex = row - 3;
+      if (dataRowIndex % 2 === 1) tab.getRange(row, 1, 1, 5).setBackground('#f8fafc');
     }
 
     // --- Recalculate subtotal ---

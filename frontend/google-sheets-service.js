@@ -324,7 +324,8 @@ class GoogleSheetsService {
                 vendor: exp.vendor || 'N/A',
                 category: exp.category,
                 amount: parseFloat(exp.amount) || 0,
-                description: exp.description || ''
+                description: exp.description || '',
+                visitType: exp.visitType || ''
             }));
 
             const data = {
