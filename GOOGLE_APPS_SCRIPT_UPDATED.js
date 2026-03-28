@@ -1068,6 +1068,51 @@ function addToProjectSheets(data) {
   // --- Update timestamp ---
   sheet.getRange(1, 4).setValue('Last Updated: ' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd-MMM-yyyy HH:mm')).setFontColor('#64748b').setFontSize(9);
 
+  // --- Add advance summary after grand total ---
+  var advances = data.advances;
+  if (advances && Array.isArray(advances) && advances.length > 0) {
+    var finalData = sheet.getDataRange().getValues();
+    var gtRowFinal = -1;
+    for (var r = 0; r < finalData.length; r++) {
+      var mk = finalData[r].length >= MARKER_COL ? String(finalData[r][MARKER_COL - 1]) : '';
+      if (mk === 'GRAND_TOTAL') { gtRowFinal = r + 1; break; }
+    }
+
+    if (gtRowFinal > 0) {
+      var advStartRow = gtRowFinal + 2;
+      // Clear old advance summary if present
+      var lastRowSheet = sheet.getLastRow();
+      for (var r = gtRowFinal + 1; r <= lastRowSheet; r++) {
+        if (String(sheet.getRange(r, MARKER_COL).getValue()) === 'ADVANCE_SUMMARY') {
+          // Clear from here to end
+          sheet.getRange(r, 1, lastRowSheet - r + 1, 5).clearContent().clearFormat();
+          advStartRow = r;
+          break;
+        }
+      }
+
+      // Write advance summary section
+      sheet.getRange(advStartRow, 1).setValue('Advance Summary').setFontWeight('bold').setFontSize(12).setFontColor('#92400e');
+      sheet.getRange(advStartRow, 1, 1, 4).setBackground('#fffbeb');
+      sheet.getRange(advStartRow, MARKER_COL).setValue('ADVANCE_SUMMARY');
+
+      sheet.getRange(advStartRow + 1, 1, 1, 4).setValues([['Project', 'Advance', 'Spent', 'Remaining']]);
+      sheet.getRange(advStartRow + 1, 1, 1, 4).setFontWeight('bold').setFontColor('#64748b').setFontSize(9).setBackground('#f1f5f9');
+
+      for (var a = 0; a < advances.length; a++) {
+        var ar = advStartRow + 2 + a;
+        var rem = (parseFloat(advances[a].advanceAmount) || 0) - (parseFloat(advances[a].totalSpent) || 0);
+        sheet.getRange(ar, 1).setValue(advances[a].projectName);
+        sheet.getRange(ar, 2).setValue(parseFloat(advances[a].advanceAmount) || 0).setNumberFormat('\u20B9#,##0.00');
+        sheet.getRange(ar, 3).setValue(parseFloat(advances[a].totalSpent) || 0).setNumberFormat('\u20B9#,##0.00').setFontColor('#f59e0b');
+        sheet.getRange(ar, 4).setValue(rem).setNumberFormat('\u20B9#,##0.00').setFontWeight('bold')
+          .setFontColor(rem < 0 ? '#ef4444' : '#10b981');
+      }
+
+      Logger.log('addToProjectSheets: advance summary added for ' + advances.length + ' advances');
+    }
+  }
+
   Logger.log('addToProjectSheets: done, grand total = ' + gtTotal);
 }
 
@@ -1212,6 +1257,40 @@ function addToIndividualProjectTabs(data) {
     }
     tab.getRange(newSubRow, 1).setValue('Subtotal').setFontWeight('bold').setFontColor('#0e7490');
     tab.getRange(newSubRow, 3).setValue(total).setNumberFormat('\u20B9#,##0.00').setFontWeight('bold').setFontColor('#0e7490');
+
+    // --- Add advance summary if available ---
+    var advances = data.advances;
+    if (advances && Array.isArray(advances)) {
+      for (var a = 0; a < advances.length; a++) {
+        if (advances[a].projectName && advances[a].projectName.toLowerCase() === project.toLowerCase()) {
+          var advRow = newSubRow + 2;
+          // Remove old advance summary if present
+          var lastRowNow = tab.getLastRow();
+          if (lastRowNow > newSubRow + 1) {
+            for (var check = newSubRow + 1; check <= lastRowNow; check++) {
+              if (String(tab.getRange(check, 1).getValue()) === 'Advance Summary') {
+                // Clear old rows (summary header + 3 data rows)
+                tab.getRange(check, 1, 4, 4).clearContent().clearFormat();
+                break;
+              }
+            }
+          }
+          // Write advance summary
+          tab.getRange(advRow, 1, 1, 4).setBackground('#fffbeb');
+          tab.getRange(advRow, 1).setValue('Advance Summary').setFontWeight('bold').setFontSize(10).setFontColor('#92400e');
+          tab.getRange(advRow + 1, 1).setValue('Advance Amount');
+          tab.getRange(advRow + 1, 3).setValue(parseFloat(advances[a].advanceAmount) || 0).setNumberFormat('\u20B9#,##0.00').setFontWeight('bold').setFontColor('#0e7490');
+          tab.getRange(advRow + 2, 1).setValue('Total Spent');
+          tab.getRange(advRow + 2, 3).setValue(parseFloat(advances[a].totalSpent) || 0).setNumberFormat('\u20B9#,##0.00').setFontColor('#f59e0b');
+          var remaining = (parseFloat(advances[a].advanceAmount) || 0) - (parseFloat(advances[a].totalSpent) || 0);
+          tab.getRange(advRow + 3, 1).setValue('Remaining').setFontWeight('bold');
+          tab.getRange(advRow + 3, 3).setValue(remaining).setNumberFormat('\u20B9#,##0.00').setFontWeight('bold')
+            .setFontColor(remaining < 0 ? '#ef4444' : '#10b981');
+          Logger.log('  Added advance summary for "' + project + '": advance=' + advances[a].advanceAmount + ', remaining=' + remaining);
+          break;
+        }
+      }
+    }
 
     Logger.log('  "' + project + '": subtotal = ' + total);
   }
