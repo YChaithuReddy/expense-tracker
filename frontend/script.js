@@ -3301,7 +3301,7 @@ class ExpenseTracker {
 
                 // Auto-link to advance if matching project exists
                 if (response.data?._id && expenseData.vendor) {
-                    this.autoLinkExpenseToAdvance(response.data._id, expenseData.vendor);
+                    await this.autoLinkExpenseToAdvance(response.data._id, expenseData.vendor);
                 }
 
                 // Update progress to 90%
@@ -8072,9 +8072,14 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                 await api.updateAdvance(editId, { projectName, amount, notes });
                 this.showNotification('Advance updated successfully');
             } else {
-                await api.createAdvance(projectName, amount, notes);
+                const result = await api.createAdvance(projectName, amount, notes);
                 this.showNotification('Advance created successfully');
                 window.api?.logActivity?.('advance_created', `Created advance of ₹${amount} for ${projectName}`, { amount, projectName });
+
+                // Retroactively link existing expenses with matching project name
+                if (result?.data?.id) {
+                    await this.linkExistingExpensesToAdvance(result.data.id, projectName);
+                }
             }
 
             this.closeAdvanceModal();
@@ -8252,10 +8257,36 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             if (advance) {
                 await api.linkExpenseToAdvance(expenseId, advance.id);
                 console.log(`Linked expense to advance: ${advance.project_name}`);
-                await this.loadAdvances(); // Refresh balance display
+                await this.loadAdvances();
             }
         } catch (error) {
             console.error('Auto-link advance failed:', error);
+        }
+    }
+
+    async linkExistingExpensesToAdvance(advanceId, projectName) {
+        try {
+            // Find all expenses matching this project that aren't linked to any advance
+            const matchingExpenses = this.expenses.filter(exp =>
+                exp.vendor && exp.vendor.toLowerCase() === projectName.toLowerCase()
+            );
+
+            let linked = 0;
+            for (const exp of matchingExpenses) {
+                try {
+                    await api.linkExpenseToAdvance(exp.id, advanceId);
+                    linked++;
+                } catch (err) {
+                    console.error(`Failed to link expense ${exp.id}:`, err);
+                }
+            }
+
+            if (linked > 0) {
+                console.log(`Retroactively linked ${linked} expenses to advance: ${projectName}`);
+                this.showNotification(`Linked ${linked} existing expense${linked > 1 ? 's' : ''} to ${projectName} advance`);
+            }
+        } catch (error) {
+            console.error('Retroactive linking failed:', error);
         }
     }
 
