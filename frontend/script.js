@@ -8164,7 +8164,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                     <div class="advance-tab__collapsed" onclick="expenseTracker.toggleAdvanceTab(this)">
                         <span class="advance-tab__dot" style="background:${tabColor}"></span>
                         <span class="advance-tab__name">${this.sanitizeHTML(adv.project_name)}</span>
-                        <span class="advance-tab__remain ${remainClass}">${remainText}</span>
+                        <span class="advance-tab__spent-info">₹${adv.totalSpent.toLocaleString('en-IN')} / ₹${adv.amount.toLocaleString('en-IN')}</span>
                         <span class="advance-tab__mini-bar"><span class="advance-tab__mini-fill ${barClass}" style="width:${displayPercent}%"></span></span>
                         ${chevron}
                     </div>

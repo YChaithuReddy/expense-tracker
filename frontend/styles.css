@@ -10121,17 +10121,15 @@ select.inline-input option {
     white-space: nowrap;
 }
 
-.advance-tab__remain {
-    font-size: 0.78rem;
-    font-weight: 700;
+.advance-tab__spent-info {
+    font-size: 0.75rem;
+    font-weight: 600;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
     margin-left: auto;
+    color: var(--text-secondary, #94a3b8);
+    letter-spacing: -0.01em;
 }
-
-.advance-tab__remain.safe { color: #34d399; }
-.advance-tab__remain.warning { color: #fbbf24; }
-.advance-tab__remain.danger { color: #f87171; }
 
 .advance-tab__mini-bar {
     width: 40px;
@@ -10577,8 +10575,8 @@ select.inline-input option {
     .advance-tab__name {
         font-size: 0.78rem;
     }
-    .advance-tab__remain {
-        font-size: 0.72rem;
+    .advance-tab__spent-info {
+        font-size: 0.68rem;
     }
     .advance-card__stat {
         padding: 6px 4px;
