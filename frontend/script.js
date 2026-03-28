@@ -8110,31 +8110,46 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         if (!container) return;
 
         if (this.advances.length === 0) {
-            container.innerHTML = '';
+            container.innerHTML = `
+                <div class="advance-empty-state">
+                    <div class="advance-empty-state__icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" stroke-opacity="0.4"/>
+                            <path d="M12 6v6l4 2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <p class="advance-empty-state__title">No advances yet</p>
+                    <p class="advance-empty-state__subtitle">Create an advance to track project budgets</p>
+                </div>
+            `;
             return;
         }
 
         container.innerHTML = this.advances.map(adv => {
             const percent = Math.min(adv.percentUsed, 100);
             const isOverspent = adv.remaining < 0;
-            let statusClass, barClass, remainClass;
+            let statusClass, barClass, remainClass, pctClass;
 
             if (adv.status === 'closed') {
                 statusClass = 'advance-card--closed';
                 barClass = 'advance-card__progress-bar--safe';
                 remainClass = '';
+                pctClass = 'advance-card__progress-pct--safe';
             } else if (isOverspent || percent >= 90) {
                 statusClass = 'advance-card--danger';
                 barClass = 'advance-card__progress-bar--danger';
                 remainClass = 'danger';
+                pctClass = 'advance-card__progress-pct--danger';
             } else if (percent >= 70) {
                 statusClass = 'advance-card--warning';
                 barClass = 'advance-card__progress-bar--warning';
                 remainClass = 'warning';
+                pctClass = 'advance-card__progress-pct--warning';
             } else {
                 statusClass = 'advance-card--safe';
                 barClass = 'advance-card__progress-bar--safe';
                 remainClass = 'safe';
+                pctClass = 'advance-card__progress-pct--safe';
             }
 
             const remaining = adv.remaining;
@@ -8142,12 +8157,22 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                 ? `-₹${Math.abs(remaining).toLocaleString('en-IN')}`
                 : `₹${remaining.toLocaleString('en-IN')}`;
 
+            const displayPercent = isOverspent ? 100 : Math.round(percent);
+
+            // SVG icons for action buttons
+            const editIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
+            const closeIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>`;
+            const reopenIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>`;
+            const deleteIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>`;
+            const notesIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`;
+
             return `
                 <div class="advance-card ${statusClass}" data-advance-id="${adv.id}">
                     <div class="advance-card__top">
                         <h4 class="advance-card__project">${this.sanitizeHTML(adv.project_name)}</h4>
-                        <span class="advance-card__status advance-card__status--${adv.status}">${adv.status}</span>
+                        <span class="advance-card__status advance-card__status--${adv.status}">${adv.status === 'active' ? 'Active' : 'Closed'}</span>
                     </div>
+
                     <div class="advance-card__stats">
                         <div class="advance-card__stat">
                             <span class="advance-card__stat-label">Advance</span>
@@ -8162,17 +8187,38 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                             <span class="advance-card__stat-value advance-card__stat-value--remaining ${remainClass}">${remainText}</span>
                         </div>
                     </div>
-                    <div class="advance-card__progress">
-                        <div class="advance-card__progress-bar ${barClass}" style="width: ${percent}%"></div>
+
+                    <div class="advance-card__progress-wrap">
+                        <div class="advance-card__progress-meta">
+                            <span class="advance-card__progress-label">Budget used</span>
+                            <span class="advance-card__progress-pct ${pctClass}">${displayPercent}%</span>
+                        </div>
+                        <div class="advance-card__progress">
+                            <div class="advance-card__progress-bar ${barClass}" style="width: ${displayPercent}%"></div>
+                        </div>
                     </div>
-                    ${adv.notes ? `<p style="font-size: 0.75rem; color: var(--text-secondary, #94a3b8); margin: 0 0 8px;">${this.sanitizeHTML(adv.notes)}</p>` : ''}
+
+                    ${adv.notes ? `
+                    <div class="advance-card__notes">
+                        ${notesIcon}
+                        ${this.sanitizeHTML(adv.notes)}
+                    </div>` : ''}
+
                     <div class="advance-card__actions">
-                        <button class="advance-card__btn" onclick="expenseTracker.openAdvanceModal(${JSON.stringify(adv).replace(/"/g, '&quot;')})">Edit</button>
+                        <button class="advance-card__btn advance-card__btn--edit" onclick="expenseTracker.openAdvanceModal(${JSON.stringify(adv).replace(/"/g, '&quot;')})" title="Edit advance">
+                            ${editIcon} Edit
+                        </button>
                         ${adv.status === 'active'
-                            ? `<button class="advance-card__btn advance-card__btn--close" onclick="expenseTracker.closeAdvance('${adv.id}')">Close</button>`
-                            : `<button class="advance-card__btn" onclick="expenseTracker.reopenAdvance('${adv.id}')">Reopen</button>`
+                            ? `<button class="advance-card__btn advance-card__btn--close" onclick="expenseTracker.closeAdvance('${adv.id}')" title="Close advance">
+                                ${closeIcon} Close
+                               </button>`
+                            : `<button class="advance-card__btn advance-card__btn--reopen" onclick="expenseTracker.reopenAdvance('${adv.id}')" title="Reopen advance">
+                                ${reopenIcon} Reopen
+                               </button>`
                         }
-                        <button class="advance-card__btn advance-card__btn--delete" onclick="expenseTracker.deleteAdvance('${adv.id}', '${this.sanitizeHTML(adv.project_name)}')">Delete</button>
+                        <button class="advance-card__btn advance-card__btn--delete" onclick="expenseTracker.deleteAdvance('${adv.id}', '${this.sanitizeHTML(adv.project_name)}')" title="Delete advance">
+                            ${deleteIcon}
+                        </button>
                     </div>
                 </div>
             `;
