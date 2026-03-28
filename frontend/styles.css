@@ -9983,15 +9983,12 @@ select.inline-input option {
    ADVANCE TRACKER - Premium Redesign
    ============================================= */
 
-/* ---- Section wrapper — horizontal strip below header ---- */
+/* ---- Section wrapper — compact strip below header ---- */
 .advance-summary-section {
-    margin: 0 auto 0;
+    margin: 0 auto;
     max-width: 100%;
-    padding: 12px 20px;
-    background: linear-gradient(180deg, rgba(15, 23, 42, 0.5) 0%, rgba(15, 23, 42, 0.2) 100%);
-    border-bottom: 1px solid rgba(148, 163, 184, 0.07);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    padding: 10px 20px 6px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.06);
 }
 
 /* ---- Section header ---- */
@@ -9999,7 +9996,7 @@ select.inline-input option {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     max-width: 1200px;
     margin-left: auto;
     margin-right: auto;
@@ -10066,219 +10063,123 @@ select.inline-input option {
     stroke-width: 2.5;
 }
 
-/* ---- Empty state ---- */
-.advance-empty-state {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    padding: 20px 28px;
-    background: rgba(15, 23, 42, 0.4);
-    border: 1px dashed rgba(6, 182, 212, 0.15);
-    border-radius: 12px;
-    text-align: left;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.advance-empty-state__icon {
-    width: 44px;
-    height: 44px;
-    background: rgba(6, 182, 212, 0.1);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #06b6d4;
-    opacity: 0.7;
-}
-
-.advance-empty-state__icon svg {
-    width: 22px;
-    height: 22px;
-}
-
-.advance-empty-state__title {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--text-primary, #e2e8f0);
-    margin: 0;
-    opacity: 0.6;
-}
-
-.advance-empty-state__subtitle {
-    font-size: 0.78rem;
-    color: var(--text-secondary, #94a3b8);
-    margin: 0;
-    opacity: 0.6;
-}
-
-/* ---- Cards — horizontal scroll strip ---- */
+/* ---- Tabs container ---- */
 .advance-cards-container {
     display: flex;
-    gap: 14px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: 4px;
+    flex-wrap: wrap;
+    gap: 8px;
     max-width: 1200px;
     margin: 0 auto;
-    /* Hide scrollbar but keep functionality */
-    scrollbar-width: thin;
-    scrollbar-color: rgba(6, 182, 212, 0.2) transparent;
+    padding-bottom: 4px;
 }
 
-.advance-cards-container::-webkit-scrollbar {
-    height: 4px;
-}
-.advance-cards-container::-webkit-scrollbar-track {
-    background: transparent;
-}
-.advance-cards-container::-webkit-scrollbar-thumb {
-    background: rgba(6, 182, 212, 0.2);
-    border-radius: 4px;
-}
-
-/* ---- Individual card — compact for strip layout ---- */
-.advance-card {
-    position: relative;
-    background: linear-gradient(145deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.9) 100%);
+/* ---- Tab (collapsed = small rectangle) ---- */
+.advance-tab {
     border: 1px solid rgba(148, 163, 184, 0.1);
-    border-radius: 14px;
-    padding: 16px 18px;
+    border-radius: 10px;
+    background: rgba(15, 23, 42, 0.5);
     overflow: hidden;
-    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    min-width: 310px;
-    max-width: 380px;
+    transition: border-color 0.2s, box-shadow 0.2s;
     flex-shrink: 0;
-    scroll-snap-align: start;
 }
 
-/* Subtle ambient glow in top-right corner — purely decorative */
-.advance-card::before {
-    content: '';
-    position: absolute;
-    top: -30px;
-    right: -30px;
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(6, 182, 212, 0.07) 0%, transparent 70%);
-    pointer-events: none;
+.advance-tab:hover {
+    border-color: rgba(148, 163, 184, 0.2);
 }
 
-.advance-card:hover {
-    transform: translateY(-2px);
-    border-color: rgba(6, 182, 212, 0.25);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(6, 182, 212, 0.08);
-}
+.advance-tab--safe { border-left: 3px solid #10b981; }
+.advance-tab--warning { border-left: 3px solid #f59e0b; }
+.advance-tab--danger { border-left: 3px solid #ef4444; }
+.advance-tab--closed { border-left: 3px solid #475569; opacity: 0.6; }
 
-/* ---- Left accent bar (status indicator) ---- */
-.advance-card--safe {
-    border-left: 3px solid #10b981;
-}
-
-.advance-card--safe::before {
-    background: radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 70%);
-}
-
-.advance-card--warning {
-    border-left: 3px solid #f59e0b;
-}
-
-.advance-card--warning::before {
-    background: radial-gradient(circle, rgba(245, 158, 11, 0.08) 0%, transparent 70%);
-}
-
-.advance-card--danger {
-    border-left: 3px solid #ef4444;
-}
-
-.advance-card--danger::before {
-    background: radial-gradient(circle, rgba(239, 68, 68, 0.08) 0%, transparent 70%);
-}
-
-.advance-card--closed {
-    opacity: 0.55;
-    border-left: 3px solid #475569;
-}
-
-/* ---- Card top row: project name + status badge ---- */
-.advance-card__top {
+/* ---- Collapsed row (always visible) ---- */
+.advance-tab__collapsed {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
     gap: 10px;
+    padding: 8px 14px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
 }
 
-.advance-card__project {
-    font-size: 1.05rem;
-    font-weight: 700;
+.advance-tab__collapsed:hover {
+    background: rgba(148, 163, 184, 0.05);
+}
+
+.advance-tab__dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.advance-tab__name {
+    font-size: 0.82rem;
+    font-weight: 600;
     color: var(--text-primary, #e2e8f0);
-    margin: 0;
-    letter-spacing: -0.01em;
-    line-height: 1.3;
-    /* Subtle text shadow for depth */
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
     text-transform: capitalize;
+    white-space: nowrap;
 }
 
-.advance-card__status {
-    flex-shrink: 0;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 0.65rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
+.advance-tab__remain {
+    font-size: 0.78rem;
     font-weight: 700;
-    padding: 4px 10px;
-    border-radius: 20px;
-    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    margin-left: auto;
 }
 
-/* Pulsing dot for active status */
-.advance-card__status--active {
-    background: rgba(16, 185, 129, 0.12);
-    color: #10b981;
-    border: 1px solid rgba(16, 185, 129, 0.25);
-}
+.advance-tab__remain.safe { color: #34d399; }
+.advance-tab__remain.warning { color: #fbbf24; }
+.advance-tab__remain.danger { color: #f87171; }
 
-.advance-card__status--active::before {
-    content: '';
-    display: inline-block;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #10b981;
-    animation: advancePulse 2s ease-in-out infinite;
+.advance-tab__mini-bar {
+    width: 40px;
+    height: 4px;
+    background: rgba(148, 163, 184, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
     flex-shrink: 0;
 }
 
-@keyframes advancePulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(0.7); }
+.advance-tab__mini-fill {
+    display: block;
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.3s;
 }
 
-.advance-card__status--closed {
-    background: rgba(71, 85, 105, 0.2);
-    color: #64748b;
-    border: 1px solid rgba(71, 85, 105, 0.2);
-}
-
-.advance-card__status--closed::before {
-    content: '';
-    display: inline-block;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #475569;
+.advance-tab__chevron {
+    width: 14px;
+    height: 14px;
     flex-shrink: 0;
+    color: var(--text-secondary, #94a3b8);
+    opacity: 0.5;
+    transition: transform 0.25s ease;
+}
+
+/* ---- Expanded panel (hidden by default) ---- */
+.advance-tab__expanded {
+    max-height: 0;
+    overflow: hidden;
+    padding: 0 14px;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+}
+
+/* ---- Open state ---- */
+.advance-tab--open {
+    border-color: rgba(6, 182, 212, 0.25);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.advance-tab--open .advance-tab__chevron {
+    transform: rotate(180deg);
+}
+
+.advance-tab--open .advance-tab__expanded {
+    max-height: 400px;
+    padding: 0 14px 14px;
 }
 
 /* ---- Stats row ---- */
@@ -10510,21 +10411,20 @@ select.inline-input option {
     color: #ef4444;
 }
 
-/* Entrance animation for cards */
-@keyframes advanceCardIn {
-    from { opacity: 0; transform: translateY(10px); }
+/* Entrance animation for tabs */
+@keyframes advanceTabIn {
+    from { opacity: 0; transform: translateY(6px); }
     to   { opacity: 1; transform: translateY(0); }
 }
 
-.advance-card {
-    animation: advanceCardIn 0.28s ease-out both;
+.advance-tab {
+    animation: advanceTabIn 0.2s ease-out both;
 }
 
-/* Stagger delay for multiple cards */
-.advance-card:nth-child(2) { animation-delay: 0.05s; }
-.advance-card:nth-child(3) { animation-delay: 0.10s; }
-.advance-card:nth-child(4) { animation-delay: 0.15s; }
-.advance-card:nth-child(5) { animation-delay: 0.20s; }
+.advance-tab:nth-child(2) { animation-delay: 0.04s; }
+.advance-tab:nth-child(3) { animation-delay: 0.08s; }
+.advance-tab:nth-child(4) { animation-delay: 0.12s; }
+.advance-tab:nth-child(5) { animation-delay: 0.16s; }
 
 /* =============================================
    ADVANCE MODAL
@@ -10656,45 +10556,35 @@ select.inline-input option {
 
 @media (max-width: 640px) {
     .advance-summary-section {
-        padding: 10px 12px;
+        padding: 8px 12px 4px;
     }
-    .advance-card {
-        min-width: 260px;
-        max-width: 300px;
-        padding: 14px;
-        border-radius: 12px;
+    .advance-cards-container {
+        flex-direction: column;
+        gap: 6px;
     }
-    .advance-card__project {
-        font-size: 0.95rem;
+    .advance-tab__collapsed {
+        padding: 7px 12px;
     }
     .advance-card__stat-value {
         font-size: 0.82rem;
-    }
-    .advance-card__actions {
-        gap: 5px;
     }
     .advance-card__btn {
         padding: 5px 8px;
         font-size: 0.68rem;
     }
-    .advance-empty-state {
-        flex-direction: column;
-        text-align: center;
-        padding: 16px 20px;
-    }
 }
 
 @media (max-width: 375px) {
-    .advance-card {
-        min-width: 240px;
+    .advance-tab__name {
+        font-size: 0.78rem;
+    }
+    .advance-tab__remain {
+        font-size: 0.72rem;
     }
     .advance-card__stat {
         padding: 6px 4px;
     }
     .advance-card__stat-value {
         font-size: 0.78rem;
-    }
-    .advance-card__btn {
-        padding: 4px 7px;
     }
 }
