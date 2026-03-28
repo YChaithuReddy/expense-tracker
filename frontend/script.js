@@ -3569,7 +3569,6 @@ class ExpenseTracker {
                         <label for="checkbox-${safeId}" class="expense-amount">₹${this.formatAmount(expense.amount)}</label>
                     </div>
                     <span class="expense-category-badge">${safeCategory}</span>
-                    ${expense.visitType ? `<span class="visit-type-badge visit-type-badge--${expense.visitType}">${expense.visitType}</span>` : ''}
                 </div>
                 <div class="expense-meta">
                     <span class="expense-meta-item">
@@ -3580,6 +3579,7 @@ class ExpenseTracker {
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                         ${safeVendor}
                     </span>` : ''}
+                    ${expense.visitType ? `<span class="visit-type-badge visit-type-badge--${expense.visitType}">${expense.visitType}</span>` : ''}
                 </div>
                 ${safeDescription ? `<div class="expense-description">${safeDescription}</div>` : ''}
                 <div class="expense-footer">
