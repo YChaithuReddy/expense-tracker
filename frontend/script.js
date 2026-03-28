@@ -44,6 +44,10 @@ class ExpenseTracker {
 
         // Initialize Google Sheets service to show View My Sheet button if user has a sheet
         this.initializeGoogleSheets();
+
+        // Initialize advance tracker
+        this.advances = [];
+        this.initializeAdvanceListeners();
     }
 
     // Sanitize HTML to prevent XSS attacks
@@ -3295,6 +3299,11 @@ class ExpenseTracker {
             if (response.success) {
                 console.log('✅ Expense added to backend successfully');
 
+                // Auto-link to advance if matching project exists
+                if (response.data?._id && expenseData.vendor) {
+                    this.autoLinkExpenseToAdvance(response.data._id, expenseData.vendor);
+                }
+
                 // Update progress to 90%
                 const uploadProgressFill = document.getElementById('uploadProgressFill');
                 const uploadProgressText = document.getElementById('uploadProgressText');
@@ -4007,6 +4016,9 @@ class ExpenseTracker {
                 this.sortExpensesByDate();
                 this.displayExpenses();
                 this.updateTotal();
+
+                // Load advances after expenses are loaded
+                this.loadAdvances();
             }
         } catch (error) {
             console.error('Error loading expenses:', error);
@@ -7949,6 +7961,297 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             saveBtn.disabled = false;
             saveBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Save';
         }
+    }
+    // ==============================================
+    // ADVANCE TRACKER
+    // ==============================================
+
+    initializeAdvanceListeners() {
+        const openBtn = document.getElementById('openAdvanceModal');
+        const closeBtn = document.getElementById('closeAdvanceModal');
+        const cancelBtn = document.getElementById('cancelAdvanceModal');
+        const overlay = document.getElementById('advanceModalOverlay');
+        const form = document.getElementById('advanceForm');
+
+        if (openBtn) openBtn.addEventListener('click', () => this.openAdvanceModal());
+        if (closeBtn) closeBtn.addEventListener('click', () => this.closeAdvanceModal());
+        if (cancelBtn) cancelBtn.addEventListener('click', () => this.closeAdvanceModal());
+        if (overlay) overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) this.closeAdvanceModal();
+        });
+        if (form) form.addEventListener('submit', (e) => this.handleAdvanceSave(e));
+
+        // Show advance indicator when vendor field changes
+        const vendorInput = document.getElementById('vendor');
+        if (vendorInput) {
+            let debounceTimer;
+            vendorInput.addEventListener('input', () => {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+                    this.updateAdvanceIndicator(vendorInput.value);
+                }, 300);
+            });
+        }
+    }
+
+    updateAdvanceIndicator(vendor) {
+        let indicator = document.getElementById('advanceLinkIndicator');
+        const html = this.getAdvanceIndicatorHTML(vendor);
+
+        if (!html) {
+            if (indicator) indicator.remove();
+            return;
+        }
+
+        const vendorGroup = document.getElementById('vendor')?.closest('.form-group');
+        if (!vendorGroup) return;
+
+        if (!indicator) {
+            indicator = document.createElement('div');
+            indicator.id = 'advanceLinkIndicator';
+            vendorGroup.appendChild(indicator);
+        }
+        indicator.outerHTML = `<div id="advanceLinkIndicator">${html}</div>`;
+    }
+
+    openAdvanceModal(editAdvance = null) {
+        const overlay = document.getElementById('advanceModalOverlay');
+        const title = document.getElementById('advanceModalTitle');
+        const editId = document.getElementById('advanceEditId');
+        const projectInput = document.getElementById('advanceProject');
+        const amountInput = document.getElementById('advanceAmount');
+        const notesInput = document.getElementById('advanceNotes');
+        const saveBtn = document.getElementById('advanceSaveBtn');
+
+        if (editAdvance) {
+            title.textContent = 'Edit Advance';
+            editId.value = editAdvance.id;
+            projectInput.value = editAdvance.project_name;
+            amountInput.value = editAdvance.amount;
+            notesInput.value = editAdvance.notes || '';
+            saveBtn.textContent = 'Update Advance';
+        } else {
+            title.textContent = 'Add New Advance';
+            editId.value = '';
+            projectInput.value = '';
+            amountInput.value = '';
+            notesInput.value = '';
+            saveBtn.textContent = 'Save Advance';
+        }
+
+        overlay.style.display = 'flex';
+        projectInput.focus();
+    }
+
+    closeAdvanceModal() {
+        const overlay = document.getElementById('advanceModalOverlay');
+        if (overlay) overlay.style.display = 'none';
+        document.getElementById('advanceForm')?.reset();
+        document.getElementById('advanceEditId').value = '';
+    }
+
+    async handleAdvanceSave(e) {
+        e.preventDefault();
+
+        const editId = document.getElementById('advanceEditId').value;
+        const projectName = document.getElementById('advanceProject').value.trim();
+        const amount = document.getElementById('advanceAmount').value;
+        const notes = document.getElementById('advanceNotes').value.trim();
+
+        if (!projectName || !amount) {
+            this.showNotification('Please fill in project name and amount');
+            return;
+        }
+
+        const saveBtn = document.getElementById('advanceSaveBtn');
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Saving...';
+
+        try {
+            if (editId) {
+                await api.updateAdvance(editId, { projectName, amount, notes });
+                this.showNotification('Advance updated successfully');
+            } else {
+                await api.createAdvance(projectName, amount, notes);
+                this.showNotification('Advance created successfully');
+                window.api?.logActivity?.('advance_created', `Created advance of ₹${amount} for ${projectName}`, { amount, projectName });
+            }
+
+            this.closeAdvanceModal();
+            await this.loadAdvances();
+        } catch (error) {
+            this.showNotification('Failed: ' + error.message);
+        } finally {
+            saveBtn.disabled = false;
+            saveBtn.textContent = editId ? 'Update Advance' : 'Save Advance';
+        }
+    }
+
+    async loadAdvances() {
+        try {
+            this.advances = await api.getAdvancesWithBalances();
+            this.renderAdvanceCards();
+            this.updateAdvanceSectionVisibility();
+        } catch (error) {
+            console.error('Error loading advances:', error);
+        }
+    }
+
+    updateAdvanceSectionVisibility() {
+        const section = document.getElementById('advanceSummarySection');
+        if (!section) return;
+
+        // Always show the section so users can create their first advance
+        section.style.display = 'block';
+    }
+
+    renderAdvanceCards() {
+        const container = document.getElementById('advanceCardsContainer');
+        if (!container) return;
+
+        if (this.advances.length === 0) {
+            container.innerHTML = '';
+            return;
+        }
+
+        container.innerHTML = this.advances.map(adv => {
+            const percent = Math.min(adv.percentUsed, 100);
+            const isOverspent = adv.remaining < 0;
+            let statusClass, barClass, remainClass;
+
+            if (adv.status === 'closed') {
+                statusClass = 'advance-card--closed';
+                barClass = 'advance-card__progress-bar--safe';
+                remainClass = '';
+            } else if (isOverspent || percent >= 90) {
+                statusClass = 'advance-card--danger';
+                barClass = 'advance-card__progress-bar--danger';
+                remainClass = 'danger';
+            } else if (percent >= 70) {
+                statusClass = 'advance-card--warning';
+                barClass = 'advance-card__progress-bar--warning';
+                remainClass = 'warning';
+            } else {
+                statusClass = 'advance-card--safe';
+                barClass = 'advance-card__progress-bar--safe';
+                remainClass = 'safe';
+            }
+
+            const remaining = adv.remaining;
+            const remainText = isOverspent
+                ? `-₹${Math.abs(remaining).toLocaleString('en-IN')}`
+                : `₹${remaining.toLocaleString('en-IN')}`;
+
+            return `
+                <div class="advance-card ${statusClass}" data-advance-id="${adv.id}">
+                    <div class="advance-card__top">
+                        <h4 class="advance-card__project">${this.sanitizeHTML(adv.project_name)}</h4>
+                        <span class="advance-card__status advance-card__status--${adv.status}">${adv.status}</span>
+                    </div>
+                    <div class="advance-card__stats">
+                        <div class="advance-card__stat">
+                            <span class="advance-card__stat-label">Advance</span>
+                            <span class="advance-card__stat-value">₹${adv.amount.toLocaleString('en-IN')}</span>
+                        </div>
+                        <div class="advance-card__stat">
+                            <span class="advance-card__stat-label">Spent</span>
+                            <span class="advance-card__stat-value advance-card__stat-value--spent">₹${adv.totalSpent.toLocaleString('en-IN')}</span>
+                        </div>
+                        <div class="advance-card__stat">
+                            <span class="advance-card__stat-label">Remaining</span>
+                            <span class="advance-card__stat-value advance-card__stat-value--remaining ${remainClass}">${remainText}</span>
+                        </div>
+                    </div>
+                    <div class="advance-card__progress">
+                        <div class="advance-card__progress-bar ${barClass}" style="width: ${percent}%"></div>
+                    </div>
+                    ${adv.notes ? `<p style="font-size: 0.75rem; color: var(--text-secondary, #94a3b8); margin: 0 0 8px;">${this.sanitizeHTML(adv.notes)}</p>` : ''}
+                    <div class="advance-card__actions">
+                        <button class="advance-card__btn" onclick="expenseTracker.openAdvanceModal(${JSON.stringify(adv).replace(/"/g, '&quot;')})">Edit</button>
+                        ${adv.status === 'active'
+                            ? `<button class="advance-card__btn advance-card__btn--close" onclick="expenseTracker.closeAdvance('${adv.id}')">Close</button>`
+                            : `<button class="advance-card__btn" onclick="expenseTracker.reopenAdvance('${adv.id}')">Reopen</button>`
+                        }
+                        <button class="advance-card__btn advance-card__btn--delete" onclick="expenseTracker.deleteAdvance('${adv.id}', '${this.sanitizeHTML(adv.project_name)}')">Delete</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    async closeAdvance(advanceId) {
+        if (!confirm('Close this advance? You can reopen it later.')) return;
+        try {
+            await api.updateAdvance(advanceId, { status: 'closed' });
+            this.showNotification('Advance closed');
+            await this.loadAdvances();
+        } catch (error) {
+            this.showNotification('Failed: ' + error.message);
+        }
+    }
+
+    async reopenAdvance(advanceId) {
+        try {
+            await api.updateAdvance(advanceId, { status: 'active' });
+            this.showNotification('Advance reopened');
+            await this.loadAdvances();
+        } catch (error) {
+            this.showNotification('Failed: ' + error.message);
+        }
+    }
+
+    async deleteAdvance(advanceId, projectName) {
+        if (!confirm(`Delete advance for "${projectName}"? Linked expenses will be unlinked.`)) return;
+        try {
+            await api.deleteAdvance(advanceId);
+            this.showNotification('Advance deleted');
+            await this.loadAdvances();
+        } catch (error) {
+            this.showNotification('Failed: ' + error.message);
+        }
+    }
+
+    async autoLinkExpenseToAdvance(expenseId, vendor) {
+        if (!vendor || vendor === 'N/A') return;
+        try {
+            const advance = await api.getActiveAdvanceForProject(vendor);
+            if (advance) {
+                await api.linkExpenseToAdvance(expenseId, advance.id);
+                console.log(`Linked expense to advance: ${advance.project_name}`);
+                await this.loadAdvances(); // Refresh balance display
+            }
+        } catch (error) {
+            console.error('Auto-link advance failed:', error);
+        }
+    }
+
+    getAdvanceIndicatorHTML(vendor) {
+        if (!vendor || vendor === 'N/A' || !this.advances || this.advances.length === 0) return '';
+
+        const advance = this.advances.find(a =>
+            a.status === 'active' && a.project_name.toLowerCase() === vendor.toLowerCase()
+        );
+
+        if (!advance) return '';
+
+        const remaining = advance.remaining;
+        let cls = 'advance-link-indicator';
+        let icon, text;
+
+        if (remaining < 0) {
+            cls += ' advance-link-indicator--danger';
+            icon = '⚠️';
+            text = `Overspent by ₹${Math.abs(remaining).toLocaleString('en-IN')} on ${advance.project_name} advance`;
+        } else if (advance.percentUsed >= 80) {
+            cls += ' advance-link-indicator--warning';
+            icon = '⚡';
+            text = `₹${remaining.toLocaleString('en-IN')} remaining of ₹${advance.amount.toLocaleString('en-IN')} advance`;
+        } else {
+            icon = '✓';
+            text = `Will deduct from ${advance.project_name} advance (₹${remaining.toLocaleString('en-IN')} left)`;
+        }
+
+        return `<div class="${cls}">${icon} ${text}</div>`;
     }
 }
 

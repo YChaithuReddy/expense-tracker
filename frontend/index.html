@@ -326,6 +326,20 @@
             </section>
         </main>
 
+        <!-- Advance Balance Cards -->
+        <section class="advance-summary-section" id="advanceSummarySection" style="display: none;">
+            <div class="advance-summary-header">
+                <h3>Advance Tracker</h3>
+                <button class="btn-advance-add" id="openAdvanceModal" title="Add New Advance">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    New Advance
+                </button>
+            </div>
+            <div class="advance-cards-container" id="advanceCardsContainer">
+                <!-- Advance cards rendered by JS -->
+            </div>
+        </section>
+
         <!-- Full-width Expense List Section (below the 2-column grid) -->
         <section class="expenses-fullwidth-section">
                 <div class="select-all-container" id="selectAllContainer" style="display: none;">
@@ -1630,6 +1644,35 @@
                     </button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Advance Modal -->
+    <div class="advance-modal-overlay" id="advanceModalOverlay" style="display: none;">
+        <div class="advance-modal">
+            <div class="advance-modal__header">
+                <h3 id="advanceModalTitle">Add New Advance</h3>
+                <button class="advance-modal__close" id="closeAdvanceModal">&times;</button>
+            </div>
+            <form id="advanceForm" class="advance-modal__form">
+                <input type="hidden" id="advanceEditId" value="">
+                <div class="advance-modal__field">
+                    <label for="advanceProject">Project Name</label>
+                    <input type="text" id="advanceProject" placeholder="e.g. Biocon, Ace Constructions" required>
+                </div>
+                <div class="advance-modal__field">
+                    <label for="advanceAmount">Advance Amount (₹)</label>
+                    <input type="number" id="advanceAmount" step="0.01" min="1" placeholder="50000" required>
+                </div>
+                <div class="advance-modal__field">
+                    <label for="advanceNotes">Notes (Optional)</label>
+                    <input type="text" id="advanceNotes" placeholder="e.g. Site visit Feb-Mar">
+                </div>
+                <div class="advance-modal__actions">
+                    <button type="button" class="btn-secondary" id="cancelAdvanceModal">Cancel</button>
+                    <button type="submit" class="btn-primary" id="advanceSaveBtn">Save Advance</button>
+                </div>
+            </form>
         </div>
     </div>
 

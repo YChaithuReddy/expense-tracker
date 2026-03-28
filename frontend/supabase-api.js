@@ -1160,6 +1160,207 @@ const api = {
         return data;
     },
 
+    // ==============================================
+    // ADVANCES
+    // ==============================================
+
+    async createAdvance(projectName, amount, notes = '') {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        const { data, error } = await supabase
+            .from('advances')
+            .insert({
+                user_id: user.id,
+                project_name: projectName.trim(),
+                amount: parseFloat(amount),
+                notes: notes || null
+            })
+            .select()
+            .single();
+
+        if (error) handleError(error, 'Create advance');
+        return { success: true, data };
+    },
+
+    async getAdvances(status = null) {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        let query = supabase
+            .from('advances')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false });
+
+        if (status) {
+            query = query.eq('status', status);
+        }
+
+        const { data, error } = await query;
+        if (error) handleError(error, 'Get advances');
+        return data || [];
+    },
+
+    async getAdvanceWithBalance(advanceId) {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        // Get advance
+        const { data: advance, error: advError } = await supabase
+            .from('advances')
+            .select('*')
+            .eq('id', advanceId)
+            .eq('user_id', user.id)
+            .single();
+
+        if (advError) handleError(advError, 'Get advance');
+
+        // Get total spent from linked expenses
+        const { data: expenses, error: expError } = await supabase
+            .from('expenses')
+            .select('amount')
+            .eq('advance_id', advanceId)
+            .eq('user_id', user.id);
+
+        if (expError) handleError(expError, 'Get advance expenses');
+
+        const totalSpent = (expenses || []).reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+
+        return {
+            ...advance,
+            totalSpent,
+            remaining: advance.amount - totalSpent,
+            percentUsed: advance.amount > 0 ? (totalSpent / advance.amount) * 100 : 0
+        };
+    },
+
+    async getAdvancesWithBalances() {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        // Get all advances
+        const { data: advances, error: advError } = await supabase
+            .from('advances')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false });
+
+        if (advError) handleError(advError, 'Get advances');
+        if (!advances || advances.length === 0) return [];
+
+        // Get all expenses with advance_id
+        const { data: expenses, error: expError } = await supabase
+            .from('expenses')
+            .select('advance_id, amount')
+            .eq('user_id', user.id)
+            .not('advance_id', 'is', null);
+
+        if (expError) handleError(expError, 'Get advance expenses');
+
+        // Group spent amounts by advance_id
+        const spentByAdvance = {};
+        (expenses || []).forEach(e => {
+            if (e.advance_id) {
+                spentByAdvance[e.advance_id] = (spentByAdvance[e.advance_id] || 0) + (parseFloat(e.amount) || 0);
+            }
+        });
+
+        return advances.map(adv => {
+            const totalSpent = spentByAdvance[adv.id] || 0;
+            return {
+                ...adv,
+                totalSpent,
+                remaining: adv.amount - totalSpent,
+                percentUsed: adv.amount > 0 ? (totalSpent / adv.amount) * 100 : 0
+            };
+        });
+    },
+
+    async getActiveAdvanceForProject(projectName) {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        const { data, error } = await supabase
+            .from('advances')
+            .select('*')
+            .eq('user_id', user.id)
+            .eq('status', 'active')
+            .ilike('project_name', projectName.trim())
+            .limit(1)
+            .single();
+
+        if (error && error.code !== 'PGRST116') handleError(error, 'Get advance for project');
+        return data || null;
+    },
+
+    async updateAdvance(advanceId, updates) {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        const updateObj = {};
+        if (updates.projectName !== undefined) updateObj.project_name = updates.projectName;
+        if (updates.amount !== undefined) updateObj.amount = parseFloat(updates.amount);
+        if (updates.status !== undefined) updateObj.status = updates.status;
+        if (updates.notes !== undefined) updateObj.notes = updates.notes;
+
+        const { data, error } = await supabase
+            .from('advances')
+            .update(updateObj)
+            .eq('id', advanceId)
+            .eq('user_id', user.id)
+            .select()
+            .single();
+
+        if (error) handleError(error, 'Update advance');
+        return { success: true, data };
+    },
+
+    async deleteAdvance(advanceId) {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        // Unlink expenses first
+        await supabase
+            .from('expenses')
+            .update({ advance_id: null })
+            .eq('advance_id', advanceId)
+            .eq('user_id', user.id);
+
+        const { error } = await supabase
+            .from('advances')
+            .delete()
+            .eq('id', advanceId)
+            .eq('user_id', user.id);
+
+        if (error) handleError(error, 'Delete advance');
+        return { success: true };
+    },
+
+    async linkExpenseToAdvance(expenseId, advanceId) {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        const { data, error } = await supabase
+            .from('expenses')
+            .update({ advance_id: advanceId })
+            .eq('id', expenseId)
+            .eq('user_id', user.id)
+            .select()
+            .single();
+
+        if (error) handleError(error, 'Link expense to advance');
+        return { success: true, data };
+    },
+
     async getActivityLog(limit = 50) {
         const supabase = getSupabase();
         const { data: { user } } = await supabase.auth.getUser();

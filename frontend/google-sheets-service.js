@@ -14,7 +14,7 @@ class GoogleSheetsService {
         this.initPromise = null; // Store pending initialization promise
 
         // Google Apps Script Web App URL
-        this.APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzwNUxB_8fK2XxJlfsI58iGQJ0BJoshqfMQrLrcMUgScLMg8b0_NwB3N3DkZk1HXx8ltw/exec';
+        this.APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyxYRWqXUMgsXAk8aD2OfrNXyo14SWqiSCw7dQjaTWRllnufRtsiuzOz_IzEl705LuJ0A/exec';
     }
 
     /**
@@ -340,14 +340,31 @@ class GoogleSheetsService {
                 throw new Error(result.message || 'Export failed');
             }
 
+            // Build advance summaries for Google Sheets
+            let advanceSummaries = [];
+            try {
+                if (window.expenseTracker?.advances?.length > 0) {
+                    advanceSummaries = window.expenseTracker.advances
+                        .filter(a => a.status === 'active')
+                        .map(a => ({
+                            projectName: a.project_name,
+                            advanceAmount: a.amount,
+                            totalSpent: a.totalSpent,
+                            remaining: a.remaining
+                        }));
+                }
+            } catch (e) {
+                console.warn('Could not build advance summaries:', e);
+            }
+
             // Step 2-4: Log sheet, By Project tab, Individual project tabs
             // Separate API calls — each gets its own fresh doGet context
             // Fire all 3 in parallel (non-blocking, errors don't fail the export)
             this.fetchAppsScript({ action: 'addToLogSheet', sheetId: this.sheetId, expenses: formattedExpenses })
                 .catch(err => console.warn('Log sheet update failed (non-fatal):', err));
-            this.fetchAppsScript({ action: 'addToProjectSheets', sheetId: this.sheetId, expenses: formattedExpenses })
+            this.fetchAppsScript({ action: 'addToProjectSheets', sheetId: this.sheetId, expenses: formattedExpenses, advances: advanceSummaries })
                 .catch(err => console.warn('By Project tab update failed (non-fatal):', err));
-            this.fetchAppsScript({ action: 'addToIndividualProjectTabs', sheetId: this.sheetId, expenses: formattedExpenses })
+            this.fetchAppsScript({ action: 'addToIndividualProjectTabs', sheetId: this.sheetId, expenses: formattedExpenses, advances: advanceSummaries })
                 .catch(err => console.warn('Project tabs update failed (non-fatal):', err));
 
             this.updateUI();
