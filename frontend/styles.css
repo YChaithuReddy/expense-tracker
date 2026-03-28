@@ -9985,9 +9985,12 @@ select.inline-input option {
 
 /* ---- Section wrapper — between main grid and expense list ---- */
 .advance-summary-section {
-    margin: 0 auto 16px;
+    margin: 16px auto 20px;
     max-width: 1200px;
-    padding: 0 20px;
+    padding: 14px 20px;
+    background: rgba(15, 23, 42, 0.3);
+    border: 1px solid rgba(148, 163, 184, 0.06);
+    border-radius: 12px;
 }
 
 /* ---- Section header ---- */
@@ -9995,10 +9998,7 @@ select.inline-input option {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 8px;
-    max-width: 1200px;
-    margin-left: auto;
-    margin-right: auto;
+    margin-bottom: 10px;
 }
 
 .advance-summary-header h3 {
@@ -10646,7 +10646,9 @@ select.inline-input option {
 
 @media (max-width: 640px) {
     .advance-summary-section {
-        padding: 8px 12px 4px;
+        padding: 10px 12px;
+        margin: 12px 12px 16px;
+        border-radius: 10px;
     }
     .advance-cards-container {
         flex-direction: column;
