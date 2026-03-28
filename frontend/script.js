@@ -3569,6 +3569,7 @@ class ExpenseTracker {
                         <label for="checkbox-${safeId}" class="expense-amount">₹${this.formatAmount(expense.amount)}</label>
                     </div>
                     <span class="expense-category-badge">${safeCategory}</span>
+                    ${expense.visitType ? `<span class="visit-type-badge visit-type-badge--${expense.visitType}">${expense.visitType}</span>` : ''}
                 </div>
                 <div class="expense-meta">
                     <span class="expense-meta-item">
