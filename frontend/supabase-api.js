@@ -354,7 +354,8 @@ const api = {
                 category: expenseData.category,
                 amount: parseFloat(expenseData.amount) || 0,
                 vendor: expenseData.vendor || 'N/A',
-                description: expenseData.description || 'N/A'
+                description: expenseData.description || 'N/A',
+                visit_type: expenseData.visitType || null
             })
             .select()
             .single();
@@ -421,6 +422,7 @@ const api = {
         if (expenseData.amount) updateObj.amount = parseFloat(expenseData.amount);
         if (expenseData.vendor !== undefined) updateObj.vendor = expenseData.vendor;
         if (expenseData.description) updateObj.description = expenseData.description;
+        if (expenseData.visitType !== undefined) updateObj.visit_type = expenseData.visitType;
         updateObj.updated_at = new Date().toISOString();
 
         const { data: expense, error } = await supabase
@@ -1164,7 +1166,7 @@ const api = {
     // ADVANCES
     // ==============================================
 
-    async createAdvance(projectName, amount, notes = '') {
+    async createAdvance(projectName, amount, notes = '', visitType = 'project') {
         const supabase = getSupabase();
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error('Not authenticated');
@@ -1175,7 +1177,8 @@ const api = {
                 user_id: user.id,
                 project_name: projectName.trim(),
                 amount: parseFloat(amount),
-                notes: notes || null
+                notes: notes || null,
+                visit_type: visitType || 'project'
             })
             .select()
             .single();
@@ -1309,6 +1312,7 @@ const api = {
         if (updates.amount !== undefined) updateObj.amount = parseFloat(updates.amount);
         if (updates.status !== undefined) updateObj.status = updates.status;
         if (updates.notes !== undefined) updateObj.notes = updates.notes;
+        if (updates.visitType !== undefined) updateObj.visit_type = updates.visitType;
 
         const { data, error } = await supabase
             .from('advances')

@@ -55,3 +55,15 @@ CREATE TRIGGER advances_updated_at
     BEFORE UPDATE ON advances
     FOR EACH ROW
     EXECUTE FUNCTION update_advances_updated_at();
+
+-- =============================================
+-- VISIT TYPE - Run this after initial migration
+-- =============================================
+
+-- 7. Add visit_type to advances (default: project)
+ALTER TABLE advances ADD COLUMN IF NOT EXISTS visit_type TEXT DEFAULT 'project'
+    CHECK (visit_type IN ('project', 'service', 'survey'));
+
+-- 8. Add visit_type to expenses (nullable — inherits from advance if NULL)
+ALTER TABLE expenses ADD COLUMN IF NOT EXISTS visit_type TEXT DEFAULT NULL
+    CHECK (visit_type IS NULL OR visit_type IN ('project', 'service', 'survey'));

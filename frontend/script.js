@@ -17,6 +17,7 @@ class ExpenseTracker {
         this.uploadProgress = 0;
         this.filterProject = '';
         this.filterCategory = '';
+        this.filterVisitType = '';
         this.filterDateFrom = '';
         this.filterDateTo = '';
 
@@ -3089,8 +3090,9 @@ class ExpenseTracker {
                     description: description,
                     amount: parseFloat(amount),
                     vendor: formData.get('vendor') || 'N/A',
-                    time: this.extractedData.time || existingTime, // Keep existing time if not re-scanned
-                    images: files.length > 0 ? [] : existingImages // Keep old images if no new ones uploaded
+                    visitType: this.getSelectedVisitType('expenseVisitType'),
+                    time: this.extractedData.time || existingTime,
+                    images: files.length > 0 ? [] : existingImages
                 };
 
                 if (files.length > 0) {
@@ -3109,7 +3111,8 @@ class ExpenseTracker {
                 description: description,
                 amount: parseFloat(amount),
                 vendor: formData.get('vendor') || 'N/A',
-                time: this.extractedData.time || '', // Store time from OCR
+                visitType: this.getSelectedVisitType('expenseVisitType'),
+                time: this.extractedData.time || '',
                 images: []
             };
 
@@ -3264,7 +3267,8 @@ class ExpenseTracker {
                 category: expense.category,
                 amount: expense.amount,
                 vendor: expense.vendor,
-                description: expense.description
+                description: expense.description,
+                visitType: expense.visitType || null
             };
 
             // Prepare images as File objects (if they exist)
@@ -3610,7 +3614,7 @@ class ExpenseTracker {
 
     // Search and Filter Methods
     isFilterActive() {
-        return this.searchTerm || this.filterProject || this.filterCategory || this.filterDateFrom || this.filterDateTo;
+        return this.searchTerm || this.filterProject || this.filterCategory || this.filterVisitType || this.filterDateFrom || this.filterDateTo;
     }
 
     applyFilters() {
@@ -3634,6 +3638,11 @@ class ExpenseTracker {
         // Apply category filter
         if (this.filterCategory) {
             results = results.filter(expense => expense.category === this.filterCategory);
+        }
+
+        // Apply visit type filter
+        if (this.filterVisitType) {
+            results = results.filter(expense => expense.visitType === this.filterVisitType);
         }
 
         // Apply date range filters
@@ -3703,6 +3712,7 @@ class ExpenseTracker {
         document.getElementById('clearSearch').style.display = 'none';
         document.getElementById('projectFilter').value = '';
         document.getElementById('categoryFilter').value = '';
+        if (document.getElementById('visitTypeFilter')) document.getElementById('visitTypeFilter').value = '';
         document.getElementById('dateFromFilter').value = '';
         document.getElementById('dateToFilter').value = '';
 
@@ -3710,6 +3720,7 @@ class ExpenseTracker {
         this.searchTerm = '';
         this.filterProject = '';
         this.filterCategory = '';
+        this.filterVisitType = '';
         this.filterDateFrom = '';
         this.filterDateTo = '';
         this.filteredExpenses = [];
@@ -4000,11 +4011,12 @@ class ExpenseTracker {
             if (response.success) {
                 this.expenses = response.data.map(exp => ({
                     id: exp._id,
-                    date: exp.date.split('T')[0], // Convert to YYYY-MM-DD
+                    date: exp.date.split('T')[0],
                     category: exp.category,
                     description: exp.description,
                     amount: exp.amount,
                     vendor: exp.vendor,
+                    visitType: exp.visit_type || null,
                     time: exp.time || '',
                     images: exp.images.map(img => ({
                         name: img.filename,
@@ -7981,7 +7993,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         });
         if (form) form.addEventListener('submit', (e) => this.handleAdvanceSave(e));
 
-        // Show advance indicator when vendor field changes
+        // Show advance indicator + auto-fill visit type when vendor field changes
         const vendorInput = document.getElementById('vendor');
         if (vendorInput) {
             let debounceTimer;
@@ -7989,8 +8001,51 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                 clearTimeout(debounceTimer);
                 debounceTimer = setTimeout(() => {
                     this.updateAdvanceIndicator(vendorInput.value);
+                    this.autoFillVisitTypeFromAdvance(vendorInput.value);
                 }, 300);
             });
+        }
+
+        // Visit type toggle buttons (works for both advance modal and expense form)
+        document.querySelectorAll('.visit-type-toggle').forEach(toggle => {
+            toggle.addEventListener('click', (e) => {
+                const btn = e.target.closest('.visit-type-btn');
+                if (!btn) return;
+                toggle.querySelectorAll('.visit-type-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+
+        // Visit type filter
+        const visitTypeFilter = document.getElementById('visitTypeFilter');
+        if (visitTypeFilter) {
+            visitTypeFilter.addEventListener('change', () => {
+                this.filterVisitType = visitTypeFilter.value;
+                this.displayExpenses();
+            });
+        }
+    }
+
+    getSelectedVisitType(toggleId) {
+        const active = document.querySelector(`#${toggleId} .visit-type-btn.active`);
+        return active?.dataset.type || 'project';
+    }
+
+    setVisitTypeToggle(toggleId, type) {
+        const toggle = document.getElementById(toggleId);
+        if (!toggle) return;
+        toggle.querySelectorAll('.visit-type-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.type === type);
+        });
+    }
+
+    autoFillVisitTypeFromAdvance(vendor) {
+        if (!vendor || vendor === 'N/A' || !this.advances) return;
+        const advance = this.advances.find(a =>
+            a.status === 'active' && a.project_name.toLowerCase() === vendor.toLowerCase()
+        );
+        if (advance && advance.visit_type) {
+            this.setVisitTypeToggle('expenseVisitType', advance.visit_type);
         }
     }
 
@@ -8029,6 +8084,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             projectInput.value = editAdvance.project_name;
             amountInput.value = editAdvance.amount;
             notesInput.value = editAdvance.notes || '';
+            this.setVisitTypeToggle('advanceVisitType', editAdvance.visit_type || 'project');
             saveBtn.textContent = 'Update Advance';
         } else {
             title.textContent = 'Add New Advance';
@@ -8036,6 +8092,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             projectInput.value = '';
             amountInput.value = '';
             notesInput.value = '';
+            this.setVisitTypeToggle('advanceVisitType', 'project');
             saveBtn.textContent = 'Save Advance';
         }
 
@@ -8057,6 +8114,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         const projectName = document.getElementById('advanceProject').value.trim();
         const amount = document.getElementById('advanceAmount').value;
         const notes = document.getElementById('advanceNotes').value.trim();
+        const visitType = this.getSelectedVisitType('advanceVisitType');
 
         if (!projectName || !amount) {
             this.showNotification('Please fill in project name and amount');
@@ -8069,10 +8127,10 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
 
         try {
             if (editId) {
-                await api.updateAdvance(editId, { projectName, amount, notes });
+                await api.updateAdvance(editId, { projectName, amount, notes, visitType });
                 this.showNotification('Advance updated successfully');
             } else {
-                const result = await api.createAdvance(projectName, amount, notes);
+                const result = await api.createAdvance(projectName, amount, notes, visitType);
                 this.showNotification('Advance created successfully');
                 window.api?.logActivity?.('advance_created', `Created advance of ₹${amount} for ${projectName}`, { amount, projectName });
 
@@ -8169,6 +8227,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                     <div class="advance-tab__collapsed" onclick="expenseTracker.toggleAdvanceTab(this)">
                         <span class="advance-tab__dot" style="background:${tabColor}"></span>
                         <span class="advance-tab__name">${this.sanitizeHTML(adv.project_name)}</span>
+                        <span class="visit-type-badge visit-type-badge--${adv.visit_type || 'project'}">${adv.visit_type || 'project'}</span>
                         <span class="advance-tab__spent-info">₹${adv.totalSpent.toLocaleString('en-IN')} / ₹${adv.amount.toLocaleString('en-IN')}</span>
                         <span class="advance-tab__mini-bar"><span class="advance-tab__mini-fill ${barClass}" style="width:${displayPercent}%"></span></span>
                         ${chevron}
