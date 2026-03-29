@@ -3680,6 +3680,7 @@ class ExpenseTracker {
                         ${safeVendor}
                     </span>` : ''}
                     ${expense.visitType ? `<span class="visit-type-badge visit-type-badge--${expense.visitType}">${expense.visitType}</span>` : ''}
+                    ${googleSheetsService.isExpenseExported(expense.id) ? `<span class="exported-badge" title="Exported to Google Sheets"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Exported</span>` : ''}
                 </div>
                 ${safeDescription ? `<div class="expense-description">${safeDescription}</div>` : ''}
                 <div class="expense-footer">
@@ -6260,6 +6261,16 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             return;
         }
 
+        // Check for already-exported expenses
+        const exportedIds = googleSheetsService.getExportedExpenseIds();
+        const alreadyExported = selectedExpenses.filter(exp => exportedIds.includes(exp.id));
+        const newOnly = selectedExpenses.filter(exp => !exportedIds.includes(exp.id));
+
+        if (alreadyExported.length > 0) {
+            const shouldProceed = await this.showExportConfirmation(selectedExpenses, alreadyExported, newOnly);
+            if (!shouldProceed) return;
+        }
+
         try {
             const button = document.getElementById('exportToGoogleSheets');
             button.querySelector('.btn-text').textContent = 'Exporting...';
@@ -6272,19 +6283,27 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             );
 
             console.log(`Exporting ${selectedExpenses.length} selected expenses`);
-            const result = await googleSheetsService.exportExpenses(selectedExpenses);
+            // Pass forceExport=true since user confirmed through dialog
+            const result = await googleSheetsService.exportExpenses(selectedExpenses, alreadyExported.length > 0);
 
             this.hideLoading();
 
             if (result.success) {
-                this.showNotification(`✅ Exported ${selectedExpenses.length} expenses to Google Sheets`);
+                const count = result.exportedCount || selectedExpenses.length;
+                if (count === 0) {
+                    this.showNotification('All selected expenses are already exported');
+                } else {
+                    this.showNotification(`✅ Exported ${count} expenses to Google Sheets`);
+                }
                 const totalExported = selectedExpenses.reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
-                window.api?.logActivity?.('sheets_exported', `Exported ${selectedExpenses.length} expenses (₹${Math.round(totalExported)}) to Google Sheets`, { count: selectedExpenses.length, total: totalExported });
+                window.api?.logActivity?.('sheets_exported', `Exported ${count} expenses (₹${Math.round(totalExported)}) to Google Sheets`, { count, total: totalExported });
                 console.log(`Data exported to rows ${result.startRow} to ${result.endRow}`);
 
                 // Uncheck all checkboxes after successful export
                 document.querySelectorAll('.expense-checkbox:checked').forEach(cb => cb.checked = false);
                 this.updateExportButton();
+                // Re-render to show exported badges
+                this.displayExpenses();
             } else {
                 this.showNotification(`❌ ${result.message}`);
             }
@@ -6297,6 +6316,73 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             button.querySelector('.btn-text').textContent = 'Google Export';
             button.disabled = false;
         }
+    }
+
+    /**
+     * Show confirmation dialog when re-exporting already exported expenses
+     */
+    showExportConfirmation(allSelected, alreadyExported, newOnly) {
+        return new Promise((resolve) => {
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);';
+
+            const dupList = alreadyExported.slice(0, 5).map(e =>
+                `<div style="display:flex;justify-content:space-between;padding:6px 10px;background:rgba(245,158,11,0.08);border-radius:6px;margin:4px 0;font-size:0.8rem;">
+                    <span style="color:#e0e0ff;">${this.sanitizeHTML(e.vendor || e.description || 'Expense')}</span>
+                    <span style="color:#f59e0b;font-weight:600;">₹${this.formatAmount(e.amount)}</span>
+                </div>`
+            ).join('');
+            const moreCount = alreadyExported.length > 5 ? `<div style="color:#5a6180;font-size:0.75rem;text-align:center;margin-top:4px;">...and ${alreadyExported.length - 5} more</div>` : '';
+
+            const newMsg = newOnly.length > 0
+                ? `<div style="color:#10b981;font-size:0.85rem;margin-top:12px;">${newOnly.length} new expense(s) will be exported for the first time.</div>`
+                : '';
+
+            overlay.innerHTML = `
+                <div style="background:var(--bg-secondary, #1a1a2e);border:1px solid rgba(245,158,11,0.3);border-radius:16px;padding:24px;max-width:440px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+                        <div style="width:36px;height:36px;border-radius:10px;background:rgba(245,158,11,0.12);display:flex;align-items:center;justify-content:center;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        </div>
+                        <h3 style="color:#f59e0b;margin:0;font-size:1rem;">Already Exported</h3>
+                    </div>
+                    <p style="color:#8892b0;font-size:0.85rem;margin:0 0 12px;line-height:1.5;">
+                        <strong style="color:#e0e0ff;">${alreadyExported.length} of ${allSelected.length}</strong> selected expense(s) have already been exported to Google Sheets. Exporting again will create <strong style="color:#ef4444;">duplicate rows</strong>.
+                    </p>
+                    <div style="max-height:180px;overflow-y:auto;margin-bottom:8px;">
+                        ${dupList}
+                        ${moreCount}
+                    </div>
+                    ${newMsg}
+                    <div style="display:flex;gap:10px;margin-top:20px;">
+                        <button class="exp-cancel" style="flex:1;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:#8892b0;cursor:pointer;font-size:0.85rem;">Cancel</button>
+                        ${newOnly.length > 0 ? `<button class="exp-new-only" style="flex:1;padding:10px;border-radius:8px;border:1px solid rgba(16,185,129,0.3);background:rgba(16,185,129,0.1);color:#10b981;cursor:pointer;font-size:0.85rem;font-weight:600;">Export New Only (${newOnly.length})</button>` : ''}
+                        <button class="exp-all" style="flex:1;padding:10px;border-radius:8px;border:none;background:#f59e0b;color:#000;cursor:pointer;font-size:0.85rem;font-weight:600;">Export All (${allSelected.length})</button>
+                    </div>
+                </div>
+            `;
+
+            const cancel = overlay.querySelector('.exp-cancel');
+            const exportNew = overlay.querySelector('.exp-new-only');
+            const exportAll = overlay.querySelector('.exp-all');
+
+            cancel.onclick = () => { overlay.remove(); resolve(false); };
+            if (exportNew) {
+                exportNew.onclick = () => {
+                    overlay.remove();
+                    // Uncheck already-exported checkboxes so only new ones are selected
+                    alreadyExported.forEach(exp => {
+                        const cb = document.querySelector(`.expense-checkbox[data-expense-id="${exp.id}"]`);
+                        if (cb) cb.checked = false;
+                    });
+                    resolve(true);
+                };
+            }
+            exportAll.onclick = () => { overlay.remove(); resolve(true); };
+            overlay.addEventListener('click', (e) => { if (e.target === overlay) { overlay.remove(); resolve(false); } });
+
+            document.body.appendChild(overlay);
+        });
     }
 
     async resetGoogleSheet() {

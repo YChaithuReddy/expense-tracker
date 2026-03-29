@@ -340,9 +340,18 @@ class GoogleSheetsService {
     }
 
     /**
-     * Export expenses to Google Sheets (incremental — only new/unsynced expenses)
+     * Check if an expense has been exported
      */
-    async exportExpenses(expenses) {
+    isExpenseExported(expenseId) {
+        return this.getExportedExpenseIds().includes(expenseId);
+    }
+
+    /**
+     * Export expenses to Google Sheets (incremental — only new/unsynced expenses)
+     * @param {Array} expenses - expenses to export
+     * @param {boolean} forceAll - if true, export all even if already exported (user confirmed)
+     */
+    async exportExpenses(expenses, forceAll = false) {
         try {
             if (!expenses || expenses.length === 0) {
                 throw new Error('No expenses to export');
@@ -353,9 +362,14 @@ class GoogleSheetsService {
                 await this.createSheet();
             }
 
-            // Filter to only unexported expenses
-            const exportedIds = this.getExportedExpenseIds();
-            const newExpenses = expenses.filter(exp => !exportedIds.includes(exp.id));
+            // Filter to only unexported expenses (unless user forced re-export)
+            let newExpenses;
+            if (forceAll) {
+                newExpenses = expenses;
+            } else {
+                const exportedIds = this.getExportedExpenseIds();
+                newExpenses = expenses.filter(exp => !exportedIds.includes(exp.id));
+            }
 
             if (newExpenses.length === 0) {
                 return {
@@ -367,7 +381,7 @@ class GoogleSheetsService {
                 };
             }
 
-            console.log(`Exporting ${newExpenses.length} new expenses (${exportedIds.length} already exported) to sheet:`, this.sheetId);
+            console.log(`Exporting ${newExpenses.length} expenses to sheet:`, this.sheetId);
 
             // Sort expenses chronologically (oldest first) before exporting
             const sorted = [...newExpenses].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
