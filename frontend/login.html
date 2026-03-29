@@ -72,6 +72,28 @@
                         <span id="loginBtnText">🔓 Login</span>
                         <span id="loginBtnLoading" style="display: none;">⏳ Logging in...</span>
                     </button>
+
+                    <div style="text-align: right; margin-top: 8px;">
+                        <a href="#" class="auth-link" id="forgotPasswordLink" style="font-size: 0.85rem;">Forgot password?</a>
+                    </div>
+                </form>
+
+                <!-- Forgot Password Form (hidden by default) -->
+                <form id="forgotPasswordForm" class="auth-form" style="display: none;">
+                    <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 16px;">
+                        Enter your email address and we'll send you a link to reset your password.
+                    </p>
+                    <div class="form-group">
+                        <label for="resetEmail">Email:</label>
+                        <input type="email" id="resetEmail" name="email" placeholder="your@email.com" required autocomplete="email">
+                    </div>
+                    <button type="submit" class="btn-primary" id="resetBtn">
+                        <span id="resetBtnText">📧 Send Reset Link</span>
+                        <span id="resetBtnLoading" style="display: none;">⏳ Sending...</span>
+                    </button>
+                    <div style="text-align: center; margin-top: 12px;">
+                        <a href="#" class="auth-link" id="backToLoginLink" style="font-size: 0.85rem;">← Back to login</a>
+                    </div>
                 </form>
 
                 <!-- Google Sign-In Divider -->
@@ -240,6 +262,102 @@
             const banner = document.getElementById('apkDownloadBanner');
             if (banner) banner.style.display = 'block';
         }
+
+        // ---- Forgot Password Flow ----
+        const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+        const backToLoginLink = document.getElementById('backToLoginLink');
+        const loginForm = document.getElementById('loginForm');
+        const forgotPasswordForm = document.getElementById('forgotPasswordForm');
+        const loginHeading = document.querySelector('.auth-section h2');
+        const loginSubtext = document.querySelector('.auth-section > p');
+        const googleDivider = document.querySelector('.auth-section > div[style*="text-align: center"]');
+        const googleBtn = document.querySelector('.btn-google');
+
+        forgotPasswordLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginForm.style.display = 'none';
+            forgotPasswordForm.style.display = 'block';
+            googleDivider.style.display = 'none';
+            googleBtn.style.display = 'none';
+            loginHeading.textContent = '🔑 Reset Password';
+            loginSubtext.textContent = 'We\'ll email you a reset link';
+            document.getElementById('loginMessage').style.display = 'none';
+        });
+
+        backToLoginLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginForm.style.display = 'block';
+            forgotPasswordForm.style.display = 'none';
+            googleDivider.style.display = '';
+            googleBtn.style.display = '';
+            loginHeading.textContent = '🔐 Login';
+            loginSubtext.textContent = 'Enter your credentials to access your account';
+            document.getElementById('loginMessage').style.display = 'none';
+        });
+
+        forgotPasswordForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('resetEmail').value.trim();
+            const resetBtn = document.getElementById('resetBtn');
+            const resetBtnText = document.getElementById('resetBtnText');
+            const resetBtnLoading = document.getElementById('resetBtnLoading');
+
+            if (!email) {
+                showMessage('Please enter your email address', 'error');
+                return;
+            }
+
+            resetBtn.disabled = true;
+            resetBtnText.style.display = 'none';
+            resetBtnLoading.style.display = 'inline';
+
+            try {
+                const supabase = window.supabaseClient?.get();
+                const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                    redirectTo: `${window.location.origin}/login.html?reset=true`
+                });
+
+                if (error) throw error;
+
+                showMessage('Password reset link sent! Check your email inbox (and spam folder).', 'success');
+            } catch (error) {
+                showMessage(error.message || 'Failed to send reset link. Please try again.', 'error');
+            } finally {
+                resetBtn.disabled = false;
+                resetBtnText.style.display = 'inline';
+                resetBtnLoading.style.display = 'none';
+            }
+        });
+
+        // Handle password reset callback (when user clicks link in email)
+        async function handlePasswordReset() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('reset') === 'true') {
+                // Check if we have a session (Supabase sets it from the reset link)
+                const supabase = window.supabaseClient?.get();
+                const { data: { session } } = await supabase.auth.getSession();
+
+                if (session) {
+                    const newPassword = prompt('Enter your new password (min 6 characters, must include uppercase, lowercase, and number):');
+                    if (newPassword) {
+                        if (newPassword.length < 6) {
+                            showMessage('Password must be at least 6 characters', 'error');
+                            return;
+                        }
+                        try {
+                            const { error } = await supabase.auth.updateUser({ password: newPassword });
+                            if (error) throw error;
+                            showMessage('Password updated successfully! You can now login.', 'success');
+                            // Clean URL
+                            window.history.replaceState({}, '', window.location.pathname);
+                        } catch (error) {
+                            showMessage('Failed to update password: ' + error.message, 'error');
+                        }
+                    }
+                }
+            }
+        }
+        handlePasswordReset();
 
         // Note: Auth redirect is handled by supabase-auth.js initAuth()
 

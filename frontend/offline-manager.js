@@ -29,12 +29,15 @@ class OfflineManager {
         // Initial status check
         this.updateNetworkStatus();
 
+        // Restore from backup if IndexedDB was cleared
+        await this.restoreFromBackupIfNeeded();
+
         // Try to sync any pending expenses on load
         if (this.isOnline) {
             setTimeout(() => this.syncPendingExpenses(), 2000);
         }
 
-        console.log('📴 Offline Manager initialized');
+        console.log('Offline Manager initialized');
     }
 
     // ==================== IndexedDB ====================
@@ -109,9 +112,11 @@ class OfflineManager {
             const request = store.add(pendingExpense);
 
             request.onsuccess = () => {
-                console.log('💾 Expense saved for offline sync:', request.result);
+                console.log('Expense saved for offline sync:', request.result);
                 this.showNotification('Expense saved offline. Will sync when online.', 'warning');
                 this.updatePendingBadge();
+                // Backup to localStorage as safety net
+                this.backupPendingToLocalStorage();
                 resolve(request.result);
             };
 
@@ -161,6 +166,68 @@ class OfflineManager {
 
     // ==================== Sync Logic ====================
 
+    /**
+     * Get a fresh auth token from Supabase session (handles expired tokens)
+     */
+    async getFreshToken() {
+        try {
+            const supabase = window.supabaseClient?.get();
+            if (!supabase) return localStorage.getItem('token');
+
+            const { data: { session }, error } = await supabase.auth.getSession();
+            if (error || !session) {
+                // Try refreshing the session
+                const { data: refreshed } = await supabase.auth.refreshSession();
+                if (refreshed?.session) {
+                    return refreshed.session.access_token;
+                }
+                return null;
+            }
+            return session.access_token;
+        } catch {
+            return localStorage.getItem('token');
+        }
+    }
+
+    /**
+     * Backup pending expenses to localStorage as safety net
+     */
+    async backupPendingToLocalStorage() {
+        try {
+            const pending = await this.getPendingExpenses();
+            if (pending.length > 0) {
+                localStorage.setItem('pendingExpensesBackup', JSON.stringify(pending));
+                localStorage.setItem('pendingExpensesBackupTime', new Date().toISOString());
+            }
+        } catch (e) {
+            console.warn('Backup to localStorage failed:', e);
+        }
+    }
+
+    /**
+     * Restore from localStorage backup if IndexedDB is empty but backup exists
+     */
+    async restoreFromBackupIfNeeded() {
+        try {
+            const pending = await this.getPendingExpenses();
+            if (pending.length > 0) return; // IndexedDB has data, no need
+
+            const backup = localStorage.getItem('pendingExpensesBackup');
+            if (!backup) return;
+
+            const items = JSON.parse(backup);
+            if (!items || items.length === 0) return;
+
+            console.log(`Restoring ${items.length} expenses from backup...`);
+            for (const item of items) {
+                await this.savePendingExpense(item.data);
+            }
+            this.showNotification(`Restored ${items.length} pending expense(s) from backup`, 'info');
+        } catch (e) {
+            console.warn('Restore from backup failed:', e);
+        }
+    }
+
     async syncPendingExpenses() {
         if (this.syncInProgress || !this.isOnline) {
             return;
@@ -172,19 +239,28 @@ class OfflineManager {
         }
 
         this.syncInProgress = true;
-        console.log(`🔄 Syncing ${pending.length} pending expenses...`);
+        console.log(`Syncing ${pending.length} pending expenses...`);
         this.showNotification(`Syncing ${pending.length} offline expense(s)...`, 'info');
+
+        // Backup before syncing
+        await this.backupPendingToLocalStorage();
+
+        // Get fresh token (handles expired sessions)
+        const freshToken = await this.getFreshToken();
 
         let successCount = 0;
         let failCount = 0;
+        const MAX_RETRIES = 10;
 
         for (const item of pending) {
+            const token = freshToken || item.token;
+
             try {
                 const response = await fetch(`${window.API_BASE_URL || ''}/api/expenses`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${item.token}`
+                        'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify(item.data)
                 });
@@ -192,22 +268,28 @@ class OfflineManager {
                 if (response.ok) {
                     await this.deletePendingExpense(item.id);
                     successCount++;
-                    console.log(`✅ Synced expense ${item.id}`);
+                    console.log(`Synced expense ${item.id}`);
                 } else if (response.status === 401) {
-                    // Token expired, can't sync
-                    console.warn('Token expired, cannot sync expense');
+                    // Token expired even after refresh — keep in queue, don't delete
+                    console.warn('Auth failed for expense', item.id, '— will retry on next login');
                     failCount++;
                 } else {
-                    // Other error, increment attempts
-                    item.attempts++;
-                    if (item.attempts >= 3) {
-                        // Too many attempts, delete it
-                        await this.deletePendingExpense(item.id);
+                    // Server error — increment attempts with exponential backoff cap
+                    item.attempts = (item.attempts || 0) + 1;
+                    if (item.attempts >= MAX_RETRIES) {
+                        // Move to failed state but don't delete — warn user
+                        console.error(`Expense ${item.id} failed after ${MAX_RETRIES} attempts — keeping in queue`);
+                        failCount++;
+                    } else {
+                        // Update attempt count in IndexedDB
+                        await this.updatePendingExpenseAttempts(item.id, item.attempts);
                         failCount++;
                     }
                 }
             } catch (error) {
                 console.error('Sync error for expense:', item.id, error);
+                item.attempts = (item.attempts || 0) + 1;
+                await this.updatePendingExpenseAttempts(item.id, item.attempts);
                 failCount++;
             }
         }
@@ -215,8 +297,16 @@ class OfflineManager {
         this.syncInProgress = false;
         this.updatePendingBadge();
 
+        // Update backup after sync
+        await this.backupPendingToLocalStorage();
+
         if (successCount > 0) {
-            this.showNotification(`✅ Synced ${successCount} expense(s)`, 'success');
+            this.showNotification(`Synced ${successCount} expense(s)`, 'success');
+            // Clear backup if all synced
+            if (failCount === 0) {
+                localStorage.removeItem('pendingExpensesBackup');
+                localStorage.removeItem('pendingExpensesBackupTime');
+            }
             // Refresh the expenses list
             if (window.expenseTracker && typeof window.expenseTracker.loadExpenses === 'function') {
                 window.expenseTracker.loadExpenses();
@@ -224,8 +314,29 @@ class OfflineManager {
         }
 
         if (failCount > 0) {
-            this.showNotification(`⚠️ ${failCount} expense(s) failed to sync`, 'error');
+            this.showNotification(`${failCount} expense(s) pending — will retry automatically`, 'warning');
         }
+    }
+
+    /**
+     * Update attempt count for a pending expense without deleting it
+     */
+    async updatePendingExpenseAttempts(id, attempts) {
+        return new Promise((resolve) => {
+            if (!this.db) { resolve(); return; }
+            const tx = this.db.transaction(['pendingExpenses'], 'readwrite');
+            const store = tx.objectStore('pendingExpenses');
+            const getReq = store.get(id);
+            getReq.onsuccess = () => {
+                const item = getReq.result;
+                if (item) {
+                    item.attempts = attempts;
+                    store.put(item);
+                }
+                resolve();
+            };
+            getReq.onerror = () => resolve();
+        });
     }
 
     // ==================== Cache Expenses ====================

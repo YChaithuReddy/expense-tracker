@@ -1365,6 +1365,40 @@ const api = {
         return { success: true, data };
     },
 
+    async unlinkExpenseFromAdvance(expenseId) {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        const { data, error } = await supabase
+            .from('expenses')
+            .update({ advance_id: null })
+            .eq('id', expenseId)
+            .eq('user_id', user.id)
+            .select()
+            .single();
+
+        if (error) handleError(error, 'Unlink expense from advance');
+        return { success: true, data };
+    },
+
+    async moveExpenseToAdvance(expenseId, newAdvanceId) {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        const { data, error } = await supabase
+            .from('expenses')
+            .update({ advance_id: newAdvanceId })
+            .eq('id', expenseId)
+            .eq('user_id', user.id)
+            .select()
+            .single();
+
+        if (error) handleError(error, 'Move expense to advance');
+        return { success: true, data };
+    },
+
     async getActivityLog(limit = 50) {
         const supabase = getSupabase();
         const { data: { user } } = await supabase.auth.getUser();

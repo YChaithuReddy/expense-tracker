@@ -176,8 +176,58 @@ const expenseDetail = (() => {
             </div>
         `).join('');
 
-        // Status section
+        // Advance section
         const tracker = window.expenseTracker;
+        const advances = tracker?.advances || [];
+        const linkedAdvance = expense.advance_id
+            ? advances.find(a => a.id === expense.advance_id)
+            : null;
+
+        let advanceHtml = '';
+        if (linkedAdvance) {
+            const remaining = linkedAdvance.remaining ?? 0;
+            const advanceName = sanitize(linkedAdvance.project_name);
+            // Build move dropdown with other advances
+            const otherAdvances = advances
+                .filter(a => a.status === 'active' && a.id !== linkedAdvance.id)
+                .map(a => `<option value="${a.id}">${sanitize(a.project_name)} (₹${a.remaining?.toLocaleString('en-IN') || 0} left)</option>`)
+                .join('');
+            const moveDropdown = otherAdvances
+                ? `<select id="moveAdvanceSelect" style="padding:6px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#e0e0ff;font-size:0.8rem;flex:1;">
+                       <option value="">Move to...</option>
+                       ${otherAdvances}
+                   </select>
+                   <button onclick="expenseDetail.moveToAdvance()" style="padding:6px 12px;border-radius:6px;border:none;background:#8b5cf6;color:white;cursor:pointer;font-size:0.8rem;font-weight:600;">Move</button>`
+                : '';
+
+            advanceHtml = `
+                <div class="expense-detail-advance" style="margin:12px 0;padding:12px;background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.2);border-radius:10px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                        <span style="color:#a78bfa;font-weight:600;font-size:0.85rem;">Linked to: ${advanceName}</span>
+                        <button onclick="expenseDetail.unlinkFromAdvance()" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(239,68,68,0.3);background:transparent;color:#ef4444;cursor:pointer;font-size:0.75rem;">Unlink</button>
+                    </div>
+                    <div style="color:#8892b0;font-size:0.8rem;margin-bottom:8px;">₹${remaining.toLocaleString('en-IN')} remaining of ₹${(linkedAdvance.amount || 0).toLocaleString('en-IN')}</div>
+                    ${moveDropdown ? `<div style="display:flex;gap:8px;align-items:center;">${moveDropdown}</div>` : ''}
+                </div>`;
+        } else if (advances.filter(a => a.status === 'active').length > 0) {
+            const activeAdvances = advances
+                .filter(a => a.status === 'active')
+                .map(a => `<option value="${a.id}">${sanitize(a.project_name)} (₹${a.remaining?.toLocaleString('en-IN') || 0} left)</option>`)
+                .join('');
+            advanceHtml = `
+                <div class="expense-detail-advance" style="margin:12px 0;padding:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;">
+                    <div style="color:#8892b0;font-size:0.8rem;margin-bottom:8px;">Not linked to any advance</div>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <select id="moveAdvanceSelect" style="padding:6px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#e0e0ff;font-size:0.8rem;flex:1;">
+                            <option value="">Link to advance...</option>
+                            ${activeAdvances}
+                        </select>
+                        <button onclick="expenseDetail.moveToAdvance()" style="padding:6px 12px;border-radius:6px;border:none;background:#10b981;color:white;cursor:pointer;font-size:0.8rem;font-weight:600;">Link</button>
+                    </div>
+                </div>`;
+        }
+
+        // Status section
         const hasPdf = tracker && tracker.lastGeneratedPdf;
         const pdfStatus = hasPdf
             ? '<div class="status-item status-done">PDF package generated</div>'
@@ -189,10 +239,10 @@ const expenseDetail = (() => {
             <div class="expense-detail-data">
                 <div class="expense-detail-amount">${formatAmount(expense.amount)}</div>
                 ${fieldsHtml}
+                ${advanceHtml}
                 <div class="expense-detail-status">
                     <h4>Submission Status</h4>
                     ${pdfStatus}
-                    <div class="status-item status-pending">Status tracking coming soon</div>
                 </div>
                 <div class="expense-detail-actions">
                     <button class="expense-detail-btn expense-detail-btn-edit" onclick="expenseDetail.edit()">
@@ -356,12 +406,54 @@ const expenseDetail = (() => {
         }
     });
 
+    async function unlinkFromAdvance() {
+        if (!currentExpenseId) return;
+        try {
+            await api.unlinkExpenseFromAdvance(currentExpenseId);
+            // Update local data and re-render
+            const tracker = window.expenseTracker;
+            if (tracker) {
+                const expense = tracker.expenses.find(e => e.id === currentExpenseId);
+                if (expense) expense.advance_id = null;
+                await tracker.loadAdvances();
+                render(expense);
+                tracker.showNotification('Expense unlinked from advance');
+            }
+        } catch (error) {
+            window.expenseTracker?.showNotification('Failed to unlink: ' + error.message);
+        }
+    }
+
+    async function moveToAdvance() {
+        const select = document.getElementById('moveAdvanceSelect');
+        if (!select || !select.value || !currentExpenseId) return;
+
+        const newAdvanceId = select.value;
+        try {
+            await api.moveExpenseToAdvance(currentExpenseId, newAdvanceId);
+            // Update local data and re-render
+            const tracker = window.expenseTracker;
+            if (tracker) {
+                const expense = tracker.expenses.find(e => e.id === currentExpenseId);
+                if (expense) expense.advance_id = newAdvanceId;
+                await tracker.loadAdvances();
+                render(expense);
+                const advanceName = tracker.advances.find(a => a.id === newAdvanceId)?.project_name || 'advance';
+                tracker.showNotification(`Expense moved to ${advanceName}`);
+            }
+        } catch (error) {
+            window.expenseTracker?.showNotification('Failed to move: ' + error.message);
+        }
+    }
+
     return {
         open,
         close,
         edit,
         confirmDelete,
         openImage,
-        selectThumb
+        selectThumb,
+        unlinkFromAdvance,
+        moveToAdvance
     };
 })();
