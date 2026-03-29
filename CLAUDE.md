@@ -236,6 +236,8 @@ This gives the user real-time visibility, prevents skipped steps, and ensures le
 - Prefer single source of truth
 - If unsure → STOP and ask
 - **ALWAYS use task list for multi-step work**
+- **ALWAYS use relevant skills & agents for every change** — identify applicable skills/agents before implementing, use them during and after work (e.g., `/layout-fixer` for CSS, `debugging-specialist` for bugs, `code-reviewer` for quality, `/learn-and-remember` after every change)
+- **If no relevant skill exists, CREATE ONE** — research the domain, then use `/skill-creator` or `/skill-development` to build a new skill before proceeding with the task
 
 ### Learning Protocol
 After every fix/change, record (as a tracked task):
