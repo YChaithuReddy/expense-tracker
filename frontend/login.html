@@ -332,30 +332,120 @@
         // Handle password reset callback (when user clicks link in email)
         async function handlePasswordReset() {
             const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('reset') === 'true') {
-                // Check if we have a session (Supabase sets it from the reset link)
-                const supabase = window.supabaseClient?.get();
-                const { data: { session } } = await supabase.auth.getSession();
+            if (urlParams.get('reset') !== 'true') return;
 
-                if (session) {
-                    const newPassword = prompt('Enter your new password (min 6 characters, must include uppercase, lowercase, and number):');
-                    if (newPassword) {
-                        if (newPassword.length < 6) {
-                            showMessage('Password must be at least 6 characters', 'error');
-                            return;
-                        }
-                        try {
-                            const { error } = await supabase.auth.updateUser({ password: newPassword });
-                            if (error) throw error;
-                            showMessage('Password updated successfully! You can now login.', 'success');
-                            // Clean URL
-                            window.history.replaceState({}, '', window.location.pathname);
-                        } catch (error) {
-                            showMessage('Failed to update password: ' + error.message, 'error');
-                        }
-                    }
-                }
+            const supabase = window.supabaseClient?.get?.();
+            if (!supabase) {
+                showMessage('System not ready. Please refresh and try again.', 'error');
+                return;
             }
+
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) return;
+
+            // Hide login form and show password reset form
+            loginForm.style.display = 'none';
+            forgotPasswordForm.style.display = 'none';
+            googleDivider.style.display = 'none';
+            googleBtn.style.display = 'none';
+            loginHeading.textContent = '🔑 Set New Password';
+            loginSubtext.textContent = 'Choose a strong password for your account';
+
+            // Create inline reset form
+            const resetFormHTML = document.createElement('form');
+            resetFormHTML.className = 'auth-form';
+            resetFormHTML.id = 'newPasswordForm';
+            resetFormHTML.innerHTML = `
+                <div class="form-group">
+                    <label for="newPassword">New Password:</label>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="newPassword" placeholder="Enter new password" required minlength="6" autocomplete="new-password">
+                        <span class="password-toggle-icon" onclick="togglePasswordVisibility('newPassword', this)">👁️</span>
+                    </div>
+                    <small id="passwordStrength" style="display:block;margin-top:6px;font-size:0.78rem;color:var(--text-secondary);">Min 6 characters: uppercase, lowercase, and number required</small>
+                </div>
+                <div class="form-group">
+                    <label for="confirmNewPassword">Confirm Password:</label>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="confirmNewPassword" placeholder="Confirm new password" required minlength="6" autocomplete="new-password">
+                        <span class="password-toggle-icon" onclick="togglePasswordVisibility('confirmNewPassword', this)">👁️</span>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary" id="setPasswordBtn">
+                    <span id="setPasswordBtnText">✅ Update Password</span>
+                    <span id="setPasswordBtnLoading" style="display:none;">⏳ Updating...</span>
+                </button>
+            `;
+
+            // Insert after auth section heading
+            const authSection = document.querySelector('.auth-section');
+            authSection.appendChild(resetFormHTML);
+
+            // Real-time password strength
+            const newPwInput = document.getElementById('newPassword');
+            const strengthEl = document.getElementById('passwordStrength');
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
+
+            newPwInput.addEventListener('input', () => {
+                const val = newPwInput.value;
+                if (!val) {
+                    strengthEl.style.color = 'var(--text-secondary)';
+                    strengthEl.textContent = 'Min 6 characters: uppercase, lowercase, and number required';
+                } else if (val.length < 6) {
+                    strengthEl.style.color = '#ef4444';
+                    strengthEl.textContent = `Too short (${val.length}/6 characters)`;
+                } else if (!passwordRegex.test(val)) {
+                    strengthEl.style.color = '#f59e0b';
+                    const missing = [];
+                    if (!/[a-z]/.test(val)) missing.push('lowercase');
+                    if (!/[A-Z]/.test(val)) missing.push('uppercase');
+                    if (!/\d/.test(val)) missing.push('number');
+                    strengthEl.textContent = `Missing: ${missing.join(', ')}`;
+                } else {
+                    strengthEl.style.color = '#10b981';
+                    strengthEl.textContent = 'Strong password ✓';
+                }
+            });
+
+            // Handle submit
+            resetFormHTML.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const newPassword = newPwInput.value;
+                const confirmPassword = document.getElementById('confirmNewPassword').value;
+                const btn = document.getElementById('setPasswordBtn');
+
+                if (!passwordRegex.test(newPassword)) {
+                    showMessage('Password must be at least 6 characters with uppercase, lowercase, and number', 'error');
+                    return;
+                }
+                if (newPassword !== confirmPassword) {
+                    showMessage('Passwords do not match', 'error');
+                    return;
+                }
+
+                btn.disabled = true;
+                document.getElementById('setPasswordBtnText').style.display = 'none';
+                document.getElementById('setPasswordBtnLoading').style.display = 'inline';
+
+                try {
+                    const { error } = await supabase.auth.updateUser({ password: newPassword });
+                    if (error) throw error;
+                    showMessage('Password updated successfully! You can now login with your new password.', 'success');
+                    window.history.replaceState({}, '', window.location.pathname);
+                    // Remove reset form and show login
+                    resetFormHTML.remove();
+                    loginForm.style.display = 'block';
+                    googleDivider.style.display = '';
+                    googleBtn.style.display = '';
+                    loginHeading.textContent = '🔐 Login';
+                    loginSubtext.textContent = 'Enter your credentials to access your account';
+                } catch (error) {
+                    showMessage('Failed to update password: ' + error.message, 'error');
+                    btn.disabled = false;
+                    document.getElementById('setPasswordBtnText').style.display = 'inline';
+                    document.getElementById('setPasswordBtnLoading').style.display = 'none';
+                }
+            });
         }
         handlePasswordReset();
 

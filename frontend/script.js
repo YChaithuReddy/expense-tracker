@@ -3147,6 +3147,37 @@ class ExpenseTracker {
             }
         });
 
+        // Block submit if any field has validation errors
+        document.getElementById('expenseForm').addEventListener('submit', (e) => {
+            const hasErrors = document.querySelectorAll('.field-validation-hint').length > 0;
+            if (hasErrors) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                this.showError('Please fix the highlighted errors before submitting.', 'Validation Error');
+                return false;
+            }
+
+            // Also validate empty required fields on submit
+            let blocked = false;
+            if (!amountInput.value || parseFloat(amountInput.value) <= 0) {
+                showFieldError(amountInput, 'Amount is required'); blocked = true;
+            }
+            if (!dateInput.value) {
+                showFieldError(dateInput, 'Date is required'); blocked = true;
+            }
+            if (!mainCategorySelect.value) {
+                showFieldError(mainCategorySelect, 'Category is required'); blocked = true;
+            }
+            if (!descriptionInput.value.trim()) {
+                showFieldError(descriptionInput, 'Description is required'); blocked = true;
+            }
+            if (blocked) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                return false;
+            }
+        }, true); // capture phase — runs BEFORE the handleSubmit listener
+
         // Clear validation states on form reset
         document.getElementById('expenseForm').addEventListener('reset', () => {
             [amountInput, dateInput, descriptionInput, mainCategorySelect].forEach(clearFieldError);
@@ -5754,6 +5785,9 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             this.imageModalKeyHandler = null;
         }
 
+        // Cleanup touch gesture listeners
+        this.cleanupImageTouchGestures();
+
         this.currentImageViewer = null;
     }
 
@@ -6254,7 +6288,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         }
 
         // Get selected expenses
-        const selectedExpenses = this.getSelectedExpenses();
+        let selectedExpenses = this.getSelectedExpenses();
 
         if (selectedExpenses.length === 0) {
             this.showNotification('⚠️ Please select expenses to export by checking the boxes');
@@ -6269,6 +6303,13 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         if (alreadyExported.length > 0) {
             const shouldProceed = await this.showExportConfirmation(selectedExpenses, alreadyExported, newOnly);
             if (!shouldProceed) return;
+
+            // Re-read selected expenses (user may have chosen "Export New Only" which unchecked some)
+            selectedExpenses = this.getSelectedExpenses();
+            if (selectedExpenses.length === 0) {
+                this.showNotification('No expenses selected after filtering');
+                return;
+            }
         }
 
         try {
@@ -6283,8 +6324,9 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             );
 
             console.log(`Exporting ${selectedExpenses.length} selected expenses`);
-            // Pass forceExport=true since user confirmed through dialog
-            const result = await googleSheetsService.exportExpenses(selectedExpenses, alreadyExported.length > 0);
+            // Pass forceExport=true since user confirmed through dialog (only if duplicates remain)
+            const stillHasDuplicates = selectedExpenses.some(exp => exportedIds.includes(exp.id));
+            const result = await googleSheetsService.exportExpenses(selectedExpenses, stillHasDuplicates);
 
             this.hideLoading();
 
@@ -6917,11 +6959,27 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         img.classList.toggle('is-zoomed', this.currentZoom > 1);
     }
 
+    // Cleanup touch gestures on modal close
+    cleanupImageTouchGestures() {
+        if (this._gestureAbortController) {
+            this._gestureAbortController.abort();
+            this._gestureAbortController = null;
+        }
+        this._touchGesturesAttached = false;
+    }
+
     // Setup touch gestures (pinch-to-zoom + drag-to-pan) for image viewer
     setupImageTouchGestures() {
         const wrapper = document.querySelector('.img-viewer__image-wrapper');
-        if (!wrapper || this._touchGesturesAttached) return;
+        if (!wrapper) return;
+
+        // Clean up previous listeners first
+        this.cleanupImageTouchGestures();
         this._touchGesturesAttached = true;
+
+        // Use AbortController for easy cleanup
+        this._gestureAbortController = new AbortController();
+        const signal = this._gestureAbortController.signal;
 
         let lastDist = 0;
         let startX = 0, startY = 0;
@@ -6945,7 +7003,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                 startPanY = this._panY || 0;
                 e.preventDefault();
             }
-        }, { passive: false });
+        }, { passive: false, signal });
 
         wrapper.addEventListener('touchmove', (e) => {
             if (e.touches.length === 2) {
@@ -6970,12 +7028,12 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                 this.applyImageTransform();
                 e.preventDefault();
             }
-        }, { passive: false });
+        }, { passive: false, signal });
 
         wrapper.addEventListener('touchend', () => {
             lastDist = 0;
             isPanning = false;
-        });
+        }, { signal });
 
         // Double-tap to toggle zoom
         let lastTap = 0;
@@ -6997,7 +7055,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                 e.preventDefault();
             }
             lastTap = now;
-        });
+        }, { signal });
 
         // Mouse wheel zoom (desktop)
         wrapper.addEventListener('wheel', (e) => {
@@ -7007,7 +7065,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             this.applyImageTransform();
             document.getElementById('zoomSlider').value = this.currentZoom * 100;
             document.getElementById('zoomLevel').textContent = Math.round(this.currentZoom * 100) + '%';
-        }, { passive: false });
+        }, { passive: false, signal });
     }
 
     // Reset pan when closing or switching images
