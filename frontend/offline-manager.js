@@ -195,12 +195,39 @@ class OfflineManager {
     async backupPendingToLocalStorage() {
         try {
             const pending = await this.getPendingExpenses();
-            if (pending.length > 0) {
-                localStorage.setItem('pendingExpensesBackup', JSON.stringify(pending));
-                localStorage.setItem('pendingExpensesBackupTime', new Date().toISOString());
+            if (pending.length === 0) return;
+
+            let backupData = JSON.stringify(pending);
+
+            // Check size — localStorage limit is ~5MB, leave room for other data
+            const sizeBytes = new Blob([backupData]).size;
+            if (sizeBytes > 4 * 1024 * 1024) {
+                // Too large — strip image data to fit (keep expense metadata)
+                console.warn(`Backup too large (${(sizeBytes / 1024 / 1024).toFixed(1)}MB), stripping images`);
+                const stripped = pending.map(item => ({
+                    ...item,
+                    data: { ...item.data, images: [] },
+                    _imagesStripped: true
+                }));
+                backupData = JSON.stringify(stripped);
             }
+
+            localStorage.setItem('pendingExpensesBackup', backupData);
+            localStorage.setItem('pendingExpensesBackupTime', new Date().toISOString());
         } catch (e) {
-            console.warn('Backup to localStorage failed:', e);
+            // If it still fails (quota exceeded), try stripping all heavy data
+            try {
+                const pending = await this.getPendingExpenses();
+                const minimal = pending.map(item => ({
+                    ...item,
+                    data: { ...item.data, images: [] },
+                    _imagesStripped: true
+                }));
+                localStorage.setItem('pendingExpensesBackup', JSON.stringify(minimal));
+                localStorage.setItem('pendingExpensesBackupTime', new Date().toISOString());
+            } catch (e2) {
+                console.warn('Backup to localStorage failed even after stripping:', e2);
+            }
         }
     }
 
@@ -210,19 +237,31 @@ class OfflineManager {
     async restoreFromBackupIfNeeded() {
         try {
             const pending = await this.getPendingExpenses();
-            if (pending.length > 0) return; // IndexedDB has data, no need
-
             const backup = localStorage.getItem('pendingExpensesBackup');
             if (!backup) return;
 
             const items = JSON.parse(backup);
             if (!items || items.length === 0) return;
 
-            console.log(`Restoring ${items.length} expenses from backup...`);
-            for (const item of items) {
+            // If IndexedDB has data, deduplicate against it
+            const existingTimestamps = new Set(pending.map(p => p.timestamp));
+            const existingDataIds = new Set(pending.map(p => p.data?.id).filter(Boolean));
+
+            const toRestore = items.filter(item => {
+                // Skip if same timestamp already in IndexedDB
+                if (existingTimestamps.has(item.timestamp)) return false;
+                // Skip if same expense data ID already in IndexedDB
+                if (item.data?.id && existingDataIds.has(item.data.id)) return false;
+                return true;
+            });
+
+            if (toRestore.length === 0) return;
+
+            console.log(`Restoring ${toRestore.length} expenses from backup (${items.length - toRestore.length} duplicates skipped)...`);
+            for (const item of toRestore) {
                 await this.savePendingExpense(item.data);
             }
-            this.showNotification(`Restored ${items.length} pending expense(s) from backup`, 'info');
+            this.showNotification(`Restored ${toRestore.length} pending expense(s) from backup`, 'info');
         } catch (e) {
             console.warn('Restore from backup failed:', e);
         }

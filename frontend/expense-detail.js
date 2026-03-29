@@ -429,17 +429,24 @@ const expenseDetail = (() => {
         if (!select || !select.value || !currentExpenseId) return;
 
         const newAdvanceId = select.value;
+        const tracker = window.expenseTracker;
+
+        // Validate advance still exists before calling API
+        const targetAdvance = tracker?.advances?.find(a => a.id === newAdvanceId && a.status === 'active');
+        if (!targetAdvance) {
+            tracker?.showNotification('Selected advance no longer exists. Please refresh.');
+            return;
+        }
+
         try {
             await api.moveExpenseToAdvance(currentExpenseId, newAdvanceId);
-            // Update local data and re-render
-            const tracker = window.expenseTracker;
+            // Update local data and re-render only after API success
             if (tracker) {
                 const expense = tracker.expenses.find(e => e.id === currentExpenseId);
                 if (expense) expense.advance_id = newAdvanceId;
                 await tracker.loadAdvances();
                 render(expense);
-                const advanceName = tracker.advances.find(a => a.id === newAdvanceId)?.project_name || 'advance';
-                tracker.showNotification(`Expense moved to ${advanceName}`);
+                tracker.showNotification(`Expense moved to ${targetAdvance.project_name}`);
             }
         } catch (error) {
             window.expenseTracker?.showNotification('Failed to move: ' + error.message);
