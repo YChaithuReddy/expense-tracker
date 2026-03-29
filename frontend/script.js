@@ -92,6 +92,7 @@ class ExpenseTracker {
         document.getElementById('skipToManualEntry').addEventListener('click', () => this.showManualEntryForm());
         document.getElementById('backToScan').addEventListener('click', () => this.backToScan());
         document.getElementById('expenseForm').addEventListener('submit', (e) => this.handleSubmit(e));
+        this.initRealtimeValidation();
         // Removed generatePDF button event listener - button no longer exists in HTML
 
         // Clear dropdown menu
@@ -3053,6 +3054,105 @@ class ExpenseTracker {
         document.getElementById('scanBills').style.display = 'none';
     }
 
+    // ==================== Real-time Form Validation ====================
+
+    initRealtimeValidation() {
+        const amountInput = document.getElementById('amount');
+        const dateInput = document.getElementById('date');
+        const descriptionInput = document.getElementById('description');
+        const mainCategorySelect = document.getElementById('mainCategory');
+
+        const showFieldError = (input, message) => {
+            input.style.borderColor = '#ef4444';
+            input.style.boxShadow = '0 0 0 2px rgba(239, 68, 68, 0.15)';
+            let hint = input.parentElement.querySelector('.field-validation-hint');
+            if (!hint) {
+                hint = document.createElement('small');
+                hint.className = 'field-validation-hint';
+                hint.style.cssText = 'color: #ef4444; font-size: 0.75rem; margin-top: 4px; display: block;';
+                input.parentElement.appendChild(hint);
+            }
+            hint.textContent = message;
+        };
+
+        const clearFieldError = (input) => {
+            input.style.borderColor = '';
+            input.style.boxShadow = '';
+            const hint = input.parentElement.querySelector('.field-validation-hint');
+            if (hint) hint.remove();
+        };
+
+        const showFieldSuccess = (input) => {
+            input.style.borderColor = '#10b981';
+            input.style.boxShadow = '0 0 0 2px rgba(16, 185, 129, 0.15)';
+            const hint = input.parentElement.querySelector('.field-validation-hint');
+            if (hint) hint.remove();
+        };
+
+        // Amount validation
+        amountInput.addEventListener('input', () => {
+            const val = parseFloat(amountInput.value);
+            if (amountInput.value === '') {
+                clearFieldError(amountInput);
+            } else if (isNaN(val) || val <= 0) {
+                showFieldError(amountInput, 'Amount must be greater than 0');
+            } else if (val > 1000000) {
+                showFieldError(amountInput, 'Amount cannot exceed ₹10,00,000');
+            } else {
+                showFieldSuccess(amountInput);
+            }
+        });
+
+        // Date validation
+        dateInput.addEventListener('change', () => {
+            if (!dateInput.value) {
+                clearFieldError(dateInput);
+                return;
+            }
+            const selected = new Date(dateInput.value);
+            const today = new Date();
+            today.setHours(23, 59, 59, 999);
+            const oneYearAgo = new Date();
+            oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+            if (selected > today) {
+                showFieldError(dateInput, 'Future dates are not allowed');
+            } else if (selected < oneYearAgo) {
+                showFieldError(dateInput, 'Date cannot be more than 1 year ago');
+            } else {
+                showFieldSuccess(dateInput);
+            }
+        });
+
+        // Description validation
+        descriptionInput.addEventListener('input', () => {
+            const val = descriptionInput.value.trim();
+            if (val === '') {
+                clearFieldError(descriptionInput);
+            } else if (val.length < 2) {
+                showFieldError(descriptionInput, 'Description too short');
+            } else if (val.length > 200) {
+                showFieldError(descriptionInput, `${val.length}/200 characters`);
+            } else {
+                showFieldSuccess(descriptionInput);
+            }
+        });
+
+        // Category validation
+        mainCategorySelect.addEventListener('change', () => {
+            if (!mainCategorySelect.value) {
+                showFieldError(mainCategorySelect, 'Please select a category');
+            } else {
+                showFieldSuccess(mainCategorySelect);
+            }
+        });
+
+        // Clear validation states on form reset
+        document.getElementById('expenseForm').addEventListener('reset', () => {
+            [amountInput, dateInput, descriptionInput, mainCategorySelect].forEach(clearFieldError);
+        });
+    }
+
     async handleSubmit(e) {
         e.preventDefault();
         console.log('Form submitted'); // Debug log
@@ -5622,6 +5722,10 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         };
         document.addEventListener('keydown', this.imageModalKeyHandler);
 
+        // Setup touch gestures (pinch-zoom, drag-pan, double-tap, mouse wheel)
+        this.resetImagePan();
+        this.setupImageTouchGestures();
+
         // Auto-hide controls
         this.setupControlsAutoHide(modal);
     }
@@ -5640,6 +5744,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             img.style.transform = '';
             this.currentZoom = 1;
             this.currentRotation = 0;
+            this.resetImagePan();
         }, 300);
 
         // Remove keyboard listener
@@ -5673,6 +5778,13 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         const imgEl = document.getElementById('imageViewerImg');
         const nameEl = document.getElementById('imageViewerName');
         const counterEl = document.getElementById('imageViewerCounter');
+
+        // Reset zoom/pan when switching images
+        this.currentZoom = 1;
+        this.currentRotation = 0;
+        this.resetImagePan();
+        document.getElementById('zoomSlider').value = 100;
+        document.getElementById('zoomLevel').textContent = '100%';
 
         imgEl.src = img.data;
         nameEl.textContent = img.name || 'Bill Image';
@@ -6713,8 +6825,109 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
     // Apply transform to image
     applyImageTransform() {
         const img = document.getElementById('imageViewerImg');
-        img.style.transform = `scale(${this.currentZoom || 1}) rotate(${this.currentRotation || 0}deg)`;
+        const panX = this._panX || 0;
+        const panY = this._panY || 0;
+        img.style.transform = `translate(${panX}px, ${panY}px) scale(${this.currentZoom || 1}) rotate(${this.currentRotation || 0}deg)`;
         img.classList.toggle('is-zoomed', this.currentZoom > 1);
+    }
+
+    // Setup touch gestures (pinch-to-zoom + drag-to-pan) for image viewer
+    setupImageTouchGestures() {
+        const wrapper = document.querySelector('.img-viewer__image-wrapper');
+        if (!wrapper || this._touchGesturesAttached) return;
+        this._touchGesturesAttached = true;
+
+        let lastDist = 0;
+        let startX = 0, startY = 0;
+        let startPanX = 0, startPanY = 0;
+        let isPanning = false;
+
+        wrapper.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 2) {
+                // Pinch start
+                lastDist = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                e.preventDefault();
+            } else if (e.touches.length === 1 && this.currentZoom > 1) {
+                // Pan start (only when zoomed)
+                isPanning = true;
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+                startPanX = this._panX || 0;
+                startPanY = this._panY || 0;
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        wrapper.addEventListener('touchmove', (e) => {
+            if (e.touches.length === 2) {
+                // Pinch zoom
+                const dist = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                if (lastDist > 0) {
+                    const scale = dist / lastDist;
+                    this.currentZoom = Math.max(0.5, Math.min(3, this.currentZoom * scale));
+                    this.applyImageTransform();
+                    document.getElementById('zoomSlider').value = this.currentZoom * 100;
+                    document.getElementById('zoomLevel').textContent = Math.round(this.currentZoom * 100) + '%';
+                }
+                lastDist = dist;
+                e.preventDefault();
+            } else if (e.touches.length === 1 && isPanning) {
+                // Drag to pan
+                this._panX = startPanX + (e.touches[0].clientX - startX);
+                this._panY = startPanY + (e.touches[0].clientY - startY);
+                this.applyImageTransform();
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        wrapper.addEventListener('touchend', () => {
+            lastDist = 0;
+            isPanning = false;
+        });
+
+        // Double-tap to toggle zoom
+        let lastTap = 0;
+        wrapper.addEventListener('touchend', (e) => {
+            if (e.touches.length > 0) return;
+            const now = Date.now();
+            if (now - lastTap < 300) {
+                // Double tap
+                if (this.currentZoom > 1) {
+                    this.currentZoom = 1;
+                    this._panX = 0;
+                    this._panY = 0;
+                } else {
+                    this.currentZoom = 2;
+                }
+                this.applyImageTransform();
+                document.getElementById('zoomSlider').value = this.currentZoom * 100;
+                document.getElementById('zoomLevel').textContent = Math.round(this.currentZoom * 100) + '%';
+                e.preventDefault();
+            }
+            lastTap = now;
+        });
+
+        // Mouse wheel zoom (desktop)
+        wrapper.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? -0.15 : 0.15;
+            this.currentZoom = Math.max(0.5, Math.min(3, (this.currentZoom || 1) + delta));
+            this.applyImageTransform();
+            document.getElementById('zoomSlider').value = this.currentZoom * 100;
+            document.getElementById('zoomLevel').textContent = Math.round(this.currentZoom * 100) + '%';
+        }, { passive: false });
+    }
+
+    // Reset pan when closing or switching images
+    resetImagePan() {
+        this._panX = 0;
+        this._panY = 0;
     }
 
     // Toggle fullscreen
@@ -8300,14 +8513,54 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
     }
 
     async deleteAdvance(advanceId, projectName) {
-        if (!confirm(`Delete advance for "${projectName}"? Linked expenses will be unlinked.`)) return;
+        // Count linked expenses
+        const linkedCount = this.expenses.filter(e => e.advance_id === advanceId).length;
+        const linkedMsg = linkedCount > 0
+            ? `\n\n${linkedCount} expense(s) are linked to this advance and will be unlinked.`
+            : '';
+
+        const confirmed = await this.showConfirmDialog(
+            'Delete Advance',
+            `Are you sure you want to delete the advance for "${projectName}"?${linkedMsg}\n\nThis action cannot be undone.`
+        );
+        if (!confirmed) return;
+
         try {
             await api.deleteAdvance(advanceId);
             this.showNotification('Advance deleted');
             await this.loadAdvances();
+            await this.loadExpenses();
         } catch (error) {
             this.showNotification('Failed: ' + error.message);
         }
+    }
+
+    /**
+     * Show a confirm dialog (replaces native confirm())
+     */
+    showConfirmDialog(title, message) {
+        return new Promise((resolve) => {
+            const overlay = document.createElement('div');
+            overlay.className = 'confirm-dialog-overlay';
+            overlay.style.cssText = 'position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);';
+
+            overlay.innerHTML = `
+                <div style="background:var(--bg-secondary, #1a1a2e);border:1px solid rgba(139,92,246,0.2);border-radius:16px;padding:24px;max-width:400px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+                    <h3 style="color:#a78bfa;margin:0 0 12px;font-size:1.1rem;">${title}</h3>
+                    <p style="color:#8892b0;font-size:0.9rem;white-space:pre-line;margin:0 0 20px;line-height:1.5;">${message}</p>
+                    <div style="display:flex;gap:12px;justify-content:flex-end;">
+                        <button class="confirm-cancel" style="padding:8px 20px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:#8892b0;cursor:pointer;font-size:0.85rem;">Cancel</button>
+                        <button class="confirm-ok" style="padding:8px 20px;border-radius:8px;border:none;background:#ef4444;color:white;cursor:pointer;font-size:0.85rem;font-weight:600;">Delete</button>
+                    </div>
+                </div>
+            `;
+
+            overlay.querySelector('.confirm-cancel').onclick = () => { overlay.remove(); resolve(false); };
+            overlay.querySelector('.confirm-ok').onclick = () => { overlay.remove(); resolve(true); };
+            overlay.addEventListener('click', (e) => { if (e.target === overlay) { overlay.remove(); resolve(false); } });
+
+            document.body.appendChild(overlay);
+        });
     }
 
     async autoLinkExpenseToAdvance(expenseId, vendor) {

@@ -300,7 +300,47 @@ class GoogleSheetsService {
     }
 
     /**
-     * Export expenses to Google Sheets
+     * Get the last export timestamp for incremental exports
+     */
+    getLastExportTimestamp() {
+        return localStorage.getItem('sheetsLastExportTimestamp') || null;
+    }
+
+    /**
+     * Save the last export timestamp
+     */
+    setLastExportTimestamp(timestamp) {
+        localStorage.setItem('sheetsLastExportTimestamp', timestamp);
+    }
+
+    /**
+     * Get IDs of previously exported expenses
+     */
+    getExportedExpenseIds() {
+        try {
+            return JSON.parse(localStorage.getItem('sheetsExportedIds') || '[]');
+        } catch { return []; }
+    }
+
+    /**
+     * Save exported expense IDs
+     */
+    addExportedExpenseIds(ids) {
+        const existing = this.getExportedExpenseIds();
+        const merged = [...new Set([...existing, ...ids])];
+        localStorage.setItem('sheetsExportedIds', JSON.stringify(merged));
+    }
+
+    /**
+     * Clear export tracking (used on sheet reset/recreate)
+     */
+    clearExportTracking() {
+        localStorage.removeItem('sheetsLastExportTimestamp');
+        localStorage.removeItem('sheetsExportedIds');
+    }
+
+    /**
+     * Export expenses to Google Sheets (incremental — only new/unsynced expenses)
      */
     async exportExpenses(expenses) {
         try {
@@ -313,10 +353,24 @@ class GoogleSheetsService {
                 await this.createSheet();
             }
 
-            console.log(`Exporting ${expenses.length} expenses to sheet:`, this.sheetId);
+            // Filter to only unexported expenses
+            const exportedIds = this.getExportedExpenseIds();
+            const newExpenses = expenses.filter(exp => !exportedIds.includes(exp.id));
+
+            if (newExpenses.length === 0) {
+                return {
+                    success: true,
+                    message: 'All expenses already exported. No new expenses to sync.',
+                    sheetUrl: this.sheetUrl,
+                    exportedCount: 0,
+                    skippedCount: expenses.length
+                };
+            }
+
+            console.log(`Exporting ${newExpenses.length} new expenses (${exportedIds.length} already exported) to sheet:`, this.sheetId);
 
             // Sort expenses chronologically (oldest first) before exporting
-            const sorted = [...expenses].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+            const sorted = [...newExpenses].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
 
             // Format expenses for the Apps Script
             const formattedExpenses = sorted.map(exp => ({
@@ -340,6 +394,10 @@ class GoogleSheetsService {
             if (result.status !== 'success') {
                 throw new Error(result.message || 'Export failed');
             }
+
+            // Track exported expense IDs to prevent duplicates
+            this.addExportedExpenseIds(newExpenses.map(exp => exp.id));
+            this.setLastExportTimestamp(new Date().toISOString());
 
             // Build advance summaries for Google Sheets
             let advanceSummaries = [];
@@ -370,11 +428,16 @@ class GoogleSheetsService {
 
             this.updateUI();
 
+            const exportedCount = result.data?.exportedCount || newExpenses.length;
+            const skippedCount = expenses.length - newExpenses.length;
+            const skippedMsg = skippedCount > 0 ? ` (${skippedCount} already exported)` : '';
+
             return {
                 success: true,
-                message: `Exported ${result.data?.exportedCount || expenses.length} expenses (project ledger updated)`,
+                message: `Exported ${exportedCount} new expenses${skippedMsg} (project ledger updated)`,
                 sheetUrl: this.sheetUrl,
-                exportedCount: result.data?.exportedCount || expenses.length,
+                exportedCount,
+                skippedCount,
                 startRow: result.data?.startRow,
                 endRow: result.data?.endRow
             };
@@ -405,6 +468,7 @@ class GoogleSheetsService {
             const result = await this.fetchAppsScript(data);
 
             if (result.status === 'success') {
+                this.clearExportTracking();
                 return { success: true, message: 'Sheet reset to template successfully' };
             } else {
                 throw new Error(result.message || 'Failed to reset sheet');
@@ -444,6 +508,7 @@ class GoogleSheetsService {
             this.sheetId = null;
             this.sheetUrl = null;
             this.isInitialized = false;
+            this.clearExportTracking();
 
             // Create a new sheet
             await this.createSheet();
@@ -572,6 +637,7 @@ class GoogleSheetsService {
         this.isInitialized = false;
         localStorage.removeItem('googleSheetId');
         localStorage.removeItem('googleSheetUrl');
+        this.clearExportTracking();
         this.updateUI();
     }
 }
