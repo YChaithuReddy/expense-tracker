@@ -10642,6 +10642,26 @@ select.inline-input option {
     border: 1px solid rgba(168, 85, 247, 0.2);
 }
 
+/* Exported to Sheets badge */
+.exported-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+}
+
+.exported-badge svg {
+    flex-shrink: 0;
+}
+
 @media (max-width: 640px) {
     .advance-summary-section {
         padding: 10px 12px;
