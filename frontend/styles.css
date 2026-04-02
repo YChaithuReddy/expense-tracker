@@ -99,36 +99,36 @@
     --shadow-color: rgba(0, 0, 0, 0.2);
 }
 
-/* Professional Light Theme (White & Black) */
+/* Professional Light Theme (White & Black — Soft) */
 [data-theme="light"] {
-    --neon-cyan: #111827;
-    --neon-pink: #374151;
-    --neon-purple: #4b5563;
-    --neon-blue: #111827;
+    --neon-cyan: #1e293b;
+    --neon-pink: #475569;
+    --neon-purple: #64748b;
+    --neon-blue: #1e293b;
     --neon-green: #059669;
-    --primary-gradient: linear-gradient(135deg, #111827 0%, #374151 100%);
-    --cyber-blue: #111827;
-    --cyber-purple: #374151;
-    --cyber-pink: #6b7280;
-    --dark-bg: #ffffff;
-    --card-bg: #ffffff;
+    --primary-gradient: linear-gradient(135deg, #1e293b 0%, #475569 100%);
+    --cyber-blue: #1e293b;
+    --cyber-purple: #475569;
+    --cyber-pink: #94a3b8;
+    --dark-bg: #f1f5f9;
+    --card-bg: #f8fafc;
     --glass-bg: rgba(0, 0, 0, 0.02);
-    --text-primary: #111827;
-    --text-secondary: #6b7280;
-    --accent-glow: rgba(0, 0, 0, 0.05);
-    --border-gradient: linear-gradient(90deg, #d1d5db, #9ca3af, #d1d5db);
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --accent-glow: rgba(0, 0, 0, 0.04);
+    --border-gradient: linear-gradient(90deg, #cbd5e1, #94a3b8, #cbd5e1);
 
-    --primary-color: #111827;
-    --accent-color: #374151;
-    --background-primary: #f9fafb;
-    --background-secondary: #ffffff;
-    --border-color: #e5e7eb;
-    --hover-bg: rgba(0, 0, 0, 0.04);
-    --shadow-color: rgba(0, 0, 0, 0.08);
+    --primary-color: #1e293b;
+    --accent-color: #475569;
+    --background-primary: #f1f5f9;
+    --background-secondary: #f8fafc;
+    --border-color: #e2e8f0;
+    --hover-bg: rgba(0, 0, 0, 0.03);
+    --shadow-color: rgba(0, 0, 0, 0.06);
 
     /* Light-specific overrides */
-    --bg-primary: #f9fafb;
-    --bg-secondary: #ffffff;
+    --bg-primary: #f1f5f9;
+    --bg-secondary: #f8fafc;
     --input-bg: #ffffff;
     --input-border: #d1d5db;
     --input-text: #111827;
@@ -145,52 +145,52 @@
 
 /* Light theme body and element overrides */
 [data-theme="light"] body {
-    background: #f9fafb;
-    color: #111827;
+    background: #f1f5f9;
+    color: #1e293b;
 }
 
 [data-theme="light"] .container {
-    background: #f9fafb;
+    background: #f1f5f9;
 }
 
 [data-theme="light"] header {
-    background: #ffffff;
-    border-color: #e5e7eb;
+    background: #f8fafc;
+    border-color: #e2e8f0;
 }
 
 [data-theme="light"] header h1 {
-    color: #111827;
-    -webkit-text-fill-color: #111827;
+    color: #1e293b;
+    -webkit-text-fill-color: #1e293b;
     background: none;
 }
 
 [data-theme="light"] header p {
-    color: #6b7280;
+    color: #64748b;
 }
 
 [data-theme="light"] .section-card {
-    background: #ffffff;
-    border-color: #e5e7eb;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    background: #f8fafc;
+    border-color: #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 [data-theme="light"] .section-card h2 {
-    color: #111827;
-    -webkit-text-fill-color: #111827;
+    color: #1e293b;
+    -webkit-text-fill-color: #1e293b;
     background: none;
 }
 
 [data-theme="light"] .section-card p,
 [data-theme="light"] .section-card small {
-    color: #6b7280;
+    color: #64748b;
 }
 
 [data-theme="light"] input,
 [data-theme="light"] select,
 [data-theme="light"] textarea {
-    background: #ffffff;
-    border-color: #d1d5db;
-    color: #111827;
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #1e293b;
 }
 
 [data-theme="light"] input::placeholder,
@@ -201,8 +201,8 @@
 [data-theme="light"] input:focus,
 [data-theme="light"] select:focus,
 [data-theme="light"] textarea:focus {
-    border-color: #111827;
-    box-shadow: 0 0 0 2px rgba(17, 24, 39, 0.1);
+    border-color: #475569;
+    box-shadow: 0 0 0 2px rgba(71, 85, 105, 0.1);
 }
 
 [data-theme="light"] label {
@@ -220,13 +220,13 @@
 }
 
 [data-theme="light"] .btn-secondary {
-    background: #ffffff;
-    color: #374151;
-    border-color: #d1d5db;
+    background: #f1f5f9;
+    color: #475569;
+    border-color: #cbd5e1;
 }
 
 [data-theme="light"] .btn-secondary:hover {
-    background: #f3f4f6;
+    background: #e2e8f0;
 }
 
 [data-theme="light"] .btn-danger {
@@ -236,9 +236,9 @@
 }
 
 [data-theme="light"] .expense-item {
-    background: #ffffff;
-    border-color: #e5e7eb;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    background: #f8fafc;
+    border-color: #e2e8f0;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
 [data-theme="light"] .expense-item:hover {
@@ -259,15 +259,15 @@
 }
 
 [data-theme="light"] .expense-category-badge {
-    background: #f3f4f6;
-    color: #374151;
-    border-color: #e5e7eb;
+    background: #e2e8f0;
+    color: #334155;
+    border-color: #cbd5e1;
 }
 
 [data-theme="light"] .edit-btn {
-    background: #ffffff;
-    color: #374151;
-    border-color: #d1d5db;
+    background: #f1f5f9;
+    color: #475569;
+    border-color: #cbd5e1;
 }
 
 [data-theme="light"] .delete-btn {
@@ -277,8 +277,8 @@
 }
 
 [data-theme="light"] .user-info-content {
-    background: #ffffff;
-    border-color: #e5e7eb;
+    background: #f8fafc;
+    border-color: #e2e8f0;
 }
 
 [data-theme="light"] .user-name {
@@ -290,13 +290,13 @@
 }
 
 [data-theme="light"] .theme-toggle-btn {
-    border-color: #e5e7eb;
-    background: #ffffff;
-    color: #374151;
+    border-color: #e2e8f0;
+    background: #f1f5f9;
+    color: #475569;
 }
 
 [data-theme="light"] .theme-toggle-btn:hover {
-    background: #f3f4f6;
+    background: #e2e8f0;
 }
 
 [data-theme="light"] .logout-btn {
@@ -311,8 +311,8 @@
 }
 
 [data-theme="light"] .drag-drop-zone {
-    border-color: #d1d5db;
-    background: #ffffff;
+    border-color: #cbd5e1;
+    background: #f8fafc;
 }
 
 [data-theme="light"] .drag-drop-zone p,
@@ -322,12 +322,12 @@
 
 /* Light theme for activity log overlay */
 [data-theme="light"] .activity-log-overlay {
-    background: #f9fafb;
+    background: #f1f5f9;
 }
 
 [data-theme="light"] .activity-log-header {
-    background: #ffffff;
-    border-color: #e5e7eb;
+    background: #f8fafc;
+    border-color: #e2e8f0;
 }
 
 [data-theme="light"] .activity-log-title {
@@ -355,19 +355,19 @@
 }
 
 [data-theme="light"] .activity-search-input {
-    background: #ffffff;
-    border-color: #d1d5db;
-    color: #111827;
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #1e293b;
 }
 
 /* Light theme for approval overlay */
 [data-theme="light"] .approvals-panel-overlay {
-    background: #f9fafb;
+    background: #f1f5f9;
 }
 
 [data-theme="light"] .approvals-panel-header {
-    background: #ffffff;
-    border-color: #e5e7eb;
+    background: #f8fafc;
+    border-color: #e2e8f0;
 }
 
 [data-theme="light"] .approvals-panel-title {
@@ -375,8 +375,8 @@
 }
 
 [data-theme="light"] .approval-voucher-card {
-    background: #ffffff;
-    border-color: #e5e7eb;
+    background: #f8fafc;
+    border-color: #e2e8f0;
 }
 
 [data-theme="light"] .approval-voucher-card:hover {
@@ -385,8 +385,8 @@
 
 [data-theme="light"] .approval-modal,
 [data-theme="light"] .approval-detail-modal {
-    background: #ffffff;
-    border-color: #e5e7eb;
+    background: #f8fafc;
+    border-color: #e2e8f0;
 }
 
 /* Light theme for advance cards */
@@ -397,9 +397,9 @@
 
 /* Light theme for auth pages (login/signup) */
 [data-theme="light"] .auth-section {
-    background: #ffffff;
-    border-color: #e5e7eb;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    background: #f8fafc;
+    border-color: #e2e8f0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 [data-theme="light"] .auth-section::before {
@@ -432,8 +432,8 @@
 
 /* Light theme toast override */
 [data-theme="light"] .notif-panel {
-    background: #ffffff;
-    border-color: #e5e7eb;
+    background: #f8fafc;
+    border-color: #e2e8f0;
 }
 
 [data-theme="light"] .notif-item__title {
