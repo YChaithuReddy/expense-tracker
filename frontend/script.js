@@ -66,6 +66,11 @@ class ExpenseTracker {
             document.body.classList.add('company-mode');
             document.body.dataset.userRole = role || 'employee';
         }
+
+        // Initialize project dropdown (company mode: searchable, personal mode: free text)
+        if (typeof projectDropdown !== 'undefined') {
+            projectDropdown.init();
+        }
     }
 
     // Sanitize HTML to prevent XSS attacks
@@ -3231,6 +3236,7 @@ class ExpenseTracker {
                 // Update existing expense
                 const existingImages = this.expenses[expenseIndex].images || [];
                 const existingTime = this.expenses[expenseIndex].time || '';
+                const projectId = document.getElementById('projectId')?.value || null;
                 const expense = {
                     id: this.editingExpenseId,
                     date: date,
@@ -3240,7 +3246,8 @@ class ExpenseTracker {
                     vendor: formData.get('vendor') || 'N/A',
                     visitType: this.getSelectedVisitType('expenseVisitType'),
                     time: this.extractedData.time || existingTime,
-                    images: files.length > 0 ? [] : existingImages
+                    images: files.length > 0 ? [] : existingImages,
+                    project_id: projectId || undefined
                 };
 
                 if (files.length > 0) {
@@ -3252,6 +3259,7 @@ class ExpenseTracker {
             }
         } else {
             // Create new expense
+            const projectId = document.getElementById('projectId')?.value || null;
             const expense = {
                 id: Date.now(),
                 date: date,
@@ -3261,6 +3269,7 @@ class ExpenseTracker {
                 vendor: formData.get('vendor') || 'N/A',
                 visitType: this.getSelectedVisitType('expenseVisitType'),
                 time: this.extractedData.time || '',
+                project_id: projectId || undefined,
                 images: []
             };
 
