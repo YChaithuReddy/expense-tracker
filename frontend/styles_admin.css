@@ -252,15 +252,15 @@
     table-layout: fixed;
 }
 
-/* Column widths for 8-column employee table */
-.admin-table th:nth-child(1) { width: 90px; }   /* ID */
-.admin-table th:nth-child(2) { width: 14%; }     /* Name */
-.admin-table th:nth-child(3) { width: 20%; }     /* Email */
-.admin-table th:nth-child(4) { width: 13%; }     /* Dept */
-.admin-table th:nth-child(5) { width: 10%; }     /* Designation */
-.admin-table th:nth-child(6) { width: 100px; }   /* Role */
-.admin-table th:nth-child(7) { width: 80px; }    /* Status */
-.admin-table th:nth-child(8) { width: 50px; }    /* Action */
+/* Column widths for 8-column employee table — fills full width */
+.admin-table th:nth-child(1) { width: 8%; }      /* ID */
+.admin-table th:nth-child(2) { width: 15%; }     /* Name */
+.admin-table th:nth-child(3) { width: 22%; }     /* Email */
+.admin-table th:nth-child(4) { width: 14%; }     /* Dept */
+.admin-table th:nth-child(5) { width: 13%; }     /* Designation */
+.admin-table th:nth-child(6) { width: 11%; }     /* Role */
+.admin-table th:nth-child(7) { width: 9%; }      /* Status */
+.admin-table th:nth-child(8) { width: 8%; }      /* Action */
 
 .admin-table th {
     text-align: left;
