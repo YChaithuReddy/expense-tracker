@@ -1319,28 +1319,150 @@
                     </div>` : ''}
                 </div>
                 <div style="display:flex;gap:10px;margin-bottom:24px;">
-                    <button class="admin-btn admin-btn--secondary" onclick="previewTallyXML()" id="btnPreview">Preview XML</button>
-                    <button class="admin-btn admin-btn--primary" onclick="exportSelectedToTally()" id="btnDownload">Download XML</button>
+                    <button class="admin-btn admin-btn--secondary" onclick="previewTallyExport()" id="btnPreview">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        Preview &amp; Verify
+                    </button>
+                    <button class="admin-btn admin-btn--primary" onclick="exportSelectedToTally()" id="btnDownload" disabled title="Preview first to enable download">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Download XML
+                    </button>
                 </div>
+                <div id="tallyPreviewContainer" style="display:none;"></div>
                 <div id="exportHistoryContainer"></div>`;
 
             await loadExportHistory(document.getElementById('exportHistoryContainer'));
         }
 
-        async function previewTallyXML() {
+        let _previewData = null;
+
+        async function previewTallyExport() {
             const btn = document.getElementById('btnPreview');
-            if (btn) btn.disabled = true;
+            const container = document.getElementById('tallyPreviewContainer');
+            if (btn) { btn.disabled = true; btn.innerHTML = 'Loading...'; }
+
             try {
                 const xmlData = await buildExportData();
                 if (!xmlData) return;
-                const xml = tallyExport.generateBatchXML(xmlData.vouchersWithExpenses, xmlData.ledgerMappings);
-                tallyExport.previewXML(xml);
+                _previewData = xmlData;
+
+                const companyName = localStorage.getItem('tallyCompanyName') || 'FluxGen Technologies Pvt Ltd';
+                const paymentLedger = localStorage.getItem('tallyPaymentLedger') || 'Cash';
+                let grandTotal = 0;
+
+                let voucherCards = xmlData.vouchersWithExpenses.map(({ voucher, expenses }) => {
+                    const vTotal = expenses.reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
+                    grandTotal += vTotal;
+
+                    // Build ledger grouping
+                    const ledgerTotals = {};
+                    expenses.forEach(exp => {
+                        const cat = exp.category || 'Miscellaneous';
+                        let mainCat = cat, subCat = null;
+                        if (cat.includes('>')) { const p = cat.split('>').map(s => s.trim()); mainCat = p[0]; subCat = p[1]; }
+                        const ledger = tallyExport.resolveLedger(mainCat, subCat, xmlData.ledgerMappings);
+                        ledgerTotals[ledger] = (ledgerTotals[ledger] || 0) + (parseFloat(exp.amount) || 0);
+                    });
+
+                    const expRows = expenses.map(e => `
+                        <tr>
+                            <td style="font-size:0.8rem;color:var(--gray-500);">${e.date ? new Date(e.date).toLocaleDateString('en-IN') : '-'}</td>
+                            <td>${esc(e.category || '-')}</td>
+                            <td>${esc(e.description || '-')}</td>
+                            <td>${esc(e.vendor || '-')}</td>
+                            <td style="text-align:right;font-weight:600;">${formatCurrency(e.amount)}</td>
+                        </tr>
+                    `).join('');
+
+                    const ledgerRows = Object.entries(ledgerTotals).map(([ledger, amt]) => `
+                        <tr>
+                            <td><span style="color:var(--blue);font-weight:500;">Dr.</span> ${esc(ledger)}</td>
+                            <td style="text-align:right;font-weight:600;color:var(--red);">${formatCurrency(amt)}</td>
+                        </tr>
+                    `).join('') + `
+                        <tr>
+                            <td><span style="color:var(--green);font-weight:500;">Cr.</span> ${esc(paymentLedger)}</td>
+                            <td style="text-align:right;font-weight:600;color:var(--green);">${formatCurrency(vTotal)}</td>
+                        </tr>`;
+
+                    return `
+                        <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:20px;margin-bottom:16px;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+                                <div>
+                                    <h4 style="margin:0;font-size:0.95rem;color:var(--gray-900);">${esc(voucher.voucher_number)}</h4>
+                                    <span style="font-size:0.78rem;color:var(--gray-500);">${esc(voucher.submitter?.name || 'Employee')} &middot; ${voucher.submitted_at ? new Date(voucher.submitted_at).toLocaleDateString('en-IN') : ''}</span>
+                                </div>
+                                <span style="font-size:1.1rem;font-weight:700;color:var(--gray-900);">${formatCurrency(vTotal)}</span>
+                            </div>
+                            ${voucher.purpose ? `<div style="font-size:0.8rem;color:var(--gray-600);margin-bottom:12px;padding:8px 12px;background:var(--gray-50);border-radius:var(--radius-sm);"><strong>Purpose:</strong> ${esc(voucher.purpose)}</div>` : ''}
+                            <h5 style="margin:0 0 6px;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--gray-400);">Expenses (${expenses.length})</h5>
+                            <div class="admin-table-wrap" style="margin-bottom:14px;">
+                                <table class="admin-table admin-table--compact">
+                                    <thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Project</th><th style="text-align:right;">Amount</th></tr></thead>
+                                    <tbody>${expRows || '<tr><td colspan="5" style="text-align:center;color:var(--gray-400);">No expenses</td></tr>'}</tbody>
+                                </table>
+                            </div>
+                            <h5 style="margin:0 0 6px;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--gray-400);">Tally Ledger Entries</h5>
+                            <div class="admin-table-wrap">
+                                <table class="admin-table admin-table--compact">
+                                    <thead><tr><th>Ledger</th><th style="text-align:right;">Amount</th></tr></thead>
+                                    <tbody>${ledgerRows}</tbody>
+                                </table>
+                            </div>
+                        </div>`;
+                }).join('');
+
+                container.innerHTML = `
+                    <div style="border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:20px;background:var(--gray-50);margin-bottom:20px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                            <h3 style="margin:0;font-size:1rem;color:var(--gray-900);">Export Preview</h3>
+                            <div style="display:flex;gap:12px;align-items:center;">
+                                <span style="font-size:0.78rem;color:var(--gray-500);">Company: <strong style="color:var(--gray-900);">${esc(companyName)}</strong></span>
+                                <span style="font-size:0.78rem;color:var(--gray-500);">Payment: <strong style="color:var(--gray-900);">${esc(paymentLedger)}</strong></span>
+                            </div>
+                        </div>
+                        <div style="display:flex;gap:16px;margin-bottom:16px;">
+                            <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:12px 20px;flex:1;text-align:center;">
+                                <div style="font-size:1.3rem;font-weight:700;color:var(--gray-900);">${xmlData.vouchersWithExpenses.length}</div>
+                                <div style="font-size:0.72rem;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;">Vouchers</div>
+                            </div>
+                            <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:12px 20px;flex:1;text-align:center;">
+                                <div style="font-size:1.3rem;font-weight:700;color:var(--gray-900);">${xmlData.vouchersWithExpenses.reduce((s, v) => s + v.expenses.length, 0)}</div>
+                                <div style="font-size:0.72rem;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;">Expenses</div>
+                            </div>
+                            <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:12px 20px;flex:1;text-align:center;">
+                                <div style="font-size:1.3rem;font-weight:700;color:var(--green);">${formatCurrency(grandTotal)}</div>
+                                <div style="font-size:0.72rem;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;">Grand Total</div>
+                            </div>
+                        </div>
+                        ${voucherCards}
+                        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;padding-top:16px;border-top:1px solid var(--gray-200);">
+                            <button class="admin-btn admin-btn--secondary" onclick="document.getElementById('tallyPreviewContainer').style.display='none'">Close Preview</button>
+                            <button class="admin-btn admin-btn--secondary" onclick="viewRawXML()">View Raw XML</button>
+                            <button class="admin-btn admin-btn--primary" onclick="exportSelectedToTally()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                Confirm &amp; Download XML
+                            </button>
+                        </div>
+                    </div>`;
+                container.style.display = '';
+
+                // Enable download button now that preview is verified
+                const dlBtn = document.getElementById('btnDownload');
+                if (dlBtn) { dlBtn.disabled = false; dlBtn.title = ''; }
+
             } catch (e) {
                 console.error('Preview error:', e);
                 if (window.showToast) showToast('Failed to generate preview: ' + e.message, 'error');
             } finally {
-                if (btn) btn.disabled = false;
+                if (btn) { btn.disabled = false; btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Preview &amp; Verify'; }
             }
+        }
+
+        function viewRawXML() {
+            if (!_previewData) return;
+            const xml = tallyExport.generateBatchXML(_previewData.vouchersWithExpenses, _previewData.ledgerMappings);
+            tallyExport.previewXML(xml);
         }
 
         async function exportSelectedToTally() {
