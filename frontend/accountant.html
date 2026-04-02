@@ -809,9 +809,11 @@
             const user = JSON.parse(localStorage.getItem('user') || 'null');
             if (!user) { window.location.href = 'login.html'; return; }
 
-            const isAccountant = user.role === 'accountant';
+            const email = user.email?.toLowerCase();
+            const isAccountantEmail = email === 'accountant@fluxgentech.com';
+            const isAccountantRole = user.role === 'accountant';
             const isAdmin = user.role === 'admin';
-            if (!isAccountant && !isAdmin) {
+            if (!isAccountantEmail && !isAccountantRole && !isAdmin) {
                 window.location.href = 'index.html';
                 return;
             }
