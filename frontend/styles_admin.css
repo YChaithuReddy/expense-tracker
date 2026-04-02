@@ -236,12 +236,21 @@
     border-radius: 10px;
     background: #ffffff;
     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    width: 100%;
 }
+
+/* Visible scrollbar for table */
+.admin-table-wrap::-webkit-scrollbar { height: 6px; }
+.admin-table-wrap::-webkit-scrollbar-track { background: #f3f4f6; border-radius: 3px; }
+.admin-table-wrap::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+.admin-table-wrap::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
 
 .admin-table {
     width: 100%;
+    min-width: 800px;
     border-collapse: collapse;
     font-size: 0.825rem;
+    table-layout: auto;
 }
 
 .admin-table th {
@@ -261,8 +270,19 @@
     padding: 11px 14px;
     color: #374151;
     border-bottom: 1px solid #f3f4f6;
-    white-space: nowrap;
     vertical-align: middle;
+}
+
+/* Allow wrapping for name and email columns */
+.admin-table td:nth-child(2),
+.admin-table td:nth-child(3) {
+    white-space: normal;
+    word-break: break-word;
+}
+
+/* Fix role select width */
+.admin-table td .admin-role-select {
+    min-width: 110px;
 }
 
 .admin-table tbody tr:last-child td { border-bottom: none; }
