@@ -243,6 +243,18 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+
+  /* Disable shimmer and float animations */
+  .img-viewer__topbar::after,
+  .img-modal__header::after {
+    animation: none !important;
+    display: none;
+  }
+
+  /* Disable spring entrance blur for image wrapper */
+  .img-viewer__image-wrapper {
+    filter: none !important;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
