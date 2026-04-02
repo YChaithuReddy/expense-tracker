@@ -1094,3 +1094,316 @@
 [data-theme="light"] .saved-images-container::-webkit-scrollbar-thumb:hover {
     background: rgba(30, 41, 59, 0.3);
 }
+
+/* ========================================
+   PREMIUM FUTURISTIC DESIGN SYSTEM ENHANCEMENTS
+   Glassmorphism 2.0 — Deep gradient palette:
+   #0d0d24 → #111130 → #0a0a1e
+   ======================================== */
+
+/* ── Premium Keyframes ── */
+
+@keyframes savedImagesSpringIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.92) translateY(28px);
+    }
+    60% {
+        opacity: 1;
+        transform: scale(1.015) translateY(-4px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes savedImagesShimmerSlide {
+    0%   { transform: translateX(-100%); opacity: 0; }
+    10%  { opacity: 1; }
+    90%  { opacity: 1; }
+    100% { transform: translateX(100%); opacity: 0; }
+}
+
+@keyframes savedImagesAmbientGlow {
+    0%, 100% {
+        box-shadow:
+            0 40px 80px rgba(0, 0, 0, 0.9),
+            0 0 80px rgba(139, 92, 246, 0.08),
+            inset 0 1px 0 rgba(255, 255, 255, 0.07),
+            inset 0 -1px 0 rgba(0, 0, 0, 0.6);
+    }
+    50% {
+        box-shadow:
+            0 40px 80px rgba(0, 0, 0, 0.9),
+            0 0 120px rgba(139, 92, 246, 0.14),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1),
+            inset 0 -1px 0 rgba(0, 0, 0, 0.6);
+    }
+}
+
+/* ── Container: deep futuristic gradient + spring entrance + ambient glow ── */
+
+.saved-images-container {
+    background: linear-gradient(
+        160deg,
+        rgba(13, 13, 36, 0.97) 0%,
+        rgba(17, 17, 48, 0.96) 45%,
+        rgba(10, 10, 30, 0.98) 100%
+    );
+    border: 2px solid rgba(139, 92, 246, 0.16);
+    box-shadow:
+        0 40px 80px rgba(0, 0, 0, 0.9),
+        0 0 80px rgba(139, 92, 246, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.07),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.6);
+    animation:
+        savedImagesSpringIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+        savedImagesAmbientGlow 6s ease-in-out 0.55s infinite;
+}
+
+/* ── Header: persistent shimmer line via ::after ── */
+
+.saved-images-header {
+    background: linear-gradient(
+        135deg,
+        rgba(139, 92, 246, 0.13) 0%,
+        rgba(124, 58, 237, 0.07) 60%,
+        transparent 100%
+    );
+    position: relative;
+    overflow: hidden;
+}
+
+.saved-images-header::after {
+    display: block;
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 65%;
+    height: 1px;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(139, 92, 246, 0.9) 35%,
+        rgba(0, 212, 255, 0.6) 65%,
+        transparent 100%
+    );
+    animation: savedImagesShimmerSlide 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* ── Close button: hover scale + glow ── */
+
+.saved-images-close:hover {
+    transform: rotate(90deg) scale(1.12);
+    box-shadow:
+        0 0 0 1px rgba(255, 71, 87, 0.25),
+        0 4px 16px rgba(255, 71, 87, 0.2);
+}
+
+/* ── Stat items: deeper hover ── */
+
+.saved-stat-item:hover {
+    background: linear-gradient(
+        135deg,
+        rgba(139, 92, 246, 0.1) 0%,
+        rgba(255, 255, 255, 0.04) 100%
+    );
+    border-color: rgba(139, 92, 246, 0.3);
+    box-shadow:
+        0 4px 16px rgba(139, 92, 246, 0.1),
+        inset 0 1px 0 rgba(139, 92, 246, 0.06);
+    transform: translateY(-2px);
+}
+
+/* ── Image card: layered hover shadow + shine sweep ── */
+
+/* Ambient top-edge highlight */
+.saved-image-card::before {
+    background: radial-gradient(
+        ellipse at 50% 0%,
+        rgba(139, 92, 246, 0.12) 0%,
+        transparent 70%
+    );
+    opacity: 0;
+    transition: opacity 0.4s;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Shine sweep layer */
+.saved-image-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -80%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(
+        105deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.05) 50%,
+        transparent 100%
+    );
+    transition: left 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+    z-index: 2;
+}
+
+.saved-image-card:hover::after {
+    left: 130%;
+}
+
+.saved-image-card:hover {
+    border-color: rgba(139, 92, 246, 0.65);
+    transform: translateY(-7px) scale(1.015);
+    box-shadow:
+        0 24px 48px rgba(139, 92, 246, 0.22),
+        0 8px 20px rgba(0, 0, 0, 0.4),
+        0 0 0 1px rgba(139, 92, 246, 0.2),
+        0 0 60px rgba(139, 92, 246, 0.12),
+        inset 0 1px 0 rgba(139, 92, 246, 0.15);
+}
+
+/* ── View button: enhanced gradient + glow lift ── */
+
+.saved-image-btn-view {
+    background: linear-gradient(135deg, #9b6df7 0%, #8b5cf6 45%, #7c3aed 100%);
+    box-shadow: 0 4px 14px rgba(139, 92, 246, 0.32);
+}
+
+.saved-image-btn-view:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 8px 24px rgba(139, 92, 246, 0.48),
+        0 0 40px rgba(139, 92, 246, 0.2);
+}
+
+/* ── Download button: enhanced border + lift ── */
+
+.saved-image-btn-download:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(
+        135deg,
+        rgba(0, 212, 255, 0.22) 0%,
+        rgba(0, 212, 255, 0.1) 100%
+    );
+    border-color: rgba(0, 212, 255, 0.55);
+    box-shadow:
+        0 6px 20px rgba(0, 212, 255, 0.18),
+        0 0 0 1px rgba(0, 212, 255, 0.12);
+}
+
+/* ── Delete button: enhanced lift ── */
+
+.saved-image-btn-delete:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(
+        135deg,
+        rgba(255, 71, 87, 0.22) 0%,
+        rgba(255, 71, 87, 0.1) 100%
+    );
+    border-color: rgba(255, 71, 87, 0.55);
+    box-shadow:
+        0 6px 20px rgba(255, 71, 87, 0.18),
+        0 0 0 1px rgba(255, 71, 87, 0.12);
+}
+
+/* ── Reduced motion: disable all new animations ── */
+
+@media (prefers-reduced-motion: reduce) {
+    .saved-images-container {
+        animation: none;
+    }
+
+    .saved-images-header::after {
+        animation: none;
+        display: none;
+    }
+
+    .saved-image-card::after {
+        display: none;
+    }
+
+    .saved-image-card:hover {
+        transform: none;
+    }
+}
+
+/* ── Light theme: preserve warmth, remove dark glows ── */
+
+[data-theme="light"] .saved-images-container {
+    background: linear-gradient(145deg, #f8fafc 0%, #f1f5f9 100%);
+    border: 2px solid #e2e8f0;
+    box-shadow:
+        0 40px 80px rgba(0, 0, 0, 0.15),
+        0 0 1px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    animation: savedImagesSpringIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+[data-theme="light"] .saved-images-header::after {
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(30, 41, 59, 0.3) 40%,
+        rgba(71, 85, 105, 0.2) 70%,
+        transparent 100%
+    );
+}
+
+[data-theme="light"] .saved-stat-item:hover {
+    background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+    border-color: rgba(30, 41, 59, 0.25);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .saved-image-card:hover {
+    border-color: #1e293b;
+    transform: translateY(-5px) scale(1.01);
+    box-shadow:
+        0 20px 40px rgba(30, 41, 59, 0.14),
+        0 0 0 1px rgba(30, 41, 59, 0.08);
+}
+
+[data-theme="light"] .saved-image-card::after {
+    background: linear-gradient(
+        105deg,
+        transparent 0%,
+        rgba(30, 41, 59, 0.03) 50%,
+        transparent 100%
+    );
+}
+
+[data-theme="light"] .saved-image-btn-view {
+    background: #1e293b;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(30, 41, 59, 0.2);
+}
+
+[data-theme="light"] .saved-image-btn-view:hover {
+    background: #334155;
+    box-shadow:
+        0 6px 18px rgba(30, 41, 59, 0.28),
+        0 0 0 1px rgba(30, 41, 59, 0.1);
+    transform: translateY(-2px);
+}
+
+[data-theme="light"] .saved-image-btn-download:hover {
+    background: #e2e8f0;
+    border-color: rgba(30, 41, 59, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    transform: translateY(-2px);
+}
+
+[data-theme="light"] .saved-image-btn-delete:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.35);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.1);
+    transform: translateY(-2px);
+}
+
+/* ========================================
+   END OF PREMIUM ENHANCEMENTS
+   ======================================== */

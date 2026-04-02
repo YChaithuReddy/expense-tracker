@@ -331,13 +331,40 @@
   padding: var(--img-space-5) var(--img-space-6);
   background: linear-gradient(
     135deg,
-    rgba(0, 212, 255, 0.15) 0%,
-    rgba(168, 85, 247, 0.1) 100%
+    rgba(0, 212, 255, 0.12) 0%,
+    rgba(168, 85, 247, 0.08) 60%,
+    rgba(0, 212, 255, 0.04) 100%
   );
   border-bottom: 1px solid var(--img-border-subtle);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  backdrop-filter: blur(16px) saturate(180%);
   overflow: hidden;
+}
+
+/* Shimmer line across the top of the gallery header */
+.img-modal__header::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -80%;
+  width: 40%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 212, 255, 0.7) 40%,
+    rgba(168, 85, 247, 0.6) 60%,
+    transparent 100%
+  );
+  animation: headerShimmer 5s ease-in-out infinite 1s;
+  pointer-events: none;
+}
+
+@keyframes headerShimmer {
+  0% { left: -60%; opacity: 0; }
+  8% { opacity: 1; }
+  92% { opacity: 1; }
+  100% { left: 140%; opacity: 0; }
 }
 
 
@@ -895,9 +922,14 @@
 .img-viewer__backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.95);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
+  background: radial-gradient(
+    ellipse at 50% 40%,
+    rgba(0, 8, 20, 0.92) 0%,
+    rgba(0, 0, 0, 0.97) 60%,
+    rgba(0, 0, 8, 0.99) 100%
+  );
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
   cursor: pointer;
 }
 
@@ -919,15 +951,21 @@
   max-width: 90vw;
   max-height: 85vh;
 
-  /* Animation */
-  transform: scale(0.9) translateY(20px);
+  /* Spring entrance animation */
+  transform: scale(0.88) translateY(28px);
   opacity: 0;
-  transition: background-color var(--img-duration-slow) var(--img-ease-spring), border-color var(--img-duration-slow) var(--img-ease-spring), box-shadow var(--img-duration-slow) var(--img-ease-spring), opacity var(--img-duration-slow) var(--img-ease-spring), transform var(--img-duration-slow) var(--img-ease-spring);
+  filter: blur(6px);
+  transition:
+    transform var(--img-duration-slow) var(--img-ease-spring),
+    opacity var(--img-duration-slow) var(--img-ease-out),
+    filter var(--img-duration-slow) var(--img-ease-out),
+    box-shadow var(--img-duration-slow) var(--img-ease-spring);
 }
 
 .img-viewer.is-active .img-viewer__image-wrapper {
   transform: scale(1) translateY(0);
   opacity: 1;
+  filter: blur(0);
 }
 
 .img-viewer__image {
@@ -935,7 +973,10 @@
   max-height: 85vh;
   object-fit: contain;
   border-radius: var(--img-radius-lg);
-  box-shadow: var(--img-shadow-xl);
+  box-shadow:
+    var(--img-shadow-xl),
+    0 0 60px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.04);
   user-select: none;
 
   /* Zoom/Pan support */
@@ -967,15 +1008,42 @@
   padding: 20px 24px;
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0.8) 0%,
-    rgba(0, 0, 0, 0.4) 60%,
+    rgba(0, 0, 0, 0.85) 0%,
+    rgba(0, 0, 0, 0.5) 55%,
     transparent 100%
   );
   min-height: 80px;
+  overflow: hidden;
 
   /* Auto-hide */
   opacity: 1;
   transition: opacity var(--img-duration-normal) var(--img-ease-out);
+}
+
+/* Shimmer line along the top edge */
+.img-viewer__topbar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 212, 255, 0.6) 40%,
+    rgba(168, 85, 247, 0.5) 60%,
+    transparent 100%
+  );
+  animation: topbarShimmer 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes topbarShimmer {
+  0% { left: -60%; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { left: 160%; opacity: 0; }
 }
 
 .img-viewer.controls-hidden .img-viewer__topbar {
@@ -1067,14 +1135,19 @@
   justify-content: center;
   width: 56px;
   height: 56px;
-  background: rgba(255, 255, 255, 0.1);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(18, 18, 36, 0.6);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: var(--img-radius-full);
   color: var(--img-text-primary);
   cursor: pointer;
-  transition: background-color var(--img-duration-fast) var(--img-ease-out), border-color var(--img-duration-fast) var(--img-ease-out), box-shadow var(--img-duration-fast) var(--img-ease-out), opacity var(--img-duration-fast) var(--img-ease-out), transform var(--img-duration-fast) var(--img-ease-out);
+  transition:
+    background var(--img-duration-fast) var(--img-ease-out),
+    border-color var(--img-duration-fast) var(--img-ease-out),
+    box-shadow var(--img-duration-fast) var(--img-ease-out),
+    opacity var(--img-duration-fast) var(--img-ease-out),
+    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 
   /* Auto-hide */
   opacity: 1;
@@ -1094,23 +1167,34 @@
 }
 
 .img-viewer__nav:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateY(-50%) scale(1.1);
+  background: rgba(0, 212, 255, 0.15);
+  border-color: rgba(0, 212, 255, 0.5);
+  transform: translateY(-50%) scale(1.12);
+  box-shadow:
+    0 0 0 1px rgba(0, 212, 255, 0.2),
+    0 8px 24px rgba(0, 212, 255, 0.25),
+    0 0 40px rgba(0, 212, 255, 0.12),
+    inset 0 1px 0 rgba(0, 212, 255, 0.2);
 }
 
 .img-viewer__nav:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--img-accent-primary);
+  box-shadow:
+    0 0 0 2px rgba(0, 0, 0, 0.5),
+    0 0 0 4px var(--img-accent-primary),
+    0 0 20px rgba(0, 212, 255, 0.4);
 }
 
 .img-viewer__nav:disabled {
-  opacity: 0.3;
+  opacity: 0.25;
   cursor: not-allowed;
 }
 
 .img-viewer__nav:disabled:hover {
-  transform: translateY(-50%);
-  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-50%) scale(1);
+  background: rgba(18, 18, 36, 0.6);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: none;
 }
 
 .img-viewer__nav svg {
@@ -1131,15 +1215,32 @@
   align-items: center;
   gap: var(--img-space-3);
   padding: var(--img-space-3) var(--img-space-5);
-  background: var(--img-glass-bg);
-  -webkit-backdrop-filter: var(--img-glass-blur);
-  backdrop-filter: var(--img-glass-blur);
-  border: 1px solid var(--img-border-default);
+  background: linear-gradient(
+    135deg,
+    rgba(22, 22, 42, 0.88) 0%,
+    rgba(14, 14, 30, 0.92) 50%,
+    rgba(18, 18, 38, 0.88) 100%
+  );
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  backdrop-filter: blur(28px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-top-color: rgba(255, 255, 255, 0.16);
   border-radius: var(--img-radius-xl);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.4),
+    0 16px 40px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(0, 212, 255, 0.08),
+    0 0 30px rgba(0, 212, 255, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
 
   /* Auto-hide */
   opacity: 1;
-  transition: background-color var(--img-duration-normal) var(--img-ease-out), border-color var(--img-duration-normal) var(--img-ease-out), box-shadow var(--img-duration-normal) var(--img-ease-out), opacity var(--img-duration-normal) var(--img-ease-out), transform var(--img-duration-normal) var(--img-ease-out);
+  transition:
+    background var(--img-duration-normal) var(--img-ease-out),
+    border-color var(--img-duration-normal) var(--img-ease-out),
+    box-shadow var(--img-duration-normal) var(--img-ease-out),
+    opacity var(--img-duration-normal) var(--img-ease-out),
+    transform var(--img-duration-normal) var(--img-ease-out);
 }
 
 .img-viewer.controls-hidden .img-viewer__toolbar {
@@ -1161,21 +1262,34 @@
   justify-content: center;
   width: 36px;
   height: 36px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.07);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--img-radius-md);
   color: var(--img-text-primary);
   cursor: pointer;
-  transition: background-color var(--img-duration-fast), border-color var(--img-duration-fast), box-shadow var(--img-duration-fast), opacity var(--img-duration-fast), transform var(--img-duration-fast);
+  transition:
+    background var(--img-duration-fast) var(--img-ease-out),
+    border-color var(--img-duration-fast) var(--img-ease-out),
+    box-shadow var(--img-duration-fast) var(--img-ease-out),
+    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .img-viewer__zoom-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(0, 212, 255, 0.14);
+  border-color: rgba(0, 212, 255, 0.4);
+  transform: translateY(-2px);
+  box-shadow:
+    0 4px 12px rgba(0, 212, 255, 0.2),
+    0 0 0 1px rgba(0, 212, 255, 0.1),
+    inset 0 1px 0 rgba(0, 212, 255, 0.12);
 }
 
 .img-viewer__zoom-btn:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--img-accent-primary);
+  box-shadow:
+    0 0 0 2px rgba(0, 0, 0, 0.5),
+    0 0 0 4px var(--img-accent-primary),
+    0 0 16px rgba(0, 212, 255, 0.3);
 }
 
 .img-viewer__zoom-btn svg {
@@ -1238,21 +1352,35 @@
   width: 36px;
   height: 36px;
   background: transparent;
-  border: none;
+  border: 1px solid transparent;
   border-radius: var(--img-radius-md);
   color: var(--img-text-secondary);
   cursor: pointer;
-  transition: background-color var(--img-duration-fast), border-color var(--img-duration-fast), box-shadow var(--img-duration-fast), opacity var(--img-duration-fast), transform var(--img-duration-fast);
+  transition:
+    background var(--img-duration-fast) var(--img-ease-out),
+    border-color var(--img-duration-fast) var(--img-ease-out),
+    color var(--img-duration-fast) var(--img-ease-out),
+    box-shadow var(--img-duration-fast) var(--img-ease-out),
+    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .img-viewer__action:hover {
   color: var(--img-text-primary);
   background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.12);
+  transform: translateY(-2px);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.3),
+    0 0 16px rgba(255, 255, 255, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .img-viewer__action:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--img-accent-primary);
+  box-shadow:
+    0 0 0 2px rgba(0, 0, 0, 0.5),
+    0 0 0 4px var(--img-accent-primary),
+    0 0 16px rgba(0, 212, 255, 0.3);
 }
 
 .img-viewer__action svg {
