@@ -310,9 +310,9 @@ async function initAuth() {
             console.log('Already authenticated, redirecting to app...');
             const savedRedirect = sessionStorage.getItem('redirectAfterLogin');
             sessionStorage.removeItem('redirectAfterLogin');
-            // Admin users go to admin.html, others go to index.html
+            // Only admin@fluxgentech.com goes to admin.html
             const user = getCurrentUser();
-            const defaultRedirect = user?.role === 'admin' ? 'admin.html' : 'index.html';
+            const defaultRedirect = user?.email?.toLowerCase() === 'admin@fluxgentech.com' ? 'admin.html' : 'index.html';
             const redirect = savedRedirect || defaultRedirect;
             const safeRedirect = /^[a-zA-Z0-9_./-]+\.html$/.test(redirect) ? redirect : defaultRedirect;
             window.location.href = safeRedirect;
