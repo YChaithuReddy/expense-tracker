@@ -67,13 +67,20 @@ const projectDropdown = (() => {
 
         container.style.display = '';
         container.innerHTML = `
+            <label class="project-dd__label">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+                Project
+            </label>
             <div class="project-dd">
                 <div class="project-dd__input-wrap">
-                    <svg class="project-dd__search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <svg class="project-dd__search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                     <input type="text" class="project-dd__input" id="projectSearchInput"
                            placeholder="Search project by name or code..."
                            autocomplete="off">
-                    <button type="button" class="project-dd__clear" id="projectClearBtn" style="display:none;" title="Clear selection">&times;</button>
+                    <svg class="project-dd__chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                    <button type="button" class="project-dd__clear" id="projectClearBtn" style="display:none;" title="Clear selection">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
                 </div>
                 <div class="project-dd__list" id="projectDropdownList" style="display:none;"></div>
                 <input type="hidden" id="projectId" name="projectId" value="">
@@ -223,6 +230,12 @@ const projectDropdown = (() => {
         if (vendorInput) vendorInput.value = project.project_name;
         if (clearBtn) clearBtn.style.display = 'flex';
 
+        // Toggle chevron/clear visibility
+        const chevron = document.querySelector('.project-dd__chevron');
+        if (chevron) chevron.style.display = 'none';
+        const wrap = document.querySelector('.project-dd__input-wrap');
+        if (wrap) wrap.classList.add('project-dd__input-wrap--selected');
+
         closeList();
 
         // Trigger vendor input event for advance indicator update
@@ -249,6 +262,12 @@ const projectDropdown = (() => {
         if (hiddenInput) hiddenInput.value = '';
         if (vendorInput) vendorInput.value = '';
         if (clearBtn) clearBtn.style.display = 'none';
+
+        // Restore chevron
+        const chevron = document.querySelector('.project-dd__chevron');
+        if (chevron) chevron.style.display = '';
+        const wrap = document.querySelector('.project-dd__input-wrap');
+        if (wrap) wrap.classList.remove('project-dd__input-wrap--selected');
     }
 
     function getSelectedProject() {

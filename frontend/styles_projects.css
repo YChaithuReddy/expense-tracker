@@ -1,6 +1,28 @@
 /* =====================================================
-   PROJECT DROPDOWN & PROJECT MANAGEMENT STYLES
+   PROJECT DROPDOWN — MODERN FUTURISTIC DESIGN
    ===================================================== */
+
+/* ---- Container z-index for overlay ---- */
+#projectDropdownContainer {
+    position: relative;
+    z-index: 100;
+}
+
+/* ---- Label ---- */
+.project-dd__label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(167, 139, 250, 0.8);
+    margin-bottom: 8px;
+}
+.project-dd__label svg {
+    opacity: 0.7;
+}
 
 /* ---- Searchable Dropdown Container ---- */
 .project-dd {
@@ -8,151 +30,219 @@
     width: 100%;
 }
 
-#projectDropdownContainer {
-    position: relative;
-    z-index: 100;
-}
-
 .project-dd__input-wrap {
     position: relative;
     display: flex;
     align-items: center;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.06) 0%, rgba(59, 130, 246, 0.04) 100%);
+    border: 1px solid rgba(139, 92, 246, 0.15);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+.project-dd__input-wrap:hover {
+    border-color: rgba(139, 92, 246, 0.3);
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(59, 130, 246, 0.06) 100%);
+}
+.project-dd__input-wrap:focus-within {
+    border-color: rgba(139, 92, 246, 0.5);
+    box-shadow:
+        0 0 0 3px rgba(139, 92, 246, 0.1),
+        0 0 20px rgba(139, 92, 246, 0.08);
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(59, 130, 246, 0.06) 100%);
+}
+
+/* Selected state — glowing border */
+.project-dd__input-wrap--selected {
+    border-color: rgba(16, 185, 129, 0.4);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.06) 0%, rgba(139, 92, 246, 0.04) 100%);
+}
+.project-dd__input-wrap--selected:hover {
+    border-color: rgba(16, 185, 129, 0.5);
 }
 
 .project-dd__search-icon {
     position: absolute;
-    left: 12px;
-    color: #5a6180;
+    left: 14px;
+    color: rgba(139, 92, 246, 0.5);
     pointer-events: none;
     z-index: 1;
+    transition: color 0.2s;
+}
+.project-dd__input-wrap:focus-within .project-dd__search-icon {
+    color: rgba(139, 92, 246, 0.8);
+}
+.project-dd__input-wrap--selected .project-dd__search-icon {
+    color: rgba(16, 185, 129, 0.7);
+}
+
+.project-dd__chevron {
+    position: absolute;
+    right: 14px;
+    color: rgba(139, 92, 246, 0.4);
+    pointer-events: none;
+    transition: transform 0.2s, color 0.2s;
+}
+.project-dd__input-wrap:focus-within .project-dd__chevron {
+    transform: rotate(180deg);
+    color: rgba(139, 92, 246, 0.7);
 }
 
 .project-dd__input {
     width: 100%;
-    padding: 10px 36px 10px 38px;
-    border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(255, 255, 255, 0.04);
+    padding: 13px 40px 13px 42px;
+    border-radius: 12px;
+    border: none;
+    background: transparent;
     color: #e0e0ff;
-    font-size: 0.88rem;
+    font-size: 0.9rem;
+    font-weight: 500;
     outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
     box-sizing: border-box;
 }
-.project-dd__input::placeholder { color: #3a3f5c; }
-.project-dd__input:focus {
-    border-color: rgba(139, 92, 246, 0.4);
-    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.08);
+.project-dd__input::placeholder {
+    color: rgba(90, 97, 128, 0.7);
+    font-weight: 400;
 }
 
 .project-dd__input--selected {
-    color: #a78bfa;
+    color: #ffffff;
     font-weight: 600;
+    letter-spacing: 0.01em;
 }
 
+/* ---- Clear Button ---- */
 .project-dd__clear {
     position: absolute;
-    right: 8px;
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
+    right: 10px;
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
     border: none;
-    background: rgba(239, 68, 68, 0.1);
-    color: #ef4444;
-    font-size: 1.1rem;
+    background: rgba(239, 68, 68, 0.12);
+    color: #f87171;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.2s;
+    z-index: 2;
 }
-.project-dd__clear:hover { background: rgba(239, 68, 68, 0.2); }
+.project-dd__clear:hover {
+    background: rgba(239, 68, 68, 0.25);
+    transform: scale(1.05);
+}
 
 /* ---- Dropdown List ---- */
 .project-dd__list {
     position: absolute;
-    top: calc(100% + 4px);
+    top: calc(100% + 6px);
     left: 0;
     right: 0;
-    max-height: 260px;
+    max-height: 280px;
     overflow-y: auto;
-    background: var(--bg-secondary, #1a1a2e);
+    background: linear-gradient(170deg, #141432 0%, #0f0f28 50%, #0d0d22 100%);
     border: 1px solid rgba(139, 92, 246, 0.2);
-    border-radius: 10px;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    border-radius: 14px;
+    box-shadow:
+        0 16px 48px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(139, 92, 246, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.03);
     z-index: 9999;
-    padding: 4px;
+    padding: 6px;
+    backdrop-filter: blur(20px);
+}
+.project-dd__list::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.4), transparent);
+    pointer-events: none;
 }
 
 /* Scrollbar */
-.project-dd__list::-webkit-scrollbar { width: 6px; }
-.project-dd__list::-webkit-scrollbar-track { background: transparent; }
+.project-dd__list::-webkit-scrollbar { width: 5px; }
+.project-dd__list::-webkit-scrollbar-track { background: transparent; margin: 6px 0; }
 .project-dd__list::-webkit-scrollbar-thumb {
-    background: rgba(139, 92, 246, 0.2);
-    border-radius: 3px;
+    background: rgba(139, 92, 246, 0.25);
+    border-radius: 10px;
+}
+.project-dd__list::-webkit-scrollbar-thumb:hover {
+    background: rgba(139, 92, 246, 0.4);
 }
 
 /* ---- Dropdown Item ---- */
 .project-dd__item {
     padding: 10px 12px;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
-    transition: background 0.15s;
+    transition: all 0.15s;
+    margin-bottom: 2px;
+    border: 1px solid transparent;
 }
 .project-dd__item:hover,
 .project-dd__item--highlighted {
     background: rgba(139, 92, 246, 0.08);
+    border-color: rgba(139, 92, 246, 0.12);
 }
 .project-dd__item--selected {
     background: rgba(139, 92, 246, 0.12);
-    border-left: 3px solid #a78bfa;
+    border-color: rgba(139, 92, 246, 0.2);
 }
 
 .project-dd__item-main {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
 }
 
 .project-dd__code {
-    font-family: 'Fira Code', 'Courier New', monospace;
-    font-size: 0.75rem;
-    font-weight: 600;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+    font-size: 0.7rem;
+    font-weight: 700;
     color: #a78bfa;
-    background: rgba(139, 92, 246, 0.1);
-    padding: 2px 8px;
-    border-radius: 4px;
+    background: rgba(139, 92, 246, 0.12);
+    padding: 3px 8px;
+    border-radius: 6px;
     white-space: nowrap;
+    letter-spacing: 0.04em;
+    border: 1px solid rgba(139, 92, 246, 0.15);
 }
 
 .project-dd__name {
     font-size: 0.88rem;
     color: #e0e0ff;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .project-dd__item-meta {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-left: 2px;
+    padding-left: 2px;
 }
 
 .project-dd__client {
     font-size: 0.72rem;
-    color: #5a6180;
+    color: rgba(90, 97, 128, 0.9);
 }
 
 .project-dd__status {
     font-size: 0.68rem;
-    font-weight: 600;
+    font-weight: 700;
     text-transform: capitalize;
+    display: flex;
+    align-items: center;
+    gap: 3px;
 }
-.project-dd__status--active { color: #10b981; }
-.project-dd__status--on_hold { color: #f59e0b; }
-.project-dd__status--completed { color: #3b82f6; }
-.project-dd__status--cancelled { color: #ef4444; }
+.project-dd__status--active { color: #34d399; }
+.project-dd__status--on_hold { color: #fbbf24; }
+.project-dd__status--completed { color: #60a5fa; }
+.project-dd__status--cancelled { color: #f87171; }
 
 .project-dd__budget {
     font-size: 0.72rem;
@@ -162,7 +252,7 @@
 
 /* ---- Empty & Footer ---- */
 .project-dd__empty {
-    padding: 20px;
+    padding: 24px 20px;
     text-align: center;
     color: #5a6180;
     font-size: 0.85rem;
@@ -170,15 +260,15 @@
 
 .project-dd__footer {
     padding: 6px;
-    border-top: 1px solid rgba(255, 255, 255, 0.04);
+    border-top: 1px solid rgba(139, 92, 246, 0.08);
     margin-top: 4px;
 }
 
 .project-dd__create-btn {
     width: 100%;
-    padding: 8px 12px;
+    padding: 10px 12px;
     border: 1px dashed rgba(139, 92, 246, 0.25);
-    border-radius: 8px;
+    border-radius: 10px;
     background: transparent;
     color: #a78bfa;
     font-size: 0.82rem;
@@ -188,8 +278,9 @@
     text-align: center;
 }
 .project-dd__create-btn:hover {
-    background: rgba(139, 92, 246, 0.06);
+    background: rgba(139, 92, 246, 0.08);
     border-color: rgba(139, 92, 246, 0.4);
+    box-shadow: 0 0 12px rgba(139, 92, 246, 0.1);
 }
 
 /* ---- Create Project Modal — Premium Redesign ---- */
@@ -232,13 +323,32 @@
 }
 
 /* Light theme */
+[data-theme="light"] .project-dd__label { color: #6d28d9; }
+[data-theme="light"] .project-dd__input-wrap {
+    background: rgba(109, 40, 217, 0.04);
+    border-color: rgba(109, 40, 217, 0.15);
+}
+[data-theme="light"] .project-dd__input-wrap:focus-within {
+    border-color: rgba(109, 40, 217, 0.4);
+    box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.08);
+}
+[data-theme="light"] .project-dd__input { color: #1e1b4b; }
+[data-theme="light"] .project-dd__input::placeholder { color: #a1a1aa; }
+[data-theme="light"] .project-dd__input--selected { color: #4c1d95; }
+[data-theme="light"] .project-dd__list {
+    background: #ffffff;
+    border-color: #e2e8f0;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
+}
+[data-theme="light"] .project-dd__item:hover,
+[data-theme="light"] .project-dd__item--highlighted {
+    background: rgba(109, 40, 217, 0.06);
+}
+[data-theme="light"] .project-dd__name { color: #1e1b4b; }
 [data-theme="light"] .project-create-modal {
     background: #ffffff;
     border-color: #e2e8f0;
-    box-shadow:
-        0 0 0 1px #e2e8f0,
-        0 20px 60px rgba(0, 0, 0, 0.1),
-        0 8px 24px rgba(109, 40, 217, 0.04);
+    box-shadow: 0 0 0 1px #e2e8f0, 0 20px 60px rgba(0, 0, 0, 0.1);
 }
 [data-theme="light"] .project-create-modal::before {
     background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
@@ -265,14 +375,15 @@
     color: #a78bfa;
     border: 1px solid rgba(139, 92, 246, 0.15);
     white-space: nowrap;
-    font-family: 'Fira Code', 'Courier New', monospace;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
 }
 
 /* ---- Mobile Responsive ---- */
 @media (max-width: 640px) {
-    .project-dd__list { max-height: 200px; }
-    .project-dd__item { padding: 8px 10px; }
+    .project-dd__list { max-height: 220px; }
+    .project-dd__item { padding: 9px 10px; }
     .project-dd__item-meta { flex-wrap: wrap; gap: 6px; }
-    .project-dd__code { font-size: 0.7rem; }
+    .project-dd__code { font-size: 0.68rem; }
+    .project-dd__input { padding: 12px 36px 12px 38px; font-size: 0.85rem; }
     .project-create-modal { padding: 18px; }
 }
