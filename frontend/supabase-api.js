@@ -345,18 +345,22 @@ const api = {
         }
 
         // Create expense record
+        const insertData = {
+            user_id: user.id,
+            date: expenseData.date,
+            time: expenseData.time || null,
+            category: expenseData.category,
+            amount: parseFloat(expenseData.amount) || 0,
+            vendor: expenseData.vendor || 'N/A',
+            description: expenseData.description || 'N/A',
+            visit_type: expenseData.visitType || null
+        };
+        // Add project_id if provided (company mode)
+        if (expenseData.project_id) insertData.project_id = expenseData.project_id;
+
         const { data: expense, error: expenseError } = await supabase
             .from('expenses')
-            .insert({
-                user_id: user.id,
-                date: expenseData.date,
-                time: expenseData.time || null,
-                category: expenseData.category,
-                amount: parseFloat(expenseData.amount) || 0,
-                vendor: expenseData.vendor || 'N/A',
-                description: expenseData.description || 'N/A',
-                visit_type: expenseData.visitType || null
-            })
+            .insert(insertData)
             .select()
             .single();
 
@@ -423,6 +427,7 @@ const api = {
         if (expenseData.vendor !== undefined) updateObj.vendor = expenseData.vendor;
         if (expenseData.description) updateObj.description = expenseData.description;
         if (expenseData.visitType !== undefined) updateObj.visit_type = expenseData.visitType;
+        if (expenseData.project_id !== undefined) updateObj.project_id = expenseData.project_id || null;
         updateObj.updated_at = new Date().toISOString();
 
         const { data: expense, error } = await supabase
@@ -1576,6 +1581,107 @@ const api = {
 
     async deactivateEmployee(whitelistId) {
         return this.updateEmployeeWhitelist(whitelistId, { is_active: false });
+    },
+
+    // ==============================================
+    // PROJECT MANAGEMENT
+    // ==============================================
+
+    async getProjects(orgId, status = null) {
+        const supabase = getSupabase();
+
+        let query = supabase
+            .from('projects')
+            .select('*')
+            .eq('organization_id', orgId)
+            .order('project_code', { ascending: true });
+
+        if (status) {
+            query = query.eq('status', status);
+        }
+
+        const { data, error } = await query;
+        if (error) handleError(error, 'Get projects');
+        return data || [];
+    },
+
+    async createProject(orgId, projectData) {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        // Auto-generate project code
+        const { data: codeResult } = await supabase.rpc('generate_project_code', { p_org_id: orgId });
+        const projectCode = codeResult || `PRJ-${new Date().getFullYear()}-${Date.now().toString().slice(-3)}`;
+
+        const { data, error } = await supabase
+            .from('projects')
+            .insert({
+                organization_id: orgId,
+                project_code: projectCode,
+                project_name: projectData.project_name,
+                client_name: projectData.client_name || null,
+                status: projectData.status || 'active',
+                budget: projectData.budget ? parseFloat(projectData.budget) : null,
+                description: projectData.description || null,
+                start_date: projectData.start_date || null,
+                end_date: projectData.end_date || null,
+                created_by: user.id
+            })
+            .select()
+            .single();
+
+        if (error) handleError(error, 'Create project');
+        return { success: true, data };
+    },
+
+    async updateProject(projectId, updates) {
+        const supabase = getSupabase();
+
+        const updateData = {};
+        if (updates.project_name !== undefined) updateData.project_name = updates.project_name;
+        if (updates.client_name !== undefined) updateData.client_name = updates.client_name;
+        if (updates.status !== undefined) updateData.status = updates.status;
+        if (updates.budget !== undefined) updateData.budget = updates.budget ? parseFloat(updates.budget) : null;
+        if (updates.description !== undefined) updateData.description = updates.description;
+        if (updates.start_date !== undefined) updateData.start_date = updates.start_date;
+        if (updates.end_date !== undefined) updateData.end_date = updates.end_date;
+
+        const { data, error } = await supabase
+            .from('projects')
+            .update(updateData)
+            .eq('id', projectId)
+            .select()
+            .single();
+
+        if (error) handleError(error, 'Update project');
+        return { success: true, data };
+    },
+
+    async deleteProject(projectId) {
+        const supabase = getSupabase();
+
+        const { error } = await supabase
+            .from('projects')
+            .delete()
+            .eq('id', projectId);
+
+        if (error) handleError(error, 'Delete project');
+        return { success: true };
+    },
+
+    async getProjectByCode(orgId, projectCode) {
+        const supabase = getSupabase();
+
+        const { data, error } = await supabase
+            .from('projects')
+            .select('*')
+            .eq('organization_id', orgId)
+            .eq('project_code', projectCode)
+            .single();
+
+        if (error) return null;
+        return data;
     }
 };
 

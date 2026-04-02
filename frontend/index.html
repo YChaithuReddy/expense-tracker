@@ -36,6 +36,7 @@
     <link rel="stylesheet" href="styles_saved_images.css?v=4.0">
     <link rel="stylesheet" href="styles_pdfs.css">
     <link rel="stylesheet" href="styles_admin.css">
+    <link rel="stylesheet" href="styles_projects.css">
 
     <!-- Essential scripts with defer - loads in parallel, executes after HTML parsed -->
     <script defer src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -58,6 +59,7 @@
     <script defer src="submit-wizard.js"></script>
     <script defer src="expense-detail.js"></script>
     <script defer src="admin-panel.js"></script>
+    <script defer src="project-dropdown.js"></script>
     <script defer src="realtime.js"></script>
 
     <!-- Heavy export libraries - lazy loaded when needed -->
@@ -257,6 +259,13 @@
                         <input type="number" id="amount" name="amount" step="0.01" placeholder="0.00" required>
                     </div>
 
+                    <!-- Company mode: searchable project dropdown -->
+                    <div class="form-group" id="projectDropdownContainer" style="display:none;">
+                        <label>Project:</label>
+                        <!-- Populated by project-dropdown.js -->
+                    </div>
+
+                    <!-- Personal mode: free-text vendor input -->
                     <div class="form-group">
                         <label for="vendor">Project Name:</label>
                         <input type="text" id="vendor" name="vendor" placeholder="Enter project name">
@@ -1558,10 +1567,25 @@
         <div class="admin-panel-body" id="adminPanelContent">
             <div class="admin-stats-bar" id="adminStats"></div>
 
-            <div class="admin-tabs">
-                <button class="admin-tab active" onclick="document.getElementById('adminEmployeeSection').style.display='';document.getElementById('adminCSVSection').style.display='none';this.classList.add('active');this.nextElementSibling.classList.remove('active');">Employees</button>
-                <button class="admin-tab" onclick="document.getElementById('adminCSVSection').style.display='';document.getElementById('adminEmployeeSection').style.display='none';this.classList.add('active');this.previousElementSibling.classList.remove('active');">Import CSV</button>
+            <div class="admin-tabs" id="adminTabs">
+                <button class="admin-tab active" data-tab="adminEmployeeSection">Employees</button>
+                <button class="admin-tab" data-tab="adminCSVSection">Import CSV</button>
+                <button class="admin-tab" data-tab="adminProjectSection">Projects</button>
             </div>
+            <script>
+                document.getElementById('adminTabs')?.addEventListener('click', (e) => {
+                    const tab = e.target.closest('.admin-tab');
+                    if (!tab) return;
+                    const target = tab.dataset.tab;
+                    document.querySelectorAll('#adminTabs .admin-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    ['adminEmployeeSection','adminCSVSection','adminProjectSection'].forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.style.display = id === target ? '' : 'none';
+                    });
+                    if (target === 'adminProjectSection') projectDropdown.renderProjectManagement('adminProjectList');
+                });
+            </script>
 
             <div id="adminEmployeeSection">
                 <div id="adminEmployeeList">
@@ -1570,6 +1594,12 @@
             </div>
 
             <div id="adminCSVSection" style="display: none;"></div>
+
+            <div id="adminProjectSection" style="display: none;">
+                <div id="adminProjectList">
+                    <div class="admin-empty"><p>Loading projects...</p></div>
+                </div>
+            </div>
         </div>
     </div>
 
