@@ -8,6 +8,11 @@
     width: 100%;
 }
 
+#projectDropdownContainer {
+    position: relative;
+    z-index: 100;
+}
+
 .project-dd__input-wrap {
     position: relative;
     display: flex;
@@ -75,7 +80,7 @@
     border: 1px solid rgba(139, 92, 246, 0.2);
     border-radius: 10px;
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
-    z-index: 100;
+    z-index: 9999;
     padding: 4px;
 }
 
