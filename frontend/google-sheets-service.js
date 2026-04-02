@@ -393,7 +393,9 @@ class GoogleSheetsService {
                 category: exp.category,
                 amount: parseFloat(exp.amount) || 0,
                 description: exp.description || '',
-                visitType: exp.visitType || ''
+                visitType: exp.visitType || '',
+                paymentMode: exp.paymentMode === 'bank_transfer' ? 'Bank Transfer' : exp.paymentMode === 'upi' ? 'UPI' : 'Cash',
+                billAttached: exp.billAttached === 'no' ? 'No' : 'Yes'
             }));
 
             const data = {
