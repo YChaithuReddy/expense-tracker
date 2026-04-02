@@ -229,8 +229,12 @@
                         <select id="mainCategory" name="mainCategory" class="category-select" required>
                             <option value="">Select Main Category</option>
                             <option value="Transportation">🚗 Transportation</option>
+                            <option value="Local Conveyance">🛺 Local Conveyance</option>
+                            <option value="Mileage">📏 Mileage</option>
                             <option value="Accommodation">🏨 Accommodation</option>
                             <option value="Meals">🍽️ Meals</option>
+                            <option value="Business Meal (Client)">🤝 Business Meal (Client)</option>
+                            <option value="Own Arrangement">🏠 Own Arrangement</option>
                             <option value="Fuel">⛽ Fuel</option>
                             <option value="Miscellaneous">📦 Miscellaneous</option>
                             <option value="Others">✨ Others</option>
@@ -282,6 +286,25 @@
                             <button type="button" class="visit-type-btn visit-type-btn--project active" data-type="project">Project</button>
                             <button type="button" class="visit-type-btn visit-type-btn--service" data-type="service">Service</button>
                             <button type="button" class="visit-type-btn visit-type-btn--survey" data-type="survey">Survey</button>
+                        </div>
+                    </div>
+
+                    <!-- Payment Mode Toggle -->
+                    <div class="form-group" id="paymentModeGroup">
+                        <label>Payment Mode:</label>
+                        <div class="visit-type-toggle" id="paymentModeToggle">
+                            <button type="button" class="visit-type-btn visit-type-btn--cash active" data-type="cash">Cash</button>
+                            <button type="button" class="visit-type-btn visit-type-btn--bank" data-type="bank_transfer">Bank Transfer</button>
+                            <button type="button" class="visit-type-btn visit-type-btn--upi" data-type="upi">UPI</button>
+                        </div>
+                    </div>
+
+                    <!-- Bill Attached Toggle -->
+                    <div class="form-group" id="billAttachedGroup">
+                        <label>Bill Attached:</label>
+                        <div class="visit-type-toggle" id="billAttachedToggle">
+                            <button type="button" class="visit-type-btn visit-type-btn--bill-yes active" data-type="yes">Yes</button>
+                            <button type="button" class="visit-type-btn visit-type-btn--bill-no" data-type="no">No</button>
                         </div>
                     </div>
 
@@ -338,19 +361,7 @@
                                 </svg>
                             </span>
                         </button>
-                        <!-- Submit for Approval (Company mode only - hidden by default) -->
-                        <button id="submitForApprovalBtn" class="btn-highlight" style="display:none;" onclick="approvalWorkflow.openSubmitModal()">
-                            <span class="btn-highlight__icon-wrap">
-                                <svg class="btn-highlight__svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
-                                    <polyline points="22 4 12 14.01 9 11.01"/>
-                                </svg>
-                            </span>
-                            <span class="btn-highlight__content">
-                                <span class="btn-highlight__label">Submit</span>
-                                <span class="btn-highlight__sub">For Approval</span>
-                            </span>
-                        </button>
+                        <!-- Submit for Approval is now integrated into the Submit Wizard -->
                         <button id="resetGoogleSheet" class="btn-reset">
                             <span class="btn-icon">🔄</span>
                             <span class="btn-text">Reset Sheet</span>
