@@ -160,50 +160,67 @@ const tallyExport = (() => {
         const existing = document.getElementById('tallyPreviewOverlay');
         if (existing) existing.remove();
 
-        const escaped = xmlString
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;');
+        // Simple, safe syntax highlighting using DOM text manipulation
+        function highlightXML(xml) {
+            // First escape everything
+            let h = xml.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            // Highlight tags: <TAGNAME> and </TAGNAME>
+            h = h.replace(/&lt;(\/?)([\w.]+)/g, '<span class="xml-bracket">&lt;$1</span><span class="xml-tag">$2</span>');
+            h = h.replace(/&gt;/g, '<span class="xml-bracket">&gt;</span>');
+            // Highlight attribute values "..."
+            h = h.replace(/&quot;([^&]*)&quot;/g, '<span class="xml-attr">"$1"</span>');
+            h = h.replace(/"([^"<>]*)"/g, '<span class="xml-attr">"$1"</span>');
+            // Highlight numbers (standalone)
+            h = h.replace(/>(-?\d+\.?\d*)</g, '><span class="xml-num">$1</span><');
+            return h;
+        }
 
-        // Syntax highlight: tags in purple, attributes in cyan, values in green
-        const highlighted = escaped
-            .replace(/&lt;(\/?[\w.]+)/g, '&lt;<span style="color:#a78bfa;">$1</span>')
-            .replace(/&gt;/g, '<span style="color:#a78bfa;">&gt;</span>')
-            .replace(/&lt;/g, '<span style="color:#a78bfa;">&lt;</span>')
-            .replace(/"([^"]*)"/g, '"<span style="color:#10b981;">$1</span>"')
-            .replace(/(\b(?:Yes|No|Import|Data|Vouchers|Payment)\b)/g, '<span style="color:#f59e0b;">$1</span>');
+        const highlighted = highlightXML(xmlString);
 
         const overlay = document.createElement('div');
         overlay.id = 'tallyPreviewOverlay';
         overlay.style.cssText = 'position:fixed;inset:0;z-index:10002;display:flex;flex-direction:column;background:var(--bg-primary,#0a0a0f);';
 
+        const voucherCount = (xmlString.match(/<VOUCHER>/g) || []).length;
+
         overlay.innerHTML = `
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid rgba(139,92,246,0.15);background:linear-gradient(135deg,rgba(26,26,46,0.98),rgba(15,15,35,0.98));flex-shrink:0;">
+            <style>
+                .xml-bracket { color: #64748b; }
+                .xml-tag { color: #a78bfa; font-weight: 500; }
+                .xml-attr { color: #10b981; }
+                .xml-num { color: #f59e0b; }
+                .tally-preview-header { display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid rgba(139,92,246,0.15);background:linear-gradient(135deg,rgba(26,26,46,0.98),rgba(15,15,35,0.98));flex-shrink:0; }
+                .tally-preview-body { flex:1;overflow:auto;background:#0d0d1f; }
+                .tally-preview-code { margin:0;padding:20px 24px;font-family:'Fira Code','Courier New',monospace;font-size:13px;line-height:1.7;color:#cbd5e1;white-space:pre;tab-size:2;counter-reset:line; }
+                .tally-preview-code .line { display:block; }
+                .tally-preview-code .line::before { counter-increment:line;content:counter(line);display:inline-block;width:35px;margin-right:16px;text-align:right;color:#334155;font-size:11px;user-select:none; }
+                .tally-preview-btn { padding:8px 16px;border-radius:8px;font-size:0.82rem;font-weight:600;cursor:pointer;transition:all 0.2s; }
+                .tally-preview-btn:hover { opacity:0.85; }
+            </style>
+            <div class="tally-preview-header">
                 <div style="display:flex;align-items:center;gap:10px;">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                    <span style="color:#a78bfa;font-weight:700;font-size:1rem;">Tally XML Preview</span>
-                    <span style="color:#5a6180;font-size:0.8rem;margin-left:8px;">${xmlString.split('<VOUCHER>').length - 1} voucher(s)</span>
+                    <span style="color:#a78bfa;font-weight:700;font-size:1.05rem;">Tally XML Preview</span>
+                    <span style="background:rgba(139,92,246,0.1);color:#a78bfa;padding:3px 10px;border-radius:12px;font-size:0.75rem;font-weight:600;">${voucherCount} voucher${voucherCount !== 1 ? 's' : ''}</span>
                 </div>
                 <div style="display:flex;gap:10px;align-items:center;">
-                    <button id="tallyPreviewCopy" style="padding:8px 16px;border-radius:8px;border:1px solid rgba(139,92,246,0.2);background:rgba(139,92,246,0.08);color:#a78bfa;font-size:0.82rem;font-weight:600;cursor:pointer;">Copy XML</button>
-                    <button id="tallyPreviewDownload" style="padding:8px 16px;border-radius:8px;border:none;background:#8b5cf6;color:white;font-size:0.82rem;font-weight:600;cursor:pointer;">Download XML</button>
+                    <button id="tallyPreviewCopy" class="tally-preview-btn" style="border:1px solid rgba(139,92,246,0.2);background:rgba(139,92,246,0.08);color:#a78bfa;">Copy XML</button>
+                    <button id="tallyPreviewDownload" class="tally-preview-btn" style="border:none;background:#8b5cf6;color:white;">Download XML</button>
                     <button id="tallyPreviewClose" style="width:36px;height:36px;border-radius:8px;border:1px solid rgba(139,92,246,0.15);background:transparent;color:#8892b0;cursor:pointer;font-size:1.2rem;display:flex;align-items:center;justify-content:center;">&times;</button>
                 </div>
             </div>
-            <div style="flex:1;overflow:auto;padding:0;">
-                <div style="display:flex;">
-                    <div id="tallyPreviewLines" style="padding:16px 12px;text-align:right;color:#3a3f5c;font-size:12px;font-family:'Fira Code',monospace;line-height:1.6;user-select:none;border-right:1px solid rgba(255,255,255,0.04);min-width:45px;flex-shrink:0;"></div>
-                    <pre id="tallyPreviewCode" style="flex:1;margin:0;padding:16px 20px;font-family:'Fira Code','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#e0e0ff;overflow-x:auto;white-space:pre;tab-size:2;">${highlighted}</pre>
-                </div>
+            <div class="tally-preview-body">
+                <pre class="tally-preview-code">${xmlString.split('\n').map(line => {
+                    let h = line.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                    h = h.replace(/&lt;(\/?)([\w.]+)/g, '<span class="xml-bracket">&lt;$1</span><span class="xml-tag">$2</span>');
+                    h = h.replace(/&gt;/g, '<span class="xml-bracket">&gt;</span>');
+                    h = h.replace(/"([^"]*)"/g, '<span class="xml-attr">"$1"</span>');
+                    return '<span class="line">' + h + '</span>';
+                }).join('')}</pre>
             </div>
         `;
 
         document.body.appendChild(overlay);
-
-        // Line numbers
-        const lines = xmlString.split('\n').length;
-        const lineNums = Array.from({ length: lines }, (_, i) => i + 1).join('\n');
-        document.getElementById('tallyPreviewLines').textContent = lineNums;
 
         // Events
         document.getElementById('tallyPreviewClose').onclick = () => overlay.remove();
