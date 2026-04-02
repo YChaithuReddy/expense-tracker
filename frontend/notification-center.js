@@ -95,9 +95,20 @@ const notificationCenter = (() => {
         }
     }
 
+    function ensurePanel() {
+        let panel = document.getElementById('notifPanel');
+        if (!panel) {
+            panel = document.createElement('div');
+            panel.id = 'notifPanel';
+            panel.className = 'notif-panel';
+            panel.style.display = 'none';
+            document.body.appendChild(panel);
+        }
+        return panel;
+    }
+
     async function open() {
-        const panel = document.getElementById('notifPanel');
-        if (!panel) return;
+        const panel = ensurePanel();
 
         isOpen = true;
         panel.style.display = 'block';
@@ -119,7 +130,7 @@ const notificationCenter = (() => {
     }
 
     function renderList() {
-        const panel = document.getElementById('notifPanel');
+        const panel = ensurePanel();
         if (!panel) return;
 
         if (notifications.length === 0) {
