@@ -24,6 +24,8 @@ const realtimeManager = (() => {
     }
 
     /* ── Start subscriptions ── */
+    let _connecting = false;
+
     function connect() {
         const client = window.supabaseClient?.get();
         if (!client) {
@@ -36,6 +38,12 @@ const realtimeManager = (() => {
             console.warn('[Realtime] No user, skipping realtime');
             return;
         }
+
+        // Prevent double-connect — disconnect existing channels first
+        if (_connecting || _channel) {
+            disconnect();
+        }
+        _connecting = true;
 
         _userId = user.id;
         _enabled = true;
@@ -129,6 +137,8 @@ const realtimeManager = (() => {
                 })
                 .subscribe();
         }
+
+        _connecting = false;
     }
 
     /* ── Handle expense changes ── */
