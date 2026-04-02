@@ -917,3 +917,372 @@
         padding: 28px 16px 22px;
     }
 }
+
+/* ============================================
+   Light Theme Overrides
+   Triggered by [data-theme="light"] on <html> or <body>
+   ============================================ */
+
+/* ---- Page Layout ---- */
+[data-theme="light"] .pdfs-page {
+    background: #f1f5f9;
+    color: #1e293b;
+}
+
+/* ---- Header ---- */
+[data-theme="light"] .pdfs-header {
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+[data-theme="light"] .pdfs-title {
+    color: #1e293b;
+}
+
+[data-theme="light"] .pdfs-back-btn {
+    border-color: #e2e8f0;
+    color: #475569;
+}
+[data-theme="light"] .pdfs-back-btn:hover {
+    background: #e2e8f0;
+    border-color: #cbd5e1;
+    color: #1e293b;
+}
+
+[data-theme="light"] .pdfs-user-name {
+    color: #475569;
+}
+
+[data-theme="light"] .pdfs-logout-btn {
+    border-color: #fecaca;
+    color: #475569;
+}
+[data-theme="light"] .pdfs-logout-btn:hover {
+    border-color: #ef4444;
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.06);
+}
+
+/* ---- Upload Zone ---- */
+[data-theme="light"] .pdfs-upload-zone {
+    border-color: #cbd5e1;
+    background: #f8fafc;
+}
+[data-theme="light"] .pdfs-upload-zone::before {
+    background: radial-gradient(
+        ellipse at 50% 0%,
+        rgba(30, 41, 59, 0.03) 0%,
+        transparent 70%
+    );
+}
+[data-theme="light"] .pdfs-upload-zone:hover,
+[data-theme="light"] .pdfs-upload-zone.drag-over {
+    border-color: #94a3b8;
+    background: #f1f5f9;
+    box-shadow:
+        0 0 0 1px #e2e8f0,
+        0 8px 40px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .pdfs-upload-zone__icon {
+    filter: none;
+}
+
+[data-theme="light"] .pdfs-upload-zone__title {
+    color: #1e293b;
+}
+
+[data-theme="light"] .pdfs-upload-zone__subtitle {
+    color: #64748b;
+}
+
+[data-theme="light"] .pdfs-upload-zone__cta {
+    background: #1e293b;
+    color: #ffffff;
+    box-shadow:
+        0 4px 16px rgba(30, 41, 59, 0.2),
+        0 0 0 1px rgba(30, 41, 59, 0.1);
+}
+[data-theme="light"] .pdfs-upload-zone:hover .pdfs-upload-zone__cta {
+    box-shadow:
+        0 6px 24px rgba(30, 41, 59, 0.3),
+        0 0 0 1px rgba(30, 41, 59, 0.15);
+}
+
+[data-theme="light"] .pdfs-upload-zone__hint {
+    color: #64748b;
+}
+[data-theme="light"] .pdfs-upload-zone__hint strong {
+    color: #1e293b;
+}
+
+/* ---- Upload Progress ---- */
+[data-theme="light"] .pdfs-upload-progress {
+    background: #e2e8f0;
+}
+[data-theme="light"] .pdfs-upload-progress__bar {
+    background: linear-gradient(90deg, #1e293b, #475569);
+    box-shadow: none;
+}
+
+/* ---- Stats Bar ---- */
+[data-theme="light"] .pdfs-stat-pill {
+    background: rgba(30, 41, 59, 0.06);
+    border-color: #e2e8f0;
+    color: #1e293b;
+}
+
+/* ---- Search ---- */
+[data-theme="light"] .pdfs-search-icon {
+    color: #94a3b8;
+}
+
+[data-theme="light"] .pdfs-search-input {
+    background: #ffffff;
+    border-color: #e2e8f0;
+    color: #1e293b;
+}
+[data-theme="light"] .pdfs-search-input::placeholder {
+    color: #94a3b8;
+}
+[data-theme="light"] .pdfs-search-input:focus {
+    border-color: #94a3b8;
+    box-shadow: 0 0 0 3px rgba(30, 41, 59, 0.08);
+}
+
+/* ---- File List ---- */
+[data-theme="light"] .pdfs-file-list {
+    border-color: #e2e8f0;
+}
+
+/* ---- PDF Row ---- */
+[data-theme="light"] .pdf-row {
+    background: #f8fafc;
+    border-bottom-color: #e2e8f0;
+}
+[data-theme="light"] .pdf-row:hover {
+    background: #e2e8f0;
+}
+
+[data-theme="light"] .pdf-row__icon--uploaded {
+    color: #1e293b;
+}
+[data-theme="light"] .pdf-row__icon--generated {
+    color: #059669;
+}
+
+[data-theme="light"] .pdf-row__name {
+    color: #1e293b;
+}
+
+[data-theme="light"] .pdf-row__meta {
+    color: #64748b;
+}
+
+[data-theme="light"] .pdf-row-btn {
+    color: #64748b;
+}
+[data-theme="light"] .pdf-row-btn--view:hover {
+    color: #1e293b;
+    background: rgba(30, 41, 59, 0.08);
+}
+[data-theme="light"] .pdf-row-btn--kodo:hover {
+    color: #7c3aed;
+    background: rgba(124, 58, 237, 0.08);
+}
+[data-theme="light"] .pdf-row-btn--email:hover {
+    color: #a855f7;
+    background: rgba(168, 85, 247, 0.08);
+}
+[data-theme="light"] .pdf-row-btn--download:hover {
+    color: #059669;
+    background: rgba(5, 150, 105, 0.08);
+}
+[data-theme="light"] .pdf-row-btn--delete:hover {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.08);
+}
+
+/* ---- Empty State ---- */
+[data-theme="light"] .pdfs-empty {
+    color: #64748b;
+}
+
+[data-theme="light"] .pdfs-empty__illustration {
+    filter: none;
+    opacity: 0.6;
+}
+
+[data-theme="light"] .pdfs-empty__title {
+    color: #1e293b;
+}
+
+[data-theme="light"] .pdfs-empty__hint {
+    color: #475569;
+}
+
+[data-theme="light"] .pdfs-empty__cta {
+    background: #1e293b;
+    color: #ffffff;
+    box-shadow:
+        0 4px 16px rgba(30, 41, 59, 0.2),
+        0 0 0 1px rgba(30, 41, 59, 0.1);
+}
+[data-theme="light"] .pdfs-empty__cta:hover {
+    box-shadow:
+        0 6px 24px rgba(30, 41, 59, 0.3),
+        0 0 0 1px rgba(30, 41, 59, 0.15);
+}
+
+/* ---- Loading State ---- */
+[data-theme="light"] .pdfs-loading {
+    color: #64748b;
+}
+
+[data-theme="light"] .pdfs-loading__spinner {
+    border-color: #e2e8f0;
+    border-top-color: #1e293b;
+    box-shadow: none;
+}
+
+/* ---- Library Overlay ---- */
+[data-theme="light"] .pdfs-library-overlay {
+    background: #f1f5f9;
+}
+
+/* ---- Library Header ---- */
+[data-theme="light"] .pdfs-library-header {
+    border-bottom-color: #e2e8f0;
+    background: #f8fafc;
+}
+
+[data-theme="light"] .pdfs-library-title {
+    color: #1e293b;
+    border-left-color: #1e293b;
+}
+
+[data-theme="light"] .pdfs-library-close {
+    border-color: #e2e8f0;
+    color: #475569;
+}
+[data-theme="light"] .pdfs-library-close:hover {
+    background: #e2e8f0;
+    border-color: #cbd5e1;
+    color: #1e293b;
+}
+
+/* ---- Library Fixed Section ---- */
+[data-theme="light"] .pdfs-library-fixed {
+    border-bottom-color: #e2e8f0;
+}
+
+/* ---- Modal Overlay ---- */
+[data-theme="light"] .pdfs-modal-overlay {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+/* ---- Modal ---- */
+[data-theme="light"] .pdfs-modal {
+    background: #ffffff;
+    border-color: #e2e8f0;
+    box-shadow:
+        0 0 0 1px #e2e8f0,
+        0 24px 80px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] .pdfs-modal__title {
+    color: #1e293b;
+}
+
+[data-theme="light"] .pdfs-modal__label {
+    color: #475569;
+}
+
+[data-theme="light"] .pdfs-modal__input,
+[data-theme="light"] .pdfs-modal__textarea,
+[data-theme="light"] .pdfs-modal__select {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+    color: #1e293b;
+}
+[data-theme="light"] .pdfs-modal__input:focus,
+[data-theme="light"] .pdfs-modal__textarea:focus,
+[data-theme="light"] .pdfs-modal__select:focus {
+    border-color: #94a3b8;
+    box-shadow: 0 0 0 3px rgba(30, 41, 59, 0.08);
+    background: #ffffff;
+}
+
+[data-theme="light"] .pdfs-modal__select option {
+    background: #ffffff;
+    color: #1e293b;
+}
+
+/* ---- Delete Checkbox ---- */
+[data-theme="light"] .pdfs-modal__delete-confirm {
+    background: rgba(239, 68, 68, 0.04);
+    border-color: rgba(239, 68, 68, 0.15);
+}
+[data-theme="light"] .pdfs-modal__delete-confirm:hover {
+    background: rgba(239, 68, 68, 0.08);
+}
+[data-theme="light"] .pdfs-modal__delete-confirm span {
+    color: #1e293b;
+}
+
+/* ---- Modal Buttons ---- */
+[data-theme="light"] .pdfs-modal__btn--primary {
+    background: #1e293b;
+    color: #ffffff;
+    box-shadow: 0 4px 16px rgba(30, 41, 59, 0.2);
+}
+[data-theme="light"] .pdfs-modal__btn--primary:hover {
+    box-shadow: 0 6px 24px rgba(30, 41, 59, 0.3);
+}
+
+[data-theme="light"] .pdfs-modal__btn--secondary {
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+    color: #475569;
+}
+[data-theme="light"] .pdfs-modal__btn--secondary:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+}
+
+[data-theme="light"] .pdfs-modal__btn--kodo {
+    background: linear-gradient(135deg, #7c3aed, #6d28d9);
+    color: #ffffff;
+}
+
+[data-theme="light"] .pdfs-modal__btn--email {
+    background: linear-gradient(135deg, #059669, #047857);
+    color: #ffffff;
+}
+
+[data-theme="light"] .pdfs-modal__btn--danger {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: #ffffff;
+}
+
+/* ---- Toast ---- */
+[data-theme="light"] .pdfs-toast {
+    background: #ffffff;
+    border-color: #e2e8f0;
+    color: #1e293b;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.1),
+        0 0 0 1px #e2e8f0;
+}
+[data-theme="light"] .pdfs-toast--success {
+    border-color: rgba(5, 150, 105, 0.3);
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.1),
+        0 0 0 1px rgba(5, 150, 105, 0.15);
+}
+[data-theme="light"] .pdfs-toast--error {
+    border-color: rgba(239, 68, 68, 0.3);
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.1),
+        0 0 0 1px rgba(239, 68, 68, 0.15);
+}
