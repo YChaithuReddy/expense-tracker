@@ -38,6 +38,14 @@ const approvalWorkflow = (() => {
         return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
     }
 
+    // Send email notification (non-blocking — fire and forget)
+    function sendEmailNotification(recipientEmail, subject, message, voucherNumber) {
+        if (!recipientEmail) return;
+        api.sendNotificationEmail(recipientEmail, subject, message, voucherNumber)
+            .then(r => { if (r.success) console.log('Notification email sent to', recipientEmail); })
+            .catch(e => console.warn('Email notification failed:', e));
+    }
+
     const STATUS_CONFIG = {
         draft: { label: 'Draft', color: '#64748b', bg: 'rgba(100,116,139,0.1)' },
         pending_manager: { label: 'Pending Manager', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' },
@@ -232,6 +240,18 @@ const approvalWorkflow = (() => {
             closeSubmitModal();
             window.expenseTracker?.showNotification(`Voucher ${result.data.voucher_number} submitted for approval!`);
             await api.logActivity?.('voucher_submitted', `Submitted voucher ${result.data.voucher_number} (${formatAmount(result.data.total_amount)}) for approval`);
+
+            // Send email to manager
+            const selectedManager = managers.find(m => m.id === managerId);
+            if (selectedManager?.email) {
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                sendEmailNotification(
+                    selectedManager.email,
+                    'New voucher for your approval',
+                    `${user.name || 'An employee'} submitted voucher ${result.data.voucher_number} (${formatAmount(result.data.total_amount)}) for your approval. Please log in to review.`,
+                    result.data.voucher_number
+                );
+            }
 
             // Uncheck checkboxes and refresh
             document.querySelectorAll('.expense-checkbox:checked').forEach(cb => cb.checked = false);
@@ -487,10 +507,31 @@ const approvalWorkflow = (() => {
 
     async function approve(voucherId) {
         try {
+            // Get voucher detail before approving (for email)
+            const detail = await api.getVoucherDetail(voucherId);
             const result = await api.approveVoucher(voucherId);
             closeVoucherDetail();
             window.expenseTracker?.showNotification('Voucher approved!');
-            await api.logActivity?.('voucher_approved', `Approved voucher`);
+            await api.logActivity?.('voucher_approved', `Approved voucher ${detail.voucher_number}`);
+
+            // Email: notify next person in chain
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (result.newStatus === 'pending_accountant' && detail.accountant?.email) {
+                sendEmailNotification(
+                    detail.accountant.email,
+                    'Voucher ready for verification',
+                    `Voucher ${detail.voucher_number} (${formatAmount(detail.total_amount)}) was approved by ${user.name || 'Manager'}. Please log in to review and verify.`,
+                    detail.voucher_number
+                );
+            } else if (result.newStatus === 'approved' && detail.submitter?.email) {
+                sendEmailNotification(
+                    detail.submitter.email,
+                    'Your voucher has been approved!',
+                    `Great news! Your voucher ${detail.voucher_number} (${formatAmount(detail.total_amount)}) has been approved by ${user.name || 'Accountant'}.`,
+                    detail.voucher_number
+                );
+            }
+
             await loadVoucherList();
         } catch (e) {
             window.expenseTracker?.showNotification('Failed: ' + e.message);
@@ -523,10 +564,24 @@ const approvalWorkflow = (() => {
         }
 
         try {
+            // Get detail for email before rejecting
+            const detail = await api.getVoucherDetail(voucherId);
             await api.rejectVoucher(voucherId, reason);
             closeVoucherDetail();
             window.expenseTracker?.showNotification('Voucher rejected and sent back to employee');
-            await api.logActivity?.('voucher_rejected', `Rejected voucher: ${reason}`);
+            await api.logActivity?.('voucher_rejected', `Rejected voucher ${detail.voucher_number}: ${reason}`);
+
+            // Email the employee about rejection
+            if (detail.submitter?.email) {
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                sendEmailNotification(
+                    detail.submitter.email,
+                    'Voucher rejected — action needed',
+                    `Your voucher ${detail.voucher_number} (${formatAmount(detail.total_amount)}) was rejected by ${user.name || 'Reviewer'}.\n\nReason: ${reason}\n\nPlease review the feedback and resubmit.`,
+                    detail.voucher_number
+                );
+            }
+
             await loadVoucherList();
         } catch (e) {
             window.expenseTracker?.showNotification('Failed: ' + e.message);

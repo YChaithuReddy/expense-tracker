@@ -38,11 +38,13 @@ const filesToCopy = [
     'admin-panel.js',
     'project-dropdown.js',
     'approval-workflow.js',
+    'notification-center.js',
     'realtime.js',
     'styles_pdfs.css',
     'styles_admin.css',
     'styles_projects.css',
     'styles_approval.css',
+    'styles_notifications.css',
     'sw.js',
     'manifest.json',
     'favicon.svg'

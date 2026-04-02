@@ -75,6 +75,11 @@ class ExpenseTracker {
         if (typeof projectDropdown !== 'undefined') {
             projectDropdown.init();
         }
+
+        // Initialize notification center (company mode only)
+        if (typeof notificationCenter !== 'undefined') {
+            notificationCenter.init();
+        }
     }
 
     // Sanitize HTML to prevent XSS attacks
