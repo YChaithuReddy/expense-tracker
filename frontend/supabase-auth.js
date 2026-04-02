@@ -332,11 +332,8 @@ async function initAuth() {
                 window.location.href = 'admin.html';
                 return;
             }
-            if (currentUser?.role === 'accountant' && !pathname.includes('accountant') && !pathname.includes('login')) {
-                window.location.href = 'accountant.html';
-                return;
-            }
-            if (curEmail === 'accountant@fluxgentech.com' && !pathname.includes('accountant')) {
+            const isAcctPage = pathname.includes('accountant') || pathname.includes('login') || pathname.includes('admin');
+            if (!isAcctPage && (curEmail === 'accountant@fluxgentech.com' || currentUser?.role === 'accountant')) {
                 window.location.href = 'accountant.html';
                 return;
             }
