@@ -568,65 +568,102 @@
     width: 100%;
 }
 
-/* ---- Modal Overlay (sub-modals inside library) ---- */
+/* ---- Modal Overlay (sub-modals inside library) — Premium Redesign ---- */
+@keyframes pdfs-overlay-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+@keyframes pdfs-modal-in {
+    from { opacity: 0; transform: translateY(20px) scale(0.975); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 .pdfs-modal-overlay {
     position: fixed;
     inset: 0;
-    background: var(--bg-primary, #0a0a0f);
+    background: rgba(8, 8, 22, 0.88);
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
     z-index: 9100;
     display: none;
     flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0;
+    animation: pdfs-overlay-in 0.22s ease both;
 }
 .pdfs-modal-overlay.active {
     display: flex;
 }
 
-/* ---- Modal (Full Screen) ---- */
+/* ---- Modal (Full Screen with centered content) ---- */
 .pdfs-modal {
-    background: var(--bg-primary, #0a0a0f);
+    background: linear-gradient(160deg, #0d0d24 0%, #10102e 55%, #0a0a1e 100%);
     border: none;
     border-radius: 0;
-    padding: 28px;
+    padding: 0;
     width: 100%;
-    max-width: 700px;
-    margin: 0 auto;
+    max-width: 100%;
+    margin: 0;
     height: 100%;
     overflow-y: auto;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    animation: pdfs-modal-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 212, 255, 0.2) transparent;
 }
-@keyframes pdfs-modal-in {
-    from {
-        opacity: 0;
-        transform: translateY(12px) scale(0.97);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
+.pdfs-modal::-webkit-scrollbar { width: 5px; }
+.pdfs-modal::-webkit-scrollbar-track { background: transparent; }
+.pdfs-modal::-webkit-scrollbar-thumb { background: rgba(0, 212, 255, 0.2); border-radius: 3px; }
 
+/* Inner content wrapper — constrains width and adds padding */
+.pdfs-modal > * {
+    max-width: 720px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+/* For the title which is first child — top padding */
 .pdfs-modal__title {
-    font-size: 1.1rem;
+    padding: 28px 28px 0;
+    font-size: 1.08rem;
     font-weight: 700;
-    color: #e0e0ff;
-    margin: 0 0 22px;
+    color: #c8d8f0;
+    margin: 0 0 24px;
     display: flex;
     align-items: center;
-    gap: 9px;
-    letter-spacing: -0.01em;
+    gap: 10px;
+    letter-spacing: 0.01em;
+    border-bottom: 1px solid rgba(0, 212, 255, 0.08);
+    padding-bottom: 18px;
+    position: relative;
+}
+.pdfs-modal__title::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 28px;
+    right: 28px;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(0, 212, 255, 0.35), transparent);
 }
 
 .pdfs-modal__field {
-    margin-bottom: 16px;
+    margin-bottom: 18px;
+    padding: 0 28px;
 }
+/* First field — remove double top gap */
+.pdfs-modal__field:first-of-type { padding-top: 4px; }
 
 .pdfs-modal__label {
     display: block;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #8892b0;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #4a5878;
     text-transform: uppercase;
-    letter-spacing: 0.07em;
+    letter-spacing: 0.08em;
     margin-bottom: 7px;
 }
 
@@ -634,66 +671,75 @@
 .pdfs-modal__textarea,
 .pdfs-modal__select {
     width: 100%;
-    background: rgba(0, 212, 255, 0.04);
-    border: 1px solid rgba(0, 212, 255, 0.2);
-    border-radius: 10px;
-    padding: 10px 13px;
-    color: #e0e0ff;
+    background: rgba(0, 212, 255, 0.03);
+    border: 1px solid rgba(0, 212, 255, 0.14);
+    border-radius: 11px;
+    padding: 11px 14px;
+    color: #c8d8f0;
     font-size: 0.9rem;
     font-family: inherit;
-    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
     box-sizing: border-box;
 }
+.pdfs-modal__input::placeholder { color: #2a3850; }
 .pdfs-modal__input:focus,
 .pdfs-modal__textarea:focus,
 .pdfs-modal__select:focus {
     outline: none;
-    border-color: #00d4ff;
-    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.2);
-    background: rgba(0, 212, 255, 0.06);
+    border-color: rgba(0, 212, 255, 0.45);
+    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.12), 0 0 16px rgba(0, 212, 255, 0.08);
+    background: rgba(0, 212, 255, 0.05);
 }
 
 .pdfs-modal__select {
     -webkit-appearance: none;
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238892b0' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234a5878' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 12px center;
-    padding-right: 36px;
+    background-position: right 13px center;
+    padding-right: 38px;
     cursor: pointer;
 }
 .pdfs-modal__select option {
-    background: #16213e;
-    color: #e0e0ff;
+    background: #0d0d24;
+    color: #c8d8f0;
 }
 
 .pdfs-modal__textarea {
     resize: vertical;
-    min-height: 76px;
-    line-height: 1.55;
+    min-height: 80px;
+    line-height: 1.57;
 }
 
 .pdfs-modal__row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    gap: 14px;
+    padding: 0 28px;
+    margin-bottom: 18px;
+}
+/* Fields inside a row don't need their own horizontal padding */
+.pdfs-modal__row .pdfs-modal__field {
+    padding: 0;
+    margin-bottom: 0;
 }
 
 /* ---- Delete Checkbox ---- */
 .pdfs-modal__delete-confirm {
     display: flex;
     align-items: flex-start;
-    gap: 10px;
-    padding: 14px 16px;
-    background: rgba(239, 68, 68, 0.06);
-    border: 1px solid rgba(239, 68, 68, 0.2);
-    border-radius: 10px;
-    margin-bottom: 6px;
+    gap: 12px;
+    padding: 14px 18px;
+    background: rgba(239, 68, 68, 0.05);
+    border: 1px solid rgba(239, 68, 68, 0.18);
+    border-radius: 12px;
+    margin: 0 28px 8px;
     cursor: pointer;
-    transition: background 0.15s ease;
+    transition: all 0.2s ease;
 }
 .pdfs-modal__delete-confirm:hover {
-    background: rgba(239, 68, 68, 0.1);
+    background: rgba(239, 68, 68, 0.09);
+    border-color: rgba(239, 68, 68, 0.3);
 }
 .pdfs-modal__delete-confirm input[type="checkbox"] {
     width: 16px;
@@ -701,18 +747,18 @@
     accent-color: #ef4444;
     cursor: pointer;
     flex-shrink: 0;
-    margin-top: 1px;
+    margin-top: 2px;
 }
 .pdfs-modal__delete-confirm span {
     font-size: 0.85rem;
-    color: #e0e0ff;
-    line-height: 1.5;
+    color: #c8d8f0;
+    line-height: 1.52;
 }
 
 .pdfs-modal__delete-hint {
-    font-size: 0.75rem;
-    color: rgba(239, 68, 68, 0.7);
-    margin: 6px 0 0;
+    font-size: 0.74rem;
+    color: rgba(239, 68, 68, 0.65);
+    margin: 6px 28px 0;
     text-align: center;
 }
 
@@ -720,67 +766,84 @@
 .pdfs-modal__actions {
     display: flex;
     gap: 10px;
-    margin-top: 22px;
+    margin: 24px 28px 28px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(0, 212, 255, 0.07);
+    position: relative;
+}
+.pdfs-modal__actions::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(0, 212, 255, 0.25), transparent);
 }
 
 .pdfs-modal__btn {
     flex: 1;
     padding: 12px 18px;
     border-radius: 12px;
-    font-size: 0.88rem;
+    font-size: 0.87rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.18s ease;
+    transition: all 0.2s ease;
     border: none;
     font-family: inherit;
+    letter-spacing: 0.01em;
 }
 .pdfs-modal__btn--primary {
-    background: linear-gradient(135deg, #00d4ff, #0099bb);
-    color: #0a0a0f;
+    background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+    color: #060818;
     box-shadow: 0 4px 16px rgba(0, 212, 255, 0.35);
+    font-weight: 700;
 }
 .pdfs-modal__btn--primary:hover {
-    box-shadow: 0 6px 24px rgba(0, 212, 255, 0.5);
+    box-shadow: 0 6px 26px rgba(0, 212, 255, 0.52);
     transform: translateY(-1px);
+    filter: brightness(1.06);
 }
 .pdfs-modal__btn--secondary {
-    background: rgba(136, 146, 176, 0.1);
-    border: 1px solid rgba(136, 146, 176, 0.2);
-    color: #8892b0;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #5a6880;
 }
 .pdfs-modal__btn--secondary:hover {
-    background: rgba(136, 146, 176, 0.18);
-    color: #e0e0ff;
+    background: rgba(255, 255, 255, 0.07);
+    color: #8a9ab0;
+    border-color: rgba(255, 255, 255, 0.14);
 }
 .pdfs-modal__btn--kodo {
-    background: linear-gradient(135deg, #7c3aed, #5b21b6);
+    background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
     color: #fff;
     box-shadow: 0 4px 16px rgba(124, 58, 237, 0.35);
 }
 .pdfs-modal__btn--kodo:hover {
-    box-shadow: 0 6px 24px rgba(124, 58, 237, 0.5);
+    box-shadow: 0 6px 26px rgba(124, 58, 237, 0.52);
     transform: translateY(-1px);
 }
 .pdfs-modal__btn--email {
-    background: linear-gradient(135deg, #10b981, #059669);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     color: #fff;
     box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35);
 }
 .pdfs-modal__btn--email:hover {
-    box-shadow: 0 6px 24px rgba(16, 185, 129, 0.5);
+    box-shadow: 0 6px 26px rgba(16, 185, 129, 0.5);
     transform: translateY(-1px);
 }
 .pdfs-modal__btn--danger {
-    background: linear-gradient(135deg, #ef4444, #dc2626);
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
     color: #fff;
     box-shadow: 0 4px 16px rgba(239, 68, 68, 0.35);
 }
 .pdfs-modal__btn--danger:hover {
-    box-shadow: 0 6px 24px rgba(239, 68, 68, 0.5);
+    box-shadow: 0 6px 26px rgba(239, 68, 68, 0.52);
     transform: translateY(-1px);
 }
+.pdfs-modal__btn:active { transform: translateY(0); }
 .pdfs-modal__btn:disabled {
-    opacity: 0.4;
+    opacity: 0.38;
     cursor: not-allowed;
     transform: none !important;
     box-shadow: none !important;
@@ -1170,33 +1233,37 @@
 
 /* ---- Modal Overlay ---- */
 [data-theme="light"] .pdfs-modal-overlay {
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(241, 245, 249, 0.9);
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
 }
 
 /* ---- Modal ---- */
 [data-theme="light"] .pdfs-modal {
-    background: #ffffff;
-    border-color: #e2e8f0;
-    box-shadow:
-        0 0 0 1px #e2e8f0,
-        0 24px 80px rgba(0, 0, 0, 0.15);
+    background: #f8fafc;
+    scrollbar-color: rgba(30, 41, 59, 0.15) transparent;
 }
 
 [data-theme="light"] .pdfs-modal__title {
     color: #1e293b;
+    border-bottom-color: #e2e8f0;
+}
+[data-theme="light"] .pdfs-modal__title::after {
+    background: linear-gradient(90deg, rgba(30, 41, 59, 0.2), transparent);
 }
 
 [data-theme="light"] .pdfs-modal__label {
-    color: #475569;
+    color: #6b7280;
 }
 
 [data-theme="light"] .pdfs-modal__input,
 [data-theme="light"] .pdfs-modal__textarea,
 [data-theme="light"] .pdfs-modal__select {
-    background: #f8fafc;
+    background: #ffffff;
     border-color: #e2e8f0;
     color: #1e293b;
 }
+[data-theme="light"] .pdfs-modal__input::placeholder { color: #cbd5e1; }
 [data-theme="light"] .pdfs-modal__input:focus,
 [data-theme="light"] .pdfs-modal__textarea:focus,
 [data-theme="light"] .pdfs-modal__select:focus {
@@ -1205,6 +1272,9 @@
     background: #ffffff;
 }
 
+[data-theme="light"] .pdfs-modal__select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+}
 [data-theme="light"] .pdfs-modal__select option {
     background: #ffffff;
     color: #1e293b;
@@ -1214,6 +1284,8 @@
 [data-theme="light"] .pdfs-modal__delete-confirm {
     background: rgba(239, 68, 68, 0.04);
     border-color: rgba(239, 68, 68, 0.15);
+    margin-left: 28px;
+    margin-right: 28px;
 }
 [data-theme="light"] .pdfs-modal__delete-confirm:hover {
     background: rgba(239, 68, 68, 0.08);
@@ -1221,15 +1293,27 @@
 [data-theme="light"] .pdfs-modal__delete-confirm span {
     color: #1e293b;
 }
+[data-theme="light"] .pdfs-modal__delete-hint {
+    margin-left: 28px;
+    margin-right: 28px;
+}
+
+/* ---- Modal Actions ---- */
+[data-theme="light"] .pdfs-modal__actions {
+    border-top-color: #e2e8f0;
+}
+[data-theme="light"] .pdfs-modal__actions::before {
+    background: linear-gradient(90deg, rgba(30, 41, 59, 0.15), transparent);
+}
 
 /* ---- Modal Buttons ---- */
 [data-theme="light"] .pdfs-modal__btn--primary {
-    background: #1e293b;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
     color: #ffffff;
     box-shadow: 0 4px 16px rgba(30, 41, 59, 0.2);
 }
 [data-theme="light"] .pdfs-modal__btn--primary:hover {
-    box-shadow: 0 6px 24px rgba(30, 41, 59, 0.3);
+    box-shadow: 0 6px 24px rgba(30, 41, 59, 0.32);
 }
 
 [data-theme="light"] .pdfs-modal__btn--secondary {
@@ -1245,16 +1329,28 @@
 [data-theme="light"] .pdfs-modal__btn--kodo {
     background: linear-gradient(135deg, #7c3aed, #6d28d9);
     color: #ffffff;
+    box-shadow: 0 4px 16px rgba(124, 58, 237, 0.22);
+}
+[data-theme="light"] .pdfs-modal__btn--kodo:hover {
+    box-shadow: 0 6px 24px rgba(124, 58, 237, 0.34);
 }
 
 [data-theme="light"] .pdfs-modal__btn--email {
     background: linear-gradient(135deg, #059669, #047857);
     color: #ffffff;
+    box-shadow: 0 4px 16px rgba(5, 150, 105, 0.2);
+}
+[data-theme="light"] .pdfs-modal__btn--email:hover {
+    box-shadow: 0 6px 24px rgba(5, 150, 105, 0.32);
 }
 
 [data-theme="light"] .pdfs-modal__btn--danger {
     background: linear-gradient(135deg, #ef4444, #dc2626);
     color: #ffffff;
+    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.2);
+}
+[data-theme="light"] .pdfs-modal__btn--danger:hover {
+    box-shadow: 0 6px 24px rgba(239, 68, 68, 0.32);
 }
 
 /* ---- Toast ---- */
