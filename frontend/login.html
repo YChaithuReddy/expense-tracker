@@ -182,9 +182,12 @@
                     showMessage('Login successful! Redirecting...', 'success');
                     // Token and user are saved automatically by supabase-api.js
 
-                    // Redirect: only admin@fluxgentech.com goes to admin.html
+                    // Role-based redirect after login
                     const user = JSON.parse(localStorage.getItem('user') || '{}');
-                    const redirectUrl = user.email?.toLowerCase() === 'admin@fluxgentech.com' ? 'admin.html' : 'index.html';
+                    const email = user.email?.toLowerCase();
+                    const redirectUrl = email === 'admin@fluxgentech.com' ? 'admin.html'
+                        : user.role === 'accountant' ? 'accountant.html'
+                        : 'index.html';
 
                     setTimeout(() => {
                         window.location.href = redirectUrl;
