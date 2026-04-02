@@ -247,47 +247,71 @@
 
 .admin-table {
     width: 100%;
-    min-width: 800px;
     border-collapse: collapse;
-    font-size: 0.825rem;
-    table-layout: auto;
+    font-size: 0.8rem;
+    table-layout: fixed;
 }
+
+/* Column widths for 8-column employee table */
+.admin-table th:nth-child(1) { width: 90px; }   /* ID */
+.admin-table th:nth-child(2) { width: 14%; }     /* Name */
+.admin-table th:nth-child(3) { width: 20%; }     /* Email */
+.admin-table th:nth-child(4) { width: 13%; }     /* Dept */
+.admin-table th:nth-child(5) { width: 10%; }     /* Designation */
+.admin-table th:nth-child(6) { width: 100px; }   /* Role */
+.admin-table th:nth-child(7) { width: 80px; }    /* Status */
+.admin-table th:nth-child(8) { width: 50px; }    /* Action */
 
 .admin-table th {
     text-align: left;
-    padding: 11px 14px;
+    padding: 10px 12px;
     color: #6b7280;
     font-weight: 600;
-    font-size: 0.7rem;
+    font-size: 0.68rem;
     text-transform: uppercase;
-    letter-spacing: 0.07em;
+    letter-spacing: 0.06em;
     background: #f9fafb;
     border-bottom: 1px solid #e5e7eb;
     white-space: nowrap;
+    overflow: hidden;
 }
 
 .admin-table td {
-    padding: 11px 14px;
+    padding: 10px 12px;
     color: #374151;
     border-bottom: 1px solid #f3f4f6;
     vertical-align: middle;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-/* Allow wrapping for name and email columns */
-.admin-table td:nth-child(2),
+/* Email: truncate with ellipsis, show full on hover */
 .admin-table td:nth-child(3) {
+    font-size: 0.75rem;
+}
+.admin-table td:nth-child(3):hover {
+    overflow: visible;
     white-space: normal;
-    word-break: break-word;
+    word-break: break-all;
 }
 
-/* Fix role select width */
-.admin-table td .admin-role-select {
-    min-width: 110px;
+/* Role select compact */
+.admin-role-select {
+    padding: 4px 6px;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    color: #374151;
+    font-size: 0.75rem;
+    cursor: pointer;
+    width: 100%;
 }
+.admin-role-select:focus { border-color: #111827; outline: none; }
 
 .admin-table tbody tr:last-child td { border-bottom: none; }
 .admin-table tbody tr:hover td { background: #f9fafb; }
-.admin-table--compact td { padding: 7px 12px; }
+.admin-table--compact td { padding: 7px 10px; }
 
 .admin-row--inactive td { opacity: 0.4; }
 
