@@ -1413,6 +1413,169 @@ const api = {
 
         if (error) handleError(error, 'Get Activity Log');
         return data || [];
+    },
+
+    // ==============================================
+    // ORGANIZATION & EMPLOYEE MANAGEMENT
+    // ==============================================
+
+    async createOrganization(name, domain = null) {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        const { data: org, error: orgError } = await supabase
+            .from('organizations')
+            .insert({ name, domain, created_by: user.id })
+            .select()
+            .single();
+
+        if (orgError) handleError(orgError, 'Create organization');
+
+        // Set current user as admin of this org
+        const { error: profileError } = await supabase
+            .from('profiles')
+            .update({
+                organization_id: org.id,
+                role: 'admin'
+            })
+            .eq('id', user.id);
+
+        if (profileError) handleError(profileError, 'Set admin role');
+
+        return { success: true, data: org };
+    },
+
+    async getOrganization() {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('organization_id')
+            .eq('id', user.id)
+            .single();
+
+        if (!profile?.organization_id) return null;
+
+        const { data, error } = await supabase
+            .from('organizations')
+            .select('*')
+            .eq('id', profile.organization_id)
+            .single();
+
+        if (error) return null;
+        return data;
+    },
+
+    async importEmployees(orgId, employees) {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        // Upsert employees into whitelist
+        const records = employees.map(emp => ({
+            organization_id: orgId,
+            employee_id: emp.employee_id,
+            name: emp.name,
+            email: emp.email.toLowerCase().trim(),
+            department: emp.department || null,
+            designation: emp.designation || null,
+            reporting_manager_email: emp.reporting_manager_email?.toLowerCase().trim() || null,
+            role: emp.role || 'employee',
+            is_active: true
+        }));
+
+        const { data, error } = await supabase
+            .from('employee_whitelist')
+            .upsert(records, { onConflict: 'organization_id,email' })
+            .select();
+
+        if (error) handleError(error, 'Import employees');
+
+        // Update profiles of existing users who match whitelist emails
+        for (const emp of records) {
+            await supabase
+                .from('profiles')
+                .update({
+                    employee_id: emp.employee_id,
+                    department: emp.department,
+                    designation: emp.designation,
+                    role: emp.role,
+                    organization_id: orgId
+                })
+                .eq('email', emp.email)
+                .is('organization_id', null);
+        }
+
+        // Resolve manager IDs
+        await supabase.rpc('resolve_manager_ids', { p_org_id: orgId });
+
+        return { success: true, imported: data?.length || 0 };
+    },
+
+    async getEmployeeWhitelist(orgId) {
+        const supabase = getSupabase();
+
+        const { data, error } = await supabase
+            .from('employee_whitelist')
+            .select('*')
+            .eq('organization_id', orgId)
+            .order('name');
+
+        if (error) handleError(error, 'Get employee whitelist');
+        return data || [];
+    },
+
+    async getOrgMembers(orgId, role = null) {
+        const supabase = getSupabase();
+
+        let query = supabase
+            .from('profiles')
+            .select('id, name, email, employee_id, department, designation, role, profile_picture')
+            .eq('organization_id', orgId)
+            .order('name');
+
+        if (role) {
+            query = query.eq('role', role);
+        }
+
+        const { data, error } = query;
+        if (error) handleError(error, 'Get org members');
+        return data || [];
+    },
+
+    async updateEmployeeRole(profileId, role) {
+        const supabase = getSupabase();
+
+        const { data, error } = await supabase
+            .from('profiles')
+            .update({ role })
+            .eq('id', profileId)
+            .select()
+            .single();
+
+        if (error) handleError(error, 'Update employee role');
+        return { success: true, data };
+    },
+
+    async updateEmployeeWhitelist(whitelistId, updates) {
+        const supabase = getSupabase();
+
+        const { data, error } = await supabase
+            .from('employee_whitelist')
+            .update(updates)
+            .eq('id', whitelistId)
+            .select()
+            .single();
+
+        if (error) handleError(error, 'Update whitelist entry');
+        return { success: true, data };
+    },
+
+    async deactivateEmployee(whitelistId) {
+        return this.updateEmployeeWhitelist(whitelistId, { is_active: false });
     }
 };
 

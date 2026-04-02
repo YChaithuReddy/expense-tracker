@@ -49,6 +49,23 @@ class ExpenseTracker {
         // Initialize advance tracker
         this.advances = [];
         this.initializeAdvanceListeners();
+
+        // Enterprise: role-aware UI setup
+        this.initializeRoleUI();
+    }
+
+    // ==================== Enterprise Role-Aware UI ====================
+
+    initializeRoleUI() {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const role = user?.role;
+        const orgId = user?.organization_id;
+
+        // Company mode indicator
+        if (orgId) {
+            document.body.classList.add('company-mode');
+            document.body.dataset.userRole = role || 'employee';
+        }
     }
 
     // Sanitize HTML to prevent XSS attacks
