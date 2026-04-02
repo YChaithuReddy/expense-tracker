@@ -386,6 +386,7 @@
                     <span id="adminEmail">admin@fluxgentech.com</span>
                 </div>
                 <div class="admin-sidebar__links">
+                    <button class="admin-sidebar__link" onclick="window.location.href='accountant.html'" title="Accountant Dashboard">Accounts</button>
                     <button class="admin-sidebar__link" onclick="window.location.href='index.html'">App</button>
                     <button class="admin-sidebar__link admin-sidebar__link--danger" onclick="logout()">Logout</button>
                 </div>
@@ -548,6 +549,29 @@ WDL1,WONDERLA,Amusement Park,Amusement Park</code>
 
             // Load data
             await loadOverview();
+
+            // Realtime: auto-refresh when data changes
+            try {
+                const supabase = window.supabaseClient?.get();
+                if (supabase && user.organization_id) {
+                    supabase.channel('admin-data-sync')
+                        .on('postgres_changes', { event: '*', schema: 'public', table: 'vouchers' }, () => {
+                            const active = document.querySelector('.admin-section.active')?.id?.replace('section-', '');
+                            if (active === 'overview') loadOverview();
+                            else if (active === 'vouchers') loadVouchers();
+                        })
+                        .on('postgres_changes', { event: '*', schema: 'public', table: 'employee_whitelist' }, () => {
+                            const active = document.querySelector('.admin-section.active')?.id?.replace('section-', '');
+                            if (active === 'employees') loadEmployees();
+                            else if (active === 'overview') loadOverview();
+                        })
+                        .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, () => {
+                            const active = document.querySelector('.admin-section.active')?.id?.replace('section-', '');
+                            if (active === 'projects') loadProjects();
+                        })
+                        .subscribe();
+                }
+            } catch (e) { console.warn('Admin realtime setup failed:', e); }
         });
 
         // ==================== Navigation ====================
