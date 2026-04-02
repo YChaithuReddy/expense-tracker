@@ -173,6 +173,14 @@ function displayUserInfo() {
         if (userInfoEl) {
             const safeName = sanitizeHTML(user.name);
             const safeEmail = sanitizeHTML(user.email);
+            const isCompany = !!user.organization_id;
+            const role = user.role || 'employee';
+
+            // Enterprise icons (only for company mode users)
+            const roleBadge = isCompany ? `<span class="role-badge role-badge--${role}">${role.toUpperCase()}</span>` : '';
+            const adminBtn = role === 'admin' ? `<button class="theme-toggle-btn" onclick="adminPanel.open()" aria-label="Admin Panel" title="Admin Panel"><span class="theme-icon">&#9881;</span></button>` : '';
+            const notifBtn = isCompany ? `<button class="theme-toggle-btn notif-bell-btn" id="notifBellBtn" onclick="notificationCenter.toggle()" aria-label="Notifications" title="Notifications"><span class="theme-icon">🔔</span><span class="notif-badge" id="notifBadge" style="display:none;">0</span></button><div class="notif-panel" id="notifPanel" style="display:none;"></div>` : '';
+            const approvalsBtn = isCompany ? `<button class="theme-toggle-btn" onclick="approvalWorkflow.openApprovalsPanel()" aria-label="Approvals" title="Approvals"><span class="theme-icon">&#9989;</span></button>` : '';
 
             userInfoEl.innerHTML = `
                 <div class="user-info-content">
@@ -182,7 +190,11 @@ function displayUserInfo() {
                     <div class="user-details">
                         <div class="user-name">${safeName}</div>
                         <div class="user-email">${safeEmail}</div>
+                        ${roleBadge}
                     </div>
+                    ${adminBtn}
+                    ${notifBtn}
+                    ${approvalsBtn}
                     <button class="theme-toggle-btn" onclick="activityLog.open()" aria-label="Activity Log" title="Activity Log">
                         <span class="theme-icon">📋</span>
                     </button>
@@ -195,6 +207,11 @@ function displayUserInfo() {
             if (window.expenseTracker) {
                 const currentTheme = document.documentElement.getAttribute('data-theme') || 'teal';
                 window.expenseTracker.updateThemeButtonUI(currentTheme);
+            }
+
+            // Refresh notification badge if in company mode
+            if (isCompany && typeof notificationCenter !== 'undefined') {
+                notificationCenter.refreshCount();
             }
         }
     }
