@@ -98,6 +98,37 @@ const realtimeManager = (() => {
                 showRealtimeToast(payload.payload);
             })
             .subscribe();
+
+        // ── 4. Voucher changes: approval status updates ──
+        if (typeof isCompanyMode === 'function' && isCompanyMode()) {
+            client.channel('vouchers-sync')
+                .on('postgres_changes', {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'vouchers'
+                }, (payload) => {
+                    const v = payload.new;
+                    if (!v) return;
+                    const isInvolved = v.submitted_by === _userId || v.manager_id === _userId || v.accountant_id === _userId;
+                    if (!isInvolved) return;
+
+                    const statusLabels = {
+                        pending_manager: 'submitted for your approval',
+                        pending_accountant: 'approved by manager, awaiting your review',
+                        approved: 'has been approved!',
+                        rejected: 'was rejected'
+                    };
+                    const msg = statusLabels[v.status];
+                    if (msg) {
+                        showRealtimeToast({
+                            type: v.status === 'rejected' ? 'warning' : 'info',
+                            title: `Voucher ${v.voucher_number}`,
+                            message: msg
+                        });
+                    }
+                })
+                .subscribe();
+        }
     }
 
     /* ── Handle expense changes ── */

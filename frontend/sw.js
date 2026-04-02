@@ -1,5 +1,5 @@
 // Service Worker for Expense Tracker PWA
-const CACHE_NAME = 'expense-tracker-v78';
+const CACHE_NAME = 'expense-tracker-v79';
 const STATIC_CACHE = 'expense-tracker-static-v63';
 const DYNAMIC_CACHE = 'expense-tracker-dynamic-v63';
 
@@ -33,10 +33,12 @@ const STATIC_ASSETS = [
   '/expense-detail.js',
   '/admin-panel.js',
   '/project-dropdown.js',
+  '/approval-workflow.js',
   '/realtime.js',
   '/styles_pdfs.css',
   '/styles_admin.css',
   '/styles_projects.css',
+  '/styles_approval.css',
   '/favicon.svg',
   '/manifest.json',
   // External CDN resources

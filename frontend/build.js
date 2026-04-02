@@ -37,10 +37,12 @@ const filesToCopy = [
     'expense-detail.js',
     'admin-panel.js',
     'project-dropdown.js',
+    'approval-workflow.js',
     'realtime.js',
     'styles_pdfs.css',
     'styles_admin.css',
     'styles_projects.css',
+    'styles_approval.css',
     'sw.js',
     'manifest.json',
     'favicon.svg'

@@ -37,6 +37,7 @@
     <link rel="stylesheet" href="styles_pdfs.css">
     <link rel="stylesheet" href="styles_admin.css">
     <link rel="stylesheet" href="styles_projects.css">
+    <link rel="stylesheet" href="styles_approval.css">
 
     <!-- Essential scripts with defer - loads in parallel, executes after HTML parsed -->
     <script defer src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -60,6 +61,7 @@
     <script defer src="expense-detail.js"></script>
     <script defer src="admin-panel.js"></script>
     <script defer src="project-dropdown.js"></script>
+    <script defer src="approval-workflow.js"></script>
     <script defer src="realtime.js"></script>
 
     <!-- Heavy export libraries - lazy loaded when needed -->
@@ -331,6 +333,19 @@
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                     <polyline points="9 18 15 12 9 6"/>
                                 </svg>
+                            </span>
+                        </button>
+                        <!-- Submit for Approval (Company mode only - hidden by default) -->
+                        <button id="submitForApprovalBtn" class="btn-highlight" style="display:none;" onclick="approvalWorkflow.openSubmitModal()">
+                            <span class="btn-highlight__icon-wrap">
+                                <svg class="btn-highlight__svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                                    <polyline points="22 4 12 14.01 9 11.01"/>
+                                </svg>
+                            </span>
+                            <span class="btn-highlight__content">
+                                <span class="btn-highlight__label">Submit</span>
+                                <span class="btn-highlight__sub">For Approval</span>
                             </span>
                         </button>
                         <button id="resetGoogleSheet" class="btn-reset">
@@ -920,6 +935,7 @@
                                 ${user.organization_id ? `<span class="role-badge role-badge--${user.role || 'employee'}">${(user.role || 'employee').toUpperCase()}</span>` : ''}
                             </div>
                             ${user.role === 'admin' ? `<button class="theme-toggle-btn" onclick="adminPanel.open()" aria-label="Admin Panel" title="Admin Panel"><span class="theme-icon">&#9881;</span></button>` : ''}
+                            ${user.organization_id ? `<button class="theme-toggle-btn" onclick="approvalWorkflow.openApprovalsPanel()" aria-label="Approvals" title="Approvals"><span class="theme-icon">&#9989;</span></button>` : ''}
                             <button class="theme-toggle-btn" onclick="activityLog.open()" aria-label="Activity Log" title="Activity Log">
                                 <span class="theme-icon">📋</span>
                             </button>
@@ -1600,6 +1616,24 @@
                     <div class="admin-empty"><p>Loading projects...</p></div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Approvals Panel (Full Screen Overlay) -->
+    <div id="approvalsPanelOverlay" class="approvals-panel-overlay" role="dialog" aria-modal="true">
+        <div class="approvals-panel-header">
+            <h2 class="approvals-panel-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                Approvals
+            </h2>
+            <button class="admin-panel-close" onclick="approvalWorkflow.closeApprovalsPanel()" aria-label="Close">&times;</button>
+        </div>
+        <div class="approval-tabs">
+            <button class="approval-tab active" data-tab="my-vouchers" onclick="approvalWorkflow.switchTab('my-vouchers')">My Vouchers</button>
+            <button class="approval-tab" data-tab="pending-approval" onclick="approvalWorkflow.switchTab('pending-approval')">Pending My Approval</button>
+        </div>
+        <div class="approvals-body" id="approvalsBody">
+            <div style="text-align:center;padding:40px;color:#5a6180;">Loading...</div>
         </div>
     </div>
 

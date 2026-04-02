@@ -65,6 +65,10 @@ class ExpenseTracker {
         if (orgId) {
             document.body.classList.add('company-mode');
             document.body.dataset.userRole = role || 'employee';
+
+            // Show "Submit for Approval" button
+            const approvalBtn = document.getElementById('submitForApprovalBtn');
+            if (approvalBtn) approvalBtn.style.display = '';
         }
 
         // Initialize project dropdown (company mode: searchable, personal mode: free text)
@@ -3738,6 +3742,7 @@ class ExpenseTracker {
                     </span>` : ''}
                     ${expense.visitType ? `<span class="visit-type-badge visit-type-badge--${expense.visitType}">${expense.visitType}</span>` : ''}
                     ${googleSheetsService.isExpenseExported(expense.id) ? `<span class="exported-badge" title="Exported to Google Sheets"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Exported</span>` : ''}
+                    ${expense.voucher_status ? `<span class="voucher-status-badge voucher-status-badge--${expense.voucher_status}">${expense.voucher_status === 'in_voucher' ? 'In Voucher' : expense.voucher_status === 'submitted' ? 'Submitted' : expense.voucher_status === 'approved' ? 'Approved' : 'Rejected'}</span>` : ''}
                 </div>
                 ${safeDescription ? `<div class="expense-description">${safeDescription}</div>` : ''}
                 <div class="expense-footer">
