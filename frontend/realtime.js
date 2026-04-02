@@ -10,6 +10,7 @@ const realtimeManager = (() => {
     let _channel = null;
     let _activityChannel = null;
     let _notifyChannel = null;
+    let _voucherChannel = null;
     let _userId = null;
     let _enabled = false;
 
@@ -109,7 +110,7 @@ const realtimeManager = (() => {
 
         // ── 4. Voucher changes: approval status updates ──
         if (typeof isCompanyMode === 'function' && isCompanyMode()) {
-            client.channel('vouchers-sync')
+            _voucherChannel = client.channel('vouchers-sync')
                 .on('postgres_changes', {
                     event: 'UPDATE',
                     schema: 'public',
@@ -217,6 +218,10 @@ const realtimeManager = (() => {
         if (_notifyChannel) {
             client.removeChannel(_notifyChannel);
             _notifyChannel = null;
+        }
+        if (_voucherChannel) {
+            client.removeChannel(_voucherChannel);
+            _voucherChannel = null;
         }
         setStatus('disconnected');
         console.log('[Realtime] Disconnected');
