@@ -143,7 +143,8 @@ const expenseDetail = (() => {
         const fields = [];
 
         if (expense.vendor) {
-            fields.push({ label: 'Vendor', value: sanitize(expense.vendor) });
+            const isCompany = typeof isCompanyMode === 'function' && isCompanyMode();
+            fields.push({ label: isCompany ? 'Project' : 'Vendor', value: sanitize(expense.vendor) });
         }
 
         if (expense.date) {
