@@ -8723,16 +8723,17 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                                 <span style="font-size:0.78rem;color:#f59e0b;font-weight:500;">Awaiting ${adv.status === 'pending_manager' ? 'manager' : 'accountant'} approval</span>
                                 <button class="advance-card__btn advance-card__btn--delete" onclick="event.stopPropagation();expenseTracker.deleteAdvance('${adv.id}', '${this.sanitizeHTML(adv.project_name)}')">${deleteIcon} Withdraw</button>
                             ` : isRejected ? `
-                                ${adv.rejection_reason ? `<span style="font-size:0.78rem;color:#ef4444;">Reason: ${this.sanitizeHTML(adv.rejection_reason)}</span>` : ''}
+                                ${adv.rejection_reason ? '<span style="font-size:0.78rem;color:#ef4444;">Reason: ' + this.sanitizeHTML(adv.rejection_reason) + '</span>' : ''}
                                 <button class="advance-card__btn advance-card__btn--edit" onclick="event.stopPropagation();expenseTracker.openAdvanceModal(${JSON.stringify(adv).replace(/"/g, '&quot;')})">${editIcon} Edit &amp; Resubmit</button>
                                 <button class="advance-card__btn advance-card__btn--delete" onclick="event.stopPropagation();expenseTracker.deleteAdvance('${adv.id}', '${this.sanitizeHTML(adv.project_name)}')">${deleteIcon}</button>
                             ` : `
                             <button class="advance-card__btn advance-card__btn--edit" onclick="event.stopPropagation();expenseTracker.openAdvanceModal(${JSON.stringify(adv).replace(/"/g, '&quot;')})">${editIcon} Edit</button>
                             ${adv.status === 'active'
-                                ? `<button class="advance-card__btn advance-card__btn--close" onclick="event.stopPropagation();expenseTracker.closeAdvance('${adv.id}')">${closeIcon} Close</button>`
-                                : `<button class="advance-card__btn advance-card__btn--reopen" onclick="event.stopPropagation();expenseTracker.reopenAdvance('${adv.id}')">${reopenIcon} Reopen</button>`
+                                ? '<button class="advance-card__btn advance-card__btn--close" onclick="event.stopPropagation();expenseTracker.closeAdvance(\'' + adv.id + '\')">' + closeIcon + ' Close</button>'
+                                : '<button class="advance-card__btn advance-card__btn--reopen" onclick="event.stopPropagation();expenseTracker.reopenAdvance(\'' + adv.id + '\')">' + reopenIcon + ' Reopen</button>'
                             }
                             <button class="advance-card__btn advance-card__btn--delete" onclick="event.stopPropagation();expenseTracker.deleteAdvance('${adv.id}', '${this.sanitizeHTML(adv.project_name)}')">${deleteIcon}</button>
+                            `}
                         </div>
                     </div>
                 </div>
