@@ -684,6 +684,7 @@
                     <span id="acctEmail">loading...</span>
                 </div>
                 <div class="admin-sidebar__links">
+                    <button class="admin-sidebar__link" onclick="window.location.href='admin.html'" title="Admin Dashboard">Admin</button>
                     <button class="admin-sidebar__link" onclick="window.location.href='index.html'">App</button>
                     <button class="admin-sidebar__link admin-sidebar__link--danger" onclick="logout()">Logout</button>
                 </div>
@@ -824,6 +825,27 @@
             document.getElementById('acctEmail').textContent = user.email || '';
 
             await loadOverview();
+
+            // Realtime: auto-refresh when vouchers change
+            try {
+                const supabase = window.supabaseClient?.get();
+                if (supabase && user.organization_id) {
+                    supabase.channel('acct-voucher-sync')
+                        .on('postgres_changes', {
+                            event: '*',
+                            schema: 'public',
+                            table: 'vouchers'
+                        }, (payload) => {
+                            console.log('[Accountant] Voucher changed:', payload.eventType);
+                            // Auto-refresh current section
+                            const activeSection = document.querySelector('.admin-section.active')?.id?.replace('section-', '');
+                            if (activeSection === 'overview') loadOverview();
+                            else if (activeSection === 'pending') loadPendingVouchers();
+                            else if (activeSection === 'vouchers') loadAllVouchers();
+                        })
+                        .subscribe();
+                }
+            } catch (e) { console.warn('Realtime setup failed:', e); }
         });
 
         // ==================== Helpers ====================
