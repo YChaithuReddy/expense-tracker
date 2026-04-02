@@ -308,10 +308,13 @@ async function initAuth() {
         if (hasSession && isAuthenticated()) {
             // Already logged in (both session AND localStorage user exist), redirect to app
             console.log('Already authenticated, redirecting to app...');
-            const redirect = sessionStorage.getItem('redirectAfterLogin') || 'index.html';
+            const savedRedirect = sessionStorage.getItem('redirectAfterLogin');
             sessionStorage.removeItem('redirectAfterLogin');
-            // Validate redirect to prevent open redirect attacks
-            const safeRedirect = /^[a-zA-Z0-9_./-]+\.html$/.test(redirect) ? redirect : 'index.html';
+            // Admin users go to admin.html, others go to index.html
+            const user = getCurrentUser();
+            const defaultRedirect = user?.role === 'admin' ? 'admin.html' : 'index.html';
+            const redirect = savedRedirect || defaultRedirect;
+            const safeRedirect = /^[a-zA-Z0-9_./-]+\.html$/.test(redirect) ? redirect : defaultRedirect;
             window.location.href = safeRedirect;
             return;
         }

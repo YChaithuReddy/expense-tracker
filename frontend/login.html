@@ -181,9 +181,12 @@
                     showMessage('Login successful! Redirecting...', 'success');
                     // Token and user are saved automatically by supabase-api.js
 
-                    // Redirect to main app after short delay
+                    // Redirect based on role: admin → admin.html, others → index.html
+                    const user = JSON.parse(localStorage.getItem('user') || '{}');
+                    const redirectUrl = user.role === 'admin' ? 'admin.html' : 'index.html';
+
                     setTimeout(() => {
-                        window.location.href = 'index.html';
+                        window.location.href = redirectUrl;
                     }, 1000);
                 } else {
                     showMessage(response.message || 'Login failed', 'error');
