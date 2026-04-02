@@ -353,7 +353,9 @@ const api = {
             amount: parseFloat(expenseData.amount) || 0,
             vendor: expenseData.vendor || 'N/A',
             description: expenseData.description || 'N/A',
-            visit_type: expenseData.visitType || null
+            visit_type: expenseData.visitType || null,
+            payment_mode: expenseData.paymentMode || 'cash',
+            bill_attached: expenseData.billAttached || 'yes'
         };
         // Add project_id if provided (company mode)
         if (expenseData.project_id) insertData.project_id = expenseData.project_id;
@@ -427,6 +429,8 @@ const api = {
         if (expenseData.vendor !== undefined) updateObj.vendor = expenseData.vendor;
         if (expenseData.description) updateObj.description = expenseData.description;
         if (expenseData.visitType !== undefined) updateObj.visit_type = expenseData.visitType;
+        if (expenseData.paymentMode !== undefined) updateObj.payment_mode = expenseData.paymentMode;
+        if (expenseData.billAttached !== undefined) updateObj.bill_attached = expenseData.billAttached;
         if (expenseData.project_id !== undefined) updateObj.project_id = expenseData.project_id || null;
         updateObj.updated_at = new Date().toISOString();
 
@@ -1764,16 +1768,21 @@ const api = {
 
         if (vError) handleError(vError, 'Create voucher');
 
-        // Link expenses to voucher
-        const links = expenseIds.map(eid => ({ voucher_id: voucher.id, expense_id: eid }));
-        const { error: linkError } = await supabase
-            .from('voucher_expenses')
-            .insert(links);
+        // Store expense IDs on voucher for reliable retrieval
+        await supabase
+            .from('vouchers')
+            .update({ expense_ids: expenseIds })
+            .eq('id', voucher.id);
 
-        if (linkError) {
-            // Clean up orphaned voucher if expense linking fails
-            await supabase.from('vouchers').delete().eq('id', voucher.id);
-            handleError(linkError, 'Link expenses to voucher');
+        // Also link via junction table (best-effort, may fail if table doesn't exist)
+        try {
+            const links = expenseIds.map(eid => ({ voucher_id: voucher.id, expense_id: eid }));
+            const { error: linkError } = await supabase
+                .from('voucher_expenses')
+                .insert(links);
+            if (linkError) console.warn('voucher_expenses link failed (non-fatal):', linkError.message);
+        } catch (e) {
+            console.warn('voucher_expenses table may not exist:', e.message);
         }
 
         // Update expense voucher_status
@@ -1877,13 +1886,23 @@ const api = {
 
         if (vErr) handleError(vErr, 'Get voucher detail');
 
-        // Get linked expenses
-        const { data: expenseLinks } = await supabase
-            .from('voucher_expenses')
-            .select('expense_id')
-            .eq('voucher_id', voucherId);
+        // Get linked expenses — try junction table first, fall back to expense_ids array
+        let expenseIds = [];
+        try {
+            const { data: expenseLinks } = await supabase
+                .from('voucher_expenses')
+                .select('expense_id')
+                .eq('voucher_id', voucherId);
+            expenseIds = (expenseLinks || []).map(l => l.expense_id);
+        } catch (e) {
+            console.warn('voucher_expenses query failed:', e.message);
+        }
 
-        const expenseIds = (expenseLinks || []).map(l => l.expense_id);
+        // Fallback: use expense_ids stored directly on voucher
+        if (expenseIds.length === 0 && voucher.expense_ids && voucher.expense_ids.length > 0) {
+            expenseIds = voucher.expense_ids;
+        }
+
         let expenses = [];
         if (expenseIds.length > 0) {
             const { data: expData } = await supabase
