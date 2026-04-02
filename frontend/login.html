@@ -186,7 +186,7 @@
                     const user = JSON.parse(localStorage.getItem('user') || '{}');
                     const email = user.email?.toLowerCase();
                     const redirectUrl = email === 'admin@fluxgentech.com' ? 'admin.html'
-                        : user.role === 'accountant' ? 'accountant.html'
+                        : (email === 'accountant@fluxgentech.com' || user.role === 'accountant') ? 'accountant.html'
                         : 'index.html';
 
                     setTimeout(() => {
