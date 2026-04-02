@@ -1682,6 +1682,374 @@ const api = {
 
         if (error) return null;
         return data;
+    },
+
+    // ==============================================
+    // VOUCHER & APPROVAL WORKFLOW
+    // ==============================================
+
+    async createVoucher(orgId, managerId, accountantId, expenseIds, purpose = '', advanceId = null, projectId = null) {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        // Generate voucher number
+        const { data: voucherNum } = await supabase.rpc('generate_voucher_number', { p_org_id: orgId });
+
+        // Calculate total from expenses
+        const { data: expenses } = await supabase
+            .from('expenses')
+            .select('amount')
+            .in('id', expenseIds);
+
+        const totalAmount = (expenses || []).reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+
+        // Create voucher
+        const { data: voucher, error: vError } = await supabase
+            .from('vouchers')
+            .insert({
+                organization_id: orgId,
+                voucher_number: voucherNum || `VCH-${Date.now()}`,
+                submitted_by: user.id,
+                manager_id: managerId,
+                accountant_id: accountantId,
+                advance_id: advanceId || null,
+                project_id: projectId || null,
+                status: 'pending_manager',
+                total_amount: totalAmount,
+                expense_count: expenseIds.length,
+                purpose: purpose || null,
+                submitted_at: new Date().toISOString()
+            })
+            .select()
+            .single();
+
+        if (vError) handleError(vError, 'Create voucher');
+
+        // Link expenses to voucher
+        const links = expenseIds.map(eid => ({ voucher_id: voucher.id, expense_id: eid }));
+        const { error: linkError } = await supabase
+            .from('voucher_expenses')
+            .insert(links);
+
+        if (linkError) console.error('Link expenses error:', linkError);
+
+        // Update expense voucher_status
+        await supabase
+            .from('expenses')
+            .update({ voucher_status: 'submitted' })
+            .in('id', expenseIds)
+            .eq('user_id', user.id);
+
+        // Add history entry
+        await supabase.from('voucher_history').insert({
+            voucher_id: voucher.id,
+            action: 'submitted',
+            acted_by: user.id,
+            previous_status: 'draft',
+            new_status: 'pending_manager',
+            comments: purpose || 'Voucher submitted for approval'
+        });
+
+        return { success: true, data: voucher };
+    },
+
+    async getMyVouchers(status = null) {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        let query = supabase
+            .from('vouchers')
+            .select(`
+                *,
+                manager:manager_id(id, name, email, profile_picture),
+                accountant:accountant_id(id, name, email, profile_picture),
+                project:project_id(id, project_code, project_name)
+            `)
+            .eq('submitted_by', user.id)
+            .order('created_at', { ascending: false });
+
+        if (status) query = query.eq('status', status);
+
+        const { data, error } = await query;
+        if (error) handleError(error, 'Get my vouchers');
+        return data || [];
+    },
+
+    async getVouchersForApproval() {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .single();
+
+        let query = supabase
+            .from('vouchers')
+            .select(`
+                *,
+                submitter:submitted_by(id, name, email, employee_id, profile_picture),
+                manager:manager_id(id, name, email),
+                accountant:accountant_id(id, name, email),
+                project:project_id(id, project_code, project_name)
+            `)
+            .order('submitted_at', { ascending: false });
+
+        // Manager sees pending_manager vouchers assigned to them
+        // Accountant sees manager_approved vouchers assigned to them
+        if (profile?.role === 'manager') {
+            query = query.eq('manager_id', user.id).in('status', ['pending_manager']);
+        } else if (profile?.role === 'accountant') {
+            query = query.eq('accountant_id', user.id).in('status', ['manager_approved', 'pending_accountant']);
+        } else if (profile?.role === 'admin') {
+            // Admin sees all org vouchers
+            const { data: p } = await supabase.from('profiles').select('organization_id').eq('id', user.id).single();
+            if (p?.organization_id) query = query.eq('organization_id', p.organization_id);
+        }
+
+        const { data, error } = await query;
+        if (error) handleError(error, 'Get vouchers for approval');
+        return data || [];
+    },
+
+    async getVoucherDetail(voucherId) {
+        const supabase = getSupabase();
+
+        // Get voucher with related data
+        const { data: voucher, error: vErr } = await supabase
+            .from('vouchers')
+            .select(`
+                *,
+                submitter:submitted_by(id, name, email, employee_id, department, profile_picture),
+                manager:manager_id(id, name, email, profile_picture),
+                accountant:accountant_id(id, name, email, profile_picture),
+                project:project_id(id, project_code, project_name, client_name),
+                advance:advance_id(id, project_name, amount)
+            `)
+            .eq('id', voucherId)
+            .single();
+
+        if (vErr) handleError(vErr, 'Get voucher detail');
+
+        // Get linked expenses
+        const { data: expenseLinks } = await supabase
+            .from('voucher_expenses')
+            .select('expense_id')
+            .eq('voucher_id', voucherId);
+
+        const expenseIds = (expenseLinks || []).map(l => l.expense_id);
+        let expenses = [];
+        if (expenseIds.length > 0) {
+            const { data: expData } = await supabase
+                .from('expenses')
+                .select('*, expense_images(*)')
+                .in('id', expenseIds)
+                .order('date', { ascending: true });
+            expenses = expData || [];
+        }
+
+        // Get history
+        const { data: history } = await supabase
+            .from('voucher_history')
+            .select(`
+                *,
+                actor:acted_by(id, name, profile_picture)
+            `)
+            .eq('voucher_id', voucherId)
+            .order('created_at', { ascending: true });
+
+        return { ...voucher, expenses, history: history || [] };
+    },
+
+    async approveVoucher(voucherId, comments = '') {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        // Get current voucher to determine next status
+        const { data: voucher } = await supabase
+            .from('vouchers')
+            .select('status, manager_id, accountant_id')
+            .eq('id', voucherId)
+            .single();
+
+        if (!voucher) throw new Error('Voucher not found');
+
+        let newStatus, action, actionTimestamp;
+
+        if (voucher.status === 'pending_manager' && voucher.manager_id === user.id) {
+            newStatus = 'pending_accountant';
+            action = 'manager_approved';
+            actionTimestamp = { manager_action_at: new Date().toISOString() };
+        } else if (['manager_approved', 'pending_accountant'].includes(voucher.status) && voucher.accountant_id === user.id) {
+            newStatus = 'approved';
+            action = 'accountant_approved';
+            actionTimestamp = { accountant_action_at: new Date().toISOString() };
+        } else {
+            throw new Error('You are not authorized to approve this voucher in its current state');
+        }
+
+        // Update voucher
+        const { error: updateErr } = await supabase
+            .from('vouchers')
+            .update({ status: newStatus, ...actionTimestamp })
+            .eq('id', voucherId);
+
+        if (updateErr) handleError(updateErr, 'Approve voucher');
+
+        // If fully approved, update expense statuses
+        if (newStatus === 'approved') {
+            const { data: links } = await supabase
+                .from('voucher_expenses')
+                .select('expense_id')
+                .eq('voucher_id', voucherId);
+
+            if (links?.length > 0) {
+                await supabase
+                    .from('expenses')
+                    .update({ voucher_status: 'approved' })
+                    .in('id', links.map(l => l.expense_id));
+            }
+        }
+
+        // Add history
+        await supabase.from('voucher_history').insert({
+            voucher_id: voucherId,
+            action,
+            acted_by: user.id,
+            comments: comments || null,
+            previous_status: voucher.status,
+            new_status: newStatus
+        });
+
+        return { success: true, newStatus };
+    },
+
+    async rejectVoucher(voucherId, reason) {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        if (!reason || !reason.trim()) throw new Error('Rejection reason is required');
+
+        const { data: voucher } = await supabase
+            .from('vouchers')
+            .select('status, manager_id, accountant_id')
+            .eq('id', voucherId)
+            .single();
+
+        if (!voucher) throw new Error('Voucher not found');
+
+        let action;
+        if (voucher.status === 'pending_manager' && voucher.manager_id === user.id) {
+            action = 'manager_rejected';
+        } else if (['manager_approved', 'pending_accountant'].includes(voucher.status) && voucher.accountant_id === user.id) {
+            action = 'accountant_rejected';
+        } else {
+            throw new Error('You are not authorized to reject this voucher in its current state');
+        }
+
+        // Update voucher to rejected
+        const { error } = await supabase
+            .from('vouchers')
+            .update({
+                status: 'rejected',
+                rejection_reason: reason,
+                rejected_by: user.id
+            })
+            .eq('id', voucherId);
+
+        if (error) handleError(error, 'Reject voucher');
+
+        // Update expense statuses back to rejected
+        const { data: links } = await supabase
+            .from('voucher_expenses')
+            .select('expense_id')
+            .eq('voucher_id', voucherId);
+
+        if (links?.length > 0) {
+            await supabase
+                .from('expenses')
+                .update({ voucher_status: 'rejected' })
+                .in('id', links.map(l => l.expense_id));
+        }
+
+        // Add history
+        await supabase.from('voucher_history').insert({
+            voucher_id: voucherId,
+            action,
+            acted_by: user.id,
+            comments: reason,
+            previous_status: voucher.status,
+            new_status: 'rejected'
+        });
+
+        return { success: true };
+    },
+
+    async resubmitVoucher(voucherId, notes = '') {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        // Update voucher back to pending_manager
+        const { data: voucher, error } = await supabase
+            .from('vouchers')
+            .update({
+                status: 'pending_manager',
+                rejection_reason: null,
+                rejected_by: null,
+                submitted_at: new Date().toISOString()
+            })
+            .eq('id', voucherId)
+            .eq('submitted_by', user.id)
+            .select()
+            .single();
+
+        if (error) handleError(error, 'Resubmit voucher');
+
+        // Update expense statuses
+        const { data: links } = await supabase
+            .from('voucher_expenses')
+            .select('expense_id')
+            .eq('voucher_id', voucherId);
+
+        if (links?.length > 0) {
+            await supabase
+                .from('expenses')
+                .update({ voucher_status: 'submitted' })
+                .in('id', links.map(l => l.expense_id));
+        }
+
+        // Add history
+        await supabase.from('voucher_history').insert({
+            voucher_id: voucherId,
+            action: 'resubmitted',
+            acted_by: user.id,
+            comments: notes || 'Voucher resubmitted after corrections',
+            previous_status: 'rejected',
+            new_status: 'pending_manager'
+        });
+
+        return { success: true, data: voucher };
+    },
+
+    async getOrgMembersByRole(orgId, role) {
+        const supabase = getSupabase();
+
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('id, name, email, employee_id, department, profile_picture')
+            .eq('organization_id', orgId)
+            .eq('role', role)
+            .order('name');
+
+        if (error) handleError(error, `Get ${role}s`);
+        return data || [];
     }
 };
 

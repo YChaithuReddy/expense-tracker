@@ -63,6 +63,48 @@ const activityLog = (() => {
             color: '#ef4444',
             bg: 'rgba(239,68,68,0.1)',
             svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'
+        },
+        voucher_submitted: {
+            label: 'Voucher Submitted',
+            color: '#8b5cf6',
+            bg: 'rgba(139,92,246,0.1)',
+            svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>'
+        },
+        voucher_approved: {
+            label: 'Voucher Approved',
+            color: '#10b981',
+            bg: 'rgba(16,185,129,0.1)',
+            svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'
+        },
+        voucher_rejected: {
+            label: 'Voucher Rejected',
+            color: '#ef4444',
+            bg: 'rgba(239,68,68,0.1)',
+            svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>'
+        },
+        voucher_resubmitted: {
+            label: 'Voucher Resubmitted',
+            color: '#f59e0b',
+            bg: 'rgba(245,158,11,0.1)',
+            svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>'
+        },
+        org_created: {
+            label: 'Organization Created',
+            color: '#a78bfa',
+            bg: 'rgba(167,139,250,0.1)',
+            svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11"/></svg>'
+        },
+        employees_imported: {
+            label: 'Employees Imported',
+            color: '#3b82f6',
+            bg: 'rgba(59,130,246,0.1)',
+            svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>'
+        },
+        project_created: {
+            label: 'Project Created',
+            color: '#06b6d4',
+            bg: 'rgba(6,182,212,0.1)',
+            svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>'
         }
     };
     const DEFAULT_ACTION = {
