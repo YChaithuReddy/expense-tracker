@@ -1610,9 +1610,12 @@ const api = {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error('Not authenticated');
 
-        // Auto-generate project code
-        const { data: codeResult } = await supabase.rpc('generate_project_code', { p_org_id: orgId });
-        const projectCode = codeResult || `PRJ-${new Date().getFullYear()}-${Date.now().toString().slice(-3)}`;
+        // Use provided code or auto-generate
+        let projectCode = projectData.project_code;
+        if (!projectCode) {
+            const { data: codeResult } = await supabase.rpc('generate_project_code', { p_org_id: orgId });
+            projectCode = codeResult || `PRJ-${new Date().getFullYear()}-${Date.now().toString().slice(-3)}`;
+        }
 
         const { data, error } = await supabase
             .from('projects')
@@ -1656,6 +1659,41 @@ const api = {
 
         if (error) handleError(error, 'Update project');
         return { success: true, data };
+    },
+
+    async importProjects(orgId, projectsArray) {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        // Get existing project codes to avoid duplicates
+        const { data: existing } = await supabase
+            .from('projects')
+            .select('project_code')
+            .eq('organization_id', orgId);
+        const existingCodes = new Set((existing || []).map(p => p.project_code));
+
+        const toInsert = projectsArray
+            .filter(p => p.project_code && p.project_name && !existingCodes.has(p.project_code))
+            .map(p => ({
+                organization_id: orgId,
+                project_code: p.project_code,
+                project_name: p.project_name,
+                client_name: p.client_name || null,
+                description: p.sector ? `Sector: ${p.sector}` : null,
+                status: 'active',
+                created_by: user.id
+            }));
+
+        if (toInsert.length === 0) return { imported: 0, skipped: projectsArray.length };
+
+        const { data, error } = await supabase
+            .from('projects')
+            .insert(toInsert)
+            .select();
+
+        if (error) handleError(error, 'Import projects');
+        return { imported: (data || []).length, skipped: projectsArray.length - (data || []).length };
     },
 
     async deleteProject(projectId) {

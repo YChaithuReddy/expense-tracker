@@ -286,6 +286,28 @@
         .admin-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* Import tab switcher */
+        .import-tab {
+            padding: 10px 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--gray-500);
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.15s, border-color 0.15s;
+        }
+        .import-tab:hover { color: var(--gray-700); }
+        .import-tab--active {
+            color: var(--gray-900);
+            border-bottom-color: var(--gray-900);
+        }
+
         /* ============================================================
            QUICK ACTIONS
            ============================================================ */
@@ -410,6 +432,12 @@
                     <div><h2>Projects</h2><p>Manage project database with codes</p></div>
                     <button class="admin-btn admin-btn--primary" onclick="openCreateProject()">+ New Project</button>
                 </div>
+                <!-- Search Bar -->
+                <div style="margin-bottom:16px;position:relative;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="projectSearch" placeholder="Search projects by name, code, or client..." oninput="filterProjects()" style="width:100%;padding:10px 12px 10px 38px;border:1px solid var(--gray-200);border-radius:var(--radius-md);font-size:0.875rem;background:var(--white);color:var(--gray-900);outline:none;transition:border-color 0.15s;" onfocus="this.style.borderColor='var(--gray-400)'" onblur="this.style.borderColor='var(--gray-200)'">
+                </div>
+                <div id="projectStats" class="admin-stats-bar"></div>
                 <div id="projectList"><div class="admin-empty"><p>Loading projects...</p></div></div>
             </div>
 
@@ -424,21 +452,55 @@
             <!-- Import CSV Section -->
             <div class="admin-section" id="section-import">
                 <div class="admin-main__header">
-                    <div><h2>Import Employees</h2><p>Upload CSV file to add employees to the organization</p></div>
+                    <div><h2>Import CSV</h2><p>Upload CSV files to add employees or projects</p></div>
                 </div>
-                <div class="admin-csv-zone" id="csvDropZone">
-                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:#6b7280;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
-                    <p>Drag &amp; drop CSV file here or <label for="csvFile" class="admin-csv-browse-link">browse</label></p>
-                    <input type="file" id="csvFile" accept=".csv" style="display:none;">
-                    <small>Required: employee_id, name, email. Optional: department, designation, reporting_manager_email, role</small>
+
+                <!-- Tab switcher -->
+                <div style="display:flex;gap:0;margin-bottom:24px;border-bottom:2px solid var(--gray-200);">
+                    <button id="importTabEmployees" class="import-tab import-tab--active" onclick="switchImportTab('employees')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                        Employees
+                    </button>
+                    <button id="importTabProjects" class="import-tab" onclick="switchImportTab('projects')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+                        Projects
+                    </button>
                 </div>
-                <div id="csvPreview" style="display:none;"></div>
-                <div class="admin-csv-template">
-                    <h4 class="admin-csv-template__title">CSV Template</h4>
-                    <code class="admin-csv-template__code">employee_id,name,email,department,designation,reporting_manager_email,role
+
+                <!-- Employee Import Panel -->
+                <div id="importPanelEmployees">
+                    <div class="admin-csv-zone" id="csvDropZone">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:#6b7280;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                        <p>Drag &amp; drop CSV file here or <label for="csvFile" class="admin-csv-browse-link">browse</label></p>
+                        <input type="file" id="csvFile" accept=".csv" style="display:none;">
+                        <small>Required: employee_id, name, email. Optional: department, designation, reporting_manager_email, role</small>
+                    </div>
+                    <div id="csvPreview" style="display:none;"></div>
+                    <div class="admin-csv-template">
+                        <h4 class="admin-csv-template__title">CSV Template</h4>
+                        <code class="admin-csv-template__code">employee_id,name,email,department,designation,reporting_manager_email,role
 EMP-001,John Doe,john@fluxgentech.com,Operations,Project Manager,,manager
 EMP-002,Jane Smith,jane@fluxgentech.com,Finance,Accountant,,accountant
 EMP-003,Ravi Kumar,ravi@fluxgentech.com,Field,Site Engineer,john@fluxgentech.com,employee</code>
+                    </div>
+                </div>
+
+                <!-- Project Import Panel -->
+                <div id="importPanelProjects" style="display:none;">
+                    <div class="admin-csv-zone" id="projectCsvDropZone">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:#6b7280;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                        <p>Drag &amp; drop CSV file here or <label for="projectCsvFile" class="admin-csv-browse-link">browse</label></p>
+                        <input type="file" id="projectCsvFile" accept=".csv" style="display:none;">
+                        <small>Required: project_code, project_name. Optional: client_name, sector</small>
+                    </div>
+                    <div id="projectCsvPreview" style="display:none;"></div>
+                    <div class="admin-csv-template">
+                        <h4 class="admin-csv-template__title">CSV Template</h4>
+                        <code class="admin-csv-template__code">project_code,project_name,client_name,sector
+ITJ1,TITAN,Manufacturing Plant,Manufacturing Plant
+AMZ1,Amazon,Building,Building
+WDL1,WONDERLA,Amusement Park,Amusement Park</code>
+                    </div>
                 </div>
             </div>
 
@@ -500,7 +562,7 @@ EMP-003,Ravi Kumar,ravi@fluxgentech.com,Field,Site Engineer,john@fluxgentech.com
             else if (section === 'projects') loadProjects();
             else if (section === 'vouchers') loadVouchers();
             else if (section === 'settings') loadSettings();
-            else if (section === 'import') setupCSVImport();
+            else if (section === 'import') { setupCSVImport(); setupProjectCSVImport(); }
         }
 
         // ==================== Overview ====================
@@ -593,20 +655,51 @@ EMP-003,Ravi Kumar,ravi@fluxgentech.com,Field,Site Engineer,john@fluxgentech.com
         }
 
         // ==================== Projects ====================
+        let _allProjects = [];
+
         async function loadProjects() {
             const user = JSON.parse(localStorage.getItem('user') || '{}');
             const projects = await api.getProjects(user.organization_id);
-            const container = document.getElementById('projectList');
+            _allProjects = projects;
 
+            // Stats
+            const stats = document.getElementById('projectStats');
+            const active = projects.filter(p => p.status === 'active').length;
+            const onHold = projects.filter(p => p.status === 'on_hold').length;
+            const completed = projects.filter(p => p.status === 'completed').length;
+            stats.innerHTML = `
+                <div class="admin-stat-pill">Total: <strong>${projects.length}</strong></div>
+                <div class="admin-stat-pill admin-stat-pill--active">Active: <strong>${active}</strong></div>
+                <div class="admin-stat-pill admin-stat-pill--manager">On Hold: <strong>${onHold}</strong></div>
+                <div class="admin-stat-pill admin-stat-pill--accountant">Completed: <strong>${completed}</strong></div>
+            `;
+
+            renderProjects(projects);
+        }
+
+        function filterProjects() {
+            const q = document.getElementById('projectSearch').value.toLowerCase().trim();
+            if (!q) { renderProjects(_allProjects); return; }
+            const filtered = _allProjects.filter(p =>
+                (p.project_code || '').toLowerCase().includes(q) ||
+                (p.project_name || '').toLowerCase().includes(q) ||
+                (p.client_name || '').toLowerCase().includes(q) ||
+                (p.description || '').toLowerCase().includes(q)
+            );
+            renderProjects(filtered);
+        }
+
+        function renderProjects(projects) {
+            const container = document.getElementById('projectList');
             if (projects.length === 0) {
-                container.innerHTML = '<div class="admin-empty"><p>No projects yet. Click "+ New Project" to create one.</p></div>';
+                container.innerHTML = '<div class="admin-empty"><p>No projects found.</p></div>';
                 return;
             }
 
             const rows = projects.map(p => `
                 <tr>
                     <td><span class="admin-emp-id">${esc(p.project_code)}</span></td>
-                    <td>${esc(p.project_name)}</td>
+                    <td><strong>${esc(p.project_name)}</strong></td>
                     <td>${esc(p.client_name || '-')}</td>
                     <td>${p.budget ? '₹' + Number(p.budget).toLocaleString('en-IN') : '-'}</td>
                     <td>
@@ -615,20 +708,24 @@ EMP-003,Ravi Kumar,ravi@fluxgentech.com,Field,Site Engineer,john@fluxgentech.com
                         </select>
                     </td>
                     <td>${p.created_at ? new Date(p.created_at).toLocaleDateString('en-IN') : '-'}</td>
+                    <td><button class="admin-action-btn" onclick="deleteProject('${p.id}')" title="Delete">✕</button></td>
                 </tr>
             `).join('');
 
-            container.innerHTML = `<div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Code</th><th>Name</th><th>Client</th><th>Budget</th><th>Status</th><th>Created</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+            container.innerHTML = `<div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Code</th><th>Name</th><th>Client</th><th>Budget</th><th>Status</th><th>Created</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
         }
 
         async function openCreateProject() {
             const name = prompt('Project Name:');
             if (!name) return;
+            const code = prompt('Project Code (e.g., ITJ1):') || '';
             const client = prompt('Client Name (optional):') || '';
             const budget = prompt('Budget in ₹ (optional):') || '';
             const user = JSON.parse(localStorage.getItem('user') || '{}');
             try {
-                const result = await api.createProject(user.organization_id, { project_name: name, client_name: client, budget: budget });
+                const projectData = { project_name: name, client_name: client, budget: budget };
+                if (code) projectData.project_code = code;
+                const result = await api.createProject(user.organization_id, projectData);
                 alert('Project created: ' + result.data.project_code);
                 loadProjects();
             } catch (e) { alert('Failed: ' + e.message); }
@@ -637,6 +734,73 @@ EMP-003,Ravi Kumar,ravi@fluxgentech.com,Field,Site Engineer,john@fluxgentech.com
         async function updateProjectStatus(id, status) {
             await api.updateProject(id, { status });
             loadProjects();
+        }
+
+        async function deleteProject(id) {
+            if (!confirm('Delete this project?')) return;
+            await api.deleteProject(id);
+            loadProjects();
+        }
+
+        // ==================== Project CSV Import ====================
+        function setupProjectCSVImport() {
+            const zone = document.getElementById('projectCsvDropZone');
+            const fileInput = document.getElementById('projectCsvFile');
+            if (!zone || zone._setup) return;
+            zone._setup = true;
+
+            zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('admin-csv-zone--dragover'); });
+            zone.addEventListener('dragleave', () => zone.classList.remove('admin-csv-zone--dragover'));
+            zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('admin-csv-zone--dragover'); handleProjectCSV(e.dataTransfer.files[0]); });
+            fileInput.addEventListener('change', () => handleProjectCSV(fileInput.files[0]));
+        }
+
+        function handleProjectCSV(file) {
+            if (!file || !file.name.endsWith('.csv')) return;
+            const reader = new FileReader();
+            reader.onload = e => {
+                const lines = e.target.result.trim().split('\n');
+                if (lines.length < 2) return;
+                const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/['"]/g, ''));
+                const data = [];
+                for (let i = 1; i < lines.length; i++) {
+                    const vals = lines[i].split(',').map(v => v.trim().replace(/['"]/g, ''));
+                    const row = {};
+                    headers.forEach((h, idx) => row[h] = vals[idx] || '');
+                    if (row.project_code && row.project_name) data.push(row);
+                }
+                showProjectCSVPreview(data);
+            };
+            reader.readAsText(file);
+        }
+
+        function showProjectCSVPreview(data) {
+            const preview = document.getElementById('projectCsvPreview');
+            preview.style.display = 'block';
+            preview._data = data;
+            const rows = data.slice(0, 15).map(p => `<tr><td><span class="admin-emp-id">${esc(p.project_code)}</span></td><td>${esc(p.project_name)}</td><td>${esc(p.client_name || '-')}</td><td>${esc(p.sector || '-')}</td></tr>`).join('');
+            preview.innerHTML = `
+                <div class="admin-csv-preview">
+                    <div class="admin-csv-preview__header"><h4>Preview (${data.length} projects)</h4></div>
+                    <div class="admin-table-wrap"><table class="admin-table admin-table--compact"><thead><tr><th>Code</th><th>Name</th><th>Client</th><th>Sector</th></tr></thead><tbody>${rows}</tbody></table></div>
+                    ${data.length > 15 ? `<p style="color:var(--gray-500);font-size:0.8rem;text-align:center;margin:8px 0;">...and ${data.length - 15} more</p>` : ''}
+                    <div class="admin-csv-preview__actions">
+                        <button class="admin-btn admin-btn--secondary" onclick="document.getElementById('projectCsvPreview').style.display='none'">Cancel</button>
+                        <button class="admin-btn admin-btn--primary" onclick="doProjectImport()">Import ${data.length} Projects</button>
+                    </div>
+                </div>`;
+        }
+
+        async function doProjectImport() {
+            const data = document.getElementById('projectCsvPreview')._data;
+            if (!data) return;
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            try {
+                const result = await api.importProjects(user.organization_id, data);
+                alert('Imported ' + result.imported + ' projects! (' + result.skipped + ' skipped/duplicates)');
+                document.getElementById('projectCsvPreview').style.display = 'none';
+                loadOverview();
+            } catch (e) { alert('Failed: ' + e.message); }
         }
 
         // ==================== Vouchers ====================
@@ -677,6 +841,13 @@ EMP-003,Ravi Kumar,ravi@fluxgentech.com,Field,Site Engineer,john@fluxgentech.com
         }
 
         // ==================== CSV Import ====================
+        function switchImportTab(tab) {
+            document.getElementById('importTabEmployees').classList.toggle('import-tab--active', tab === 'employees');
+            document.getElementById('importTabProjects').classList.toggle('import-tab--active', tab === 'projects');
+            document.getElementById('importPanelEmployees').style.display = tab === 'employees' ? '' : 'none';
+            document.getElementById('importPanelProjects').style.display = tab === 'projects' ? '' : 'none';
+        }
+
         function setupCSVImport() {
             const zone = document.getElementById('csvDropZone');
             const fileInput = document.getElementById('csvFile');
