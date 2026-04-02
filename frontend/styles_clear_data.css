@@ -2327,3 +2327,563 @@ html.modal-open body {
 /* ═══════════════════════════════════════════════════════════════════════════
    END OF STYLESHEET
    ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SECTION 14: PREMIUM FUTURISTIC DESIGN SYSTEM ENHANCEMENTS
+   Design System: Glassmorphism 2.0 — Deep gradient backgrounds
+   Base palette: #0d0d24 → #111130 → #0a0a1e
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Premium Keyframes ── */
+
+@keyframes clearDataSpringIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.92) translateY(28px);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.015) translateY(-4px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes clearDataShimmerSlide {
+  0%   { transform: translateX(-100%); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateX(100%); opacity: 0; }
+}
+
+@keyframes clearDataGlowPulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 0 rgba(0, 212, 255, 0.0),
+      0 40px 80px rgba(0, 0, 0, 0.9),
+      0 0 80px rgba(0, 212, 255, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.07),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.6);
+  }
+  50% {
+    box-shadow:
+      0 0 0 4px rgba(0, 212, 255, 0.04),
+      0 40px 80px rgba(0, 0, 0, 0.9),
+      0 0 120px rgba(0, 212, 255, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.6);
+  }
+}
+
+@keyframes clearDataConfirmGlowPulse {
+  0%, 100% {
+    box-shadow:
+      0 40px 80px rgba(0, 0, 0, 0.9),
+      0 0 80px rgba(245, 158, 11, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.07),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.6);
+  }
+  50% {
+    box-shadow:
+      0 40px 80px rgba(0, 0, 0, 0.9),
+      0 0 120px rgba(245, 158, 11, 0.14),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.6);
+  }
+}
+
+@keyframes clearDataCardShine {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
+/* ── Container: Deep gradient background + spring entrance + ambient glow ── */
+
+.clear-data-container {
+  background: linear-gradient(
+    160deg,
+    rgba(13, 13, 36, 0.97) 0%,
+    rgba(17, 17, 48, 0.96) 45%,
+    rgba(10, 10, 30, 0.98) 100%
+  );
+  box-shadow:
+    0 40px 80px rgba(0, 0, 0, 0.9),
+    0 0 80px rgba(0, 212, 255, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(0, 212, 255, 0.12);
+  animation: clearDataGlowPulse 6s ease-in-out infinite;
+}
+
+/* Override the .is-active transform with spring entrance */
+.clear-data-modal.is-active .clear-data-container {
+  animation:
+    clearDataSpringIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+    clearDataGlowPulse 6s ease-in-out 0.55s infinite;
+}
+
+/* ── Header: Shimmer line via ::after ── */
+
+.clear-data-header {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 212, 255, 0.13) 0%,
+    rgba(168, 85, 247, 0.09) 60%,
+    rgba(0, 212, 255, 0.04) 100%
+  );
+  position: relative;
+  overflow: hidden;
+}
+
+.clear-data-header::after {
+  display: block;
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 212, 255, 0.8) 30%,
+    rgba(168, 85, 247, 0.7) 70%,
+    transparent 100%
+  );
+  animation: clearDataShimmerSlide 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* ── Close button: hover scale with glow ── */
+
+.clear-data-close:hover {
+  transform: rotate(90deg) scale(1.12);
+  box-shadow:
+    0 0 0 1px rgba(255, 71, 87, 0.25),
+    0 4px 16px rgba(255, 71, 87, 0.2);
+}
+
+/* ── Action cards: hover lift + layered shadow intensification + inner shimmer ── */
+
+.clear-data-card {
+  background: linear-gradient(
+    145deg,
+    rgba(22, 22, 42, 0.9) 0%,
+    rgba(30, 30, 55, 0.85) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Ambient top-edge highlight */
+.clear-data-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.12) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Hover shimmer sweep on card */
+.clear-data-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.04) 50%,
+    transparent 100%
+  );
+  transition: left 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.clear-data-card:hover::after {
+  left: 150%;
+}
+
+.clear-data-card:hover {
+  background: linear-gradient(
+    145deg,
+    rgba(28, 28, 54, 0.96) 0%,
+    rgba(38, 38, 68, 0.92) 100%
+  );
+  transform: translateY(-5px);
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.5),
+    0 6px 16px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(0, 212, 255, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* Color-tuned hover shadows per card variant */
+.clear-data-card--safe:hover {
+  box-shadow:
+    0 16px 40px rgba(0, 255, 170, 0.12),
+    0 6px 16px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(0, 255, 170, 0.2),
+    inset 0 1px 0 rgba(0, 255, 170, 0.08);
+}
+
+.clear-data-card--caution:hover {
+  box-shadow:
+    0 16px 40px rgba(255, 165, 0, 0.12),
+    0 6px 16px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 165, 0, 0.2),
+    inset 0 1px 0 rgba(255, 165, 0, 0.08);
+}
+
+.clear-data-card--danger:hover {
+  box-shadow:
+    0 16px 40px rgba(255, 107, 107, 0.12),
+    0 6px 16px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 107, 107, 0.2),
+    inset 0 1px 0 rgba(255, 107, 107, 0.08);
+}
+
+/* ── Card buttons: enhanced gradient + glow lift ── */
+
+.clear-data-card__button {
+  position: relative;
+  overflow: hidden;
+  letter-spacing: 0.015em;
+}
+
+/* Ripple sweep on button hover */
+.clear-data-card__button::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  transform: translate(-50%, -50%);
+  transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+              height 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.5s;
+  pointer-events: none;
+}
+
+.clear-data-card__button:hover::after {
+  width: 280px;
+  height: 280px;
+  opacity: 0;
+}
+
+.clear-data-card__button--safe {
+  background: linear-gradient(135deg, #00ffaa 0%, #00e896 40%, #00cc88 100%);
+  box-shadow: 0 4px 14px rgba(0, 255, 170, 0.22);
+}
+
+.clear-data-card__button--safe:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 24px rgba(0, 255, 170, 0.35),
+    0 0 40px rgba(0, 255, 170, 0.15);
+}
+
+.clear-data-card__button--caution {
+  background: linear-gradient(135deg, #ffa500 0%, #ff9800 40%, #ff8800 100%);
+  box-shadow: 0 4px 14px rgba(255, 165, 0, 0.22);
+}
+
+.clear-data-card__button--caution:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 24px rgba(255, 165, 0, 0.35),
+    0 0 40px rgba(255, 165, 0, 0.15);
+}
+
+.clear-data-card__button--danger {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 40%, #ff4444 100%);
+  box-shadow: 0 4px 14px rgba(255, 107, 107, 0.22);
+}
+
+.clear-data-card__button--danger:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 24px rgba(255, 107, 107, 0.35),
+    0 0 40px rgba(255, 107, 107, 0.15);
+}
+
+/* ── Confirmation container: spring entrance + amber glow pulse ── */
+
+.clear-data-confirm-container {
+  background: linear-gradient(
+    160deg,
+    rgba(13, 13, 36, 0.99) 0%,
+    rgba(17, 17, 48, 0.97) 40%,
+    rgba(10, 10, 30, 0.99) 100%
+  );
+  border: 2px solid rgba(245, 158, 11, 0.18);
+  box-shadow:
+    0 40px 80px rgba(0, 0, 0, 0.9),
+    0 0 80px rgba(245, 158, 11, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.6);
+  animation:
+    clearDataSpringIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+    clearDataConfirmGlowPulse 6s ease-in-out 0.55s infinite;
+}
+
+/* ── Confirmation header: shimmer line ── */
+
+.clear-data-confirm-header {
+  background: linear-gradient(
+    135deg,
+    rgba(245, 158, 11, 0.13) 0%,
+    rgba(245, 158, 11, 0.06) 60%,
+    transparent 100%
+  );
+  position: relative;
+  overflow: hidden;
+}
+
+.clear-data-confirm-header::after {
+  display: block;
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(245, 158, 11, 0.85) 40%,
+    rgba(251, 191, 36, 0.6) 70%,
+    transparent 100%
+  );
+  animation: clearDataShimmerSlide 4s cubic-bezier(0.4, 0, 0.6, 1) 0.8s infinite;
+}
+
+/* ── Confirm close button: hover scale ── */
+
+.clear-data-confirm-close:hover {
+  transform: rotate(90deg) scale(1.12);
+  box-shadow:
+    0 0 0 1px rgba(255, 71, 87, 0.25),
+    0 4px 16px rgba(255, 71, 87, 0.2);
+}
+
+/* ── Type-to-confirm input: compound focus shadow ── */
+
+.clear-data-confirm-type-input:focus {
+  border-color: rgba(245, 158, 11, 0.6);
+  box-shadow:
+    0 0 0 1px rgba(245, 158, 11, 0.25),
+    0 0 0 4px rgba(245, 158, 11, 0.1),
+    0 2px 12px rgba(245, 158, 11, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.clear-data-confirm-type-input.matched {
+  border-color: rgba(245, 158, 11, 0.9);
+  box-shadow:
+    0 0 0 1px rgba(245, 158, 11, 0.4),
+    0 0 0 4px rgba(245, 158, 11, 0.12),
+    0 0 24px rgba(245, 158, 11, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  background: rgba(245, 158, 11, 0.04);
+}
+
+/* ── Delete button enabled: enhanced glow ── */
+
+.clear-data-confirm-btn-delete.enabled {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 40%, #ff4444 100%);
+  box-shadow:
+    0 4px 16px rgba(255, 107, 107, 0.28),
+    0 0 0 1px rgba(255, 107, 107, 0.1);
+}
+
+.clear-data-confirm-btn-delete.enabled:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 28px rgba(255, 107, 107, 0.42),
+    0 0 40px rgba(255, 107, 107, 0.18),
+    0 0 0 1px rgba(255, 107, 107, 0.18);
+}
+
+/* ── Cancel button: subtle lift ── */
+
+.clear-data-confirm-btn-cancel:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 6px 20px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+/* ── Stats items: deeper hover ── */
+
+.clear-data-stats__item:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 212, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  border-color: rgba(0, 212, 255, 0.25);
+  box-shadow:
+    0 4px 16px rgba(0, 212, 255, 0.08),
+    inset 0 1px 0 rgba(0, 212, 255, 0.06);
+  transform: translateY(-2px);
+}
+
+/* ── Reduced motion: disable all new animations ── */
+
+@media (prefers-reduced-motion: reduce) {
+  .clear-data-container,
+  .clear-data-modal.is-active .clear-data-container {
+    animation: none;
+  }
+
+  .clear-data-header::after,
+  .clear-data-confirm-header::after {
+    animation: none;
+    display: none;
+  }
+
+  .clear-data-card::after,
+  .clear-data-card__button::after {
+    display: none;
+  }
+
+  .clear-data-confirm-container {
+    animation: none;
+  }
+}
+
+/* ── Light theme: preserve warmth, remove dark glows ── */
+
+[data-theme="light"] .clear-data-container {
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(226, 232, 240, 0.5);
+  border: 1px solid #e2e8f0;
+  animation: none;
+}
+
+[data-theme="light"] .clear-data-modal.is-active .clear-data-container {
+  animation: clearDataSpringIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+[data-theme="light"] .clear-data-header::after {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(30, 41, 59, 0.35) 40%,
+    rgba(71, 85, 105, 0.25) 70%,
+    transparent 100%
+  );
+}
+
+[data-theme="light"] .clear-data-card {
+  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+}
+
+[data-theme="light"] .clear-data-card::before {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(30, 41, 59, 0.06) 50%,
+    transparent 100%
+  );
+}
+
+[data-theme="light"] .clear-data-card::after {
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    rgba(30, 41, 59, 0.03) 50%,
+    transparent 100%
+  );
+}
+
+[data-theme="light"] .clear-data-card:hover {
+  background: linear-gradient(145deg, #ffffff 0%, #f1f5f9 100%);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(30, 41, 59, 0.1);
+  transform: translateY(-3px);
+}
+
+[data-theme="light"] .clear-data-card--safe:hover,
+[data-theme="light"] .clear-data-card--caution:hover,
+[data-theme="light"] .clear-data-card--danger:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(30, 41, 59, 0.12);
+}
+
+[data-theme="light"] .clear-data-stats__item:hover {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .clear-data-confirm-container {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.95) 100%);
+  border: 2px solid rgba(245, 158, 11, 0.2);
+  box-shadow:
+    0 40px 80px rgba(0, 0, 0, 0.12),
+    0 0 60px rgba(245, 158, 11, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 1),
+    inset 0 -1px 0 rgba(226, 232, 240, 0.5);
+  animation: clearDataSpringIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+[data-theme="light"] .clear-data-confirm-header::after {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(245, 158, 11, 0.5) 40%,
+    rgba(245, 158, 11, 0.3) 70%,
+    transparent 100%
+  );
+}
+
+[data-theme="light"] .clear-data-confirm-type-input:focus {
+  border-color: rgba(245, 158, 11, 0.5);
+  box-shadow:
+    0 0 0 1px rgba(245, 158, 11, 0.15),
+    0 0 0 4px rgba(245, 158, 11, 0.08),
+    0 2px 8px rgba(245, 158, 11, 0.06);
+  background: #ffffff;
+}
+
+[data-theme="light"] .clear-data-confirm-type-input.matched {
+  border-color: rgba(245, 158, 11, 0.7);
+  box-shadow:
+    0 0 0 1px rgba(245, 158, 11, 0.25),
+    0 0 0 4px rgba(245, 158, 11, 0.08),
+    0 0 16px rgba(245, 158, 11, 0.08);
+  background: rgba(245, 158, 11, 0.02);
+}
+
+[data-theme="light"] .clear-data-confirm-btn-delete.enabled {
+  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.2), 0 0 0 1px rgba(220, 38, 38, 0.08);
+}
+
+[data-theme="light"] .clear-data-confirm-btn-delete.enabled:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 24px rgba(220, 38, 38, 0.28),
+    0 0 0 1px rgba(220, 38, 38, 0.12);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   END OF PREMIUM ENHANCEMENTS — SECTION 14
+   ═══════════════════════════════════════════════════════════════════════════ */
