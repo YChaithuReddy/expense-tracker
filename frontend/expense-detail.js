@@ -166,6 +166,16 @@ const expenseDetail = (() => {
             fields.push({ label: 'Description', value: sanitize(expense.description) });
         }
 
+        if (expense.paymentMode) {
+            const modeLabel = expense.paymentMode === 'bank_transfer' ? 'Bank Transfer' : expense.paymentMode === 'upi' ? 'UPI' : 'Cash';
+            fields.push({ label: 'Payment Mode', value: `<span class="payment-mode-badge payment-mode-badge--${sanitize(expense.paymentMode)}">${modeLabel}</span>` });
+        }
+
+        if (expense.billAttached) {
+            const billLabel = expense.billAttached === 'yes' ? 'Yes' : 'No';
+            fields.push({ label: 'Bill Attached', value: `<span class="bill-badge bill-badge--${sanitize(expense.billAttached)}">${billLabel}</span>` });
+        }
+
         if (expense.project) {
             fields.push({ label: 'Project', value: sanitize(expense.project) });
         }
