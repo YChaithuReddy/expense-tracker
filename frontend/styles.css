@@ -9908,6 +9908,55 @@ select.inline-input option {
 .wizard-dest-item .wd-name { color: #d0e8d8; font-weight: 600; font-size: 0.9rem; }
 .wizard-dest-item .wd-desc { color: #4a6a5a; font-size: 0.74rem; margin-top: 3px; }
 
+/* Approval fields inside wizard */
+.wizard-approval-fields {
+    margin-top: 16px;
+    padding: 18px;
+    background: rgba(139, 92, 246, 0.06);
+    border: 1px solid rgba(139, 92, 246, 0.15);
+    border-radius: 12px;
+}
+.wizard-approval-field { margin-bottom: 14px; }
+.wizard-approval-field:last-child { margin-bottom: 0; }
+.wizard-approval-field label {
+    display: block;
+    color: var(--text-secondary, #8892b0);
+    font-size: 0.82rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+.wizard-approval-field select,
+.wizard-approval-field textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-primary, #e0e0ff);
+    font-size: 0.88rem;
+    outline: none;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+.wizard-approval-field select:focus,
+.wizard-approval-field textarea:focus {
+    border-color: rgba(139, 92, 246, 0.4);
+}
+.wizard-approval-field select option { background: var(--bg-secondary, #1a1a2e); }
+.wizard-approval-field textarea::placeholder { color: var(--text-secondary, #5a6180); }
+
+[data-theme="light"] .wizard-approval-fields {
+    background: rgba(109, 40, 217, 0.04);
+    border-color: rgba(109, 40, 217, 0.12);
+}
+[data-theme="light"] .wizard-approval-field select,
+[data-theme="light"] .wizard-approval-field textarea {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #1e293b;
+}
+[data-theme="light"] .wizard-approval-field select option { background: #ffffff; }
+
 .wizard-progress-list { display: flex; flex-direction: column; gap: 10px; }
 .wizard-progress-item {
     display: flex;
@@ -11188,6 +11237,88 @@ select.inline-input option {
     background: rgba(168, 85, 247, 0.12);
     color: #a855f7;
     border: 1px solid rgba(168, 85, 247, 0.2);
+}
+
+/* Payment mode toggle active states */
+.visit-type-btn--cash.active {
+    background: rgba(34, 197, 94, 0.15);
+    color: #22c55e;
+    box-shadow: inset 0 -2px 0 #22c55e;
+}
+.visit-type-btn--bank.active {
+    background: rgba(59, 130, 246, 0.15);
+    color: #3b82f6;
+    box-shadow: inset 0 -2px 0 #3b82f6;
+}
+.visit-type-btn--upi.active {
+    background: rgba(139, 92, 246, 0.15);
+    color: #8b5cf6;
+    box-shadow: inset 0 -2px 0 #8b5cf6;
+}
+
+/* Bill attached toggle active states */
+.visit-type-btn--bill-yes.active {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    box-shadow: inset 0 -2px 0 #10b981;
+}
+.visit-type-btn--bill-no.active {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    box-shadow: inset 0 -2px 0 #ef4444;
+}
+
+/* Payment mode badges (expense cards) */
+.payment-mode-badge {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 2px 7px;
+    border-radius: 4px;
+    line-height: 1;
+    white-space: nowrap;
+}
+.payment-mode-badge--cash {
+    background: rgba(34, 197, 94, 0.12);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.2);
+}
+.payment-mode-badge--bank_transfer {
+    background: rgba(59, 130, 246, 0.12);
+    color: #3b82f6;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+}
+.payment-mode-badge--upi {
+    background: rgba(139, 92, 246, 0.12);
+    color: #8b5cf6;
+    border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+/* Bill attached badges (expense cards) */
+.bill-badge {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 2px 7px;
+    border-radius: 4px;
+    line-height: 1;
+    white-space: nowrap;
+}
+.bill-badge--yes {
+    background: rgba(16, 185, 129, 0.12);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+.bill-badge--no {
+    background: rgba(239, 68, 68, 0.12);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
 /* Exported to Sheets badge */

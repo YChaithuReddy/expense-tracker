@@ -70,9 +70,7 @@ class ExpenseTracker {
             document.body.classList.add('company-mode');
             document.body.dataset.userRole = role || 'employee';
 
-            // Show "Submit for Approval" button
-            const approvalBtn = document.getElementById('submitForApprovalBtn');
-            if (approvalBtn) approvalBtn.style.display = '';
+            // Approval is now integrated into the Submit Wizard
         }
 
         // Initialize project dropdown (company mode: searchable, personal mode: free text)
