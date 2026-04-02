@@ -81,7 +81,7 @@ const approvalWorkflow = (() => {
         }
 
         // Filter out already-submitted expenses
-        const submittable = expenses.filter(e => !e.voucher_status || e.voucher_status === 'rejected');
+        const submittable = expenses.filter(e => !e.voucherStatus || e.voucherStatus === 'rejected');
         if (submittable.length === 0) {
             window.expenseTracker?.showNotification('All selected expenses are already in a voucher');
             return;

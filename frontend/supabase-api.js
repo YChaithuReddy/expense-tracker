@@ -1770,7 +1770,11 @@ const api = {
             .from('voucher_expenses')
             .insert(links);
 
-        if (linkError) console.error('Link expenses error:', linkError);
+        if (linkError) {
+            // Clean up orphaned voucher if expense linking fails
+            await supabase.from('vouchers').delete().eq('id', voucher.id);
+            handleError(linkError, 'Link expenses to voucher');
+        }
 
         // Update expense voucher_status
         await supabase
