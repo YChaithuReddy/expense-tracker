@@ -2050,6 +2050,85 @@ const api = {
 
         if (error) handleError(error, `Get ${role}s`);
         return data || [];
+    },
+
+    // ==============================================
+    // NOTIFICATIONS
+    // ==============================================
+
+    async getNotifications(limit = 30, unreadOnly = false) {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        let query = supabase
+            .from('notifications')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false })
+            .limit(limit);
+
+        if (unreadOnly) query = query.eq('is_read', false);
+
+        const { data, error } = await query;
+        if (error) handleError(error, 'Get notifications');
+        return data || [];
+    },
+
+    async getUnreadCount() {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return 0;
+
+        const { count, error } = await supabase
+            .from('notifications')
+            .select('id', { count: 'exact', head: true })
+            .eq('user_id', user.id)
+            .eq('is_read', false);
+
+        if (error) return 0;
+        return count || 0;
+    },
+
+    async markNotificationRead(notificationId) {
+        const supabase = getSupabase();
+
+        const { error } = await supabase
+            .from('notifications')
+            .update({ is_read: true })
+            .eq('id', notificationId);
+
+        if (error) handleError(error, 'Mark notification read');
+        return { success: true };
+    },
+
+    async markAllNotificationsRead() {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        const { error } = await supabase
+            .from('notifications')
+            .update({ is_read: true })
+            .eq('user_id', user.id)
+            .eq('is_read', false);
+
+        if (error) handleError(error, 'Mark all read');
+        return { success: true };
+    },
+
+    async sendNotificationEmail(to, subject, message, voucherNumber = '') {
+        const supabase = getSupabase();
+
+        const { data, error } = await supabase.functions.invoke('send-notification-email', {
+            body: { to, subject, message, voucherNumber }
+        });
+
+        if (error) {
+            console.warn('Notification email failed:', error);
+            return { success: false };
+        }
+        return data || { success: true };
     }
 };
 
