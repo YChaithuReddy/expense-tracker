@@ -440,3 +440,12 @@ const projectDropdown = (() => {
 })();
 
 window.projectDropdown = projectDropdown;
+
+// Auto-init: script.js loads before this file (defer order),
+// so projectDropdown.init() in ExpenseTracker constructor finds undefined.
+// Self-initialize once this script loads.
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => projectDropdown.init());
+} else {
+    projectDropdown.init();
+}
