@@ -286,19 +286,188 @@ const approvalWorkflow = (() => {
         const body = document.getElementById('approvalsBody');
         if (!body) return;
 
-        body.innerHTML = '<div style="text-align:center;padding:40px;color:#5a6180;">Loading vouchers...</div>';
+        body.innerHTML = '<div style="text-align:center;padding:40px;color:#5a6180;">Loading...</div>';
 
         try {
-            let vouchers;
             if (currentTab === 'my-vouchers') {
-                vouchers = await api.getMyVouchers();
+                const vouchers = await api.getMyVouchers();
+                renderVoucherList(vouchers);
+            } else if (currentTab === 'pending-approval') {
+                // Load both vouchers and advances for approval
+                const [vouchers, advances] = await Promise.all([
+                    api.getVouchersForApproval(),
+                    api.getAdvancesForApproval().catch(() => [])
+                ]);
+                renderMixedApprovalList(vouchers, advances);
             } else {
-                vouchers = await api.getVouchersForApproval();
+                const vouchers = await api.getVouchersForApproval();
+                renderVoucherList(vouchers);
             }
-            renderVoucherList(vouchers);
         } catch (e) {
             body.innerHTML = `<div style="text-align:center;padding:40px;color:#ef4444;">Error: ${sanitize(e.message)}</div>`;
         }
+    }
+
+    function renderMixedApprovalList(vouchers, advances) {
+        const body = document.getElementById('approvalsBody');
+        if (!body) return;
+
+        if (vouchers.length === 0 && advances.length === 0) {
+            body.innerHTML = '<div class="approval-empty"><p>No pending approvals.</p></div>';
+            return;
+        }
+
+        let html = '';
+
+        // Render advance requests
+        if (advances.length > 0) {
+            html += `<div style="margin-bottom:8px;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#a78bfa;padding:0 4px;">Advance Requests (${advances.length})</div>`;
+            html += advances.map(adv => `
+                <div class="approval-voucher-card" onclick="approvalWorkflow.openAdvanceDetail('${adv.id}')" style="border-left:3px solid #a78bfa;">
+                    <div class="approval-voucher-card__header">
+                        <span class="approval-voucher-card__number" style="color:#a78bfa;">ADVANCE</span>
+                        ${statusBadge(adv.status)}
+                    </div>
+                    <div class="approval-voucher-card__body">
+                        <div class="approval-voucher-card__amount">${formatAmount(adv.amount)}</div>
+                        <div class="approval-voucher-card__meta">
+                            <span>From: ${sanitize(adv.submitter?.name || '')}</span>
+                            <span class="visit-type-badge visit-type-badge--${adv.visit_type || 'project'}">${adv.visit_type || 'project'}</span>
+                        </div>
+                        <div class="approval-voucher-card__purpose">${sanitize(adv.project_name)}${adv.notes ? ' — ' + sanitize(adv.notes) : ''}</div>
+                    </div>
+                    <div class="approval-voucher-card__footer">
+                        <span>${adv.submitted_at ? relativeTime(adv.submitted_at) : ''}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render vouchers
+        if (vouchers.length > 0) {
+            html += `<div style="margin:16px 0 8px;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#5a6180;padding:0 4px;">Vouchers (${vouchers.length})</div>`;
+            html += vouchers.map(v => {
+                const person = `From: ${sanitize(v.submitter?.name || v.submitted_by)}`;
+                const projectInfo = v.project ? `<span class="expense-project-badge">${sanitize(v.project.project_code)}</span>` : '';
+                return `
+                    <div class="approval-voucher-card" onclick="approvalWorkflow.openVoucherDetail('${v.id}')">
+                        <div class="approval-voucher-card__header">
+                            <span class="approval-voucher-card__number">${sanitize(v.voucher_number)}</span>
+                            ${statusBadge(v.status)}
+                        </div>
+                        <div class="approval-voucher-card__body">
+                            <div class="approval-voucher-card__amount">${formatAmount(v.total_amount)}</div>
+                            <div class="approval-voucher-card__meta">
+                                <span>${v.expense_count} expense${v.expense_count !== 1 ? 's' : ''}</span>
+                                <span>${person}</span>
+                                ${projectInfo}
+                            </div>
+                            ${v.purpose ? `<div class="approval-voucher-card__purpose">${sanitize(v.purpose)}</div>` : ''}
+                        </div>
+                        <div class="approval-voucher-card__footer">
+                            <span>${v.submitted_at ? relativeTime(v.submitted_at) : ''}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        body.innerHTML = html;
+    }
+
+    async function openAdvanceDetail(advanceId) {
+        try {
+            const detail = await api.getAdvanceDetail(advanceId);
+            renderAdvanceDetail(detail);
+        } catch (e) {
+            window.expenseTracker?.showNotification('Failed to load advance: ' + e.message);
+        }
+    }
+
+    function renderAdvanceDetail(adv) {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const isManager = adv.manager_id === user.id && adv.status === 'pending_manager';
+        const isAccountant = adv.accountant_id === user.id && adv.status === 'pending_accountant';
+
+        let existing = document.getElementById('voucherDetailOverlay');
+        if (existing) existing.remove();
+
+        const overlay = document.createElement('div');
+        overlay.id = 'voucherDetailOverlay';
+        overlay.className = 'approval-overlay active';
+
+        overlay.innerHTML = `
+            <div class="approval-detail">
+                <div class="approval-detail__header">
+                    <button class="approval-detail__back" onclick="approvalWorkflow.closeVoucherDetail()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+                    </button>
+                    <h2 style="color:#a78bfa;">Advance Request</h2>
+                    ${statusBadge(adv.status)}
+                </div>
+                <div class="approval-detail__body" style="padding:20px;">
+                    <div style="background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.15);border-radius:12px;padding:20px;margin-bottom:20px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                            <h3 style="margin:0;font-size:1.1rem;">${sanitize(adv.project_name)}</h3>
+                            <span style="font-size:1.3rem;font-weight:700;color:#10b981;">₹${parseFloat(adv.amount).toLocaleString('en-IN')}</span>
+                        </div>
+                        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                            <span class="visit-type-badge visit-type-badge--${adv.visit_type || 'project'}">${adv.visit_type || 'project'}</span>
+                            ${adv.notes ? `<span style="font-size:0.82rem;color:#8890b5;">${sanitize(adv.notes)}</span>` : ''}
+                        </div>
+                    </div>
+
+                    <div class="approval-detail-info-grid" style="margin-bottom:20px;">
+                        <div class="approval-detail-info-card">
+                            <span class="approval-detail-info-label">Requested By</span>
+                            <span class="approval-detail-info-value">${sanitize(adv.submitter?.name || '')}</span>
+                            <span style="font-size:0.72rem;color:#5a6180;">${sanitize(adv.submitter?.email || '')}</span>
+                        </div>
+                        <div class="approval-detail-info-card">
+                            <span class="approval-detail-info-label">Manager</span>
+                            <span class="approval-detail-info-value">${sanitize(adv.manager?.name || '-')}</span>
+                        </div>
+                        <div class="approval-detail-info-card">
+                            <span class="approval-detail-info-label">Accountant</span>
+                            <span class="approval-detail-info-value">${sanitize(adv.accountant?.name || '-')}</span>
+                        </div>
+                    </div>
+
+                    ${adv.rejection_reason ? `<div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:8px;padding:12px;margin-bottom:16px;color:#f87171;font-size:0.85rem;"><strong>Rejection Reason:</strong> ${sanitize(adv.rejection_reason)}</div>` : ''}
+
+                    ${adv.history && adv.history.length > 0 ? `
+                        <div style="margin-bottom:20px;">
+                            <h4 style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:#5a6180;margin:0 0 10px;">History</h4>
+                            ${adv.history.map(h => `
+                                <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+                                    <span style="width:8px;height:8px;border-radius:50%;background:#a78bfa;margin-top:5px;flex-shrink:0;"></span>
+                                    <div>
+                                        <strong style="font-size:0.82rem;">${sanitize(h.action.replace(/_/g, ' '))}</strong>
+                                        <div style="font-size:0.75rem;color:#5a6180;">${sanitize(h.actor?.name || '')}${h.comments ? ' — ' + sanitize(h.comments) : ''}</div>
+                                        <div style="font-size:0.7rem;color:#3a3f5c;">${h.created_at ? relativeTime(h.created_at) : ''}</div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+
+                ${isManager || isAccountant ? `
+                <div class="approval-detail__actions">
+                    <button class="approval-btn approval-btn--reject" onclick="approvalWorkflow.rejectAdvance('${adv.id}')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                        Reject
+                    </button>
+                    <button class="approval-btn approval-btn--approve" onclick="approvalWorkflow.approveAdvance('${adv.id}')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        Approve
+                    </button>
+                </div>` : ''}
+            </div>
+        `;
+
+        document.body.appendChild(overlay);
+        document.body.classList.add('modal-open');
     }
 
     function renderVoucherList(vouchers) {
@@ -628,6 +797,170 @@ const approvalWorkflow = (() => {
         }
     });
 
+    // ==================== Advance Approval ====================
+
+    async function openAdvanceSubmitModal(advanceData) {
+        const orgId = getOrganizationId();
+        if (!orgId) return;
+
+        let mgrs, accts;
+        try {
+            [mgrs, accts] = await Promise.all([
+                api.getOrgMembersByRole(orgId, 'manager'),
+                api.getOrgMembersByRole(orgId, 'accountant')
+            ]);
+        } catch (e) {
+            window.expenseTracker?.showNotification('Failed to load team: ' + e.message);
+            return;
+        }
+        if (mgrs.length === 0) { window.expenseTracker?.showNotification('No managers found. Ask admin to assign manager roles.'); return; }
+        if (accts.length === 0) { window.expenseTracker?.showNotification('No accountants found. Ask admin to assign accountant roles.'); return; }
+
+        const mgrOpts = mgrs.map(m => `<option value="${m.id}">${sanitize(m.name)} (${sanitize(m.email)})</option>`).join('');
+        const acctOpts = accts.map(a => `<option value="${a.id}">${sanitize(a.name)} (${sanitize(a.email)})</option>`).join('');
+
+        const overlay = document.createElement('div');
+        overlay.id = 'advanceSubmitOverlay';
+        overlay.className = 'approval-overlay';
+        overlay.innerHTML = `
+            <div class="approval-modal" style="max-width:500px;">
+                <div class="approval-modal__header">
+                    <h2>Submit Advance for Approval</h2>
+                    <button class="approval-close-btn" onclick="approvalWorkflow.closeAdvanceSubmitModal()">&times;</button>
+                </div>
+                <div class="approval-modal__body" style="padding:20px;">
+                    <div style="background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.15);border-radius:10px;padding:16px;margin-bottom:20px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                            <span style="font-weight:700;font-size:1rem;">${sanitize(advanceData.projectName)}</span>
+                            <span style="font-size:1.1rem;font-weight:700;color:#10b981;">₹${parseFloat(advanceData.amount).toLocaleString('en-IN')}</span>
+                        </div>
+                        <div style="display:flex;gap:8px;">
+                            <span class="visit-type-badge visit-type-badge--${advanceData.visitType || 'project'}">${advanceData.visitType || 'project'}</span>
+                            ${advanceData.notes ? `<span style="font-size:0.78rem;color:#5a6180;">${sanitize(advanceData.notes)}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="approval-form-group">
+                        <label>Approving Manager</label>
+                        <select id="advanceManagerSelect" class="approval-select">${mgrOpts}</select>
+                    </div>
+                    <div class="approval-form-group">
+                        <label>Approving Accountant</label>
+                        <select id="advanceAccountantSelect" class="approval-select">${acctOpts}</select>
+                    </div>
+                </div>
+                <div class="approval-modal__footer">
+                    <button class="approval-btn approval-btn--cancel" onclick="approvalWorkflow.closeAdvanceSubmitModal()">Cancel</button>
+                    <button class="approval-btn approval-btn--submit" id="advanceSubmitBtn" onclick="approvalWorkflow.submitAdvanceForApproval()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                        Submit for Approval
+                    </button>
+                </div>
+            </div>
+        `;
+        overlay._advanceData = advanceData;
+        document.body.appendChild(overlay);
+        document.body.classList.add('modal-open');
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) closeAdvanceSubmitModal(); });
+    }
+
+    function closeAdvanceSubmitModal() {
+        const overlay = document.getElementById('advanceSubmitOverlay');
+        if (overlay) { overlay.remove(); document.body.classList.remove('modal-open'); }
+    }
+
+    async function submitAdvanceForApproval() {
+        const overlay = document.getElementById('advanceSubmitOverlay');
+        if (!overlay) return;
+
+        const managerId = document.getElementById('advanceManagerSelect')?.value;
+        const accountantId = document.getElementById('advanceAccountantSelect')?.value;
+        const advData = overlay._advanceData;
+
+        if (!managerId || !accountantId) {
+            window.expenseTracker?.showNotification('Please select both manager and accountant');
+            return;
+        }
+
+        const btn = document.getElementById('advanceSubmitBtn');
+        btn.disabled = true;
+        btn.innerHTML = 'Submitting...';
+
+        try {
+            const result = await api.createAdvance(advData.projectName, advData.amount, advData.notes, advData.visitType, managerId, accountantId);
+            closeAdvanceSubmitModal();
+            window.expenseTracker?.showNotification(`Advance of ₹${parseFloat(advData.amount).toLocaleString('en-IN')} submitted for approval!`);
+            await api.logActivity?.('advance_submitted', `Submitted advance of ₹${advData.amount} for ${advData.projectName}`);
+
+            // Email manager
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const orgId = getOrganizationId();
+            const [mgrs] = await Promise.all([api.getOrgMembersByRole(orgId, 'manager')]);
+            const mgr = mgrs.find(m => m.id === managerId);
+            if (mgr?.email && typeof sendEmailNotification === 'function') {
+                sendEmailNotification(mgr.email, 'New advance request for approval',
+                    `${user.name || 'An employee'} requests an advance of ₹${parseFloat(advData.amount).toLocaleString('en-IN')} for ${advData.projectName}. Please log in to review.`,
+                    'Advance Request');
+            }
+
+            window.expenseTracker?.loadAdvances?.();
+        } catch (e) {
+            window.expenseTracker?.showNotification('Failed: ' + e.message);
+            btn.disabled = false;
+            btn.innerHTML = 'Submit for Approval';
+        }
+    }
+
+    // Advance approve/reject (called from voucher detail or approvals panel)
+    async function approveAdvance(advanceId) {
+        try {
+            const detail = await api.getAdvanceDetail(advanceId);
+            const result = await api.approveAdvance(advanceId);
+            window.expenseTracker?.showNotification('Advance approved!');
+
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const amt = `₹${parseFloat(detail.amount).toLocaleString('en-IN')}`;
+
+            if (result.newStatus === 'pending_accountant' && detail.accountant?.email && typeof sendEmailNotification === 'function') {
+                sendEmailNotification(detail.accountant.email, 'Advance request ready for verification',
+                    `Advance ${amt} for ${detail.project_name} was approved by ${user.name || 'Manager'}. Please review and process.`, 'Advance Approval');
+            }
+            if (result.newStatus === 'active' && detail.submitter?.email && typeof sendEmailNotification === 'function') {
+                sendEmailNotification(detail.submitter.email, 'Your advance has been approved!',
+                    `Your advance ${amt} for ${detail.project_name} has been fully approved. Funds will be transferred.`, 'Advance Approved');
+            }
+            if (detail.submitter?.email && result.newStatus === 'pending_accountant' && typeof sendEmailNotification === 'function') {
+                sendEmailNotification(detail.submitter.email, 'Manager approved your advance',
+                    `Your advance ${amt} for ${detail.project_name} was approved by ${user.name || 'Manager'}. Pending accountant verification.`, 'Advance Update');
+            }
+
+            closeVoucherDetail();
+            await loadVoucherList();
+        } catch (e) {
+            window.expenseTracker?.showNotification('Failed: ' + e.message);
+        }
+    }
+
+    async function rejectAdvance(advanceId) {
+        const reason = prompt('Reason for rejection (optional):') || '';
+        try {
+            const detail = await api.getAdvanceDetail(advanceId);
+            await api.rejectAdvance(advanceId, reason);
+            window.expenseTracker?.showNotification('Advance rejected');
+
+            if (detail.submitter?.email && typeof sendEmailNotification === 'function') {
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                sendEmailNotification(detail.submitter.email, 'Your advance was rejected',
+                    `Your advance of ₹${parseFloat(detail.amount).toLocaleString('en-IN')} for ${detail.project_name} was rejected by ${user.name}. ${reason ? 'Reason: ' + reason : 'You can edit and resubmit.'}`,
+                    'Advance Rejected');
+            }
+
+            closeVoucherDetail();
+            await loadVoucherList();
+        } catch (e) {
+            window.expenseTracker?.showNotification('Failed: ' + e.message);
+        }
+    }
+
     return {
         openSubmitModal,
         closeSubmitModal,
@@ -640,7 +973,14 @@ const approvalWorkflow = (() => {
         approve,
         showRejectForm,
         confirmReject,
-        resubmit
+        resubmit,
+        // Advance approval
+        openAdvanceSubmitModal,
+        closeAdvanceSubmitModal,
+        submitAdvanceForApproval,
+        approveAdvance,
+        rejectAdvance,
+        openAdvanceDetail
     };
 })();
 

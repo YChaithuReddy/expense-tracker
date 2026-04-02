@@ -1178,25 +1178,59 @@ const api = {
     // ADVANCES
     // ==============================================
 
-    async createAdvance(projectName, amount, notes = '', visitType = 'project') {
+    async createAdvance(projectName, amount, notes = '', visitType = 'project', managerId = null, accountantId = null) {
         const supabase = getSupabase();
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error('Not authenticated');
 
+        // Check if company mode — require approval
+        const profile = await this._getProfile(user.id);
+        const isCompany = !!(profile?.organization_id);
+
+        const insertObj = {
+            user_id: user.id,
+            project_name: projectName.trim(),
+            amount: parseFloat(amount),
+            notes: notes || null,
+            visit_type: visitType || 'project'
+        };
+
+        if (isCompany && managerId && accountantId) {
+            insertObj.organization_id = profile.organization_id;
+            insertObj.status = 'pending_manager';
+            insertObj.manager_id = managerId;
+            insertObj.accountant_id = accountantId;
+            insertObj.submitted_at = new Date().toISOString();
+        }
+        // Personal mode or no approvers → active immediately (legacy behavior)
+
         const { data, error } = await supabase
             .from('advances')
-            .insert({
-                user_id: user.id,
-                project_name: projectName.trim(),
-                amount: parseFloat(amount),
-                notes: notes || null,
-                visit_type: visitType || 'project'
-            })
+            .insert(insertObj)
             .select()
             .single();
 
         if (error) handleError(error, 'Create advance');
+
+        // Add history entry for company mode
+        if (isCompany && managerId && data) {
+            await supabase.from('advance_history').insert({
+                advance_id: data.id,
+                action: 'submitted',
+                acted_by: user.id,
+                comments: `Advance of ₹${parseFloat(amount).toLocaleString('en-IN')} for ${projectName}`,
+                new_status: 'pending_manager',
+                created_at: new Date().toISOString()
+            });
+        }
+
         return { success: true, data };
+    },
+
+    async _getProfile(userId) {
+        const supabase = getSupabase();
+        const { data } = await supabase.from('profiles').select('organization_id').eq('id', userId).single();
+        return data;
     },
 
     async getAdvances(status = null) {
@@ -1409,6 +1443,158 @@ const api = {
 
         if (error) handleError(error, 'Move expense to advance');
         return { success: true, data };
+    },
+
+    // ==============================================
+    // ADVANCE APPROVAL
+    // ==============================================
+
+    async getAdvancesForApproval() {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        const { data, error } = await supabase
+            .from('advances')
+            .select('*, submitter:user_id(id, name, email, employee_id, department)')
+            .or(`manager_id.eq.${user.id},accountant_id.eq.${user.id}`)
+            .in('status', ['pending_manager', 'pending_accountant'])
+            .order('submitted_at', { ascending: false });
+
+        if (error) handleError(error, 'Get advances for approval');
+        return data || [];
+    },
+
+    async getAdvanceDetail(advanceId) {
+        const supabase = getSupabase();
+
+        const { data: advance, error } = await supabase
+            .from('advances')
+            .select(`
+                *,
+                submitter:user_id(id, name, email, employee_id, department, profile_picture),
+                manager:manager_id(id, name, email, profile_picture),
+                accountant:accountant_id(id, name, email, profile_picture)
+            `)
+            .eq('id', advanceId)
+            .single();
+
+        if (error) handleError(error, 'Get advance detail');
+
+        // Get history
+        const { data: history } = await supabase
+            .from('advance_history')
+            .select('*, actor:acted_by(id, name, profile_picture)')
+            .eq('advance_id', advanceId)
+            .order('created_at', { ascending: true });
+
+        return { ...advance, history: history || [] };
+    },
+
+    async approveAdvance(advanceId, comments = '') {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        // Get current advance
+        const { data: advance } = await supabase.from('advances').select('*').eq('id', advanceId).single();
+        if (!advance) throw new Error('Advance not found');
+
+        let newStatus, action;
+        if (advance.status === 'pending_manager' && advance.manager_id === user.id) {
+            newStatus = 'pending_accountant';
+            action = 'manager_approved';
+        } else if (advance.status === 'pending_accountant' && advance.accountant_id === user.id) {
+            newStatus = 'active';
+            action = 'accountant_approved';
+        } else {
+            throw new Error('You are not authorized to approve this advance');
+        }
+
+        const updateObj = { status: newStatus };
+        if (action === 'manager_approved') updateObj.manager_action_at = new Date().toISOString();
+        if (action === 'accountant_approved') updateObj.accountant_action_at = new Date().toISOString();
+
+        const { error } = await supabase
+            .from('advances')
+            .update(updateObj)
+            .eq('id', advanceId);
+
+        if (error) handleError(error, 'Approve advance');
+
+        // Add history
+        await supabase.from('advance_history').insert({
+            advance_id: advanceId,
+            action,
+            acted_by: user.id,
+            comments: comments || null,
+            previous_status: advance.status,
+            new_status: newStatus
+        });
+
+        return { success: true, newStatus };
+    },
+
+    async rejectAdvance(advanceId, reason = '') {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        const { data: advance } = await supabase.from('advances').select('*').eq('id', advanceId).single();
+        if (!advance) throw new Error('Advance not found');
+
+        const action = advance.status === 'pending_manager' ? 'manager_rejected' : 'accountant_rejected';
+
+        const { error } = await supabase
+            .from('advances')
+            .update({
+                status: 'rejected',
+                rejection_reason: reason || null,
+                rejected_by: user.id
+            })
+            .eq('id', advanceId);
+
+        if (error) handleError(error, 'Reject advance');
+
+        await supabase.from('advance_history').insert({
+            advance_id: advanceId,
+            action,
+            acted_by: user.id,
+            comments: reason || null,
+            previous_status: advance.status,
+            new_status: 'rejected'
+        });
+
+        return { success: true };
+    },
+
+    async resubmitAdvance(advanceId) {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        const { error } = await supabase
+            .from('advances')
+            .update({
+                status: 'pending_manager',
+                rejection_reason: null,
+                rejected_by: null,
+                submitted_at: new Date().toISOString()
+            })
+            .eq('id', advanceId)
+            .eq('user_id', user.id);
+
+        if (error) handleError(error, 'Resubmit advance');
+
+        await supabase.from('advance_history').insert({
+            advance_id: advanceId,
+            action: 'resubmitted',
+            acted_by: user.id,
+            previous_status: 'rejected',
+            new_status: 'pending_manager'
+        });
+
+        return { success: true };
     },
 
     async getActivityLog(limit = 50) {

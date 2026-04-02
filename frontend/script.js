@@ -28,8 +28,12 @@ class ExpenseTracker {
         // Category subcategory mapping
         this.categorySubcategories = {
             'Transportation': ['Bus', 'Metro', 'Auto', 'Cab (Uber/Rapido)', 'Train', 'Toll'],
+            'Local Conveyance': ['Auto', 'Cab', 'Bus', 'Metro', 'Train (Local)', 'Late Night Cab'],
+            'Mileage': ['2-Wheeler', '4-Wheeler'],
             'Accommodation': ['Room/Hotel', 'OYO'],
             'Meals': ['Food', 'Snacks', 'Water/Juice', 'Tea/Coffee', 'Tiffin'],
+            'Business Meal (Client)': ['Breakfast', 'Lunch', 'Dinner', 'Tea/Snacks'],
+            'Own Arrangement': ['Metro City', 'Tier 2 City', 'Tier 3 City'],
             'Fuel': ['Petrol', 'Service'],
             'Miscellaneous': ['Tools', 'Stationery', 'Xerox', 'Wiring Material', 'Plumbing Material', 'Work Clothing', 'Porter', 'Dues', 'Fine']
         };
@@ -3254,6 +3258,8 @@ class ExpenseTracker {
                     amount: parseFloat(amount),
                     vendor: formData.get('vendor') || 'N/A',
                     visitType: this.getSelectedVisitType('expenseVisitType'),
+                    paymentMode: this.getSelectedToggleValue('paymentModeToggle'),
+                    billAttached: this.getSelectedToggleValue('billAttachedToggle'),
                     time: this.extractedData.time || existingTime,
                     images: files.length > 0 ? [] : existingImages,
                     project_id: projectId || undefined
@@ -3277,6 +3283,8 @@ class ExpenseTracker {
                 amount: parseFloat(amount),
                 vendor: formData.get('vendor') || 'N/A',
                 visitType: this.getSelectedVisitType('expenseVisitType'),
+                paymentMode: this.getSelectedToggleValue('paymentModeToggle'),
+                billAttached: this.getSelectedToggleValue('billAttachedToggle'),
                 time: this.extractedData.time || '',
                 project_id: projectId || undefined,
                 images: []
@@ -3434,7 +3442,9 @@ class ExpenseTracker {
                 amount: expense.amount,
                 vendor: expense.vendor,
                 description: expense.description,
-                visitType: expense.visitType || null
+                visitType: expense.visitType || null,
+                paymentMode: expense.paymentMode || 'cash',
+                billAttached: expense.billAttached || 'yes'
             };
 
             // Prepare images as File objects (if they exist)
@@ -3586,6 +3596,10 @@ class ExpenseTracker {
         document.getElementById('amount').value = expense.amount;
         document.getElementById('vendor').value = expense.vendor;
 
+        // Populate payment mode and bill attached toggles
+        this.setToggleValue('paymentModeToggle', expense.paymentMode || 'cash');
+        this.setToggleValue('billAttachedToggle', expense.billAttached || 'yes');
+
         // Update submit button text
         const submitBtn = document.querySelector('#expenseForm button[type="submit"]');
         submitBtn.textContent = '💾 Update Expense';
@@ -3608,7 +3622,9 @@ class ExpenseTracker {
                 category: updatedExpense.category,
                 amount: updatedExpense.amount,
                 vendor: updatedExpense.vendor,
-                description: updatedExpense.description
+                description: updatedExpense.description,
+                paymentMode: updatedExpense.paymentMode || 'cash',
+                billAttached: updatedExpense.billAttached || 'yes'
             };
 
             // Prepare images as File objects (if they exist and are new)
@@ -3746,6 +3762,8 @@ class ExpenseTracker {
                         ${safeVendor}
                     </span>` : ''}
                     ${expense.visitType ? `<span class="visit-type-badge visit-type-badge--${expense.visitType}">${expense.visitType}</span>` : ''}
+                    ${expense.paymentMode ? `<span class="payment-mode-badge payment-mode-badge--${expense.paymentMode}">${expense.paymentMode === 'bank_transfer' ? 'Bank Transfer' : expense.paymentMode === 'upi' ? 'UPI' : 'Cash'}</span>` : ''}
+                    ${expense.billAttached === 'no' ? `<span class="bill-badge bill-badge--no">No Bill</span>` : expense.billAttached === 'yes' ? `<span class="bill-badge bill-badge--yes">Bill</span>` : ''}
                     ${googleSheetsService.isExpenseExported(expense.id) ? `<span class="exported-badge" title="Exported to Google Sheets"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Exported</span>` : ''}
                     ${expense.voucherStatus ? `<span class="voucher-status-badge voucher-status-badge--${expense.voucherStatus}">${expense.voucherStatus === 'in_voucher' ? 'In Voucher' : expense.voucherStatus === 'submitted' ? 'Submitted' : expense.voucherStatus === 'approved' ? 'Approved' : 'Rejected'}</span>` : ''}
                 </div>
@@ -4145,6 +4163,9 @@ class ExpenseTracker {
         // Clear extracted data when resetting form
         this.extractedData = {};
         this.setTodayDate();
+        // Reset payment mode and bill attached toggles to defaults
+        this.setToggleValue('paymentModeToggle', 'cash');
+        this.setToggleValue('billAttachedToggle', 'yes');
     }
 
     async initializeGoogleSheets() {
@@ -4186,6 +4207,8 @@ class ExpenseTracker {
                     amount: exp.amount,
                     vendor: exp.vendor,
                     visitType: exp.visit_type || null,
+                    paymentMode: exp.payment_mode || null,
+                    billAttached: exp.bill_attached || null,
                     voucherStatus: exp.voucher_status || null,
                     time: exp.time || '',
                     images: exp.images.map(img => ({
@@ -8427,6 +8450,19 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         return active?.dataset.type || 'project';
     }
 
+    getSelectedToggleValue(toggleId) {
+        const active = document.querySelector(`#${toggleId} .visit-type-btn.active`);
+        return active?.dataset.type || null;
+    }
+
+    setToggleValue(toggleId, value) {
+        const toggle = document.getElementById(toggleId);
+        if (!toggle || !value) return;
+        toggle.querySelectorAll('.visit-type-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.type === value);
+        });
+    }
+
     setVisitTypeToggle(toggleId, type) {
         const toggle = document.getElementById(toggleId);
         if (!toggle) return;
@@ -8526,6 +8562,14 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                 await api.updateAdvance(editId, { projectName, amount, notes, visitType });
                 this.showNotification('Advance updated successfully');
             } else {
+                // Company mode: open approval modal for manager/accountant selection
+                if (typeof isCompanyMode === 'function' && isCompanyMode() && typeof approvalWorkflow !== 'undefined') {
+                    this.closeAdvanceModal();
+                    await approvalWorkflow.openAdvanceSubmitModal({ projectName, amount, notes, visitType });
+                    return; // approval modal handles the rest
+                }
+
+                // Personal mode: create immediately as active
                 const result = await api.createAdvance(projectName, amount, notes, visitType);
                 this.showNotification('Advance created successfully');
                 window.api?.logActivity?.('advance_created', `Created advance of ₹${amount} for ${projectName}`, { amount, projectName });
@@ -8584,7 +8628,22 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             const isOverspent = adv.remaining < 0;
             let statusClass, barClass, remainClass, pctClass, tabColor;
 
-            if (adv.status === 'closed') {
+            const isPending = adv.status === 'pending_manager' || adv.status === 'pending_accountant';
+            const isRejected = adv.status === 'rejected';
+
+            if (isPending) {
+                statusClass = 'advance-tab--pending';
+                barClass = 'advance-card__progress-bar--safe';
+                remainClass = '';
+                pctClass = '';
+                tabColor = '#f59e0b';
+            } else if (isRejected) {
+                statusClass = 'advance-tab--rejected';
+                barClass = 'advance-card__progress-bar--danger';
+                remainClass = 'danger';
+                pctClass = '';
+                tabColor = '#ef4444';
+            } else if (adv.status === 'closed') {
                 statusClass = 'advance-tab--closed';
                 barClass = 'advance-card__progress-bar--safe';
                 remainClass = '';
@@ -8630,8 +8689,10 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                         <span class="advance-tab__dot" style="background:${tabColor}"></span>
                         <span class="advance-tab__name">${this.sanitizeHTML(adv.project_name)}</span>
                         <span class="visit-type-badge visit-type-badge--${adv.visit_type || 'project'}">${adv.visit_type || 'project'}</span>
-                        <span class="advance-tab__spent-info">₹${adv.totalSpent.toLocaleString('en-IN')} / ₹${adv.amount.toLocaleString('en-IN')}</span>
-                        <span class="advance-tab__mini-bar"><span class="advance-tab__mini-fill ${barClass}" style="width:${displayPercent}%"></span></span>
+                        ${isPending ? `<span class="approval-status-badge" style="background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);font-size:0.65rem;padding:2px 8px;border-radius:4px;">${adv.status === 'pending_manager' ? 'Pending Manager' : 'Pending Accountant'}</span>`
+                        : isRejected ? `<span class="approval-status-badge" style="background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.3);font-size:0.65rem;padding:2px 8px;border-radius:4px;">Rejected</span>`
+                        : `<span class="advance-tab__spent-info">₹${adv.totalSpent.toLocaleString('en-IN')} / ₹${adv.amount.toLocaleString('en-IN')}</span>`}
+                        ${!isPending && !isRejected ? `<span class="advance-tab__mini-bar"><span class="advance-tab__mini-fill ${barClass}" style="width:${displayPercent}%"></span></span>` : ''}
                         ${chevron}
                     </div>
                     <div class="advance-tab__expanded">
@@ -8660,6 +8721,14 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                         </div>
                         ${adv.notes ? `<div class="advance-card__notes">${notesIcon} ${this.sanitizeHTML(adv.notes)}</div>` : ''}
                         <div class="advance-card__actions">
+                            ${isPending ? `
+                                <span style="font-size:0.78rem;color:#f59e0b;font-weight:500;">Awaiting ${adv.status === 'pending_manager' ? 'manager' : 'accountant'} approval</span>
+                                <button class="advance-card__btn advance-card__btn--delete" onclick="event.stopPropagation();expenseTracker.deleteAdvance('${adv.id}', '${this.sanitizeHTML(adv.project_name)}')">${deleteIcon} Withdraw</button>
+                            ` : isRejected ? `
+                                ${adv.rejection_reason ? `<span style="font-size:0.78rem;color:#ef4444;">Reason: ${this.sanitizeHTML(adv.rejection_reason)}</span>` : ''}
+                                <button class="advance-card__btn advance-card__btn--edit" onclick="event.stopPropagation();expenseTracker.openAdvanceModal(${JSON.stringify(adv).replace(/"/g, '&quot;')})">${editIcon} Edit &amp; Resubmit</button>
+                                <button class="advance-card__btn advance-card__btn--delete" onclick="event.stopPropagation();expenseTracker.deleteAdvance('${adv.id}', '${this.sanitizeHTML(adv.project_name)}')">${deleteIcon}</button>
+                            ` : `
                             <button class="advance-card__btn advance-card__btn--edit" onclick="event.stopPropagation();expenseTracker.openAdvanceModal(${JSON.stringify(adv).replace(/"/g, '&quot;')})">${editIcon} Edit</button>
                             ${adv.status === 'active'
                                 ? `<button class="advance-card__btn advance-card__btn--close" onclick="event.stopPropagation();expenseTracker.closeAdvance('${adv.id}')">${closeIcon} Close</button>`
