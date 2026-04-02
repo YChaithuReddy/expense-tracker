@@ -3747,7 +3747,7 @@ class ExpenseTracker {
                     </span>` : ''}
                     ${expense.visitType ? `<span class="visit-type-badge visit-type-badge--${expense.visitType}">${expense.visitType}</span>` : ''}
                     ${googleSheetsService.isExpenseExported(expense.id) ? `<span class="exported-badge" title="Exported to Google Sheets"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Exported</span>` : ''}
-                    ${expense.voucher_status ? `<span class="voucher-status-badge voucher-status-badge--${expense.voucher_status}">${expense.voucher_status === 'in_voucher' ? 'In Voucher' : expense.voucher_status === 'submitted' ? 'Submitted' : expense.voucher_status === 'approved' ? 'Approved' : 'Rejected'}</span>` : ''}
+                    ${expense.voucherStatus ? `<span class="voucher-status-badge voucher-status-badge--${expense.voucherStatus}">${expense.voucherStatus === 'in_voucher' ? 'In Voucher' : expense.voucherStatus === 'submitted' ? 'Submitted' : expense.voucherStatus === 'approved' ? 'Approved' : 'Rejected'}</span>` : ''}
                 </div>
                 ${safeDescription ? `<div class="expense-description">${safeDescription}</div>` : ''}
                 <div class="expense-footer">
@@ -4186,6 +4186,7 @@ class ExpenseTracker {
                     amount: exp.amount,
                     vendor: exp.vendor,
                     visitType: exp.visit_type || null,
+                    voucherStatus: exp.voucher_status || null,
                     time: exp.time || '',
                     images: exp.images.map(img => ({
                         name: img.filename,
@@ -8567,6 +8568,12 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         const container = document.getElementById('advanceCardsContainer');
         if (!container) return;
 
+        // Preserve open state across re-renders
+        const openIds = new Set(
+            Array.from(container.querySelectorAll('.advance-tab--open'))
+                .map(el => el.dataset.advanceId)
+        );
+
         if (this.advances.length === 0) {
             container.innerHTML = '';
             return;
@@ -8618,7 +8625,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             const chevron = `<svg class="advance-tab__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>`;
 
             return `
-                <div class="advance-tab ${statusClass}" data-advance-id="${adv.id}">
+                <div class="advance-tab ${statusClass} ${openIds.has(adv.id) ? 'advance-tab--open' : ''}" data-advance-id="${adv.id}">
                     <div class="advance-tab__collapsed" onclick="expenseTracker.toggleAdvanceTab(this)">
                         <span class="advance-tab__dot" style="background:${tabColor}"></span>
                         <span class="advance-tab__name">${this.sanitizeHTML(adv.project_name)}</span>
