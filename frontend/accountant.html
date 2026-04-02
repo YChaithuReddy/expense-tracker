@@ -841,7 +841,7 @@
                             const activeSection = document.querySelector('.admin-section.active')?.id?.replace('section-', '');
                             if (activeSection === 'overview') loadOverview();
                             else if (activeSection === 'pending') loadPendingVouchers();
-                            else if (activeSection === 'vouchers') loadAllVouchers();
+                            else if (activeSection === 'all-vouchers') loadAllVouchers();
                         })
                         .subscribe();
                 }

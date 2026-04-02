@@ -170,6 +170,12 @@
                 return;
             }
 
+            // Restrict to company email only
+            if (!email.toLowerCase().endsWith('@fluxgentech.com')) {
+                showMessage('Only @fluxgentech.com email addresses are allowed. Contact your admin for access.', 'error');
+                return;
+            }
+
             // Show loading state
             loginBtn.disabled = true;
             btnText.style.display = 'none';

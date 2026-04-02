@@ -135,6 +135,12 @@
                 return;
             }
 
+            // Restrict to company email only
+            if (!email.toLowerCase().endsWith('@fluxgentech.com')) {
+                showMessage('Only @fluxgentech.com email addresses are allowed. Contact your admin for access.', 'error');
+                return;
+            }
+
             // Check password match
             if (password !== confirmPassword) {
                 showMessage('Passwords do not match', 'error');
