@@ -7357,14 +7357,16 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         // Get current theme
         const currentTheme = document.documentElement.getAttribute('data-theme') || 'cyberpunk';
 
-        // Cycle through themes: cyberpunk -> teal -> minimalist -> cyberpunk
+        // Cycle: teal -> light -> cyberpunk -> minimalist -> teal
         let newTheme;
-        if (currentTheme === 'cyberpunk') {
-            newTheme = 'teal';
-        } else if (currentTheme === 'teal') {
+        if (currentTheme === 'teal') {
+            newTheme = 'light';
+        } else if (currentTheme === 'light') {
+            newTheme = 'cyberpunk';
+        } else if (currentTheme === 'cyberpunk') {
             newTheme = 'minimalist';
         } else {
-            newTheme = 'cyberpunk';
+            newTheme = 'teal';
         }
 
         // Apply and save new theme
@@ -7375,12 +7377,11 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         const themeNames = {
             'cyberpunk': 'Cyberpunk',
             'teal': 'Teal Business',
-            'minimalist': 'Green Minimal'
+            'minimalist': 'Green Minimal',
+            'light': 'Light Professional'
         };
 
-        this.showNotification(`🎨 Theme changed to ${themeNames[newTheme]}`);
-
-        console.log(`🎨 Theme toggled to: ${newTheme}`);
+        this.showNotification(`Theme changed to ${themeNames[newTheme]}`);
     }
 
     /**
@@ -7401,16 +7402,16 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         const themeIcon = document.getElementById('themeIcon');
         const themeLabel = document.getElementById('themeLabel');
 
-        if (theme === 'cyberpunk') {
-            if (themeIcon) themeIcon.textContent = '🌈';
-            if (themeLabel) themeLabel.textContent = 'Cyberpunk';
-        } else if (theme === 'teal') {
-            if (themeIcon) themeIcon.textContent = '🌊';
-            if (themeLabel) themeLabel.textContent = 'Teal Business';
-        } else if (theme === 'minimalist') {
-            if (themeIcon) themeIcon.textContent = '🌿';
-            if (themeLabel) themeLabel.textContent = 'Green Minimal';
-        }
+        const themes = {
+            cyberpunk: { icon: '🌈', label: 'Cyberpunk' },
+            teal: { icon: '🌊', label: 'Teal Business' },
+            minimalist: { icon: '🌿', label: 'Green Minimal' },
+            light: { icon: '☀️', label: 'Light Professional' }
+        };
+
+        const t = themes[theme] || themes.teal;
+        if (themeIcon) themeIcon.textContent = t.icon;
+        if (themeLabel) themeLabel.textContent = t.label;
     }
 
     // ===== Kodo Reimbursement Integration =====
