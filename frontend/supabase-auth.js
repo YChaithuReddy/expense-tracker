@@ -23,6 +23,28 @@ function isAuthenticated() {
     return !!user;
 }
 
+// Enterprise role helpers
+function isCompanyMode() {
+    const user = getCurrentUser();
+    return !!(user?.organization_id);
+}
+
+function getUserRole() {
+    const user = getCurrentUser();
+    if (!user?.organization_id) return 'personal';
+    return user?.role || 'employee';
+}
+
+function getOrganizationId() {
+    const user = getCurrentUser();
+    return user?.organization_id || null;
+}
+
+function isAdmin() { return getUserRole() === 'admin'; }
+function isManager() { return getUserRole() === 'manager'; }
+function isAccountant() { return getUserRole() === 'accountant'; }
+function hasApprovalAccess() { return ['admin', 'manager', 'accountant'].includes(getUserRole()); }
+
 async function checkAuth() {
     const client = window.supabaseClient?.get();
     if (!client) return false;
