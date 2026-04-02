@@ -9,6 +9,8 @@ const STATIC_ASSETS = [
   '/index.html',
   '/login.html',
   '/signup.html',
+  '/admin.html',
+  '/accountant.html',
   '/styles.css',
   '/styles_images.css',
   '/styles_dropdown.css',

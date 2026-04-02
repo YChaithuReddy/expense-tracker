@@ -244,6 +244,18 @@ async function handleAuthCallback() {
     if (session) {
         console.log('Session found, user is authenticated');
 
+        // Verify company domain (block non-fluxgentech.com Google logins)
+        const sessionEmail = session.user?.email?.toLowerCase();
+        if (sessionEmail && !sessionEmail.endsWith('@fluxgentech.com')) {
+            console.warn('Non-company email blocked:', sessionEmail);
+            const client = window.supabaseClient?.get();
+            if (client) await client.auth.signOut();
+            localStorage.removeItem('user');
+            alert('Only @fluxgentech.com email addresses are allowed.');
+            window.location.href = 'login.html';
+            return false;
+        }
+
         // Fetch and store user data
         await fetchCurrentUser();
 

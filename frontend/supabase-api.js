@@ -124,7 +124,10 @@ const api = {
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
-                redirectTo: redirectUrl
+                redirectTo: redirectUrl,
+                queryParams: {
+                    hd: 'fluxgentech.com'  // Restrict to company Google Workspace domain
+                }
             }
         });
 
@@ -425,7 +428,7 @@ const api = {
         if (expenseData.date) updateObj.date = expenseData.date;
         if (expenseData.time !== undefined) updateObj.time = expenseData.time;
         if (expenseData.category) updateObj.category = expenseData.category;
-        if (expenseData.amount) updateObj.amount = parseFloat(expenseData.amount);
+        if (expenseData.amount !== undefined) updateObj.amount = parseFloat(expenseData.amount);
         if (expenseData.vendor !== undefined) updateObj.vendor = expenseData.vendor;
         if (expenseData.description) updateObj.description = expenseData.description;
         if (expenseData.visitType !== undefined) updateObj.visit_type = expenseData.visitType;
@@ -1550,7 +1553,7 @@ const api = {
             query = query.eq('role', role);
         }
 
-        const { data, error } = query;
+        const { data, error } = await query;
         if (error) handleError(error, 'Get org members');
         return data || [];
     },
