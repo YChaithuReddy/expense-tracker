@@ -99,6 +99,351 @@
     --shadow-color: rgba(0, 0, 0, 0.2);
 }
 
+/* Professional Light Theme (White & Black) */
+[data-theme="light"] {
+    --neon-cyan: #111827;
+    --neon-pink: #374151;
+    --neon-purple: #4b5563;
+    --neon-blue: #111827;
+    --neon-green: #059669;
+    --primary-gradient: linear-gradient(135deg, #111827 0%, #374151 100%);
+    --cyber-blue: #111827;
+    --cyber-purple: #374151;
+    --cyber-pink: #6b7280;
+    --dark-bg: #ffffff;
+    --card-bg: #ffffff;
+    --glass-bg: rgba(0, 0, 0, 0.02);
+    --text-primary: #111827;
+    --text-secondary: #6b7280;
+    --accent-glow: rgba(0, 0, 0, 0.05);
+    --border-gradient: linear-gradient(90deg, #d1d5db, #9ca3af, #d1d5db);
+
+    --primary-color: #111827;
+    --accent-color: #374151;
+    --background-primary: #f9fafb;
+    --background-secondary: #ffffff;
+    --border-color: #e5e7eb;
+    --hover-bg: rgba(0, 0, 0, 0.04);
+    --shadow-color: rgba(0, 0, 0, 0.08);
+
+    /* Light-specific overrides */
+    --bg-primary: #f9fafb;
+    --bg-secondary: #ffffff;
+    --input-bg: #ffffff;
+    --input-border: #d1d5db;
+    --input-text: #111827;
+    --input-placeholder: #9ca3af;
+    --card-border: #e5e7eb;
+    --btn-primary-bg: #111827;
+    --btn-primary-text: #ffffff;
+    --btn-danger-bg: #fef2f2;
+    --btn-danger-text: #dc2626;
+    --success-color: #059669;
+    --warning-color: #d97706;
+    --error-color: #dc2626;
+}
+
+/* Light theme body and element overrides */
+[data-theme="light"] body {
+    background: #f9fafb;
+    color: #111827;
+}
+
+[data-theme="light"] .container {
+    background: #f9fafb;
+}
+
+[data-theme="light"] header {
+    background: #ffffff;
+    border-color: #e5e7eb;
+}
+
+[data-theme="light"] header h1 {
+    color: #111827;
+    -webkit-text-fill-color: #111827;
+    background: none;
+}
+
+[data-theme="light"] header p {
+    color: #6b7280;
+}
+
+[data-theme="light"] .section-card {
+    background: #ffffff;
+    border-color: #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .section-card h2 {
+    color: #111827;
+    -webkit-text-fill-color: #111827;
+    background: none;
+}
+
+[data-theme="light"] .section-card p,
+[data-theme="light"] .section-card small {
+    color: #6b7280;
+}
+
+[data-theme="light"] input,
+[data-theme="light"] select,
+[data-theme="light"] textarea {
+    background: #ffffff;
+    border-color: #d1d5db;
+    color: #111827;
+}
+
+[data-theme="light"] input::placeholder,
+[data-theme="light"] textarea::placeholder {
+    color: #9ca3af;
+}
+
+[data-theme="light"] input:focus,
+[data-theme="light"] select:focus,
+[data-theme="light"] textarea:focus {
+    border-color: #111827;
+    box-shadow: 0 0 0 2px rgba(17, 24, 39, 0.1);
+}
+
+[data-theme="light"] label {
+    color: #374151;
+}
+
+[data-theme="light"] .btn-primary {
+    background: #111827;
+    color: #ffffff;
+    border-color: #111827;
+}
+
+[data-theme="light"] .btn-primary:hover {
+    background: #374151;
+}
+
+[data-theme="light"] .btn-secondary {
+    background: #ffffff;
+    color: #374151;
+    border-color: #d1d5db;
+}
+
+[data-theme="light"] .btn-secondary:hover {
+    background: #f3f4f6;
+}
+
+[data-theme="light"] .btn-danger {
+    background: #fef2f2;
+    color: #dc2626;
+    border-color: #fecaca;
+}
+
+[data-theme="light"] .expense-item {
+    background: #ffffff;
+    border-color: #e5e7eb;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .expense-item:hover {
+    border-color: #d1d5db;
+}
+
+[data-theme="light"] .expense-amount,
+[data-theme="light"] .expense-amount label {
+    color: #111827;
+}
+
+[data-theme="light"] .expense-meta-item {
+    color: #6b7280;
+}
+
+[data-theme="light"] .expense-description {
+    color: #4b5563;
+}
+
+[data-theme="light"] .expense-category-badge {
+    background: #f3f4f6;
+    color: #374151;
+    border-color: #e5e7eb;
+}
+
+[data-theme="light"] .edit-btn {
+    background: #ffffff;
+    color: #374151;
+    border-color: #d1d5db;
+}
+
+[data-theme="light"] .delete-btn {
+    background: #fef2f2;
+    color: #dc2626;
+    border-color: #fecaca;
+}
+
+[data-theme="light"] .user-info-content {
+    background: #ffffff;
+    border-color: #e5e7eb;
+}
+
+[data-theme="light"] .user-name {
+    color: #111827;
+}
+
+[data-theme="light"] .user-email {
+    color: #6b7280;
+}
+
+[data-theme="light"] .theme-toggle-btn {
+    border-color: #e5e7eb;
+    background: #ffffff;
+    color: #374151;
+}
+
+[data-theme="light"] .theme-toggle-btn:hover {
+    background: #f3f4f6;
+}
+
+[data-theme="light"] .logout-btn {
+    background: #111827;
+    color: #ffffff;
+    border-color: #111827;
+}
+
+[data-theme="light"] .action-buttons .btn-primary,
+[data-theme="light"] .action-buttons .btn-highlight {
+    color: #ffffff;
+}
+
+[data-theme="light"] .drag-drop-zone {
+    border-color: #d1d5db;
+    background: #ffffff;
+}
+
+[data-theme="light"] .drag-drop-zone p,
+[data-theme="light"] .drag-drop-zone small {
+    color: #6b7280;
+}
+
+/* Light theme for activity log overlay */
+[data-theme="light"] .activity-log-overlay {
+    background: #f9fafb;
+}
+
+[data-theme="light"] .activity-log-header {
+    background: #ffffff;
+    border-color: #e5e7eb;
+}
+
+[data-theme="light"] .activity-log-title {
+    color: #111827;
+}
+
+[data-theme="light"] .activity-row {
+    border-color: #f3f4f6;
+}
+
+[data-theme="light"] .activity-row:hover {
+    background: #f9fafb;
+}
+
+[data-theme="light"] .activity-row__action {
+    color: #111827;
+}
+
+[data-theme="light"] .activity-row__details {
+    color: #6b7280;
+}
+
+[data-theme="light"] .activity-row__time {
+    color: #9ca3af;
+}
+
+[data-theme="light"] .activity-search-input {
+    background: #ffffff;
+    border-color: #d1d5db;
+    color: #111827;
+}
+
+/* Light theme for approval overlay */
+[data-theme="light"] .approvals-panel-overlay {
+    background: #f9fafb;
+}
+
+[data-theme="light"] .approvals-panel-header {
+    background: #ffffff;
+    border-color: #e5e7eb;
+}
+
+[data-theme="light"] .approvals-panel-title {
+    color: #111827;
+}
+
+[data-theme="light"] .approval-voucher-card {
+    background: #ffffff;
+    border-color: #e5e7eb;
+}
+
+[data-theme="light"] .approval-voucher-card:hover {
+    border-color: #d1d5db;
+}
+
+[data-theme="light"] .approval-modal,
+[data-theme="light"] .approval-detail-modal {
+    background: #ffffff;
+    border-color: #e5e7eb;
+}
+
+/* Light theme for advance cards */
+[data-theme="light"] .advance-card {
+    background: #ffffff;
+    border-color: #e5e7eb;
+}
+
+/* Light theme for auth pages (login/signup) */
+[data-theme="light"] .auth-section {
+    background: #ffffff;
+    border-color: #e5e7eb;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .auth-section::before {
+    background: linear-gradient(90deg, #d1d5db, #9ca3af, #d1d5db);
+}
+
+[data-theme="light"] .auth-section h2 {
+    color: #111827;
+}
+
+[data-theme="light"] .auth-link {
+    color: #111827;
+}
+
+[data-theme="light"] .btn-google {
+    border-color: #e5e7eb;
+}
+
+[data-theme="light"] .message.success {
+    background: #ecfdf5;
+    color: #059669;
+    border-color: #a7f3d0;
+}
+
+[data-theme="light"] .message.error {
+    background: #fef2f2;
+    color: #dc2626;
+    border-color: #fecaca;
+}
+
+/* Light theme toast override */
+[data-theme="light"] .notif-panel {
+    background: #ffffff;
+    border-color: #e5e7eb;
+}
+
+[data-theme="light"] .notif-item__title {
+    color: #111827;
+}
+
+[data-theme="light"] .notif-item__message {
+    color: #6b7280;
+}
+
 /* Smooth theme transitions */
 html {
     overflow-x: hidden;
