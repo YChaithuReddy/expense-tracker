@@ -310,9 +310,12 @@ async function initAuth() {
             console.log('Already authenticated, redirecting to app...');
             const savedRedirect = sessionStorage.getItem('redirectAfterLogin');
             sessionStorage.removeItem('redirectAfterLogin');
-            // Only admin@fluxgentech.com goes to admin.html
+            // Role-based redirect
             const user = getCurrentUser();
-            const defaultRedirect = user?.email?.toLowerCase() === 'admin@fluxgentech.com' ? 'admin.html' : 'index.html';
+            const userEmail = user?.email?.toLowerCase();
+            const defaultRedirect = userEmail === 'admin@fluxgentech.com' ? 'admin.html'
+                : user?.role === 'accountant' ? 'accountant.html'
+                : 'index.html';
             const redirect = savedRedirect || defaultRedirect;
             const safeRedirect = /^[a-zA-Z0-9_./-]+\.html$/.test(redirect) ? redirect : defaultRedirect;
             window.location.href = safeRedirect;
@@ -322,10 +325,15 @@ async function initAuth() {
     } else {
         // Protected page
         if (hasSession) {
-            // Block admin@fluxgentech.com from index.html — redirect to admin dashboard
+            // Block admin/accountant from index.html — redirect to their dashboard
             const currentUser = getCurrentUser();
-            if (currentUser?.email?.toLowerCase() === 'admin@fluxgentech.com' && !pathname.includes('admin')) {
+            const curEmail = currentUser?.email?.toLowerCase();
+            if (curEmail === 'admin@fluxgentech.com' && !pathname.includes('admin')) {
                 window.location.href = 'admin.html';
+                return;
+            }
+            if (currentUser?.role === 'accountant' && !pathname.includes('accountant')) {
+                window.location.href = 'accountant.html';
                 return;
             }
 

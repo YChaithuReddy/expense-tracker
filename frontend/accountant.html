@@ -1,0 +1,1514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#ffffff">
+    <title>Accountant Dashboard - Expense Tracker</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* ============================================================
+           ACCOUNTANT DASHBOARD — PROFESSIONAL WHITE/BLACK THEME
+           Same design system as Admin Dashboard
+           ============================================================ */
+
+        /* ---- Override global dark-theme CSS vars from styles.css ---- */
+        html {
+            --background-primary: #f9fafb;
+            --background-secondary: #ffffff;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+        }
+
+        /* ---- Design Tokens ---- */
+        :root {
+            --white:       #ffffff;
+            --gray-50:     #f9fafb;
+            --gray-100:    #f3f4f6;
+            --gray-200:    #e5e7eb;
+            --gray-300:    #d1d5db;
+            --gray-400:    #9ca3af;
+            --gray-500:    #6b7280;
+            --gray-600:    #4b5563;
+            --gray-700:    #374151;
+            --gray-800:    #1f2937;
+            --gray-900:    #111827;
+            --black:       #0a0a0a;
+
+            /* Accent */
+            --accent:      #111827;
+            --accent-hover:#1f2937;
+
+            /* Status colors */
+            --green:       #059669;
+            --green-bg:    #ecfdf5;
+            --amber:       #d97706;
+            --amber-bg:    #fffbeb;
+            --red:         #dc2626;
+            --red-bg:      #fef2f2;
+            --blue:        #2563eb;
+            --blue-bg:     #eff6ff;
+            --purple:      #8b5cf6;
+            --purple-bg:   #f5f3ff;
+            --cyan:        #06b6d4;
+            --cyan-bg:     #ecfeff;
+
+            --shadow-xs:  0 1px 2px rgba(0,0,0,0.05);
+            --shadow-sm:  0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md:  0 4px 6px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.04);
+            --radius-sm:  6px;
+            --radius-md:  8px;
+            --radius-lg:  12px;
+            --font:       -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            background: var(--gray-50);
+            color: var(--gray-900);
+            font-family: var(--font);
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ---- Layout ---- */
+        .admin-layout { display: flex; height: 100vh; }
+
+        /* ============================================================
+           SIDEBAR
+           ============================================================ */
+        .admin-sidebar {
+            width: 240px;
+            background: var(--white);
+            border-right: 1px solid var(--gray-200);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .admin-sidebar__logo {
+            padding: 20px 20px 16px;
+            border-bottom: 1px solid var(--gray-100);
+        }
+        .admin-sidebar__logo h1 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            letter-spacing: -0.01em;
+        }
+        .admin-sidebar__logo h1 svg { color: var(--gray-700); }
+        .admin-sidebar__logo small {
+            display: block;
+            color: var(--gray-400);
+            font-size: 0.7rem;
+            font-weight: 500;
+            margin-top: 5px;
+            letter-spacing: 0.01em;
+        }
+
+        /* Nav */
+        .admin-sidebar__nav {
+            flex: 1;
+            padding: 10px 10px;
+            overflow-y: auto;
+        }
+        .admin-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 8px 12px;
+            border-radius: var(--radius-md);
+            color: var(--gray-500);
+            font-size: 0.835rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            letter-spacing: 0.005em;
+        }
+        .admin-nav-item:hover {
+            background: var(--gray-100);
+            color: var(--gray-900);
+        }
+        .admin-nav-item.active {
+            background: var(--gray-900);
+            color: var(--white);
+        }
+        .admin-nav-item.active svg { color: var(--white); }
+        .admin-nav-item svg {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+            color: currentColor;
+        }
+
+        /* Footer */
+        .admin-sidebar__footer {
+            padding: 14px 16px;
+            border-top: 1px solid var(--gray-100);
+        }
+        .admin-sidebar__user {
+            font-size: 0.775rem;
+            color: var(--gray-500);
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+        .admin-sidebar__user strong {
+            color: var(--gray-900);
+            display: block;
+            font-weight: 600;
+            font-size: 0.82rem;
+            margin-bottom: 1px;
+        }
+        .admin-sidebar__links { display: flex; gap: 7px; }
+        .admin-sidebar__link {
+            padding: 5px 11px;
+            border-radius: var(--radius-sm);
+            font-size: 0.73rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid var(--gray-200);
+            background: var(--white);
+            color: var(--gray-600);
+            transition: background 0.15s, border-color 0.15s;
+            letter-spacing: 0.01em;
+        }
+        .admin-sidebar__link:hover {
+            background: var(--gray-50);
+            border-color: var(--gray-300);
+        }
+        .admin-sidebar__link--danger {
+            color: var(--red);
+            border-color: #fecaca;
+            background: var(--red-bg);
+        }
+        .admin-sidebar__link--danger:hover {
+            background: #fee2e2;
+            border-color: #fca5a5;
+        }
+
+        /* ============================================================
+           MAIN CONTENT
+           ============================================================ */
+        .admin-main {
+            flex: 1;
+            overflow-y: auto;
+            background: var(--gray-50);
+            padding: 32px 36px;
+            display: block !important;
+            grid-template-columns: none !important;
+        }
+
+        .admin-main__header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 28px;
+        }
+        .admin-main__header h2 {
+            margin: 0;
+            color: var(--gray-900);
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+        .admin-main__header p {
+            margin: 4px 0 0;
+            color: var(--gray-500);
+            font-size: 0.825rem;
+        }
+
+        /* ============================================================
+           STATS GRID
+           ============================================================ */
+        .admin-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+        .admin-stat-card {
+            padding: 20px 22px;
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-xs);
+            position: relative;
+            overflow: hidden;
+        }
+        .admin-stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: var(--gray-200);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        }
+        .admin-stat-card--blue::before  { background: var(--blue); }
+        .admin-stat-card--green::before { background: var(--green); }
+        .admin-stat-card--amber::before { background: var(--amber); }
+        .admin-stat-card--purple::before { background: var(--purple); }
+        .admin-stat-card--red::before   { background: var(--red); }
+
+        .admin-stat-card__value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--gray-900);
+            letter-spacing: -0.04em;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+        .admin-stat-card--blue   .admin-stat-card__value { color: var(--blue); }
+        .admin-stat-card--green  .admin-stat-card__value { color: var(--green); }
+        .admin-stat-card--amber  .admin-stat-card__value { color: var(--amber); }
+        .admin-stat-card--purple .admin-stat-card__value { color: var(--purple); }
+        .admin-stat-card--red    .admin-stat-card__value { color: var(--red); }
+
+        .admin-stat-card__label {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--gray-400);
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+        }
+
+        /* ============================================================
+           SECTION VISIBILITY
+           ============================================================ */
+        .admin-section { display: none; animation: fadeIn 0.18s ease; }
+        .admin-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ============================================================
+           TABLE
+           ============================================================ */
+        .admin-table-wrap {
+            overflow-x: auto;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            background: var(--white);
+            box-shadow: var(--shadow-xs);
+        }
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.835rem;
+        }
+        .admin-table thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--gray-400);
+            border-bottom: 1px solid var(--gray-200);
+            background: var(--gray-50);
+            white-space: nowrap;
+        }
+        .admin-table tbody td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--gray-100);
+            color: var(--gray-700);
+            vertical-align: middle;
+        }
+        .admin-table tbody tr:last-child td { border-bottom: none; }
+        .admin-table tbody tr:hover { background: var(--gray-50); }
+
+        .admin-table--compact thead th,
+        .admin-table--compact tbody td { padding: 7px 10px; font-size: 0.8rem; }
+
+        .admin-emp-id {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.78rem;
+            color: var(--gray-500);
+            background: var(--gray-100);
+            padding: 2px 7px;
+            border-radius: 4px;
+        }
+
+        /* ============================================================
+           STATUS BADGES
+           ============================================================ */
+        .approval-status-badge {
+            display: inline-block;
+            padding: 3px 9px;
+            border-radius: 99px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: capitalize;
+            white-space: nowrap;
+        }
+
+        /* ============================================================
+           BUTTONS
+           ============================================================ */
+        .admin-btn {
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: background 0.15s, border-color 0.15s, opacity 0.15s;
+            letter-spacing: 0.005em;
+        }
+        .admin-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .admin-btn--primary {
+            background: var(--gray-900);
+            color: var(--white);
+            border-color: var(--gray-900);
+        }
+        .admin-btn--primary:hover:not(:disabled) { background: var(--gray-800); }
+        .admin-btn--secondary {
+            background: var(--white);
+            color: var(--gray-700);
+            border-color: var(--gray-200);
+        }
+        .admin-btn--secondary:hover:not(:disabled) { background: var(--gray-50); border-color: var(--gray-300); }
+        .admin-btn--success {
+            background: var(--green);
+            color: var(--white);
+            border-color: var(--green);
+        }
+        .admin-btn--success:hover:not(:disabled) { opacity: 0.9; }
+        .admin-btn--danger {
+            background: var(--red);
+            color: var(--white);
+            border-color: var(--red);
+        }
+        .admin-btn--danger:hover:not(:disabled) { opacity: 0.9; }
+        .admin-btn--sm {
+            padding: 5px 10px;
+            font-size: 0.75rem;
+        }
+
+        /* ============================================================
+           FILTER BAR
+           ============================================================ */
+        .acct-filter-bar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 16px;
+            padding: 14px 16px;
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+        }
+        .acct-filter-bar select,
+        .acct-filter-bar input[type="date"] {
+            padding: 7px 10px;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            color: var(--gray-700);
+            background: var(--white);
+            outline: none;
+            transition: border-color 0.15s;
+        }
+        .acct-filter-bar select:focus,
+        .acct-filter-bar input[type="date"]:focus {
+            border-color: var(--gray-400);
+        }
+        .acct-filter-bar label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--gray-400);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .acct-filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        /* ============================================================
+           SELECTION BAR
+           ============================================================ */
+        .acct-selection-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 16px;
+            margin-bottom: 12px;
+            background: var(--blue-bg);
+            border: 1px solid #bfdbfe;
+            border-radius: var(--radius-md);
+            font-size: 0.82rem;
+            color: var(--blue);
+            font-weight: 600;
+        }
+        .acct-selection-bar .acct-selection-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        /* ============================================================
+           VOUCHER DETAIL (inline expand)
+           ============================================================ */
+        .acct-voucher-detail {
+            padding: 16px 20px;
+            background: var(--gray-50);
+            border-top: 1px solid var(--gray-200);
+        }
+        .acct-voucher-detail h4 {
+            margin: 0 0 10px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--gray-700);
+        }
+        .acct-timeline {
+            list-style: none;
+            padding: 0;
+            margin: 12px 0 0;
+        }
+        .acct-timeline li {
+            position: relative;
+            padding: 0 0 12px 20px;
+            font-size: 0.78rem;
+            color: var(--gray-600);
+            border-left: 2px solid var(--gray-200);
+        }
+        .acct-timeline li:last-child { border-left-color: transparent; padding-bottom: 0; }
+        .acct-timeline li::before {
+            content: '';
+            position: absolute;
+            left: -5px; top: 4px;
+            width: 8px; height: 8px;
+            background: var(--gray-300);
+            border-radius: 50%;
+        }
+        .acct-timeline li strong { color: var(--gray-800); }
+
+        /* ============================================================
+           EXPORT PREVIEW
+           ============================================================ */
+        .acct-export-summary {
+            padding: 20px;
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            margin-bottom: 20px;
+        }
+        .acct-export-summary__row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 0.85rem;
+            border-bottom: 1px solid var(--gray-100);
+        }
+        .acct-export-summary__row:last-child { border-bottom: none; }
+        .acct-export-summary__label { color: var(--gray-500); }
+        .acct-export-summary__value { font-weight: 700; color: var(--gray-900); }
+
+        .acct-export-history {
+            margin-top: 24px;
+        }
+        .acct-export-history h4 {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: var(--gray-400);
+            margin: 0 0 10px;
+        }
+
+        /* ============================================================
+           SETTINGS FORM
+           ============================================================ */
+        .admin-form-group {
+            margin-bottom: 16px;
+        }
+        .admin-form-group label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--gray-600);
+            margin-bottom: 5px;
+        }
+        .admin-form-group input[type="text"] {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-md);
+            font-size: 0.85rem;
+            color: var(--gray-900);
+            background: var(--white);
+            outline: none;
+            transition: border-color 0.15s;
+        }
+        .admin-form-group input[type="text"]:focus { border-color: var(--gray-400); }
+
+        .acct-mapping-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 40px;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .acct-mapping-row input {
+            padding: 7px 10px;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-sm);
+            font-size: 0.82rem;
+            color: var(--gray-900);
+            background: var(--white);
+            outline: none;
+        }
+        .acct-mapping-row input:focus { border-color: var(--gray-400); }
+        .acct-mapping-delete {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            background: none;
+            color: var(--gray-400);
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            transition: background 0.15s, color 0.15s;
+        }
+        .acct-mapping-delete:hover { background: var(--red-bg); color: var(--red); }
+
+        /* ============================================================
+           EMPTY STATE
+           ============================================================ */
+        .admin-empty {
+            text-align: center;
+            padding: 48px 20px;
+            color: var(--gray-400);
+            font-size: 0.875rem;
+        }
+
+        /* ============================================================
+           QUICK ACTIONS
+           ============================================================ */
+        .admin-quick-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+        h3.admin-section-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--gray-400);
+            margin: 0 0 12px;
+        }
+
+        /* ============================================================
+           CHECKBOX
+           ============================================================ */
+        .acct-checkbox {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            accent-color: var(--gray-900);
+        }
+
+        /* ============================================================
+           MOBILE
+           ============================================================ */
+        @media (max-width: 768px) {
+            .admin-sidebar { width: 60px; }
+            .admin-sidebar__logo h1 span,
+            .admin-sidebar__logo small,
+            .admin-nav-item span,
+            .admin-sidebar__user,
+            .admin-sidebar__links { display: none; }
+            .admin-nav-item { justify-content: center; padding: 12px; }
+            .admin-main { padding: 16px 18px; }
+            .acct-filter-bar { flex-direction: column; align-items: stretch; }
+        }
+    </style>
+    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script defer src="toast.js"></script>
+    <script defer src="supabase-client.js"></script>
+    <script defer src="supabase-auth.js"></script>
+    <script defer src="supabase-api.js"></script>
+    <script defer src="tally-export.js"></script>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="admin-sidebar__logo">
+                <h1>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1z"/><path d="M16 8h-6a2 2 0 100 4h4a2 2 0 110 4H8"/><path d="M12 17.5v.5M12 6v.5"/></svg>
+                    <span>Accountant</span>
+                </h1>
+                <small id="orgName">Loading...</small>
+            </div>
+
+            <nav class="admin-sidebar__nav">
+                <button class="admin-nav-item active" data-section="overview" onclick="switchSection('overview', this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                    <span>Overview</span>
+                </button>
+                <button class="admin-nav-item" data-section="pending" onclick="switchSection('pending', this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <span>Pending Approval</span>
+                </button>
+                <button class="admin-nav-item" data-section="all-vouchers" onclick="switchSection('all-vouchers', this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    <span>All Vouchers</span>
+                </button>
+                <button class="admin-nav-item" data-section="tally-export" onclick="switchSection('tally-export', this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    <span>Tally Export</span>
+                </button>
+                <button class="admin-nav-item" data-section="settings" onclick="switchSection('settings', this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4"/></svg>
+                    <span>Settings</span>
+                </button>
+            </nav>
+
+            <div class="admin-sidebar__footer">
+                <div class="admin-sidebar__user">
+                    <strong id="acctName">Accountant</strong>
+                    <span id="acctEmail">loading...</span>
+                </div>
+                <div class="admin-sidebar__links">
+                    <button class="admin-sidebar__link" onclick="window.location.href='index.html'">App</button>
+                    <button class="admin-sidebar__link admin-sidebar__link--danger" onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main" style="display:block !important;grid-template-columns:unset !important;">
+
+            <!-- Overview Section -->
+            <div class="admin-section active" id="section-overview">
+                <div class="admin-main__header">
+                    <div>
+                        <h2>Accountant Overview</h2>
+                        <p>Voucher summary and quick actions</p>
+                    </div>
+                </div>
+                <div class="admin-stats-grid" id="overviewStats">
+                    <div class="admin-stat-card admin-stat-card--purple"><div class="admin-stat-card__value" id="statPending">-</div><div class="admin-stat-card__label">Pending Approval</div></div>
+                    <div class="admin-stat-card admin-stat-card--green"><div class="admin-stat-card__value" id="statApproved">-</div><div class="admin-stat-card__label">Approved</div></div>
+                    <div class="admin-stat-card admin-stat-card--blue"><div class="admin-stat-card__value" id="statExported">-</div><div class="admin-stat-card__label">Exported to Tally</div></div>
+                    <div class="admin-stat-card admin-stat-card--amber"><div class="admin-stat-card__value" id="statPendingAmount">-</div><div class="admin-stat-card__label">Total Pending Amount</div></div>
+                </div>
+                <h3 class="admin-section-label">Quick Actions</h3>
+                <div class="admin-quick-actions">
+                    <button class="admin-btn admin-btn--primary" onclick="switchSection('pending', document.querySelector('[data-section=pending]'))">Review Pending</button>
+                    <button class="admin-btn admin-btn--secondary" onclick="switchSection('all-vouchers', document.querySelector('[data-section=all-vouchers]'))">All Vouchers</button>
+                    <button class="admin-btn admin-btn--secondary" onclick="switchSection('tally-export', document.querySelector('[data-section=tally-export]'))">Export to Tally</button>
+                </div>
+            </div>
+
+            <!-- Pending Approval Section -->
+            <div class="admin-section" id="section-pending">
+                <div class="admin-main__header">
+                    <div>
+                        <h2>Pending Approval</h2>
+                        <p>Vouchers waiting for your review</p>
+                    </div>
+                </div>
+                <div id="pendingList"><div class="admin-empty"><p>Loading pending vouchers...</p></div></div>
+            </div>
+
+            <!-- All Vouchers Section -->
+            <div class="admin-section" id="section-all-vouchers">
+                <div class="admin-main__header">
+                    <div>
+                        <h2>All Vouchers</h2>
+                        <p>View and manage all organization vouchers</p>
+                    </div>
+                </div>
+                <div class="acct-filter-bar" id="filterBar">
+                    <div class="acct-filter-group">
+                        <label>Status</label>
+                        <select id="filterStatus" onchange="applyFilters()">
+                            <option value="all">All Statuses</option>
+                            <option value="pending_manager">Pending Manager</option>
+                            <option value="pending_accountant">Pending Accountant</option>
+                            <option value="manager_approved">Manager Approved</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
+                            <option value="reimbursed">Reimbursed</option>
+                        </select>
+                    </div>
+                    <div class="acct-filter-group">
+                        <label>From</label>
+                        <input type="date" id="filterDateFrom" onchange="applyFilters()">
+                    </div>
+                    <div class="acct-filter-group">
+                        <label>To</label>
+                        <input type="date" id="filterDateTo" onchange="applyFilters()">
+                    </div>
+                    <div class="acct-filter-group">
+                        <label>Employee</label>
+                        <select id="filterEmployee" onchange="applyFilters()">
+                            <option value="">All Employees</option>
+                        </select>
+                    </div>
+                    <div class="acct-filter-group">
+                        <label>Exported</label>
+                        <select id="filterExported" onchange="applyFilters()">
+                            <option value="">All</option>
+                            <option value="yes">Exported</option>
+                            <option value="no">Not Exported</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="selectionBar" style="display:none;"></div>
+                <div id="allVouchersList"><div class="admin-empty"><p>Loading vouchers...</p></div></div>
+            </div>
+
+            <!-- Tally Export Section -->
+            <div class="admin-section" id="section-tally-export">
+                <div class="admin-main__header">
+                    <div>
+                        <h2>Tally Export</h2>
+                        <p>Export selected vouchers as Tally-compatible XML</p>
+                    </div>
+                </div>
+                <div id="tallyExportContent"><div class="admin-empty"><p>Select vouchers from the All Vouchers tab to export.</p></div></div>
+            </div>
+
+            <!-- Settings Section -->
+            <div class="admin-section" id="section-settings">
+                <div class="admin-main__header">
+                    <div>
+                        <h2>Tally Settings</h2>
+                        <p>Configure ledger mappings and export settings</p>
+                    </div>
+                </div>
+                <div id="settingsContent"><div class="admin-empty"><p>Loading settings...</p></div></div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // ==================== Auth Guard ====================
+        let _currentUser = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await new Promise(r => setTimeout(r, 500));
+
+            const user = JSON.parse(localStorage.getItem('user') || 'null');
+            if (!user) { window.location.href = 'login.html'; return; }
+
+            const isAccountant = user.role === 'accountant';
+            const isAdmin = user.role === 'admin';
+            if (!isAccountant && !isAdmin) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            _currentUser = user;
+
+            document.getElementById('acctName').textContent = user.name || 'Accountant';
+            document.getElementById('acctEmail').textContent = user.email || '';
+
+            await loadOverview();
+        });
+
+        // ==================== Helpers ====================
+        function esc(str) {
+            if (!str) return '';
+            const d = document.createElement('div');
+            d.textContent = str;
+            return d.innerHTML;
+        }
+
+        const STATUS_COLORS = {
+            draft: '#64748b',
+            pending_manager: '#f59e0b',
+            pending_accountant: '#8b5cf6',
+            manager_approved: '#8b5cf6',
+            approved: '#10b981',
+            rejected: '#ef4444',
+            reimbursed: '#06b6d4'
+        };
+
+        function statusBadge(status) {
+            const color = STATUS_COLORS[status] || '#64748b';
+            const label = (status || '').replace(/_/g, ' ');
+            return `<span class="approval-status-badge" style="background:${color}22;color:${color};border:1px solid ${color}33;">${esc(label)}</span>`;
+        }
+
+        function formatCurrency(amount) {
+            return '\u20B9' + Number(amount || 0).toLocaleString('en-IN');
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            return new Date(dateStr).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+
+        // ==================== Navigation ====================
+        let selectedIds = new Set();
+
+        function switchSection(section, btn) {
+            document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.admin-nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById('section-' + section)?.classList.add('active');
+            if (btn) btn.classList.add('active');
+
+            // Clear selection when switching away from all-vouchers
+            if (section !== 'all-vouchers' && section !== 'tally-export') {
+                selectedIds.clear();
+                updateSelectionBar();
+            }
+
+            if (section === 'overview') loadOverview();
+            else if (section === 'pending') loadPendingVouchers();
+            else if (section === 'all-vouchers') loadAllVouchers();
+            else if (section === 'tally-export') loadTallyExport();
+            else if (section === 'settings') loadSettings();
+        }
+
+        // ==================== Overview ====================
+        async function loadOverview() {
+            if (!_currentUser) return;
+            const orgId = _currentUser.organization_id;
+            if (!orgId) return;
+
+            try {
+                const org = await api.getOrganization();
+                if (org) document.getElementById('orgName').textContent = org.name;
+
+                const supabase = window.supabaseClient?.get();
+                if (!supabase) return;
+
+                // Pending for accountant (pending_accountant + manager_approved)
+                const { data: pendingData } = await supabase
+                    .from('vouchers')
+                    .select('id, total_amount')
+                    .eq('organization_id', orgId)
+                    .in('status', ['pending_accountant', 'manager_approved']);
+
+                const pendingCount = pendingData?.length || 0;
+                const pendingAmount = (pendingData || []).reduce((s, v) => s + (parseFloat(v.total_amount) || 0), 0);
+
+                document.getElementById('statPending').textContent = pendingCount;
+                document.getElementById('statPendingAmount').textContent = formatCurrency(pendingAmount);
+
+                // Approved count
+                const { count: approvedCount } = await supabase
+                    .from('vouchers')
+                    .select('id', { count: 'exact', head: true })
+                    .eq('organization_id', orgId)
+                    .eq('status', 'approved');
+
+                document.getElementById('statApproved').textContent = approvedCount || 0;
+
+                // Exported count
+                const { count: exportedCount } = await supabase
+                    .from('vouchers')
+                    .select('id', { count: 'exact', head: true })
+                    .eq('organization_id', orgId)
+                    .eq('tally_exported', true);
+
+                document.getElementById('statExported').textContent = exportedCount || 0;
+
+            } catch (e) {
+                console.error('Overview load error:', e);
+            }
+        }
+
+        // ==================== Pending Vouchers ====================
+        async function loadPendingVouchers() {
+            const container = document.getElementById('pendingList');
+            try {
+                const vouchers = await api.getVouchersForApproval();
+
+                if (!vouchers || vouchers.length === 0) {
+                    container.innerHTML = '<div class="admin-empty"><p>No vouchers pending your approval.</p></div>';
+                    return;
+                }
+
+                const rows = vouchers.map(v => `
+                    <tr id="pending-row-${v.id}">
+                        <td><span class="admin-emp-id">${esc(v.voucher_number)}</span></td>
+                        <td>${esc(v.submitter?.name || '-')}</td>
+                        <td><strong>${formatCurrency(v.total_amount)}</strong></td>
+                        <td>${v.expense_count || 0}</td>
+                        <td>${statusBadge(v.status)}</td>
+                        <td>${formatDate(v.submitted_at)}</td>
+                        <td>
+                            <div style="display:flex;gap:6px;">
+                                <button class="admin-btn admin-btn--sm admin-btn--secondary" onclick="toggleVoucherDetail('${v.id}', 'pending')">View</button>
+                                <button class="admin-btn admin-btn--sm admin-btn--success" onclick="handleApprove('${v.id}')">Approve</button>
+                                <button class="admin-btn admin-btn--sm admin-btn--danger" onclick="handleReject('${v.id}')">Reject</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr id="detail-pending-${v.id}" style="display:none;"><td colspan="7"></td></tr>
+                `).join('');
+
+                container.innerHTML = `
+                    <div class="admin-table-wrap">
+                        <table class="admin-table">
+                            <thead><tr>
+                                <th>Voucher #</th><th>Employee</th><th>Amount</th><th>Expenses</th><th>Status</th><th>Date</th><th>Actions</th>
+                            </tr></thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                    </div>`;
+            } catch (e) {
+                console.error('Load pending error:', e);
+                container.innerHTML = '<div class="admin-empty"><p>Failed to load pending vouchers.</p></div>';
+            }
+        }
+
+        async function handleApprove(voucherId) {
+            try {
+                const comments = prompt('Add a comment (optional):') || '';
+                await api.approveVoucher(voucherId, comments);
+                if (window.showToast) showToast('Voucher approved successfully', 'success');
+                loadPendingVouchers();
+                loadOverview();
+            } catch (e) {
+                console.error('Approve error:', e);
+                if (window.showToast) showToast('Failed to approve: ' + e.message, 'error');
+            }
+        }
+
+        async function handleReject(voucherId) {
+            try {
+                const reason = prompt('Rejection reason (required):');
+                if (!reason || !reason.trim()) {
+                    if (window.showToast) showToast('Rejection reason is required', 'error');
+                    return;
+                }
+                await api.rejectVoucher(voucherId, reason);
+                if (window.showToast) showToast('Voucher rejected', 'success');
+                loadPendingVouchers();
+                loadOverview();
+            } catch (e) {
+                console.error('Reject error:', e);
+                if (window.showToast) showToast('Failed to reject: ' + e.message, 'error');
+            }
+        }
+
+        // ==================== Voucher Detail (inline expand) ====================
+        async function toggleVoucherDetail(voucherId, prefix) {
+            const detailRow = document.getElementById(`detail-${prefix}-${voucherId}`);
+            if (!detailRow) return;
+
+            if (detailRow.style.display !== 'none') {
+                detailRow.style.display = 'none';
+                return;
+            }
+
+            const cell = detailRow.querySelector('td');
+            cell.innerHTML = '<div class="acct-voucher-detail"><p>Loading...</p></div>';
+            detailRow.style.display = '';
+
+            try {
+                const detail = await api.getVoucherDetail(voucherId);
+                const expenses = detail.expenses || [];
+                const history = detail.history || [];
+
+                const expenseRows = expenses.map(exp => `
+                    <tr>
+                        <td>${formatDate(exp.date)}</td>
+                        <td>${esc(exp.category || '-')}</td>
+                        <td>${esc(exp.description || '-')}</td>
+                        <td><strong>${formatCurrency(exp.amount)}</strong></td>
+                    </tr>
+                `).join('');
+
+                const timelineItems = history.map(h => `
+                    <li>
+                        <strong>${esc((h.action || '').replace(/_/g, ' '))}</strong> — ${formatDate(h.created_at)}
+                        ${h.comments ? `<br><span style="color:var(--gray-500);">${esc(h.comments)}</span>` : ''}
+                    </li>
+                `).join('');
+
+                cell.innerHTML = `
+                    <div class="acct-voucher-detail">
+                        <h4>Expenses (${expenses.length})</h4>
+                        <div class="admin-table-wrap">
+                            <table class="admin-table admin-table--compact">
+                                <thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th></tr></thead>
+                                <tbody>${expenseRows || '<tr><td colspan="4" style="text-align:center;color:var(--gray-400);">No expenses</td></tr>'}</tbody>
+                            </table>
+                        </div>
+                        ${history.length > 0 ? `<h4 style="margin-top:16px;">Timeline</h4><ul class="acct-timeline">${timelineItems}</ul>` : ''}
+                    </div>`;
+            } catch (e) {
+                console.error('Detail load error:', e);
+                cell.innerHTML = '<div class="acct-voucher-detail"><p style="color:var(--red);">Failed to load details.</p></div>';
+            }
+        }
+
+        // ==================== All Vouchers ====================
+        let _allVouchers = [];
+        let _employeeList = [];
+
+        async function loadAllVouchers() {
+            if (!_currentUser) return;
+            const orgId = _currentUser.organization_id;
+            if (!orgId) return;
+
+            const container = document.getElementById('allVouchersList');
+
+            try {
+                // Populate employee dropdown if empty
+                if (_employeeList.length === 0) {
+                    try {
+                        const employees = await api.getEmployeeWhitelist(orgId);
+                        _employeeList = employees || [];
+                        const select = document.getElementById('filterEmployee');
+                        select.innerHTML = '<option value="">All Employees</option>';
+                        _employeeList.forEach(emp => {
+                            select.innerHTML += `<option value="${esc(emp.user_id || emp.id)}">${esc(emp.name)} (${esc(emp.employee_id || '')})</option>`;
+                        });
+                    } catch (e) { /* ignore employee load errors */ }
+                }
+
+                await applyFilters();
+            } catch (e) {
+                console.error('Load all vouchers error:', e);
+                container.innerHTML = '<div class="admin-empty"><p>Failed to load vouchers.</p></div>';
+            }
+        }
+
+        async function applyFilters() {
+            if (!_currentUser) return;
+            const orgId = _currentUser.organization_id;
+            if (!orgId) return;
+
+            const filters = {
+                status: document.getElementById('filterStatus')?.value || 'all',
+                dateFrom: document.getElementById('filterDateFrom')?.value || '',
+                dateTo: document.getElementById('filterDateTo')?.value || '',
+                submittedBy: document.getElementById('filterEmployee')?.value || '',
+                exported: document.getElementById('filterExported')?.value || ''
+            };
+
+            try {
+                const vouchers = await api.getAllOrgVouchers(orgId, filters);
+                _allVouchers = vouchers || [];
+                renderAllVouchers();
+            } catch (e) {
+                console.error('Filter error:', e);
+                document.getElementById('allVouchersList').innerHTML = '<div class="admin-empty"><p>Failed to load vouchers.</p></div>';
+            }
+        }
+
+        function renderAllVouchers() {
+            const container = document.getElementById('allVouchersList');
+
+            if (_allVouchers.length === 0) {
+                container.innerHTML = '<div class="admin-empty"><p>No vouchers match the selected filters.</p></div>';
+                updateSelectionBar();
+                return;
+            }
+
+            const rows = _allVouchers.map(v => {
+                const isChecked = selectedIds.has(v.id) ? 'checked' : '';
+                return `
+                    <tr id="allv-row-${v.id}">
+                        <td><input type="checkbox" class="acct-checkbox" data-id="${v.id}" ${isChecked} onchange="toggleSelection('${v.id}', this.checked)"></td>
+                        <td><span class="admin-emp-id">${esc(v.voucher_number)}</span></td>
+                        <td>${esc(v.submitter?.name || '-')}</td>
+                        <td><strong>${formatCurrency(v.total_amount)}</strong></td>
+                        <td>${v.expense_count || 0}</td>
+                        <td>${statusBadge(v.status)}</td>
+                        <td>${v.tally_exported ? '<span style="color:var(--green);font-weight:600;">Yes</span>' : '<span style="color:var(--gray-400);">No</span>'}</td>
+                        <td>${formatDate(v.submitted_at)}</td>
+                        <td>
+                            <button class="admin-btn admin-btn--sm admin-btn--secondary" onclick="toggleVoucherDetail('${v.id}', 'allv')">View</button>
+                        </td>
+                    </tr>
+                    <tr id="detail-allv-${v.id}" style="display:none;"><td colspan="9"></td></tr>
+                `;
+            }).join('');
+
+            container.innerHTML = `
+                <div class="admin-table-wrap">
+                    <table class="admin-table">
+                        <thead><tr>
+                            <th><input type="checkbox" class="acct-checkbox" id="selectAll" onchange="toggleSelectAll(this.checked)"></th>
+                            <th>Voucher #</th><th>Employee</th><th>Amount</th><th>Expenses</th><th>Status</th><th>Exported</th><th>Date</th><th>Actions</th>
+                        </tr></thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>`;
+
+            updateSelectionBar();
+        }
+
+        // ==================== Selection System ====================
+        function toggleSelection(id, checked) {
+            if (checked) {
+                selectedIds.add(id);
+            } else {
+                selectedIds.delete(id);
+            }
+            // Update select-all checkbox
+            const selectAll = document.getElementById('selectAll');
+            if (selectAll) {
+                selectAll.checked = _allVouchers.length > 0 && selectedIds.size === _allVouchers.length;
+            }
+            updateSelectionBar();
+        }
+
+        function toggleSelectAll(checked) {
+            if (checked) {
+                _allVouchers.forEach(v => selectedIds.add(v.id));
+            } else {
+                selectedIds.clear();
+            }
+            // Update all checkboxes
+            document.querySelectorAll('.acct-checkbox[data-id]').forEach(cb => {
+                cb.checked = checked;
+            });
+            updateSelectionBar();
+        }
+
+        function updateSelectionBar() {
+            const bar = document.getElementById('selectionBar');
+            if (!bar) return;
+
+            if (selectedIds.size === 0) {
+                bar.style.display = 'none';
+                return;
+            }
+
+            // Calculate total of selected
+            const selectedTotal = _allVouchers
+                .filter(v => selectedIds.has(v.id))
+                .reduce((s, v) => s + (parseFloat(v.total_amount) || 0), 0);
+
+            bar.style.display = 'flex';
+            bar.className = 'acct-selection-bar';
+            bar.innerHTML = `
+                <span>${selectedIds.size} voucher${selectedIds.size > 1 ? 's' : ''} selected (${formatCurrency(selectedTotal)})</span>
+                <div class="acct-selection-actions">
+                    <button class="admin-btn admin-btn--sm admin-btn--secondary" onclick="selectedIds.clear(); renderAllVouchers();">Clear</button>
+                    <button class="admin-btn admin-btn--sm admin-btn--primary" onclick="switchSection('tally-export', document.querySelector('[data-section=tally-export]'))">Export to Tally</button>
+                </div>`;
+        }
+
+        // ==================== Tally Export ====================
+        async function loadTallyExport() {
+            const container = document.getElementById('tallyExportContent');
+
+            if (selectedIds.size === 0) {
+                container.innerHTML = `
+                    <div class="admin-empty">
+                        <p>No vouchers selected for export.</p>
+                        <p style="margin-top:8px;">
+                            <button class="admin-btn admin-btn--secondary" onclick="switchSection('all-vouchers', document.querySelector('[data-section=all-vouchers]'))">Go to All Vouchers</button>
+                        </p>
+                    </div>`;
+                await loadExportHistory(container);
+                return;
+            }
+
+            // Build summary of selected vouchers
+            const selectedVouchers = _allVouchers.filter(v => selectedIds.has(v.id));
+            const totalAmount = selectedVouchers.reduce((s, v) => s + (parseFloat(v.total_amount) || 0), 0);
+            const alreadyExported = selectedVouchers.filter(v => v.tally_exported).length;
+
+            container.innerHTML = `
+                <div class="acct-export-summary">
+                    <div class="acct-export-summary__row">
+                        <span class="acct-export-summary__label">Vouchers Selected</span>
+                        <span class="acct-export-summary__value">${selectedVouchers.length}</span>
+                    </div>
+                    <div class="acct-export-summary__row">
+                        <span class="acct-export-summary__label">Total Amount</span>
+                        <span class="acct-export-summary__value">${formatCurrency(totalAmount)}</span>
+                    </div>
+                    ${alreadyExported > 0 ? `
+                    <div class="acct-export-summary__row">
+                        <span class="acct-export-summary__label" style="color:var(--amber);">Already Exported</span>
+                        <span class="acct-export-summary__value" style="color:var(--amber);">${alreadyExported} of ${selectedVouchers.length}</span>
+                    </div>` : ''}
+                </div>
+                <div style="display:flex;gap:10px;margin-bottom:24px;">
+                    <button class="admin-btn admin-btn--secondary" onclick="previewTallyXML()" id="btnPreview">Preview XML</button>
+                    <button class="admin-btn admin-btn--primary" onclick="exportSelectedToTally()" id="btnDownload">Download XML</button>
+                </div>
+                <div id="exportHistoryContainer"></div>`;
+
+            await loadExportHistory(document.getElementById('exportHistoryContainer'));
+        }
+
+        async function previewTallyXML() {
+            const btn = document.getElementById('btnPreview');
+            if (btn) btn.disabled = true;
+            try {
+                const xmlData = await buildExportData();
+                if (!xmlData) return;
+                const xml = tallyExport.generateBatchXML(xmlData.vouchersWithExpenses, xmlData.ledgerMappings);
+                tallyExport.previewXML(xml);
+            } catch (e) {
+                console.error('Preview error:', e);
+                if (window.showToast) showToast('Failed to generate preview: ' + e.message, 'error');
+            } finally {
+                if (btn) btn.disabled = false;
+            }
+        }
+
+        async function exportSelectedToTally() {
+            const btn = document.getElementById('btnDownload');
+            if (btn) btn.disabled = true;
+            try {
+                const xmlData = await buildExportData();
+                if (!xmlData) return;
+
+                const xml = tallyExport.generateBatchXML(xmlData.vouchersWithExpenses, xmlData.ledgerMappings);
+                tallyExport.downloadXML(xml);
+
+                // Mark as exported AFTER successful download
+                const ids = Array.from(selectedIds);
+                await api.markVouchersExported(ids);
+
+                if (window.showToast) showToast(`Exported ${ids.length} voucher(s) to Tally XML`, 'success');
+
+                // Refresh data
+                selectedIds.clear();
+                loadTallyExport();
+                loadOverview();
+            } catch (e) {
+                console.error('Export error:', e);
+                if (window.showToast) showToast('Export failed: ' + e.message, 'error');
+            } finally {
+                if (btn) btn.disabled = false;
+            }
+        }
+
+        async function buildExportData() {
+            if (selectedIds.size === 0) return null;
+
+            const orgId = _currentUser.organization_id;
+
+            // Get ledger mappings
+            let ledgerMappings = {};
+            try {
+                const mappingResult = await api.getTallyLedgerMappings(orgId);
+                ledgerMappings = mappingResult.lookup || {};
+            } catch (e) { /* use empty mappings */ }
+
+            // Get detailed data for each voucher
+            const vouchersWithExpenses = [];
+            for (const id of selectedIds) {
+                try {
+                    const detail = await api.getVoucherDetail(id);
+                    vouchersWithExpenses.push({
+                        voucher: detail,
+                        expenses: detail.expenses || []
+                    });
+                } catch (e) {
+                    console.error('Failed to load voucher detail for ' + id, e);
+                }
+            }
+
+            if (vouchersWithExpenses.length === 0) {
+                if (window.showToast) showToast('No voucher data could be loaded', 'error');
+                return null;
+            }
+
+            return { vouchersWithExpenses, ledgerMappings };
+        }
+
+        async function loadExportHistory(container) {
+            if (!container) return;
+            if (!_currentUser) return;
+            const orgId = _currentUser.organization_id;
+
+            try {
+                const supabase = window.supabaseClient?.get();
+                if (!supabase) return;
+
+                const { data: exported } = await supabase
+                    .from('vouchers')
+                    .select('voucher_number, total_amount, exported_at, submitter:submitted_by(name)')
+                    .eq('organization_id', orgId)
+                    .eq('tally_exported', true)
+                    .order('exported_at', { ascending: false })
+                    .limit(20);
+
+                if (!exported || exported.length === 0) {
+                    container.innerHTML = '<div class="acct-export-history"><h4>Export History</h4><p style="color:var(--gray-400);font-size:0.82rem;">No exports yet.</p></div>';
+                    return;
+                }
+
+                const rows = exported.map(v => `
+                    <tr>
+                        <td><span class="admin-emp-id">${esc(v.voucher_number)}</span></td>
+                        <td>${esc(v.submitter?.name || '-')}</td>
+                        <td>${formatCurrency(v.total_amount)}</td>
+                        <td>${formatDate(v.exported_at)}</td>
+                    </tr>
+                `).join('');
+
+                container.innerHTML = `
+                    <div class="acct-export-history">
+                        <h4>Export History</h4>
+                        <div class="admin-table-wrap">
+                            <table class="admin-table admin-table--compact">
+                                <thead><tr><th>Voucher #</th><th>Employee</th><th>Amount</th><th>Exported</th></tr></thead>
+                                <tbody>${rows}</tbody>
+                            </table>
+                        </div>
+                    </div>`;
+            } catch (e) {
+                console.error('Export history error:', e);
+            }
+        }
+
+        // ==================== Settings ====================
+        let _ledgerMappings = [];
+
+        async function loadSettings() {
+            if (!_currentUser) return;
+            const orgId = _currentUser.organization_id;
+            const container = document.getElementById('settingsContent');
+
+            try {
+                const mappingResult = await api.getTallyLedgerMappings(orgId);
+                _ledgerMappings = mappingResult.raw || [];
+
+                const companyName = localStorage.getItem('tallyCompanyName') || '';
+                const paymentLedger = localStorage.getItem('tallyPaymentLedger') || 'Cash';
+
+                let mappingRows = '';
+                if (_ledgerMappings.length > 0) {
+                    mappingRows = _ledgerMappings.map((m, i) => `
+                        <div class="acct-mapping-row" data-index="${i}">
+                            <input type="text" value="${esc(m.expense_category + (m.expense_subcategory ? ' > ' + m.expense_subcategory : ''))}" placeholder="Category" readonly style="background:var(--gray-50);cursor:default;">
+                            <input type="text" value="${esc(m.tally_ledger_name)}" placeholder="Tally Ledger Name" class="mapping-ledger" data-category="${esc(m.expense_category)}" data-subcategory="${esc(m.expense_subcategory || '')}">
+                            <button class="acct-mapping-delete" onclick="deleteMapping(${i})" title="Remove mapping">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                            </button>
+                        </div>
+                    `).join('');
+                }
+
+                container.innerHTML = `
+                    <div style="max-width:600px;">
+                        <div class="admin-form-group">
+                            <label>Tally Company Name</label>
+                            <input type="text" id="settCompanyName" value="${esc(companyName)}" placeholder="e.g., FluxGen Technologies Pvt Ltd">
+                        </div>
+                        <div class="admin-form-group">
+                            <label>Payment Ledger</label>
+                            <input type="text" id="settPaymentLedger" value="${esc(paymentLedger)}" placeholder="e.g., Cash, Bank">
+                        </div>
+                        <button class="admin-btn admin-btn--primary" onclick="saveGeneralSettings()" style="margin-bottom:32px;">Save General Settings</button>
+
+                        <h3 class="admin-section-label" style="margin-top:8px;">Ledger Mappings</h3>
+                        <p style="font-size:0.8rem;color:var(--gray-500);margin:0 0 16px;">Map expense categories to Tally ledger names for accurate XML export.</p>
+
+                        <div id="mappingRows">${mappingRows || '<p style="color:var(--gray-400);font-size:0.82rem;">No mappings configured yet.</p>'}</div>
+
+                        <div style="display:flex;gap:10px;margin-top:16px;">
+                            <button class="admin-btn admin-btn--secondary" onclick="addMappingRow()">+ Add Mapping</button>
+                            <button class="admin-btn admin-btn--primary" onclick="saveLedgerMappings()">Save Mappings</button>
+                        </div>
+                    </div>`;
+            } catch (e) {
+                console.error('Settings load error:', e);
+                container.innerHTML = '<div class="admin-empty"><p>Failed to load settings.</p></div>';
+            }
+        }
+
+        function saveGeneralSettings() {
+            const companyName = document.getElementById('settCompanyName')?.value || '';
+            const paymentLedger = document.getElementById('settPaymentLedger')?.value || 'Cash';
+            localStorage.setItem('tallyCompanyName', companyName);
+            localStorage.setItem('tallyPaymentLedger', paymentLedger);
+            if (window.showToast) showToast('General settings saved', 'success');
+        }
+
+        function addMappingRow() {
+            const container = document.getElementById('mappingRows');
+            // Remove "no mappings" message if present
+            const emptyMsg = container.querySelector('p');
+            if (emptyMsg) emptyMsg.remove();
+
+            const idx = container.querySelectorAll('.acct-mapping-row').length;
+            const row = document.createElement('div');
+            row.className = 'acct-mapping-row';
+            row.dataset.index = idx;
+            row.innerHTML = `
+                <input type="text" placeholder="Category (e.g., Travel)" class="mapping-category-input">
+                <input type="text" placeholder="Tally Ledger Name" class="mapping-ledger">
+                <button class="acct-mapping-delete" onclick="this.parentElement.remove()" title="Remove mapping">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>`;
+            container.appendChild(row);
+        }
+
+        function deleteMapping(index) {
+            const row = document.querySelector(`.acct-mapping-row[data-index="${index}"]`);
+            if (row) row.remove();
+        }
+
+        async function saveLedgerMappings() {
+            if (!_currentUser) return;
+            const orgId = _currentUser.organization_id;
+
+            const rows = document.querySelectorAll('.acct-mapping-row');
+            let savedCount = 0;
+
+            try {
+                for (const row of rows) {
+                    // New rows have an editable category input
+                    const categoryInput = row.querySelector('.mapping-category-input');
+                    const ledgerInput = row.querySelector('.mapping-ledger');
+
+                    let category, subcategory = null, ledgerName;
+
+                    if (categoryInput) {
+                        // New row
+                        const rawCat = categoryInput.value.trim();
+                        if (!rawCat) continue;
+                        if (rawCat.includes('>')) {
+                            const parts = rawCat.split('>').map(s => s.trim());
+                            category = parts[0];
+                            subcategory = parts[1] || null;
+                        } else {
+                            category = rawCat;
+                        }
+                    } else {
+                        // Existing row
+                        category = ledgerInput?.dataset.category || '';
+                        subcategory = ledgerInput?.dataset.subcategory || null;
+                    }
+
+                    ledgerName = ledgerInput?.value.trim() || '';
+                    if (!category || !ledgerName) continue;
+
+                    await api.saveTallyLedgerMapping(orgId, category, ledgerName, subcategory || null);
+                    savedCount++;
+                }
+
+                if (window.showToast) showToast(`Saved ${savedCount} ledger mapping(s)`, 'success');
+                loadSettings();
+            } catch (e) {
+                console.error('Save mappings error:', e);
+                if (window.showToast) showToast('Failed to save mappings: ' + e.message, 'error');
+            }
+        }
+    </script>
+</body>
+</html>

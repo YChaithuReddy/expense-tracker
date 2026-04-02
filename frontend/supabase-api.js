@@ -2167,6 +2167,98 @@ const api = {
             return { success: false };
         }
         return data || { success: true };
+    },
+
+    // ==============================================
+    // ACCOUNTANT DASHBOARD — TALLY EXPORT
+    // ==============================================
+
+    async getAllOrgVouchers(orgId, filters = {}) {
+        const supabase = getSupabase();
+
+        let query = supabase
+            .from('vouchers')
+            .select(`
+                *,
+                submitter:submitted_by(id, name, email, employee_id, department),
+                manager:manager_id(id, name),
+                accountant:accountant_id(id, name),
+                project:project_id(id, project_code, project_name)
+            `)
+            .eq('organization_id', orgId)
+            .order('created_at', { ascending: false })
+            .limit(500);
+
+        if (filters.status && filters.status !== 'all') query = query.eq('status', filters.status);
+        if (filters.dateFrom) query = query.gte('submitted_at', filters.dateFrom);
+        if (filters.dateTo) query = query.lte('submitted_at', filters.dateTo + 'T23:59:59');
+        if (filters.submittedBy) query = query.eq('submitted_by', filters.submittedBy);
+        if (filters.projectId) query = query.eq('project_id', filters.projectId);
+        if (filters.exported === 'yes') query = query.eq('tally_exported', true);
+        if (filters.exported === 'no') query = query.eq('tally_exported', false);
+
+        const { data, error } = await query;
+        if (error) handleError(error, 'Get all org vouchers');
+        return data || [];
+    },
+
+    async markVouchersExported(voucherIds) {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        const { error } = await supabase
+            .from('vouchers')
+            .update({
+                tally_exported: true,
+                exported_at: new Date().toISOString(),
+                exported_by: user.id
+            })
+            .in('id', voucherIds);
+
+        if (error) handleError(error, 'Mark vouchers exported');
+        return { success: true, count: voucherIds.length };
+    },
+
+    async getTallyLedgerMappings(orgId) {
+        const supabase = getSupabase();
+
+        const { data, error } = await supabase
+            .from('tally_ledger_mappings')
+            .select('*')
+            .eq('organization_id', orgId)
+            .order('expense_category');
+
+        if (error) handleError(error, 'Get ledger mappings');
+
+        // Transform to lookup object
+        const mappings = {};
+        for (const row of (data || [])) {
+            if (row.expense_subcategory) {
+                mappings[`${row.expense_category}:${row.expense_subcategory}`] = row.tally_ledger_name;
+            } else {
+                mappings[row.expense_category] = row.tally_ledger_name;
+            }
+        }
+        return { raw: data || [], lookup: mappings };
+    },
+
+    async saveTallyLedgerMapping(orgId, category, ledgerName, subcategory = null) {
+        const supabase = getSupabase();
+
+        const { data, error } = await supabase
+            .from('tally_ledger_mappings')
+            .upsert({
+                organization_id: orgId,
+                expense_category: category,
+                expense_subcategory: subcategory,
+                tally_ledger_name: ledgerName
+            }, { onConflict: 'organization_id,expense_category,expense_subcategory' })
+            .select()
+            .single();
+
+        if (error) handleError(error, 'Save ledger mapping');
+        return { success: true, data };
     }
 };
 
