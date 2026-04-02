@@ -8558,7 +8558,14 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         try {
             if (editId) {
                 await api.updateAdvance(editId, { projectName, amount, notes, visitType });
-                this.showNotification('Advance updated successfully');
+                // If editing a rejected advance in company mode, resubmit for approval
+                const editedAdv = this.advances?.find(a => a.id === editId);
+                if (editedAdv?.status === 'rejected' && typeof isCompanyMode === 'function' && isCompanyMode()) {
+                    await api.resubmitAdvance(editId);
+                    this.showNotification('Advance updated and resubmitted for approval');
+                } else {
+                    this.showNotification('Advance updated successfully');
+                }
             } else {
                 // Company mode: open approval modal for manager/accountant selection
                 if (typeof isCompanyMode === 'function' && isCompanyMode() && typeof approvalWorkflow !== 'undefined') {
