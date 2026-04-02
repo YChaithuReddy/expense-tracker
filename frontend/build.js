@@ -14,6 +14,7 @@ const filesToCopy = [
     'index.html',
     'login.html',
     'signup.html',
+    'admin.html',
     'styles.css',
     'styles_images.css',
     'styles_dropdown.css',
