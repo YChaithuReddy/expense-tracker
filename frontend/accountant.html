@@ -956,44 +956,134 @@
         async function loadPendingVouchers() {
             const container = document.getElementById('pendingList');
             try {
-                const vouchers = await api.getVouchersForApproval();
+                const [vouchers, advances] = await Promise.all([
+                    api.getVouchersForApproval(),
+                    api.getAdvancesForApproval().catch(() => [])
+                ]);
 
-                if (!vouchers || vouchers.length === 0) {
-                    container.innerHTML = '<div class="admin-empty"><p>No vouchers pending your approval.</p></div>';
+                let html = '';
+
+                // Pending advance requests
+                if (advances && advances.length > 0) {
+                    const advRows = advances.map(a => `
+                        <tr>
+                            <td><span class="admin-emp-id" style="background:rgba(139,92,246,0.1);color:#a78bfa;">ADVANCE</span></td>
+                            <td>${esc(a.submitter?.name || '-')}</td>
+                            <td><strong>${formatCurrency(a.amount)}</strong></td>
+                            <td>${esc(a.project_name)} <span class="visit-type-badge visit-type-badge--${a.visit_type || 'project'}" style="font-size:0.6rem;">${a.visit_type || 'project'}</span></td>
+                            <td>${statusBadge(a.status)}</td>
+                            <td>${formatDate(a.submitted_at)}</td>
+                            <td>
+                                <div style="display:flex;gap:6px;">
+                                    <button class="admin-btn admin-btn--sm admin-btn--success" onclick="handleAdvanceApprove('${a.id}')">Approve</button>
+                                    <button class="admin-btn admin-btn--sm admin-btn--danger" onclick="handleAdvanceReject('${a.id}')">Reject</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `).join('');
+
+                    html += `
+                        <h4 style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:#a78bfa;margin:0 0 8px;">Advance Requests (${advances.length})</h4>
+                        <div class="admin-table-wrap" style="margin-bottom:24px;">
+                            <table class="admin-table">
+                                <thead><tr>
+                                    <th>Type</th><th>Employee</th><th>Amount</th><th>Project</th><th>Status</th><th>Date</th><th>Actions</th>
+                                </tr></thead>
+                                <tbody>${advRows}</tbody>
+                            </table>
+                        </div>`;
+                }
+
+                // Pending vouchers
+                if (vouchers && vouchers.length > 0) {
+                    const rows = vouchers.map(v => `
+                        <tr id="pending-row-${v.id}">
+                            <td><span class="admin-emp-id">${esc(v.voucher_number)}</span></td>
+                            <td>${esc(v.submitter?.name || '-')}</td>
+                            <td><strong>${formatCurrency(v.total_amount)}</strong></td>
+                            <td>${v.expense_count || 0}</td>
+                            <td>${statusBadge(v.status)}</td>
+                            <td>${formatDate(v.submitted_at)}</td>
+                            <td>
+                                <div style="display:flex;gap:6px;">
+                                    <button class="admin-btn admin-btn--sm admin-btn--secondary" onclick="toggleVoucherDetail('${v.id}', 'pending')">View</button>
+                                    <button class="admin-btn admin-btn--sm admin-btn--success" onclick="handleApprove('${v.id}')">Approve</button>
+                                    <button class="admin-btn admin-btn--sm admin-btn--danger" onclick="handleReject('${v.id}')">Reject</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr id="detail-pending-${v.id}" style="display:none;"><td colspan="7"></td></tr>
+                    `).join('');
+
+                    html += `
+                        ${advances.length > 0 ? '<h4 style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--gray-500);margin:0 0 8px;">Vouchers (' + vouchers.length + ')</h4>' : ''}
+                        <div class="admin-table-wrap">
+                            <table class="admin-table">
+                                <thead><tr>
+                                    <th>Voucher #</th><th>Employee</th><th>Amount</th><th>Expenses</th><th>Status</th><th>Date</th><th>Actions</th>
+                                </tr></thead>
+                                <tbody>${rows}</tbody>
+                            </table>
+                        </div>`;
+                }
+
+                if (!html) {
+                    container.innerHTML = '<div class="admin-empty"><p>No pending approvals.</p></div>';
                     return;
                 }
 
-                const rows = vouchers.map(v => `
-                    <tr id="pending-row-${v.id}">
-                        <td><span class="admin-emp-id">${esc(v.voucher_number)}</span></td>
-                        <td>${esc(v.submitter?.name || '-')}</td>
-                        <td><strong>${formatCurrency(v.total_amount)}</strong></td>
-                        <td>${v.expense_count || 0}</td>
-                        <td>${statusBadge(v.status)}</td>
-                        <td>${formatDate(v.submitted_at)}</td>
-                        <td>
-                            <div style="display:flex;gap:6px;">
-                                <button class="admin-btn admin-btn--sm admin-btn--secondary" onclick="toggleVoucherDetail('${v.id}', 'pending')">View</button>
-                                <button class="admin-btn admin-btn--sm admin-btn--success" onclick="handleApprove('${v.id}')">Approve</button>
-                                <button class="admin-btn admin-btn--sm admin-btn--danger" onclick="handleReject('${v.id}')">Reject</button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr id="detail-pending-${v.id}" style="display:none;"><td colspan="7"></td></tr>
-                `).join('');
-
-                container.innerHTML = `
-                    <div class="admin-table-wrap">
-                        <table class="admin-table">
-                            <thead><tr>
-                                <th>Voucher #</th><th>Employee</th><th>Amount</th><th>Expenses</th><th>Status</th><th>Date</th><th>Actions</th>
-                            </tr></thead>
-                            <tbody>${rows}</tbody>
-                        </table>
-                    </div>`;
+                container.innerHTML = html;
             } catch (e) {
                 console.error('Load pending error:', e);
-                container.innerHTML = '<div class="admin-empty"><p>Failed to load pending vouchers.</p></div>';
+                container.innerHTML = '<div class="admin-empty"><p>Failed to load pending items.</p></div>';
+            }
+        }
+
+        async function handleAdvanceApprove(advanceId) {
+            try {
+                const detail = await api.getAdvanceDetail(advanceId);
+                const result = await api.approveAdvance(advanceId);
+                if (window.showToast) showToast('Advance approved!', 'success');
+
+                const actorName = _currentUser?.name || 'Accountant';
+                const amt = '₹' + Number(detail.amount || 0).toLocaleString('en-IN');
+
+                if (result.newStatus === 'active' && detail.submitter?.email) {
+                    sendEmail(detail.submitter.email, 'Your advance has been approved!',
+                        `Your advance ${amt} for ${detail.project_name} has been approved by ${actorName}. Funds will be transferred.`,
+                        'Advance Approved');
+                }
+                if (result.newStatus === 'pending_accountant' && detail.accountant?.email) {
+                    sendEmail(detail.accountant.email, 'Advance ready for verification',
+                        `Advance ${amt} for ${detail.project_name} was approved by ${actorName}. Please review.`,
+                        'Advance Approval');
+                }
+
+                loadPendingVouchers();
+                loadOverview();
+            } catch (e) {
+                if (window.showToast) showToast('Failed: ' + e.message, 'error');
+            }
+        }
+
+        async function handleAdvanceReject(advanceId) {
+            const reason = prompt('Reason for rejection (optional):') || '';
+            try {
+                const detail = await api.getAdvanceDetail(advanceId);
+                await api.rejectAdvance(advanceId, reason);
+                if (window.showToast) showToast('Advance rejected', 'success');
+
+                if (detail.submitter?.email) {
+                    const actorName = _currentUser?.name || 'Reviewer';
+                    sendEmail(detail.submitter.email, 'Your advance was rejected',
+                        `Your advance of ₹${Number(detail.amount).toLocaleString('en-IN')} for ${detail.project_name} was rejected by ${actorName}. ${reason ? 'Reason: ' + reason : 'You can edit and resubmit.'}`,
+                        'Advance Rejected');
+                }
+
+                loadPendingVouchers();
+                loadOverview();
+            } catch (e) {
+                if (window.showToast) showToast('Failed: ' + e.message, 'error');
             }
         }
 
