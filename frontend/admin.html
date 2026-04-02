@@ -299,8 +299,11 @@ EMP-003,Ravi Kumar,ravi@fluxgentech.com,Field,Site Engineer,john@fluxgentech.com
 
             const user = JSON.parse(localStorage.getItem('user') || 'null');
             if (!user) { window.location.href = 'login.html'; return; }
-            if (user.role !== 'admin') {
-                alert('Admin access only. Redirecting to app.');
+
+            // Allow access by email (admin@fluxgentech.com) or by admin role
+            const isAdminEmail = user.email?.toLowerCase() === 'admin@fluxgentech.com';
+            const isAdminRole = user.role === 'admin';
+            if (!isAdminEmail && !isAdminRole) {
                 window.location.href = 'index.html';
                 return;
             }

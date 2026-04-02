@@ -322,6 +322,13 @@ async function initAuth() {
     } else {
         // Protected page
         if (hasSession) {
+            // Block admin@fluxgentech.com from index.html — redirect to admin dashboard
+            const currentUser = getCurrentUser();
+            if (currentUser?.email?.toLowerCase() === 'admin@fluxgentech.com' && !pathname.includes('admin')) {
+                window.location.href = 'admin.html';
+                return;
+            }
+
             // User is authenticated, show their info
             displayUserInfo();
             // Trigger expense loading now that auth is confirmed
