@@ -193,8 +193,8 @@
     border: 1px solid rgba(139, 92, 246, 0.2);
     border-radius: 16px;
     padding: 24px;
-    max-width: 480px;
-    width: 90%;
+    max-width: 600px;
+    width: 95%;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 }
 .project-create-modal h3 {
