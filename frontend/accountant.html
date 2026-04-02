@@ -997,11 +997,46 @@
             }
         }
 
+        // Email notification helper (fire and forget)
+        function sendEmail(to, subject, message, voucherNumber) {
+            if (!to) return;
+            api.sendNotificationEmail(to, subject, message, voucherNumber)
+                .then(r => { if (r?.success) console.log('Email sent to', to); })
+                .catch(e => console.warn('Email failed:', e));
+        }
+
         async function handleApprove(voucherId) {
             try {
+                // Get voucher detail BEFORE approving (for email)
+                const detail = await api.getVoucherDetail(voucherId);
                 const comments = prompt('Add a comment (optional):') || '';
-                await api.approveVoucher(voucherId, comments);
+                const result = await api.approveVoucher(voucherId, comments);
                 if (window.showToast) showToast('Voucher approved successfully', 'success');
+
+                const actorName = _currentUser?.name || 'Accountant';
+                const amt = '₹' + Number(detail.total_amount || 0).toLocaleString('en-IN');
+
+                // Email employee: voucher approved
+                if (detail.submitter?.email) {
+                    sendEmail(
+                        detail.submitter.email,
+                        'Your voucher has been approved!',
+                        `Great news! Your voucher ${detail.voucher_number} (${amt}) has been approved by ${actorName}.`,
+                        detail.voucher_number
+                    );
+                }
+
+                // If this was manager-level approval going to accountant (shouldn't happen here but safety)
+                // Notify accountant if result.newStatus === 'pending_accountant'
+                if (result.newStatus === 'pending_accountant' && detail.accountant?.email) {
+                    sendEmail(
+                        detail.accountant.email,
+                        'Voucher ready for verification',
+                        `Voucher ${detail.voucher_number} (${amt}) was approved by ${actorName}. Please log in to review and verify.`,
+                        detail.voucher_number
+                    );
+                }
+
                 loadPendingVouchers();
                 loadOverview();
             } catch (e) {
@@ -1017,8 +1052,25 @@
                     if (window.showToast) showToast('Rejection reason is required', 'error');
                     return;
                 }
+
+                // Get detail BEFORE rejecting (for email)
+                const detail = await api.getVoucherDetail(voucherId);
                 await api.rejectVoucher(voucherId, reason);
                 if (window.showToast) showToast('Voucher rejected', 'success');
+
+                const actorName = _currentUser?.name || 'Accountant';
+                const amt = '₹' + Number(detail.total_amount || 0).toLocaleString('en-IN');
+
+                // Email employee: voucher rejected with reason
+                if (detail.submitter?.email) {
+                    sendEmail(
+                        detail.submitter.email,
+                        'Voucher rejected — action needed',
+                        `Your voucher ${detail.voucher_number} (${amt}) was rejected by ${actorName}.\n\nReason: ${reason}\n\nPlease review the feedback and resubmit.`,
+                        detail.voucher_number
+                    );
+                }
+
                 loadPendingVouchers();
                 loadOverview();
             } catch (e) {

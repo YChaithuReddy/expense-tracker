@@ -514,22 +514,39 @@ const approvalWorkflow = (() => {
             window.expenseTracker?.showNotification('Voucher approved!');
             await api.logActivity?.('voucher_approved', `Approved voucher ${detail.voucher_number}`);
 
-            // Email: notify next person in chain
+            // Email: notify next person in chain + always notify employee
             const user = JSON.parse(localStorage.getItem('user') || '{}');
-            if (result.newStatus === 'pending_accountant' && detail.accountant?.email) {
-                sendEmailNotification(
-                    detail.accountant.email,
-                    'Voucher ready for verification',
-                    `Voucher ${detail.voucher_number} (${formatAmount(detail.total_amount)}) was approved by ${user.name || 'Manager'}. Please log in to review and verify.`,
-                    detail.voucher_number
-                );
-            } else if (result.newStatus === 'approved' && detail.submitter?.email) {
-                sendEmailNotification(
-                    detail.submitter.email,
-                    'Your voucher has been approved!',
-                    `Great news! Your voucher ${detail.voucher_number} (${formatAmount(detail.total_amount)}) has been approved by ${user.name || 'Accountant'}.`,
-                    detail.voucher_number
-                );
+            const amt = formatAmount(detail.total_amount);
+
+            if (result.newStatus === 'pending_accountant') {
+                // Manager approved → email accountant
+                if (detail.accountant?.email) {
+                    sendEmailNotification(
+                        detail.accountant.email,
+                        'Voucher ready for verification',
+                        `Voucher ${detail.voucher_number} (${amt}) was approved by ${user.name || 'Manager'}. Please log in to review and verify.`,
+                        detail.voucher_number
+                    );
+                }
+                // Also email employee: manager approved, now with accountant
+                if (detail.submitter?.email) {
+                    sendEmailNotification(
+                        detail.submitter.email,
+                        'Manager approved your voucher',
+                        `Your voucher ${detail.voucher_number} (${amt}) was approved by ${user.name || 'Manager'}. It is now pending accountant verification.`,
+                        detail.voucher_number
+                    );
+                }
+            } else if (result.newStatus === 'approved') {
+                // Accountant approved → email employee
+                if (detail.submitter?.email) {
+                    sendEmailNotification(
+                        detail.submitter.email,
+                        'Your voucher has been approved!',
+                        `Great news! Your voucher ${detail.voucher_number} (${amt}) has been fully approved by ${user.name || 'Accountant'}. Reimbursement will be processed.`,
+                        detail.voucher_number
+                    );
+                }
             }
 
             await loadVoucherList();
