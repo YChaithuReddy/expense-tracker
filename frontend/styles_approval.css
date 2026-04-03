@@ -821,13 +821,270 @@
 
 /* =====================================================
    LIGHT THEME OVERRIDES — Approval Workflow
-   NOTE: Overlay, modal, header, body, footer, and panel
-   containers intentionally stay dark in all themes to
-   Approval modals always use dark premium design regardless of theme.
-   No light theme overrides — dark design is hardcoded.
    ===================================================== */
 
-/* All light overrides removed — approval modals stay dark always */
+[data-theme="light"] .approval-overlay {
+    background: rgba(241, 245, 249, 0.92);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+}
+
+[data-theme="light"] .approval-modal,
+[data-theme="light"] .approval-detail-modal {
+    background: #ffffff;
+}
+
+[data-theme="light"] .approval-modal__header {
+    background: #ffffff;
+    border-bottom-color: #e5e7eb;
+}
+[data-theme="light"] .approval-modal__header::after {
+    background: linear-gradient(90deg, transparent, #e5e7eb, transparent);
+}
+[data-theme="light"] .approval-modal__header h2 {
+    color: #6d28d9;
+    text-shadow: none;
+}
+[data-theme="light"] .approval-modal__close {
+    border-color: #e5e7eb;
+    background: transparent;
+    color: #94a3b8;
+}
+[data-theme="light"] .approval-modal__close:hover {
+    background: #f9fafb;
+    border-color: #7c3aed;
+    color: #7c3aed;
+    box-shadow: none;
+}
+
+[data-theme="light"] .approval-modal__body,
+[data-theme="light"] .approval-detail-body {
+    scrollbar-color: rgba(109, 40, 217, 0.2) transparent;
+}
+
+[data-theme="light"] .approval-modal__footer {
+    background: #f9fafb;
+    border-top-color: #e5e7eb;
+}
+[data-theme="light"] .approval-modal__footer::before {
+    background: linear-gradient(90deg, transparent, #e5e7eb, transparent);
+}
+
+[data-theme="light"] .approval-summary-card {
+    background: rgba(109, 40, 217, 0.08);
+    border-color: #e9d5ff;
+    box-shadow: 0 2px 12px rgba(109, 40, 217, 0.06);
+}
+[data-theme="light"] .approval-summary-stat {
+    background: #ffffff;
+}
+[data-theme="light"] .approval-summary-stat:hover { background: #faf5ff; }
+[data-theme="light"] .approval-summary-label { color: #9ca3af; }
+[data-theme="light"] .approval-summary-value { color: #111827; }
+[data-theme="light"] .approval-summary-value--amount { color: #059669; text-shadow: none; }
+
+[data-theme="light"] .approval-expense-list {
+    background: #ffffff;
+    border-color: #e5e7eb;
+}
+[data-theme="light"] .approval-expense-list h4 {
+    color: #9ca3af;
+    background: #ffffff;
+    border-bottom-color: #e5e7eb;
+}
+[data-theme="light"] .approval-expense-row { border-bottom-color: #f9fafb; }
+[data-theme="light"] .approval-expense-row:hover { background: #ffffff; }
+[data-theme="light"] .approval-expense-date { color: #9ca3af; }
+[data-theme="light"] .approval-expense-vendor { color: #6b7280; }
+[data-theme="light"] .approval-expense-amount { color: #059669; }
+
+[data-theme="light"] .approval-form-group label { color: #6b7280; }
+[data-theme="light"] .approval-form-group select,
+[data-theme="light"] .approval-form-group textarea {
+    background: #ffffff;
+    border-color: #e5e7eb;
+    color: #111827;
+}
+[data-theme="light"] .approval-form-group select:focus,
+[data-theme="light"] .approval-form-group textarea:focus {
+    border-color: #7c3aed;
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+    background: #ffffff;
+}
+[data-theme="light"] .approval-form-group textarea::placeholder { color: #d1d5db; }
+[data-theme="light"] .approval-form-group select option { background: #ffffff; color: #111827; }
+
+[data-theme="light"] .approval-btn--submit {
+    background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+    box-shadow: 0 4px 16px rgba(124, 58, 237, 0.25);
+}
+[data-theme="light"] .approval-btn--submit:hover {
+    box-shadow: 0 6px 24px rgba(124, 58, 237, 0.38);
+}
+[data-theme="light"] .approval-btn--cancel {
+    color: #6b7280;
+    border-color: #e5e7eb;
+}
+[data-theme="light"] .approval-btn--cancel:hover {
+    background: #f9fafb;
+    color: #374151;
+    border-color: #d1d5db;
+}
+[data-theme="light"] .approval-btn--approve {
+    box-shadow: 0 4px 16px rgba(5, 150, 105, 0.2);
+}
+[data-theme="light"] .approval-btn--approve:hover {
+    box-shadow: 0 6px 24px rgba(5, 150, 105, 0.32);
+}
+[data-theme="light"] .approval-btn--reject { border-color: rgba(239, 68, 68, 0.3); }
+[data-theme="light"] .approval-btn--resubmit { border-color: rgba(245, 158, 11, 0.3); }
+
+[data-theme="light"] .approvals-panel-overlay {
+    background: rgba(241, 245, 249, 0.92);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+}
+[data-theme="light"] .approvals-panel-header {
+    background: #ffffff;
+    border-bottom-color: #e5e7eb;
+}
+[data-theme="light"] .approvals-panel-header::after {
+    background: linear-gradient(90deg, transparent, #e5e7eb, transparent);
+}
+[data-theme="light"] .approvals-panel-title {
+    color: #6d28d9;
+    text-shadow: none;
+}
+
+[data-theme="light"] .approval-tabs {
+    background: #f9fafb;
+    border-bottom-color: #e5e7eb;
+}
+[data-theme="light"] .approval-tab { color: #9ca3af; }
+[data-theme="light"] .approval-tab:hover { color: #6b7280; background: rgba(109, 40, 217, 0.04); }
+[data-theme="light"] .approval-tab.active {
+    color: #6d28d9;
+    border-bottom-color: #6d28d9;
+    background: rgba(109, 40, 217, 0.06);
+}
+[data-theme="light"] .approval-tab__badge {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.2);
+}
+
+[data-theme="light"] .approvals-body {
+    scrollbar-color: rgba(109, 40, 217, 0.2) transparent;
+}
+
+[data-theme="light"] .approval-voucher-card {
+    background: #ffffff;
+    border-color: #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+[data-theme="light"] .approval-voucher-card:hover {
+    border-color: rgba(124, 58, 237, 0.25);
+    background: #faf5ff;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(124, 58, 237, 0.1);
+}
+[data-theme="light"] .approval-voucher-card__number { color: #6d28d9; }
+[data-theme="light"] .approval-voucher-card__amount { color: #059669; text-shadow: none; }
+[data-theme="light"] .approval-voucher-card__meta { color: #9ca3af; }
+[data-theme="light"] .approval-voucher-card__purpose {
+    color: #6b7280;
+    background: rgba(109, 40, 217, 0.04);
+    border-left-color: rgba(109, 40, 217, 0.2);
+}
+[data-theme="light"] .approval-voucher-card__rejection {
+    background: rgba(239, 68, 68, 0.05);
+    border-left-color: rgba(239, 68, 68, 0.3);
+}
+[data-theme="light"] .approval-voucher-card__footer { color: #d1d5db; }
+
+[data-theme="light"] .approval-detail-info-grid { gap: 12px; }
+[data-theme="light"] .approval-detail-info-card {
+    background: #ffffff;
+    border-color: #e5e7eb;
+}
+[data-theme="light"] .approval-detail-info-card:hover {
+    background: #faf5ff;
+    border-color: rgba(124, 58, 237, 0.2);
+}
+[data-theme="light"] .approval-detail-info-label { color: #9ca3af; }
+[data-theme="light"] .approval-detail-info-value { color: #111827; }
+[data-theme="light"] .approval-detail-info-card small { color: #9ca3af; }
+
+[data-theme="light"] .approval-detail-purpose {
+    background: rgba(109, 40, 217, 0.05);
+    color: #6b7280;
+    border-left-color: rgba(109, 40, 217, 0.3);
+}
+[data-theme="light"] .approval-detail-rejection {
+    background: rgba(239, 68, 68, 0.05);
+    border-left-color: rgba(239, 68, 68, 0.35);
+}
+
+[data-theme="light"] .approval-detail-section {
+    background: #ffffff;
+    border-color: #e5e7eb;
+}
+[data-theme="light"] .approval-detail-section h3 {
+    color: #9ca3af;
+    background: #ffffff;
+    border-bottom-color: #e5e7eb;
+}
+[data-theme="light"] .approval-detail-expense { border-bottom-color: #f9fafb; }
+[data-theme="light"] .approval-detail-expense:hover { background: #ffffff; }
+[data-theme="light"] .approval-detail-expense__date { color: #9ca3af; }
+[data-theme="light"] .approval-detail-expense__desc { color: #6b7280; }
+[data-theme="light"] .approval-detail-expense__cat { color: #9ca3af; }
+[data-theme="light"] .approval-detail-expense__amount { color: #059669; }
+
+[data-theme="light"] .approval-timeline::before {
+    background: linear-gradient(180deg, #e5e7eb, rgba(226, 232, 240, 0.3));
+}
+[data-theme="light"] .approval-timeline-dot {
+    border-color: #ffffff;
+    box-shadow: 0 0 6px rgba(109, 40, 217, 0.15);
+}
+[data-theme="light"] .approval-timeline-action { color: #111827; }
+[data-theme="light"] .approval-timeline-actor { color: #9ca3af; }
+[data-theme="light"] .approval-timeline-comment {
+    color: #6b7280;
+    background: #ffffff;
+    border-left-color: rgba(109, 40, 217, 0.2);
+}
+[data-theme="light"] .approval-timeline-time { color: #d1d5db; }
+
+[data-theme="light"] .approval-detail-actions { border-top-color: #e5e7eb; }
+[data-theme="light"] .approval-detail-actions::before {
+    background: linear-gradient(90deg, transparent, #e5e7eb, transparent);
+}
+
+[data-theme="light"] .approval-reject-form {
+    background: rgba(239, 68, 68, 0.04);
+    border-color: rgba(239, 68, 68, 0.14);
+}
+[data-theme="light"] .approval-reject-form textarea {
+    background: #ffffff;
+    border-color: rgba(239, 68, 68, 0.2);
+    color: #111827;
+}
+[data-theme="light"] .approval-reject-form textarea:focus {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.08);
+}
+
+[data-theme="light"] .approval-empty { color: #9ca3af; }
+
+[data-theme="light"] .approvals-nav-btn {
+    border-color: rgba(109, 40, 217, 0.2);
+    background: rgba(109, 40, 217, 0.05);
+    color: #6d28d9;
+}
+[data-theme="light"] .approvals-nav-btn:hover {
+    background: rgba(109, 40, 217, 0.1);
+    border-color: rgba(109, 40, 217, 0.3);
+    box-shadow: 0 4px 14px rgba(109, 40, 217, 0.12);
+}
 
 /* ---- Mobile Responsive ---- */
 @media (max-width: 640px) {
