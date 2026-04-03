@@ -202,6 +202,7 @@ const approvalWorkflow = (() => {
 
         // Store expense IDs for submission
         overlay._expenseIds = expenses.map(e => e.id);
+        overlay._expenses = expenses;
         document.body.appendChild(overlay);
         document.body.classList.add('modal-open');
 
@@ -225,32 +226,71 @@ const approvalWorkflow = (() => {
         const accountantId = document.getElementById('approvalAccountantSelect')?.value;
         const purpose = document.getElementById('approvalPurpose')?.value?.trim() || '';
         const expenseIds = overlay._expenseIds;
+        const expenses = overlay._expenses || [];
 
         if (!managerId) { window.expenseTracker?.showNotification('Please select a manager'); return; }
         if (!accountantId) { window.expenseTracker?.showNotification('Please select an accountant'); return; }
 
         const btn = document.getElementById('approvalSubmitBtn');
         btn.disabled = true;
-        btn.innerHTML = 'Submitting...';
+
+        const attachments = {};
 
         try {
+            // Step 1: Auto-export to Google Sheets
+            btn.innerHTML = 'Exporting to Sheets...';
+            try {
+                const sheetsService = window.googleSheetsService;
+                if (sheetsService) {
+                    await sheetsService.initialize();
+                    const sheetsResult = await sheetsService.exportExpenses(expenses);
+                    if (sheetsResult?.success) {
+                        attachments.sheetUrl = sheetsService.getSheetUrl();
+                        console.log('Sheets export done:', attachments.sheetUrl);
+                    }
+                }
+            } catch (e) {
+                console.warn('Sheets export failed (non-blocking):', e.message);
+            }
+
+            // Step 2: Auto-generate PDF with bill images
+            btn.innerHTML = 'Generating PDF...';
+            try {
+                const tracker = window.expenseTracker;
+                if (tracker && typeof tracker.generateCombinedReimbursementPDFWithEmployeeInfo === 'function') {
+                    // Store PDF info if available (the function triggers download)
+                    await tracker.generateCombinedReimbursementPDFWithEmployeeInfo();
+                    attachments.pdfFilename = `Reimbursement_${new Date().toISOString().split('T')[0]}.pdf`;
+                    console.log('PDF generated:', attachments.pdfFilename);
+                }
+            } catch (e) {
+                console.warn('PDF generation failed (non-blocking):', e.message);
+            }
+
+            // Step 3: Create the voucher with attachments
+            btn.innerHTML = 'Creating voucher...';
             const orgId = getOrganizationId();
-            const result = await api.createVoucher(orgId, managerId, accountantId, expenseIds, purpose);
+            const result = await api.createVoucher(orgId, managerId, accountantId, expenseIds, purpose, null, null, attachments);
 
             closeSubmitModal();
-            window.expenseTracker?.showNotification(`Voucher ${result.data.voucher_number} submitted for approval!`);
-            await api.logActivity?.('voucher_submitted', `Submitted voucher ${result.data.voucher_number} (${formatAmount(result.data.total_amount)}) for approval`);
+            const amt = formatAmount(result.data.total_amount);
+            const vNum = result.data.voucher_number;
 
-            // Send email to manager
+            let successMsg = `Voucher ${vNum} submitted for approval!`;
+            if (attachments.sheetUrl) successMsg += ' (Google Sheet synced)';
+            if (attachments.pdfFilename) successMsg += ' (PDF generated)';
+            window.expenseTracker?.showNotification(successMsg);
+
+            await api.logActivity?.('voucher_submitted', `Submitted voucher ${vNum} (${amt}) for approval with attachments`);
+
+            // Send email to manager with attachment links
             const selectedManager = managers.find(m => m.id === managerId);
             if (selectedManager?.email) {
                 const user = JSON.parse(localStorage.getItem('user') || '{}');
-                sendEmailNotification(
-                    selectedManager.email,
-                    'New voucher for your approval',
-                    `${user.name || 'An employee'} submitted voucher ${result.data.voucher_number} (${formatAmount(result.data.total_amount)}) for your approval. Please log in to review.`,
-                    result.data.voucher_number
-                );
+                let emailBody = `${user.name || 'An employee'} submitted voucher ${vNum} (${amt}) for your approval.`;
+                if (attachments.sheetUrl) emailBody += `\n\nGoogle Sheet: ${attachments.sheetUrl}`;
+                emailBody += '\n\nPlease log in to review and approve.';
+                sendEmailNotification(selectedManager.email, 'New voucher for your approval', emailBody, vNum);
             }
 
             // Uncheck checkboxes and refresh
@@ -638,6 +678,23 @@ const approvalWorkflow = (() => {
 
                     ${v.purpose ? `<div class="approval-detail-purpose"><strong>Purpose:</strong> ${sanitize(v.purpose)}</div>` : ''}
                     ${v.rejection_reason ? `<div class="approval-detail-rejection"><strong>Rejection Reason:</strong> ${sanitize(v.rejection_reason)}</div>` : ''}
+
+                    <!-- Attachments -->
+                    ${(v.google_sheet_url || v.pdf_filename) ? `
+                    <div class="approval-detail-section">
+                        <h3>Attachments</h3>
+                        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                            ${v.google_sheet_url ? `<a href="${sanitize(v.google_sheet_url)}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:8px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);color:#10b981;font-size:0.85rem;font-weight:600;text-decoration:none;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+                                View Google Sheet
+                            </a>` : ''}
+                            ${v.pdf_filename ? `<div style="display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:8px;background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.2);color:#a78bfa;font-size:0.85rem;font-weight:600;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                ${sanitize(v.pdf_filename)}
+                            </div>` : ''}
+                        </div>
+                    </div>
+                    ` : ''}
 
                     <!-- Expenses -->
                     <div class="approval-detail-section">

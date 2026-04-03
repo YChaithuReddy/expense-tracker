@@ -1919,7 +1919,7 @@ const api = {
     // VOUCHER & APPROVAL WORKFLOW
     // ==============================================
 
-    async createVoucher(orgId, managerId, accountantId, expenseIds, purpose = '', advanceId = null, projectId = null) {
+    async createVoucher(orgId, managerId, accountantId, expenseIds, purpose = '', advanceId = null, projectId = null, attachments = {}) {
         const supabase = getSupabase();
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error('Not authenticated');
@@ -1950,7 +1950,10 @@ const api = {
                 total_amount: totalAmount,
                 expense_count: expenseIds.length,
                 purpose: purpose || null,
-                submitted_at: new Date().toISOString()
+                submitted_at: new Date().toISOString(),
+                google_sheet_url: attachments.sheetUrl || null,
+                pdf_url: attachments.pdfUrl || null,
+                pdf_filename: attachments.pdfFilename || null
             })
             .select()
             .single();
