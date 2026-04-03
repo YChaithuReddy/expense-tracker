@@ -187,10 +187,33 @@ const approvalWorkflow = (() => {
                         </select>
                     </div>
 
+                    <!-- Expense Period -->
+                    <div class="approval-form-group">
+                        <label>Expense Period</label>
+                        <div style="display:flex;gap:12px;">
+                            <div style="flex:1;">
+                                <small style="color:var(--text-secondary,#5a6180);font-size:0.72rem;">From</small>
+                                <input type="date" id="approvalPeriodFrom" style="width:100%;padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:var(--text-primary,#e0e0ff);font-size:0.85rem;box-sizing:border-box;">
+                            </div>
+                            <div style="flex:1;">
+                                <small style="color:var(--text-secondary,#5a6180);font-size:0.72rem;">To</small>
+                                <input type="date" id="approvalPeriodTo" style="width:100%;padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:var(--text-primary,#e0e0ff);font-size:0.85rem;box-sizing:border-box;">
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Purpose -->
                     <div class="approval-form-group">
                         <label>Purpose / Notes</label>
                         <textarea id="approvalPurpose" placeholder="Brief description of expenses (e.g., Site visit to Hyderabad, Jan 15-18)" rows="3"></textarea>
+                    </div>
+
+                    <!-- Declaration -->
+                    <div style="margin-top:16px;padding:14px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15);border-radius:10px;">
+                        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:0.82rem;color:var(--text-secondary,#8892b0);">
+                            <input type="checkbox" id="approvalDeclaration" style="margin-top:2px;accent-color:#10b981;width:18px;height:18px;flex-shrink:0;">
+                            <span>I hereby declare that the above expenses are incurred wholly and exclusively for official purposes and are supported by valid documents.</span>
+                        </label>
                     </div>
                 </div>
 
@@ -209,6 +232,15 @@ const approvalWorkflow = (() => {
         overlay._expenses = expenses;
         document.body.appendChild(overlay);
         document.body.classList.add('modal-open');
+
+        // Auto-fill period dates from expense dates
+        const dates = expenses.map(e => e.date).filter(Boolean).sort();
+        if (dates.length > 0) {
+            const fromInput = document.getElementById('approvalPeriodFrom');
+            const toInput = document.getElementById('approvalPeriodTo');
+            if (fromInput) fromInput.value = dates[0];
+            if (toInput) toInput.value = dates[dates.length - 1];
+        }
 
         // Close on backdrop click
         overlay.addEventListener('click', (e) => { if (e.target === overlay) closeSubmitModal(); });
@@ -229,11 +261,15 @@ const approvalWorkflow = (() => {
         const managerId = document.getElementById('approvalManagerSelect')?.value;
         const accountantId = document.getElementById('approvalAccountantSelect')?.value;
         const purpose = document.getElementById('approvalPurpose')?.value?.trim() || '';
+        const periodFrom = document.getElementById('approvalPeriodFrom')?.value || '';
+        const periodTo = document.getElementById('approvalPeriodTo')?.value || '';
+        const declaration = document.getElementById('approvalDeclaration')?.checked || false;
         const expenseIds = overlay._expenseIds;
         const expenses = overlay._expenses || [];
 
         if (!managerId) { window.expenseTracker?.showNotification('Please select a manager'); return; }
         if (!accountantId) { window.expenseTracker?.showNotification('Please select an accountant'); return; }
+        if (!declaration) { window.expenseTracker?.showNotification('Please accept the declaration to proceed'); return; }
 
         const btn = document.getElementById('approvalSubmitBtn');
         btn.disabled = true;
@@ -274,7 +310,7 @@ const approvalWorkflow = (() => {
             // Step 3: Create the voucher with attachments
             btn.innerHTML = 'Creating voucher...';
             const orgId = getOrganizationId();
-            const result = await api.createVoucher(orgId, managerId, accountantId, expenseIds, purpose, null, null, attachments);
+            const result = await api.createVoucher(orgId, managerId, accountantId, expenseIds, purpose, null, null, attachments, { periodFrom, periodTo, declaration });
 
             closeSubmitModal();
             const amt = formatAmount(result.data.total_amount);
@@ -680,8 +716,24 @@ const approvalWorkflow = (() => {
                         </div>
                     </div>
 
+                    ${(v.period_from || v.period_to) ? `<div class="approval-detail-purpose"><strong>Expense Period:</strong> ${v.period_from || '—'} to ${v.period_to || '—'}</div>` : ''}
                     ${v.purpose ? `<div class="approval-detail-purpose"><strong>Purpose:</strong> ${sanitize(v.purpose)}</div>` : ''}
                     ${v.rejection_reason ? `<div class="approval-detail-rejection"><strong>Rejection Reason:</strong> ${sanitize(v.rejection_reason)}</div>` : ''}
+
+                    <!-- Advance Reconciliation -->
+                    ${v.advance ? `
+                    <div style="padding:14px;background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.15);border-radius:10px;margin-bottom:16px;">
+                        <h4 style="color:#a78bfa;margin:0 0 10px;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.04em;">Advance Reconciliation</h4>
+                        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;font-size:0.85rem;">
+                            <div><span style="color:var(--text-secondary,#5a6180);font-size:0.72rem;display:block;">Advance Taken</span><strong style="color:#a78bfa;">${formatAmount(v.advance.amount)}</strong></div>
+                            <div><span style="color:var(--text-secondary,#5a6180);font-size:0.72rem;display:block;">Total Expenses</span><strong style="color:#10b981;">${formatAmount(v.total_amount)}</strong></div>
+                            <div><span style="color:var(--text-secondary,#5a6180);font-size:0.72rem;display:block;">${parseFloat(v.advance.amount) > parseFloat(v.total_amount) ? 'Balance Recoverable' : 'Balance Payable'}</span><strong style="color:${parseFloat(v.advance.amount) > parseFloat(v.total_amount) ? '#f59e0b' : '#ef4444'};">${formatAmount(Math.abs(parseFloat(v.advance.amount) - parseFloat(v.total_amount)))}</strong></div>
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    <!-- Declaration -->
+                    ${v.declaration_accepted ? `<div style="padding:10px 14px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.12);border-radius:8px;margin-bottom:16px;font-size:0.78rem;color:var(--text-secondary,#8892b0);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" style="vertical-align:middle;margin-right:6px;"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Employee declared expenses are for official purposes with valid documents</div>` : ''}
 
                     <!-- Attachments -->
                     ${(v.google_sheet_url || v.pdf_filename) ? `
