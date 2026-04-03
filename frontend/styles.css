@@ -8481,6 +8481,109 @@ select.inline-input option {
     }
 }
 
+/* ---- Light Theme: Submit Reimbursement Modal (white & black only) ---- */
+[data-theme="light"] .employee-info-modal {
+    background-color: rgba(255, 255, 255, 0.92);
+}
+[data-theme="light"] .employee-info-content {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+[data-theme="light"] .employee-info-content::-webkit-scrollbar-thumb { background: #d1d5db; }
+
+[data-theme="light"] .kodo-confirm-modal {
+    background: #ffffff;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12), 0 0 0 1px #e5e7eb;
+}
+[data-theme="light"] .kodo-confirm-modal::-webkit-scrollbar-thumb { background: #d1d5db; }
+
+[data-theme="light"] .kodo-confirm-modal__header-accent {
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.02) 0%, rgba(0, 0, 0, 0.01) 100%);
+}
+[data-theme="light"] .kodo-confirm-modal__header::after {
+    background: linear-gradient(90deg, transparent, #e5e7eb 20%, #d1d5db 80%, transparent);
+}
+[data-theme="light"] .kodo-confirm-modal__icon-wrap {
+    background: #f3f4f6;
+    border-color: #e5e7eb;
+}
+[data-theme="light"] .kodo-confirm-modal__icon { color: #111827; }
+[data-theme="light"] .kodo-confirm-modal__title { color: #111827; }
+[data-theme="light"] .kodo-confirm-modal__subtitle { color: #6b7280; }
+
+[data-theme="light"] .kodo-confirm-modal__settings,
+[data-theme="light"] .kodo-confirm-modal__close {
+    border-color: #e5e7eb;
+    background: #f9fafb;
+    color: #6b7280;
+}
+[data-theme="light"] .kodo-confirm-modal__settings:hover { background: #f3f4f6; color: #111827; border-color: #d1d5db; }
+[data-theme="light"] .kodo-confirm-modal__close:hover { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
+
+[data-theme="light"] .kodo-confirm-modal__summary {
+    background: #f9fafb;
+    border-color: #e5e7eb;
+}
+[data-theme="light"] .kodo-confirm-modal__summary .kodo-summary-row + .kodo-summary-row {
+    border-left-color: #e5e7eb;
+}
+[data-theme="light"] .kodo-confirm-modal__summary .kodo-summary-label { color: #6b7280; }
+[data-theme="light"] .kodo-confirm-modal__summary .kodo-summary-value { color: #111827; }
+
+[data-theme="light"] .kodo-confirm-modal__field-label { color: #374151; }
+[data-theme="light"] .kodo-confirm-modal__input,
+[data-theme="light"] .kodo-confirm-modal__select {
+    background: #ffffff;
+    border-color: #d1d5db;
+    color: #111827;
+}
+[data-theme="light"] .kodo-confirm-modal__input:focus,
+[data-theme="light"] .kodo-confirm-modal__select:focus {
+    border-color: #111827;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
+}
+[data-theme="light"] .kodo-confirm-modal__input::placeholder { color: #9ca3af; }
+
+[data-theme="light"] .kodo-confirm-modal__btn--cancel {
+    background: #ffffff;
+    border-color: #d1d5db;
+    color: #374151;
+}
+[data-theme="light"] .kodo-confirm-modal__btn--cancel:hover { background: #f3f4f6; }
+
+[data-theme="light"] .kodo-confirm-modal__btn--submit {
+    background: #111827;
+    color: #ffffff;
+    border-color: #111827;
+}
+[data-theme="light"] .kodo-confirm-modal__btn--submit:hover { background: #1f2937; }
+
+[data-theme="light"] .reimb-act {
+    background: #f9fafb;
+    border-color: #e5e7eb;
+    color: #374151;
+}
+[data-theme="light"] .reimb-act::before { background: none; }
+[data-theme="light"] .reimb-act:hover:not(:disabled) { background: #f3f4f6; border-color: #d1d5db; }
+
+[data-theme="light"] .reimb-act--download { background: #111827; color: #ffffff; border-color: #111827; }
+[data-theme="light"] .reimb-act--download:hover:not(:disabled) { background: #1f2937; }
+[data-theme="light"] .reimb-act--kodo { background: #ffffff; border-color: #d1d5db; color: #374151; }
+[data-theme="light"] .reimb-act--email { background: #ffffff; border-color: #d1d5db; color: #374151; }
+[data-theme="light"] .reimb-act--approval { background: #111827; color: #ffffff; border-color: #111827; }
+[data-theme="light"] .reimb-act--approval:hover:not(:disabled) { background: #1f2937; }
+
+[data-theme="light"] .kodo-modal-overlay { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); }
+
+/* Mobile light theme */
+@media (max-width: 768px) {
+    [data-theme="light"] .kodo-confirm-modal__summary .kodo-summary-row + .kodo-summary-row {
+        border-left: none;
+        border-top-color: #e5e7eb;
+    }
+}
+
 /* UPI Screenshot Modal */
 .upi-screenshot-modal {
     position: fixed;
