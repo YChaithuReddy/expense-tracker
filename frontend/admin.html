@@ -603,14 +603,6 @@ WDL1,WONDERLA,Amusement Park,Amusement Park</code>
             const user = JSON.parse(localStorage.getItem('user') || 'null');
             if (!user) { window.location.href = 'login.html'; return; }
 
-            // Allow access by email (admin@fluxgentech.com) or by admin role
-            const isAdminEmail = user.email?.toLowerCase() === 'admin@fluxgentech.com';
-            const isAdminRole = user.role === 'admin';
-            if (!isAdminEmail && !isAdminRole) {
-                window.location.href = 'index.html';
-                return;
-            }
-
             // Set sidebar info
             document.getElementById('adminName').textContent = user.name || 'Admin';
             document.getElementById('adminEmail').textContent = user.email || '';
