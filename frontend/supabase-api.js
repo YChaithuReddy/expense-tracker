@@ -2370,18 +2370,35 @@ const api = {
             const supabase = getSupabase();
             console.log('[Email] Sending to:', to, 'Subject:', subject);
 
-            const { data, error } = await supabase.functions.invoke('send-notification-email', {
-                body: { to, subject, message, voucherNumber }
+            // Get current session token
+            const { data: { session } } = await supabase.auth.getSession();
+            const token = session?.access_token;
+
+            if (!token) {
+                console.warn('[Email] No auth session, skipping email');
+                return { success: false, error: 'No auth session' };
+            }
+
+            // Call Edge Function with explicit auth header
+            const response = await fetch('https://ynpquqlxafdvoealmfye.supabase.co/functions/v1/send-notification-email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                    'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlucHF1cWx4YWZkdm9lYWxtZnllIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAwMDA2MjQsImV4cCI6MjA4NTU3NjYyNH0.ib7e4Xql3UCJCeGtB9VYpxwR1nzxLZJlGQxXtzVdmec'
+                },
+                body: JSON.stringify({ to, subject, message, voucherNumber })
             });
 
-            if (error) {
-                console.error('[Email] Edge Function error:', error);
-                // Fallback: try the old send-email function without attachment requirement
-                console.log('[Email] Trying fallback via Brevo direct...');
-                return { success: false, error: error.message };
+            const result = await response.json();
+
+            if (!response.ok) {
+                console.error('[Email] Edge Function error:', response.status, result);
+                return { success: false, error: result.error || 'Email failed' };
             }
-            console.log('[Email] Sent successfully:', data);
-            return data || { success: true };
+
+            console.log('[Email] Sent successfully:', result);
+            return result || { success: true };
         } catch (e) {
             console.error('[Email] Exception:', e);
             return { success: false, error: e.message };
