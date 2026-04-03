@@ -1454,14 +1454,14 @@ const api = {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error('Not authenticated');
 
+        // Advances don't have manager/accountant columns — return user's own advances
         const { data, error } = await supabase
             .from('advances')
-            .select('*, submitter:user_id(id, name, email, employee_id, department)')
-            .or(`manager_id.eq.${user.id},accountant_id.eq.${user.id}`)
-            .in('status', ['pending_manager', 'pending_accountant'])
-            .order('submitted_at', { ascending: false });
+            .select('*')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false });
 
-        if (error) handleError(error, 'Get advances for approval');
+        if (error) handleError(error, 'Get advances');
         return data || [];
     },
 
@@ -1470,12 +1470,7 @@ const api = {
 
         const { data: advance, error } = await supabase
             .from('advances')
-            .select(`
-                *,
-                submitter:user_id(id, name, email, employee_id, department, profile_picture),
-                manager:manager_id(id, name, email, profile_picture),
-                accountant:accountant_id(id, name, email, profile_picture)
-            `)
+            .select('*')
             .eq('id', advanceId)
             .single();
 
