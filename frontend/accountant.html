@@ -1097,51 +1097,26 @@
             if (!orgId) return;
 
             try {
-                const org = await api.getOrganization();
-                if (org) document.getElementById('orgName').textContent = org.name;
-
                 const supabase = window.supabaseClient?.get();
                 if (!supabase) return;
 
-                // Pending for accountant (pending_accountant + manager_approved)
-                const { data: pendingData } = await supabase
-                    .from('vouchers')
-                    .select('id, total_amount')
-                    .eq('organization_id', orgId)
-                    .in('status', ['pending_accountant', 'manager_approved']);
+                // Run ALL queries in parallel — no sequential waits
+                const [org, pendingResult, approvedResult, exportedResult, reimbursedResult] = await Promise.all([
+                    api.getOrganization(),
+                    supabase.from('vouchers').select('id, total_amount').eq('organization_id', orgId).in('status', ['pending_accountant', 'manager_approved']),
+                    supabase.from('vouchers').select('id', { count: 'exact', head: true }).eq('organization_id', orgId).eq('status', 'approved'),
+                    supabase.from('vouchers').select('id', { count: 'exact', head: true }).eq('organization_id', orgId).eq('tally_exported', true),
+                    supabase.from('vouchers').select('id', { count: 'exact', head: true }).eq('organization_id', orgId).eq('status', 'reimbursed')
+                ]);
 
-                const pendingCount = pendingData?.length || 0;
-                const pendingAmount = (pendingData || []).reduce((s, v) => s + (parseFloat(v.total_amount) || 0), 0);
+                if (org) document.getElementById('orgName').textContent = org.name;
 
-                document.getElementById('statPending').textContent = pendingCount;
-                document.getElementById('statPendingAmount').textContent = formatCurrency(pendingAmount);
-
-                // Approved count
-                const { count: approvedCount } = await supabase
-                    .from('vouchers')
-                    .select('id', { count: 'exact', head: true })
-                    .eq('organization_id', orgId)
-                    .eq('status', 'approved');
-
-                document.getElementById('statApproved').textContent = approvedCount || 0;
-
-                // Exported count
-                const { count: exportedCount } = await supabase
-                    .from('vouchers')
-                    .select('id', { count: 'exact', head: true })
-                    .eq('organization_id', orgId)
-                    .eq('tally_exported', true);
-
-                document.getElementById('statExported').textContent = exportedCount || 0;
-
-                // Reimbursed count
-                const { count: reimbursedCount } = await supabase
-                    .from('vouchers')
-                    .select('id', { count: 'exact', head: true })
-                    .eq('organization_id', orgId)
-                    .eq('status', 'reimbursed');
-
-                document.getElementById('statReimbursed').textContent = reimbursedCount || 0;
+                const pendingData = pendingResult?.data || [];
+                document.getElementById('statPending').textContent = pendingData.length;
+                document.getElementById('statPendingAmount').textContent = formatCurrency(pendingData.reduce((s, v) => s + (parseFloat(v.total_amount) || 0), 0));
+                document.getElementById('statApproved').textContent = approvedResult?.count || 0;
+                document.getElementById('statExported').textContent = exportedResult?.count || 0;
+                document.getElementById('statReimbursed').textContent = reimbursedResult?.count || 0;
 
             } catch (e) {
                 console.error('Overview load error:', e);

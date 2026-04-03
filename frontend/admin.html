@@ -660,23 +660,22 @@ WDL1,WONDERLA,Amusement Park,Amusement Park</code>
             if (!orgId) return;
 
             try {
-                const org = await api.getOrganization();
-                if (org) document.getElementById('orgName').textContent = org.name;
-
-                const employees = await api.getEmployeeWhitelist(orgId);
-                document.getElementById('statEmployees').textContent = employees.length;
-
-                const projects = await api.getProjects(orgId, 'active');
-                document.getElementById('statProjects').textContent = projects.length;
-
-                // Load voucher stats
                 const supabase = window.supabaseClient?.get();
-                if (supabase) {
-                    const { count: pending } = await supabase.from('vouchers').select('id', { count: 'exact', head: true }).eq('organization_id', orgId).in('status', ['pending_manager', 'pending_accountant']);
-                    const { count: approved } = await supabase.from('vouchers').select('id', { count: 'exact', head: true }).eq('organization_id', orgId).eq('status', 'approved');
-                    document.getElementById('statPending').textContent = pending || 0;
-                    document.getElementById('statApproved').textContent = approved || 0;
-                }
+
+                // Run ALL queries in parallel — no sequential waits
+                const [org, employees, projects, pendingResult, approvedResult] = await Promise.all([
+                    api.getOrganization(),
+                    api.getEmployeeWhitelist(orgId),
+                    api.getProjects(orgId, 'active'),
+                    supabase ? supabase.from('vouchers').select('id', { count: 'exact', head: true }).eq('organization_id', orgId).in('status', ['pending_manager', 'pending_accountant']) : { count: 0 },
+                    supabase ? supabase.from('vouchers').select('id', { count: 'exact', head: true }).eq('organization_id', orgId).eq('status', 'approved') : { count: 0 }
+                ]);
+
+                if (org) document.getElementById('orgName').textContent = org.name;
+                document.getElementById('statEmployees').textContent = employees.length;
+                document.getElementById('statProjects').textContent = projects.length;
+                document.getElementById('statPending').textContent = pendingResult?.count || 0;
+                document.getElementById('statApproved').textContent = approvedResult?.count || 0;
             } catch (e) {
                 console.error('Overview load error:', e);
             }
