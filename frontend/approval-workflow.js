@@ -692,10 +692,10 @@ const approvalWorkflow = (() => {
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
                                 View Google Sheet
                             </a>` : ''}
-                            ${v.pdf_filename ? `<div style="display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:8px;background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.2);color:#a78bfa;font-size:0.85rem;font-weight:600;">
+                            ${v.pdf_filename ? `<a href="pdfs.html" target="_blank" style="display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:8px;background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.2);color:#a78bfa;font-size:0.85rem;font-weight:600;text-decoration:none;cursor:pointer;" title="Open PDF Library to view">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                                ${sanitize(v.pdf_filename)}
-                            </div>` : ''}
+                                ${sanitize(v.pdf_filename)} — View PDF
+                            </a>` : ''}
                         </div>
                     </div>
                     ` : ''}

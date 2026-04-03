@@ -16,6 +16,17 @@ function getSupabase() {
     return client;
 }
 
+// Performance: Use cached session instead of network call for every API request.
+// supabase.auth.getUser() makes a network roundtrip each time (~100-300ms).
+// supabase.auth.getSession() uses the locally-cached JWT (instant, ~0ms).
+// The session is validated server-side by Supabase RLS anyway.
+async function getCachedUser() {
+    const supabase = getSupabase();
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) throw new Error('Not authenticated');
+    return session.user;
+}
+
 // Handle Supabase errors
 function handleError(error, context = 'Operation') {
     console.error(`${context} error:`, error);
@@ -139,12 +150,7 @@ const api = {
     // Get current user
     async getCurrentUser() {
         const supabase = getSupabase();
-
-        const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-        if (authError || !user) {
-            throw new Error('Not authenticated');
-        }
+        const user = await getCachedUser();
 
         // Get profile
         const { data: profile, error: profileError } = await supabase
@@ -174,7 +180,7 @@ const api = {
     async updateProfile(name, email) {
         const supabase = getSupabase();
 
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         // Update profile table
@@ -223,13 +229,15 @@ const api = {
     async getExpenses(page = 1, limit = 50, category = 'all') {
         const supabase = getSupabase();
 
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         let query = supabase
             .from('expenses')
             .select(`
-                *,
+                id, date, category, description, amount, vendor,
+                visit_type, payment_mode, bill_attached, voucher_status, time,
+                subcategory, project_id, advance_id, created_at,
                 expense_images (id, storage_path, public_url, filename)
             `, { count: 'exact' })
             .eq('user_id', user.id)
@@ -311,7 +319,7 @@ const api = {
     async createExpense(expenseData, images = []) {
         const supabase = getSupabase();
 
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         // Offline support
@@ -420,7 +428,7 @@ const api = {
     async updateExpense(id, expenseData, images = []) {
         const supabase = getSupabase();
 
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         // Build update object
@@ -475,7 +483,7 @@ const api = {
     async deleteExpense(id) {
         const supabase = getSupabase();
 
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         // Get images first
@@ -506,7 +514,7 @@ const api = {
     async deleteExpenseImage(expenseId, storagePath) {
         const supabase = getSupabase();
 
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         // Delete from storage
@@ -528,7 +536,7 @@ const api = {
     async getExpenseStats() {
         const supabase = getSupabase();
 
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         const { data, error } = await supabase
@@ -547,7 +555,7 @@ const api = {
     async clearExpenseDataOnly() {
         const supabase = getSupabase();
 
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         // Get all expense images
@@ -598,7 +606,7 @@ const api = {
     async clearImagesOnly() {
         const supabase = getSupabase();
 
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         // Get orphaned images
@@ -632,7 +640,7 @@ const api = {
     async clearAll() {
         const supabase = getSupabase();
 
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         // Get all images (expense + orphaned)
@@ -687,7 +695,7 @@ const api = {
     async getOrphanedImages() {
         const supabase = getSupabase();
 
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         // Fetch images and stats in parallel instead of sequentially
@@ -741,7 +749,7 @@ const api = {
     async deleteOrphanedImage(imageId) {
         const supabase = getSupabase();
 
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         // Get image path first with ownership check
@@ -824,7 +832,7 @@ const api = {
 
         // Fall back to database
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         const { data: profile } = await supabase
@@ -839,7 +847,7 @@ const api = {
     async getGoogleSheetLink() {
         const supabase = getSupabase();
 
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         const { data: profile } = await supabase
@@ -951,7 +959,7 @@ const api = {
     async getWhatsAppStatus() {
         const supabase = getSupabase();
 
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         const { data: profile } = await supabase
@@ -971,7 +979,7 @@ const api = {
     async setupWhatsApp(phoneNumber, enableNotifications = true) {
         const supabase = getSupabase();
 
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         const { data, error } = await supabase
@@ -1017,7 +1025,7 @@ const api = {
 
     async saveReimbursementPdf({ storagePath, filename, fileSize, pageCount, totalAmount, dateFrom, dateTo, purpose, source = 'uploaded' }) {
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         const { data, error } = await supabase
@@ -1043,7 +1051,7 @@ const api = {
 
     async listReimbursementPdfs() {
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         const { data, error } = await supabase
@@ -1058,7 +1066,7 @@ const api = {
 
     async deleteReimbursementPdf(id, storagePath) {
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         // Delete from storage
@@ -1081,7 +1089,7 @@ const api = {
     async logActivity(action, details = '', metadata = {}) {
         try {
             const supabase = getSupabase();
-            const { data: { user } } = await supabase.auth.getUser();
+            const user = await getCachedUser();
             if (!user) return null;
 
             const { data, error } = await supabase
@@ -1109,7 +1117,7 @@ const api = {
 
     async saveKodoClaim({ claimId, amount, checkerName, categoryName, comment }) {
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         const { data, error } = await supabase
@@ -1132,7 +1140,7 @@ const api = {
 
     async getKodoClaims(statusFilter = null) {
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         let query = supabase
@@ -1152,7 +1160,7 @@ const api = {
 
     async updateKodoClaimStatus(claimId, status, rawStatus = null) {
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         const updateObj = {
@@ -1180,7 +1188,7 @@ const api = {
 
     async createAdvance(projectName, amount, notes = '', visitType = 'project', managerId = null, accountantId = null) {
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         // Check if company mode — require approval
@@ -1235,7 +1243,7 @@ const api = {
 
     async getAdvances(status = null) {
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         let query = supabase
@@ -1255,7 +1263,7 @@ const api = {
 
     async getAdvanceWithBalance(advanceId) {
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         // Get advance
@@ -1289,7 +1297,7 @@ const api = {
 
     async getAdvancesWithBalances() {
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         // Get all advances
@@ -1332,7 +1340,7 @@ const api = {
 
     async getActiveAdvanceForProject(projectName) {
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         const { data, error } = await supabase
@@ -1350,7 +1358,7 @@ const api = {
 
     async updateAdvance(advanceId, updates) {
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         const updateObj = {};
@@ -1374,7 +1382,7 @@ const api = {
 
     async deleteAdvance(advanceId) {
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         // Unlink expenses first
@@ -1396,7 +1404,7 @@ const api = {
 
     async linkExpenseToAdvance(expenseId, advanceId) {
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         const { data, error } = await supabase
@@ -1413,7 +1421,7 @@ const api = {
 
     async unlinkExpenseFromAdvance(expenseId) {
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         const { data, error } = await supabase
@@ -1430,7 +1438,7 @@ const api = {
 
     async moveExpenseToAdvance(expenseId, newAdvanceId) {
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         const { data, error } = await supabase
@@ -1451,7 +1459,7 @@ const api = {
 
     async getAdvancesForApproval() {
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         // Advances don't have manager/accountant columns — return user's own advances
@@ -1488,7 +1496,7 @@ const api = {
 
     async approveAdvance(advanceId, comments = '') {
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         // Get current advance
@@ -1532,7 +1540,7 @@ const api = {
 
     async rejectAdvance(advanceId, reason = '') {
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         const { data: advance } = await supabase.from('advances').select('*').eq('id', advanceId).single();
@@ -1565,7 +1573,7 @@ const api = {
 
     async resubmitAdvance(advanceId) {
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         const { error } = await supabase
@@ -1594,7 +1602,7 @@ const api = {
 
     async getActivityLog(limit = 50) {
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         const { data, error } = await supabase
@@ -1614,7 +1622,7 @@ const api = {
 
     async createOrganization(name, domain = null) {
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         const { data: org, error: orgError } = await supabase
@@ -1641,7 +1649,7 @@ const api = {
 
     async getOrganization() {
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         const { data: profile } = await supabase
@@ -1664,7 +1672,7 @@ const api = {
 
     async importEmployees(orgId, employees) {
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         // Upsert employees into whitelist
@@ -1795,7 +1803,7 @@ const api = {
 
     async createProject(orgId, projectData) {
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         // Use provided code or auto-generate
@@ -1851,7 +1859,7 @@ const api = {
 
     async importProjects(orgId, projectsArray) {
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         // Get existing project codes to avoid duplicates
@@ -1916,7 +1924,7 @@ const api = {
 
     async createVoucher(orgId, managerId, accountantId, expenseIds, purpose = '', advanceId = null, projectId = null, attachments = {}) {
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         // Generate voucher number
@@ -1955,21 +1963,17 @@ const api = {
 
         if (vError) handleError(vError, 'Create voucher');
 
-        // Store expense IDs on voucher for reliable retrieval
-        await supabase
-            .from('vouchers')
-            .update({ expense_ids: expenseIds })
-            .eq('id', voucher.id);
+        // Link expenses to voucher via junction table
+        const links = expenseIds.map(eid => ({ voucher_id: voucher.id, expense_id: eid }));
+        const { error: linkError } = await supabase
+            .from('voucher_expenses')
+            .insert(links);
 
-        // Also link via junction table (best-effort, may fail if table doesn't exist)
-        try {
-            const links = expenseIds.map(eid => ({ voucher_id: voucher.id, expense_id: eid }));
-            const { error: linkError } = await supabase
-                .from('voucher_expenses')
-                .insert(links);
-            if (linkError) console.warn('voucher_expenses link failed (non-fatal):', linkError.message);
-        } catch (e) {
-            console.warn('voucher_expenses table may not exist:', e.message);
+        if (linkError) {
+            console.error('Failed to link expenses to voucher:', linkError);
+            // Critical: if junction fails, expenses won't show in voucher detail
+        } else {
+            console.log(`Linked ${expenseIds.length} expenses to voucher ${voucher.voucher_number}`);
         }
 
         // Update expense voucher_status
@@ -1994,7 +1998,7 @@ const api = {
 
     async getMyVouchers(status = null) {
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         let query = supabase
@@ -2017,7 +2021,7 @@ const api = {
 
     async getVouchersForApproval() {
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         const { data: profile } = await supabase
@@ -2073,22 +2077,15 @@ const api = {
 
         if (vErr) handleError(vErr, 'Get voucher detail');
 
-        // Get linked expenses — try junction table first, fall back to expense_ids array
-        let expenseIds = [];
-        try {
-            const { data: expenseLinks } = await supabase
-                .from('voucher_expenses')
-                .select('expense_id')
-                .eq('voucher_id', voucherId);
-            expenseIds = (expenseLinks || []).map(l => l.expense_id);
-        } catch (e) {
-            console.warn('voucher_expenses query failed:', e.message);
-        }
+        // Get linked expenses from junction table
+        const { data: expenseLinks, error: linkErr } = await supabase
+            .from('voucher_expenses')
+            .select('expense_id')
+            .eq('voucher_id', voucherId);
 
-        // Fallback: use expense_ids stored directly on voucher
-        if (expenseIds.length === 0 && voucher.expense_ids && voucher.expense_ids.length > 0) {
-            expenseIds = voucher.expense_ids;
-        }
+        if (linkErr) console.warn('voucher_expenses query error:', linkErr.message);
+        const expenseIds = (expenseLinks || []).map(l => l.expense_id);
+        console.log(`Voucher ${voucherId}: found ${expenseIds.length} linked expenses`);
 
         let expenses = [];
         if (expenseIds.length > 0) {
@@ -2115,7 +2112,7 @@ const api = {
 
     async approveVoucher(voucherId, comments = '') {
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         // Get current voucher to determine next status
@@ -2179,7 +2176,7 @@ const api = {
 
     async rejectVoucher(voucherId, reason) {
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         if (!reason || !reason.trim()) throw new Error('Rejection reason is required');
@@ -2241,7 +2238,7 @@ const api = {
 
     async resubmitVoucher(voucherId, notes = '') {
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         // Update voucher back to pending_manager
@@ -2306,7 +2303,7 @@ const api = {
 
     async getNotifications(limit = 30, unreadOnly = false) {
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         let query = supabase
@@ -2325,7 +2322,7 @@ const api = {
 
     async getUnreadCount() {
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) return 0;
 
         const { count, error } = await supabase
@@ -2352,7 +2349,7 @@ const api = {
 
     async markAllNotificationsRead() {
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         const { error } = await supabase
@@ -2440,7 +2437,7 @@ const api = {
 
     async markVouchersExported(voucherIds) {
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         const { error } = await supabase
@@ -2503,7 +2500,7 @@ const api = {
 
     async updateProfile(updates) {
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         const allowed = {};
@@ -2536,7 +2533,7 @@ const api = {
 
     async getMyVouchersSummary() {
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         const { data, error } = await supabase
@@ -2599,7 +2596,7 @@ const api = {
 
     async markVoucherPaid(voucherId, paymentMethod, paymentReference = '') {
         const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
+        const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
         const { data, error } = await supabase
