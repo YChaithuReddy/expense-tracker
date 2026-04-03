@@ -12333,3 +12333,385 @@ select.inline-input option {
         min-height: 44px;
     }
 }
+
+/* ================================================
+   LIGHT THEME — GAP FILLS
+   Professional Stripe/Linear/Notion aesthetic
+   Design tokens:
+     Background : #f9fafb (page), #ffffff (cards)
+     Text       : #111827 (primary), #6b7280 (secondary)
+     Border     : #e5e7eb (light), #d1d5db (medium)
+     Shadow     : 0 1px 3px rgba(0,0,0,0.08)
+     Accent     : #111827 (buttons), #059669 (success), #dc2626 (danger)
+   ================================================ */
+
+/* ---- Header: stop float animation, remove neon glow, clean border ---- */
+[data-theme="light"] header {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    animation: none;
+    transform: none;
+}
+
+[data-theme="light"] header::before {
+    display: none;
+}
+
+[data-theme="light"] header h1 {
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+    font-size: 2rem;
+    font-weight: 800;
+    background: none;
+    -webkit-background-clip: unset;
+    -webkit-text-fill-color: #111827;
+    background-clip: unset;
+    color: #111827;
+    text-transform: none;
+    letter-spacing: -0.02em;
+}
+
+[data-theme="light"] header p {
+    color: #6b7280;
+    letter-spacing: 0;
+    text-transform: none;
+    font-size: 0.95rem;
+}
+
+[data-theme="light"] .header-flex-wrapper {
+    /* no structural changes needed — just ensure no neon bled through */
+}
+
+/* ---- Section cards (ocr, form, expense list, fullwidth) ---- */
+[data-theme="light"] .ocr-section,
+[data-theme="light"] .expense-form-section,
+[data-theme="light"] .expenses-list-section,
+[data-theme="light"] .expenses-fullwidth-section {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .ocr-section:hover,
+[data-theme="light"] .expense-form-section:hover,
+[data-theme="light"] .expenses-list-section:hover,
+[data-theme="light"] .expenses-fullwidth-section:hover {
+    transform: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-color: #d1d5db;
+}
+
+[data-theme="light"] .ocr-section::before,
+[data-theme="light"] .expense-form-section::before,
+[data-theme="light"] .expenses-list-section::before,
+[data-theme="light"] .expenses-fullwidth-section::before {
+    display: none;
+}
+
+/* Orbitron headings inside section cards — switch to system font */
+[data-theme="light"] .ocr-section h2,
+[data-theme="light"] .expense-form-section h2,
+[data-theme="light"] .expenses-list-section h2,
+[data-theme="light"] .expenses-fullwidth-section h2 {
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+    color: #111827;
+    -webkit-text-fill-color: #111827;
+    background: none;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    padding-left: 0;
+}
+
+[data-theme="light"] .ocr-section h2::after,
+[data-theme="light"] .expense-form-section h2::after,
+[data-theme="light"] .expenses-list-section h2::after,
+[data-theme="light"] .expenses-fullwidth-section h2::after {
+    background: linear-gradient(90deg, #e5e7eb, transparent);
+}
+
+/* Image preview container */
+[data-theme="light"] .image-preview-container {
+    border-color: #e5e7eb;
+    background: #f9fafb;
+}
+
+[data-theme="light"] .image-preview-container:hover {
+    border-color: #d1d5db;
+    background: #f3f4f6;
+    box-shadow: none;
+}
+
+[data-theme="light"] .image-preview-container.has-images {
+    border-color: #d1d5db;
+    background: #f9fafb;
+}
+
+[data-theme="light"] .image-preview-container h3 {
+    color: #374151;
+}
+
+/* OCR drag overlay */
+[data-theme="light"] .ocr-drag-overlay {
+    background: rgba(17, 24, 39, 0.04);
+    border-color: #374151;
+}
+
+[data-theme="light"] .ocr-drag-overlay__content {
+    color: #374151;
+}
+
+[data-theme="light"] .ocr-dropzone.drag-over {
+    border-color: #374151;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.06);
+}
+
+/* ---- FAB Quick-Add button ---- */
+[data-theme="light"] .quick-add-fab {
+    background: #111827;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+}
+
+[data-theme="light"] .quick-add-fab:hover {
+    background: #374151;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
+}
+
+/* ---- Quick-add wizard card ---- */
+[data-theme="light"] .quick-add-overlay {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="light"] .quick-add-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="light"] .quick-add-header {
+    border-bottom-color: #e5e7eb;
+}
+
+[data-theme="light"] .quick-add-header h3 {
+    color: #111827;
+}
+
+[data-theme="light"] .quick-add-step-badge {
+    background: rgba(17, 24, 39, 0.08);
+    color: #374151;
+}
+
+[data-theme="light"] .quick-add-close {
+    color: #9ca3af;
+}
+
+[data-theme="light"] .quick-add-close:hover {
+    color: #111827;
+}
+
+[data-theme="light"] .quick-add-capture-btn {
+    border-color: #d1d5db;
+    background: #f9fafb;
+    color: #374151;
+}
+
+[data-theme="light"] .quick-add-capture-btn:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+}
+
+[data-theme="light"] .quick-add-preview {
+    border-color: #e5e7eb;
+    background: #f9fafb;
+}
+
+[data-theme="light"] .quick-add-preview-pdf {
+    color: #6b7280;
+}
+
+[data-theme="light"] .quick-add-scan-status {
+    background: rgba(17, 24, 39, 0.04);
+    color: #374151;
+}
+
+[data-theme="light"] .quick-add-spinner {
+    border-color: rgba(17, 24, 39, 0.12);
+    border-top-color: #374151;
+}
+
+[data-theme="light"] .quick-add-footer {
+    border-top-color: #e5e7eb;
+}
+
+[data-theme="light"] .quick-add-btn-cancel {
+    border-color: #e5e7eb;
+    color: #6b7280;
+    background: #f9fafb;
+}
+
+[data-theme="light"] .quick-add-btn-cancel:hover {
+    background: #f3f4f6;
+}
+
+[data-theme="light"] .quick-add-btn-next,
+[data-theme="light"] .quick-add-btn-save {
+    background: #111827;
+}
+
+[data-theme="light"] .quick-add-btn-save {
+    background: #059669;
+}
+
+[data-theme="light"] .quick-add-field label {
+    color: #6b7280;
+}
+
+[data-theme="light"] .quick-add-field input,
+[data-theme="light"] .quick-add-field select {
+    background: #ffffff;
+    border-color: #d1d5db;
+    color: #111827;
+}
+
+[data-theme="light"] .quick-add-field input:focus,
+[data-theme="light"] .quick-add-field select:focus {
+    border-color: #374151;
+}
+
+/* ---- Advance Tracker — section wrapper ---- */
+[data-theme="light"] .advance-summary-section {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+}
+
+[data-theme="light"] .advance-summary-header h3 {
+    color: #374151;
+    opacity: 1;
+}
+
+[data-theme="light"] .advance-summary-header h3::before {
+    background: linear-gradient(180deg, #111827, #374151);
+}
+
+/* ---- "New Advance" button ---- */
+[data-theme="light"] .btn-advance-add {
+    background: #f9fafb;
+    color: #374151;
+    border-color: #d1d5db;
+    box-shadow: none;
+}
+
+[data-theme="light"] .btn-advance-add:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    transform: translateY(-1px);
+}
+
+/* ---- Advance tab cards ---- */
+[data-theme="light"] .advance-tab {
+    background: #ffffff;
+    border-color: #e5e7eb;
+}
+
+[data-theme="light"] .advance-tab:hover {
+    border-color: #d1d5db;
+}
+
+[data-theme="light"] .advance-tab--open {
+    border-color: #d1d5db;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .advance-tab__collapsed:hover {
+    background: #f9fafb;
+}
+
+[data-theme="light"] .advance-tab__name {
+    color: #111827;
+}
+
+[data-theme="light"] .advance-tab__spent-info {
+    color: #6b7280;
+}
+
+[data-theme="light"] .advance-tab__mini-bar {
+    background: #e5e7eb;
+}
+
+[data-theme="light"] .advance-tab__chevron {
+    color: #9ca3af;
+}
+
+/* ---- Advance stats block ---- */
+[data-theme="light"] .advance-card__stats {
+    background: #f9fafb;
+    border-color: #e5e7eb;
+}
+
+[data-theme="light"] .advance-card__stat:not(:last-child)::after {
+    background: #e5e7eb;
+}
+
+[data-theme="light"] .advance-card__stat-label {
+    color: #9ca3af;
+    opacity: 1;
+}
+
+[data-theme="light"] .advance-card__stat-value {
+    color: #111827;
+}
+
+/* ---- Advance progress bar track ---- */
+[data-theme="light"] .advance-card__progress {
+    background: #e5e7eb;
+}
+
+[data-theme="light"] .advance-card__progress-label {
+    color: #9ca3af;
+    opacity: 1;
+}
+
+/* ---- Advance notes chip ---- */
+[data-theme="light"] .advance-card__notes {
+    background: #f3f4f6;
+    border-color: #e5e7eb;
+    color: #6b7280;
+}
+
+/* ---- Advance action buttons inside expanded tab ---- */
+[data-theme="light"] .advance-card__actions {
+    border-top-color: #e5e7eb;
+}
+
+[data-theme="light"] .advance-card__btn {
+    background: #f9fafb;
+    border-color: #e5e7eb;
+    color: #6b7280;
+}
+
+[data-theme="light"] .advance-card__btn:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+    color: #374151;
+}
+
+[data-theme="light"] .advance-card__btn--edit:hover {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+    color: #1d4ed8;
+}
+
+[data-theme="light"] .advance-card__btn--close:hover,
+[data-theme="light"] .advance-card__btn--reopen:hover {
+    background: #fffbeb;
+    border-color: #fde68a;
+    color: #d97706;
+}
+
+[data-theme="light"] .advance-card__btn--delete:hover {
+    background: #fef2f2;
+    border-color: #fecaca;
+    color: #dc2626;
+}
