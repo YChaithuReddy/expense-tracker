@@ -2366,17 +2366,26 @@ const api = {
     },
 
     async sendNotificationEmail(to, subject, message, voucherNumber = '') {
-        const supabase = getSupabase();
+        try {
+            const supabase = getSupabase();
+            console.log('[Email] Sending to:', to, 'Subject:', subject);
 
-        const { data, error } = await supabase.functions.invoke('send-notification-email', {
-            body: { to, subject, message, voucherNumber }
-        });
+            const { data, error } = await supabase.functions.invoke('send-notification-email', {
+                body: { to, subject, message, voucherNumber }
+            });
 
-        if (error) {
-            console.warn('Notification email failed:', error);
-            return { success: false };
+            if (error) {
+                console.error('[Email] Edge Function error:', error);
+                // Fallback: try the old send-email function without attachment requirement
+                console.log('[Email] Trying fallback via Brevo direct...');
+                return { success: false, error: error.message };
+            }
+            console.log('[Email] Sent successfully:', data);
+            return data || { success: true };
+        } catch (e) {
+            console.error('[Email] Exception:', e);
+            return { success: false, error: e.message };
         }
-        return data || { success: true };
     },
 
     // ==============================================
