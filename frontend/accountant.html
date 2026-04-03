@@ -826,6 +826,14 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                     <span>Tally Export</span>
                 </button>
+                <button class="admin-nav-item" data-section="advances" onclick="switchSection('advances', this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+                    <span>Advances</span>
+                </button>
+                <button class="admin-nav-item" data-section="pipeline" onclick="switchSection('pipeline', this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    <span>Pipeline</span>
+                </button>
                 <button class="admin-nav-item" data-section="analytics" onclick="switchSection('analytics', this)">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
                     <span>Analytics</span>
@@ -944,6 +952,33 @@
                 <div id="tallyExportContent"><div class="admin-empty"><p>Select vouchers from the All Vouchers tab to export.</p></div></div>
             </div>
 
+            <!-- Advances Overview Section -->
+            <div class="admin-section" id="section-advances">
+                <div class="admin-main__header">
+                    <div><h2>Advances Overview</h2><p>All advance requests across the organization</p></div>
+                </div>
+                <div class="admin-stats-bar" id="advanceStats"></div>
+                <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+                    <select id="advanceStatusFilter" onchange="loadAdvancesOverview()" style="padding:8px 12px;border:1px solid var(--gray-200);border-radius:var(--radius-md);font-size:0.84rem;background:var(--white);color:var(--gray-900);">
+                        <option value="">All Statuses</option>
+                        <option value="pending_manager">Pending Manager</option>
+                        <option value="pending_accountant">Pending Accountant</option>
+                        <option value="active">Active</option>
+                        <option value="closed">Closed</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+                <div id="advancesList"><div class="admin-empty"><p>Loading advances...</p></div></div>
+            </div>
+
+            <!-- Approval Pipeline Section -->
+            <div class="admin-section" id="section-pipeline">
+                <div class="admin-main__header">
+                    <div><h2>Approval Pipeline</h2><p>Visual flow of all vouchers through the approval process</p></div>
+                </div>
+                <div id="pipelineView"><div class="admin-empty"><p>Loading pipeline...</p></div></div>
+            </div>
+
             <!-- Analytics Section -->
             <div class="admin-section" id="section-analytics">
                 <div class="admin-main__header">
@@ -1053,6 +1088,131 @@
             document.addEventListener('DOMContentLoaded', initAccountantDashboard);
         } else {
             initAccountantDashboard();
+        }
+
+        // ==================== Advances Overview ====================
+        async function loadAdvancesOverview() {
+            const orgId = _currentUser?.organization_id;
+            if (!orgId) return;
+            const supabase = window.supabaseClient?.get();
+            if (!supabase) return;
+            const statusFilter = document.getElementById('advanceStatusFilter')?.value || '';
+
+            try {
+                let query = supabase
+                    .from('advances')
+                    .select('*, submitter:user_id(name, email, employee_id, department)')
+                    .eq('organization_id', orgId)
+                    .order('created_at', { ascending: false });
+                if (statusFilter) query = query.eq('status', statusFilter);
+                const { data: advances } = await query;
+
+                const stats = document.getElementById('advanceStats');
+                const all = advances || [];
+                const pending = all.filter(a => a.status === 'pending_manager' || a.status === 'pending_accountant');
+                const active = all.filter(a => a.status === 'active');
+                const totalActive = active.reduce((s, a) => s + (parseFloat(a.amount) || 0), 0);
+                const rejected = all.filter(a => a.status === 'rejected');
+
+                stats.innerHTML = `
+                    <div class="admin-stat-pill">Total: <strong>${all.length}</strong></div>
+                    <div class="admin-stat-pill" style="color:var(--amber);border-color:rgba(217,119,6,0.2);">Pending: <strong>${pending.length}</strong></div>
+                    <div class="admin-stat-pill admin-stat-pill--active">Active: <strong>${active.length}</strong> (${formatCurrency(totalActive)})</div>
+                    <div class="admin-stat-pill" style="color:var(--red);border-color:rgba(220,38,38,0.2);">Rejected: <strong>${rejected.length}</strong></div>
+                `;
+
+                const container = document.getElementById('advancesList');
+                if (all.length === 0) { container.innerHTML = '<div class="admin-empty"><p>No advances found.</p></div>'; return; }
+
+                const statusColors = { pending_manager: 'var(--amber)', pending_accountant: 'var(--amber)', active: 'var(--green)', closed: 'var(--gray-400)', rejected: 'var(--red)' };
+                const statusLabels = { pending_manager: 'Pending Manager', pending_accountant: 'Pending Accountant', active: 'Active', closed: 'Closed', rejected: 'Rejected' };
+
+                const rows = all.map(a => `
+                    <tr>
+                        <td>${esc(a.submitter?.name || '-')}</td>
+                        <td><span class="admin-emp-id">${esc(a.submitter?.employee_id || '-')}</span></td>
+                        <td>${esc(a.submitter?.department || '-')}</td>
+                        <td><strong>${esc(a.project_name)}</strong></td>
+                        <td style="font-weight:600;">${formatCurrency(a.amount)}</td>
+                        <td><span class="visit-type-badge visit-type-badge--${a.visit_type || 'project'}" style="font-size:0.65rem;">${a.visit_type || 'project'}</span></td>
+                        <td><span class="approval-status-badge" style="background:${statusColors[a.status]}22;color:${statusColors[a.status]};border:1px solid ${statusColors[a.status]}33;font-size:0.7rem;padding:2px 8px;border-radius:4px;">${statusLabels[a.status] || a.status}</span></td>
+                        <td style="font-size:0.78rem;color:var(--gray-500);">${a.created_at ? new Date(a.created_at).toLocaleDateString('en-IN') : '-'}</td>
+                        ${a.rejection_reason ? `<td style="font-size:0.75rem;color:var(--red);">${esc(a.rejection_reason)}</td>` : '<td>-</td>'}
+                    </tr>
+                `).join('');
+
+                container.innerHTML = `<div class="admin-table-wrap"><table class="admin-table"><thead><tr>
+                    <th>Employee</th><th>ID</th><th>Dept</th><th>Project</th><th>Amount</th><th>Type</th><th>Status</th><th>Date</th><th>Notes</th>
+                </tr></thead><tbody>${rows}</tbody></table></div>`;
+            } catch (e) {
+                console.error('Advances overview error:', e);
+                document.getElementById('advancesList').innerHTML = '<div class="admin-empty"><p>Failed to load advances.</p></div>';
+            }
+        }
+
+        // ==================== Approval Pipeline ====================
+        async function loadPipeline() {
+            const orgId = _currentUser?.organization_id;
+            if (!orgId) return;
+            const supabase = window.supabaseClient?.get();
+            if (!supabase) return;
+
+            try {
+                const { data: vouchers } = await supabase
+                    .from('vouchers')
+                    .select('*, submitter:submitted_by(name, email), manager:manager_id(name), accountant:accountant_id(name)')
+                    .eq('organization_id', orgId)
+                    .order('submitted_at', { ascending: false })
+                    .limit(100);
+
+                const all = vouchers || [];
+                const groups = {
+                    pending_manager: { label: 'Pending Manager', color: '#f59e0b', icon: '⏳', items: [] },
+                    pending_accountant: { label: 'Pending Accountant', color: '#8b5cf6', icon: '📋', items: [] },
+                    manager_approved: { label: 'Manager Approved', color: '#3b82f6', icon: '✓', items: [] },
+                    approved: { label: 'Approved', color: '#10b981', icon: '✅', items: [] },
+                    rejected: { label: 'Rejected', color: '#ef4444', icon: '✕', items: [] },
+                    reimbursed: { label: 'Reimbursed', color: '#06b6d4', icon: '💰', items: [] }
+                };
+                all.forEach(v => { if (groups[v.status]) groups[v.status].items.push(v); });
+
+                const container = document.getElementById('pipelineView');
+                let columns = '';
+                for (const [status, group] of Object.entries(groups)) {
+                    const total = group.items.reduce((s, v) => s + (parseFloat(v.total_amount) || 0), 0);
+                    const cards = group.items.map(v => `
+                        <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:12px;margin-bottom:8px;border-left:3px solid ${group.color};">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                                <span style="font-weight:700;font-size:0.82rem;color:var(--gray-900);">${esc(v.voucher_number)}</span>
+                                <span style="font-weight:700;font-size:0.88rem;color:${group.color};">${formatCurrency(v.total_amount)}</span>
+                            </div>
+                            <div style="font-size:0.75rem;color:var(--gray-500);">${esc(v.submitter?.name || 'Employee')} &middot; ${v.expense_count || 0} expenses</div>
+                            ${v.purpose ? `<div style="font-size:0.72rem;color:var(--gray-400);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(v.purpose)}</div>` : ''}
+                            <div style="font-size:0.68rem;color:var(--gray-400);margin-top:6px;">${v.submitted_at ? new Date(v.submitted_at).toLocaleDateString('en-IN') : ''}${v.manager?.name ? ' → ' + esc(v.manager.name) : ''}</div>
+                        </div>
+                    `).join('') || '<div style="text-align:center;color:var(--gray-400);font-size:0.78rem;padding:20px;">Empty</div>';
+
+                    columns += `
+                        <div style="min-width:260px;flex:1;">
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:${group.color}11;border:1px solid ${group.color}22;border-radius:var(--radius-md) var(--radius-md) 0 0;">
+                                <div style="display:flex;align-items:center;gap:6px;">
+                                    <span style="font-size:1rem;">${group.icon}</span>
+                                    <span style="font-weight:700;font-size:0.78rem;color:var(--gray-900);">${group.label}</span>
+                                </div>
+                                <span style="font-size:0.72rem;font-weight:700;color:${group.color};background:${group.color}15;padding:2px 8px;border-radius:10px;">${group.items.length}</span>
+                            </div>
+                            <div style="background:var(--gray-50);border:1px solid var(--gray-200);border-top:none;border-radius:0 0 var(--radius-md) var(--radius-md);padding:8px;max-height:500px;overflow-y:auto;">
+                                ${cards}
+                            </div>
+                            <div style="text-align:center;font-size:0.72rem;color:var(--gray-500);padding:8px;font-weight:600;">Total: ${formatCurrency(total)}</div>
+                        </div>`;
+                }
+
+                container.innerHTML = `<div style="display:flex;gap:12px;overflow-x:auto;padding-bottom:12px;">${columns}</div>`;
+            } catch (e) {
+                console.error('Pipeline load error:', e);
+                document.getElementById('pipelineView').innerHTML = '<div class="admin-empty"><p>Failed to load pipeline.</p></div>';
+            }
         }
 
         // ==================== Analytics ====================
@@ -1180,6 +1340,8 @@
             else if (section === 'pending') loadPendingVouchers();
             else if (section === 'all-vouchers') loadAllVouchers();
             else if (section === 'tally-export') loadTallyExport();
+            else if (section === 'advances') loadAdvancesOverview();
+            else if (section === 'pipeline') loadPipeline();
             else if (section === 'analytics') loadAnalytics();
             else if (section === 'settings') loadSettings();
         }
