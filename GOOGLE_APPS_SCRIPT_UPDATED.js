@@ -776,6 +776,7 @@ function updateEmployeeInformation(data) {
 function addToLogSheet(data) {
   var sheetId = data.sheetId;
   var expenses = data.expenses;
+  var NUM_COLS = 9; // Date | Project | Category | Description | Amount | Visit Type | Payment Mode | Bill | Running Total
 
   if (!sheetId || !expenses || !Array.isArray(expenses) || expenses.length === 0) {
     Logger.log('addToLogSheet: skipping — missing sheetId or empty expenses');
@@ -793,24 +794,39 @@ function addToLogSheet(data) {
     logSheet = spreadsheet.insertSheet(LOG_TAB_NAME);
 
     // Set up header row
-    var headers = [['Date', 'Project', 'Amount', 'Category', 'Notes']];
-    logSheet.getRange(1, 1, 1, 5).setValues(headers);
+    var headers = [['Date', 'Project', 'Category', 'Description', 'Amount', 'Visit Type', 'Payment Mode', 'Bill', 'Running Total']];
+    logSheet.getRange(1, 1, 1, NUM_COLS).setValues(headers);
 
-    // Bold header
-    logSheet.getRange(1, 1, 1, 5).setFontWeight('bold');
+    // Professional header styling: dark teal bg, white bold text
+    logSheet.getRange(1, 1, 1, NUM_COLS)
+      .setFontWeight('bold')
+      .setFontColor('#ffffff')
+      .setBackground('#0f766e')
+      .setFontSize(10)
+      .setHorizontalAlignment('center')
+      .setVerticalAlignment('middle');
+    logSheet.setRowHeight(1, 32);
 
-    // Set amount column format
-    logSheet.getRange('C:C').setNumberFormat('\u20B9#,##0.00');
+    // Set amount & running total column format
+    logSheet.getRange('E:E').setNumberFormat('\u20B9#,##0.00');
+    logSheet.getRange('I:I').setNumberFormat('\u20B9#,##0.00');
 
     // Freeze header row
     logSheet.setFrozenRows(1);
 
     // Set column widths for readability
-    logSheet.setColumnWidth(1, 120); // Date
-    logSheet.setColumnWidth(2, 180); // Project
-    logSheet.setColumnWidth(3, 120); // Amount
-    logSheet.setColumnWidth(4, 150); // Category
-    logSheet.setColumnWidth(5, 250); // Notes
+    logSheet.setColumnWidth(1, 110); // Date
+    logSheet.setColumnWidth(2, 160); // Project
+    logSheet.setColumnWidth(3, 140); // Category
+    logSheet.setColumnWidth(4, 250); // Description
+    logSheet.setColumnWidth(5, 110); // Amount
+    logSheet.setColumnWidth(6, 90);  // Visit Type
+    logSheet.setColumnWidth(7, 110); // Payment Mode
+    logSheet.setColumnWidth(8, 60);  // Bill
+    logSheet.setColumnWidth(9, 120); // Running Total
+
+    // Auto-filter on headers
+    logSheet.getRange(1, 1, 1, NUM_COLS).createFilter();
 
     Logger.log('addToLogSheet: header row created and formatted');
   }
@@ -820,12 +836,12 @@ function addToLogSheet(data) {
   var nextRow = lastRow + 1;
 
   // Read existing data for duplicate detection
+  // Key = date + project + amount + description (columns 1, 2, 5, 4 in new layout)
   var existingKeys = [];
   if (lastRow > 1) {
-    var existingRange = logSheet.getRange(2, 1, lastRow - 1, 5).getValues();
+    var existingRange = logSheet.getRange(2, 1, lastRow - 1, NUM_COLS).getValues();
     for (var e = 0; e < existingRange.length; e++) {
-      // Key = date + vendor + amount + description
-      existingKeys.push(String(existingRange[e][0]) + '|' + String(existingRange[e][1]) + '|' + Number(existingRange[e][2]) + '|' + String(existingRange[e][4]));
+      existingKeys.push(String(existingRange[e][0]) + '|' + String(existingRange[e][1]) + '|' + Number(existingRange[e][4]) + '|' + String(existingRange[e][3]));
     }
   }
 
@@ -838,6 +854,9 @@ function addToLogSheet(data) {
     var vendor = expense.vendor || 'Unknown';
     var amount = parseFloat(expense.amount) || 0;
     var desc = expense.description || expense.notes || '';
+    var visitType = expense.visitType ? expense.visitType.charAt(0).toUpperCase() + expense.visitType.slice(1) : '';
+    var paymentMode = expense.paymentMode || 'Cash';
+    var billAttached = (expense.billAttached === 'No' || expense.billAttached === 'no') ? '\u2715' : '\u2713';
 
     var key = formattedDate + '|' + vendor + '|' + amount + '|' + desc;
     var isDup = false;
@@ -850,7 +869,7 @@ function addToLogSheet(data) {
       continue;
     }
 
-    rows.push([formattedDate, vendor, amount, expense.category || 'Miscellaneous', desc]);
+    rows.push([formattedDate, vendor, expense.category || 'Miscellaneous', desc, amount, visitType, paymentMode, billAttached, 0]);
   }
 
   if (rows.length === 0) {
@@ -859,10 +878,33 @@ function addToLogSheet(data) {
   }
 
   // Batch write all rows at once
-  logSheet.getRange(nextRow, 1, rows.length, 5).setValues(rows);
+  logSheet.getRange(nextRow, 1, rows.length, NUM_COLS).setValues(rows);
 
   // Format the amount column for the new rows
-  logSheet.getRange(nextRow, 3, rows.length, 1).setNumberFormat('\u20B9#,##0.00');
+  logSheet.getRange(nextRow, 5, rows.length, 1).setNumberFormat('\u20B9#,##0.00');
+
+  // Apply alternating row colors for new rows
+  for (var i = 0; i < rows.length; i++) {
+    var rowNum = nextRow + i;
+    var bgColor = (rowNum % 2 === 0) ? '#f8fafc' : '#ffffff';
+    logSheet.getRange(rowNum, 1, 1, NUM_COLS).setBackground(bgColor);
+  }
+
+  // Center-align Bill column
+  logSheet.getRange(nextRow, 8, rows.length, 1).setHorizontalAlignment('center');
+
+  // Set Running Total formulas for ALL data rows (recalculate from row 2)
+  var totalLastRow = logSheet.getLastRow();
+  if (totalLastRow >= 2) {
+    // Row 2: first data row, running total = just the amount
+    logSheet.getRange(2, 9).setFormula('=E2');
+    logSheet.getRange(2, 9).setNumberFormat('\u20B9#,##0.00');
+    // Row 3+: cumulative sum
+    for (var r = 3; r <= totalLastRow; r++) {
+      logSheet.getRange(r, 9).setFormula('=I' + (r - 1) + '+E' + r);
+      logSheet.getRange(r, 9).setNumberFormat('\u20B9#,##0.00');
+    }
+  }
 
   Logger.log('addToLogSheet: appended ' + rows.length + ' rows, skipped ' + skipped + ' duplicates');
 }
@@ -894,7 +936,8 @@ function addToProjectSheets(data) {
   var sheetId = data.sheetId;
   var expenses = data.expenses;
   var BY_PROJECT_TAB = 'By Project';
-  var MARKER_COL = 5; // Column E for hidden markers
+  var DATA_COLS = 7; // Date | Category | Description | Amount | Type | Payment | Bill
+  var MARKER_COL = 8; // Column H for hidden markers (beyond data columns)
 
   if (!sheetId || !expenses || !Array.isArray(expenses) || expenses.length === 0) {
     Logger.log('addToProjectSheets: skipping — missing sheetId or empty expenses');
@@ -909,16 +952,24 @@ function addToProjectSheets(data) {
   // --- Create the tab if first time ---
   if (!sheet) {
     sheet = spreadsheet.insertSheet(BY_PROJECT_TAB);
-    sheet.getRange(1, 1).setValue('Project-wise Expense Ledger').setFontSize(14).setFontWeight('bold').setFontColor('#0e7490');
-    sheet.getRange(1, 4).setValue('Last Updated: ' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd-MMM-yyyy HH:mm')).setFontColor('#64748b').setFontSize(9);
+    // Title row spanning all columns
+    sheet.getRange(1, 1).setValue('Project-wise Expense Ledger').setFontSize(14).setFontWeight('bold').setFontColor('#ffffff');
+    sheet.getRange(1, 1, 1, DATA_COLS).setBackground('#0f766e');
+    sheet.getRange(1, DATA_COLS).setValue('Last Updated: ' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd-MMM-yyyy HH:mm')).setFontColor('#d1fae5').setFontSize(9).setHorizontalAlignment('right');
+    sheet.setRowHeight(1, 36);
     // Grand total at row 3
-    sheet.getRange(3, 1).setValue('GRAND TOTAL').setFontWeight('bold').setFontSize(12).setFontColor('#0e7490');
-    sheet.getRange(3, 3).setValue(0).setNumberFormat('\u20B9#,##0.00').setFontWeight('bold').setFontSize(12).setFontColor('#0e7490');
+    sheet.getRange(3, 1).setValue('GRAND TOTAL').setFontWeight('bold').setFontSize(12).setFontColor('#ffffff');
+    sheet.getRange(3, 4).setValue(0).setNumberFormat('\u20B9#,##0.00').setFontWeight('bold').setFontSize(12).setFontColor('#ffffff');
+    sheet.getRange(3, 1, 1, DATA_COLS).setBackground('#0f766e');
     sheet.getRange(3, MARKER_COL).setValue('GRAND_TOTAL');
-    sheet.setColumnWidth(1, 120);
-    sheet.setColumnWidth(2, 160);
-    sheet.setColumnWidth(3, 130);
-    sheet.setColumnWidth(4, 280);
+    // Column widths
+    sheet.setColumnWidth(1, 110); // Date
+    sheet.setColumnWidth(2, 140); // Category
+    sheet.setColumnWidth(3, 250); // Description
+    sheet.setColumnWidth(4, 110); // Amount
+    sheet.setColumnWidth(5, 80);  // Type
+    sheet.setColumnWidth(6, 100); // Payment
+    sheet.setColumnWidth(7, 60);  // Bill
     sheet.hideColumns(MARKER_COL);
     Logger.log('addToProjectSheets: created "By Project" tab');
   }
@@ -962,13 +1013,13 @@ function addToProjectSheets(data) {
       }
 
       if (subtotalRow > 0) {
-        // Read existing rows for duplicate detection
+        // Read existing rows for duplicate detection (description is now col 3, amount col 4)
         var existingRows = [];
         for (var r = headerRow + 1; r < subtotalRow - 1; r++) {
           existingRows.push({
             date: String(allData[r][0]),
-            amount: Number(allData[r][2]),
-            description: String(allData[r][3])
+            amount: Number(allData[r][3]),
+            description: String(allData[r][2])
           });
         }
 
@@ -993,18 +1044,41 @@ function addToProjectSheets(data) {
           sheet.insertRowsBefore(subtotalRow, newItems.length);
           for (var i = 0; i < newItems.length; i++) {
             var row = subtotalRow + i;
+            var visitType = newItems[i].visitType ? newItems[i].visitType.charAt(0).toUpperCase() + newItems[i].visitType.slice(1) : '';
+            var paymentMode = newItems[i].paymentMode || 'Cash';
+            var billVal = (newItems[i].billAttached === 'No' || newItems[i].billAttached === 'no') ? '\u2715' : '\u2713';
             sheet.getRange(row, 1).setValue(formatDateSafe(newItems[i].date));
             sheet.getRange(row, 2).setValue(newItems[i].category || 'Miscellaneous');
-            sheet.getRange(row, 3).setValue(parseFloat(newItems[i].amount) || 0).setNumberFormat('\u20B9#,##0.00');
-            sheet.getRange(row, 4).setValue(newItems[i].description || '');
+            sheet.getRange(row, 3).setValue(newItems[i].description || '');
+            sheet.getRange(row, 4).setValue(parseFloat(newItems[i].amount) || 0).setNumberFormat('\u20B9#,##0.00');
+            sheet.getRange(row, 5).setValue(visitType);
+            sheet.getRange(row, 6).setValue(paymentMode);
+            sheet.getRange(row, 7).setValue(billVal).setHorizontalAlignment('center');
+            // Alternating row color
+            var dataIdx = row - (headerRow + 2);
+            if (dataIdx % 2 === 1) sheet.getRange(row, 1, 1, DATA_COLS).setBackground('#f8fafc');
           }
-          // Recalculate subtotal
+          // Recalculate subtotal (amount is now column 4)
           var newSubRow = subtotalRow + newItems.length;
           var subTotal = 0;
           for (var r = headerRow + 2; r < newSubRow; r++) {
-            subTotal += (parseFloat(sheet.getRange(r, 3).getValue()) || 0);
+            subTotal += (parseFloat(sheet.getRange(r, 4).getValue()) || 0);
           }
-          sheet.getRange(newSubRow, 3).setValue(subTotal).setNumberFormat('\u20B9#,##0.00').setFontWeight('bold').setFontColor('#0e7490');
+          sheet.getRange(newSubRow, 1).setValue('Subtotal').setFontWeight('bold').setFontColor('#0f766e');
+          sheet.getRange(newSubRow, 4).setValue(subTotal).setNumberFormat('\u20B9#,##0.00').setFontWeight('bold').setFontColor('#0f766e');
+          sheet.getRange(newSubRow, 1, 1, DATA_COLS).setBackground('#e0f2fe');
+
+          // Update project header with date range
+          var allDatesInProject = [];
+          for (var r = headerRow + 2; r < newSubRow; r++) {
+            var cellVal = sheet.getRange(r, 1).getValue();
+            if (cellVal) allDatesInProject.push(String(cellVal));
+          }
+          if (allDatesInProject.length > 0) {
+            allDatesInProject.sort();
+            var dateRange = allDatesInProject[0] + ' to ' + allDatesInProject[allDatesInProject.length - 1];
+            sheet.getRange(headerRow, 1).setValue('\u25B8 ' + project + ' \u2014 ' + dateRange);
+          }
         }
       }
     } else {
@@ -1015,58 +1089,107 @@ function addToProjectSheets(data) {
       }
       if (grandTotalRow < 0) grandTotalRow = sheet.getLastRow() + 1;
 
-      var rowsNeeded = items.length + 4; // header + col header + items + subtotal + blank
+      // Sort items by date for display
+      items.sort(function(a, b) { return (a.date || '').localeCompare(b.date || ''); });
+
+      // Compute date range for project header
+      var firstDate = formatDateSafe(items[0].date);
+      var lastDate = formatDateSafe(items[items.length - 1].date);
+      var dateRangeStr = (firstDate === lastDate) ? firstDate : firstDate + ' to ' + lastDate;
+
+      // Group items by category for subtotals
+      var catGroups = {};
+      for (var i = 0; i < items.length; i++) {
+        var cat = items[i].category || 'Miscellaneous';
+        if (!catGroups[cat]) catGroups[cat] = [];
+        catGroups[cat].push(items[i]);
+      }
+      var categories = Object.keys(catGroups).sort();
+
+      // Calculate total rows: header + col header + (items + cat subtotals) + project subtotal + blank
+      var totalDataRows = items.length + categories.length; // each category gets a subtotal row
+      var rowsNeeded = totalDataRows + 4; // project header + col header + project subtotal + blank
       sheet.insertRowsBefore(grandTotalRow, rowsNeeded);
       var cr = grandTotalRow;
 
-      // Project header (cyan)
-      sheet.getRange(cr, 1).setValue('\u25B8 ' + project).setFontWeight('bold').setFontSize(11);
-      sheet.getRange(cr, 1, 1, 4).setBackground('#0e7490').setFontColor('#ffffff');
+      // Project header (dark teal with date range)
+      sheet.getRange(cr, 1).setValue('\u25B8 ' + project + ' \u2014 ' + dateRangeStr).setFontWeight('bold').setFontSize(11);
+      sheet.getRange(cr, 1, 1, DATA_COLS).setBackground('#0f766e').setFontColor('#ffffff');
+      sheet.setRowHeight(cr, 30);
       sheet.getRange(cr, MARKER_COL).setValue('PROJECT:' + project);
       cr++;
 
       // Column headers
-      sheet.getRange(cr, 1, 1, 4).setValues([['Date', 'Category', 'Amount', 'Description']]);
-      sheet.getRange(cr, 1, 1, 4).setFontWeight('bold').setFontColor('#64748b').setFontSize(9).setBackground('#f1f5f9');
+      sheet.getRange(cr, 1, 1, DATA_COLS).setValues([['Date', 'Category', 'Description', 'Amount', 'Type', 'Payment', 'Bill']]);
+      sheet.getRange(cr, 1, 1, DATA_COLS).setFontWeight('bold').setFontColor('#64748b').setFontSize(9).setBackground('#f0fdfa');
       cr++;
 
-      // Expense rows
-      var subAmt = 0;
-      for (var i = 0; i < items.length; i++) {
-        sheet.getRange(cr, 1).setValue(formatDateSafe(items[i].date));
-        sheet.getRange(cr, 2).setValue(items[i].category || 'Miscellaneous');
-        sheet.getRange(cr, 3).setValue(parseFloat(items[i].amount) || 0).setNumberFormat('\u20B9#,##0.00');
-        sheet.getRange(cr, 4).setValue(items[i].description || '');
-        if (i % 2 === 1) sheet.getRange(cr, 1, 1, 4).setBackground('#f8fafc');
-        subAmt += (parseFloat(items[i].amount) || 0);
-        cr++;
+      // Expense rows grouped by category with subtotals
+      var projTotal = 0;
+      var dataRowIdx = 0;
+      for (var c = 0; c < categories.length; c++) {
+        var catName = categories[c];
+        var catItems = catGroups[catName];
+        var catSubtotal = 0;
+
+        for (var i = 0; i < catItems.length; i++) {
+          var amt = parseFloat(catItems[i].amount) || 0;
+          var visitType = catItems[i].visitType ? catItems[i].visitType.charAt(0).toUpperCase() + catItems[i].visitType.slice(1) : '';
+          var paymentMode = catItems[i].paymentMode || 'Cash';
+          var billVal = (catItems[i].billAttached === 'No' || catItems[i].billAttached === 'no') ? '\u2715' : '\u2713';
+
+          sheet.getRange(cr, 1).setValue(formatDateSafe(catItems[i].date));
+          sheet.getRange(cr, 2).setValue(catName);
+          sheet.getRange(cr, 3).setValue(catItems[i].description || '');
+          sheet.getRange(cr, 4).setValue(amt).setNumberFormat('\u20B9#,##0.00');
+          sheet.getRange(cr, 5).setValue(visitType);
+          sheet.getRange(cr, 6).setValue(paymentMode);
+          sheet.getRange(cr, 7).setValue(billVal).setHorizontalAlignment('center');
+          if (dataRowIdx % 2 === 1) sheet.getRange(cr, 1, 1, DATA_COLS).setBackground('#f8fafc');
+          catSubtotal += amt;
+          dataRowIdx++;
+          cr++;
+        }
+
+        // Category subtotal row (only if more than one category)
+        if (categories.length > 1) {
+          sheet.getRange(cr, 1).setValue('  ' + catName + ' Subtotal').setFontWeight('bold').setFontSize(9).setFontColor('#64748b');
+          sheet.getRange(cr, 4).setValue(catSubtotal).setNumberFormat('\u20B9#,##0.00').setFontWeight('bold').setFontColor('#64748b');
+          sheet.getRange(cr, 1, 1, DATA_COLS).setBackground('#f0fdfa');
+          cr++;
+        }
+
+        projTotal += catSubtotal;
       }
 
-      // Subtotal row
-      sheet.getRange(cr, 1).setValue('Subtotal').setFontWeight('bold').setFontColor('#0e7490');
-      sheet.getRange(cr, 3).setValue(subAmt).setNumberFormat('\u20B9#,##0.00').setFontWeight('bold').setFontColor('#0e7490');
+      // Project subtotal row
+      sheet.getRange(cr, 1).setValue('Subtotal').setFontWeight('bold').setFontColor('#0f766e');
+      sheet.getRange(cr, 4).setValue(projTotal).setNumberFormat('\u20B9#,##0.00').setFontWeight('bold').setFontColor('#0f766e');
+      sheet.getRange(cr, 1, 1, DATA_COLS).setBackground('#e0f2fe');
       sheet.getRange(cr, MARKER_COL).setValue('SUBTOTAL:' + project);
 
-      Logger.log('  Created section with ' + items.length + ' expenses, subtotal: ' + subAmt);
+      Logger.log('  Created section with ' + items.length + ' expenses, subtotal: ' + projTotal);
     }
   }
 
-  // --- Update grand total ---
+  // --- Update grand total (amount is now column 4) ---
   var gtData = sheet.getDataRange().getValues();
   var gtTotal = 0;
   var gtRow = -1;
   for (var r = 0; r < gtData.length; r++) {
     var mk = gtData[r].length >= MARKER_COL ? String(gtData[r][MARKER_COL - 1]) : '';
-    if (mk.indexOf('SUBTOTAL:') === 0) gtTotal += (parseFloat(gtData[r][2]) || 0);
+    if (mk.indexOf('SUBTOTAL:') === 0) gtTotal += (parseFloat(gtData[r][3]) || 0);
     if (mk === 'GRAND_TOTAL') gtRow = r + 1;
   }
   if (gtRow > 0) {
-    sheet.getRange(gtRow, 1).setValue('GRAND TOTAL').setFontWeight('bold').setFontSize(12).setFontColor('#0e7490');
-    sheet.getRange(gtRow, 3).setValue(gtTotal).setNumberFormat('\u20B9#,##0.00').setFontWeight('bold').setFontSize(12).setFontColor('#0e7490');
+    sheet.getRange(gtRow, 1).setValue('GRAND TOTAL').setFontWeight('bold').setFontSize(12).setFontColor('#ffffff');
+    sheet.getRange(gtRow, 4).setValue(gtTotal).setNumberFormat('\u20B9#,##0.00').setFontWeight('bold').setFontSize(12).setFontColor('#ffffff');
+    sheet.getRange(gtRow, 1, 1, DATA_COLS).setBackground('#0f766e');
+    sheet.setRowHeight(gtRow, 32);
   }
 
   // --- Update timestamp ---
-  sheet.getRange(1, 4).setValue('Last Updated: ' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd-MMM-yyyy HH:mm')).setFontColor('#64748b').setFontSize(9);
+  sheet.getRange(1, DATA_COLS).setValue('Last Updated: ' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd-MMM-yyyy HH:mm')).setFontColor('#d1fae5').setFontSize(9).setHorizontalAlignment('right');
 
   // --- Add advance summary after grand total ---
   var advances = data.advances;
@@ -1085,7 +1208,7 @@ function addToProjectSheets(data) {
       for (var r = gtRowFinal + 1; r <= lastRowSheet; r++) {
         if (String(sheet.getRange(r, MARKER_COL).getValue()) === 'ADVANCE_SUMMARY') {
           // Clear from here to end
-          sheet.getRange(r, 1, lastRowSheet - r + 1, 5).clearContent().clearFormat();
+          sheet.getRange(r, 1, lastRowSheet - r + 1, MARKER_COL).clearContent().clearFormat();
           advStartRow = r;
           break;
         }
@@ -1093,7 +1216,7 @@ function addToProjectSheets(data) {
 
       // Write advance summary section
       sheet.getRange(advStartRow, 1).setValue('Advance Summary').setFontWeight('bold').setFontSize(12).setFontColor('#92400e');
-      sheet.getRange(advStartRow, 1, 1, 4).setBackground('#fffbeb');
+      sheet.getRange(advStartRow, 1, 1, DATA_COLS).setBackground('#fffbeb');
       sheet.getRange(advStartRow, MARKER_COL).setValue('ADVANCE_SUMMARY');
 
       sheet.getRange(advStartRow + 1, 1, 1, 4).setValues([['Project', 'Advance', 'Spent', 'Remaining']]);
@@ -1145,6 +1268,7 @@ function formatDateSafe(dateStr) {
 function addToIndividualProjectTabs(data) {
   var sheetId = data.sheetId;
   var expenses = data.expenses;
+  var NUM_COLS = 9; // S.No | Date | Category | Description | Amount | Type | Payment Mode | Bill Attached | Running Total
 
   if (!sheetId || !expenses || !Array.isArray(expenses) || expenses.length === 0) {
     Logger.log('addToIndividualProjectTabs: skipping — missing data');
@@ -1165,6 +1289,10 @@ function addToIndividualProjectTabs(data) {
   var projects = Object.keys(grouped).sort();
   Logger.log('addToIndividualProjectTabs: ' + projects.length + ' projects');
 
+  // Header row is row 3 (row 1 = project name, row 2 = advance info, row 3 = column headers)
+  var HEADER_ROW = 3;
+  var DATA_START_ROW = 4;
+
   for (var p = 0; p < projects.length; p++) {
     var project = projects[p];
     var items = grouped[project];
@@ -1175,47 +1303,69 @@ function addToIndividualProjectTabs(data) {
       Logger.log('  Creating tab: "' + project + '"');
       tab = spreadsheet.insertSheet(project);
 
-      // Row 1: Project header with visit type (cyan)
+      // Row 1: Project name header (dark teal, white, bold, 13pt) spanning all columns
       var visitType = (items[0] && items[0].visitType) ? ' (' + items[0].visitType.charAt(0).toUpperCase() + items[0].visitType.slice(1) + ')' : '';
-      tab.getRange(1, 1).setValue('\u25B8 ' + project + visitType).setFontWeight('bold').setFontSize(12);
-      tab.getRange(1, 1, 1, 5).setBackground('#0e7490').setFontColor('#ffffff');
+      tab.getRange(1, 1).setValue('\u25B8 ' + project + visitType).setFontWeight('bold').setFontSize(13);
+      tab.getRange(1, 1, 1, NUM_COLS).setBackground('#0f766e').setFontColor('#ffffff');
+      tab.setRowHeight(1, 38);
 
-      // Row 2: Column headers
-      tab.getRange(2, 1, 1, 5).setValues([['Date', 'Category', 'Amount', 'Type', 'Description']]);
-      tab.getRange(2, 1, 1, 5).setFontWeight('bold').setFontColor('#64748b').setFontSize(9).setBackground('#f1f5f9');
+      // Row 2: Advance info bar (placeholder — will be populated below if advance exists)
+      tab.getRange(2, 1, 1, NUM_COLS).setBackground('#f0fdfa');
+      tab.setRowHeight(2, 26);
 
-      // Row 3: Subtotal (starts at 0)
-      tab.getRange(3, 1).setValue('Subtotal').setFontWeight('bold').setFontColor('#0e7490');
-      tab.getRange(3, 3).setValue(0).setNumberFormat('\u20B9#,##0.00').setFontWeight('bold').setFontColor('#0e7490');
+      // Row 3: Column headers
+      tab.getRange(HEADER_ROW, 1, 1, NUM_COLS).setValues([['S.No', 'Date', 'Category', 'Description', 'Amount', 'Type', 'Payment Mode', 'Bill', 'Running Total']]);
+      tab.getRange(HEADER_ROW, 1, 1, NUM_COLS)
+        .setFontWeight('bold')
+        .setFontColor('#374151')
+        .setFontSize(9)
+        .setBackground('#e5e7eb')
+        .setHorizontalAlignment('center')
+        .setVerticalAlignment('middle');
+      tab.setRowHeight(HEADER_ROW, 28);
+
+      // Row 4: Subtotal (starts at 0) — will be moved down as data is inserted
+      tab.getRange(DATA_START_ROW, 1).setValue('Subtotal').setFontWeight('bold').setFontColor('#ffffff');
+      tab.getRange(DATA_START_ROW, 5).setValue(0).setNumberFormat('\u20B9#,##0.00').setFontWeight('bold').setFontColor('#ffffff');
+      tab.getRange(DATA_START_ROW, 1, 1, NUM_COLS).setBackground('#0f766e');
 
       // Column widths
-      tab.setColumnWidth(1, 120);
-      tab.setColumnWidth(2, 160);
-      tab.setColumnWidth(3, 130);
-      tab.setColumnWidth(4, 90);
-      tab.setColumnWidth(5, 280);
+      tab.setColumnWidth(1, 50);   // S.No
+      tab.setColumnWidth(2, 100);  // Date
+      tab.setColumnWidth(3, 140);  // Category
+      tab.setColumnWidth(4, 250);  // Description
+      tab.setColumnWidth(5, 110);  // Amount
+      tab.setColumnWidth(6, 80);   // Type
+      tab.setColumnWidth(7, 100);  // Payment Mode
+      tab.setColumnWidth(8, 70);   // Bill Attached
+      tab.setColumnWidth(9, 120);  // Running Total
 
-      // Freeze header rows
-      tab.setFrozenRows(2);
+      // Freeze header rows (1-3)
+      tab.setFrozenRows(HEADER_ROW);
+
+      // Auto-filter on column headers
+      tab.getRange(HEADER_ROW, 1, 1, NUM_COLS).createFilter();
     }
 
     // --- Find subtotal row (last row with "Subtotal" in col A) ---
     var lastRow = tab.getLastRow();
     var subtotalRow = -1;
-    if (lastRow >= 3) {
-      var colA = tab.getRange(3, 1, lastRow - 2, 1).getValues();
+    if (lastRow >= DATA_START_ROW) {
+      var colA = tab.getRange(DATA_START_ROW, 1, lastRow - DATA_START_ROW + 1, 1).getValues();
       for (var r = colA.length - 1; r >= 0; r--) {
-        if (String(colA[r][0]) === 'Subtotal') { subtotalRow = r + 3; break; }
+        if (String(colA[r][0]) === 'Subtotal') { subtotalRow = r + DATA_START_ROW; break; }
       }
     }
     if (subtotalRow < 0) subtotalRow = lastRow + 1; // fallback
 
     // --- Read existing data for duplicate detection ---
+    // Duplicate key: date (col 2) + amount (col 5) + description (col 4)
     var existingKeys = [];
-    if (subtotalRow > 3) {
-      var existing = tab.getRange(3, 1, subtotalRow - 3, 4).getValues();
+    if (subtotalRow > DATA_START_ROW) {
+      var existing = tab.getRange(DATA_START_ROW, 1, subtotalRow - DATA_START_ROW, NUM_COLS).getValues();
       for (var r = 0; r < existing.length; r++) {
-        existingKeys.push(String(existing[r][0]) + '|' + Number(existing[r][2]) + '|' + String(existing[r][3]));
+        // date=col2(idx1), amount=col5(idx4), description=col4(idx3)
+        existingKeys.push(String(existing[r][1]) + '|' + Number(existing[r][4]) + '|' + String(existing[r][3]));
       }
     }
 
@@ -1235,32 +1385,76 @@ function addToIndividualProjectTabs(data) {
 
     Logger.log('  "' + project + '": ' + newItems.length + ' new, ' + (items.length - newItems.length) + ' dupes skipped');
 
-    if (newItems.length === 0) continue;
+    if (newItems.length === 0) {
+      // Still update advance info bar even if no new items
+      _updateAdvanceInfoBar(tab, data.advances, project, subtotalRow, DATA_START_ROW, NUM_COLS);
+      continue;
+    }
 
     // --- Insert rows before subtotal ---
     tab.insertRowsBefore(subtotalRow, newItems.length);
 
+    // Count existing data rows to determine S.No starting number
+    var existingDataCount = subtotalRow - DATA_START_ROW;
+
     for (var i = 0; i < newItems.length; i++) {
       var row = subtotalRow + i;
-      tab.getRange(row, 1).setValue(formatDateSafe(newItems[i].date));
-      tab.getRange(row, 2).setValue(newItems[i].category || 'Miscellaneous');
-      tab.getRange(row, 3).setValue(parseFloat(newItems[i].amount) || 0).setNumberFormat('\u20B9#,##0.00');
-      tab.getRange(row, 4).setValue(newItems[i].visitType ? newItems[i].visitType.charAt(0).toUpperCase() + newItems[i].visitType.slice(1) : '');
-      tab.getRange(row, 5).setValue(newItems[i].description || '');
-      var dataRowIndex = row - 3;
-      if (dataRowIndex % 2 === 1) tab.getRange(row, 1, 1, 5).setBackground('#f8fafc');
+      var sno = existingDataCount + i + 1;
+      var amt = parseFloat(newItems[i].amount) || 0;
+      var visitTypeVal = newItems[i].visitType ? newItems[i].visitType.charAt(0).toUpperCase() + newItems[i].visitType.slice(1) : '';
+      var paymentMode = newItems[i].paymentMode || 'Cash';
+      var billVal = (newItems[i].billAttached === 'No' || newItems[i].billAttached === 'no') ? '\u2715' : '\u2713';
+
+      tab.getRange(row, 1).setValue(sno).setHorizontalAlignment('center');
+      tab.getRange(row, 2).setValue(formatDateSafe(newItems[i].date));
+      tab.getRange(row, 3).setValue(newItems[i].category || 'Miscellaneous');
+      tab.getRange(row, 4).setValue(newItems[i].description || '');
+      tab.getRange(row, 5).setValue(amt).setNumberFormat('\u20B9#,##0.00');
+      tab.getRange(row, 6).setValue(visitTypeVal);
+      tab.getRange(row, 7).setValue(paymentMode);
+      tab.getRange(row, 8).setValue(billVal).setHorizontalAlignment('center');
+      // Running total formula
+      if (row === DATA_START_ROW) {
+        tab.getRange(row, 9).setFormula('=E' + row).setNumberFormat('\u20B9#,##0.00');
+      } else {
+        tab.getRange(row, 9).setFormula('=I' + (row - 1) + '+E' + row).setNumberFormat('\u20B9#,##0.00');
+      }
+
+      // Alternating row colors
+      var dataRowIndex = row - DATA_START_ROW;
+      if (dataRowIndex % 2 === 1) {
+        tab.getRange(row, 1, 1, NUM_COLS).setBackground('#f8fafc');
+      } else {
+        tab.getRange(row, 1, 1, NUM_COLS).setBackground('#ffffff');
+      }
     }
 
-    // --- Recalculate subtotal ---
+    // --- Recalculate subtotal (amount is column 5) ---
     var newSubRow = subtotalRow + newItems.length;
     var total = 0;
-    for (var r = 3; r < newSubRow; r++) {
-      total += (parseFloat(tab.getRange(r, 3).getValue()) || 0);
+    for (var r = DATA_START_ROW; r < newSubRow; r++) {
+      total += (parseFloat(tab.getRange(r, 5).getValue()) || 0);
     }
-    tab.getRange(newSubRow, 1).setValue('Subtotal').setFontWeight('bold').setFontColor('#0e7490');
-    tab.getRange(newSubRow, 3).setValue(total).setNumberFormat('\u20B9#,##0.00').setFontWeight('bold').setFontColor('#0e7490');
+    tab.getRange(newSubRow, 1).setValue('Subtotal').setFontWeight('bold').setFontColor('#ffffff');
+    tab.getRange(newSubRow, 5).setValue(total).setNumberFormat('\u20B9#,##0.00').setFontWeight('bold').setFontColor('#ffffff');
+    tab.getRange(newSubRow, 1, 1, NUM_COLS).setBackground('#0f766e');
+    tab.setRowHeight(newSubRow, 30);
 
-    // --- Add advance summary if available ---
+    // --- Fix running total formulas for ALL data rows (they may have shifted) ---
+    for (var r = DATA_START_ROW; r < newSubRow; r++) {
+      if (r === DATA_START_ROW) {
+        tab.getRange(r, 9).setFormula('=E' + r).setNumberFormat('\u20B9#,##0.00');
+      } else {
+        tab.getRange(r, 9).setFormula('=I' + (r - 1) + '+E' + r).setNumberFormat('\u20B9#,##0.00');
+      }
+      // Also fix S.No
+      tab.getRange(r, 1).setValue(r - DATA_START_ROW + 1).setHorizontalAlignment('center');
+    }
+
+    // --- Update advance info bar ---
+    _updateAdvanceInfoBar(tab, data.advances, project, newSubRow, DATA_START_ROW, NUM_COLS);
+
+    // --- Add advance summary below subtotal if available ---
     var advances = data.advances;
     if (advances && Array.isArray(advances)) {
       for (var a = 0; a < advances.length; a++) {
@@ -1271,24 +1465,26 @@ function addToIndividualProjectTabs(data) {
           if (lastRowNow > newSubRow + 1) {
             for (var check = newSubRow + 1; check <= lastRowNow; check++) {
               if (String(tab.getRange(check, 1).getValue()) === 'Advance Summary') {
-                // Clear old rows (summary header + 3 data rows)
-                tab.getRange(check, 1, 4, 4).clearContent().clearFormat();
+                tab.getRange(check, 1, 4, NUM_COLS).clearContent().clearFormat();
                 break;
               }
             }
           }
           // Write advance summary
-          tab.getRange(advRow, 1, 1, 4).setBackground('#fffbeb');
+          var advAmt = parseFloat(advances[a].advanceAmount) || 0;
+          var spentAmt = parseFloat(advances[a].totalSpent) || 0;
+          var remaining = advAmt - spentAmt;
+
+          tab.getRange(advRow, 1, 1, NUM_COLS).setBackground('#fffbeb');
           tab.getRange(advRow, 1).setValue('Advance Summary').setFontWeight('bold').setFontSize(10).setFontColor('#92400e');
           tab.getRange(advRow + 1, 1).setValue('Advance Amount');
-          tab.getRange(advRow + 1, 3).setValue(parseFloat(advances[a].advanceAmount) || 0).setNumberFormat('\u20B9#,##0.00').setFontWeight('bold').setFontColor('#0e7490');
+          tab.getRange(advRow + 1, 5).setValue(advAmt).setNumberFormat('\u20B9#,##0.00').setFontWeight('bold').setFontColor('#0f766e');
           tab.getRange(advRow + 2, 1).setValue('Total Spent');
-          tab.getRange(advRow + 2, 3).setValue(parseFloat(advances[a].totalSpent) || 0).setNumberFormat('\u20B9#,##0.00').setFontColor('#f59e0b');
-          var remaining = (parseFloat(advances[a].advanceAmount) || 0) - (parseFloat(advances[a].totalSpent) || 0);
+          tab.getRange(advRow + 2, 5).setValue(spentAmt).setNumberFormat('\u20B9#,##0.00').setFontColor('#f59e0b');
           tab.getRange(advRow + 3, 1).setValue('Remaining').setFontWeight('bold');
-          tab.getRange(advRow + 3, 3).setValue(remaining).setNumberFormat('\u20B9#,##0.00').setFontWeight('bold')
+          tab.getRange(advRow + 3, 5).setValue(remaining).setNumberFormat('\u20B9#,##0.00').setFontWeight('bold')
             .setFontColor(remaining < 0 ? '#ef4444' : '#10b981');
-          Logger.log('  Added advance summary for "' + project + '": advance=' + advances[a].advanceAmount + ', remaining=' + remaining);
+          Logger.log('  Added advance summary for "' + project + '": advance=' + advAmt + ', remaining=' + remaining);
           break;
         }
       }
@@ -1298,6 +1494,39 @@ function addToIndividualProjectTabs(data) {
   }
 
   Logger.log('addToIndividualProjectTabs: done');
+}
+
+/**
+ * Helper: Update the advance info bar in Row 2 of an individual project tab
+ * Shows: Advance: X | Spent: Y | Remaining: Z | percentage
+ */
+function _updateAdvanceInfoBar(tab, advances, project, subtotalRow, dataStartRow, numCols) {
+  if (!advances || !Array.isArray(advances)) return;
+
+  for (var a = 0; a < advances.length; a++) {
+    if (advances[a].projectName && advances[a].projectName.toLowerCase() === project.toLowerCase()) {
+      var advAmt = parseFloat(advances[a].advanceAmount) || 0;
+      var spentAmt = parseFloat(advances[a].totalSpent) || 0;
+      var remaining = advAmt - spentAmt;
+      var pct = advAmt > 0 ? Math.round((spentAmt / advAmt) * 100) : 0;
+
+      // Build the info bar text
+      var infoText = 'Advance: \u20B9' + advAmt.toLocaleString('en-IN') + '  |  Spent: \u20B9' + spentAmt.toLocaleString('en-IN') + '  |  Remaining: \u20B9' + remaining.toLocaleString('en-IN') + '  |  ' + pct + '%';
+
+      tab.getRange(2, 1).setValue(infoText).setFontWeight('bold').setFontSize(10);
+      tab.getRange(2, 1, 1, numCols).setBackground('#f0fdfa');
+
+      // Color code based on remaining
+      if (remaining < 0) {
+        tab.getRange(2, 1).setFontColor('#ef4444'); // danger - overspent
+      } else if (pct >= 80) {
+        tab.getRange(2, 1).setFontColor('#f59e0b'); // warning
+      } else {
+        tab.getRange(2, 1).setFontColor('#10b981'); // success
+      }
+      break;
+    }
+  }
 }
 
 // ============================================================================
