@@ -446,8 +446,14 @@ const submitWizard = (() => {
                             throw new Error('Manager, accountant, and organization are required');
                         }
 
+                        // Collect attachments from previous steps (sheets + PDF)
+                        const wizAttachments = {};
+                        const sheetsService = window.googleSheetsService;
+                        if (sheetsService?.getSheetUrl()) wizAttachments.sheetUrl = sheetsService.getSheetUrl();
+                        wizAttachments.pdfFilename = `Reimbursement_${new Date().toISOString().split('T')[0]}.pdf`;
+
                         const expenseIds = selected.map(e => e.id);
-                        const voucherResult = await api.createVoucher(orgId, managerId, accountantId, expenseIds, purpose);
+                        const voucherResult = await api.createVoucher(orgId, managerId, accountantId, expenseIds, purpose, null, null, wizAttachments);
 
                         if (voucherResult?.success) {
                             resultText = `Voucher ${voucherResult.data.voucher_number} submitted for approval`;
