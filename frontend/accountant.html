@@ -1295,8 +1295,7 @@
             try {
                 // Get voucher detail BEFORE approving (for email)
                 const detail = await api.getVoucherDetail(voucherId);
-                const comments = prompt('Add a comment (optional):') || '';
-                const result = await api.approveVoucher(voucherId, comments);
+                const result = await api.approveVoucher(voucherId);
                 if (window.showToast) showToast('Voucher approved successfully', 'success');
 
                 const actorName = _currentUser?.name || 'Accountant';
