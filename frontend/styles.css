@@ -11151,25 +11151,22 @@ select.inline-input option {
    ADVANCE MODAL
    ============================================= */
 /* ---- Advance Modal — Full Screen (matches approval modal) ---- */
+/* Request New Advance — White/Black Professional (matches approval modal) */
 .advance-modal-overlay {
     position: fixed;
     inset: 0;
     z-index: 10001;
     display: flex;
     flex-direction: column;
-    background: rgba(8, 8, 22, 0.94);
-    -webkit-backdrop-filter: blur(20px);
-    backdrop-filter: blur(20px);
-    animation: approval-overlay-in 0.25s ease both;
+    background: var(--bg-primary, #0a0a0f);
 }
 
 .advance-modal {
-    background: linear-gradient(160deg, #0d0d24 0%, #10102e 55%, #0a0a1e 100%);
+    background: var(--bg-primary, #0a0a0f);
     border: none;
     border-radius: 0;
     width: 100%;
     height: 100%;
-    max-width: 100%;
     display: flex;
     flex-direction: column;
 }
@@ -11178,99 +11175,86 @@ select.inline-input option {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 18px 28px;
-    border-bottom: 1px solid rgba(139, 92, 246, 0.12);
-    background: linear-gradient(135deg, rgba(20, 18, 46, 0.98) 0%, rgba(13, 12, 34, 0.98) 100%);
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border-color, rgba(139,92,246,0.12));
     flex-shrink: 0;
-    position: relative;
-}
-.advance-modal__header::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.5), rgba(167, 139, 250, 0.3), transparent);
 }
 
 .advance-modal__header h3 {
-    color: #a78bfa;
-    font-size: 1.1rem;
+    color: var(--neon-cyan, #a78bfa);
+    font-size: 1.05rem;
     font-weight: 700;
     margin: 0;
-    letter-spacing: 0.01em;
-    text-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
 }
 
 .advance-modal__close {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    background: rgba(255, 255, 255, 0.04);
-    color: #5a6180;
-    font-size: 1.2rem;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color, rgba(139,92,246,0.15));
+    background: transparent;
+    color: var(--text-secondary, #8892b0);
+    font-size: 1.3rem;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.15s;
+    transition: all 0.2s;
 }
 .advance-modal__close:hover {
-    background: rgba(239, 68, 68, 0.1);
-    border-color: rgba(239, 68, 68, 0.2);
-    color: #f87171;
+    background: rgba(239, 68, 68, 0.08);
+    color: #ef4444;
 }
 
 .advance-modal__form {
     flex: 1;
     overflow-y: auto;
-    padding: 28px 32px;
+    padding: 24px;
+    max-width: 900px;
+    width: 100%;
+    margin: 0 auto;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
 }
 
 .advance-modal__field {
-    margin-bottom: 20px;
+    margin-bottom: 18px;
 }
 
 .advance-modal__field label {
     display: block;
-    font-size: 0.78rem;
+    font-size: 0.82rem;
     font-weight: 600;
-    color: #8890b5;
-    margin-bottom: 8px;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+    color: var(--text-secondary, #8892b0);
+    margin-bottom: 6px;
 }
 
 .advance-modal__field input,
 .advance-modal__field select {
     width: 100%;
-    padding: 12px 16px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(139, 92, 246, 0.12);
-    border-radius: 10px;
-    color: #e0e0ff;
-    font-size: 0.92rem;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    padding: 10px 14px;
+    background: var(--glass-bg, rgba(255,255,255,0.04));
+    border: 1px solid var(--border-color, rgba(255,255,255,0.1));
+    border-radius: 8px;
+    color: var(--text-primary, #e0e0ff);
+    font-size: 0.88rem;
+    transition: border-color 0.2s;
     box-sizing: border-box;
+    outline: none;
 }
 
 .advance-modal__field input:focus,
 .advance-modal__field select:focus {
-    outline: none;
-    border-color: rgba(139, 92, 246, 0.4);
-    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.08);
+    border-color: var(--neon-cyan, rgba(139,92,246,0.4));
 }
 
 .advance-modal__field input::placeholder {
-    color: #3a3f5c;
+    color: var(--text-secondary, #5a6180);
 }
 
 .advance-modal__field select option {
-    background: #1a1a3e;
+    background: var(--bg-secondary, #1a1a2e);
 }
 
 .advance-modal__actions {
@@ -11278,9 +11262,25 @@ select.inline-input option {
     gap: 12px;
     justify-content: flex-end;
     margin-top: auto;
-    padding-top: 24px;
-    border-top: 1px solid rgba(139, 92, 246, 0.08);
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color, rgba(255,255,255,0.04));
 }
+
+/* Light theme: advance modal matches approval modal exactly */
+[data-theme="light"] .advance-modal-overlay { background: #f9fafb; }
+[data-theme="light"] .advance-modal { background: #f9fafb; }
+[data-theme="light"] .advance-modal__header { border-color: #e5e7eb; }
+[data-theme="light"] .advance-modal__header h3 { color: #111827; }
+[data-theme="light"] .advance-modal__close { border-color: #e5e7eb; color: #6b7280; }
+[data-theme="light"] .advance-modal__close:hover { background: rgba(239,68,68,0.06); }
+[data-theme="light"] .advance-modal__field label { color: #6b7280; }
+[data-theme="light"] .advance-modal__field input,
+[data-theme="light"] .advance-modal__field select { background: #ffffff; border-color: #e5e7eb; color: #111827; }
+[data-theme="light"] .advance-modal__field input:focus,
+[data-theme="light"] .advance-modal__field select:focus { border-color: #111827; }
+[data-theme="light"] .advance-modal__field input::placeholder { color: #9ca3af; }
+[data-theme="light"] .advance-modal__field select option { background: #ffffff; color: #111827; }
+[data-theme="light"] .advance-modal__actions { border-color: #e5e7eb; }
 
 /* Advance indicator in expense form */
 .advance-link-indicator {
