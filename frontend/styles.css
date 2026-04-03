@@ -8345,6 +8345,20 @@ select.inline-input option {
     stroke: #1a1a2e;
 }
 
+.reimb-act--approval {
+    background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 50%, #a78bfa 100%);
+    color: #ffffff;
+}
+
+.reimb-act--approval:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 22px rgba(139, 92, 246, 0.4), 0 2px 6px rgba(124, 58, 237, 0.3);
+}
+
+.reimb-act--approval svg {
+    stroke: #ffffff;
+}
+
 .reimb-act:active:not(:disabled) {
     transform: translateY(0);
 }
