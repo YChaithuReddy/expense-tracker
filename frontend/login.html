@@ -123,11 +123,25 @@
         }
 
         /* Logo area */
-        .brand-logo-wrap {
-            display: inline-flex;
+        /* Top row — text left, logo right */
+        .brand-top-row {
+            display: flex;
             align-items: center;
-            gap: 14px;
-            padding-top: 8px;
+            justify-content: space-between;
+            gap: 24px;
+        }
+
+        .brand-top-text {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .brand-top-text .left-headline {
+            margin-top: 12px;
+        }
+
+        .brand-logo-wrap {
+            flex-shrink: 0;
         }
 
         .brand-logo-pill {
@@ -143,19 +157,19 @@
         }
 
         .brand-logo-pill img {
-            height: 80px;
+            height: 72px;
             width: auto;
             object-fit: contain;
             display: block;
         }
 
-        /* Hero text */
+        /* Hero text — features + subtext below the top row */
         .left-hero {
             flex: 1;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 32px 0 20px;
+            padding: 20px 0 20px;
         }
 
         .left-eyebrow {
@@ -686,6 +700,20 @@
                 padding: 40px 36px;
             }
 
+            .brand-top-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+
+            .brand-logo-pill img {
+                height: 56px;
+            }
+
+            .brand-logo-pill {
+                padding: 12px 24px;
+            }
+
             .left-deco-card {
                 display: none;
             }
@@ -709,24 +737,27 @@
     <aside class="login-panel-left">
         <div class="left-content">
 
-            <!-- Logo -->
-            <div class="brand-logo-wrap">
-                <div class="brand-logo-pill">
-                    <img src="fluxgen-logo.jpg" alt="FluxGen Technologies">
+            <!-- Top row: Text left + Logo right -->
+            <div class="brand-top-row">
+                <div class="brand-top-text">
+                    <span class="left-eyebrow">
+                        <span class="left-eyebrow-dot"></span>
+                        FluxGen Technologies Pvt Ltd
+                    </span>
+                    <h2 class="left-headline">
+                        Simplify your<br>
+                        <em>expense management.</em>
+                    </h2>
+                </div>
+                <div class="brand-logo-wrap">
+                    <div class="brand-logo-pill">
+                        <img src="fluxgen-logo.jpg" alt="FluxGen Technologies">
+                    </div>
                 </div>
             </div>
 
             <!-- Hero copy -->
             <div class="left-hero">
-                <span class="left-eyebrow">
-                    <span class="left-eyebrow-dot"></span>
-                    FluxGen Technologies Pvt Ltd
-                </span>
-
-                <h2 class="left-headline">
-                    Simplify your<br>
-                    <em>expense management.</em>
-                </h2>
 
                 <p class="left-subtext">
                     One platform to track, approve, and report every rupee your team spends — with OCR scanning, UPI integration, and real-time insights.
