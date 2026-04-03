@@ -659,21 +659,22 @@ WDL1,WONDERLA,Amusement Park,Amusement Park</code>
             const orgId = user.organization_id;
             if (!orgId) return;
 
-            try {
-                const supabase = window.supabaseClient?.get();
+            const supabase = window.supabaseClient?.get();
+            if (!supabase) return;
 
-                // Run ALL queries in parallel — no sequential waits
-                const [org, employees, projects, pendingResult, approvedResult] = await Promise.all([
-                    api.getOrganization(),
-                    api.getEmployeeWhitelist(orgId),
-                    api.getProjects(orgId, 'active'),
-                    supabase ? supabase.from('vouchers').select('id', { count: 'exact', head: true }).eq('organization_id', orgId).in('status', ['pending_manager', 'pending_accountant']) : { count: 0 },
-                    supabase ? supabase.from('vouchers').select('id', { count: 'exact', head: true }).eq('organization_id', orgId).eq('status', 'approved') : { count: 0 }
+            try {
+                // Direct parallel queries — no getCachedUser overhead
+                const [orgResult, empResult, projResult, pendingResult, approvedResult] = await Promise.all([
+                    supabase.from('organizations').select('name').eq('id', orgId).single(),
+                    supabase.from('employee_whitelist').select('id', { count: 'exact', head: true }).eq('organization_id', orgId),
+                    supabase.from('projects').select('id', { count: 'exact', head: true }).eq('organization_id', orgId).eq('status', 'active'),
+                    supabase.from('vouchers').select('id', { count: 'exact', head: true }).eq('organization_id', orgId).in('status', ['pending_manager', 'pending_accountant']),
+                    supabase.from('vouchers').select('id', { count: 'exact', head: true }).eq('organization_id', orgId).eq('status', 'approved')
                 ]);
 
-                if (org) document.getElementById('orgName').textContent = org.name;
-                document.getElementById('statEmployees').textContent = employees.length;
-                document.getElementById('statProjects').textContent = projects.length;
+                if (orgResult?.data?.name) document.getElementById('orgName').textContent = orgResult.data.name;
+                document.getElementById('statEmployees').textContent = empResult?.count || 0;
+                document.getElementById('statProjects').textContent = projResult?.count || 0;
                 document.getElementById('statPending').textContent = pendingResult?.count || 0;
                 document.getElementById('statApproved').textContent = approvedResult?.count || 0;
             } catch (e) {
