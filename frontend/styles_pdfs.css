@@ -399,7 +399,7 @@
     transition: all 0.15s;
 }
 .pdf-row-btn--view:hover { color: #00d4ff; background: rgba(0, 212, 255, 0.1); }
-.pdf-row-btn--kodo:hover { color: #06b6d4; background: rgba(6, 182, 212, 0.1); }
+.pdf-row-btn--approval:hover { color: #a78bfa; background: rgba(139, 92, 246, 0.1); }
 .pdf-row-btn--email:hover { color: #a855f7; background: rgba(168, 85, 247, 0.1); }
 .pdf-row-btn--download:hover { color: #10b981; background: rgba(16, 185, 129, 0.1); }
 .pdf-row-btn--delete:hover { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
