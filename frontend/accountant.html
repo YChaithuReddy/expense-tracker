@@ -1096,20 +1096,20 @@
             const orgId = _currentUser.organization_id;
             if (!orgId) return;
 
-            try {
-                const supabase = window.supabaseClient?.get();
-                if (!supabase) return;
+            const supabase = window.supabaseClient?.get();
+            if (!supabase) return;
 
-                // Run ALL queries in parallel — no sequential waits
-                const [org, pendingResult, approvedResult, exportedResult, reimbursedResult] = await Promise.all([
-                    api.getOrganization(),
+            try {
+                // Direct parallel queries — no getCachedUser overhead
+                const [orgResult, pendingResult, approvedResult, exportedResult, reimbursedResult] = await Promise.all([
+                    supabase.from('organizations').select('name').eq('id', orgId).single(),
                     supabase.from('vouchers').select('id, total_amount').eq('organization_id', orgId).in('status', ['pending_accountant', 'manager_approved']),
                     supabase.from('vouchers').select('id', { count: 'exact', head: true }).eq('organization_id', orgId).eq('status', 'approved'),
                     supabase.from('vouchers').select('id', { count: 'exact', head: true }).eq('organization_id', orgId).eq('tally_exported', true),
                     supabase.from('vouchers').select('id', { count: 'exact', head: true }).eq('organization_id', orgId).eq('status', 'reimbursed')
                 ]);
 
-                if (org) document.getElementById('orgName').textContent = org.name;
+                if (orgResult?.data?.name) document.getElementById('orgName').textContent = orgResult.data.name;
 
                 const pendingData = pendingResult?.data || [];
                 document.getElementById('statPending').textContent = pendingData.length;
@@ -1896,6 +1896,7 @@
             if (!container) return;
             if (!_currentUser) return;
             const orgId = _currentUser.organization_id;
+            if (!orgId) return;
 
             try {
                 const supabase = window.supabaseClient?.get();
