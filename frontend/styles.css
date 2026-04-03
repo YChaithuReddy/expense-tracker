@@ -301,9 +301,78 @@
     border-color: #111827;
 }
 
-[data-theme="light"] .action-buttons .btn-primary,
-[data-theme="light"] .action-buttons .btn-highlight {
+/* Light theme: All action buttons — clean professional look */
+[data-theme="light"] .action-buttons .btn-primary {
+    background: #111827;
     color: #ffffff;
+    border: none;
+}
+[data-theme="light"] .action-buttons .btn-primary:hover {
+    background: #374151;
+}
+
+[data-theme="light"] .action-buttons .btn-secondary,
+[data-theme="light"] .action-buttons .btn-view-images-premium {
+    background: #ffffff;
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
+[data-theme="light"] .action-buttons .btn-secondary:hover,
+[data-theme="light"] .action-buttons .btn-view-images-premium:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+}
+
+[data-theme="light"] .action-buttons .btn-danger,
+[data-theme="light"] .action-buttons .btn-clear-data-premium {
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+}
+[data-theme="light"] .action-buttons .btn-danger:hover,
+[data-theme="light"] .action-buttons .btn-clear-data-premium:hover {
+    background: #fee2e2;
+}
+
+[data-theme="light"] .btn-highlight {
+    background: #111827 !important;
+    color: #ffffff;
+    border: none;
+}
+[data-theme="light"] .btn-highlight::before,
+[data-theme="light"] .btn-highlight::after {
+    display: none;
+}
+[data-theme="light"] .btn-highlight:hover {
+    background: #374151 !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+[data-theme="light"] .btn-highlight__label,
+[data-theme="light"] .btn-highlight__sub {
+    color: #ffffff;
+}
+[data-theme="light"] .btn-highlight__arrow svg {
+    stroke: #ffffff;
+}
+
+[data-theme="light"] .btn-reset {
+    background: #ffffff;
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
+[data-theme="light"] .btn-reset:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+}
+
+[data-theme="light"] .btn-pdf-library {
+    background: #ffffff;
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
+[data-theme="light"] .btn-pdf-library:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
 }
 
 [data-theme="light"] .drag-drop-zone {
