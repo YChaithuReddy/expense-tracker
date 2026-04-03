@@ -178,7 +178,7 @@ function displayUserInfo() {
 
             // Enterprise icons (only for company mode users)
             const roleBadge = isCompany ? `<span class="role-badge role-badge--${role}">${role.toUpperCase()}</span>` : '';
-            const adminBtn = role === 'admin' ? `<button class="theme-toggle-btn" onclick="adminPanel.open()" aria-label="Admin Panel" title="Admin Panel"><span class="theme-icon">&#9881;</span></button>` : '';
+            const adminBtn = role === 'admin' ? `<button class="theme-toggle-btn" onclick="window.location.href='admin.html'" aria-label="Admin Dashboard" title="Admin Dashboard"><span class="theme-icon">&#9881;</span></button>` : '';
             const notifBtn = isCompany ? `<button class="theme-toggle-btn notif-bell-btn" id="notifBellBtn" onclick="notificationCenter.toggle()" aria-label="Notifications" title="Notifications"><span class="theme-icon">🔔</span><span class="notif-badge" id="notifBadge" style="display:none;">0</span></button>` : '';
             const approvalsBtn = isCompany ? `<button class="theme-toggle-btn" onclick="approvalWorkflow.openApprovalsPanel()" aria-label="Approvals" title="Approvals"><span class="theme-icon">&#9989;</span></button>` : '';
 
