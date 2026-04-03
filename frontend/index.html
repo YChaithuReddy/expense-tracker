@@ -2213,6 +2213,20 @@
                     <label for="advanceNotes">Notes (Optional)</label>
                     <input type="text" id="advanceNotes" placeholder="e.g. Site visit Feb-Mar">
                 </div>
+                <!-- Company mode: manager/accountant selection -->
+                <div id="advanceApprovalFields" style="display:none;">
+                    <div style="border-top:1px solid rgba(255,255,255,0.08);margin:16px 0 12px;padding-top:14px;">
+                        <label style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#a78bfa;margin-bottom:10px;display:block;">Approval Chain</label>
+                    </div>
+                    <div class="advance-modal__field">
+                        <label for="advanceManagerSelect">Approving Manager</label>
+                        <select id="advanceManagerSelect" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:#e0e0ff;font-size:0.88rem;"></select>
+                    </div>
+                    <div class="advance-modal__field">
+                        <label for="advanceAccountantSelect">Approving Accountant</label>
+                        <select id="advanceAccountantSelect" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:#e0e0ff;font-size:0.88rem;"></select>
+                    </div>
+                </div>
                 <div class="advance-modal__actions">
                     <button type="button" class="btn-secondary" id="cancelAdvanceModal">Cancel</button>
                     <button type="submit" class="btn-primary" id="advanceSaveBtn">Save Advance</button>

@@ -8513,7 +8513,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         indicator.outerHTML = `<div id="advanceLinkIndicator">${html}</div>`;
     }
 
-    openAdvanceModal(editAdvance = null) {
+    async openAdvanceModal(editAdvance = null) {
         const overlay = document.getElementById('advanceModalOverlay');
         const title = document.getElementById('advanceModalTitle');
         const editId = document.getElementById('advanceEditId');
@@ -8521,6 +8521,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         const amountInput = document.getElementById('advanceAmount');
         const notesInput = document.getElementById('advanceNotes');
         const saveBtn = document.getElementById('advanceSaveBtn');
+        const approvalFields = document.getElementById('advanceApprovalFields');
 
         if (editAdvance) {
             title.textContent = 'Edit Advance';
@@ -8531,13 +8532,40 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             this.setVisitTypeToggle('advanceVisitType', editAdvance.visit_type || 'project');
             saveBtn.textContent = 'Update Advance';
         } else {
-            title.textContent = 'Add New Advance';
+            title.textContent = 'Request New Advance';
             editId.value = '';
             projectInput.value = '';
             amountInput.value = '';
             notesInput.value = '';
             this.setVisitTypeToggle('advanceVisitType', 'project');
-            saveBtn.textContent = 'Save Advance';
+            saveBtn.textContent = 'Submit for Approval';
+        }
+
+        // Company mode: show manager/accountant dropdowns
+        const isCompany = typeof isCompanyMode === 'function' && isCompanyMode();
+        if (approvalFields) {
+            if (isCompany && !editAdvance) {
+                approvalFields.style.display = '';
+                saveBtn.textContent = 'Submit for Approval';
+                // Load managers and accountants
+                try {
+                    const orgId = typeof getOrganizationId === 'function' ? getOrganizationId() : null;
+                    if (orgId) {
+                        const [mgrs, accts] = await Promise.all([
+                            api.getOrgMembersByRole(orgId, 'manager'),
+                            api.getOrgMembersByRole(orgId, 'accountant')
+                        ]);
+                        const mgrSelect = document.getElementById('advanceManagerSelect');
+                        const acctSelect = document.getElementById('advanceAccountantSelect');
+                        if (mgrSelect) mgrSelect.innerHTML = mgrs.map(m => `<option value="${m.id}">${m.name} (${m.email})</option>`).join('');
+                        if (acctSelect) acctSelect.innerHTML = accts.map(a => `<option value="${a.id}">${a.name} (${a.email})</option>`).join('');
+                    }
+                } catch (e) {
+                    console.warn('Failed to load approvers:', e);
+                }
+            } else {
+                approvalFields.style.display = 'none';
+            }
         }
 
         overlay.style.display = 'flex';
@@ -8581,21 +8609,25 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                     this.showNotification('Advance updated successfully');
                 }
             } else {
-                // Company mode: open approval modal for manager/accountant selection
-                if (typeof isCompanyMode === 'function' && isCompanyMode() && typeof approvalWorkflow !== 'undefined') {
-                    this.closeAdvanceModal();
-                    await approvalWorkflow.openAdvanceSubmitModal({ projectName, amount, notes, visitType });
-                    return; // approval modal handles the rest
-                }
+                // Company mode: submit with manager/accountant from inline dropdowns
+                const isCompany = typeof isCompanyMode === 'function' && isCompanyMode();
+                const managerId = document.getElementById('advanceManagerSelect')?.value;
+                const accountantId = document.getElementById('advanceAccountantSelect')?.value;
 
-                // Personal mode: create immediately as active
-                const result = await api.createAdvance(projectName, amount, notes, visitType);
-                this.showNotification('Advance created successfully');
-                window.api?.logActivity?.('advance_created', `Created advance of ₹${amount} for ${projectName}`, { amount, projectName });
+                if (isCompany && managerId && accountantId) {
+                    const result = await api.createAdvance(projectName, amount, notes, visitType, managerId, accountantId);
+                    this.showNotification(`Advance of ₹${parseFloat(amount).toLocaleString('en-IN')} submitted for approval!`);
+                    await api.logActivity?.('advance_submitted', `Submitted advance of ₹${amount} for ${projectName}`);
+                } else {
+                    // Personal mode: create immediately as active
+                    const result = await api.createAdvance(projectName, amount, notes, visitType);
+                    this.showNotification('Advance created successfully');
+                    await api.logActivity?.('advance_created', `Created advance of ₹${amount} for ${projectName}`, { amount, projectName });
 
-                // Retroactively link existing expenses with matching project name
-                if (result?.data?.id) {
-                    await this.linkExistingExpensesToAdvance(result.data.id, projectName);
+                    // Retroactively link existing expenses with matching project name
+                    if (result?.data?.id) {
+                        await this.linkExistingExpensesToAdvance(result.data.id, projectName);
+                    }
                 }
             }
 
