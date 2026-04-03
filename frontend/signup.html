@@ -4,203 +4,487 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#14b8a6">
+    <meta name="theme-color" content="#0a0f1a">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Expense Tracker">
-    <title>Sign Up - Expense Tracker</title>
+    <title>Sign Up — FluxGen Expense Tracker</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="apple-touch-icon" href="icons/icon-192x192.svg">
     <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <style>
-        .password-input-wrapper {
-            position: relative;
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --navy: #0a0f1a;
+            --navy-mid: #0f1828;
+            --white: #ffffff;
+            --text-primary: #e2e8f0;
+            --text-secondary: #64748b;
+            --accent: #14b8a6;
+            --accent-light: #2dd4bf;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        html, body {
+            height: 100%;
             width: 100%;
+            margin: 0;
+            font-family: var(--font);
+            background: var(--navy);
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+            overflow: hidden;
         }
 
-        .password-input-wrapper input {
-            padding-right: 45px !important;
+        .signup-shell {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
         }
 
+        /* ─── Left Panel ─── */
+        .signup-panel-left {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 36px 48px;
+            background: var(--navy-mid);
+            overflow: hidden;
+        }
+
+        .signup-panel-left::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 20% 80%, rgba(20,184,166,0.12) 0%, transparent 55%),
+                radial-gradient(ellipse at 80% 20%, rgba(59,130,246,0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(139,92,246,0.06) 0%, transparent 60%);
+            animation: meshPulse 10s ease-in-out infinite alternate;
+            pointer-events: none;
+        }
+
+        @keyframes meshPulse {
+            0%   { opacity: 0.7; transform: scale(1); }
+            50%  { opacity: 1;   transform: scale(1.04); }
+            100% { opacity: 0.8; transform: scale(1.01); }
+        }
+
+        .left-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            justify-content: space-between;
+        }
+
+        .brand-logo-pill {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 14px 28px;
+            display: inline-flex;
+            align-items: center;
+            box-shadow: 0 0 0 1px rgba(255,255,255,0.12), 0 8px 32px rgba(0,0,0,0.35);
+        }
+        .brand-logo-pill img { height: 56px; width: auto; object-fit: contain; }
+
+        .left-headline {
+            margin-top: 40px;
+        }
+        .left-headline h1 {
+            font-size: clamp(1.8rem, 3vw, 2.6rem);
+            font-weight: 800;
+            line-height: 1.15;
+            color: var(--white);
+            letter-spacing: -0.02em;
+        }
+        .left-headline .accent {
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-style: italic;
+        }
+        .left-headline p {
+            margin-top: 16px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            max-width: 380px;
+        }
+
+        .left-features {
+            margin-top: 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .left-feature {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.88rem;
+            color: rgba(226,232,240,0.8);
+        }
+        .left-feature-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: rgba(20,184,166,0.1);
+            border: 1px solid rgba(20,184,166,0.15);
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+        }
+        .left-feature-icon svg { width: 14px; height: 14px; color: var(--accent); }
+
+        .left-footer {
+            font-size: 0.72rem;
+            color: rgba(100,116,139,0.6);
+        }
+
+        /* ─── Right Panel ─── */
+        .signup-panel-right {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 40px;
+            background: var(--navy);
+            position: relative;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .signup-form-card {
+            width: 100%;
+            max-width: 440px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Mobile logo */
+        .mobile-brand { display: none; margin-bottom: 20px; }
+        .mobile-brand-pill {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 10px 20px;
+            display: inline-flex;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+        }
+        .mobile-brand-pill img { height: 44px; width: auto; object-fit: contain; }
+
+        .form-header { margin-bottom: 20px; }
+        .form-header-title {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--white);
+            letter-spacing: -0.02em;
+        }
+        .form-header-sub {
+            margin-top: 6px;
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+        }
+
+        /* Message */
+        #signupMessage {
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 0.84rem;
+            font-weight: 500;
+            margin-bottom: 14px;
+        }
+        #signupMessage.error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); color: #f87171; }
+        #signupMessage.success { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); color: #34d399; }
+
+        /* Form */
+        .form-group { margin-bottom: 14px; }
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 11px 16px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            color: var(--white);
+            font-size: 0.92rem;
+            font-family: var(--font);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+        .form-group input::placeholder { color: rgba(100,116,139,0.6); }
+        .form-group input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(20,184,166,0.25);
+        }
+        .form-group input:-webkit-autofill {
+            -webkit-box-shadow: 0 0 0 30px var(--navy) inset !important;
+            -webkit-text-fill-color: var(--white) !important;
+        }
+        .form-group small {
+            display: block;
+            margin-top: 4px;
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+        }
+
+        .password-input-wrapper { position: relative; width: 100%; }
+        .password-input-wrapper input { padding-right: 44px !important; }
         .password-toggle-icon {
             position: absolute;
-            right: 15px;
+            right: 14px;
             top: 50%;
             transform: translateY(-50%);
             cursor: pointer;
             color: var(--text-secondary);
-            transition: color 0.3s ease;
-            font-size: 18px;
+            font-size: 16px;
             user-select: none;
+            transition: color 0.2s;
+        }
+        .password-toggle-icon:hover { color: var(--accent); }
+
+        .btn-signup {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            color: var(--navy);
+            font-size: 0.95rem;
+            font-weight: 700;
+            font-family: var(--font);
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+            box-shadow: 0 4px 20px rgba(20,184,166,0.35);
+            margin-top: 6px;
+        }
+        .btn-signup:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(20,184,166,0.45); }
+        .btn-signup:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.84rem;
+            color: var(--text-secondary);
+        }
+        .auth-footer a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .auth-footer a:hover { text-decoration: underline; }
+
+        /* ─── Mobile ─── */
+        @media (max-width: 767px) {
+            .signup-shell { grid-template-columns: 1fr; height: 100vh; }
+            .signup-panel-left { display: none; }
+            .signup-panel-right { align-items: flex-start; padding: 24px 20px; }
+            .mobile-brand { display: block; }
+            .signup-form-card { max-width: 100%; }
+            .form-header-title { font-size: 1.3rem; }
         }
 
-        .password-toggle-icon:hover {
-            color: var(--neon-cyan);
+        @media (max-width: 480px) {
+            .signup-panel-right { padding: 20px 16px; }
+            .form-group { margin-bottom: 12px; }
+            .form-group input { padding: 10px 14px; font-size: 0.88rem; }
+            .btn-signup { padding: 12px; font-size: 0.9rem; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header class="auth-header">
-            <div style="background:#fff;border-radius:10px;padding:6px 14px;box-shadow:0 2px 8px rgba(0,0,0,0.08);display:inline-flex;align-items:center;margin-bottom:12px;">
-                <img src="fluxgen-logo.jpg" alt="FluxGen" style="height:42px;object-fit:contain;">
-            </div>
-            <h1>Expense Tracker</h1>
-            <p>Create your account to get started</p>
-        </header>
 
-        <main class="auth-container">
-            <section class="auth-section">
-                <h2>📝 Sign Up</h2>
-                <p>Create a new account to start tracking expenses</p>
-
-                <div id="signupMessage" class="message" style="display: none;"></div>
-
-                <form id="signupForm" class="auth-form">
-                    <div class="form-group">
-                        <label for="name">Full Name:</label>
-                        <input type="text" id="name" name="name" placeholder="John Doe" required autocomplete="name" minlength="2" maxlength="50">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="email">Email:</label>
-                        <input type="email" id="email" name="email" placeholder="your@email.com" required autocomplete="email">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="password">Password:</label>
-                        <div class="password-input-wrapper">
-                            <input type="password" id="password" name="password" placeholder="Min 6 characters" required autocomplete="new-password" minlength="6">
-                            <span class="password-toggle-icon" onclick="togglePasswordVisibility('password', this)">👁️</span>
-                        </div>
-                        <small>Password must be at least 6 characters and contain uppercase, lowercase, and number</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="confirmPassword">Confirm Password:</label>
-                        <div class="password-input-wrapper">
-                            <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Re-enter password" required autocomplete="new-password" minlength="6">
-                            <span class="password-toggle-icon" onclick="togglePasswordVisibility('confirmPassword', this)">👁️</span>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn-primary" id="signupBtn">
-                        <span id="signupBtnText">✅ Create Account</span>
-                        <span id="signupBtnLoading" style="display: none;">⏳ Creating account...</span>
-                    </button>
-                </form>
-
-                <div class="auth-footer">
-                    <p>Already have an account? <a href="login.html" class="auth-link">Login here</a></p>
+<div class="signup-shell">
+    <!-- Left Panel — Branding -->
+    <aside class="signup-panel-left">
+        <div class="left-content">
+            <div>
+                <div class="brand-logo-pill">
+                    <img src="fluxgen-logo.jpg" alt="FluxGen Technologies">
                 </div>
-            </section>
-        </main>
-    </div>
+                <div class="left-headline">
+                    <h1>Join your team on<br><span class="accent">FluxGen Expenses.</span></h1>
+                    <p>Create your account to start tracking, submitting, and managing expenses with your team.</p>
+                </div>
+                <div class="left-features">
+                    <div class="left-feature">
+                        <div class="left-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+                        Scan bills with OCR — instant data extraction
+                    </div>
+                    <div class="left-feature">
+                        <div class="left-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
+                        Request advances with multi-level approval
+                    </div>
+                    <div class="left-feature">
+                        <div class="left-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+                        Export to Google Sheets and Tally XML
+                    </div>
+                </div>
+            </div>
+            <div class="left-footer">&copy; 2025 FluxGen Technologies Pvt Ltd. All rights reserved.</div>
+        </div>
+    </aside>
 
-    <!-- Supabase SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-client.js"></script>
-    <script src="supabase-api.js"></script>
-    <script src="supabase-auth.js"></script>
-    <script>
-        // Password visibility toggle function
-        function togglePasswordVisibility(inputId, iconElement) {
-            const input = document.getElementById(inputId);
-            if (input.type === 'password') {
-                input.type = 'text';
-                iconElement.textContent = '🙈';
-            } else {
-                input.type = 'password';
-                iconElement.textContent = '👁️';
-            }
+    <!-- Right Panel — Signup Form -->
+    <main class="signup-panel-right">
+        <div class="signup-form-card">
+            <div class="mobile-brand">
+                <div class="mobile-brand-pill">
+                    <img src="fluxgen-logo.jpg" alt="FluxGen">
+                </div>
+            </div>
+
+            <div class="form-header">
+                <h1 class="form-header-title">Create account</h1>
+                <p class="form-header-sub">Sign up with your FluxGen email</p>
+            </div>
+
+            <div id="signupMessage" style="display: none;"></div>
+
+            <form id="signupForm">
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" name="name" placeholder="John Doe" required autocomplete="name" minlength="2" maxlength="50">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="you@fluxgentech.com" required autocomplete="email">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="password" name="password" placeholder="Min 6 characters" required autocomplete="new-password" minlength="6">
+                        <span class="password-toggle-icon" onclick="togglePasswordVisibility('password', this)">👁️</span>
+                    </div>
+                    <small>Must contain uppercase, lowercase, and a number</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Re-enter password" required autocomplete="new-password" minlength="6">
+                        <span class="password-toggle-icon" onclick="togglePasswordVisibility('confirmPassword', this)">👁️</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-signup" id="signupBtn">
+                    <span id="signupBtnText">Create Account</span>
+                    <span id="signupBtnLoading" style="display: none;">Creating account...</span>
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                <p>Already have an account? <a href="login.html">Sign in</a></p>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
+<script src="supabase-api.js"></script>
+<script src="supabase-auth.js"></script>
+<script>
+    function togglePasswordVisibility(inputId, iconElement) {
+        const input = document.getElementById(inputId);
+        if (input.type === 'password') {
+            input.type = 'text';
+            iconElement.textContent = '🙈';
+        } else {
+            input.type = 'password';
+            iconElement.textContent = '👁️';
+        }
+    }
+
+    document.getElementById('signupForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const name = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const messageEl = document.getElementById('signupMessage');
+        const btnText = document.getElementById('signupBtnText');
+        const btnLoading = document.getElementById('signupBtnLoading');
+        const signupBtn = document.getElementById('signupBtn');
+
+        messageEl.style.display = 'none';
+
+        if (!name || !email || !password || !confirmPassword) {
+            showMessage('Please fill in all fields', 'error');
+            return;
         }
 
-        document.getElementById('signupForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+        if (!email.toLowerCase().endsWith('@fluxgentech.com')) {
+            showMessage('Only @fluxgentech.com email addresses are allowed. Contact your admin for access.', 'error');
+            return;
+        }
 
-            const name = document.getElementById('name').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            const messageEl = document.getElementById('signupMessage');
-            const btnText = document.getElementById('signupBtnText');
-            const btnLoading = document.getElementById('signupBtnLoading');
-            const signupBtn = document.getElementById('signupBtn');
+        if (password !== confirmPassword) {
+            showMessage('Passwords do not match', 'error');
+            return;
+        }
 
-            // Clear previous messages
-            messageEl.style.display = 'none';
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
+        if (!passwordRegex.test(password)) {
+            showMessage('Password must contain at least one uppercase letter, one lowercase letter, and one number', 'error');
+            return;
+        }
 
-            // Validate inputs
-            if (!name || !email || !password || !confirmPassword) {
-                showMessage('Please fill in all fields', 'error');
-                return;
-            }
+        signupBtn.disabled = true;
+        btnText.style.display = 'none';
+        btnLoading.style.display = 'inline';
 
-            // Restrict to company email only
-            if (!email.toLowerCase().endsWith('@fluxgentech.com')) {
-                showMessage('Only @fluxgentech.com email addresses are allowed. Contact your admin for access.', 'error');
-                return;
-            }
+        try {
+            const response = await api.register(name, email, password);
 
-            // Check password match
-            if (password !== confirmPassword) {
-                showMessage('Passwords do not match', 'error');
-                return;
-            }
-
-            // Validate password strength
-            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
-            if (!passwordRegex.test(password)) {
-                showMessage('Password must contain at least one uppercase letter, one lowercase letter, and one number', 'error');
-                return;
-            }
-
-            // Show loading state
-            signupBtn.disabled = true;
-            btnText.style.display = 'none';
-            btnLoading.style.display = 'inline';
-
-            try {
-                const response = await api.register(name, email, password);
-
-                if (response.success) {
-                    showMessage('Account created! Please check your email to verify your account.', 'success');
-
-                    // Redirect to login after short delay
-                    setTimeout(() => {
-                        window.location.href = 'login.html';
-                    }, 2000);
-                } else {
-                    showMessage(response.message || 'Registration failed', 'error');
-                    resetButton();
-                }
-            } catch (error) {
-                console.error('Signup error:', error);
-                showMessage(error.message || 'Registration failed. Please try again.', 'error');
+            if (response.success) {
+                showMessage('Account created! Please check your email to verify your account.', 'success');
+                setTimeout(() => { window.location.href = 'login.html'; }, 2000);
+            } else {
+                showMessage(response.message || 'Registration failed', 'error');
                 resetButton();
             }
-        });
-
-        function showMessage(message, type) {
-            const messageEl = document.getElementById('signupMessage');
-            messageEl.textContent = message;
-            messageEl.className = `message ${type}`;
-            messageEl.style.display = 'block';
+        } catch (error) {
+            console.error('Signup error:', error);
+            showMessage(error.message || 'Registration failed. Please try again.', 'error');
+            resetButton();
         }
+    });
 
-        function resetButton() {
-            const signupBtn = document.getElementById('signupBtn');
-            const btnText = document.getElementById('signupBtnText');
-            const btnLoading = document.getElementById('signupBtnLoading');
+    function showMessage(message, type) {
+        const messageEl = document.getElementById('signupMessage');
+        messageEl.textContent = message;
+        messageEl.className = type;
+        messageEl.style.display = 'block';
+    }
 
-            signupBtn.disabled = false;
-            btnText.style.display = 'inline';
-            btnLoading.style.display = 'none';
-        }
-
-        // Auth redirect handled by supabase-auth.js initAuth()
-    </script>
+    function resetButton() {
+        document.getElementById('signupBtn').disabled = false;
+        document.getElementById('signupBtnText').style.display = 'inline';
+        document.getElementById('signupBtnLoading').style.display = 'none';
+    }
+</script>
 </body>
 </html>
