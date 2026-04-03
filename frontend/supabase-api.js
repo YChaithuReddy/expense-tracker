@@ -235,9 +235,7 @@ const api = {
         let query = supabase
             .from('expenses')
             .select(`
-                id, date, category, description, amount, vendor,
-                visit_type, payment_mode, bill_attached, voucher_status, time,
-                subcategory, project_id, advance_id, created_at,
+                *,
                 expense_images (id, storage_path, public_url, filename)
             `, { count: 'exact' })
             .eq('user_id', user.id)
