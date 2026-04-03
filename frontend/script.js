@@ -7378,40 +7378,35 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
      */
     initializeTheme() {
         // Get saved theme from localStorage, default to 'teal'
-        const savedTheme = localStorage.getItem('expenseTrackerTheme') || 'teal';
+        let savedTheme = localStorage.getItem('expenseTrackerTheme') || 'teal';
+        // Migrate away from removed cyberpunk theme
+        if (savedTheme === 'cyberpunk') savedTheme = 'teal';
 
-        // Apply theme
         this.applyTheme(savedTheme);
 
         console.log(`🎨 Theme initialized: ${savedTheme}`);
     }
 
     /**
-     * Toggle between cyberpunk, teal, and minimalist themes
+     * Toggle between teal, light, and minimalist themes
      */
     toggleTheme() {
-        // Get current theme
-        const currentTheme = document.documentElement.getAttribute('data-theme') || 'cyberpunk';
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'teal';
 
-        // Cycle: teal -> light -> cyberpunk -> minimalist -> teal
+        // Cycle: teal -> light -> minimalist -> teal
         let newTheme;
         if (currentTheme === 'teal') {
             newTheme = 'light';
         } else if (currentTheme === 'light') {
-            newTheme = 'cyberpunk';
-        } else if (currentTheme === 'cyberpunk') {
             newTheme = 'minimalist';
         } else {
             newTheme = 'teal';
         }
 
-        // Apply and save new theme
         this.applyTheme(newTheme);
         localStorage.setItem('expenseTrackerTheme', newTheme);
 
-        // Show notification
         const themeNames = {
-            'cyberpunk': 'Cyberpunk',
             'teal': 'Teal Business',
             'minimalist': 'Green Minimal',
             'light': 'Light Professional'
@@ -7439,7 +7434,6 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         const themeLabel = document.getElementById('themeLabel');
 
         const themes = {
-            cyberpunk: { icon: '🌈', label: 'Cyberpunk' },
             teal: { icon: '🌊', label: 'Teal Business' },
             minimalist: { icon: '🌿', label: 'Green Minimal' },
             light: { icon: '☀️', label: 'Light Professional' }

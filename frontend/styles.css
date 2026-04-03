@@ -10,35 +10,31 @@
    THEME SYSTEM - Dual Theme Support
    ================================================ */
 
-/* Cyberpunk Theme (Default) */
-:root,
-[data-theme="cyberpunk"] {
-    /* Neon Colors */
-    --neon-cyan: #00ffff;
-    --neon-pink: #ff00ff;
-    --neon-purple: #9d00ff;
-    --neon-blue: #00d4ff;
-    --neon-green: #39ff14;
-    --primary-gradient: linear-gradient(135deg, #00ffff 0%, #9d00ff 100%);
-    --cyber-blue: #00d4ff;
-    --cyber-purple: #8b5cf6;
-    --cyber-pink: #f472b6;
-    --dark-bg: #0f0f23;
-    --card-bg: #1a1a2e;
-    --glass-bg: rgba(255, 255, 255, 0.05);
-    --text-primary: #ffffff;
-    --text-secondary: #a1a1aa;
-    --accent-glow: #00d4ff40;
-    --border-gradient: linear-gradient(90deg, var(--cyber-blue), var(--cyber-purple), var(--cyber-pink));
+/* Teal Business Theme (Default) */
+:root {
+    --neon-cyan: #14b8a6;
+    --neon-pink: #2dd4bf;
+    --neon-purple: #0d9488;
+    --neon-blue: #14b8a6;
+    --neon-green: #5eead4;
+    --primary-gradient: linear-gradient(135deg, #14b8a6 0%, #2dd4bf 100%);
+    --cyber-blue: #14b8a6;
+    --cyber-purple: #0d9488;
+    --cyber-pink: #2dd4bf;
+    --dark-bg: #1e293b;
+    --card-bg: #334155;
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --border-gradient: linear-gradient(90deg, #14b8a6, #2dd4bf, #0d9488);
 
-    /* Common theme variables */
-    --primary-color: var(--neon-cyan);
-    --accent-color: var(--cyber-blue);
-    --background-primary: #0a0a0f;
-    --background-secondary: var(--card-bg);
-    --border-color: rgba(0, 212, 255, 0.3);
-    --hover-bg: rgba(0, 212, 255, 0.1);
-    --shadow-color: rgba(0, 0, 0, 0.3);
+    --primary-color: #14b8a6;
+    --accent-color: #2dd4bf;
+    --background-primary: #1e293b;
+    --background-secondary: #334155;
+    --border-color: rgba(20, 184, 166, 0.25);
+    --hover-bg: rgba(20, 184, 166, 0.1);
+    --shadow-color: rgba(0, 0, 0, 0.2);
 }
 
 /* Modern Minimalist Theme (Green) */
