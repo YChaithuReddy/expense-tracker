@@ -1073,13 +1073,19 @@
 
 /* View Images Button - Light */
 [data-theme="light"] .btn-view-images-premium {
-    background: #111827 !important;
-    border: 2px solid rgba(30, 41, 59, 0.3) !important;
+    background: #ffffff !important;
+    color: #374151 !important;
+    border: 1px solid #d1d5db !important;
+    box-shadow: none !important;
 }
-
+[data-theme="light"] .btn-view-images-premium::before {
+    display: none;
+}
 [data-theme="light"] .btn-view-images-premium:hover {
-    border-color: rgba(30, 41, 59, 0.6) !important;
-    box-shadow: 0 8px 24px rgba(30, 41, 59, 0.2) !important;
+    background: #f3f4f6 !important;
+    border-color: #9ca3af !important;
+    box-shadow: none !important;
+    transform: none;
 }
 
 /* Scrollbar - Light */

@@ -106,8 +106,8 @@
     --cyber-blue: #111827;
     --cyber-purple: #374151;
     --cyber-pink: #94a3b8;
-    --dark-bg: #f9fafb;
-    --card-bg: #ffffff;
+    --dark-bg: #f3f4f6;
+    --card-bg: #f9fafb;
     --glass-bg: rgba(0, 0, 0, 0.02);
     --text-primary: #111827;
     --text-secondary: #6b7280;
@@ -116,16 +116,16 @@
 
     --primary-color: #111827;
     --accent-color: #374151;
-    --background-primary: #f9fafb;
-    --background-secondary: #ffffff;
-    --border-color: #e5e7eb;
+    --background-primary: #f3f4f6;
+    --background-secondary: #f9fafb;
+    --border-color: #d1d5db;
     --hover-bg: rgba(0, 0, 0, 0.03);
     --shadow-color: rgba(0, 0, 0, 0.06);
 
     /* Light-specific overrides */
-    --bg-primary: #f9fafb;
-    --bg-secondary: #ffffff;
-    --input-bg: #ffffff;
+    --bg-primary: #f3f4f6;
+    --bg-secondary: #f9fafb;
+    --input-bg: #f9fafb;
     --input-border: #d1d5db;
     --input-text: #111827;
     --input-placeholder: #9ca3af;
@@ -141,16 +141,16 @@
 
 /* Light theme body and element overrides */
 [data-theme="light"] body {
-    background: #f9fafb;
+    background: #f3f4f6;
     color: #111827;
 }
 
 [data-theme="light"] .container {
-    background: #f9fafb;
+    background: #f3f4f6;
 }
 
 [data-theme="light"] header {
-    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%);
+    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 50%, #eef2f7 100%);
     border-color: #d1d5db;
     border-bottom: 1px solid #d1d5db;
 }
@@ -166,7 +166,7 @@
 }
 
 [data-theme="light"] .section-card {
-    background: #ffffff;
+    background: #f9fafb;
     border: 1px solid #d1d5db;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
