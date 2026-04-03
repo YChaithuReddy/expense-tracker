@@ -12357,16 +12357,15 @@ select.inline-input option {
 
 /* ---- Header: stop float animation, remove neon glow, clean border ---- */
 [data-theme="light"] header {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-    animation: none;
-    transform: none;
+    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 50%, #eef2f7 100%);
+    border: 1px solid #d1d5db;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    /* Keep float animation */
 }
 
 [data-theme="light"] header::before {
-    background: linear-gradient(135deg, rgba(99,102,241,0.06) 0%, rgba(14,165,233,0.04) 50%, rgba(16,185,129,0.06) 100%);
-    opacity: 0.8;
+    background: linear-gradient(45deg, transparent, rgba(99,102,241,0.05), rgba(14,165,233,0.04), transparent);
+    /* Keep shine animation with subtle light colors */
 }
 
 [data-theme="light"] header h1 {
