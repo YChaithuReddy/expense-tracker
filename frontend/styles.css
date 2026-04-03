@@ -12172,9 +12172,19 @@ select.inline-input option {
         justify-content: center;
     }
 
-    /* Hide user name and email on mobile to save space */
+    /* Show user name/email on mobile — compact single line */
     .user-info-content .user-details {
-        display: none;
+        display: block;
+        width: 100%;
+        text-align: center;
+        order: -1;
+    }
+    .user-info-content .user-details .user-name {
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    .user-info-content .user-details .user-email {
+        font-size: 0.72rem;
     }
 
     /* Smaller icon buttons on mobile — 44px min touch target */
