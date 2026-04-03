@@ -7202,6 +7202,20 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             });
         }
 
+        // Wire up "Submit for Approval" button (company mode only)
+        const approvalBtn = newForm.querySelector('#submitForApprovalReimbBtn');
+        if (approvalBtn && typeof isCompanyMode === 'function' && isCompanyMode()) {
+            approvalBtn.style.display = '';
+            approvalBtn.addEventListener('click', async () => {
+                if (!newForm.reportValidity()) return;
+                // Close this modal, open the approval workflow
+                this.closeEmployeeInfoModal();
+                if (typeof approvalWorkflow !== 'undefined') {
+                    approvalWorkflow.openSubmitModal();
+                }
+            });
+        }
+
         // Auto-fill employee name from logged-in user
         const empNameField = newForm.querySelector('#empName');
         if (empNameField && !empNameField.value) {
