@@ -163,8 +163,8 @@ const pdfLibrary = (() => {
                     <button class="pdf-row-btn pdf-row-btn--view" onclick="pdfLibrary.viewPdf('${escapedId}')" title="View PDF" aria-label="View PDF">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                     </button>
-                    <button class="pdf-row-btn pdf-row-btn--kodo" onclick="pdfLibrary.openKodoModal('${escapedId}')" title="Submit to Kodo" aria-label="Submit to Kodo">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 00-8 0v2"/><circle cx="12" cy="14" r="1.5"/></svg>
+                    <button class="pdf-row-btn pdf-row-btn--approval" onclick="pdfLibrary.submitForApproval('${escapedId}')" title="Submit for Approval" aria-label="Submit for Approval">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
                     </button>
                     <button class="pdf-row-btn pdf-row-btn--email" onclick="pdfLibrary.openEmailModal('${escapedId}')" title="Email to Accounts" aria-label="Email to Accounts">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
@@ -743,6 +743,24 @@ const pdfLibrary = (() => {
     }
 
     // ---- Public API ----
+    // ---- Submit for Approval (opens approval workflow with PDF expenses) ----
+    async function submitForApproval(id) {
+        const row = await getRowById(id);
+        if (!row) return;
+
+        // Check if approval workflow is available
+        if (typeof approvalWorkflow === 'undefined' || typeof isCompanyMode !== 'function' || !isCompanyMode()) {
+            showToast('Approval workflow is available in company mode only', 'error');
+            return;
+        }
+
+        // Close the PDF library modal first
+        closeLibrary();
+
+        // Open the approval submit modal with all expenses auto-selected
+        approvalWorkflow.openSubmitModal();
+    }
+
     return {
         init,
         openLibrary,
@@ -751,9 +769,7 @@ const pdfLibrary = (() => {
         confirmUpload,
         viewPdf,
         downloadPdf,
-        openKodoModal,
-        closeKodoModal,
-        submitToKodo,
+        submitForApproval,
         openEmailModal,
         closeEmailModal,
         sendEmail,
