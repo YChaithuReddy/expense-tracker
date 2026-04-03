@@ -1476,6 +1476,8 @@
                 await api.markVoucherPaid(voucherId, paymentMethod, paymentReference);
 
                 if (window.showToast) showToast('Voucher marked as reimbursed', 'success');
+                api.logActivity?.('voucher_reimbursed', `Marked ${detail.voucher_number} as paid via ${paymentMethod}${paymentReference ? ' (Ref: ' + paymentReference + ')' : ''}`);
+
 
                 // Send email to employee
                 if (detail.submitter?.email) {

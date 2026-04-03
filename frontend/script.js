@@ -3650,6 +3650,7 @@ class ExpenseTracker {
                 await this.loadExpenses();
 
                 this.showNotification('✅ Expense updated successfully!');
+                window.api?.logActivity?.('expense_edited', `Updated expense ₹${expenseData.amount} — ${expenseData.vendor || 'Unknown'}`, { amount: expenseData.amount, vendor: expenseData.vendor });
                 this.editingExpenseId = null;
 
                 // Reset submit button text
