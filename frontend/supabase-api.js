@@ -2474,6 +2474,139 @@ const api = {
 
         if (error) handleError(error, 'Save ledger mapping');
         return { success: true, data };
+    },
+
+    // ==============================================
+    // PROFILE
+    // ==============================================
+
+    async updateProfile(updates) {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        const allowed = {};
+        if (updates.name !== undefined) allowed.name = updates.name;
+        if (updates.monthly_budget !== undefined) allowed.monthly_budget = parseFloat(updates.monthly_budget) || 0;
+
+        const { data, error } = await supabase
+            .from('profiles')
+            .update(allowed)
+            .eq('id', user.id)
+            .select()
+            .single();
+
+        if (error) handleError(error, 'Update profile');
+
+        // Update localStorage
+        const cached = JSON.parse(localStorage.getItem('user') || '{}');
+        Object.assign(cached, allowed);
+        localStorage.setItem('user', JSON.stringify(cached));
+
+        return { success: true, data };
+    },
+
+    async changePassword(newPassword) {
+        const supabase = getSupabase();
+        const { error } = await supabase.auth.updateUser({ password: newPassword });
+        if (error) throw new Error(error.message);
+        return { success: true };
+    },
+
+    async getMyVouchersSummary() {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        const { data, error } = await supabase
+            .from('vouchers')
+            .select('status, total_amount')
+            .eq('submitted_by', user.id);
+
+        if (error) return { total: 0, pending: 0, approved: 0, rejected: 0, reimbursed: 0, totalAmount: 0 };
+
+        const summary = { total: data.length, pending: 0, approved: 0, rejected: 0, reimbursed: 0, totalAmount: 0 };
+        data.forEach(v => {
+            summary.totalAmount += parseFloat(v.total_amount) || 0;
+            if (['pending_manager', 'pending_accountant', 'manager_approved'].includes(v.status)) summary.pending++;
+            else if (v.status === 'approved') summary.approved++;
+            else if (v.status === 'rejected') summary.rejected++;
+            else if (v.status === 'reimbursed') summary.reimbursed++;
+        });
+        return summary;
+    },
+
+    // ==============================================
+    // ANALYTICS (Admin)
+    // ==============================================
+
+    async getSpendByDepartment(orgId, startDate = null, endDate = null) {
+        const supabase = getSupabase();
+        const { data } = await supabase.rpc('get_org_spend_by_department', {
+            p_org_id: orgId, p_start: startDate, p_end: endDate
+        });
+        return data || [];
+    },
+
+    async getSpendByProject(orgId, startDate = null, endDate = null) {
+        const supabase = getSupabase();
+        const { data } = await supabase.rpc('get_org_spend_by_project', {
+            p_org_id: orgId, p_start: startDate, p_end: endDate
+        });
+        return data || [];
+    },
+
+    async getSpendByEmployee(orgId, startDate = null, endDate = null) {
+        const supabase = getSupabase();
+        const { data } = await supabase.rpc('get_org_spend_by_employee', {
+            p_org_id: orgId, p_start: startDate, p_end: endDate
+        });
+        return data || [];
+    },
+
+    async getMonthlyTrend(orgId, months = 12) {
+        const supabase = getSupabase();
+        const { data } = await supabase.rpc('get_org_monthly_trend', {
+            p_org_id: orgId, p_months: months
+        });
+        return data || [];
+    },
+
+    // ==============================================
+    // REIMBURSEMENT TRACKING
+    // ==============================================
+
+    async markVoucherPaid(voucherId, paymentMethod, paymentReference = '') {
+        const supabase = getSupabase();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        const { data, error } = await supabase
+            .from('vouchers')
+            .update({
+                status: 'reimbursed',
+                payment_date: new Date().toISOString().split('T')[0],
+                payment_method: paymentMethod,
+                payment_reference: paymentReference || null,
+                paid_by: user.id
+            })
+            .eq('id', voucherId)
+            .select()
+            .single();
+
+        if (error) handleError(error, 'Mark voucher paid');
+
+        // Add history
+        await supabase.from('voucher_history').insert({
+            voucher_id: voucherId,
+            action: 'reimbursed',
+            acted_by: user.id,
+            comments: `Paid via ${paymentMethod}${paymentReference ? ' (Ref: ' + paymentReference + ')' : ''}`,
+            previous_status: 'approved',
+            new_status: 'reimbursed'
+        });
+
+        return { success: true, data };
     }
 };
 

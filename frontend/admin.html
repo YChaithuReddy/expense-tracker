@@ -370,6 +370,10 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                     <span>Vouchers</span>
                 </button>
+                <button class="admin-nav-item" data-section="analytics" onclick="switchSection('analytics', this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="18" y="3" width="4" height="18"/><rect x="10" y="8" width="4" height="13"/><rect x="2" y="13" width="4" height="8"/></svg>
+                    <span>Analytics</span>
+                </button>
                 <button class="admin-nav-item" data-section="import" onclick="switchSection('import', this)">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
                     <span>Import CSV</span>
@@ -448,6 +452,70 @@
                     <div><h2>All Vouchers</h2><p>View and track all vouchers across the organization</p></div>
                 </div>
                 <div id="voucherList"><div class="admin-empty"><p>Loading vouchers...</p></div></div>
+            </div>
+
+            <!-- Analytics Section -->
+            <div class="admin-section" id="section-analytics">
+                <div class="admin-main__header">
+                    <div>
+                        <h2>Analytics</h2>
+                        <p>Spending insights across departments, projects, and employees</p>
+                    </div>
+                </div>
+
+                <!-- Date Range Filter -->
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;flex-wrap:wrap;">
+                    <label style="font-size:0.8rem;font-weight:600;color:var(--gray-500);">From</label>
+                    <input type="date" id="analyticsDateFrom" style="padding:7px 12px;border:1px solid var(--gray-200);border-radius:var(--radius-md);font-size:0.84rem;background:var(--white);color:var(--gray-900);outline:none;" onchange="loadAnalytics()">
+                    <label style="font-size:0.8rem;font-weight:600;color:var(--gray-500);">To</label>
+                    <input type="date" id="analyticsDateTo" style="padding:7px 12px;border:1px solid var(--gray-200);border-radius:var(--radius-md);font-size:0.84rem;background:var(--white);color:var(--gray-900);outline:none;" onchange="loadAnalytics()">
+                    <button class="admin-btn admin-btn--secondary" onclick="document.getElementById('analyticsDateFrom').value='';document.getElementById('analyticsDateTo').value='';loadAnalytics();" style="font-size:0.78rem;padding:7px 14px;">Clear</button>
+                </div>
+
+                <!-- Analytics Grid -->
+                <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(420px, 1fr));gap:20px;">
+
+                    <!-- Spend by Department -->
+                    <div class="admin-stat-card" style="padding:0;overflow:hidden;">
+                        <div style="padding:16px 20px;border-bottom:1px solid var(--gray-100);">
+                            <h3 style="margin:0;font-size:0.9rem;font-weight:700;color:var(--gray-900);">Spend by Department</h3>
+                        </div>
+                        <div id="analyticsDepartment" style="padding:4px 0;">
+                            <div class="admin-empty" style="padding:32px;"><p>Loading...</p></div>
+                        </div>
+                    </div>
+
+                    <!-- Spend by Project -->
+                    <div class="admin-stat-card" style="padding:0;overflow:hidden;">
+                        <div style="padding:16px 20px;border-bottom:1px solid var(--gray-100);">
+                            <h3 style="margin:0;font-size:0.9rem;font-weight:700;color:var(--gray-900);">Spend by Project</h3>
+                        </div>
+                        <div id="analyticsProject" style="padding:4px 0;">
+                            <div class="admin-empty" style="padding:32px;"><p>Loading...</p></div>
+                        </div>
+                    </div>
+
+                    <!-- Spend by Employee -->
+                    <div class="admin-stat-card" style="padding:0;overflow:hidden;">
+                        <div style="padding:16px 20px;border-bottom:1px solid var(--gray-100);">
+                            <h3 style="margin:0;font-size:0.9rem;font-weight:700;color:var(--gray-900);">Spend by Employee</h3>
+                        </div>
+                        <div id="analyticsEmployee" style="padding:4px 0;">
+                            <div class="admin-empty" style="padding:32px;"><p>Loading...</p></div>
+                        </div>
+                    </div>
+
+                    <!-- Monthly Trend -->
+                    <div class="admin-stat-card" style="padding:0;overflow:hidden;">
+                        <div style="padding:16px 20px;border-bottom:1px solid var(--gray-100);">
+                            <h3 style="margin:0;font-size:0.9rem;font-weight:700;color:var(--gray-900);">Monthly Trend</h3>
+                        </div>
+                        <div id="analyticsMonthly" style="padding:4px 0;">
+                            <div class="admin-empty" style="padding:32px;"><p>Loading...</p></div>
+                        </div>
+                    </div>
+
+                </div>
             </div>
 
             <!-- Import CSV Section -->
@@ -585,6 +653,7 @@ WDL1,WONDERLA,Amusement Park,Amusement Park</code>
             if (section === 'employees') loadEmployees();
             else if (section === 'projects') loadProjects();
             else if (section === 'vouchers') loadVouchers();
+            else if (section === 'analytics') loadAnalytics();
             else if (section === 'settings') loadSettings();
             else if (section === 'import') { setupCSVImport(); setupProjectCSVImport(); }
         }
@@ -949,6 +1018,191 @@ WDL1,WONDERLA,Amusement Park,Amusement Park</code>
                 domain: document.getElementById('settOrgDomain').value
             }).eq('id', user.organization_id);
             alert('Settings saved!');
+        }
+
+        // ==================== Analytics ====================
+        async function loadAnalytics() {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const orgId = user.organization_id;
+            if (!orgId) return;
+
+            const dateFrom = document.getElementById('analyticsDateFrom').value || null;
+            const dateTo = document.getElementById('analyticsDateTo').value || null;
+
+            const supabase = window.supabaseClient?.get();
+            if (!supabase) return;
+
+            try {
+                // Build base query for approved vouchers with expenses
+                let expenseQuery = supabase
+                    .from('expenses')
+                    .select('amount, category, description, date, created_at, user_id, profiles!inner(name, email, employee_id, department)')
+                    .eq('organization_id', orgId);
+
+                if (dateFrom) expenseQuery = expenseQuery.gte('date', dateFrom);
+                if (dateTo) expenseQuery = expenseQuery.lte('date', dateTo);
+
+                const { data: expenses, error } = await expenseQuery;
+                if (error) throw error;
+
+                const allExpenses = expenses || [];
+
+                // Also fetch voucher expenses for richer data
+                let voucherQuery = supabase
+                    .from('vouchers')
+                    .select('total_amount, expense_count, status, created_at, project_code, submitter:submitted_by(name, email, employee_id, department)')
+                    .eq('organization_id', orgId)
+                    .in('status', ['approved', 'reimbursed', 'manager_approved', 'pending_accountant', 'pending_manager']);
+
+                if (dateFrom) voucherQuery = voucherQuery.gte('created_at', dateFrom);
+                if (dateTo) voucherQuery = voucherQuery.lte('created_at', dateTo + 'T23:59:59');
+
+                const { data: vouchers } = await voucherQuery;
+                const allVouchers = vouchers || [];
+
+                // Fetch projects for name mapping
+                const { data: projects } = await supabase
+                    .from('projects')
+                    .select('project_code, project_name')
+                    .eq('organization_id', orgId);
+                const projectMap = {};
+                (projects || []).forEach(p => { projectMap[p.project_code] = p.project_name; });
+
+                renderDepartmentAnalytics(allVouchers);
+                renderProjectAnalytics(allVouchers, projectMap);
+                renderEmployeeAnalytics(allVouchers);
+                renderMonthlyTrend(allVouchers);
+
+            } catch (e) {
+                console.error('Analytics load error:', e);
+                ['analyticsDepartment', 'analyticsProject', 'analyticsEmployee', 'analyticsMonthly'].forEach(id => {
+                    document.getElementById(id).innerHTML = '<div class="admin-empty" style="padding:32px;"><p>Failed to load analytics data.</p></div>';
+                });
+            }
+        }
+
+        function fmtINR(amount) {
+            return '\u20B9' + Number(amount || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 });
+        }
+
+        function renderDepartmentAnalytics(vouchers) {
+            const container = document.getElementById('analyticsDepartment');
+            const deptMap = {};
+            let grandTotal = 0;
+
+            vouchers.forEach(v => {
+                const dept = v.submitter?.department || 'Unassigned';
+                const amt = Number(v.total_amount || 0);
+                if (!deptMap[dept]) deptMap[dept] = { amount: 0, count: 0 };
+                deptMap[dept].amount += amt;
+                deptMap[dept].count++;
+                grandTotal += amt;
+            });
+
+            const sorted = Object.entries(deptMap).sort((a, b) => b[1].amount - a[1].amount);
+
+            if (sorted.length === 0) {
+                container.innerHTML = '<div class="admin-empty" style="padding:32px;"><p>No data available.</p></div>';
+                return;
+            }
+
+            const rows = sorted.map(([dept, d]) => {
+                const pct = grandTotal > 0 ? ((d.amount / grandTotal) * 100).toFixed(1) : '0.0';
+                return `<tr><td>${esc(dept)}</td><td style="font-weight:600;">${fmtINR(d.amount)}</td><td>${d.count}</td><td>${pct}%</td></tr>`;
+            }).join('');
+
+            container.innerHTML = `<div class="admin-table-wrap"><table class="admin-table admin-table--compact"><thead><tr><th>Department</th><th>Amount</th><th>Count</th><th>% of Total</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+        }
+
+        function renderProjectAnalytics(vouchers, projectMap) {
+            const container = document.getElementById('analyticsProject');
+            const projMap = {};
+
+            vouchers.forEach(v => {
+                const code = v.project_code || 'No Project';
+                const amt = Number(v.total_amount || 0);
+                if (!projMap[code]) projMap[code] = { amount: 0, count: 0 };
+                projMap[code].amount += amt;
+                projMap[code].count++;
+            });
+
+            const sorted = Object.entries(projMap).sort((a, b) => b[1].amount - a[1].amount);
+
+            if (sorted.length === 0) {
+                container.innerHTML = '<div class="admin-empty" style="padding:32px;"><p>No data available.</p></div>';
+                return;
+            }
+
+            const rows = sorted.map(([code, d]) => {
+                const name = projectMap[code] || '-';
+                return `<tr><td><span class="admin-emp-id">${esc(code)}</span></td><td>${esc(name)}</td><td style="font-weight:600;">${fmtINR(d.amount)}</td><td>${d.count}</td></tr>`;
+            }).join('');
+
+            container.innerHTML = `<div class="admin-table-wrap"><table class="admin-table admin-table--compact"><thead><tr><th>Project Code</th><th>Project Name</th><th>Amount</th><th>Count</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+        }
+
+        function renderEmployeeAnalytics(vouchers) {
+            const container = document.getElementById('analyticsEmployee');
+            const empMap = {};
+
+            vouchers.forEach(v => {
+                const key = v.submitter?.email || 'unknown';
+                const amt = Number(v.total_amount || 0);
+                if (!empMap[key]) empMap[key] = { name: v.submitter?.name || '-', empId: v.submitter?.employee_id || '-', dept: v.submitter?.department || '-', amount: 0, count: 0 };
+                empMap[key].amount += amt;
+                empMap[key].count++;
+            });
+
+            const sorted = Object.entries(empMap).sort((a, b) => b[1].amount - a[1].amount);
+
+            if (sorted.length === 0) {
+                container.innerHTML = '<div class="admin-empty" style="padding:32px;"><p>No data available.</p></div>';
+                return;
+            }
+
+            const rows = sorted.map(([_, d]) => {
+                return `<tr><td>${esc(d.name)}</td><td><span class="admin-emp-id">${esc(d.empId)}</span></td><td>${esc(d.dept)}</td><td style="font-weight:600;">${fmtINR(d.amount)}</td><td>${d.count}</td></tr>`;
+            }).join('');
+
+            container.innerHTML = `<div class="admin-table-wrap"><table class="admin-table admin-table--compact"><thead><tr><th>Employee</th><th>Employee ID</th><th>Department</th><th>Amount</th><th>Count</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+        }
+
+        function renderMonthlyTrend(vouchers) {
+            const container = document.getElementById('analyticsMonthly');
+            const monthMap = {};
+
+            vouchers.forEach(v => {
+                const d = new Date(v.created_at);
+                const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+                const amt = Number(v.total_amount || 0);
+                if (!monthMap[key]) monthMap[key] = { amount: 0, count: 0 };
+                monthMap[key].amount += amt;
+                monthMap[key].count++;
+            });
+
+            const sorted = Object.entries(monthMap).sort((a, b) => a[0].localeCompare(b[0]));
+
+            if (sorted.length === 0) {
+                container.innerHTML = '<div class="admin-empty" style="padding:32px;"><p>No data available.</p></div>';
+                return;
+            }
+
+            const maxAmt = Math.max(...sorted.map(([_, d]) => d.amount));
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+            const rows = sorted.map(([key, d]) => {
+                const [yr, mo] = key.split('-');
+                const label = monthNames[parseInt(mo) - 1] + ' ' + yr;
+                const pct = maxAmt > 0 ? Math.max(4, (d.amount / maxAmt) * 100) : 4;
+                return `<tr>
+                    <td>${label}</td>
+                    <td style="font-weight:600;">${fmtINR(d.amount)}</td>
+                    <td>${d.count}</td>
+                    <td style="min-width:120px;"><div style="height:18px;border-radius:4px;background:var(--blue);opacity:0.75;width:${pct.toFixed(1)}%;transition:width 0.3s;"></div></td>
+                </tr>`;
+            }).join('');
+
+            container.innerHTML = `<div class="admin-table-wrap"><table class="admin-table admin-table--compact"><thead><tr><th>Month</th><th>Amount</th><th>Count</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
         }
 
         // ==================== Helpers ====================
