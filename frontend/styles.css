@@ -150,8 +150,9 @@
 }
 
 [data-theme="light"] header {
-    background: #ffffff;
-    border-color: #e5e7eb;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%);
+    border-color: #d1d5db;
+    border-bottom: 1px solid #d1d5db;
 }
 
 [data-theme="light"] header h1 {
@@ -166,8 +167,8 @@
 
 [data-theme="light"] .section-card {
     background: #ffffff;
-    border-color: #e5e7eb;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    border: 1px solid #d1d5db;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
 [data-theme="light"] .section-card h2 {
@@ -206,13 +207,14 @@
 }
 
 [data-theme="light"] .btn-primary {
-    background: #111827;
-    color: #ffffff;
-    border-color: #111827;
+    background: #ffffff;
+    color: #111827;
+    border: 1px solid #d1d5db;
 }
 
 [data-theme="light"] .btn-primary:hover {
-    background: #374151;
+    background: #f3f4f6;
+    border-color: #9ca3af;
 }
 
 [data-theme="light"] .btn-secondary {
@@ -306,12 +308,13 @@
 
 /* Light theme: All action buttons — clean professional look */
 [data-theme="light"] .action-buttons .btn-primary {
-    background: #111827;
-    color: #ffffff;
-    border: none;
+    background: #ffffff;
+    color: #374151;
+    border: 1px solid #d1d5db;
 }
 [data-theme="light"] .action-buttons .btn-primary:hover {
-    background: #374151;
+    background: #f3f4f6;
+    border-color: #9ca3af;
 }
 
 [data-theme="light"] .action-buttons .btn-secondary,
@@ -12362,7 +12365,8 @@ select.inline-input option {
 }
 
 [data-theme="light"] header::before {
-    display: none;
+    background: linear-gradient(135deg, rgba(99,102,241,0.06) 0%, rgba(14,165,233,0.04) 50%, rgba(16,185,129,0.06) 100%);
+    opacity: 0.8;
 }
 
 [data-theme="light"] header h1 {
