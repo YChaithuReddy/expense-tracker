@@ -249,7 +249,10 @@ const expenseDetail = (() => {
         return `
             <div class="expense-detail-data">
                 <div class="expense-detail-amount">${formatAmount(expense.amount)}</div>
-                ${fieldsHtml}
+                <div class="expense-detail-amount-label">Total Amount</div>
+                <div class="expense-detail-fields-grid">
+                    ${fieldsHtml}
+                </div>
                 ${advanceHtml}
                 <div class="expense-detail-status">
                     <h4>Submission Status</h4>

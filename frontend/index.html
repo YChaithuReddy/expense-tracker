@@ -2081,7 +2081,10 @@
     <!-- Expense Detail Modal (Paired View) -->
     <div id="expenseDetailModal" class="expense-detail-overlay" role="dialog" aria-modal="true">
         <div class="expense-detail-panel">
-            <button class="expense-detail-close" onclick="expenseDetail.close()" aria-label="Close">&times;</button>
+            <div class="expense-detail-header">
+                <h3 class="expense-detail-header-title">Expense Detail</h3>
+                <button class="expense-detail-close" onclick="expenseDetail.close()" aria-label="Close">&times;</button>
+            </div>
             <div class="expense-detail-content" id="expenseDetailContent"></div>
         </div>
     </div>
