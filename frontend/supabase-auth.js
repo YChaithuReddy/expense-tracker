@@ -371,11 +371,15 @@ async function initAuth() {
     }
 }
 
-// Initialize on page load
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initAuth);
-} else {
-    initAuth();
+// Initialize on page load — skip on admin/accountant pages (they handle auth via localStorage)
+const _authPath = window.location.pathname;
+const _skipAuth = _authPath.includes('admin') || _authPath.includes('accountant');
+if (!_skipAuth) {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAuth);
+    } else {
+        initAuth();
+    }
 }
 
 // ==============================================
