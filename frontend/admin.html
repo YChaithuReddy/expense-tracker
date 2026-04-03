@@ -598,8 +598,11 @@ WDL1,WONDERLA,Amusement Park,Amusement Park</code>
     <script>
         // ==================== Auth Guard ====================
         document.addEventListener('DOMContentLoaded', async () => {
-            // Wait for supabase to load
-            await new Promise(r => setTimeout(r, 500));
+            // Wait for supabase to be ready (poll instead of blind 500ms wait)
+            for (let i = 0; i < 20; i++) {
+                if (window.supabaseClient?.get()) break;
+                await new Promise(r => setTimeout(r, 50));
+            }
 
             const user = JSON.parse(localStorage.getItem('user') || 'null');
             if (!user) { window.location.href = 'login.html'; return; }
