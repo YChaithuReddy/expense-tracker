@@ -73,11 +73,15 @@ const approvalWorkflow = (() => {
         const tracker = window.expenseTracker;
         if (!tracker) return;
 
-        // Get selected expenses (or all if none selected)
+        // Get selected expenses — if none selected, use all expenses
         let expenses = tracker.getSelectedExpenses();
         if (expenses.length === 0) {
-            window.expenseTracker?.showNotification('Please select expenses to submit for approval');
-            return;
+            // Auto-select all expenses if none checked
+            expenses = tracker.expenses || [];
+            if (expenses.length === 0) {
+                window.expenseTracker?.showNotification('No expenses found. Add expenses first.');
+                return;
+            }
         }
 
         // Filter out already-submitted expenses
