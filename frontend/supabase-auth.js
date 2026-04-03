@@ -325,7 +325,7 @@ async function initAuth() {
             const user = getCurrentUser();
             const userEmail = user?.email?.toLowerCase();
             const defaultRedirect = userEmail === 'admin@fluxgentech.com' ? 'admin.html'
-                : (userEmail === 'accountant@fluxgentech.com' || user?.role === 'accountant') ? 'accountant.html'
+                : userEmail === 'accountant@fluxgentech.com' ? 'accountant.html'
                 : 'index.html';
             const redirect = savedRedirect || defaultRedirect;
             const safeRedirect = /^[a-zA-Z0-9_./-]+\.html$/.test(redirect) ? redirect : defaultRedirect;
@@ -344,7 +344,7 @@ async function initAuth() {
                 return;
             }
             const isAcctPage = pathname.includes('accountant') || pathname.includes('login') || pathname.includes('admin');
-            if (!isAcctPage && (curEmail === 'accountant@fluxgentech.com' || currentUser?.role === 'accountant')) {
+            if (!isAcctPage && curEmail === 'accountant@fluxgentech.com') {
                 window.location.href = 'accountant.html';
                 return;
             }
