@@ -50,7 +50,8 @@ const filesToCopy = [
     'styles_notifications.css',
     'sw.js',
     'manifest.json',
-    'favicon.svg'
+    'favicon.svg',
+    'fluxgen-logo.jpg'
 ];
 
 const foldersToCopy = [
