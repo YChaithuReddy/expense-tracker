@@ -12190,22 +12190,30 @@ select.inline-input option {
         border-radius: 12px;
     }
 
-    /* Name/email row — separate div above icons */
+    /* Name/email row — full width centered above icons */
     .user-info-name-row {
         width: 100%;
         text-align: center;
-        margin-bottom: 6px;
+        margin-bottom: 8px;
         padding-bottom: 8px;
         border-bottom: 1px solid rgba(0,0,0,0.06);
     }
+    .user-info-name-row .user-details {
+        flex-direction: column;
+        align-items: center;
+    }
     .user-info-name-row .user-name {
-        font-size: 0.95rem;
+        font-size: 1rem;
         font-weight: 700;
         color: #111827;
     }
     .user-info-name-row .user-email {
-        font-size: 0.78rem;
+        font-size: 0.8rem;
         color: #6b7280;
+    }
+    /* Icons row: centered */
+    .user-info-content {
+        justify-content: center;
     }
 
     /* Icon buttons row — centered */
