@@ -9,464 +9,1212 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Expense Tracker">
-    <title>Login - Expense Tracker</title>
+    <title>Login — FluxGen Expense Tracker</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="apple-touch-icon" href="icons/icon-192x192.svg">
     <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* ─── Reset & Base ─── */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --navy:          #0a0f1a;
+            --navy-mid:      #0f1828;
+            --navy-card:     #111827;
+            --navy-border:   rgba(255,255,255,0.08);
+            --navy-border-focus: rgba(20,184,166,0.6);
+            --accent:        #14b8a6;
+            --accent-light:  #2dd4bf;
+            --accent-dim:    rgba(20,184,166,0.15);
+            --accent-glow:   rgba(20,184,166,0.25);
+            --text-primary:  #f0f4f8;
+            --text-secondary: #8a9ab0;
+            --text-muted:    #5a6878;
+            --success:       #10b981;
+            --error:         #ef4444;
+            --white:         #ffffff;
+            --font:          'Inter', system-ui, -apple-system, sans-serif;
+            --radius-sm:     8px;
+            --radius-md:     12px;
+            --radius-lg:     16px;
+            --radius-xl:     24px;
+            --transition:    180ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            font-family: var(--font);
+            background: var(--navy);
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+        }
+
+        /* ─── Layout Shell ─── */
+        .login-shell {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        /* ─── Left Panel ─── */
+        .login-panel-left {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 48px 56px;
+            background: var(--navy-mid);
+            overflow: hidden;
+        }
+
+        /* Animated mesh gradient background */
+        .login-panel-left::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 20% 20%, rgba(20,184,166,0.18) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 80% at 80% 80%, rgba(45,212,191,0.10) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 50% at 50% 100%, rgba(13,148,136,0.12) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+            animation: meshPulse 10s ease-in-out infinite alternate;
+        }
+
+        /* Subtle grid overlay */
+        .login-panel-left::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+            background-size: 48px 48px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes meshPulse {
+            0%   { opacity: 0.7; transform: scale(1) rotate(0deg); }
+            50%  { opacity: 1;   transform: scale(1.04) rotate(1deg); }
+            100% { opacity: 0.8; transform: scale(1.01) rotate(-0.5deg); }
+        }
+
+        .left-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            justify-content: space-between;
+        }
+
+        /* Logo area */
+        .brand-logo-wrap {
+            display: inline-flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-logo-pill {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 10px 18px;
+            display: inline-flex;
+            align-items: center;
+            box-shadow:
+                0 0 0 1px rgba(255,255,255,0.12),
+                0 4px 24px rgba(0,0,0,0.32),
+                0 1px 4px rgba(0,0,0,0.2);
+        }
+
+        .brand-logo-pill img {
+            height: 36px;
+            width: auto;
+            object-fit: contain;
+            display: block;
+        }
+
+        /* Hero text */
+        .left-hero {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 40px 0 20px;
+        }
+
+        .left-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 20px;
+        }
+
+        .left-eyebrow-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+            animation: dotPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes dotPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50%       { opacity: 0.5; transform: scale(0.75); }
+        }
+
+        .left-headline {
+            font-size: clamp(28px, 3.2vw, 42px);
+            font-weight: 700;
+            line-height: 1.18;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+            margin-bottom: 20px;
+        }
+
+        .left-headline em {
+            font-style: normal;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .left-subtext {
+            font-size: 15px;
+            font-weight: 400;
+            line-height: 1.7;
+            color: var(--text-secondary);
+            max-width: 360px;
+        }
+
+        /* Feature list */
+        .left-features {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-top: 40px;
+        }
+
+        .left-feature {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13.5px;
+            color: var(--text-secondary);
+            font-weight: 450;
+        }
+
+        .left-feature-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: var(--accent-dim);
+            border: 1px solid rgba(20,184,166,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .left-feature-icon svg {
+            width: 14px;
+            height: 14px;
+            color: var(--accent);
+            stroke: var(--accent);
+        }
+
+        /* Footer text on left panel */
+        .left-footer {
+            font-size: 12px;
+            color: var(--text-muted);
+            letter-spacing: 0.01em;
+        }
+
+        /* Decorative floating card */
+        .left-deco-card {
+            position: absolute;
+            bottom: 60px;
+            right: -28px;
+            width: 200px;
+            background: rgba(17,24,39,0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.09);
+            border-radius: 16px;
+            padding: 18px 20px;
+            box-shadow: 0 20px 48px rgba(0,0,0,0.5);
+            z-index: 2;
+            animation: floatCard 6s ease-in-out infinite;
+        }
+
+        @keyframes floatCard {
+            0%, 100% { transform: translateY(0px); }
+            50%       { transform: translateY(-8px); }
+        }
+
+        .deco-card-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .deco-card-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+            margin-bottom: 4px;
+        }
+
+        .deco-card-sub {
+            font-size: 11px;
+            color: var(--success);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* ─── Right Panel ─── */
+        .login-panel-right {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 40px;
+            background: var(--navy);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Very subtle right-side radial */
+        .login-panel-right::before {
+            content: '';
+            position: absolute;
+            top: -200px;
+            right: -200px;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(20,184,166,0.04) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        /* Form card */
+        .login-form-card {
+            width: 100%;
+            max-width: 440px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Form header */
+        .form-header {
+            margin-bottom: 36px;
+        }
+
+        .form-header-title {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.025em;
+            margin-bottom: 6px;
+        }
+
+        .form-header-sub {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* Status message */
+        .message {
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            font-size: 13.5px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            display: none;
+            line-height: 1.5;
+            animation: msgSlide 0.2s ease-out;
+        }
+
+        @keyframes msgSlide {
+            from { opacity: 0; transform: translateY(-6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.success {
+            background: rgba(16,185,129,0.10);
+            border: 1px solid rgba(16,185,129,0.28);
+            color: #6ee7b7;
+            display: block;
+        }
+
+        .message.error {
+            background: rgba(239,68,68,0.10);
+            border: 1px solid rgba(239,68,68,0.28);
+            color: #fca5a5;
+            display: block;
+        }
+
+        /* Form groups */
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 13px 16px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--navy-border);
+            border-radius: var(--radius-md);
+            font-size: 15px;
+            color: var(--text-primary);
+            font-family: var(--font);
+            transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .form-group input::placeholder {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent);
+            background: rgba(20,184,166,0.05);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .form-group input:-webkit-autofill,
+        .form-group input:-webkit-autofill:focus {
+            -webkit-box-shadow: 0 0 0 1000px #0f1828 inset, 0 0 0 3px var(--accent-glow);
+            -webkit-text-fill-color: var(--text-primary);
+            caret-color: var(--text-primary);
+            border-color: var(--accent);
+        }
+
+        /* Password wrapper */
         .password-input-wrapper {
             position: relative;
             width: 100%;
         }
 
         .password-input-wrapper input {
-            padding-right: 45px !important;
+            padding-right: 48px;
         }
 
         .password-toggle-icon {
             position: absolute;
-            right: 15px;
+            right: 14px;
             top: 50%;
             transform: translateY(-50%);
             cursor: pointer;
-            color: var(--text-secondary);
-            transition: color 0.3s ease;
-            font-size: 18px;
+            color: var(--text-muted);
+            transition: color var(--transition);
+            font-size: 16px;
             user-select: none;
+            line-height: 1;
         }
 
         .password-toggle-icon:hover {
-            color: var(--neon-cyan);
+            color: var(--accent);
+        }
+
+        /* Forgot password link row */
+        .forgot-row {
+            text-align: right;
+            margin-top: -10px;
+            margin-bottom: 24px;
+        }
+
+        /* Primary CTA button */
+        .btn-primary {
+            width: 100%;
+            padding: 14px 20px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: #0a0f1a;
+            border: none;
+            border-radius: var(--radius-md);
+            font-family: var(--font);
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            letter-spacing: 0.01em;
+            transition: opacity var(--transition), transform var(--transition), box-shadow var(--transition);
+            box-shadow: 0 4px 20px rgba(20,184,166,0.35);
+            margin-bottom: 0;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            opacity: 0.92;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 28px rgba(20,184,166,0.45);
+        }
+
+        .btn-primary:active:not(:disabled) {
+            transform: translateY(0);
+            box-shadow: 0 2px 12px rgba(20,184,166,0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Divider */
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 24px 0;
+        }
+
+        .auth-divider-line {
+            flex: 1;
+            height: 1px;
+            background: var(--navy-border);
+        }
+
+        .auth-divider-text {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        /* Google button */
+        .btn-google {
+            width: 100%;
+            padding: 13px 20px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--navy-border);
+            border-radius: var(--radius-md);
+            font-family: var(--font);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: background var(--transition), border-color var(--transition), transform var(--transition);
+        }
+
+        .btn-google:hover {
+            background: rgba(255,255,255,0.09);
+            border-color: rgba(255,255,255,0.15);
+            transform: translateY(-1px);
+        }
+
+        .btn-google:active {
+            transform: translateY(0);
+        }
+
+        /* APK download section */
+        .apk-banner {
+            margin-top: 20px;
+            padding: 14px 18px;
+            background: rgba(20,184,166,0.05);
+            border: 1px solid rgba(20,184,166,0.15);
+            border-radius: var(--radius-md);
+            text-align: center;
+            display: none;
+        }
+
+        .apk-banner-text {
+            font-size: 12.5px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .apk-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 22px;
+            background: rgba(20,184,166,0.12);
+            border: 1px solid rgba(20,184,166,0.3);
+            color: var(--accent-light);
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: var(--font);
+            transition: background var(--transition), border-color var(--transition);
+        }
+
+        .apk-btn:hover {
+            background: rgba(20,184,166,0.2);
+            border-color: rgba(20,184,166,0.5);
+        }
+
+        .apk-btn svg {
+            width: 15px;
+            height: 15px;
+            stroke: currentColor;
+        }
+
+        /* Auth footer */
+        .auth-footer {
+            margin-top: 28px;
+            text-align: center;
+            font-size: 13.5px;
+            color: var(--text-secondary);
+        }
+
+        .auth-link {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color var(--transition);
+        }
+
+        .auth-link:hover {
+            color: var(--accent-light);
+        }
+
+        /* Small helper text */
+        .form-group small {
+            display: block;
+            margin-top: 6px;
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* ─── Mobile: single column ─── */
+        @media (max-width: 767px) {
+            .login-shell {
+                grid-template-columns: 1fr;
+                min-height: 100vh;
+            }
+
+            .login-panel-left {
+                display: none;
+            }
+
+            .login-panel-right {
+                align-items: flex-start;
+                padding: 40px 24px 48px;
+            }
+
+            .login-form-card {
+                max-width: 100%;
+            }
+
+            .form-header {
+                margin-bottom: 28px;
+            }
+
+            /* Show small brand mark on mobile at top */
+            .mobile-brand {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-bottom: 32px;
+            }
+
+            .mobile-brand-pill {
+                background: var(--white);
+                border-radius: 8px;
+                padding: 7px 12px;
+                display: inline-flex;
+                box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+            }
+
+            .mobile-brand-pill img {
+                height: 28px;
+                width: auto;
+                object-fit: contain;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .mobile-brand {
+                display: none;
+            }
+        }
+
+        /* ─── Tablet adjustment ─── */
+        @media (min-width: 768px) and (max-width: 1100px) {
+            .login-panel-left {
+                padding: 40px 36px;
+            }
+
+            .left-deco-card {
+                display: none;
+            }
+
+            .login-panel-right {
+                padding: 40px 32px;
+            }
+        }
+
+        /* ─── Forgot password form header updates (JS-driven) ─── */
+        .form-header-title.reset-mode::before {
+            content: '';
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header class="auth-header">
-            <div style="background:#fff;border-radius:10px;padding:6px 14px;box-shadow:0 2px 8px rgba(0,0,0,0.08);display:inline-flex;align-items:center;margin-bottom:12px;">
-                <img src="fluxgen-logo.jpg" alt="FluxGen" style="height:42px;object-fit:contain;">
+
+<div class="login-shell">
+
+    <!-- LEFT PANEL — Branding -->
+    <aside class="login-panel-left">
+        <div class="left-content">
+
+            <!-- Logo -->
+            <div class="brand-logo-wrap">
+                <div class="brand-logo-pill">
+                    <img src="fluxgen-logo.jpg" alt="FluxGen Technologies">
+                </div>
             </div>
-            <h1>Expense Tracker</h1>
-            <p>Login to manage your expenses</p>
-        </header>
 
-        <main class="auth-container">
-            <section class="auth-section">
-                <h2>🔐 Login</h2>
-                <p>Enter your credentials to access your account</p>
+            <!-- Hero copy -->
+            <div class="left-hero">
+                <span class="left-eyebrow">
+                    <span class="left-eyebrow-dot"></span>
+                    FluxGen Technologies Pvt Ltd
+                </span>
 
-                <div id="loginMessage" class="message" style="display: none;"></div>
+                <h2 class="left-headline">
+                    Simplify your<br>
+                    <em>expense management.</em>
+                </h2>
 
-                <form id="loginForm" class="auth-form">
-                    <div class="form-group">
-                        <label for="email">Email:</label>
-                        <input type="email" id="email" name="email" placeholder="your@email.com" required autocomplete="email">
-                    </div>
+                <p class="left-subtext">
+                    One platform to track, approve, and report every rupee your team spends — with OCR scanning, UPI integration, and real-time insights.
+                </p>
 
-                    <div class="form-group">
-                        <label for="password">Password:</label>
-                        <div class="password-input-wrapper">
-                            <input type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password" minlength="6">
-                            <span class="password-toggle-icon" onclick="togglePasswordVisibility('password', this)">👁️</span>
-                        </div>
-                    </div>
+                <ul class="left-features" style="list-style:none;">
+                    <li class="left-feature">
+                        <span class="left-feature-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 12l2 2 4-4"/>
+                                <circle cx="12" cy="12" r="10"/>
+                            </svg>
+                        </span>
+                        OCR bill scanning with instant data extraction
+                    </li>
+                    <li class="left-feature">
+                        <span class="left-feature-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2" y="5" width="20" height="14" rx="2"/>
+                                <path d="M2 10h20"/>
+                            </svg>
+                        </span>
+                        UPI payment integration — Google Pay, PhonePe
+                    </li>
+                    <li class="left-feature">
+                        <span class="left-feature-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                            </svg>
+                        </span>
+                        Real-time approvals and Google Sheets export
+                    </li>
+                </ul>
+            </div>
 
-                    <button type="submit" class="btn-primary" id="loginBtn">
-                        <span id="loginBtnText">🔓 Login</span>
-                        <span id="loginBtnLoading" style="display: none;">⏳ Logging in...</span>
-                    </button>
+            <!-- Bottom footer -->
+            <footer class="left-footer">
+                &copy; 2025 FluxGen Technologies Pvt Ltd. All rights reserved.
+            </footer>
+        </div>
 
-                    <div style="text-align: right; margin-top: 8px;">
-                        <a href="#" class="auth-link" id="forgotPasswordLink" style="font-size: 0.85rem;">Forgot password?</a>
-                    </div>
-                </form>
+        <!-- Floating stats card -->
+        <div class="left-deco-card">
+            <div class="deco-card-label">This month</div>
+            <div class="deco-card-value">&#8377;2.4L</div>
+            <div class="deco-card-sub">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+                12% under budget
+            </div>
+        </div>
+    </aside>
 
-                <!-- Forgot Password Form (hidden by default) -->
-                <form id="forgotPasswordForm" class="auth-form" style="display: none;">
-                    <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 16px;">
-                        Enter your email address and we'll send you a link to reset your password.
-                    </p>
-                    <div class="form-group">
-                        <label for="resetEmail">Email:</label>
-                        <input type="email" id="resetEmail" name="email" placeholder="your@email.com" required autocomplete="email">
-                    </div>
-                    <button type="submit" class="btn-primary" id="resetBtn">
-                        <span id="resetBtnText">📧 Send Reset Link</span>
-                        <span id="resetBtnLoading" style="display: none;">⏳ Sending...</span>
-                    </button>
-                    <div style="text-align: center; margin-top: 12px;">
-                        <a href="#" class="auth-link" id="backToLoginLink" style="font-size: 0.85rem;">← Back to login</a>
-                    </div>
-                </form>
+    <!-- RIGHT PANEL — Form -->
+    <main class="login-panel-right">
+        <div class="login-form-card">
 
-                <!-- Google Sign-In Divider -->
-                <div style="text-align: center; margin: 20px 0; position: relative;">
-                    <span style="background: var(--bg-primary); padding: 0 10px; position: relative; z-index: 1;">OR</span>
-                    <div style="position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: var(--border-color); z-index: 0;"></div>
+            <!-- Mobile-only logo -->
+            <div class="mobile-brand">
+                <div class="mobile-brand-pill">
+                    <img src="fluxgen-logo.jpg" alt="FluxGen">
+                </div>
+            </div>
+
+            <!-- Form header (JS also modifies these via querySelector) -->
+            <div class="form-header">
+                <h1 class="form-header-title auth-section-title">Welcome back</h1>
+                <p class="form-header-sub auth-section-sub">Sign in to your FluxGen account</p>
+            </div>
+
+            <!-- Status message -->
+            <div id="loginMessage" class="message" style="display: none;"></div>
+
+            <!-- Login Form -->
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label for="email">Email address</label>
+                    <input type="email" id="email" name="email" placeholder="you@fluxgentech.com" required autocomplete="email">
                 </div>
 
-                <!-- Google Sign-In Button -->
-                <button type="button" class="btn-google" onclick="loginWithGoogle()" style="width: 100%; padding: 12px; background: white; color: #333; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.3s;">
-                    <svg width="18" height="18" viewBox="0 0 18 18">
-                        <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/>
-                        <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.180l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/>
-                        <path fill="#FBBC05" d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z"/>
-                        <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.440 1.345l2.582-2.580C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/>
-                    </svg>
-                    Continue with Google
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password" minlength="6">
+                        <span class="password-toggle-icon" onclick="togglePasswordVisibility('password', this)">&#128065;</span>
+                    </div>
+                </div>
+
+                <div class="forgot-row">
+                    <a href="#" class="auth-link" id="forgotPasswordLink" style="font-size: 13px;">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="btn-primary" id="loginBtn">
+                    <span id="loginBtnText">Sign in</span>
+                    <span id="loginBtnLoading" style="display: none;">Signing in&hellip;</span>
                 </button>
+            </form>
 
-                <!-- Download APK (only on web, hidden inside native app) -->
-                <div id="apkDownloadBanner" style="display: none; margin-top: 20px; padding: 14px 16px; background: linear-gradient(135deg, rgba(20,184,166,0.08), rgba(0,212,255,0.08)); border: 1px solid rgba(20,184,166,0.25); border-radius: 10px; text-align: center;">
-                    <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 8px;">Get the Android app for the best experience</div>
-                    <a href="https://github.com/YChaithuReddy/expense-tracker/releases/latest/download/expense-tracker.apk"
-                       style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 24px; background: var(--neon-cyan); color: #000; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; transition: opacity 0.2s;"
-                       onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                        Download APK
-                    </a>
+            <!-- Forgot Password Form (hidden by default) -->
+            <form id="forgotPasswordForm" class="auth-form" style="display: none;">
+                <p style="font-size: 13.5px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.6;">
+                    Enter your email address and we'll send you a secure link to reset your password.
+                </p>
+                <div class="form-group">
+                    <label for="resetEmail">Email address</label>
+                    <input type="email" id="resetEmail" name="email" placeholder="you@fluxgentech.com" required autocomplete="email">
                 </div>
-
-                <div class="auth-footer">
-                    <p>Don't have an account? <a href="signup.html" class="auth-link">Sign up here</a></p>
+                <button type="submit" class="btn-primary" id="resetBtn">
+                    <span id="resetBtnText">Send reset link</span>
+                    <span id="resetBtnLoading" style="display: none;">Sending&hellip;</span>
+                </button>
+                <div style="text-align: center; margin-top: 16px;">
+                    <a href="#" class="auth-link" id="backToLoginLink" style="font-size: 13px;">&larr; Back to sign in</a>
                 </div>
-            </section>
-        </main>
-    </div>
+            </form>
 
-    <!-- Supabase SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-client.js"></script>
-    <script src="supabase-api.js"></script>
-    <script src="supabase-auth.js"></script>
-    <script src="deep-link-handler.js"></script>
-    <script>
-        // Password visibility toggle function
-        function togglePasswordVisibility(inputId, iconElement) {
-            const input = document.getElementById(inputId);
-            if (input.type === 'password') {
-                input.type = 'text';
-                iconElement.textContent = '🙈';
-            } else {
-                input.type = 'password';
-                iconElement.textContent = '👁️';
-            }
+            <!-- Divider -->
+            <div class="auth-divider" style="margin-top: 24px;">
+                <div class="auth-divider-line"></div>
+                <span class="auth-divider-text">or</span>
+                <div class="auth-divider-line"></div>
+            </div>
+
+            <!-- Google OAuth -->
+            <button type="button" class="btn-google" onclick="loginWithGoogle()">
+                <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+                    <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/>
+                    <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.180l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/>
+                    <path fill="#FBBC05" d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z"/>
+                    <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.440 1.345l2.582-2.580C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/>
+                </svg>
+                Continue with Google
+            </button>
+
+            <!-- APK Download Banner -->
+            <div id="apkDownloadBanner" class="apk-banner">
+                <p class="apk-banner-text">Get the full experience on Android</p>
+                <a href="https://github.com/YChaithuReddy/expense-tracker/releases/latest/download/expense-tracker.apk"
+                   class="apk-btn"
+                   onmouseover="this.style.background='rgba(20,184,166,0.2)'"
+                   onmouseout="this.style.background='rgba(20,184,166,0.12)'">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Download APK
+                </a>
+            </div>
+
+            <!-- Sign up link -->
+            <div class="auth-footer">
+                <p>Don't have an account? <a href="signup.html" class="auth-link">Create one</a></p>
+            </div>
+
+        </div>
+    </main>
+
+</div>
+
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
+<script src="supabase-api.js"></script>
+<script src="supabase-auth.js"></script>
+<script src="deep-link-handler.js"></script>
+<script>
+    // Password visibility toggle function
+    function togglePasswordVisibility(inputId, iconElement) {
+        const input = document.getElementById(inputId);
+        if (input.type === 'password') {
+            input.type = 'text';
+            iconElement.textContent = '\uD83D\uDE48';
+        } else {
+            input.type = 'password';
+            iconElement.textContent = '\uD83D\uDC41\uFE0F';
+        }
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        const messageEl = document.getElementById('loginMessage');
+        const btnText = document.getElementById('loginBtnText');
+        const btnLoading = document.getElementById('loginBtnLoading');
+        const loginBtn = document.getElementById('loginBtn');
+
+        // Clear previous messages
+        messageEl.style.display = 'none';
+
+        // Validate inputs
+        if (!email || !password) {
+            showMessage('Please fill in all fields', 'error');
+            return;
         }
 
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+        // Restrict to company email only
+        if (!email.toLowerCase().endsWith('@fluxgentech.com')) {
+            showMessage('Only @fluxgentech.com email addresses are allowed. Contact your admin for access.', 'error');
+            return;
+        }
 
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-            const messageEl = document.getElementById('loginMessage');
-            const btnText = document.getElementById('loginBtnText');
-            const btnLoading = document.getElementById('loginBtnLoading');
-            const loginBtn = document.getElementById('loginBtn');
+        // Show loading state
+        loginBtn.disabled = true;
+        btnText.style.display = 'none';
+        btnLoading.style.display = 'inline';
 
-            // Clear previous messages
-            messageEl.style.display = 'none';
+        try {
+            const response = await api.login(email, password);
 
-            // Validate inputs
-            if (!email || !password) {
-                showMessage('Please fill in all fields', 'error');
-                return;
-            }
+            if (response.success) {
+                showMessage('Login successful! Redirecting...', 'success');
+                // Token and user are saved automatically by supabase-api.js
 
-            // Restrict to company email only
-            if (!email.toLowerCase().endsWith('@fluxgentech.com')) {
-                showMessage('Only @fluxgentech.com email addresses are allowed. Contact your admin for access.', 'error');
-                return;
-            }
+                // Role-based redirect after login
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                const email = user.email?.toLowerCase();
+                const redirectUrl = email === 'admin@fluxgentech.com' ? 'admin.html'
+                    : email === 'accountant@fluxgentech.com' ? 'accountant.html'
+                    : 'index.html';
 
-            // Show loading state
-            loginBtn.disabled = true;
-            btnText.style.display = 'none';
-            btnLoading.style.display = 'inline';
-
-            try {
-                const response = await api.login(email, password);
-
-                if (response.success) {
-                    showMessage('Login successful! Redirecting...', 'success');
-                    // Token and user are saved automatically by supabase-api.js
-
-                    // Role-based redirect after login
-                    const user = JSON.parse(localStorage.getItem('user') || '{}');
-                    const email = user.email?.toLowerCase();
-                    const redirectUrl = email === 'admin@fluxgentech.com' ? 'admin.html'
-                        : email === 'accountant@fluxgentech.com' ? 'accountant.html'
-                        : 'index.html';
-
-                    setTimeout(() => {
-                        window.location.href = redirectUrl;
-                    }, 1000);
-                } else {
-                    showMessage(response.message || 'Login failed', 'error');
-                    resetButton();
-                }
-            } catch (error) {
-                console.error('Login error:', error);
-                const msg = error.message || '';
-                if (msg.toLowerCase().includes('failed to fetch') || msg.toLowerCase().includes('networkerror') || msg.toLowerCase().includes('network')) {
-                    showMessage('Network error: Could not reach the server. Please check your internet connection and try again. If the issue persists, clear your browser cache/site data.', 'error');
-                } else {
-                    showMessage(msg || 'Login failed. Please try again.', 'error');
-                }
+                setTimeout(() => {
+                    window.location.href = redirectUrl;
+                }, 1000);
+            } else {
+                showMessage(response.message || 'Login failed', 'error');
                 resetButton();
             }
+        } catch (error) {
+            console.error('Login error:', error);
+            const msg = error.message || '';
+            if (msg.toLowerCase().includes('failed to fetch') || msg.toLowerCase().includes('networkerror') || msg.toLowerCase().includes('network')) {
+                showMessage('Network error: Could not reach the server. Please check your internet connection and try again. If the issue persists, clear your browser cache/site data.', 'error');
+            } else {
+                showMessage(msg || 'Login failed. Please try again.', 'error');
+            }
+            resetButton();
+        }
+    });
+
+    function showMessage(message, type) {
+        const messageEl = document.getElementById('loginMessage');
+        messageEl.textContent = message;
+        messageEl.className = `message ${type}`;
+        messageEl.style.display = 'block';
+    }
+
+    function resetButton() {
+        const loginBtn = document.getElementById('loginBtn');
+        const btnText = document.getElementById('loginBtnText');
+        const btnLoading = document.getElementById('loginBtnLoading');
+
+        loginBtn.disabled = false;
+        btnText.style.display = 'inline';
+        btnLoading.style.display = 'none';
+    }
+
+    // Detect if running in Capacitor (mobile app)
+    function isCapacitorApp() {
+        return window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
+    }
+
+    // Get platform type
+    function getPlatform() {
+        if (isCapacitorApp()) {
+            return window.Capacitor.getPlatform(); // 'android' or 'ios'
+        }
+        return 'web';
+    }
+
+    // Google Sign-In function (Supabase)
+    async function loginWithGoogle() {
+        try {
+            const result = await api.loginWithGoogle();
+            // Supabase handles the redirect automatically
+        } catch (error) {
+            console.error('Google login error:', error);
+            showMessage('Google login failed: ' + error.message, 'error');
+        }
+    }
+
+    // Handle OAuth error messages from URL params
+    function handleOAuthCallback() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error');
+
+        if (error === 'google_auth_failed') {
+            showMessage('Google authentication failed. Please try again.', 'error');
+        } else if (error === 'auth_error') {
+            showMessage('Authentication error occurred. Please try again.', 'error');
+        }
+    }
+
+    // Call OAuth handler on page load
+    handleOAuthCallback();
+
+    // Show APK download only on web (not inside the native app)
+    if (!isCapacitorApp()) {
+        const banner = document.getElementById('apkDownloadBanner');
+        if (banner) banner.style.display = 'block';
+    }
+
+    // ---- Forgot Password Flow ----
+    const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+    const backToLoginLink = document.getElementById('backToLoginLink');
+    const loginForm = document.getElementById('loginForm');
+    const forgotPasswordForm = document.getElementById('forgotPasswordForm');
+    const loginHeading = document.querySelector('.auth-section-title');
+    const loginSubtext = document.querySelector('.auth-section-sub');
+    const googleDivider = document.querySelector('.auth-divider');
+    const googleBtn = document.querySelector('.btn-google');
+
+    forgotPasswordLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        loginForm.style.display = 'none';
+        forgotPasswordForm.style.display = 'block';
+        googleDivider.style.display = 'none';
+        googleBtn.style.display = 'none';
+        loginHeading.textContent = 'Reset password';
+        loginSubtext.textContent = "We'll email you a secure reset link";
+        document.getElementById('loginMessage').style.display = 'none';
+    });
+
+    backToLoginLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        loginForm.style.display = 'block';
+        forgotPasswordForm.style.display = 'none';
+        googleDivider.style.display = '';
+        googleBtn.style.display = '';
+        loginHeading.textContent = 'Welcome back';
+        loginSubtext.textContent = 'Sign in to your FluxGen account';
+        document.getElementById('loginMessage').style.display = 'none';
+    });
+
+    forgotPasswordForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('resetEmail').value.trim();
+        const resetBtn = document.getElementById('resetBtn');
+        const resetBtnText = document.getElementById('resetBtnText');
+        const resetBtnLoading = document.getElementById('resetBtnLoading');
+
+        if (!email) {
+            showMessage('Please enter your email address', 'error');
+            return;
+        }
+
+        resetBtn.disabled = true;
+        resetBtnText.style.display = 'none';
+        resetBtnLoading.style.display = 'inline';
+
+        try {
+            const supabase = window.supabaseClient?.get();
+            const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: `${window.location.origin}/login.html?reset=true`
+            });
+
+            if (error) throw error;
+
+            showMessage('Password reset link sent! Check your email inbox (and spam folder).', 'success');
+        } catch (error) {
+            showMessage(error.message || 'Failed to send reset link. Please try again.', 'error');
+        } finally {
+            resetBtn.disabled = false;
+            resetBtnText.style.display = 'inline';
+            resetBtnLoading.style.display = 'none';
+        }
+    });
+
+    // Handle password reset callback (when user clicks link in email)
+    async function handlePasswordReset() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('reset') !== 'true') return;
+
+        const supabase = window.supabaseClient?.get?.();
+        if (!supabase) {
+            showMessage('System not ready. Please refresh and try again.', 'error');
+            return;
+        }
+
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return;
+
+        // Hide login form and show password reset form
+        loginForm.style.display = 'none';
+        forgotPasswordForm.style.display = 'none';
+        googleDivider.style.display = 'none';
+        googleBtn.style.display = 'none';
+        loginHeading.textContent = 'Set new password';
+        loginSubtext.textContent = 'Choose a strong password for your account';
+
+        // Create inline reset form
+        const resetFormHTML = document.createElement('form');
+        resetFormHTML.className = 'auth-form';
+        resetFormHTML.id = 'newPasswordForm';
+        resetFormHTML.innerHTML = `
+            <div class="form-group">
+                <label for="newPassword">New password</label>
+                <div class="password-input-wrapper">
+                    <input type="password" id="newPassword" placeholder="Enter new password" required minlength="6" autocomplete="new-password">
+                    <span class="password-toggle-icon" onclick="togglePasswordVisibility('newPassword', this)">&#128065;</span>
+                </div>
+                <small id="passwordStrength">Min 6 characters: uppercase, lowercase, and number required</small>
+            </div>
+            <div class="form-group">
+                <label for="confirmNewPassword">Confirm password</label>
+                <div class="password-input-wrapper">
+                    <input type="password" id="confirmNewPassword" placeholder="Confirm new password" required minlength="6" autocomplete="new-password">
+                    <span class="password-toggle-icon" onclick="togglePasswordVisibility('confirmNewPassword', this)">&#128065;</span>
+                </div>
+            </div>
+            <button type="submit" class="btn-primary" id="setPasswordBtn">
+                <span id="setPasswordBtnText">Update password</span>
+                <span id="setPasswordBtnLoading" style="display:none;">Updating&hellip;</span>
+            </button>
+        `;
+
+        // Insert after auth section heading
+        const authSection = document.querySelector('.login-form-card');
+        authSection.appendChild(resetFormHTML);
+
+        // Real-time password strength
+        const newPwInput = document.getElementById('newPassword');
+        const strengthEl = document.getElementById('passwordStrength');
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
+
+        newPwInput.addEventListener('input', () => {
+            const val = newPwInput.value;
+            if (!val) {
+                strengthEl.style.color = 'var(--text-muted)';
+                strengthEl.textContent = 'Min 6 characters: uppercase, lowercase, and number required';
+            } else if (val.length < 6) {
+                strengthEl.style.color = '#ef4444';
+                strengthEl.textContent = `Too short (${val.length}/6 characters)`;
+            } else if (!passwordRegex.test(val)) {
+                strengthEl.style.color = '#f59e0b';
+                const missing = [];
+                if (!/[a-z]/.test(val)) missing.push('lowercase');
+                if (!/[A-Z]/.test(val)) missing.push('uppercase');
+                if (!/\d/.test(val)) missing.push('number');
+                strengthEl.textContent = `Missing: ${missing.join(', ')}`;
+            } else {
+                strengthEl.style.color = '#10b981';
+                strengthEl.textContent = 'Strong password \u2713';
+            }
         });
 
-        function showMessage(message, type) {
-            const messageEl = document.getElementById('loginMessage');
-            messageEl.textContent = message;
-            messageEl.className = `message ${type}`;
-            messageEl.style.display = 'block';
-        }
-
-        function resetButton() {
-            const loginBtn = document.getElementById('loginBtn');
-            const btnText = document.getElementById('loginBtnText');
-            const btnLoading = document.getElementById('loginBtnLoading');
-
-            loginBtn.disabled = false;
-            btnText.style.display = 'inline';
-            btnLoading.style.display = 'none';
-        }
-
-        // Detect if running in Capacitor (mobile app)
-        function isCapacitorApp() {
-            return window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
-        }
-
-        // Get platform type
-        function getPlatform() {
-            if (isCapacitorApp()) {
-                return window.Capacitor.getPlatform(); // 'android' or 'ios'
-            }
-            return 'web';
-        }
-
-        // Google Sign-In function (Supabase)
-        async function loginWithGoogle() {
-            try {
-                const result = await api.loginWithGoogle();
-                // Supabase handles the redirect automatically
-            } catch (error) {
-                console.error('Google login error:', error);
-                showMessage('Google login failed: ' + error.message, 'error');
-            }
-        }
-
-        // Handle OAuth error messages from URL params
-        function handleOAuthCallback() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const error = urlParams.get('error');
-
-            if (error === 'google_auth_failed') {
-                showMessage('Google authentication failed. Please try again.', 'error');
-            } else if (error === 'auth_error') {
-                showMessage('Authentication error occurred. Please try again.', 'error');
-            }
-        }
-
-        // Call OAuth handler on page load
-        handleOAuthCallback();
-
-        // Show APK download only on web (not inside the native app)
-        if (!isCapacitorApp()) {
-            const banner = document.getElementById('apkDownloadBanner');
-            if (banner) banner.style.display = 'block';
-        }
-
-        // ---- Forgot Password Flow ----
-        const forgotPasswordLink = document.getElementById('forgotPasswordLink');
-        const backToLoginLink = document.getElementById('backToLoginLink');
-        const loginForm = document.getElementById('loginForm');
-        const forgotPasswordForm = document.getElementById('forgotPasswordForm');
-        const loginHeading = document.querySelector('.auth-section h2');
-        const loginSubtext = document.querySelector('.auth-section > p');
-        const googleDivider = document.querySelector('.auth-section > div[style*="text-align: center"]');
-        const googleBtn = document.querySelector('.btn-google');
-
-        forgotPasswordLink.addEventListener('click', (e) => {
+        // Handle submit
+        resetFormHTML.addEventListener('submit', async (e) => {
             e.preventDefault();
-            loginForm.style.display = 'none';
-            forgotPasswordForm.style.display = 'block';
-            googleDivider.style.display = 'none';
-            googleBtn.style.display = 'none';
-            loginHeading.textContent = '🔑 Reset Password';
-            loginSubtext.textContent = 'We\'ll email you a reset link';
-            document.getElementById('loginMessage').style.display = 'none';
-        });
+            const newPassword = newPwInput.value;
+            const confirmPassword = document.getElementById('confirmNewPassword').value;
+            const btn = document.getElementById('setPasswordBtn');
 
-        backToLoginLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            loginForm.style.display = 'block';
-            forgotPasswordForm.style.display = 'none';
-            googleDivider.style.display = '';
-            googleBtn.style.display = '';
-            loginHeading.textContent = '🔐 Login';
-            loginSubtext.textContent = 'Enter your credentials to access your account';
-            document.getElementById('loginMessage').style.display = 'none';
-        });
-
-        forgotPasswordForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('resetEmail').value.trim();
-            const resetBtn = document.getElementById('resetBtn');
-            const resetBtnText = document.getElementById('resetBtnText');
-            const resetBtnLoading = document.getElementById('resetBtnLoading');
-
-            if (!email) {
-                showMessage('Please enter your email address', 'error');
+            if (!passwordRegex.test(newPassword)) {
+                showMessage('Password must be at least 6 characters with uppercase, lowercase, and number', 'error');
+                return;
+            }
+            if (newPassword !== confirmPassword) {
+                showMessage('Passwords do not match', 'error');
                 return;
             }
 
-            resetBtn.disabled = true;
-            resetBtnText.style.display = 'none';
-            resetBtnLoading.style.display = 'inline';
+            btn.disabled = true;
+            document.getElementById('setPasswordBtnText').style.display = 'none';
+            document.getElementById('setPasswordBtnLoading').style.display = 'inline';
 
             try {
-                const supabase = window.supabaseClient?.get();
-                const { error } = await supabase.auth.resetPasswordForEmail(email, {
-                    redirectTo: `${window.location.origin}/login.html?reset=true`
-                });
-
+                const { error } = await supabase.auth.updateUser({ password: newPassword });
                 if (error) throw error;
-
-                showMessage('Password reset link sent! Check your email inbox (and spam folder).', 'success');
+                showMessage('Password updated successfully! You can now sign in with your new password.', 'success');
+                window.history.replaceState({}, '', window.location.pathname);
+                // Remove reset form and show login
+                resetFormHTML.remove();
+                loginForm.style.display = 'block';
+                googleDivider.style.display = '';
+                googleBtn.style.display = '';
+                loginHeading.textContent = 'Welcome back';
+                loginSubtext.textContent = 'Sign in to your FluxGen account';
             } catch (error) {
-                showMessage(error.message || 'Failed to send reset link. Please try again.', 'error');
-            } finally {
-                resetBtn.disabled = false;
-                resetBtnText.style.display = 'inline';
-                resetBtnLoading.style.display = 'none';
+                showMessage('Failed to update password: ' + error.message, 'error');
+                btn.disabled = false;
+                document.getElementById('setPasswordBtnText').style.display = 'inline';
+                document.getElementById('setPasswordBtnLoading').style.display = 'none';
             }
         });
+    }
+    handlePasswordReset();
 
-        // Handle password reset callback (when user clicks link in email)
-        async function handlePasswordReset() {
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('reset') !== 'true') return;
+    // Note: Auth redirect is handled by supabase-auth.js initAuth()
 
-            const supabase = window.supabaseClient?.get?.();
-            if (!supabase) {
-                showMessage('System not ready. Please refresh and try again.', 'error');
-                return;
-            }
-
-            const { data: { session } } = await supabase.auth.getSession();
-            if (!session) return;
-
-            // Hide login form and show password reset form
-            loginForm.style.display = 'none';
-            forgotPasswordForm.style.display = 'none';
-            googleDivider.style.display = 'none';
-            googleBtn.style.display = 'none';
-            loginHeading.textContent = '🔑 Set New Password';
-            loginSubtext.textContent = 'Choose a strong password for your account';
-
-            // Create inline reset form
-            const resetFormHTML = document.createElement('form');
-            resetFormHTML.className = 'auth-form';
-            resetFormHTML.id = 'newPasswordForm';
-            resetFormHTML.innerHTML = `
-                <div class="form-group">
-                    <label for="newPassword">New Password:</label>
-                    <div class="password-input-wrapper">
-                        <input type="password" id="newPassword" placeholder="Enter new password" required minlength="6" autocomplete="new-password">
-                        <span class="password-toggle-icon" onclick="togglePasswordVisibility('newPassword', this)">👁️</span>
-                    </div>
-                    <small id="passwordStrength" style="display:block;margin-top:6px;font-size:0.78rem;color:var(--text-secondary);">Min 6 characters: uppercase, lowercase, and number required</small>
-                </div>
-                <div class="form-group">
-                    <label for="confirmNewPassword">Confirm Password:</label>
-                    <div class="password-input-wrapper">
-                        <input type="password" id="confirmNewPassword" placeholder="Confirm new password" required minlength="6" autocomplete="new-password">
-                        <span class="password-toggle-icon" onclick="togglePasswordVisibility('confirmNewPassword', this)">👁️</span>
-                    </div>
-                </div>
-                <button type="submit" class="btn-primary" id="setPasswordBtn">
-                    <span id="setPasswordBtnText">✅ Update Password</span>
-                    <span id="setPasswordBtnLoading" style="display:none;">⏳ Updating...</span>
-                </button>
-            `;
-
-            // Insert after auth section heading
-            const authSection = document.querySelector('.auth-section');
-            authSection.appendChild(resetFormHTML);
-
-            // Real-time password strength
-            const newPwInput = document.getElementById('newPassword');
-            const strengthEl = document.getElementById('passwordStrength');
-            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
-
-            newPwInput.addEventListener('input', () => {
-                const val = newPwInput.value;
-                if (!val) {
-                    strengthEl.style.color = 'var(--text-secondary)';
-                    strengthEl.textContent = 'Min 6 characters: uppercase, lowercase, and number required';
-                } else if (val.length < 6) {
-                    strengthEl.style.color = '#ef4444';
-                    strengthEl.textContent = `Too short (${val.length}/6 characters)`;
-                } else if (!passwordRegex.test(val)) {
-                    strengthEl.style.color = '#f59e0b';
-                    const missing = [];
-                    if (!/[a-z]/.test(val)) missing.push('lowercase');
-                    if (!/[A-Z]/.test(val)) missing.push('uppercase');
-                    if (!/\d/.test(val)) missing.push('number');
-                    strengthEl.textContent = `Missing: ${missing.join(', ')}`;
-                } else {
-                    strengthEl.style.color = '#10b981';
-                    strengthEl.textContent = 'Strong password ✓';
-                }
-            });
-
-            // Handle submit
-            resetFormHTML.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const newPassword = newPwInput.value;
-                const confirmPassword = document.getElementById('confirmNewPassword').value;
-                const btn = document.getElementById('setPasswordBtn');
-
-                if (!passwordRegex.test(newPassword)) {
-                    showMessage('Password must be at least 6 characters with uppercase, lowercase, and number', 'error');
-                    return;
-                }
-                if (newPassword !== confirmPassword) {
-                    showMessage('Passwords do not match', 'error');
-                    return;
-                }
-
-                btn.disabled = true;
-                document.getElementById('setPasswordBtnText').style.display = 'none';
-                document.getElementById('setPasswordBtnLoading').style.display = 'inline';
-
-                try {
-                    const { error } = await supabase.auth.updateUser({ password: newPassword });
-                    if (error) throw error;
-                    showMessage('Password updated successfully! You can now login with your new password.', 'success');
-                    window.history.replaceState({}, '', window.location.pathname);
-                    // Remove reset form and show login
-                    resetFormHTML.remove();
-                    loginForm.style.display = 'block';
-                    googleDivider.style.display = '';
-                    googleBtn.style.display = '';
-                    loginHeading.textContent = '🔐 Login';
-                    loginSubtext.textContent = 'Enter your credentials to access your account';
-                } catch (error) {
-                    showMessage('Failed to update password: ' + error.message, 'error');
-                    btn.disabled = false;
-                    document.getElementById('setPasswordBtnText').style.display = 'inline';
-                    document.getElementById('setPasswordBtnLoading').style.display = 'none';
-                }
-            });
-        }
-        handlePasswordReset();
-
-        // Note: Auth redirect is handled by supabase-auth.js initAuth()
-
-    </script>
+</script>
 </body>
 </html>
