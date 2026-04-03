@@ -3474,30 +3474,26 @@ body.modal-open {
 #userInfo {
     display: none;
     align-items: center;
-    justify-content: center;
-    margin: auto 0;
+    gap: 12px;
 }
 
 .user-info-content {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 10px 14px;
+    gap: 8px;
+    padding: 8px 12px;
     background: rgba(255, 255, 255, 0.05);
     border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    width: 100%;
-    max-width: 620px;
-    margin: 0 auto;
-    flex-wrap: wrap;
-    justify-content: center;
+    flex-wrap: nowrap;
 }
 
-/* Name row — on desktop it's inline above the icon row */
+/* Name row — sits to the left of the icon strip */
 .user-info-name-row {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
+    text-align: right;
 }
 
 .user-details {
@@ -4689,19 +4685,44 @@ body.modal-open {
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    gap: 1rem;
+    gap: 1.5rem;
     position: relative;
 }
 
 .header-left {
     flex: 1;
+    min-width: 0;
+}
+
+/* Brand row: logo pill + title group side by side */
+.header-brand {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.header-logo-pill {
+    background: #fff;
+    border-radius: 12px;
+    padding: 6px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    flex-shrink: 0;
+}
+
+.header-title-group {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
 }
 
 .header-right {
     display: flex;
     gap: 8px;
     align-items: center;
-    justify-content: center;
     flex-shrink: 0;
 }
 
@@ -4714,9 +4735,8 @@ body.modal-open {
     }
 
     .user-info-content {
-        max-width: 400px;
-        gap: 12px;
-        padding: 10px 14px;
+        gap: 8px;
+        padding: 8px 12px;
     }
 
     .user-name {
@@ -4735,82 +4755,85 @@ body.modal-open {
 
 @media (max-width: 768px) {
     header {
-        padding: 20px 15px;
-        margin-bottom: 15px;
+        padding: 12px 14px;
+        margin-bottom: 12px;
     }
 
+    /* Keep header as a horizontal bar on mobile — title left, icons right */
     .header-flex-wrapper {
-        flex-direction: column;
+        flex-direction: row;
         align-items: center;
-        gap: 1.5rem;
+        gap: 8px;
     }
 
     .header-left {
-        text-align: center;
-        width: 100%;
+        flex: 1;
+        min-width: 0;
+        text-align: left;
     }
 
+    /* Hide logo pill on mobile to save space */
+    .header-logo-pill {
+        display: none;
+    }
+
+    /* Brand row stays flex but no gap since logo is hidden */
+    .header-brand {
+        gap: 0;
+    }
+
+    /* Compact title */
+    header h1 {
+        font-size: 1.15rem;
+        margin-bottom: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    header p {
+        font-size: 0.68rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Right side — just the icon buttons, no name/email */
     .header-right {
-        width: 100%;
-        justify-content: center;
-        flex-wrap: wrap;
-        max-width: 100%;
-        box-sizing: border-box;
+        flex-shrink: 0;
+        width: auto;
+        max-width: none;
+        gap: 4px;
     }
 
     #userInfo {
-        width: 100%;
-        max-width: 100%;
-        justify-content: center;
+        width: auto;
+        max-width: none;
+        flex-direction: row;
+        align-items: center;
     }
 
+    /* Hide name/email on mobile — save vertical space */
+    .user-info-name-row {
+        display: none;
+    }
+
+    /* Icon strip — transparent, no box, just buttons inline */
     .user-info-content {
-        max-width: 100%;
+        background: transparent;
+        border: none;
+        padding: 0;
+        gap: 4px;
+        width: auto;
+        max-width: none;
         margin: 0;
-    }
-
-    header h1 {
-        font-size: 2rem;
-        margin-bottom: 8px;
-    }
-
-    header p {
-        font-size: 0.875rem;
-    }
-}
-
-@media (max-width: 480px) {
-    header {
-        padding: 14px 12px;
-        margin-bottom: 8px;
-    }
-
-    header h1 {
-        font-size: 1.8rem;
-        margin-bottom: 4px;
-    }
-
-    header p {
-        font-size: 0.8rem;
-        letter-spacing: 0.3px;
-    }
-
-    .header-flex-wrapper {
-        gap: 0.75rem;
-    }
-
-    .header-right {
-        gap: 6px;
-    }
-
-    .user-info-content {
-        gap: 8px;
-        padding: 8px 12px;
+        flex-wrap: nowrap;
+        justify-content: flex-end;
     }
 
     .logout-btn {
-        padding: 8px 14px;
-        font-size: 0.85rem;
+        padding: 6px 10px;
+        font-size: 0.8rem;
     }
 }
 
@@ -12134,115 +12157,45 @@ select.inline-input option {
 
 /* ================================================
    MOBILE RESPONSIVE FIXES (max-width: 480px)
-   Added for iPhone 375x812 and similar small phones.
+   iPhone 375x812 and similar small phones.
    Only overrides — no desktop styles modified.
    ================================================ */
 @media (max-width: 480px) {
 
     /* --------------------------------------------------
-       1. HEADER AREA — compact for small screens
+       1. HEADER AREA — compact horizontal bar
        -------------------------------------------------- */
 
-    /* Hide the logo pill on mobile (logo is on login page already) */
-    .header-left > div > div:first-child {
-        display: none !important;
-    }
-
-    /* Smaller title */
-    .header-left h1 {
-        font-size: 1.35rem !important;
-        line-height: 1.2;
-    }
-
-    .header-left p {
-        font-size: 0.7rem !important;
-        margin: 0 !important;
-    }
-
-    /* Header wrapper: tight gap */
-    .header-flex-wrapper {
-        gap: 0.5rem;
-    }
-
-    /* Header: stack vertically on mobile */
-    .header-flex-wrapper {
-        flex-direction: column !important;
-        align-items: center !important;
-        gap: 10px !important;
-    }
-    .header-left {
-        text-align: center;
-    }
-    .header-left > div {
-        justify-content: center !important;
-    }
-    .header-right {
-        width: 100%;
-    }
-    /* Force userInfo to stack vertically */
-    #userInfo {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        width: 100%;
-    }
-
-    /* User info: full width, centered layout */
-    .user-info-content {
-        gap: 6px;
-        padding: 10px 12px;
-        flex-wrap: wrap;
-        justify-content: center;
-        width: 100%;
-        border-radius: 12px;
-    }
-
-    /* Name/email row — full width centered above icons */
-    .user-info-name-row {
-        width: 100%;
-        text-align: center;
-        margin-bottom: 8px;
-        padding-bottom: 8px;
-        border-bottom: 1px solid rgba(0,0,0,0.06);
-    }
-    .user-info-name-row .user-details {
-        flex-direction: column;
-        align-items: center;
-    }
-    .user-info-name-row .user-name {
-        font-size: 1rem;
-        font-weight: 700;
-        color: #111827;
-    }
-    .user-info-name-row .user-email {
-        font-size: 0.8rem;
-        color: #6b7280;
-    }
-    /* Icons row: centered */
-    .user-info-content {
-        justify-content: center;
-    }
-
-    /* Icon buttons row — centered */
-    .user-info-content .theme-toggle-btn {
-        min-width: 44px;
-        min-height: 44px;
-        padding: 8px;
-    }
-
-    /* Logout button full width at bottom */
-    .user-info-content .logout-btn {
-        width: 100%;
-        order: 99;
+    header {
         padding: 8px 12px;
-        font-size: 0.78rem;
-        min-height: 44px;
+        margin-bottom: 8px;
     }
 
-    /* Role badge: smaller */
-    .role-badge {
-        font-size: 0.6rem;
-        padding: 2px 6px;
+    /* Tight gap between title and icons */
+    .header-flex-wrapper {
+        gap: 6px;
+    }
+
+    /* Slightly smaller title on very small phones */
+    header h1 {
+        font-size: 1rem;
+        margin-bottom: 0;
+    }
+
+    header p {
+        font-size: 0.62rem;
+    }
+
+    /* Icon buttons — good touch targets */
+    .user-info-content .theme-toggle-btn {
+        min-width: 36px;
+        min-height: 36px;
+        padding: 6px;
+    }
+
+    .logout-btn {
+        padding: 5px 8px;
+        font-size: 0.75rem;
     }
 
     /* --------------------------------------------------
@@ -12816,6 +12769,36 @@ select.inline-input option {
     background: #fffbeb;
     border-color: #fde68a;
     color: #d97706;
+}
+
+/* View Expenses button — indigo accent */
+.advance-card__btn--view-expenses:hover {
+    background: rgba(99, 102, 241, 0.12);
+    border-color: rgba(99, 102, 241, 0.35);
+    color: #6366f1;
+}
+[data-theme="light"] .advance-card__btn--view-expenses:hover {
+    background: #eef2ff;
+    border-color: #c7d2fe;
+    color: #4f46e5;
+}
+
+/* Expense advance link badge */
+.expense-advance-link {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.5);
+    padding: 3px 10px 4px;
+    font-style: italic;
+}
+.expense-advance-link svg {
+    flex-shrink: 0;
+    opacity: 0.7;
+}
+[data-theme="light"] .expense-advance-link {
+    color: #6b7280;
 }
 
 [data-theme="light"] .advance-card__btn--delete:hover {

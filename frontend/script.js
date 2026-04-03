@@ -20,6 +20,8 @@ class ExpenseTracker {
         this.filterVisitType = '';
         this.filterDateFrom = '';
         this.filterDateTo = '';
+        this.filterAdvanceId = '';
+        this.filterAdvanceName = '';
 
         // Pagination state
         this.currentPage = 1;
@@ -3743,6 +3745,11 @@ class ExpenseTracker {
             const safeVendor = this.sanitizeHTML(expense.vendor);
             const safeDescription = this.sanitizeHTML(expense.description);
 
+            // Linked advance info (for advance summary badge)
+            const linkedAdvance = expense.advance_id && this.advances
+                ? this.advances.find(a => a.id === expense.advance_id)
+                : null;
+
             return `
             <div class="expense-item" id="expense-${safeId}" onclick="if(event.target.tagName!=='INPUT'&&event.target.tagName!=='BUTTON'&&event.target.tagName!=='IMG'&&!event.target.closest('button')&&!event.target.closest('.expense-checkbox')&&!event.target.closest('.expense-images'))expenseDetail.open('${safeId}')" style="cursor:pointer;">
                 <div class="expense-header">
@@ -3772,6 +3779,7 @@ class ExpenseTracker {
                     ${expense.voucherStatus ? `<span class="voucher-status-badge voucher-status-badge--${expense.voucherStatus}">${expense.voucherStatus === 'in_voucher' ? 'In Voucher' : expense.voucherStatus === 'submitted' ? 'Submitted' : expense.voucherStatus === 'approved' ? 'Approved' : 'Rejected'}</span>` : ''}
                 </div>
                 ${safeDescription ? `<div class="expense-description">${safeDescription}</div>` : ''}
+                ${linkedAdvance ? `<div class="expense-advance-link"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg> Part of ${this.sanitizeHTML(linkedAdvance.project_name)} advance &mdash; ₹${linkedAdvance.totalSpent.toLocaleString('en-IN')} / ₹${linkedAdvance.amount.toLocaleString('en-IN')}</div>` : ''}
                 <div class="expense-footer">
                     ${expense.images.length > 0 ? `
                         <div class="expense-images">
@@ -3805,7 +3813,7 @@ class ExpenseTracker {
 
     // Search and Filter Methods
     isFilterActive() {
-        return this.searchTerm || this.filterProject || this.filterCategory || this.filterVisitType || this.filterDateFrom || this.filterDateTo;
+        return this.searchTerm || this.filterProject || this.filterCategory || this.filterVisitType || this.filterDateFrom || this.filterDateTo || this.filterAdvanceId;
     }
 
     applyFilters() {
@@ -3834,6 +3842,11 @@ class ExpenseTracker {
         // Apply visit type filter
         if (this.filterVisitType) {
             results = results.filter(expense => expense.visitType === this.filterVisitType);
+        }
+
+        // Apply advance filter (View Expenses from advance tab)
+        if (this.filterAdvanceId) {
+            results = results.filter(expense => expense.advance_id === this.filterAdvanceId);
         }
 
         // Apply date range filters
@@ -3914,6 +3927,8 @@ class ExpenseTracker {
         this.filterVisitType = '';
         this.filterDateFrom = '';
         this.filterDateTo = '';
+        this.filterAdvanceId = '';
+        this.filterAdvanceName = '';
         this.filteredExpenses = [];
 
         // Hide search results info
@@ -4873,6 +4888,64 @@ class ExpenseTracker {
                 console.log('📄 Only Google Sheet available for download...');
                 mergedPdf = await PDFDocument.load(sheetPdfBytes);
                 totalPages = mergedPdf.getPageCount();
+            }
+
+            // Step 4b: Prepend advance summary page if advances exist
+            if (this.advances && this.advances.length > 0) {
+                try {
+                    const { StandardFonts, rgb } = PDFLib;
+                    const summaryDoc = await PDFDocument.create();
+                    const summaryPage = summaryDoc.addPage([595, 842]); // A4 points
+                    const boldFont = await summaryDoc.embedFont(StandardFonts.HelveticaBold);
+                    const regularFont = await summaryDoc.embedFont(StandardFonts.Helvetica);
+
+                    const margin = 50;
+                    let y = 800;
+
+                    // Title
+                    summaryPage.drawText('Advance Summary', {
+                        x: margin, y, font: boldFont, size: 18, color: rgb(0.06, 0.47, 0.51)
+                    });
+                    y -= 30;
+                    summaryPage.drawText(new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' }), {
+                        x: margin, y, font: regularFont, size: 10, color: rgb(0.45, 0.45, 0.45)
+                    });
+                    y -= 25;
+                    summaryPage.drawLine({ start: { x: margin, y }, end: { x: 545, y }, thickness: 0.5, color: rgb(0.8, 0.8, 0.8) });
+                    y -= 20;
+
+                    // Headers
+                    const col = [margin, 220, 320, 420];
+                    summaryPage.drawText('Project', { x: col[0], y, font: boldFont, size: 9, color: rgb(0.3, 0.3, 0.3) });
+                    summaryPage.drawText('Advance', { x: col[1], y, font: boldFont, size: 9, color: rgb(0.3, 0.3, 0.3) });
+                    summaryPage.drawText('Spent', { x: col[2], y, font: boldFont, size: 9, color: rgb(0.3, 0.3, 0.3) });
+                    summaryPage.drawText('Remaining', { x: col[3], y, font: boldFont, size: 9, color: rgb(0.3, 0.3, 0.3) });
+                    y -= 14;
+                    summaryPage.drawLine({ start: { x: margin, y }, end: { x: 545, y }, thickness: 0.3, color: rgb(0.85, 0.85, 0.85) });
+                    y -= 16;
+
+                    for (const adv of this.advances) {
+                        if (y < 80) break;
+                        const isOverspent = adv.remaining < 0;
+                        const remainColor = isOverspent ? rgb(0.94, 0.27, 0.27) : rgb(0.06, 0.72, 0.51);
+                        const typeLabel = adv.visit_type ? ` (${adv.visit_type})` : '';
+                        const projectLabel = adv.project_name.substring(0, 22) + typeLabel;
+
+                        summaryPage.drawText(projectLabel, { x: col[0], y, font: regularFont, size: 9, color: rgb(0.1, 0.1, 0.1) });
+                        summaryPage.drawText(`Rs.${adv.amount.toLocaleString('en-IN')}`, { x: col[1], y, font: regularFont, size: 9, color: rgb(0.1, 0.1, 0.1) });
+                        summaryPage.drawText(`Rs.${adv.totalSpent.toLocaleString('en-IN')}`, { x: col[2], y, font: regularFont, size: 9, color: rgb(0.1, 0.1, 0.1) });
+                        summaryPage.drawText(`${isOverspent ? '-' : ''}Rs.${Math.abs(adv.remaining).toLocaleString('en-IN')}`, { x: col[3], y, font: boldFont, size: 9, color: remainColor });
+                        y -= 18;
+                        summaryPage.drawLine({ start: { x: margin, y: y + 4 }, end: { x: 545, y: y + 4 }, thickness: 0.2, color: rgb(0.92, 0.92, 0.92) });
+                    }
+
+                    // Copy summary page and insert as first page
+                    const [copiedSummaryPage] = await mergedPdf.copyPages(summaryDoc, [0]);
+                    mergedPdf.insertPage(0, copiedSummaryPage);
+                    totalPages = (totalPages || 0) + 1;
+                } catch (summaryErr) {
+                    console.warn('Could not add advance summary page:', summaryErr);
+                }
             }
 
             this.updateLoadingText('💾 Saving package...', 'Almost done');
@@ -8228,6 +8301,21 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         document.getElementById('qaCameraInput').onchange = (e) => this._quickAddFileSelected(e);
         document.getElementById('qaGalleryInput').onchange = (e) => this._quickAddFileSelected(e);
 
+        // Reset visit type toggle to default (project)
+        this.setVisitTypeToggle('qaVisitType', 'project');
+
+        // Auto-fill visit type when vendor changes
+        const qaVendorEl = document.getElementById('qaVendor');
+        if (qaVendorEl) {
+            let qaVendorTimer;
+            qaVendorEl.oninput = () => {
+                clearTimeout(qaVendorTimer);
+                qaVendorTimer = setTimeout(() => {
+                    this.autoFillVisitTypeFromAdvance(qaVendorEl.value.trim(), 'qaVisitType');
+                }, 300);
+            };
+        }
+
         console.log('⚡ Quick Add wizard opened');
     }
 
@@ -8366,6 +8454,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                 date: document.getElementById('qaDate').value || new Date().toISOString().split('T')[0],
                 description: document.getElementById('qaDescription').value.trim() || '',
                 category: document.getElementById('qaCategory').value || 'Miscellaneous',
+                visitType: this.getSelectedVisitType('qaVisitType') || null,
                 images: []
             };
 
@@ -8395,11 +8484,18 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                 date: expense.date,
                 description: expense.description,
                 category: expense.category,
+                visitType: expense.visitType,
             };
 
             const response = await api.createExpense(expenseData, imageFiles);
 
             if (response.success) {
+                // Auto-link to advance if matching project exists
+                const newExpenseId = response.data?._id || response.data?.id;
+                if (newExpenseId && expense.vendor) {
+                    await this.autoLinkExpenseToAdvance(newExpenseId, expense.vendor);
+                }
+
                 this.closeQuickAdd();
                 await this.loadExpenses();
                 this.showNotification('Expense added!');
@@ -8496,13 +8592,13 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         });
     }
 
-    autoFillVisitTypeFromAdvance(vendor) {
+    autoFillVisitTypeFromAdvance(vendor, toggleId = 'expenseVisitType') {
         if (!vendor || vendor === 'N/A' || !this.advances) return;
         const advance = this.advances.find(a =>
             a.status === 'active' && a.project_name.toLowerCase() === vendor.toLowerCase()
         );
         if (advance && advance.visit_type) {
-            this.setVisitTypeToggle('expenseVisitType', advance.visit_type);
+            this.setVisitTypeToggle(toggleId, advance.visit_type);
         }
     }
 
@@ -8793,6 +8889,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                                 <button class="advance-card__btn advance-card__btn--edit" onclick="event.stopPropagation();expenseTracker.openAdvanceModal(${JSON.stringify(adv).replace(/"/g, '&quot;')})">${editIcon} Edit &amp; Resubmit</button>
                                 <button class="advance-card__btn advance-card__btn--delete" onclick="event.stopPropagation();expenseTracker.deleteAdvance('${adv.id}', '${this.sanitizeHTML(adv.project_name)}')">${deleteIcon}</button>
                             ` : `
+                            <button class="advance-card__btn advance-card__btn--view-expenses" onclick="event.stopPropagation();expenseTracker.filterByAdvance('${adv.id}', '${this.sanitizeHTML(adv.project_name)}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> View Expenses</button>
                             <button class="advance-card__btn advance-card__btn--edit" onclick="event.stopPropagation();expenseTracker.openAdvanceModal(${JSON.stringify(adv).replace(/"/g, '&quot;')})">${editIcon} Edit</button>
                             ${adv.status === 'active'
                                 ? '<button class="advance-card__btn advance-card__btn--close" onclick="event.stopPropagation();expenseTracker.closeAdvance(\'' + adv.id + '\')">' + closeIcon + ' Close</button>'
@@ -8811,6 +8908,17 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         const tab = el.closest('.advance-tab');
         if (!tab) return;
         tab.classList.toggle('advance-tab--open');
+    }
+
+    filterByAdvance(advanceId, projectName) {
+        this.filterAdvanceId = advanceId;
+        this.filterAdvanceName = projectName;
+        this.applyFilters();
+        this.displayExpenses();
+        // Scroll to expense list
+        const expensesList = document.getElementById('expensesList');
+        if (expensesList) expensesList.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        this.showNotification(`Showing expenses for ${projectName}`);
     }
 
     async closeAdvance(advanceId) {
