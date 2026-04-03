@@ -50,8 +50,11 @@ const notificationCenter = (() => {
         if (!isCompanyMode()) return;
 
         createBellIcon();
-        await refreshCount();
-        subscribeRealtime();
+        // Defer notification count fetch — non-critical, don't block page render
+        setTimeout(async () => {
+            await refreshCount();
+            subscribeRealtime();
+        }, 2000);
     }
 
     function createBellIcon() {

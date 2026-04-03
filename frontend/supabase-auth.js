@@ -210,10 +210,8 @@ function displayUserInfo() {
                 window.expenseTracker.updateThemeButtonUI(currentTheme);
             }
 
-            // Refresh notification badge if in company mode
-            if (isCompany && typeof notificationCenter !== 'undefined') {
-                notificationCenter.refreshCount();
-            }
+            // Notification badge refresh is handled by notificationCenter.init()
+            // called from onAuthReady() — no duplicate call needed here
         }
     }
 }
@@ -354,8 +352,14 @@ async function initAuth() {
             // User is authenticated, show their info
             displayUserInfo();
             // Trigger expense loading now that auth is confirmed
-            if (window.expenseTracker && typeof window.expenseTracker.loadExpenses === 'function') {
-                window.expenseTracker.loadExpenses();
+            if (window.expenseTracker) {
+                if (typeof window.expenseTracker.loadExpenses === 'function') {
+                    window.expenseTracker.loadExpenses();
+                }
+                // Initialize non-critical services (deferred from constructor)
+                if (typeof window.expenseTracker.onAuthReady === 'function') {
+                    window.expenseTracker.onAuthReady();
+                }
             }
         } else {
             // No active Supabase session - redirect to login
