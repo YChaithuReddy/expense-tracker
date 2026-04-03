@@ -335,7 +335,8 @@
             .admin-main { padding: 16px 18px; }
         }
     </style>
-    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js" as="script" crossorigin>
+    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js"></script>
     <script defer src="toast.js"></script>
     <script defer src="supabase-client.js"></script>
     <script defer src="supabase-auth.js"></script>
@@ -597,11 +598,12 @@ WDL1,WONDERLA,Amusement Park,Amusement Park</code>
     <script>
         // ==================== Auth Guard ====================
         document.addEventListener('DOMContentLoaded', async () => {
-            // Wait for supabase to be ready (poll instead of blind 500ms wait)
-            for (let i = 0; i < 20; i++) {
+            // Wait for supabase to be ready
+            for (let i = 0; i < 60; i++) {
                 if (window.supabaseClient?.get()) break;
                 await new Promise(r => setTimeout(r, 50));
             }
+            if (!window.supabaseClient?.get()) { document.body.innerHTML = '<div style="padding:40px;text-align:center;color:#666;">Failed to connect. Please refresh.</div>'; return; }
 
             const user = JSON.parse(localStorage.getItem('user') || 'null');
             if (!user) { window.location.href = 'login.html'; return; }
