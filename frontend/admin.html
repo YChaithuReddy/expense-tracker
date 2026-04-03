@@ -325,14 +325,77 @@
            MOBILE
            ============================================================ */
         @media (max-width: 768px) {
+            /* Sidebar: collapse to icon-only */
             .admin-sidebar { width: 60px; }
             .admin-sidebar__logo h1 span,
             .admin-sidebar__logo small,
             .admin-nav-item span,
             .admin-sidebar__user,
             .admin-sidebar__links { display: none; }
-            .admin-nav-item { justify-content: center; padding: 12px; }
-            .admin-main { padding: 16px 18px; }
+            .admin-sidebar__logo img { display: none; }
+            .admin-sidebar__logo h1 { justify-content: center; }
+            .admin-sidebar__logo h1 svg { width: 24px; height: 24px; }
+            .admin-nav-item { justify-content: center; padding: 12px; min-height: 44px; }
+
+            /* Main content area */
+            .admin-main { padding: 16px 12px; }
+
+            /* Header: stack vertically */
+            .admin-main__header { flex-direction: column; gap: 12px; }
+            .admin-quick-actions { width: 100%; }
+
+            /* Stat cards: single column */
+            .admin-stats-grid { grid-template-columns: 1fr; gap: 10px; }
+
+            /* Stats bar: wrap pills */
+            .admin-stats-bar { gap: 6px; }
+            .admin-stat-pill { font-size: 0.72rem; padding: 4px 10px; }
+
+            /* Tables: horizontal scroll */
+            .admin-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            .admin-table { min-width: 600px; }
+
+            /* CSV import: prevent overflow */
+            .admin-csv-zone { padding: 24px 16px; }
+            .admin-csv-template { overflow-x: auto; }
+            .admin-csv-template__code { font-size: 0.7rem; white-space: pre; overflow-x: auto; display: block; }
+
+            /* Form inputs: full width */
+            .admin-form-group input,
+            .admin-form-group select,
+            .admin-form-group textarea { max-width: 100%; width: 100%; box-sizing: border-box; }
+
+            /* Buttons: touch-friendly */
+            .admin-btn { min-height: 44px; padding: 10px 16px; }
+            .admin-btn--sm { min-height: 40px; }
+        }
+
+        @media (max-width: 480px) {
+            /* Smaller phones */
+            .admin-main { padding: 12px 8px; }
+            .admin-main__header h2 { font-size: 1.05rem; }
+            .admin-main__header p { font-size: 0.75rem; }
+
+            /* Stat cards: tighter */
+            .admin-stat-card { padding: 14px 16px; }
+            .admin-stat-card__value { font-size: 1.3rem; }
+            .admin-stat-card__label { font-size: 0.72rem; }
+
+            /* Stats bar pills: smaller */
+            .admin-stat-pill { font-size: 0.68rem; padding: 3px 8px; }
+
+            /* Tables: smaller text */
+            .admin-table { min-width: 520px; font-size: 0.74rem; }
+            .admin-table th,
+            .admin-table td { padding: 6px 8px; }
+
+            /* Quick actions: stack */
+            .admin-quick-actions { flex-direction: column; }
+            .admin-quick-actions .admin-btn { width: 100%; justify-content: center; }
+
+            /* CSV zone */
+            .admin-csv-zone { padding: 20px 12px; }
+            .admin-csv-template__code { font-size: 0.65rem; }
         }
     </style>
     <link rel="preload" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js" as="script">
