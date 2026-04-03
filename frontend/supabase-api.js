@@ -20,11 +20,22 @@ function getSupabase() {
 // supabase.auth.getUser() makes a network roundtrip each time (~100-300ms).
 // supabase.auth.getSession() uses the locally-cached JWT (instant, ~0ms).
 // The session is validated server-side by Supabase RLS anyway.
+// Cache the user for the current page session to avoid repeated auth calls
+let _cachedUser = null;
+let _cachedUserTime = 0;
+
 async function getCachedUser() {
     const supabase = getSupabase();
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session?.user) throw new Error('Not authenticated');
-    return session.user;
+    // Return cached user if fresh (within 5 minutes)
+    if (_cachedUser && (Date.now() - _cachedUserTime) < 300000) {
+        return _cachedUser;
+    }
+    // First call: use getUser() to ensure token refresh, then cache
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (error || !user) throw new Error('Not authenticated');
+    _cachedUser = user;
+    _cachedUserTime = Date.now();
+    return user;
 }
 
 // Handle Supabase errors
