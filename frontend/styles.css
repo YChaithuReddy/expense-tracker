@@ -11539,3 +11539,267 @@ select.inline-input option {
         font-size: 0.78rem;
     }
 }
+
+/* ================================================
+   MOBILE RESPONSIVE FIXES (max-width: 480px)
+   Added for iPhone 375x812 and similar small phones.
+   Only overrides — no desktop styles modified.
+   ================================================ */
+@media (max-width: 480px) {
+
+    /* --------------------------------------------------
+       1. HEADER AREA — compact for small screens
+       -------------------------------------------------- */
+
+    /* Hide the logo pill on mobile (logo is on login page already) */
+    .header-left > div > div:first-child {
+        display: none !important;
+    }
+
+    /* Smaller title */
+    .header-left h1 {
+        font-size: 1.35rem !important;
+        line-height: 1.2;
+    }
+
+    .header-left p {
+        font-size: 0.7rem !important;
+        margin: 0 !important;
+    }
+
+    /* Header wrapper: tight gap */
+    .header-flex-wrapper {
+        gap: 0.5rem;
+    }
+
+    /* Header right: wrap icons tightly */
+    .header-right {
+        gap: 4px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    /* User info content: compact on mobile */
+    .user-info-content {
+        gap: 4px;
+        padding: 6px 8px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    /* Hide user name and email on mobile to save space */
+    .user-info-content .user-details {
+        display: none;
+    }
+
+    /* Smaller icon buttons on mobile — 44px min touch target */
+    .user-info-content .theme-toggle-btn {
+        min-width: 44px;
+        min-height: 44px;
+        padding: 8px;
+    }
+
+    /* Compact logout button */
+    .user-info-content .logout-btn {
+        padding: 8px 12px;
+        font-size: 0.78rem;
+        min-height: 44px;
+    }
+
+    /* Role badge: smaller */
+    .role-badge {
+        font-size: 0.6rem;
+        padding: 2px 6px;
+    }
+
+    /* --------------------------------------------------
+       2. ACTION BUTTONS ROW — 2-column grid, compact
+       -------------------------------------------------- */
+
+    .action-buttons {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 6px !important;
+        padding: 0 !important;
+    }
+
+    .action-buttons button {
+        font-size: 0.72rem !important;
+        padding: 10px 6px !important;
+        min-height: 48px !important;
+        gap: 4px !important;
+        border-radius: 10px !important;
+    }
+
+    .action-buttons .btn-icon {
+        font-size: 1.1rem;
+    }
+
+    .action-buttons .btn-text {
+        font-size: 0.72rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Submit Reimbursement button — still full width but compact */
+    .action-buttons .btn-highlight {
+        grid-column: 1 / -1;
+        min-height: 48px !important;
+        padding: 10px 12px !important;
+        gap: 8px !important;
+    }
+
+    .action-buttons .btn-highlight .btn-highlight__label {
+        font-size: 0.82rem;
+    }
+
+    .action-buttons .btn-highlight .btn-highlight__sub {
+        font-size: 0.62rem;
+    }
+
+    /* --------------------------------------------------
+       3. ADVANCE TRACKER CARDS — wrap content on mobile
+       -------------------------------------------------- */
+
+    .advance-tab__collapsed {
+        flex-wrap: wrap;
+        gap: 6px;
+        padding: 8px 10px;
+        row-gap: 4px;
+    }
+
+    /* First line: dot + name + visit-type badge */
+    .advance-tab__dot {
+        flex-shrink: 0;
+    }
+
+    .advance-tab__name {
+        flex: 1 1 auto;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 45%;
+    }
+
+    /* Second line: spent-info + mini-bar + chevron pushed to new row */
+    .advance-tab__spent-info {
+        flex-basis: 100%;
+        margin-left: 17px; /* align under name (past dot) */
+        font-size: 0.7rem;
+    }
+
+    .advance-tab__mini-bar {
+        width: 50px;
+    }
+
+    .advance-tab__chevron {
+        margin-left: auto;
+    }
+
+    /* Approval status badges in advance tabs */
+    .advance-tab__collapsed .approval-status-badge {
+        font-size: 0.58rem !important;
+        padding: 2px 5px !important;
+    }
+
+    .advance-tab__collapsed .visit-type-badge {
+        font-size: 0.56rem;
+        padding: 1px 5px;
+    }
+
+    /* --------------------------------------------------
+       4. EXPENSE LIST CARDS — badges wrap, smaller fonts
+       -------------------------------------------------- */
+
+    .expense-header {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .expense-header-left {
+        min-width: 0;
+        flex: 1 1 auto;
+    }
+
+    .expense-amount {
+        font-size: 1.1rem !important;
+    }
+
+    .expense-category-badge {
+        font-size: 9px !important;
+        padding: 2px 6px !important;
+        white-space: nowrap;
+    }
+
+    .expense-meta {
+        flex-wrap: wrap;
+        gap: 6px !important;
+    }
+
+    .expense-meta-item {
+        font-size: 10px !important;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 150px;
+    }
+
+    /* Visit type badge inside expense cards */
+    .expense-meta .visit-type-badge {
+        font-size: 0.55rem;
+        padding: 1px 5px;
+    }
+
+    .expense-description {
+        font-size: 11px;
+        padding: 6px 8px;
+        -webkit-line-clamp: 2;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    /* Expense details grid: 2-col on mobile */
+    .expense-details {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 6px;
+        font-size: 11px;
+    }
+
+    .expense-details div {
+        padding: 4px 8px;
+        font-size: 11px;
+    }
+
+    /* --------------------------------------------------
+       5. FILTER BAR — stack vertically on mobile
+       -------------------------------------------------- */
+
+    .filter-row {
+        grid-template-columns: 1fr !important;
+        gap: 8px;
+    }
+
+    .filter-select,
+    .filter-date {
+        min-height: 44px;
+        font-size: 0.85rem;
+    }
+
+    .date-input-wrapper {
+        width: 100%;
+    }
+
+    .reset-filters-btn {
+        width: 100%;
+        min-height: 44px;
+    }
+
+    .search-input {
+        min-height: 44px;
+    }
+
+    .expand-filters-btn {
+        min-height: 44px;
+    }
+}
