@@ -183,15 +183,17 @@ function displayUserInfo() {
             const approvalsBtn = isCompany ? `<button class="theme-toggle-btn" onclick="approvalWorkflow.openApprovalsPanel()" aria-label="Approvals" title="Approvals"><span class="theme-icon">&#9989;</span></button>` : '';
 
             userInfoEl.innerHTML = `
-                <div class="user-info-content">
-                    <button class="theme-toggle-btn" onclick="expenseTracker.toggleTheme()" aria-label="Toggle Theme" title="Switch Theme">
-                        <span class="theme-icon" id="themeIcon">🎨</span>
-                    </button>
+                <div class="user-info-name-row">
                     <div class="user-details">
                         <div class="user-name">${safeName}</div>
                         <div class="user-email">${safeEmail}</div>
                         ${roleBadge}
                     </div>
+                </div>
+                <div class="user-info-content">
+                    <button class="theme-toggle-btn" onclick="expenseTracker.toggleTheme()" aria-label="Toggle Theme" title="Switch Theme">
+                        <span class="theme-icon" id="themeIcon">🎨</span>
+                    </button>
                     ${adminBtn}
                     ${notifBtn}
                     ${approvalsBtn}

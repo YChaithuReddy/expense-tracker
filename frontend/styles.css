@@ -3493,6 +3493,13 @@ body.modal-open {
     justify-content: center;
 }
 
+/* Name row — on desktop it's inline above the icon row */
+.user-info-name-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 .user-details {
     flex: 1;
     display: flex;
@@ -12183,28 +12190,22 @@ select.inline-input option {
         border-radius: 12px;
     }
 
-    /* Name/email on its own full row at top */
-    .user-info-content .user-details {
-        display: block !important;
-        flex-basis: 100% !important;
-        width: 100% !important;
+    /* Name/email row — separate div above icons */
+    .user-info-name-row {
+        width: 100%;
         text-align: center;
-        order: -1;
         margin-bottom: 6px;
-        padding-bottom: 6px;
+        padding-bottom: 8px;
         border-bottom: 1px solid rgba(0,0,0,0.06);
     }
-    .user-info-content .user-details .user-name {
+    .user-info-name-row .user-name {
         font-size: 0.95rem;
         font-weight: 700;
         color: #111827;
     }
-    .user-info-content .user-details .user-email {
+    .user-info-name-row .user-email {
         font-size: 0.78rem;
         color: #6b7280;
-    }
-    .user-info-content .user-details .role-badge {
-        margin-top: 2px;
     }
 
     /* Icon buttons row — centered */
