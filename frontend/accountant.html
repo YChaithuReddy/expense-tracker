@@ -1002,14 +1002,21 @@
         let _currentUser = null;
 
         async function initAccountantDashboard() {
+            console.log('[Accountant] Init starting...');
             // Wait for supabase to be ready
             for (let i = 0; i < 60; i++) {
                 if (window.supabaseClient?.get()) break;
                 await new Promise(r => setTimeout(r, 50));
             }
-            if (!window.supabaseClient?.get()) { document.body.innerHTML = '<div style="padding:40px;text-align:center;color:#666;">Failed to connect. Please refresh.</div>'; return; }
+            if (!window.supabaseClient?.get()) {
+                console.error('[Accountant] Supabase client failed to load');
+                document.body.innerHTML = '<div style="padding:40px;text-align:center;color:#666;">Failed to connect. Please refresh.</div>';
+                return;
+            }
+            console.log('[Accountant] Supabase ready');
 
             const user = JSON.parse(localStorage.getItem('user') || 'null');
+            console.log('[Accountant] User from localStorage:', user?.email, 'role:', user?.role, 'orgId:', user?.organization_id);
             if (!user) { window.location.href = 'login.html'; return; }
 
             _currentUser = user;
@@ -1179,9 +1186,10 @@
 
         // ==================== Overview ====================
         async function loadOverview() {
-            if (!_currentUser) return;
+            console.log('[Accountant] loadOverview called, user:', _currentUser?.email, 'orgId:', _currentUser?.organization_id);
+            if (!_currentUser) { console.warn('[Accountant] No current user'); return; }
             const orgId = _currentUser.organization_id;
-            if (!orgId) return;
+            if (!orgId) { console.warn('[Accountant] No organization_id on user profile'); return; }
 
             const supabase = window.supabaseClient?.get();
             if (!supabase) return;
