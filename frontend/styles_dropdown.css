@@ -1768,9 +1768,9 @@
 }
 
 [data-theme="light"] .dropdown-search-input {
-    background: #f8fafc;
-    border-color: #e2e8f0;
-    color: #1e293b;
+    background: #ffffff;
+    border-color: #e5e7eb;
+    color: #111827;
 }
 
 [data-theme="light"] .dropdown-search-input::placeholder {
@@ -1778,8 +1778,8 @@
 }
 
 [data-theme="light"] .dropdown-search-input:hover {
-    background: #f1f5f9;
-    border-color: #cbd5e1;
+    background: #f9fafb;
+    border-color: #d1d5db;
 }
 
 [data-theme="light"] .dropdown-search-input:focus {
@@ -1798,7 +1798,7 @@
 [data-theme="light"] .dropdown-menu {
     background: #ffffff;
     background-image: none;
-    border: 1px solid #e2e8f0;
+    border: 1px solid #e5e7eb;
     box-shadow:
         0 16px 32px rgba(0, 0, 0, 0.08),
         0 0 0 1px rgba(0, 0, 0, 0.04);
@@ -1816,13 +1816,13 @@
     }
 
     [data-theme="light"] .dropdown-menu::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
+        background: #d1d5db;
     }
 }
 
 /* Dropdown Arrow - Light background */
 [data-theme="light"] .dropdown-menu::before {
-    border-bottom-color: #e2e8f0;
+    border-bottom-color: #e5e7eb;
 }
 
 [data-theme="light"] .dropdown-menu::after {
@@ -1830,7 +1830,7 @@
 }
 
 [data-theme="light"] .dropdown-menu.dropdown-up::before {
-    border-top-color: #e2e8f0;
+    border-top-color: #e5e7eb;
 }
 
 [data-theme="light"] .dropdown-menu.dropdown-up::after {
@@ -1839,22 +1839,22 @@
 
 /* Dropdown Header */
 [data-theme="light"] .dropdown-header {
-    border-bottom-color: #e2e8f0;
+    border-bottom-color: #e5e7eb;
 }
 
 [data-theme="light"] .dropdown-header-title {
-    color: #1e293b;
+    color: #111827;
 }
 
 [data-theme="light"] .dropdown-header-hint {
-    color: #64748b;
+    color: #6b7280;
 }
 
 /* Dropdown Items */
 [data-theme="light"] .dropdown-item {
-    background: #f8fafc;
-    border-color: #e2e8f0;
-    color: #1e293b;
+    background: #ffffff;
+    border-color: #e5e7eb;
+    color: #111827;
 }
 
 [data-theme="light"] .dropdown-item::before {
@@ -1862,8 +1862,8 @@
 }
 
 [data-theme="light"] .dropdown-item:hover {
-    background: #e2e8f0;
-    border-color: #cbd5e1;
+    background: #e5e7eb;
+    border-color: #d1d5db;
     box-shadow:
         0 4px 12px rgba(0, 0, 0, 0.06),
         inset 0 1px 0 rgba(255, 255, 255, 0.8);
@@ -1903,33 +1903,33 @@
 
 /* Dropdown Title & Description */
 [data-theme="light"] .dropdown-title {
-    color: #1e293b;
+    color: #111827;
 }
 
 [data-theme="light"] .dropdown-item:hover .dropdown-title {
-    color: #1e293b;
+    color: #111827;
     text-shadow: none;
 }
 
 [data-theme="light"] .dropdown-desc {
-    color: #475569;
+    color: #374151;
 }
 
 [data-theme="light"] .dropdown-item:hover .dropdown-desc {
-    color: #1e293b;
+    color: #111827;
 }
 
 /* Dropdown Icons - Replace cyan/purple with neutral accents */
 [data-theme="light"] .dropdown-icon.icon-data {
     background: rgba(30, 41, 59, 0.08);
     border-color: rgba(30, 41, 59, 0.15);
-    color: #1e293b;
+    color: #111827;
 }
 
 [data-theme="light"] .dropdown-icon.icon-images {
     background: rgba(30, 41, 59, 0.08);
     border-color: rgba(30, 41, 59, 0.15);
-    color: #1e293b;
+    color: #111827;
 }
 
 [data-theme="light"] .dropdown-icon.icon-danger {
@@ -1959,7 +1959,7 @@
 }
 
 [data-theme="light"] .dropdown-item:hover .dropdown-arrow {
-    color: #1e293b;
+    color: #111827;
 }
 
 [data-theme="light"] .dropdown-item.danger:hover .dropdown-arrow {
@@ -1970,9 +1970,9 @@
 [data-theme="light"] .dropdown-divider {
     background: linear-gradient(90deg,
         transparent,
-        #e2e8f0 20%,
+        #e5e7eb 20%,
         rgba(220, 38, 38, 0.15) 50%,
-        #e2e8f0 80%,
+        #e5e7eb 80%,
         transparent
     );
 }
@@ -1991,60 +1991,60 @@
 
 [data-theme="light"] .orphaned-images-content {
     background: #ffffff;
-    border-color: #e2e8f0;
+    border-color: #e5e7eb;
     box-shadow:
         0 20px 40px rgba(0, 0, 0, 0.1),
         0 0 0 1px rgba(0, 0, 0, 0.04);
 }
 
 [data-theme="light"] .orphaned-images-header {
-    border-bottom-color: #e2e8f0;
+    border-bottom-color: #e5e7eb;
     background: linear-gradient(135deg, rgba(30, 41, 59, 0.04), rgba(30, 41, 59, 0.02));
 }
 
 [data-theme="light"] .orphaned-images-header h2 {
-    color: #1e293b;
+    color: #111827;
 }
 
 /* Stats */
 [data-theme="light"] .orphaned-images-stats {
     background: rgba(0, 0, 0, 0.02);
-    border-bottom-color: #e2e8f0;
+    border-bottom-color: #e5e7eb;
 }
 
 [data-theme="light"] .stat-item {
-    background: #f8fafc;
-    border-color: #e2e8f0;
+    background: #ffffff;
+    border-color: #e5e7eb;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 [data-theme="light"] .stat-item:hover {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
-    border-color: #cbd5e1;
+    border-color: #d1d5db;
 }
 
 [data-theme="light"] .stat-label {
-    color: #64748b;
+    color: #6b7280;
 }
 
 [data-theme="light"] .stat-value {
-    color: #1e293b;
+    color: #111827;
 }
 
 [data-theme="light"] .stat-unit {
-    color: #475569;
+    color: #374151;
 }
 
 /* Orphaned Image Cards */
 [data-theme="light"] .orphaned-image-card {
-    background: #f8fafc;
-    border-color: #e2e8f0;
+    background: #ffffff;
+    border-color: #e5e7eb;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 [data-theme="light"] .orphaned-image-card:hover {
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-    border-color: #cbd5e1;
+    border-color: #d1d5db;
 }
 
 [data-theme="light"] .orphaned-image-preview {
@@ -2052,11 +2052,11 @@
 }
 
 [data-theme="light"] .orphaned-image-info {
-    color: #475569;
+    color: #374151;
 }
 
 [data-theme="light"] .orphaned-image-date {
-    color: #1e293b;
+    color: #111827;
 }
 
 [data-theme="light"] .orphaned-image-expiry {
@@ -2087,7 +2087,7 @@
 }
 
 [data-theme="light"] .empty-orphaned-images {
-    color: #64748b;
+    color: #6b7280;
 }
 
 /* Scrollbar - Light */
@@ -2096,7 +2096,7 @@
 }
 
 [data-theme="light"] .orphaned-images-grid::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
+    background: #d1d5db;
 }
 
 [data-theme="light"] .orphaned-images-grid::-webkit-scrollbar-thumb:hover {
@@ -2117,11 +2117,11 @@
 }
 
 [data-theme="light"] .warning-title {
-    color: #1e293b;
+    color: #111827;
 }
 
 [data-theme="light"] .warning-message {
-    color: #475569;
+    color: #374151;
 }
 
 [data-theme="light"] .warning-details {
@@ -2130,13 +2130,13 @@
 }
 
 [data-theme="light"] .warning-details ul {
-    color: #475569;
+    color: #374151;
 }
 
 [data-theme="light"] .btn-cancel {
     background: rgba(0, 0, 0, 0.04);
-    border-color: #e2e8f0;
-    color: #475569;
+    border-color: #e5e7eb;
+    color: #374151;
 }
 
 [data-theme="light"] .btn-cancel:hover {
@@ -2149,47 +2149,47 @@
 }
 
 [data-theme="light"] .stat-card-modern {
-    background: #f8fafc;
-    border-color: #e2e8f0;
+    background: #ffffff;
+    border-color: #e5e7eb;
 }
 
 [data-theme="light"] .stat-card-modern:hover {
     background: #ffffff;
-    border-color: #cbd5e1;
+    border-color: #d1d5db;
 }
 
 [data-theme="light"] .stat-label-modern {
-    color: #64748b;
+    color: #6b7280;
 }
 
 [data-theme="light"] .stat-value-modern {
-    color: #1e293b;
+    color: #111827;
 }
 
 [data-theme="light"] .stat-unit-modern {
-    color: #475569;
+    color: #374151;
 }
 
 /* Modern Empty State */
 [data-theme="light"] .empty-state-modern h3 {
-    color: #1e293b;
+    color: #111827;
 }
 
 [data-theme="light"] .empty-state-modern p {
-    color: #64748b;
+    color: #6b7280;
 }
 
 /* Modern Image Cards */
 [data-theme="light"] .image-card-modern {
-    background: #f8fafc;
-    border-color: #e2e8f0;
-    border-left-color: #cbd5e1;
+    background: #ffffff;
+    border-color: #e5e7eb;
+    border-left-color: #d1d5db;
 }
 
 [data-theme="light"] .image-card-modern:hover {
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-    border-color: #cbd5e1;
-    border-left-color: #1e293b;
+    border-color: #d1d5db;
+    border-left-color: #111827;
 }
 
 [data-theme="light"] .image-preview-modern {
@@ -2197,24 +2197,24 @@
 }
 
 [data-theme="light"] .image-details-modern {
-    border-bottom-color: #e2e8f0;
+    border-bottom-color: #e5e7eb;
 }
 
 [data-theme="light"] .detail-row-modern {
-    color: #475569;
+    color: #374151;
 }
 
 [data-theme="light"] .detail-text {
-    color: #475569;
+    color: #374151;
 }
 
 [data-theme="light"] .detail-value-modern {
-    color: #1e293b;
+    color: #111827;
 }
 
 /* Modern Action Buttons */
 [data-theme="light"] .action-buttons-modern {
-    border-top-color: #e2e8f0;
+    border-top-color: #e5e7eb;
 }
 
 [data-theme="light"] .btn-delete-modern {
