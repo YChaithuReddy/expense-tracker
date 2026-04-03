@@ -216,6 +216,16 @@ function exportExpensesToSheet(data) {
       return createResponse(false, 'Tab "' + TAB_NAME + '" not found in sheet');
     }
 
+    // Ensure company name in row 1 is visible (merge A1:F1 if not already merged)
+    const row1Range = sheet.getRange('A1:F1');
+    const mergedRanges = row1Range.getMergedRanges();
+    if (mergedRanges.length === 0) {
+      row1Range.merge();
+    }
+    // Make sure it's styled properly
+    sheet.getRange('A1').setFontSize(16).setFontWeight('bold').setFontColor('#0f766e');
+    sheet.setRowHeight(1, 40);
+
     // Constants
     const DATA_START_ROW = 14; // Data always starts at row 14
     const SUMMARY_ROW_COUNT = 17; // Summary section is always 17 rows (A67:F83 in master)
