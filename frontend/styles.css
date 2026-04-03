@@ -10418,35 +10418,28 @@ select.inline-input option {
     transform: scale(1.06);
 }
 
-/* ---------- Scrollable body ---------- */
+/* ---------- Body — fit to screen, no scroll ---------- */
 .expense-detail-content {
     flex: 1;
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(20, 184, 166, 0.2) transparent;
-}
-.expense-detail-content::-webkit-scrollbar { width: 5px; }
-.expense-detail-content::-webkit-scrollbar-track { background: transparent; }
-.expense-detail-content::-webkit-scrollbar-thumb {
-    background: rgba(20, 184, 166, 0.2);
-    border-radius: 3px;
+    overflow: hidden;
 }
 
-/* ---------- Split layout ---------- */
+/* ---------- Split layout — fills remaining height ---------- */
 .expense-detail-split {
     display: grid;
-    grid-template-columns: 48fr 52fr;
-    min-height: 100%;
+    grid-template-columns: 45fr 55fr;
+    height: 100%;
 }
 
 /* ---------- Receipt / image column ---------- */
 .expense-detail-receipt {
-    padding: 32px 28px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
-    gap: 16px;
+    justify-content: center;
+    gap: 12px;
+    overflow: hidden;
     background: rgba(0, 0, 0, 0.18);
     border-right: 1px solid rgba(20, 184, 166, 0.08);
 }
@@ -10465,11 +10458,10 @@ select.inline-input option {
 
 .expense-detail-main-image {
     width: 100%;
-    max-height: 62vh;
+    max-height: 50vh;
     object-fit: contain;
-    border-radius: 13px;
+    border-radius: 10px;
     cursor: zoom-in;
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
     display: block;
 }
 .expense-detail-main-image:hover {
@@ -10563,40 +10555,38 @@ select.inline-input option {
 
 /* ---------- Data column ---------- */
 .expense-detail-data {
-    padding: 28px 28px 28px 32px;
+    padding: 20px 24px;
     display: flex;
     flex-direction: column;
     gap: 0;
     overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(20, 184, 166, 0.15) transparent;
+    overflow-x: hidden;
 }
 
 /* ---------- Amount hero ---------- */
 .expense-detail-amount {
-    font-size: 2.6rem;
+    font-size: 2rem;
     font-weight: 800;
     color: var(--neon-cyan, #a78bfa);
     letter-spacing: -0.03em;
     line-height: 1;
-    margin-bottom: 6px;
-    text-shadow: 0 0 32px rgba(20, 184, 166, 0.28);
+    margin-bottom: 4px;
 }
 .expense-detail-amount-label {
-    font-size: 0.68rem;
+    font-size: 0.65rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     color: #4a6a5a;
-    margin-bottom: 22px;
+    margin-bottom: 14px;
 }
 
 /* ---------- Fields grid ---------- */
 .expense-detail-fields-grid {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    margin-bottom: 18px;
+    gap: 4px;
+    margin-bottom: 12px;
 }
 
 .expense-detail-field {
@@ -10686,11 +10676,11 @@ select.inline-input option {
 
 /* ---------- Status section ---------- */
 .expense-detail-status {
-    padding: 14px 16px;
+    padding: 10px 14px;
     background: rgba(255, 255, 255, 0.02);
     border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
-    margin-bottom: 18px;
+    border-radius: 10px;
+    margin-bottom: 12px;
 }
 .expense-detail-status h4 {
     font-size: 0.68rem;
@@ -10737,9 +10727,8 @@ select.inline-input option {
     display: flex;
     gap: 10px;
     margin-top: auto;
-    padding-top: 18px;
+    padding-top: 12px;
     border-top: 1px solid rgba(255, 255, 255, 0.05);
-    position: relative;
 }
 .expense-detail-actions::before {
     content: '';
