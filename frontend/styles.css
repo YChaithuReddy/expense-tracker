@@ -11111,12 +11111,9 @@ select.inline-input option {
 .advance-modal__form {
     flex: 1;
     overflow-y: auto;
-    padding: 28px;
+    padding: 28px 32px;
     display: flex;
     flex-direction: column;
-    max-width: 560px;
-    width: 100%;
-    margin: 0 auto;
 }
 
 .advance-modal__field {
