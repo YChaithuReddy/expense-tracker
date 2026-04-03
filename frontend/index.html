@@ -967,6 +967,7 @@
                             <button class="theme-toggle-btn" onclick="activityLog.open()" aria-label="Activity Log" title="Activity Log">
                                 <span class="theme-icon">📋</span>
                             </button>
+                            <button class="theme-toggle-btn" onclick="openProfileModal()" aria-label="Profile" title="Profile"><span class="theme-icon">👤</span></button>
                             <button onclick="logout()" class="logout-btn">Logout</button>
                         </div>
                     `;
@@ -1596,6 +1597,402 @@
             <div class="activity-log-loading">Loading activity...</div>
         </div>
     </div>
+
+    <!-- Profile / Settings Modal (Full Screen Overlay) -->
+    <div id="profileModal" class="activity-log-overlay" role="dialog" aria-modal="true" aria-labelledby="profileModalTitle">
+        <div class="activity-log-header">
+            <h2 class="activity-log-title" id="profileModalTitle">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                Profile &amp; Settings
+            </h2>
+            <button class="activity-log-close" onclick="closeProfileModal()" aria-label="Close Profile">&times;</button>
+        </div>
+
+        <div class="activity-log-body" id="profileModalBody" style="padding: 20px; display: flex; flex-direction: column; gap: 24px;">
+
+            <!-- Personal Info Section -->
+            <div class="profile-section">
+                <h3 class="profile-section-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    Personal Information
+                </h3>
+                <div class="profile-field-group">
+                    <label class="profile-label">Name</label>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <input type="text" id="profileNameInput" class="profile-input" placeholder="Your name">
+                        <button class="profile-save-btn" onclick="saveProfileName()">Save</button>
+                    </div>
+                </div>
+                <div class="profile-field-group">
+                    <label class="profile-label">Email</label>
+                    <input type="text" id="profileEmailDisplay" class="profile-input profile-input--readonly" readonly>
+                </div>
+                <div class="profile-field-row">
+                    <div class="profile-field-group">
+                        <label class="profile-label">Employee ID</label>
+                        <input type="text" id="profileEmpId" class="profile-input profile-input--readonly" readonly>
+                    </div>
+                    <div class="profile-field-group">
+                        <label class="profile-label">Department</label>
+                        <input type="text" id="profileDept" class="profile-input profile-input--readonly" readonly>
+                    </div>
+                </div>
+                <div class="profile-field-row">
+                    <div class="profile-field-group">
+                        <label class="profile-label">Designation</label>
+                        <input type="text" id="profileDesignation" class="profile-input profile-input--readonly" readonly>
+                    </div>
+                    <div class="profile-field-group">
+                        <label class="profile-label">Role</label>
+                        <div id="profileRoleBadge" style="padding-top:6px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Change Password Section -->
+            <div class="profile-section">
+                <h3 class="profile-section-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    Change Password
+                </h3>
+                <div class="profile-field-group">
+                    <label class="profile-label">New Password</label>
+                    <input type="password" id="profileNewPassword" class="profile-input" placeholder="Min 6 chars, upper, lower, number">
+                </div>
+                <div class="profile-field-group">
+                    <label class="profile-label">Confirm Password</label>
+                    <input type="password" id="profileConfirmPassword" class="profile-input" placeholder="Re-enter new password">
+                </div>
+                <div id="profilePasswordError" style="color:#ef4444;font-size:13px;margin-top:4px;display:none;"></div>
+                <button class="profile-save-btn" onclick="changePassword()" style="margin-top:8px;">Update Password</button>
+            </div>
+
+            <!-- Voucher Summary Section -->
+            <div class="profile-section" id="profileVoucherSection" style="display:none;">
+                <h3 class="profile-section-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    My Vouchers Summary
+                </h3>
+                <div class="profile-voucher-grid" id="profileVoucherStats">
+                    <div class="profile-voucher-card">
+                        <span class="profile-voucher-value" id="pvTotal">0</span>
+                        <span class="profile-voucher-label">Total Submitted</span>
+                    </div>
+                    <div class="profile-voucher-card profile-voucher-card--pending">
+                        <span class="profile-voucher-value" id="pvPending">0</span>
+                        <span class="profile-voucher-label">Pending</span>
+                    </div>
+                    <div class="profile-voucher-card profile-voucher-card--approved">
+                        <span class="profile-voucher-value" id="pvApproved">0</span>
+                        <span class="profile-voucher-label">Approved</span>
+                    </div>
+                    <div class="profile-voucher-card profile-voucher-card--rejected">
+                        <span class="profile-voucher-value" id="pvRejected">0</span>
+                        <span class="profile-voucher-label">Rejected</span>
+                    </div>
+                    <div class="profile-voucher-card profile-voucher-card--reimbursed">
+                        <span class="profile-voucher-value" id="pvReimbursed">0</span>
+                        <span class="profile-voucher-label">Reimbursed</span>
+                    </div>
+                    <div class="profile-voucher-card profile-voucher-card--amount">
+                        <span class="profile-voucher-value" id="pvTotalAmount">0</span>
+                        <span class="profile-voucher-label">Total Amount</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Modal Inline Styles -->
+    <style>
+        .profile-section {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .profile-section-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #e2e8f0;
+            margin: 0 0 16px 0;
+        }
+        .profile-section-title svg { opacity: 0.7; }
+        .profile-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: #94a3b8;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .profile-field-group { margin-bottom: 12px; }
+        .profile-field-group:last-child { margin-bottom: 0; }
+        .profile-field-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .profile-field-row .profile-field-group { margin-bottom: 0; }
+        .profile-input {
+            width: 100%;
+            padding: 10px 12px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            color: #e2e8f0;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
+        .profile-input:focus {
+            border-color: rgba(139,92,246,0.5);
+            background: rgba(255,255,255,0.1);
+        }
+        .profile-input--readonly {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .profile-save-btn {
+            padding: 8px 20px;
+            background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+        .profile-save-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        .profile-save-btn:active { transform: translateY(0); }
+        .profile-save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .profile-voucher-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        .profile-voucher-card {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 14px 10px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .profile-voucher-card--pending { border-color: rgba(234,179,8,0.3); }
+        .profile-voucher-card--approved { border-color: rgba(34,197,94,0.3); }
+        .profile-voucher-card--rejected { border-color: rgba(239,68,68,0.3); }
+        .profile-voucher-card--reimbursed { border-color: rgba(59,130,246,0.3); }
+        .profile-voucher-card--amount { border-color: rgba(139,92,246,0.3); }
+        .profile-voucher-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: #e2e8f0;
+        }
+        .profile-voucher-label {
+            font-size: 11px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .profile-voucher-card--pending .profile-voucher-value { color: #eab308; }
+        .profile-voucher-card--approved .profile-voucher-value { color: #22c55e; }
+        .profile-voucher-card--rejected .profile-voucher-value { color: #ef4444; }
+        .profile-voucher-card--reimbursed .profile-voucher-value { color: #3b82f6; }
+        .profile-voucher-card--amount .profile-voucher-value { color: #a78bfa; }
+
+        /* Light theme overrides */
+        [data-theme="light"] .profile-section {
+            background: rgba(0,0,0,0.03);
+            border-color: rgba(0,0,0,0.1);
+        }
+        [data-theme="light"] .profile-section-title { color: #1e293b; }
+        [data-theme="light"] .profile-label { color: #64748b; }
+        [data-theme="light"] .profile-input {
+            background: rgba(0,0,0,0.04);
+            border-color: rgba(0,0,0,0.15);
+            color: #1e293b;
+        }
+        [data-theme="light"] .profile-input:focus {
+            border-color: rgba(139,92,246,0.4);
+            background: rgba(0,0,0,0.02);
+        }
+        [data-theme="light"] .profile-voucher-card {
+            background: rgba(0,0,0,0.03);
+            border-color: rgba(0,0,0,0.1);
+        }
+        [data-theme="light"] .profile-voucher-value { color: #1e293b; }
+        [data-theme="light"] .profile-voucher-label { color: #64748b; }
+        [data-theme="light"] .profile-voucher-card--pending .profile-voucher-value { color: #a16207; }
+        [data-theme="light"] .profile-voucher-card--approved .profile-voucher-value { color: #15803d; }
+        [data-theme="light"] .profile-voucher-card--rejected .profile-voucher-value { color: #dc2626; }
+        [data-theme="light"] .profile-voucher-card--reimbursed .profile-voucher-value { color: #2563eb; }
+        [data-theme="light"] .profile-voucher-card--amount .profile-voucher-value { color: #7c3aed; }
+
+        @media (max-width: 480px) {
+            .profile-voucher-grid { grid-template-columns: repeat(2, 1fr); }
+            .profile-field-row { grid-template-columns: 1fr; }
+        }
+    </style>
+
+    <!-- Profile Modal Script -->
+    <script>
+        function openProfileModal() {
+            const modal = document.getElementById('profileModal');
+            if (!modal) return;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            // Load user data from localStorage
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            document.getElementById('profileNameInput').value = user.name || '';
+            document.getElementById('profileEmailDisplay').value = user.email || '';
+            document.getElementById('profileEmpId').value = user.employee_id || 'N/A';
+            document.getElementById('profileDept').value = user.department || 'N/A';
+            document.getElementById('profileDesignation').value = user.designation || 'N/A';
+
+            // Role badge
+            const role = user.role || 'employee';
+            const roleBadgeEl = document.getElementById('profileRoleBadge');
+            if (user.organization_id) {
+                roleBadgeEl.innerHTML = '<span class="role-badge role-badge--' + role + '">' + role.toUpperCase() + '</span>';
+            } else {
+                roleBadgeEl.innerHTML = '<span style="color:#94a3b8;font-size:14px;">Personal Account</span>';
+            }
+
+            // Clear password fields
+            document.getElementById('profileNewPassword').value = '';
+            document.getElementById('profileConfirmPassword').value = '';
+            const errEl = document.getElementById('profilePasswordError');
+            errEl.style.display = 'none';
+            errEl.textContent = '';
+
+            // Load voucher summary if in company mode
+            const voucherSection = document.getElementById('profileVoucherSection');
+            if (user.organization_id) {
+                voucherSection.style.display = 'block';
+                loadVoucherSummary();
+            } else {
+                voucherSection.style.display = 'none';
+            }
+        }
+
+        function closeProfileModal() {
+            const modal = document.getElementById('profileModal');
+            if (!modal) return;
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        async function loadVoucherSummary() {
+            try {
+                const summary = await api.getMyVouchersSummary();
+                document.getElementById('pvTotal').textContent = summary.total || 0;
+                document.getElementById('pvPending').textContent = summary.pending || 0;
+                document.getElementById('pvApproved').textContent = summary.approved || 0;
+                document.getElementById('pvRejected').textContent = summary.rejected || 0;
+                document.getElementById('pvReimbursed').textContent = summary.reimbursed || 0;
+                document.getElementById('pvTotalAmount').textContent = '\u20B9' + (summary.totalAmount || 0).toLocaleString('en-IN');
+            } catch (e) {
+                console.error('Failed to load voucher summary:', e);
+            }
+        }
+
+        async function saveProfileName() {
+            const nameInput = document.getElementById('profileNameInput');
+            const name = nameInput.value.trim();
+            if (!name) {
+                alert('Name cannot be empty');
+                return;
+            }
+            try {
+                const btn = nameInput.nextElementSibling;
+                btn.disabled = true;
+                btn.textContent = 'Saving...';
+                await api.updateProfile({ name });
+                btn.textContent = 'Saved!';
+                // Update header display
+                if (typeof displayUserInfo === 'function') displayUserInfo();
+                setTimeout(() => { btn.textContent = 'Save'; btn.disabled = false; }, 2000);
+            } catch (e) {
+                alert('Failed to save name: ' + e.message);
+                const btn = nameInput.nextElementSibling;
+                btn.textContent = 'Save';
+                btn.disabled = false;
+            }
+        }
+
+        async function changePassword() {
+            const newPw = document.getElementById('profileNewPassword').value;
+            const confirmPw = document.getElementById('profileConfirmPassword').value;
+            const errEl = document.getElementById('profilePasswordError');
+
+            errEl.style.display = 'none';
+            errEl.textContent = '';
+
+            // Validation
+            if (newPw.length < 6) {
+                errEl.textContent = 'Password must be at least 6 characters.';
+                errEl.style.display = 'block';
+                return;
+            }
+            if (!/[A-Z]/.test(newPw)) {
+                errEl.textContent = 'Password must contain at least one uppercase letter.';
+                errEl.style.display = 'block';
+                return;
+            }
+            if (!/[a-z]/.test(newPw)) {
+                errEl.textContent = 'Password must contain at least one lowercase letter.';
+                errEl.style.display = 'block';
+                return;
+            }
+            if (!/[0-9]/.test(newPw)) {
+                errEl.textContent = 'Password must contain at least one number.';
+                errEl.style.display = 'block';
+                return;
+            }
+            if (newPw !== confirmPw) {
+                errEl.textContent = 'Passwords do not match.';
+                errEl.style.display = 'block';
+                return;
+            }
+
+            try {
+                const btn = event.target;
+                btn.disabled = true;
+                btn.textContent = 'Updating...';
+                await api.changePassword(newPw);
+                btn.textContent = 'Updated!';
+                document.getElementById('profileNewPassword').value = '';
+                document.getElementById('profileConfirmPassword').value = '';
+                setTimeout(() => { btn.textContent = 'Update Password'; btn.disabled = false; }, 2000);
+            } catch (e) {
+                errEl.textContent = 'Failed: ' + e.message;
+                errEl.style.display = 'block';
+                const btn = event.target;
+                btn.textContent = 'Update Password';
+                btn.disabled = false;
+            }
+        }
+
+        // Close on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('profileModal');
+                if (modal && modal.classList.contains('active')) {
+                    closeProfileModal();
+                }
+            }
+        });
+    </script>
 
     <!-- Admin Panel (Full Screen Overlay) -->
     <div id="adminPanelOverlay" class="admin-panel-overlay" role="dialog" aria-modal="true">

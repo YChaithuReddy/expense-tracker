@@ -198,6 +198,7 @@ function displayUserInfo() {
                     <button class="theme-toggle-btn" onclick="activityLog.open()" aria-label="Activity Log" title="Activity Log">
                         <span class="theme-icon">📋</span>
                     </button>
+                    <button class="theme-toggle-btn" onclick="openProfileModal()" aria-label="Profile" title="Profile"><span class="theme-icon">👤</span></button>
                     <button onclick="logout()" class="logout-btn">Logout</button>
                 </div>
             `;

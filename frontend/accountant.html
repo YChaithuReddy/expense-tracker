@@ -259,6 +259,7 @@
         .admin-stat-card--amber::before { background: var(--amber); }
         .admin-stat-card--purple::before { background: var(--purple); }
         .admin-stat-card--red::before   { background: var(--red); }
+        .admin-stat-card--cyan::before  { background: var(--cyan); }
 
         .admin-stat-card__value {
             font-size: 2rem;
@@ -273,6 +274,7 @@
         .admin-stat-card--amber  .admin-stat-card__value { color: var(--amber); }
         .admin-stat-card--purple .admin-stat-card__value { color: var(--purple); }
         .admin-stat-card--red    .admin-stat-card__value { color: var(--red); }
+        .admin-stat-card--cyan   .admin-stat-card__value { color: var(--cyan); }
 
         .admin-stat-card__label {
             font-size: 0.72rem;
@@ -622,6 +624,71 @@
         }
 
         /* ============================================================
+           MARK PAID INLINE FORM
+           ============================================================ */
+        .mark-paid-form {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding: 10px 14px;
+            background: var(--cyan-bg);
+            border: 1px solid #a5f3fc;
+            border-radius: var(--radius-md);
+            margin-top: 8px;
+        }
+        .mark-paid-form select,
+        .mark-paid-form input[type="text"] {
+            padding: 6px 10px;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            color: var(--gray-700);
+            background: var(--white);
+            outline: none;
+        }
+        .mark-paid-form select:focus,
+        .mark-paid-form input[type="text"]:focus {
+            border-color: var(--cyan);
+        }
+        .mark-paid-form label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .mark-paid-form .mark-paid-field {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        /* Payment info in voucher detail */
+        .acct-payment-info {
+            margin-top: 14px;
+            padding: 12px 16px;
+            background: var(--cyan-bg);
+            border: 1px solid #a5f3fc;
+            border-radius: var(--radius-md);
+        }
+        .acct-payment-info h4 {
+            margin: 0 0 8px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--cyan);
+        }
+        .acct-payment-info .payment-detail-row {
+            display: flex;
+            gap: 24px;
+            font-size: 0.8rem;
+            color: var(--gray-600);
+        }
+        .acct-payment-info .payment-detail-row strong {
+            color: var(--gray-800);
+        }
+
+        /* ============================================================
            MOBILE
            ============================================================ */
         @media (max-width: 768px) {
@@ -707,6 +774,7 @@
                     <div class="admin-stat-card admin-stat-card--green"><div class="admin-stat-card__value" id="statApproved">-</div><div class="admin-stat-card__label">Approved</div></div>
                     <div class="admin-stat-card admin-stat-card--blue"><div class="admin-stat-card__value" id="statExported">-</div><div class="admin-stat-card__label">Exported to Tally</div></div>
                     <div class="admin-stat-card admin-stat-card--amber"><div class="admin-stat-card__value" id="statPendingAmount">-</div><div class="admin-stat-card__label">Total Pending Amount</div></div>
+                    <div class="admin-stat-card admin-stat-card--cyan"><div class="admin-stat-card__value" id="statReimbursed">-</div><div class="admin-stat-card__label">Reimbursed</div></div>
                 </div>
                 <h3 class="admin-section-label">Quick Actions</h3>
                 <div class="admin-quick-actions">
@@ -946,6 +1014,15 @@
                     .eq('tally_exported', true);
 
                 document.getElementById('statExported').textContent = exportedCount || 0;
+
+                // Reimbursed count
+                const { count: reimbursedCount } = await supabase
+                    .from('vouchers')
+                    .select('id', { count: 'exact', head: true })
+                    .eq('organization_id', orgId)
+                    .eq('status', 'reimbursed');
+
+                document.getElementById('statReimbursed').textContent = reimbursedCount || 0;
 
             } catch (e) {
                 console.error('Overview load error:', e);
@@ -1204,9 +1281,27 @@
                     </li>
                 `).join('');
 
+                // Payment info for reimbursed vouchers
+                let paymentInfoHtml = '';
+                if (detail.status === 'reimbursed') {
+                    const paidDate = detail.paid_at || detail.reimbursed_at || '';
+                    const paidMethod = detail.payment_method || '-';
+                    const paidRef = detail.payment_reference || '-';
+                    paymentInfoHtml = `
+                        <div class="acct-payment-info">
+                            <h4>Reimbursement Details</h4>
+                            <div class="payment-detail-row">
+                                <span>Method: <strong>${esc(paidMethod)}</strong></span>
+                                <span>Reference: <strong>${esc(paidRef)}</strong></span>
+                                ${paidDate ? `<span>Date: <strong>${formatDate(paidDate)}</strong></span>` : ''}
+                            </div>
+                        </div>`;
+                }
+
                 cell.innerHTML = `
                     <div class="acct-voucher-detail">
-                        <h4>Expenses (${expenses.length})</h4>
+                        ${paymentInfoHtml}
+                        <h4${paymentInfoHtml ? ' style="margin-top:14px;"' : ''}>Expenses (${expenses.length})</h4>
                         <div class="admin-table-wrap">
                             <table class="admin-table admin-table--compact">
                                 <thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th></tr></thead>
@@ -1298,7 +1393,11 @@
                         <td>${v.tally_exported ? '<span style="color:var(--green);font-weight:600;">Yes</span>' : '<span style="color:var(--gray-400);">No</span>'}</td>
                         <td>${formatDate(v.submitted_at)}</td>
                         <td>
-                            <button class="admin-btn admin-btn--sm admin-btn--secondary" onclick="toggleVoucherDetail('${v.id}', 'allv')">View</button>
+                            <div style="display:flex;gap:6px;align-items:center;">
+                                <button class="admin-btn admin-btn--sm admin-btn--secondary" onclick="toggleVoucherDetail('${v.id}', 'allv')">View</button>
+                                ${v.status === 'approved' ? `<button class="admin-btn admin-btn--sm admin-btn--success" onclick="showMarkPaidForm('${v.id}')">Mark Paid</button>` : ''}
+                            </div>
+                            <div id="mark-paid-form-${v.id}" style="display:none;"></div>
                         </td>
                     </tr>
                     <tr id="detail-allv-${v.id}" style="display:none;"><td colspan="9"></td></tr>
@@ -1317,6 +1416,87 @@
                 </div>`;
 
             updateSelectionBar();
+        }
+
+        // ==================== Mark as Paid / Reimbursement ====================
+        function showMarkPaidForm(voucherId) {
+            // Close any other open mark-paid forms
+            document.querySelectorAll('[id^="mark-paid-form-"]').forEach(el => {
+                if (el.id !== `mark-paid-form-${voucherId}`) el.style.display = 'none';
+            });
+
+            const container = document.getElementById(`mark-paid-form-${voucherId}`);
+            if (!container) return;
+
+            // Toggle: if already visible, hide it
+            if (container.style.display !== 'none') {
+                container.style.display = 'none';
+                return;
+            }
+
+            container.style.display = 'block';
+            container.innerHTML = `
+                <div class="mark-paid-form">
+                    <div class="mark-paid-field">
+                        <label>Payment Method</label>
+                        <select id="pay-method-${voucherId}">
+                            <option value="Cash">Cash</option>
+                            <option value="Bank Transfer" selected>Bank Transfer</option>
+                            <option value="UPI">UPI</option>
+                            <option value="Cheque">Cheque</option>
+                        </select>
+                    </div>
+                    <div class="mark-paid-field">
+                        <label>Reference (optional)</label>
+                        <input type="text" id="pay-ref-${voucherId}" placeholder="UTR / Cheque No." style="width:160px;">
+                    </div>
+                    <button class="admin-btn admin-btn--sm admin-btn--success" onclick="handleMarkPaid('${voucherId}')">Confirm</button>
+                    <button class="admin-btn admin-btn--sm admin-btn--secondary" onclick="document.getElementById('mark-paid-form-${voucherId}').style.display='none'">Cancel</button>
+                </div>`;
+        }
+
+        async function handleMarkPaid(voucherId) {
+            const methodEl = document.getElementById(`pay-method-${voucherId}`);
+            const refEl = document.getElementById(`pay-ref-${voucherId}`);
+            if (!methodEl) return;
+
+            const paymentMethod = methodEl.value;
+            const paymentReference = refEl?.value?.trim() || '';
+
+            // Disable form buttons while processing
+            const formContainer = document.getElementById(`mark-paid-form-${voucherId}`);
+            const buttons = formContainer?.querySelectorAll('button');
+            buttons?.forEach(b => b.disabled = true);
+
+            try {
+                // Get voucher detail for email
+                const detail = await api.getVoucherDetail(voucherId);
+
+                // Call API to mark as paid
+                await api.markVoucherPaid(voucherId, paymentMethod, paymentReference);
+
+                if (window.showToast) showToast('Voucher marked as reimbursed', 'success');
+
+                // Send email to employee
+                if (detail.submitter?.email) {
+                    const amt = formatCurrency(detail.total_amount);
+                    const refText = paymentReference ? ` (Ref: ${paymentReference})` : '';
+                    sendEmail(
+                        detail.submitter.email,
+                        `Your voucher ${detail.voucher_number} has been reimbursed!`,
+                        `Great news! Your voucher ${detail.voucher_number} (${amt}) has been reimbursed via ${paymentMethod}${refText}.\n\nIf you have any questions, please contact the accounts team.`,
+                        detail.voucher_number
+                    );
+                }
+
+                // Refresh views
+                await applyFilters();
+                loadOverview();
+            } catch (e) {
+                console.error('Mark paid error:', e);
+                if (window.showToast) showToast('Failed to mark as paid: ' + e.message, 'error');
+                buttons?.forEach(b => b.disabled = false);
+            }
         }
 
         // ==================== Selection System ====================
