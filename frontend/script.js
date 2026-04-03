@@ -7389,9 +7389,9 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
      */
     initializeTheme() {
         // Get saved theme from localStorage, default to 'teal'
-        let savedTheme = localStorage.getItem('expenseTrackerTheme') || 'teal';
-        // Migrate away from removed cyberpunk theme
-        if (savedTheme === 'cyberpunk') savedTheme = 'teal';
+        let savedTheme = localStorage.getItem('expenseTrackerTheme') || 'light';
+        // Migrate away from removed themes
+        if (savedTheme === 'cyberpunk') savedTheme = 'light';
 
         this.applyTheme(savedTheme);
 
@@ -7402,16 +7402,16 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
      * Toggle between teal, light, and minimalist themes
      */
     toggleTheme() {
-        const currentTheme = document.documentElement.getAttribute('data-theme') || 'teal';
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
 
-        // Cycle: teal -> light -> minimalist -> teal
+        // Cycle: light -> teal -> minimalist -> light
         let newTheme;
-        if (currentTheme === 'teal') {
-            newTheme = 'light';
-        } else if (currentTheme === 'light') {
+        if (currentTheme === 'light') {
+            newTheme = 'teal';
+        } else if (currentTheme === 'teal') {
             newTheme = 'minimalist';
         } else {
-            newTheme = 'teal';
+            newTheme = 'light';
         }
 
         this.applyTheme(newTheme);

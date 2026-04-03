@@ -174,3 +174,88 @@
         max-height: 70vh;
     }
 }
+
+/* ================================================
+   LIGHT THEME — NOTIFICATION CENTER
+   Professional white/gray palette
+   ================================================ */
+
+/* Panel container */
+[data-theme="light"] .notif-panel {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.10);
+}
+
+/* Panel header */
+[data-theme="light"] .notif-header {
+    border-bottom-color: #f3f4f6;
+    color: #111827;
+}
+
+/* Mark all read button */
+[data-theme="light"] .notif-mark-all {
+    color: #374151;
+}
+
+[data-theme="light"] .notif-mark-all:hover {
+    background: #f3f4f6;
+}
+
+/* Scrollbar */
+[data-theme="light"] .notif-list::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+}
+
+/* Individual notification items */
+[data-theme="light"] .notif-item {
+    border-bottom-color: #f3f4f6;
+}
+
+[data-theme="light"] .notif-item:hover {
+    background: #f9fafb;
+}
+
+/* Read items — slightly muted but still legible */
+[data-theme="light"] .notif-item--read {
+    opacity: 0.65;
+}
+
+[data-theme="light"] .notif-item--read:hover {
+    opacity: 0.85;
+}
+
+/* Icon wrapper */
+[data-theme="light"] .notif-item__icon {
+    background: #f3f4f6;
+}
+
+/* Text */
+[data-theme="light"] .notif-item__title {
+    color: #111827;
+}
+
+[data-theme="light"] .notif-item__message {
+    color: #6b7280;
+}
+
+[data-theme="light"] .notif-item__time {
+    color: #9ca3af;
+}
+
+/* Unread indicator dot — keep red for visibility */
+[data-theme="light"] .notif-item__dot {
+    background: #dc2626;
+}
+
+/* Badge on bell icon — keep red */
+[data-theme="light"] .notif-badge {
+    background: #dc2626;
+    box-shadow: 0 1px 4px rgba(220, 38, 38, 0.35);
+}
+
+/* Empty / loading states */
+[data-theme="light"] .notif-empty,
+[data-theme="light"] .notif-loading {
+    color: #9ca3af;
+}
