@@ -355,6 +355,15 @@
             .admin-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
             .admin-table { min-width: 600px; }
 
+            /* Advances table needs more width (9 columns) */
+            #section-advances .admin-table { min-width: 800px; }
+
+            /* Analytics grid: force single column */
+            #section-analytics [style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
+
+            /* Pipeline: allow horizontal scroll */
+            #section-pipeline [style*="display:flex"] { overflow-x: auto !important; }
+
             /* CSV import: prevent overflow */
             .admin-csv-zone { padding: 24px 16px; }
             .admin-csv-template { overflow-x: auto; }

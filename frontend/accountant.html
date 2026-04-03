@@ -748,8 +748,15 @@
             /* Accountant: payment info */
             .acct-payment-info { overflow-x: auto; }
 
-            /* Analytics grid: force single column (override inline 420px minmax) */
-            #section-analytics [style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
+            /* Analytics + Advances grids: force single column (override inline styles) */
+            #section-analytics [style*="grid-template-columns"],
+            #section-advances [style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
+
+            /* Advances table needs more width (9 columns) */
+            #section-advances .admin-table { min-width: 800px; }
+
+            /* Pipeline: allow horizontal scroll */
+            #section-pipeline [style*="display:flex"] { overflow-x: auto !important; }
 
             /* Tally export preview tables */
             .acct-voucher-detail { overflow-x: auto; }
