@@ -12157,45 +12157,59 @@ select.inline-input option {
         gap: 0.5rem;
     }
 
-    /* Header right: wrap icons tightly */
+    /* Header: stack left/right vertically on mobile */
+    .header-flex-wrapper {
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 10px !important;
+    }
+    .header-left {
+        text-align: center;
+    }
+    .header-left > div {
+        justify-content: center !important;
+    }
     .header-right {
-        gap: 4px;
-        flex-wrap: wrap;
-        justify-content: center;
+        width: 100%;
     }
 
-    /* User info content: compact on mobile */
+    /* User info: full width, centered layout */
     .user-info-content {
-        gap: 4px;
-        padding: 6px 8px;
+        gap: 6px;
+        padding: 10px 12px;
         flex-wrap: wrap;
         justify-content: center;
+        width: 100%;
+        border-radius: 12px;
     }
 
-    /* Show user name/email on mobile — compact single line */
+    /* Name/email on its own full row at top */
     .user-info-content .user-details {
         display: block;
         width: 100%;
         text-align: center;
         order: -1;
+        margin-bottom: 4px;
     }
     .user-info-content .user-details .user-name {
-        font-size: 0.85rem;
-        font-weight: 600;
+        font-size: 0.92rem;
+        font-weight: 700;
     }
     .user-info-content .user-details .user-email {
-        font-size: 0.72rem;
+        font-size: 0.75rem;
     }
 
-    /* Smaller icon buttons on mobile — 44px min touch target */
+    /* Icon buttons row — centered */
     .user-info-content .theme-toggle-btn {
         min-width: 44px;
         min-height: 44px;
         padding: 8px;
     }
 
-    /* Compact logout button */
+    /* Logout button full width at bottom */
     .user-info-content .logout-btn {
+        width: 100%;
+        order: 99;
         padding: 8px 12px;
         font-size: 0.78rem;
         min-height: 44px;
