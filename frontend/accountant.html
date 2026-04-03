@@ -946,10 +946,13 @@
                 <div class="admin-main__header">
                     <div>
                         <h2>Tally Export</h2>
-                        <p>Export selected vouchers as Tally-compatible XML</p>
+                        <p>Export approved vouchers as Tally-compatible XML for import into Tally</p>
                     </div>
                 </div>
-                <div id="tallyExportContent"><div class="admin-empty"><p>Select vouchers from the All Vouchers tab to export.</p></div></div>
+                <!-- Quick Export: approved but not yet exported -->
+                <div id="tallyQuickExport"></div>
+                <!-- Selected export content -->
+                <div id="tallyExportContent"></div>
             </div>
 
             <!-- Advances Overview Section -->
@@ -1905,17 +1908,102 @@
 
         // ==================== Tally Export ====================
         async function loadTallyExport() {
+            const quickContainer = document.getElementById('tallyQuickExport');
             const container = document.getElementById('tallyExportContent');
 
+            // Always show approved unexported vouchers ready for export
+            try {
+                const orgId = _currentUser.organization_id;
+                const supabase = window.supabaseClient?.get();
+                const { data: readyVouchers } = await supabase
+                    .from('vouchers')
+                    .select('id, voucher_number, total_amount, expense_count, submitted_at, tally_exported, submitter:submitted_by(name)')
+                    .eq('organization_id', orgId)
+                    .eq('status', 'approved')
+                    .eq('tally_exported', false)
+                    .order('submitted_at', { ascending: false });
+
+                const { data: exportedVouchers } = await supabase
+                    .from('vouchers')
+                    .select('id, voucher_number, total_amount, exported_at, submitter:submitted_by(name)')
+                    .eq('organization_id', orgId)
+                    .eq('tally_exported', true)
+                    .order('exported_at', { ascending: false })
+                    .limit(20);
+
+                const ready = readyVouchers || [];
+                const exported = exportedVouchers || [];
+                const readyTotal = ready.reduce((s, v) => s + (parseFloat(v.total_amount) || 0), 0);
+
+                quickContainer.innerHTML = `
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:24px;">
+                        <div class="admin-stat-card admin-stat-card--green">
+                            <div class="admin-stat-card__value">${ready.length}</div>
+                            <div class="admin-stat-card__label">Ready to Export</div>
+                        </div>
+                        <div class="admin-stat-card admin-stat-card--amber">
+                            <div class="admin-stat-card__value">${formatCurrency(readyTotal)}</div>
+                            <div class="admin-stat-card__label">Total Amount</div>
+                        </div>
+                        <div class="admin-stat-card admin-stat-card--blue">
+                            <div class="admin-stat-card__value">${exported.length}</div>
+                            <div class="admin-stat-card__label">Previously Exported</div>
+                        </div>
+                    </div>
+
+                    ${ready.length > 0 ? `
+                    <h3 style="color:var(--gray-900,#111827);font-size:0.9rem;margin:0 0 12px;">Approved — Ready for Tally Export</h3>
+                    <div class="admin-table-wrap" style="margin-bottom:16px;">
+                        <table class="admin-table admin-table--compact">
+                            <thead><tr><th><input type="checkbox" id="tallySelectAll" onchange="toggleTallySelectAll(this.checked)"></th><th>Voucher #</th><th>Employee</th><th>Amount</th><th>Expenses</th><th>Date</th></tr></thead>
+                            <tbody>
+                                ${ready.map(v => `
+                                    <tr>
+                                        <td><input type="checkbox" class="tally-cb" data-id="${v.id}" onchange="updateTallySelection()"></td>
+                                        <td><span class="admin-emp-id">${esc(v.voucher_number)}</span></td>
+                                        <td>${esc(v.submitter?.name || '-')}</td>
+                                        <td><strong>${formatCurrency(v.total_amount)}</strong></td>
+                                        <td>${v.expense_count}</td>
+                                        <td>${v.submitted_at ? new Date(v.submitted_at).toLocaleDateString('en-IN') : '-'}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div style="display:flex;gap:10px;align-items:center;margin-bottom:24px;">
+                        <span id="tallySelectionInfo" style="font-size:0.85rem;color:var(--gray-500,#6b7280);">0 selected</span>
+                        <button class="admin-btn admin-btn--secondary" id="tallyPreviewBtn" onclick="previewTallyFromQuick()" disabled>Preview XML</button>
+                        <button class="admin-btn admin-btn--primary" id="tallyDownloadBtn" onclick="downloadTallyFromQuick()" disabled>Download XML</button>
+                    </div>
+                    ` : '<div class="admin-empty"><p>No approved vouchers pending export.</p></div>'}
+
+                    ${exported.length > 0 ? `
+                    <h3 style="color:var(--gray-900,#111827);font-size:0.9rem;margin:20px 0 12px;">Export History</h3>
+                    <div class="admin-table-wrap">
+                        <table class="admin-table admin-table--compact">
+                            <thead><tr><th>Voucher #</th><th>Employee</th><th>Amount</th><th>Exported</th></tr></thead>
+                            <tbody>
+                                ${exported.map(v => `
+                                    <tr>
+                                        <td><span class="admin-emp-id">${esc(v.voucher_number)}</span></td>
+                                        <td>${esc(v.submitter?.name || '-')}</td>
+                                        <td>${formatCurrency(v.total_amount)}</td>
+                                        <td>${v.exported_at ? new Date(v.exported_at).toLocaleDateString('en-IN') : '-'}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                    ` : ''}
+                `;
+            } catch (e) {
+                console.error('Tally export load error:', e);
+                quickContainer.innerHTML = '<div class="admin-empty"><p>Failed to load export data.</p></div>';
+            }
+
+            // If vouchers were selected from All Vouchers tab, show that too
             if (selectedIds.size === 0) {
-                container.innerHTML = `
-                    <div class="admin-empty">
-                        <p>No vouchers selected for export.</p>
-                        <p style="margin-top:8px;">
-                            <button class="admin-btn admin-btn--secondary" onclick="switchSection('all-vouchers', document.querySelector('[data-section=all-vouchers]'))">Go to All Vouchers</button>
-                        </p>
-                    </div>`;
-                await loadExportHistory(container);
+                container.innerHTML = '';
                 return;
             }
 
@@ -1957,6 +2045,77 @@
         }
 
         let _previewData = null;
+        let _tallyQuickIds = new Set();
+
+        function toggleTallySelectAll(checked) {
+            document.querySelectorAll('.tally-cb').forEach(cb => { cb.checked = checked; });
+            updateTallySelection();
+        }
+
+        function updateTallySelection() {
+            _tallyQuickIds.clear();
+            document.querySelectorAll('.tally-cb:checked').forEach(cb => _tallyQuickIds.add(cb.dataset.id));
+            const count = _tallyQuickIds.size;
+            const info = document.getElementById('tallySelectionInfo');
+            const previewBtn = document.getElementById('tallyPreviewBtn');
+            const downloadBtn = document.getElementById('tallyDownloadBtn');
+            if (info) info.textContent = `${count} selected`;
+            if (previewBtn) previewBtn.disabled = count === 0;
+            if (downloadBtn) downloadBtn.disabled = count === 0;
+        }
+
+        async function previewTallyFromQuick() {
+            if (_tallyQuickIds.size === 0) return;
+            const btn = document.getElementById('tallyPreviewBtn');
+            if (btn) { btn.disabled = true; btn.textContent = 'Loading...'; }
+            try {
+                const orgId = _currentUser.organization_id;
+                const mappingsResult = await api.getTallyLedgerMappings(orgId);
+                const mappings = mappingsResult?.lookup || {};
+                const vouchersData = [];
+                for (const vid of _tallyQuickIds) {
+                    const detail = await api.getVoucherDetail(vid);
+                    vouchersData.push({ voucher: detail, expenses: detail.expenses || [] });
+                }
+                const xml = tallyExport.generateBatchXML(vouchersData, mappings);
+                tallyExport.previewXML(xml);
+            } catch (e) {
+                console.error('Preview error:', e);
+                if (window.showToast) showToast('Preview failed: ' + e.message, 'error');
+            } finally {
+                if (btn) { btn.disabled = false; btn.textContent = 'Preview XML'; }
+            }
+        }
+
+        async function downloadTallyFromQuick() {
+            if (_tallyQuickIds.size === 0) return;
+            const btn = document.getElementById('tallyDownloadBtn');
+            if (btn) { btn.disabled = true; btn.textContent = 'Generating...'; }
+            try {
+                const orgId = _currentUser.organization_id;
+                const mappingsResult = await api.getTallyLedgerMappings(orgId);
+                const mappings = mappingsResult?.lookup || {};
+                const vouchersData = [];
+                for (const vid of _tallyQuickIds) {
+                    const detail = await api.getVoucherDetail(vid);
+                    vouchersData.push({ voucher: detail, expenses: detail.expenses || [] });
+                }
+                const xml = tallyExport.generateBatchXML(vouchersData, mappings);
+                tallyExport.downloadXML(xml);
+
+                // Mark as exported
+                await api.markVouchersExported([..._tallyQuickIds]);
+                if (window.showToast) showToast(`Exported ${_tallyQuickIds.size} voucher(s) to Tally XML`, 'success');
+                api.logActivity?.('tally_exported', `Exported ${_tallyQuickIds.size} vouchers to Tally`);
+                _tallyQuickIds.clear();
+                loadTallyExport();
+            } catch (e) {
+                console.error('Download error:', e);
+                if (window.showToast) showToast('Export failed: ' + e.message, 'error');
+            } finally {
+                if (btn) { btn.disabled = false; btn.textContent = 'Download XML'; }
+            }
+        }
 
         async function previewTallyExport() {
             const btn = document.getElementById('btnPreview');
