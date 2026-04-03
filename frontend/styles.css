@@ -12185,18 +12185,26 @@ select.inline-input option {
 
     /* Name/email on its own full row at top */
     .user-info-content .user-details {
-        display: block;
-        width: 100%;
+        display: block !important;
+        flex-basis: 100% !important;
+        width: 100% !important;
         text-align: center;
         order: -1;
-        margin-bottom: 4px;
+        margin-bottom: 6px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
     }
     .user-info-content .user-details .user-name {
-        font-size: 0.92rem;
+        font-size: 0.95rem;
         font-weight: 700;
+        color: #111827;
     }
     .user-info-content .user-details .user-email {
-        font-size: 0.75rem;
+        font-size: 0.78rem;
+        color: #6b7280;
+    }
+    .user-info-content .user-details .role-badge {
+        margin-top: 2px;
     }
 
     /* Icon buttons row — centered */
