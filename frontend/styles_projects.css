@@ -337,7 +337,7 @@
 [data-theme="light"] .project-dd__input--selected { color: #4c1d95; }
 [data-theme="light"] .project-dd__list {
     background: #ffffff;
-    border-color: #e2e8f0;
+    border-color: #e5e7eb;
     box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
 }
 [data-theme="light"] .project-dd__item:hover,
@@ -347,11 +347,11 @@
 [data-theme="light"] .project-dd__name { color: #1e1b4b; }
 [data-theme="light"] .project-create-modal {
     background: #ffffff;
-    border-color: #e2e8f0;
-    box-shadow: 0 0 0 1px #e2e8f0, 0 20px 60px rgba(0, 0, 0, 0.1);
+    border-color: #e5e7eb;
+    box-shadow: 0 0 0 1px #e5e7eb, 0 20px 60px rgba(0, 0, 0, 0.1);
 }
 [data-theme="light"] .project-create-modal::before {
-    background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
+    background: linear-gradient(90deg, transparent, #e5e7eb, transparent);
 }
 [data-theme="light"] .project-create-modal h3 {
     color: #6d28d9;

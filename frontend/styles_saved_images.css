@@ -849,10 +849,10 @@
 [data-theme="light"] .saved-images-container {
     background: linear-gradient(
         145deg,
-        #f8fafc 0%,
-        #f1f5f9 100%
+        #ffffff 0%,
+        #f9fafb 100%
     );
-    border: 2px solid #e2e8f0;
+    border: 2px solid #e5e7eb;
     box-shadow:
         0 40px 80px rgba(0, 0, 0, 0.15),
         0 0 1px rgba(0, 0, 0, 0.1),
@@ -867,7 +867,7 @@
         rgba(30, 41, 59, 0.06) 0%,
         transparent 100%
     );
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e5e7eb;
 }
 
 [data-theme="light"] .saved-images-icon-wrapper {
@@ -889,25 +889,25 @@
 }
 
 [data-theme="light"] .saved-images-header-icon {
-    color: #1e293b;
+    color: #111827;
     filter: none;
 }
 
 [data-theme="light"] .saved-images-title {
-    color: #1e293b;
+    color: #111827;
 }
 
 [data-theme="light"] .saved-images-subtitle {
-    color: #64748b;
+    color: #6b7280;
 }
 
 [data-theme="light"] .saved-images-close {
     background: rgba(30, 41, 59, 0.05);
-    border: 1px solid #e2e8f0;
+    border: 1px solid #e5e7eb;
 }
 
 [data-theme="light"] .saved-images-close svg {
-    color: #475569;
+    color: #374151;
 }
 
 [data-theme="light"] .saved-images-close:hover {
@@ -922,16 +922,16 @@
 /* Stats Section - Light */
 [data-theme="light"] .saved-images-stats {
     background: rgba(0, 0, 0, 0.02);
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e5e7eb;
 }
 
 [data-theme="light"] .saved-stat-item {
-    background: linear-gradient(135deg, #ffffff, #f8fafc);
-    border: 1px solid #e2e8f0;
+    background: linear-gradient(135deg, #ffffff, #ffffff);
+    border: 1px solid #e5e7eb;
 }
 
 [data-theme="light"] .saved-stat-item:hover {
-    background: linear-gradient(135deg, #ffffff, #f1f5f9);
+    background: linear-gradient(135deg, #ffffff, #f9fafb);
     border-color: rgba(30, 41, 59, 0.25);
 }
 
@@ -941,15 +941,15 @@
 }
 
 [data-theme="light"] .saved-stat-icon svg {
-    color: #1e293b;
+    color: #111827;
 }
 
 [data-theme="light"] .saved-stat-label {
-    color: #64748b;
+    color: #6b7280;
 }
 
 [data-theme="light"] .saved-stat-value {
-    color: #1e293b;
+    color: #111827;
 }
 
 [data-theme="light"] .saved-stat-value.warning {
@@ -957,7 +957,7 @@
 }
 
 [data-theme="light"] .saved-stat-unit {
-    color: #64748b;
+    color: #6b7280;
 }
 
 /* Image Cards - Light */
@@ -965,9 +965,9 @@
     background: linear-gradient(
         145deg,
         #ffffff 0%,
-        #f8fafc 100%
+        #ffffff 100%
     );
-    border: 2px solid #e2e8f0;
+    border: 2px solid #e5e7eb;
 }
 
 [data-theme="light"] .saved-image-card::before {
@@ -979,14 +979,14 @@
 }
 
 [data-theme="light"] .saved-image-card:hover {
-    border-color: #1e293b;
+    border-color: #111827;
     box-shadow:
         0 20px 40px rgba(30, 41, 59, 0.12),
         0 0 0 1px rgba(30, 41, 59, 0.05);
 }
 
 [data-theme="light"] .saved-image-preview-wrapper {
-    background: #e2e8f0;
+    background: #e5e7eb;
 }
 
 [data-theme="light"] .saved-image-preview-wrapper::after {
@@ -1004,46 +1004,46 @@
 
 /* Card Details - Light */
 [data-theme="light"] .saved-image-date {
-    color: #475569;
+    color: #374151;
 }
 
 [data-theme="light"] .saved-image-date svg {
-    color: #1e293b;
+    color: #111827;
 }
 
 [data-theme="light"] .saved-image-meta {
-    color: #64748b;
+    color: #6b7280;
 }
 
 [data-theme="light"] .saved-image-meta-value {
-    color: #475569;
+    color: #374151;
 }
 
 /* Card Actions - Light */
 [data-theme="light"] .saved-image-actions {
-    border-top: 1px solid #e2e8f0;
+    border-top: 1px solid #e5e7eb;
     background: rgba(241, 245, 249, 0.6);
 }
 
 [data-theme="light"] .saved-image-btn-view {
-    background: #1e293b;
+    background: #111827;
     color: #ffffff;
     box-shadow: 0 4px 12px rgba(30, 41, 59, 0.2);
 }
 
 [data-theme="light"] .saved-image-btn-view:hover {
     box-shadow: 0 6px 16px rgba(30, 41, 59, 0.3);
-    background: #334155;
+    background: #374151;
 }
 
 [data-theme="light"] .saved-image-btn-download {
     background: linear-gradient(135deg, rgba(30, 41, 59, 0.08), rgba(30, 41, 59, 0.03));
-    color: #1e293b;
+    color: #111827;
     border: 1px solid rgba(30, 41, 59, 0.2);
 }
 
 [data-theme="light"] .saved-image-btn-download:hover {
-    background: #e2e8f0;
+    background: #e5e7eb;
     border-color: rgba(30, 41, 59, 0.3);
 }
 
@@ -1064,16 +1064,16 @@
 }
 
 [data-theme="light"] .saved-images-empty-title {
-    color: #1e293b;
+    color: #111827;
 }
 
 [data-theme="light"] .saved-images-empty-description {
-    color: #64748b;
+    color: #6b7280;
 }
 
 /* View Images Button - Light */
 [data-theme="light"] .btn-view-images-premium {
-    background: #1e293b !important;
+    background: #111827 !important;
     border: 2px solid rgba(30, 41, 59, 0.3) !important;
 }
 
@@ -1334,8 +1334,8 @@
 /* ── Light theme: preserve warmth, remove dark glows ── */
 
 [data-theme="light"] .saved-images-container {
-    background: linear-gradient(145deg, #f8fafc 0%, #f1f5f9 100%);
-    border: 2px solid #e2e8f0;
+    background: linear-gradient(145deg, #ffffff 0%, #f9fafb 100%);
+    border: 2px solid #e5e7eb;
     box-shadow:
         0 40px 80px rgba(0, 0, 0, 0.15),
         0 0 1px rgba(0, 0, 0, 0.1),
@@ -1354,13 +1354,13 @@
 }
 
 [data-theme="light"] .saved-stat-item:hover {
-    background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+    background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
     border-color: rgba(30, 41, 59, 0.25);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
 [data-theme="light"] .saved-image-card:hover {
-    border-color: #1e293b;
+    border-color: #111827;
     transform: translateY(-5px) scale(1.01);
     box-shadow:
         0 20px 40px rgba(30, 41, 59, 0.14),
@@ -1377,13 +1377,13 @@
 }
 
 [data-theme="light"] .saved-image-btn-view {
-    background: #1e293b;
+    background: #111827;
     color: #ffffff;
     box-shadow: 0 4px 12px rgba(30, 41, 59, 0.2);
 }
 
 [data-theme="light"] .saved-image-btn-view:hover {
-    background: #334155;
+    background: #374151;
     box-shadow:
         0 6px 18px rgba(30, 41, 59, 0.28),
         0 0 0 1px rgba(30, 41, 59, 0.1);
@@ -1391,7 +1391,7 @@
 }
 
 [data-theme="light"] .saved-image-btn-download:hover {
-    background: #e2e8f0;
+    background: #e5e7eb;
     border-color: rgba(30, 41, 59, 0.3);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
     transform: translateY(-2px);
