@@ -47,15 +47,12 @@ class ExpenseTracker {
         // Note: loadExpenses() is called from initAuth() after auth is confirmed
         // This prevents race conditions and ensures user is authenticated first
 
-        // Initialize Google Sheets service to show View My Sheet button if user has a sheet
-        this.initializeGoogleSheets();
+        // Google Sheets, advances, and role UI are deferred until after auth
+        // They are triggered by onAuthReady() called from supabase-auth.js
 
-        // Initialize advance tracker
+        // Initialize advance tracker state (listeners only, no API calls)
         this.advances = [];
         this.initializeAdvanceListeners();
-
-        // Enterprise: role-aware UI setup
-        this.initializeRoleUI();
     }
 
     // ==================== Enterprise Role-Aware UI ====================
@@ -4174,6 +4171,19 @@ class ExpenseTracker {
         } catch (error) {
             console.log('Google Sheets initialization:', error);
         }
+    }
+
+    /**
+     * Called after auth is confirmed. Initializes non-critical services
+     * in parallel without blocking the main expense list render.
+     */
+    onAuthReady() {
+        // Role UI (project dropdown, notifications) — deferred from constructor
+        this.initializeRoleUI();
+
+        // Non-critical services — fire in parallel, don't block
+        // Google Sheets: just checks localStorage/DB for existing sheet URL
+        this.initializeGoogleSheets();
     }
 
     async loadExpenses() {

@@ -238,8 +238,11 @@ const pdfLibrary = (() => {
         pendingFile = file;
         pendingPageCount = 1;
 
-        // Detect page count via pdf-lib
+        // Detect page count via pdf-lib (lazy-load if not available)
         try {
+            if (typeof PDFLib === 'undefined' && typeof loadExportLibraries === 'function') {
+                try { await loadExportLibraries(); } catch(e) { /* best effort */ }
+            }
             const ab = await file.arrayBuffer();
             if (typeof PDFLib !== 'undefined') {
                 const doc = await PDFLib.PDFDocument.load(ab, { ignoreEncryption: true });

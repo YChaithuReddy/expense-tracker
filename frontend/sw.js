@@ -1,7 +1,7 @@
 // Service Worker for Expense Tracker PWA
-const CACHE_NAME = 'expense-tracker-v82';
-const STATIC_CACHE = 'expense-tracker-static-v63';
-const DYNAMIC_CACHE = 'expense-tracker-dynamic-v63';
+const CACHE_NAME = 'expense-tracker-v83';
+const STATIC_CACHE = 'expense-tracker-static-v64';
+const DYNAMIC_CACHE = 'expense-tracker-dynamic-v64';
 
 // Files to cache immediately on install
 const STATIC_ASSETS = [
@@ -46,14 +46,13 @@ const STATIC_ASSETS = [
   '/styles_notifications.css',
   '/favicon.svg',
   '/manifest.json',
-  // External CDN resources
+  // Essential CDN resources (needed for page load)
   'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
   'https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css',
-  'https://cdn.jsdelivr.net/npm/flatpickr',
-  'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
-  'https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js',
-  'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'
+  'https://cdn.jsdelivr.net/npm/flatpickr'
+  // Heavy export/OCR libraries are NOT pre-cached — they are lazy-loaded
+  // and will be cached dynamically on first use:
+  // xlsx.full.min.js, jspdf.umd.min.js, pdf-lib.min.js, tesseract.min.js
 ];
 
 // Install event - cache static assets

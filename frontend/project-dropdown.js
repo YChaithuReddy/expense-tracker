@@ -15,6 +15,8 @@ const projectDropdown = (() => {
 
     // ==================== Initialization ====================
 
+    let _projectsLoaded = false;
+
     async function init() {
         if (initialized) return;
         initialized = true;
@@ -25,9 +27,17 @@ const projectDropdown = (() => {
             return;
         }
 
-        // Company mode — setup searchable dropdown
-        await loadProjects();
+        // Company mode — setup dropdown UI immediately, defer project fetch to first focus
         setupDropdown();
+    }
+
+    /** Lazy-load projects on first interaction (saves ~200-500ms on page load) */
+    async function ensureProjectsLoaded() {
+        if (_projectsLoaded) return;
+        _projectsLoaded = true;
+        await loadProjects();
+        // Re-render the list with actual data
+        filterProjects(document.getElementById('projectSearchInput')?.value || '');
     }
 
     function showPersonalMode() {
@@ -91,9 +101,13 @@ const projectDropdown = (() => {
         const list = document.getElementById('projectDropdownList');
         const clearBtn = document.getElementById('projectClearBtn');
 
-        // Input events
-        input.addEventListener('focus', () => openList());
+        // Input events — lazy-load projects on first focus
+        input.addEventListener('focus', () => {
+            ensureProjectsLoaded();
+            openList();
+        });
         input.addEventListener('input', () => {
+            ensureProjectsLoaded();
             filterProjects(input.value);
             openList();
         });

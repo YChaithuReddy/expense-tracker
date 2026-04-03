@@ -242,11 +242,11 @@ const realtimeManager = (() => {
             });
         }
 
-        // If already logged in, connect now
+        // If already logged in, connect after critical path (expenses) finishes
         const user = localStorage.getItem('user');
         if (user) {
-            // Wait a moment for supabase client to fully initialize
-            setTimeout(connect, 1000);
+            // Defer realtime to after initial render (~3s) to avoid competing for bandwidth
+            setTimeout(connect, 3000);
         }
     }
 
