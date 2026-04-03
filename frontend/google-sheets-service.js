@@ -14,7 +14,7 @@ class GoogleSheetsService {
         this.initPromise = null; // Store pending initialization promise
 
         // Google Apps Script Web App URL
-        this.APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw0H5TBR7XQowl3ScoUy4cEzBa0XWHKT93U9lrtpM7Ci6Hf5rvW18rfgHoIkeGXKIZEVQ/exec';
+        this.APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwxoQ525GYtKvwioRiOSubjgFS2onFXEIpuCFiD568c0yZqfgKm9mWvtbhiu4uO-KZB2g/exec';
     }
 
     /**
