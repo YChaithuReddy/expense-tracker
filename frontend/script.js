@@ -909,14 +909,15 @@ class ExpenseTracker {
                 let ocrText = '';
                 let ocrConfidence = 0;
                 let retryCount = 0;
-                const maxRetries = 2;
+                const maxRetries = 1; // Reduced from 2 — faster failure
 
                 // Retry logic for individual image OCR
                 while (retryCount <= maxRetries) {
                     try {
                         console.log(`   Attempt ${retryCount + 1}/${maxRetries + 1}...`);
+                        if (ocrStatus) ocrStatus.textContent = `Scanning bill ${i + 1} of ${this.scannedImages.length}${retryCount > 0 ? ' (retry)' : ''}...`;
 
-                        // Call OCR.space API
+                        // Call OCR.space API with 15s timeout
                         const formData = new FormData();
                         formData.append('apikey', OCR_SPACE_API_KEY);
                         formData.append('base64Image', this.scannedImages[i].data);
@@ -926,10 +927,15 @@ class ExpenseTracker {
                         formData.append('scale', 'true');
                         formData.append('OCREngine', '2'); // Engine 2 is better for receipts
 
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+
                         const response = await fetch('https://api.ocr.space/parse/image', {
                             method: 'POST',
-                            body: formData
+                            body: formData,
+                            signal: controller.signal
                         });
+                        clearTimeout(timeoutId);
 
                         if (!response.ok) {
                             throw new Error(`OCR API error: ${response.status}`);
@@ -962,16 +968,18 @@ class ExpenseTracker {
 
                     } catch (imageError) {
                         retryCount++;
-                        console.error(`❌ OCR failed for bill ${i + 1}, attempt ${retryCount}:`, imageError.message);
+                        const isTimeout = imageError.name === 'AbortError';
+                        console.error(`❌ OCR failed for bill ${i + 1}, attempt ${retryCount}:`, isTimeout ? 'Request timed out (15s)' : imageError.message);
 
                         if (retryCount > maxRetries) {
                             console.warn(`⚠️ Skipping bill ${i + 1} after ${maxRetries + 1} attempts`);
+                            if (ocrStatus) ocrStatus.textContent = `Bill ${i + 1}: OCR timed out — you can enter details manually`;
                             // Create expense with empty OCR text (user can edit manually)
                             ocrText = '';
                             ocrConfidence = 0;
                         } else {
-                            // Wait before retry
-                            await new Promise(resolve => setTimeout(resolve, 1000));
+                            if (ocrStatus) ocrStatus.textContent = `Bill ${i + 1}: Retrying...`;
+                            await new Promise(resolve => setTimeout(resolve, 500)); // Faster retry (was 1000)
                         }
                     }
                 }
