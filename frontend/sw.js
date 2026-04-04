@@ -1,7 +1,7 @@
 // Service Worker for Expense Tracker PWA
-const CACHE_NAME = 'expense-tracker-v89';
-const STATIC_CACHE = 'expense-tracker-static-v70';
-const DYNAMIC_CACHE = 'expense-tracker-dynamic-v70';
+const CACHE_NAME = 'expense-tracker-v91';
+const STATIC_CACHE = 'expense-tracker-static-v72';
+const DYNAMIC_CACHE = 'expense-tracker-dynamic-v72';
 
 // Files to cache immediately on install
 const STATIC_ASSETS = [
@@ -48,6 +48,21 @@ const STATIC_ASSETS = [
   '/styles_notifications.css',
   '/favicon.svg',
   '/manifest.json',
+  '/dashboard.html',
+  '/css/index.css',
+  '/css/design-system.css',
+  '/css/layout.css',
+  '/css/components.css',
+  '/css/responsive.css',
+  '/css/pages.css',
+  '/js/navigation.js',
+  '/js/ui-states.js',
+  '/pages/add-expense.html',
+  '/pages/expenses.html',
+  '/pages/wallets.html',
+  '/pages/summary.html',
+  '/pages/accounts.html',
+  '/pages/settings.html',
   // Essential CDN resources (needed for page load)
   'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
   'https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css',

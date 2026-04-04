@@ -51,12 +51,16 @@ const filesToCopy = [
     'sw.js',
     'manifest.json',
     'favicon.svg',
-    'fluxgen-logo.jpg'
+    'fluxgen-logo.jpg',
+    'dashboard.html'
 ];
 
 const foldersToCopy = [
     'icons',
-    'components'
+    'components',
+    'css',
+    'js',
+    'pages'
 ];
 
 // Files/folders to exclude
