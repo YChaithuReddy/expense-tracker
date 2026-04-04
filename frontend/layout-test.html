@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Layout Test - Curator Expense Tracker</title>
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <style>
+    /* Test specific styles */
+    .sidebar-nav-icon::before {
+      content: "📌";
+    }
+
+    .sidebar-nav-item:nth-child(1) .sidebar-nav-icon::before {
+      content: "📊";
+    }
+
+    .sidebar-nav-item:nth-child(2) .sidebar-nav-icon::before {
+      content: "➕";
+    }
+
+    .sidebar-nav-item:nth-child(3) .sidebar-nav-icon::before {
+      content: "🏦";
+    }
+
+    .sidebar-nav-item:nth-child(4) .sidebar-nav-icon::before {
+      content: "📄";
+    }
+
+    .sidebar-footer-item:nth-child(1) .sidebar-footer-icon::before {
+      content: "⚙️";
+    }
+
+    .sidebar-footer-item:nth-child(2) .sidebar-footer-icon::before {
+      content: "🚪";
+    }
+
+    .header-search-icon::before {
+      content: "🔍";
+    }
+
+    .test-content {
+      padding: var(--spacing-lg);
+      background-color: var(--color-surface);
+      border-radius: var(--border-radius-lg);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .test-section {
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .test-section-title {
+      font-size: var(--font-size-h3);
+      font-weight: var(--font-weight-bold);
+      margin-bottom: var(--spacing-md);
+      color: var(--color-text-primary);
+    }
+
+    .test-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--spacing-lg);
+    }
+
+    @media (max-width: 768px) {
+      .test-grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .test-card {
+      background-color: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius-lg);
+      padding: var(--spacing-lg);
+      text-align: center;
+    }
+
+    .test-card h3 {
+      margin: 0 0 var(--spacing-md) 0;
+    }
+
+    .test-card p {
+      margin: 0;
+      color: var(--color-text-secondary);
+      font-size: var(--font-size-body-sm);
+    }
+  </style>
+</head>
+<body>
+  <!-- SIDEBAR NAVIGATION -->
+  <aside class="sidebar">
+    <!-- Sidebar Header -->
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">C</div>
+        <span>Curator</span>
+      </div>
+    </div>
+
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar-nav">
+      <a href="#" class="sidebar-nav-item active">
+        <div class="sidebar-nav-icon"></div>
+        <span class="sidebar-nav-label">Dashboard</span>
+      </a>
+      <a href="#" class="sidebar-nav-item">
+        <div class="sidebar-nav-icon"></div>
+        <span class="sidebar-nav-label">Add Expense</span>
+      </a>
+      <a href="#" class="sidebar-nav-item">
+        <div class="sidebar-nav-icon"></div>
+        <span class="sidebar-nav-label">Advances</span>
+      </a>
+      <a href="#" class="sidebar-nav-item">
+        <div class="sidebar-nav-icon"></div>
+        <span class="sidebar-nav-label">Reports</span>
+      </a>
+    </nav>
+
+    <!-- Sidebar Footer -->
+    <div class="sidebar-footer">
+      <a href="#" class="sidebar-footer-item">
+        <div class="sidebar-footer-icon"></div>
+        <span class="sidebar-nav-label">Settings</span>
+      </a>
+      <a href="#" class="sidebar-footer-item">
+        <div class="sidebar-footer-icon"></div>
+        <span class="sidebar-nav-label">Logout</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTAINER -->
+  <div class="main-container">
+    <!-- HEADER / TOP BAR -->
+    <header class="header">
+      <!-- Search Bar -->
+      <div class="header-search">
+        <div class="header-search-icon"></div>
+        <input type="text" class="header-search-input" placeholder="Search expenses...">
+      </div>
+
+      <!-- User Profile -->
+      <div class="header-user">
+        <div class="header-user-avatar">JD</div>
+        <div class="header-user-info">
+          <div class="header-user-name">John Doe</div>
+          <div class="header-user-email">john@example.com</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="main-content">
+      <div class="page-wrapper">
+        <!-- Page Header -->
+        <div class="page-header">
+          <h1 class="page-title">Dashboard</h1>
+          <p class="page-subtitle">Welcome back! Here's your expense overview.</p>
+        </div>
+
+        <!-- Test Section 1: Cards Grid -->
+        <div class="test-section">
+          <h2 class="test-section-title">Overview Cards</h2>
+          <div class="test-grid-2">
+            <div class="test-card">
+              <h3>Total Expenses</h3>
+              <p>$5,234.50</p>
+            </div>
+            <div class="test-card">
+              <h3>This Month</h3>
+              <p>$892.30</p>
+            </div>
+            <div class="test-card">
+              <h3>Pending Advances</h3>
+              <p>$1,200.00</p>
+            </div>
+            <div class="test-card">
+              <h3>Avg. Daily Spend</h3>
+              <p>$29.74</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Test Section 2: Content Block -->
+        <div class="test-section">
+          <h2 class="test-section-title">Recent Expenses</h2>
+          <div class="test-content">
+            <p><strong>This is a test content block.</strong></p>
+            <p>The layout includes:</p>
+            <ul>
+              <li>Fixed 240px sidebar on the left</li>
+              <li>Top header bar (64px height)</li>
+              <li>Scrollable main content area with gray background (#F5F5F5)</li>
+              <li>White sidebar and header</li>
+              <li>Black text on light backgrounds</li>
+              <li>Proper spacing and alignment</li>
+            </ul>
+            <p>✅ <strong>Verify:</strong> Sidebar is 240px wide, header is 64px tall, content scrolls independently.</p>
+          </div>
+        </div>
+
+        <!-- Test Section 3: Grid Utilities -->
+        <div class="test-section">
+          <h2 class="test-section-title">Grid Examples (2-column)</h2>
+          <div class="grid grid-2">
+            <div class="card">
+              <h3>Item 1</h3>
+              <p>Grid utility example with auto-fit responsive layout</p>
+            </div>
+            <div class="card">
+              <h3>Item 2</h3>
+              <p>Automatically switches to 1 column on mobile</p>
+            </div>
+            <div class="card">
+              <h3>Item 3</h3>
+              <p>Desktop: 2 columns, Tablet: 1 column</p>
+            </div>
+            <div class="card">
+              <h3>Item 4</h3>
+              <p>Maintains consistent spacing with var(--spacing-lg)</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Test Section 4: Flex Utilities -->
+        <div class="test-section">
+          <h2 class="test-section-title">Flex Layout Examples</h2>
+          <div class="card">
+            <div class="flex-between" style="margin-bottom: var(--spacing-md);">
+              <span>Space Between Layout</span>
+              <span>Right Side →</span>
+            </div>
+            <div class="flex-center" style="margin-bottom: var(--spacing-md); padding: var(--spacing-md); background-color: var(--color-surface-secondary); border-radius: var(--border-radius-md);">
+              Centered Content
+            </div>
+            <div class="flex-column" style="gap: var(--spacing-sm);">
+              <span>Column Layout Item 1</span>
+              <span>Column Layout Item 2</span>
+              <span>Column Layout Item 3</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Test Section 5: Responsive Test -->
+        <div class="test-section">
+          <h2 class="test-section-title">Responsive Test</h2>
+          <div class="test-content">
+            <p><strong>Resize your browser to test responsiveness:</strong></p>
+            <ul>
+              <li><strong>Desktop (1024px+)</strong>: Sidebar visible (240px), full layout</li>
+              <li><strong>Tablet (768px-1023px)</strong>: Sidebar hidden, 2-column grid → 1 column</li>
+              <li><strong>Mobile (< 768px)</strong>: Full responsive, header shrinks to 56px</li>
+            </ul>
+            <p>Try opening this page at different viewport sizes to verify the responsive behavior!</p>
+          </div>
+        </div>
+
+        <!-- Footer Padding -->
+        <div style="height: var(--spacing-xl);"></div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
