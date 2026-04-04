@@ -275,3 +275,149 @@
     font-size: 18px;
   }
 }
+
+/* =============================================================================
+   RECENT TRANSACTIONS SECTION
+   ============================================================================= */
+
+.recent-transactions-section {
+  /* Card styles inherited from components.css */
+}
+
+/* Transactions Table */
+.transactions-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--color-white);
+  border: var(--border-width-thin) solid var(--color-gray-300);
+  border-radius: var(--border-radius-sm);
+  overflow: hidden;
+}
+
+.transactions-table thead {
+  background-color: var(--color-gray-100);
+}
+
+.transactions-table th {
+  padding: var(--spacing-md);
+  text-align: left;
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  border-bottom: var(--border-width-thin) solid var(--color-gray-300);
+  white-space: nowrap;
+}
+
+.transactions-table td {
+  padding: var(--spacing-md);
+  border-bottom: var(--border-width-thin) solid var(--color-gray-300);
+  font-size: var(--font-size-body);
+  color: var(--color-text-primary);
+  vertical-align: middle;
+}
+
+.transactions-table tbody tr {
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+.transactions-table tbody tr:hover {
+  background-color: var(--color-gray-50);
+}
+
+.transactions-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Category Badges */
+.badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: var(--border-radius-xs);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+  text-align: center;
+  white-space: nowrap;
+  background-color: var(--color-gray-200);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-gray-300);
+}
+
+/* Badge Variants */
+.badge-food {
+  background-color: #f3f4f6;
+  border-color: #e5e7eb;
+  color: #374151;
+}
+
+.badge-travel {
+  background-color: #f0f9ff;
+  border-color: #bfdbfe;
+  color: #1e40af;
+}
+
+.badge-utilities {
+  background-color: #fef3c7;
+  border-color: #fde68a;
+  color: #92400e;
+}
+
+.badge-shopping {
+  background-color: #fce7f3;
+  border-color: #fbcfe8;
+  color: #831843;
+}
+
+.badge-entertainment {
+  background-color: #ede9fe;
+  border-color: #ddd6fe;
+  color: #5b21b6;
+}
+
+/* Responsive Design for Transactions Table */
+@media (max-width: 768px) {
+  .transactions-table {
+    font-size: var(--font-size-body-sm);
+  }
+
+  .transactions-table th {
+    padding: var(--spacing-sm);
+    font-size: var(--font-size-caption);
+  }
+
+  .transactions-table td {
+    padding: var(--spacing-sm);
+  }
+
+  .badge {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .transactions-table {
+    font-size: 13px;
+  }
+
+  .transactions-table th {
+    padding: 10px 8px;
+    font-size: 11px;
+  }
+
+  .transactions-table td {
+    padding: 10px 8px;
+  }
+
+  .transactions-table th:nth-child(4) {
+    display: none;
+  }
+
+  .transactions-table td:nth-child(4) {
+    display: none;
+  }
+
+  .badge {
+    padding: 3px 6px;
+    font-size: 10px;
+  }
+}
