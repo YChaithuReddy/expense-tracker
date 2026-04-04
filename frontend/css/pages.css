@@ -2,6 +2,91 @@
 /* Page-specific styles for dashboard and other pages */
 
 /* =============================================================================
+   TAB NAVIGATION - ADD EXPENSE PAGE
+   ============================================================================= */
+
+.tabs {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  flex-wrap: wrap;
+  border-bottom: var(--border-width-thin) solid var(--color-border);
+  padding-bottom: 0;
+}
+
+.tab-button {
+  padding: var(--spacing-md) var(--spacing-lg);
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-medium);
+  background-color: transparent;
+  color: var(--color-text-secondary);
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+  position: relative;
+  bottom: -1px;
+  white-space: nowrap;
+}
+
+.tab-button:hover {
+  color: var(--color-text-primary);
+}
+
+.tab-button.active {
+  color: var(--color-text-primary);
+  border-bottom-color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Tab Panel Styling */
+.tab-panel {
+  display: none;
+  animation: fadeIn var(--duration-fast) var(--ease-out);
+}
+
+.tab-panel.active {
+  display: block;
+  animation: fadeIn var(--duration-fast) var(--ease-out);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Responsive Design for Tabs */
+@media (max-width: 768px) {
+  .tabs {
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+  }
+
+  .tab-button {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-caption);
+  }
+}
+
+@media (max-width: 480px) {
+  .tabs {
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-md);
+  }
+
+  .tab-button {
+    padding: 10px var(--spacing-sm);
+    font-size: 12px;
+    flex: 1;
+    text-align: center;
+  }
+}
+
+/* =============================================================================
    SPENDING INSIGHTS CHART SECTION
    ============================================================================= */
 

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Expense - Expense Tracker</title>
+  <link rel="stylesheet" href="../css/index.css">
+</head>
+<body>
+  <!-- SIDEBAR NAVIGATION -->
+  <aside class="sidebar">
+    <!-- Sidebar Header -->
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">C</div>
+        <span>Curator</span>
+      </div>
+    </div>
+
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar-nav">
+      <a href="../dashboard.html" class="sidebar-nav-item">
+        <div class="sidebar-nav-icon">📊</div>
+        <span class="sidebar-nav-label">Dashboard</span>
+      </a>
+      <a href="./add-expense.html" class="sidebar-nav-item active">
+        <div class="sidebar-nav-icon">➕</div>
+        <span class="sidebar-nav-label">Add Expense</span>
+      </a>
+      <a href="#" class="sidebar-nav-item">
+        <div class="sidebar-nav-icon">🏦</div>
+        <span class="sidebar-nav-label">Advances</span>
+      </a>
+      <a href="#" class="sidebar-nav-item">
+        <div class="sidebar-nav-icon">📄</div>
+        <span class="sidebar-nav-label">Reports</span>
+      </a>
+    </nav>
+
+    <!-- Sidebar Footer -->
+    <div class="sidebar-footer">
+      <a href="#" class="sidebar-footer-item">
+        <div class="sidebar-footer-icon">⚙️</div>
+        <span class="sidebar-nav-label">Settings</span>
+      </a>
+      <a href="#" class="sidebar-footer-item">
+        <div class="sidebar-footer-icon">🚪</div>
+        <span class="sidebar-nav-label">Logout</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTAINER -->
+  <div class="main-container">
+    <!-- HEADER / TOP BAR -->
+    <header class="header">
+      <!-- Hamburger Menu Button (Mobile) -->
+      <button class="hamburger-btn" id="hamburger-btn">☰</button>
+
+      <!-- Search Bar -->
+      <div class="header-search">
+        <div class="header-search-icon">🔍</div>
+        <input type="text" class="header-search-input" placeholder="Search expenses...">
+      </div>
+
+      <!-- User Profile -->
+      <div class="header-user">
+        <div class="header-user-avatar">JD</div>
+        <div class="header-user-info">
+          <div class="header-user-name">John Doe</div>
+          <div class="header-user-email">john@example.com</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="main-content">
+      <div class="page-wrapper">
+        <!-- Page Header -->
+        <div class="page-header">
+          <h1 class="page-title">Add Expense</h1>
+          <p class="page-subtitle">Record a new expense</p>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tabs">
+          <button class="tab-button active" data-tab="quick-add">Quick Add</button>
+          <button class="tab-button" data-tab="scan-receipt">Scan Receipt</button>
+          <button class="tab-button" data-tab="upi-import">UPI Import</button>
+        </div>
+
+        <!-- Tab Panels -->
+        <div class="tab-panel active" id="quick-add">
+          <div class="card" style="margin-bottom: var(--spacing-xl);">
+            <div class="card-body">
+              <!-- Quick Add Form Content (Task 11) -->
+              <p style="color: var(--color-text-secondary); font-size: var(--font-size-body-sm); margin: 0;">
+                Quick add form will be styled and implemented in Task 11.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-panel" id="scan-receipt">
+          <div class="card" style="margin-bottom: var(--spacing-xl);">
+            <div class="card-body">
+              <!-- Scan Receipt Content (Task 12) -->
+              <p style="color: var(--color-text-secondary); font-size: var(--font-size-body-sm); margin: 0;">
+                Receipt OCR upload will be implemented in Task 12.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-panel" id="upi-import">
+          <div class="card" style="margin-bottom: var(--spacing-xl);">
+            <div class="card-body">
+              <!-- UPI Import Content (Task 13) -->
+              <p style="color: var(--color-text-secondary); font-size: var(--font-size-body-sm); margin: 0;">
+                UPI app integration will be implemented in Task 13.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Tab Navigation Functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      // Mobile hamburger menu functionality
+      const hamburgerBtn = document.getElementById('hamburger-btn');
+      const sidebar = document.querySelector('.sidebar');
+
+      if (hamburgerBtn) {
+        hamburgerBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          sidebar.classList.toggle('open');
+        });
+      }
+
+      // Close sidebar when clicking outside
+      document.addEventListener('click', function(e) {
+        if (sidebar && sidebar.classList.contains('open')) {
+          if (!sidebar.contains(e.target) && !hamburgerBtn.contains(e.target)) {
+            sidebar.classList.remove('open');
+          }
+        }
+      });
+
+      // Tab switching functionality
+      const tabButtons = document.querySelectorAll('.tab-button');
+      const tabPanels = document.querySelectorAll('.tab-panel');
+
+      tabButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+
+          const tabId = this.getAttribute('data-tab');
+
+          // Remove active class from all buttons and panels
+          tabButtons.forEach(btn => btn.classList.remove('active'));
+          tabPanels.forEach(panel => panel.classList.remove('active'));
+
+          // Add active class to clicked button
+          this.classList.add('active');
+
+          // Add active class to corresponding panel
+          const activePanel = document.getElementById(tabId);
+          if (activePanel) {
+            activePanel.classList.add('active');
+          }
+        });
+      });
+
+      // Logout button handler
+      const logoutBtn = document.querySelector('.sidebar-footer-item:last-child');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          // TODO: Implement logout functionality
+        });
+      }
+    });
+  </script>
+</body>
+</html>
