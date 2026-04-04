@@ -185,30 +185,10 @@
     </main>
   </div>
 
+  <script src="../js/navigation.js"></script>
+  <script src="../js/ui-states.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-
-      // =========================================================================
-      // SIDEBAR NAVIGATION
-      // =========================================================================
-
-      var hamburgerBtn = document.getElementById('hamburger-btn');
-      var sidebar = document.querySelector('.sidebar');
-
-      if (hamburgerBtn) {
-        hamburgerBtn.addEventListener('click', function(e) {
-          e.preventDefault();
-          sidebar.classList.toggle('open');
-        });
-      }
-
-      document.addEventListener('click', function(e) {
-        if (sidebar && sidebar.classList.contains('open')) {
-          if (!sidebar.contains(e.target) && !hamburgerBtn.contains(e.target)) {
-            sidebar.classList.remove('open');
-          }
-        }
-      });
 
       // =========================================================================
       // PERIOD SELECTOR

@@ -350,22 +350,9 @@
   <!-- Mobile Sidebar Overlay -->
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
+  <script src="../js/navigation.js"></script>
+  <script src="../js/ui-states.js"></script>
   <script>
-    // =========================================================================
-    // Sidebar Toggle (Mobile)
-    // =========================================================================
-    const hamburgerBtn = document.getElementById('hamburger-btn');
-    const sidebar = document.querySelector('.sidebar');
-    const sidebarOverlay = document.getElementById('sidebar-overlay');
-
-    function toggleSidebar() {
-      sidebar.classList.toggle('open');
-      sidebarOverlay.classList.toggle('active');
-    }
-
-    hamburgerBtn.addEventListener('click', toggleSidebar);
-    sidebarOverlay.addEventListener('click', toggleSidebar);
-
     // =========================================================================
     // Filter Functionality
     // =========================================================================
