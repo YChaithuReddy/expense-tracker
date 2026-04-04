@@ -1,3 +1,144 @@
 /* frontend/css/pages.css */
+/* Page-specific styles for dashboard and other pages */
 
-/* Page-specific styles will be added as pages are created */
+/* =============================================================================
+   SPENDING INSIGHTS CHART SECTION
+   ============================================================================= */
+
+.spending-insights-card {
+  /* Default card styles inherited from components.css */
+}
+
+/* Period Selector */
+.chart-period-selector {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  flex-wrap: wrap;
+}
+
+.chart-period-selector .period-btn {
+  flex: 1;
+  min-width: 100px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-medium);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  color: var(--color-text-secondary);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: all 150ms ease-out;
+}
+
+.chart-period-selector .period-btn:hover {
+  background-color: var(--color-surface-secondary);
+  border-color: var(--color-border-secondary);
+}
+
+.chart-period-selector .period-btn.active {
+  background-color: var(--color-text-primary);
+  color: var(--color-text-inverse);
+  border-color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Chart Container */
+.chart-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: var(--spacing-lg) 0;
+  background-color: var(--color-surface-secondary);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-md);
+  min-height: 350px;
+}
+
+.spending-chart-canvas {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Chart Legend */
+.chart-legend {
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--color-border);
+}
+
+.legend-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.legend-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  align-items: flex-start;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: var(--border-radius-sm);
+  flex-shrink: 0;
+}
+
+.legend-label {
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.legend-value {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .chart-period-selector {
+    gap: var(--spacing-sm);
+  }
+
+  .chart-period-selector .period-btn {
+    min-width: 80px;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-caption);
+  }
+
+  .chart-container {
+    min-height: 300px;
+    padding: var(--spacing-sm);
+  }
+
+  .legend-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-sm);
+  }
+}
+
+@media (max-width: 480px) {
+  .chart-period-selector {
+    gap: var(--spacing-xs);
+  }
+
+  .chart-period-selector .period-btn {
+    min-width: 70px;
+    padding: 6px var(--spacing-xs);
+    font-size: 11px;
+  }
+
+  .chart-container {
+    min-height: 250px;
+  }
+
+  .legend-grid {
+    grid-template-columns: 1fr;
+  }
+}
