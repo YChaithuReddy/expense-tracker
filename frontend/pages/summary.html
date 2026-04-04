@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Summary - Expense Tracker</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="stylesheet" href="../css/index.css">
 </head>
 <body>
@@ -25,22 +26,26 @@
         <div class="sidebar-nav-icon">&#10133;</div>
         <span class="sidebar-nav-label">Add Expense</span>
       </a>
-      <a href="#" class="sidebar-nav-item">
+      <a href="./expenses.html" class="sidebar-nav-item">
+        <div class="sidebar-nav-icon">&#128176;</div>
+        <span class="sidebar-nav-label">Expenses</span>
+      </a>
+      <a href="./wallets.html" class="sidebar-nav-item">
         <div class="sidebar-nav-icon">&#127974;</div>
-        <span class="sidebar-nav-label">Advances</span>
+        <span class="sidebar-nav-label">Wallets</span>
       </a>
       <a href="./summary.html" class="sidebar-nav-item active">
         <div class="sidebar-nav-icon">&#128200;</div>
         <span class="sidebar-nav-label">Summary</span>
       </a>
-      <a href="#" class="sidebar-nav-item">
-        <div class="sidebar-nav-icon">&#128196;</div>
-        <span class="sidebar-nav-label">Reports</span>
-      </a>
     </nav>
 
     <div class="sidebar-footer">
-      <a href="#" class="sidebar-footer-item">
+      <a href="./accounts.html" class="sidebar-footer-item">
+        <div class="sidebar-footer-icon">&#128100;</div>
+        <span class="sidebar-nav-label">Accounts</span>
+      </a>
+      <a href="./settings.html" class="sidebar-footer-item">
         <div class="sidebar-footer-icon">&#9881;&#65039;</div>
         <span class="sidebar-nav-label">Settings</span>
       </a>
@@ -185,8 +190,11 @@
     </main>
   </div>
 
-  <script src="../js/navigation.js"></script>
-  <script src="../js/ui-states.js"></script>
+  <!-- Mobile sidebar overlay -->
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <script src="../js/navigation.js" defer></script>
+  <script src="../js/ui-states.js" defer></script>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
 

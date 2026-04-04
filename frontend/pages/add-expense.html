@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Add Expense - Expense Tracker</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="stylesheet" href="../css/index.css">
 </head>
 <body>
@@ -27,19 +28,27 @@
         <div class="sidebar-nav-icon">➕</div>
         <span class="sidebar-nav-label">Add Expense</span>
       </a>
-      <a href="#" class="sidebar-nav-item">
-        <div class="sidebar-nav-icon">🏦</div>
-        <span class="sidebar-nav-label">Advances</span>
+      <a href="./expenses.html" class="sidebar-nav-item">
+        <div class="sidebar-nav-icon">💰</div>
+        <span class="sidebar-nav-label">Expenses</span>
       </a>
-      <a href="#" class="sidebar-nav-item">
-        <div class="sidebar-nav-icon">📄</div>
-        <span class="sidebar-nav-label">Reports</span>
+      <a href="./wallets.html" class="sidebar-nav-item">
+        <div class="sidebar-nav-icon">🏦</div>
+        <span class="sidebar-nav-label">Wallets</span>
+      </a>
+      <a href="./summary.html" class="sidebar-nav-item">
+        <div class="sidebar-nav-icon">📊</div>
+        <span class="sidebar-nav-label">Summary</span>
       </a>
     </nav>
 
     <!-- Sidebar Footer -->
     <div class="sidebar-footer">
-      <a href="#" class="sidebar-footer-item">
+      <a href="./accounts.html" class="sidebar-footer-item">
+        <div class="sidebar-footer-icon">👤</div>
+        <span class="sidebar-nav-label">Accounts</span>
+      </a>
+      <a href="./settings.html" class="sidebar-footer-item">
         <div class="sidebar-footer-icon">⚙️</div>
         <span class="sidebar-nav-label">Settings</span>
       </a>
@@ -288,10 +297,37 @@
     </main>
   </div>
 
-  <script src="../js/navigation.js"></script>
-  <script src="../js/ui-states.js"></script>
+  <!-- Mobile sidebar overlay -->
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="../supabase-client.js" defer></script>
+  <script src="../supabase-auth.js" defer></script>
+  <script src="../supabase-api.js" defer></script>
+
+  <script src="../js/navigation.js" defer></script>
+  <script src="../js/ui-states.js" defer></script>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
+
+      // =========================================================================
+      // HEADER USER INFO
+      // =========================================================================
+      function updateHeaderUser() {
+        var user = (typeof getCurrentUser === 'function') ? getCurrentUser() : null;
+        if (!user) return;
+        var nameEl = document.querySelector('.header-user-name');
+        var emailEl = document.querySelector('.header-user-email');
+        var avatarEl = document.querySelector('.header-user-avatar');
+        if (nameEl) nameEl.textContent = user.name || user.email || '';
+        if (emailEl) emailEl.textContent = user.email || '';
+        if (avatarEl) {
+          var name = user.name || user.email || '';
+          avatarEl.textContent = name.split(' ').map(function(w) { return w[0]; }).join('').substring(0, 2).toUpperCase();
+        }
+      }
+      updateHeaderUser();
 
       // =========================================================================
       // TAB NAVIGATION
@@ -477,12 +513,17 @@
               description: document.getElementById('expense-description').value.trim(),
               amount: parseFloat(document.getElementById('expense-amount').value),
               category: document.getElementById('expense-category').value,
-              paymentMethod: document.querySelector('input[name="payment-method"]:checked').value,
-              notes: document.getElementById('expense-notes').value.trim()
+              paymentMode: document.querySelector('input[name="payment-method"]:checked').value,
+              notes: document.getElementById('expense-notes').value.trim(),
+              date: new Date().toISOString().split('T')[0],
+              vendor: document.getElementById('expense-description').value.trim()
             };
 
-            // TODO: Replace with actual API call (e.g., api.addExpense(data))
-            await new Promise(function(resolve) { setTimeout(resolve, 500); });
+            if (typeof api !== 'undefined' && api.createExpense) {
+              await api.createExpense(data);
+            } else {
+              await new Promise(function(resolve) { setTimeout(resolve, 500); });
+            }
 
             // Show success
             showBanner(quickBannerId, 'success', 'Expense added successfully!');
@@ -596,13 +637,19 @@
           try {
             const data = {
               description: document.getElementById('ocr-merchant').value.trim(),
+              vendor: document.getElementById('ocr-merchant').value.trim(),
               amount: parseFloat(document.getElementById('ocr-amount').value),
-              date: document.getElementById('ocr-date').value || null,
-              notes: (document.getElementById('ocr-items').value || '').trim()
+              date: document.getElementById('ocr-date').value || new Date().toISOString().split('T')[0],
+              notes: (document.getElementById('ocr-items').value || '').trim(),
+              category: 'other',
+              paymentMode: 'cash'
             };
 
-            // TODO: Replace with actual API call
-            await new Promise(function(resolve) { setTimeout(resolve, 500); });
+            if (typeof api !== 'undefined' && api.createExpense) {
+              await api.createExpense(data);
+            } else {
+              await new Promise(function(resolve) { setTimeout(resolve, 500); });
+            }
 
             showBanner(ocrBannerId, 'success', 'Expense added successfully!');
 

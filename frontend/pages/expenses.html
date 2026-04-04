@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Expenses - Expense Tracker</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="stylesheet" href="../css/index.css">
 </head>
 <body>
@@ -31,19 +32,23 @@
         <div class="sidebar-nav-icon">💰</div>
         <span class="sidebar-nav-label">Expenses</span>
       </a>
-      <a href="#" class="sidebar-nav-item">
+      <a href="./wallets.html" class="sidebar-nav-item">
         <div class="sidebar-nav-icon">🏦</div>
-        <span class="sidebar-nav-label">Advances</span>
+        <span class="sidebar-nav-label">Wallets</span>
       </a>
-      <a href="#" class="sidebar-nav-item">
-        <div class="sidebar-nav-icon">📄</div>
-        <span class="sidebar-nav-label">Reports</span>
+      <a href="./summary.html" class="sidebar-nav-item">
+        <div class="sidebar-nav-icon">📊</div>
+        <span class="sidebar-nav-label">Summary</span>
       </a>
     </nav>
 
     <!-- Sidebar Footer -->
     <div class="sidebar-footer">
-      <a href="#" class="sidebar-footer-item">
+      <a href="./accounts.html" class="sidebar-footer-item">
+        <div class="sidebar-footer-icon">👤</div>
+        <span class="sidebar-nav-label">Accounts</span>
+      </a>
+      <a href="./settings.html" class="sidebar-footer-item">
         <div class="sidebar-footer-icon">⚙️</div>
         <span class="sidebar-nav-label">Settings</span>
       </a>
@@ -165,171 +170,7 @@
                 </tr>
               </thead>
               <tbody id="expenses-tbody">
-                <tr data-category="Food" data-payment="UPI" data-date="2026-04-04">
-                  <td>Swiggy Order</td>
-                  <td><span class="badge badge-food">Food</span></td>
-                  <td class="amount-cell">₹450</td>
-                  <td>04 Apr 2026</td>
-                  <td>UPI</td>
-                  <td class="actions-cell">
-                    <button class="btn btn-ghost btn-sm btn-icon" title="Edit">✏️</button>
-                    <button class="btn btn-ghost btn-sm btn-icon" title="Delete">🗑️</button>
-                  </td>
-                </tr>
-                <tr data-category="Travel" data-payment="UPI" data-date="2026-04-03">
-                  <td>Uber Ride to Office</td>
-                  <td><span class="badge badge-travel">Travel</span></td>
-                  <td class="amount-cell">₹280</td>
-                  <td>03 Apr 2026</td>
-                  <td>UPI</td>
-                  <td class="actions-cell">
-                    <button class="btn btn-ghost btn-sm btn-icon" title="Edit">✏️</button>
-                    <button class="btn btn-ghost btn-sm btn-icon" title="Delete">🗑️</button>
-                  </td>
-                </tr>
-                <tr data-category="Utilities" data-payment="Net Banking" data-date="2026-04-02">
-                  <td>Electricity Bill - April</td>
-                  <td><span class="badge badge-utilities">Utilities</span></td>
-                  <td class="amount-cell">₹2,340</td>
-                  <td>02 Apr 2026</td>
-                  <td>Net Banking</td>
-                  <td class="actions-cell">
-                    <button class="btn btn-ghost btn-sm btn-icon" title="Edit">✏️</button>
-                    <button class="btn btn-ghost btn-sm btn-icon" title="Delete">🗑️</button>
-                  </td>
-                </tr>
-                <tr data-category="Shopping" data-payment="Credit Card" data-date="2026-04-01">
-                  <td>Amazon - Headphones</td>
-                  <td><span class="badge badge-shopping">Shopping</span></td>
-                  <td class="amount-cell">₹3,499</td>
-                  <td>01 Apr 2026</td>
-                  <td>Credit Card</td>
-                  <td class="actions-cell">
-                    <button class="btn btn-ghost btn-sm btn-icon" title="Edit">✏️</button>
-                    <button class="btn btn-ghost btn-sm btn-icon" title="Delete">🗑️</button>
-                  </td>
-                </tr>
-                <tr data-category="Entertainment" data-payment="UPI" data-date="2026-03-31">
-                  <td>Netflix Subscription</td>
-                  <td><span class="badge badge-entertainment">Entertainment</span></td>
-                  <td class="amount-cell">₹649</td>
-                  <td>31 Mar 2026</td>
-                  <td>UPI</td>
-                  <td class="actions-cell">
-                    <button class="btn btn-ghost btn-sm btn-icon" title="Edit">✏️</button>
-                    <button class="btn btn-ghost btn-sm btn-icon" title="Delete">🗑️</button>
-                  </td>
-                </tr>
-                <tr data-category="Food" data-payment="Cash" data-date="2026-03-30">
-                  <td>Chai Point - Tea & Snacks</td>
-                  <td><span class="badge badge-food">Food</span></td>
-                  <td class="amount-cell">₹120</td>
-                  <td>30 Mar 2026</td>
-                  <td>Cash</td>
-                  <td class="actions-cell">
-                    <button class="btn btn-ghost btn-sm btn-icon" title="Edit">✏️</button>
-                    <button class="btn btn-ghost btn-sm btn-icon" title="Delete">🗑️</button>
-                  </td>
-                </tr>
-                <tr data-category="Health" data-payment="Debit Card" data-date="2026-03-29">
-                  <td>Apollo Pharmacy</td>
-                  <td><span class="badge">Health</span></td>
-                  <td class="amount-cell">₹890</td>
-                  <td>29 Mar 2026</td>
-                  <td>Debit Card</td>
-                  <td class="actions-cell">
-                    <button class="btn btn-ghost btn-sm btn-icon" title="Edit">✏️</button>
-                    <button class="btn btn-ghost btn-sm btn-icon" title="Delete">🗑️</button>
-                  </td>
-                </tr>
-                <tr data-category="Travel" data-payment="UPI" data-date="2026-03-28">
-                  <td>Metro Card Recharge</td>
-                  <td><span class="badge badge-travel">Travel</span></td>
-                  <td class="amount-cell">₹500</td>
-                  <td>28 Mar 2026</td>
-                  <td>UPI</td>
-                  <td class="actions-cell">
-                    <button class="btn btn-ghost btn-sm btn-icon" title="Edit">✏️</button>
-                    <button class="btn btn-ghost btn-sm btn-icon" title="Delete">🗑️</button>
-                  </td>
-                </tr>
-                <tr data-category="Shopping" data-payment="Credit Card" data-date="2026-03-27">
-                  <td>Myntra - Clothing</td>
-                  <td><span class="badge badge-shopping">Shopping</span></td>
-                  <td class="amount-cell">₹2,199</td>
-                  <td>27 Mar 2026</td>
-                  <td>Credit Card</td>
-                  <td class="actions-cell">
-                    <button class="btn btn-ghost btn-sm btn-icon" title="Edit">✏️</button>
-                    <button class="btn btn-ghost btn-sm btn-icon" title="Delete">🗑️</button>
-                  </td>
-                </tr>
-                <tr data-category="Utilities" data-payment="Net Banking" data-date="2026-03-26">
-                  <td>Mobile Recharge - Jio</td>
-                  <td><span class="badge badge-utilities">Utilities</span></td>
-                  <td class="amount-cell">₹399</td>
-                  <td>26 Mar 2026</td>
-                  <td>Net Banking</td>
-                  <td class="actions-cell">
-                    <button class="btn btn-ghost btn-sm btn-icon" title="Edit">✏️</button>
-                    <button class="btn btn-ghost btn-sm btn-icon" title="Delete">🗑️</button>
-                  </td>
-                </tr>
-                <tr data-category="Food" data-payment="UPI" data-date="2026-03-25">
-                  <td>Dominos Pizza</td>
-                  <td><span class="badge badge-food">Food</span></td>
-                  <td class="amount-cell">₹599</td>
-                  <td>25 Mar 2026</td>
-                  <td>UPI</td>
-                  <td class="actions-cell">
-                    <button class="btn btn-ghost btn-sm btn-icon" title="Edit">✏️</button>
-                    <button class="btn btn-ghost btn-sm btn-icon" title="Delete">🗑️</button>
-                  </td>
-                </tr>
-                <tr data-category="Education" data-payment="Credit Card" data-date="2026-03-24">
-                  <td>Udemy Course - React</td>
-                  <td><span class="badge">Education</span></td>
-                  <td class="amount-cell">₹449</td>
-                  <td>24 Mar 2026</td>
-                  <td>Credit Card</td>
-                  <td class="actions-cell">
-                    <button class="btn btn-ghost btn-sm btn-icon" title="Edit">✏️</button>
-                    <button class="btn btn-ghost btn-sm btn-icon" title="Delete">🗑️</button>
-                  </td>
-                </tr>
-                <tr data-category="Entertainment" data-payment="UPI" data-date="2026-03-23">
-                  <td>PVR Cinemas - Movie</td>
-                  <td><span class="badge badge-entertainment">Entertainment</span></td>
-                  <td class="amount-cell">₹350</td>
-                  <td>23 Mar 2026</td>
-                  <td>UPI</td>
-                  <td class="actions-cell">
-                    <button class="btn btn-ghost btn-sm btn-icon" title="Edit">✏️</button>
-                    <button class="btn btn-ghost btn-sm btn-icon" title="Delete">🗑️</button>
-                  </td>
-                </tr>
-                <tr data-category="Other" data-payment="Cash" data-date="2026-03-22">
-                  <td>Laundry Service</td>
-                  <td><span class="badge">Other</span></td>
-                  <td class="amount-cell">₹250</td>
-                  <td>22 Mar 2026</td>
-                  <td>Cash</td>
-                  <td class="actions-cell">
-                    <button class="btn btn-ghost btn-sm btn-icon" title="Edit">✏️</button>
-                    <button class="btn btn-ghost btn-sm btn-icon" title="Delete">🗑️</button>
-                  </td>
-                </tr>
-                <tr data-category="Food" data-payment="Debit Card" data-date="2026-03-21">
-                  <td>BigBasket Groceries</td>
-                  <td><span class="badge badge-food">Food</span></td>
-                  <td class="amount-cell">₹1,850</td>
-                  <td>21 Mar 2026</td>
-                  <td>Debit Card</td>
-                  <td class="actions-cell">
-                    <button class="btn btn-ghost btn-sm btn-icon" title="Edit">✏️</button>
-                    <button class="btn btn-ghost btn-sm btn-icon" title="Delete">🗑️</button>
-                  </td>
-                </tr>
+                <!-- Populated dynamically from Supabase -->
               </tbody>
             </table>
           </div>
@@ -350,11 +191,17 @@
   <!-- Mobile Sidebar Overlay -->
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
-  <script src="../js/navigation.js"></script>
-  <script src="../js/ui-states.js"></script>
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="../supabase-client.js" defer></script>
+  <script src="../supabase-auth.js" defer></script>
+  <script src="../supabase-api.js" defer></script>
+
+  <script src="../js/navigation.js" defer></script>
+  <script src="../js/ui-states.js" defer></script>
   <script>
     // =========================================================================
-    // Filter Functionality
+    // DOM REFERENCES
     // =========================================================================
     const filterCategory = document.getElementById('filter-category');
     const filterDateFrom = document.getElementById('filter-date-from');
@@ -366,46 +213,118 @@
     const emptyState = document.getElementById('expenses-empty');
     const tableWrapper = document.getElementById('expenses-table-wrapper');
     const paginationInfo = document.querySelector('.pagination-info');
+    const loading = document.getElementById('expenses-loading');
+    const pagination = document.getElementById('expenses-pagination');
 
-    function applyFilters() {
-      const category = filterCategory.value;
-      const dateFrom = filterDateFrom.value;
-      const dateTo = filterDateTo.value;
-      const payment = filterPayment.value;
-      const search = filterSearch.value.toLowerCase().trim();
+    let allExpenses = [];
+    let currentPage = 1;
+    const PAGE_SIZE = 50;
 
-      const rows = tbody.querySelectorAll('tr');
-      let visibleCount = 0;
+    // =========================================================================
+    // RENDER EXPENSES
+    // =========================================================================
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      const d = new Date(dateStr);
+      return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
 
-      rows.forEach(row => {
-        const rowCategory = row.getAttribute('data-category');
-        const rowPayment = row.getAttribute('data-payment');
-        const rowDate = row.getAttribute('data-date');
-        const rowDescription = row.querySelector('td:first-child').textContent.toLowerCase();
+    function formatAmount(amount) {
+      return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0 }).format(amount);
+    }
 
-        let show = true;
+    function getCategoryBadgeClass(category) {
+      const map = { Food: 'badge-food', Travel: 'badge-travel', Utilities: 'badge-utilities',
+        Shopping: 'badge-shopping', Entertainment: 'badge-entertainment' };
+      return map[category] || '';
+    }
 
-        if (category && rowCategory !== category) show = false;
-        if (payment && rowPayment !== payment) show = false;
-        if (dateFrom && rowDate < dateFrom) show = false;
-        if (dateTo && rowDate > dateTo) show = false;
-        if (search && !rowDescription.includes(search)) show = false;
-
-        row.style.display = show ? '' : 'none';
-        if (show) visibleCount++;
-      });
-
-      // Toggle empty state
-      if (visibleCount === 0) {
+    function renderExpenses(expenses) {
+      if (!expenses || expenses.length === 0) {
+        tbody.innerHTML = '';
         emptyState.style.display = 'flex';
         tableWrapper.style.display = 'none';
-      } else {
-        emptyState.style.display = 'none';
-        tableWrapper.style.display = '';
+        pagination.style.display = 'none';
+        return;
       }
 
-      // Update pagination info
-      paginationInfo.textContent = `Showing ${visibleCount} of ${rows.length} expenses`;
+      emptyState.style.display = 'none';
+      tableWrapper.style.display = '';
+      pagination.style.display = 'flex';
+
+      tbody.innerHTML = expenses.map(function(exp) {
+        var cat = exp.category || 'Other';
+        var payment = exp.payment_mode || exp.paymentMethod || '';
+        var dateVal = exp.date || '';
+        var desc = exp.description || exp.vendor || '';
+        var amount = exp.amount || 0;
+        var id = exp._id || exp.id;
+        return '<tr data-id="' + id + '" data-category="' + cat + '" data-payment="' + payment + '" data-date="' + dateVal + '">' +
+          '<td>' + desc + '</td>' +
+          '<td><span class="badge ' + getCategoryBadgeClass(cat) + '">' + cat + '</span></td>' +
+          '<td class="amount-cell">' + formatAmount(amount) + '</td>' +
+          '<td>' + formatDate(dateVal) + '</td>' +
+          '<td>' + payment + '</td>' +
+          '<td class="actions-cell">' +
+            '<button class="btn btn-ghost btn-sm btn-icon edit-expense-btn" title="Edit" data-id="' + id + '">&#9999;&#65039;</button>' +
+            '<button class="btn btn-ghost btn-sm btn-icon delete-expense-btn" title="Delete" data-id="' + id + '">&#128465;&#65039;</button>' +
+          '</td>' +
+        '</tr>';
+      }).join('');
+
+      paginationInfo.textContent = 'Showing ' + expenses.length + ' expenses';
+      attachRowActions();
+    }
+
+    // =========================================================================
+    // ROW ACTIONS (Edit / Delete)
+    // =========================================================================
+    function attachRowActions() {
+      document.querySelectorAll('.delete-expense-btn').forEach(function(btn) {
+        btn.addEventListener('click', async function() {
+          var id = this.getAttribute('data-id');
+          if (!confirm('Are you sure you want to delete this expense?')) return;
+          try {
+            await api.deleteExpense(id);
+            loadExpensesFromSupabase();
+            if (typeof UIStates !== 'undefined') UIStates.showToast('Expense deleted', 'success');
+          } catch (err) {
+            if (typeof UIStates !== 'undefined') UIStates.showToast('Failed to delete expense', 'error');
+          }
+        });
+      });
+
+      document.querySelectorAll('.edit-expense-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var id = this.getAttribute('data-id');
+          window.location.href = './add-expense.html?edit=' + id;
+        });
+      });
+    }
+
+    // =========================================================================
+    // FILTER (client-side on loaded data)
+    // =========================================================================
+    function applyFilters() {
+      var category = filterCategory.value;
+      var dateFrom = filterDateFrom.value;
+      var dateTo = filterDateTo.value;
+      var payment = filterPayment.value;
+      var search = filterSearch.value.toLowerCase().trim();
+
+      var filtered = allExpenses.filter(function(exp) {
+        if (category && exp.category !== category) return false;
+        if (payment && (exp.payment_mode || '') !== payment) return false;
+        if (dateFrom && (exp.date || '') < dateFrom) return false;
+        if (dateTo && (exp.date || '') > dateTo) return false;
+        if (search) {
+          var desc = ((exp.description || '') + ' ' + (exp.vendor || '')).toLowerCase();
+          if (!desc.includes(search)) return false;
+        }
+        return true;
+      });
+
+      renderExpenses(filtered);
     }
 
     filterCategory.addEventListener('change', applyFilters);
@@ -414,7 +333,7 @@
     filterPayment.addEventListener('change', applyFilters);
     filterSearch.addEventListener('input', applyFilters);
 
-    btnClearFilters.addEventListener('click', () => {
+    btnClearFilters.addEventListener('click', function() {
       filterCategory.value = '';
       filterDateFrom.value = '';
       filterDateTo.value = '';
@@ -424,36 +343,53 @@
     });
 
     // =========================================================================
-    // Supabase Integration (placeholder — connects when supabase-api.js loaded)
+    // LOAD FROM SUPABASE
     // =========================================================================
     async function loadExpensesFromSupabase() {
-      const loading = document.getElementById('expenses-loading');
-      const pagination = document.getElementById('expenses-pagination');
-
       try {
         loading.style.display = 'flex';
         tableWrapper.style.display = 'none';
         emptyState.style.display = 'none';
         pagination.style.display = 'none';
 
-        // When supabase-api.js is loaded, use: const expenses = await api.getExpenses();
-        // For now, sample data is rendered in HTML
-
-        // Simulate load complete
+        var result = await api.getExpenses(currentPage, PAGE_SIZE);
+        allExpenses = result.data || [];
         loading.style.display = 'none';
-        tableWrapper.style.display = '';
-        pagination.style.display = 'flex';
+        applyFilters();
       } catch (err) {
         loading.style.display = 'none';
         emptyState.style.display = 'flex';
         console.error('Failed to load expenses:', err);
+        if (typeof UIStates !== 'undefined') UIStates.showToast('Failed to load expenses', 'error');
       }
     }
 
-    // If api object exists, load from Supabase
-    if (typeof api !== 'undefined' && api.getExpenses) {
-      loadExpensesFromSupabase();
+    // =========================================================================
+    // HEADER USER INFO
+    // =========================================================================
+    function updateHeaderUser() {
+      var user = getCurrentUser();
+      if (!user) return;
+      var nameEl = document.querySelector('.header-user-name');
+      var emailEl = document.querySelector('.header-user-email');
+      var avatarEl = document.querySelector('.header-user-avatar');
+      if (nameEl) nameEl.textContent = user.name || user.email || '';
+      if (emailEl) emailEl.textContent = user.email || '';
+      if (avatarEl) {
+        var name = user.name || user.email || '';
+        avatarEl.textContent = name.split(' ').map(function(w) { return w[0]; }).join('').substring(0, 2).toUpperCase();
+      }
     }
+
+    // =========================================================================
+    // INIT
+    // =========================================================================
+    document.addEventListener('DOMContentLoaded', function() {
+      updateHeaderUser();
+      if (typeof api !== 'undefined' && api.getExpenses) {
+        loadExpensesFromSupabase();
+      }
+    });
   </script>
 </body>
 </html>

@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Account - Expense Tracker</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="stylesheet" href="../css/index.css">
 </head>
 <body>
@@ -25,20 +26,24 @@
         <div class="sidebar-nav-icon">➕</div>
         <span class="sidebar-nav-label">Add Expense</span>
       </a>
-      <a href="#" class="sidebar-nav-item">
-        <div class="sidebar-nav-icon">🏦</div>
-        <span class="sidebar-nav-label">Advances</span>
+      <a href="./expenses.html" class="sidebar-nav-item">
+        <div class="sidebar-nav-icon">💰</div>
+        <span class="sidebar-nav-label">Expenses</span>
       </a>
-      <a href="#" class="sidebar-nav-item">
-        <div class="sidebar-nav-icon">📄</div>
-        <span class="sidebar-nav-label">Reports</span>
+      <a href="./wallets.html" class="sidebar-nav-item">
+        <div class="sidebar-nav-icon">🏦</div>
+        <span class="sidebar-nav-label">Wallets</span>
+      </a>
+      <a href="./summary.html" class="sidebar-nav-item">
+        <div class="sidebar-nav-icon">📊</div>
+        <span class="sidebar-nav-label">Summary</span>
       </a>
     </nav>
 
     <div class="sidebar-footer">
       <a href="./accounts.html" class="sidebar-footer-item active">
         <div class="sidebar-footer-icon">👤</div>
-        <span class="sidebar-nav-label">Account</span>
+        <span class="sidebar-nav-label">Accounts</span>
       </a>
       <a href="./settings.html" class="sidebar-footer-item">
         <div class="sidebar-footer-icon">⚙️</div>
@@ -166,7 +171,7 @@
   <!-- Mobile sidebar overlay -->
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
-  <script src="../js/navigation.js"></script>
-  <script src="../js/ui-states.js"></script>
+  <script src="../js/navigation.js" defer></script>
+  <script src="../js/ui-states.js" defer></script>
 </body>
 </html>
