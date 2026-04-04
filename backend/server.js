@@ -15,6 +15,7 @@ const authRoutes = require('./routes/auth');
 const expenseRoutes = require('./routes/expenses');
 const googleSheetsRoutes = require('./routes/google-sheets');
 const whatsappRoutes = require('./routes/whatsapp');
+const ocrRoutes = require('./routes/ocr');
 
 const app = express();
 
@@ -153,6 +154,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/google-sheets', googleSheetsRoutes);
 app.use('/api/whatsapp', whatsappRoutes);
+app.use('/api/ocr', ocrRoutes);
 
 // 404 Error Handler
 app.use((req, res) => {
