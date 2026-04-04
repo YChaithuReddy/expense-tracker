@@ -124,43 +124,17 @@
 
               <!-- Canvas Chart -->
               <div class="chart-container">
-                <canvas id="spending-chart" class="spending-chart-canvas"></canvas>
+                <canvas id="spending-chart"
+                        class="spending-chart-canvas"
+                        aria-label="Spending breakdown by category chart"
+                        role="img"
+                        width="400"
+                        height="250"></canvas>
               </div>
 
               <!-- Legend -->
               <div class="chart-legend">
-                <div class="legend-grid">
-                  <div class="legend-item">
-                    <div class="legend-color" style="background-color: var(--color-gray-950);"></div>
-                    <div class="legend-label">Food</div>
-                    <div class="legend-value">₹12,450</div>
-                  </div>
-                  <div class="legend-item">
-                    <div class="legend-color" style="background-color: var(--color-gray-950);"></div>
-                    <div class="legend-label">Travel</div>
-                    <div class="legend-value">₹8,230</div>
-                  </div>
-                  <div class="legend-item">
-                    <div class="legend-color" style="background-color: var(--color-gray-950);"></div>
-                    <div class="legend-label">Utilities</div>
-                    <div class="legend-value">₹5,600</div>
-                  </div>
-                  <div class="legend-item">
-                    <div class="legend-color" style="background-color: var(--color-gray-950);"></div>
-                    <div class="legend-label">Entertainment</div>
-                    <div class="legend-value">₹3,200</div>
-                  </div>
-                  <div class="legend-item">
-                    <div class="legend-color" style="background-color: var(--color-gray-950);"></div>
-                    <div class="legend-label">Shopping</div>
-                    <div class="legend-value">₹15,750</div>
-                  </div>
-                  <div class="legend-item">
-                    <div class="legend-color" style="background-color: var(--color-gray-950);"></div>
-                    <div class="legend-label">Other</div>
-                    <div class="legend-value">₹2,400</div>
-                  </div>
-                </div>
+                <div class="legend-grid" id="spending-legend"></div>
               </div>
             </div>
           </div>
@@ -314,6 +288,12 @@
       const canvas = document.getElementById('spending-chart');
       if (!canvas) return;
 
+      // Issue 4: Add parameter validation
+      if (!spendingData[period]) {
+        console.error('Invalid period:', period);
+        return;
+      }
+
       const ctx = canvas.getContext('2d');
       const data = spendingData[period];
       const categories = Object.keys(data);
@@ -379,7 +359,7 @@
       // Draw bars and labels
       ctx.fillStyle = barColor;
       ctx.strokeStyle = barColor;
-      ctx.font = '12px var(--font-family-system)';
+      ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
       ctx.textAlign = 'center';
       ctx.fillStyle = textColor;
 
@@ -395,13 +375,13 @@
 
         // Draw value label on top of bar
         ctx.fillStyle = textColor;
-        ctx.font = 'bold 11px var(--font-family-system)';
+        ctx.font = 'bold 11px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText('₹' + (value / 1000).toFixed(1) + 'k', x + barWidth / 2, y - 8);
 
         // Draw category label below X-axis
         ctx.fillStyle = textColor;
-        ctx.font = '12px var(--font-family-system)';
+        ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
         ctx.save();
         ctx.translate(x + barWidth / 2, canvasHeight - padding.bottom + 35);
         ctx.rotate(-Math.PI / 4);
@@ -412,13 +392,37 @@
 
       // Draw Y-axis labels
       ctx.fillStyle = textColor;
-      ctx.font = '11px var(--font-family-system)';
+      ctx.font = '11px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
       ctx.textAlign = 'right';
       for (let i = 0; i <= gridLines; i++) {
         const value = (maxValue / gridLines) * i;
         const y = canvasHeight - padding.bottom - (chartHeight / gridLines) * i;
         ctx.fillText('₹' + (value / 1000).toFixed(0) + 'k', padding.left - 10, y + 4);
       }
+
+      // Issue 2: Generate legend dynamically from spendingData
+      updateLegend(period);
+    }
+
+    // Issue 2: Function to update legend from spending data
+    function updateLegend(period) {
+      const legendContainer = document.getElementById('spending-legend');
+      if (!legendContainer || !spendingData[period]) return;
+
+      const data = spendingData[period];
+      let legendHTML = '';
+
+      Object.entries(data).forEach(([category, amount]) => {
+        legendHTML += `
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: var(--color-gray-950);"></div>
+            <div class="legend-label">${category}</div>
+            <div class="legend-value">₹${amount.toLocaleString('en-IN')}</div>
+          </div>
+        `;
+      });
+
+      legendContainer.innerHTML = legendHTML;
     }
 
     // Mobile hamburger menu functionality
@@ -463,10 +467,14 @@
         });
       });
 
-      // Re-render chart on window resize
+      // Issue 5: Debounce resize handler to prevent excessive re-renders
+      let resizeTimer;
       window.addEventListener('resize', function() {
-        const activePeriod = document.querySelector('.period-btn.active')?.getAttribute('data-period') || 'this-month';
-        renderSpendingChart(activePeriod);
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+          const activePeriod = document.querySelector('.period-btn.active')?.getAttribute('data-period') || 'this-month';
+          renderSpendingChart(activePeriod);
+        }, 150);
       });
     });
   </script>
