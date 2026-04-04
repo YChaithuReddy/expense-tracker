@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Summary - Expense Tracker</title>
+  <link rel="stylesheet" href="../css/index.css">
+</head>
+<body>
+  <!-- SIDEBAR NAVIGATION -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">C</div>
+        <span>Curator</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="../dashboard.html" class="sidebar-nav-item">
+        <div class="sidebar-nav-icon">&#128202;</div>
+        <span class="sidebar-nav-label">Dashboard</span>
+      </a>
+      <a href="./add-expense.html" class="sidebar-nav-item">
+        <div class="sidebar-nav-icon">&#10133;</div>
+        <span class="sidebar-nav-label">Add Expense</span>
+      </a>
+      <a href="#" class="sidebar-nav-item">
+        <div class="sidebar-nav-icon">&#127974;</div>
+        <span class="sidebar-nav-label">Advances</span>
+      </a>
+      <a href="./summary.html" class="sidebar-nav-item active">
+        <div class="sidebar-nav-icon">&#128200;</div>
+        <span class="sidebar-nav-label">Summary</span>
+      </a>
+      <a href="#" class="sidebar-nav-item">
+        <div class="sidebar-nav-icon">&#128196;</div>
+        <span class="sidebar-nav-label">Reports</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="#" class="sidebar-footer-item">
+        <div class="sidebar-footer-icon">&#9881;&#65039;</div>
+        <span class="sidebar-nav-label">Settings</span>
+      </a>
+      <a href="#" class="sidebar-footer-item">
+        <div class="sidebar-footer-icon">&#128682;</div>
+        <span class="sidebar-nav-label">Logout</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTAINER -->
+  <div class="main-container">
+    <!-- HEADER -->
+    <header class="header">
+      <button class="hamburger-btn" id="hamburger-btn">&#9776;</button>
+      <div class="header-search">
+        <div class="header-search-icon">&#128269;</div>
+        <input type="text" class="header-search-input" placeholder="Search expenses...">
+      </div>
+      <div class="header-user">
+        <div class="header-user-avatar">JD</div>
+        <div class="header-user-info">
+          <div class="header-user-name">John Doe</div>
+          <div class="header-user-email">john@example.com</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      <div class="page-wrapper">
+        <!-- Page Header -->
+        <div class="page-header">
+          <h1 class="page-title">Summary</h1>
+          <p class="page-subtitle">Spending analytics and reports</p>
+        </div>
+
+        <!-- Period Selector -->
+        <div class="chart-period-selector" id="period-selector">
+          <button class="period-btn active" data-period="this-month">This Month</button>
+          <button class="period-btn" data-period="last-month">Last Month</button>
+          <button class="period-btn" data-period="3-months">Last 3 Months</button>
+          <button class="period-btn" data-period="this-year">This Year</button>
+        </div>
+
+        <!-- Stats Cards Grid -->
+        <div class="stats-grid" id="stats-grid">
+          <div class="stat-card">
+            <span class="stat-card-label">Total Spent</span>
+            <span class="stat-card-value" id="stat-total-spent">&#8377;47,830</span>
+            <span class="stat-card-detail">This month</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-card-label">Average Daily</span>
+            <span class="stat-card-value" id="stat-avg-daily">&#8377;1,594</span>
+            <span class="stat-card-detail">Per day average</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-card-label">Highest Expense</span>
+            <span class="stat-card-value" id="stat-highest">&#8377;8,500</span>
+            <span class="stat-card-detail" id="stat-highest-label">Flight Booking</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-card-label">Transactions</span>
+            <span class="stat-card-value" id="stat-transactions">28</span>
+            <span class="stat-card-detail">Total entries</span>
+          </div>
+        </div>
+
+        <!-- Category Breakdown -->
+        <div class="card" style="margin-bottom: var(--spacing-xl);">
+          <div class="card-header">
+            <h2 class="card-title">Spending by Category</h2>
+          </div>
+          <div class="card-body">
+            <div class="category-breakdown" id="category-breakdown">
+              <div class="category-row">
+                <div class="category-row-header">
+                  <span class="category-row-name">Food</span>
+                  <span class="category-row-value">&#8377;16,741 <span class="category-row-pct">35%</span></span>
+                </div>
+                <div class="category-bar"><div class="category-bar-fill" style="width: 35%"></div></div>
+              </div>
+              <div class="category-row">
+                <div class="category-row-header">
+                  <span class="category-row-name">Shopping</span>
+                  <span class="category-row-value">&#8377;11,958 <span class="category-row-pct">25%</span></span>
+                </div>
+                <div class="category-bar"><div class="category-bar-fill" style="width: 25%"></div></div>
+              </div>
+              <div class="category-row">
+                <div class="category-row-header">
+                  <span class="category-row-name">Travel</span>
+                  <span class="category-row-value">&#8377;9,566 <span class="category-row-pct">20%</span></span>
+                </div>
+                <div class="category-bar"><div class="category-bar-fill" style="width: 20%"></div></div>
+              </div>
+              <div class="category-row">
+                <div class="category-row-header">
+                  <span class="category-row-name">Utilities</span>
+                  <span class="category-row-value">&#8377;5,740 <span class="category-row-pct">12%</span></span>
+                </div>
+                <div class="category-bar"><div class="category-bar-fill" style="width: 12%"></div></div>
+              </div>
+              <div class="category-row">
+                <div class="category-row-header">
+                  <span class="category-row-name">Entertainment</span>
+                  <span class="category-row-value">&#8377;3,826 <span class="category-row-pct">8%</span></span>
+                </div>
+                <div class="category-bar"><div class="category-bar-fill" style="width: 8%"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Monthly Trend Chart -->
+        <div class="card" style="margin-bottom: var(--spacing-xl);">
+          <div class="card-header">
+            <h2 class="card-title">Monthly Trend</h2>
+          </div>
+          <div class="card-body">
+            <div class="trend-chart-container">
+              <canvas id="trend-chart" width="800" height="300"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Export Button -->
+        <div class="summary-export-section">
+          <button class="btn btn-secondary" id="export-sheets-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+              <polyline points="10 9 9 9 8 9"/>
+            </svg>
+            Export to Google Sheets
+          </button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+      // =========================================================================
+      // SIDEBAR NAVIGATION
+      // =========================================================================
+
+      var hamburgerBtn = document.getElementById('hamburger-btn');
+      var sidebar = document.querySelector('.sidebar');
+
+      if (hamburgerBtn) {
+        hamburgerBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          sidebar.classList.toggle('open');
+        });
+      }
+
+      document.addEventListener('click', function(e) {
+        if (sidebar && sidebar.classList.contains('open')) {
+          if (!sidebar.contains(e.target) && !hamburgerBtn.contains(e.target)) {
+            sidebar.classList.remove('open');
+          }
+        }
+      });
+
+      // =========================================================================
+      // PERIOD SELECTOR
+      // =========================================================================
+
+      var periodButtons = document.querySelectorAll('#period-selector .period-btn');
+      var currentPeriod = 'this-month';
+
+      var periodData = {
+        'this-month': {
+          totalSpent: '&#8377;47,830',
+          avgDaily: '&#8377;1,594',
+          highest: '&#8377;8,500',
+          highestLabel: 'Flight Booking',
+          transactions: '28',
+          periodLabel: 'This month',
+          categories: [
+            { name: 'Food', amount: '&#8377;16,741', pct: 35 },
+            { name: 'Shopping', amount: '&#8377;11,958', pct: 25 },
+            { name: 'Travel', amount: '&#8377;9,566', pct: 20 },
+            { name: 'Utilities', amount: '&#8377;5,740', pct: 12 },
+            { name: 'Entertainment', amount: '&#8377;3,826', pct: 8 }
+          ],
+          trend: [32000, 38500, 41200, 47830],
+          trendLabels: ['Jan', 'Feb', 'Mar', 'Apr']
+        },
+        'last-month': {
+          totalSpent: '&#8377;41,200',
+          avgDaily: '&#8377;1,373',
+          highest: '&#8377;7,200',
+          highestLabel: 'Hotel Stay',
+          transactions: '24',
+          periodLabel: 'Last month',
+          categories: [
+            { name: 'Travel', amount: '&#8377;12,360', pct: 30 },
+            { name: 'Food', amount: '&#8377;10,300', pct: 25 },
+            { name: 'Shopping', amount: '&#8377;8,240', pct: 20 },
+            { name: 'Utilities', amount: '&#8377;6,180', pct: 15 },
+            { name: 'Entertainment', amount: '&#8377;4,120', pct: 10 }
+          ],
+          trend: [32000, 38500, 41200],
+          trendLabels: ['Jan', 'Feb', 'Mar']
+        },
+        '3-months': {
+          totalSpent: '&#8377;1,27,530',
+          avgDaily: '&#8377;1,417',
+          highest: '&#8377;12,000',
+          highestLabel: 'Electronics',
+          transactions: '78',
+          periodLabel: 'Last 3 months',
+          categories: [
+            { name: 'Food', amount: '&#8377;38,259', pct: 30 },
+            { name: 'Shopping', amount: '&#8377;31,883', pct: 25 },
+            { name: 'Travel', amount: '&#8377;25,506', pct: 20 },
+            { name: 'Utilities', amount: '&#8377;19,130', pct: 15 },
+            { name: 'Entertainment', amount: '&#8377;12,753', pct: 10 }
+          ],
+          trend: [32000, 38500, 41200, 47830],
+          trendLabels: ['Jan', 'Feb', 'Mar', 'Apr']
+        },
+        'this-year': {
+          totalSpent: '&#8377;1,59,530',
+          avgDaily: '&#8377;1,329',
+          highest: '&#8377;15,000',
+          highestLabel: 'Annual Insurance',
+          transactions: '112',
+          periodLabel: 'This year',
+          categories: [
+            { name: 'Food', amount: '&#8377;43,073', pct: 27 },
+            { name: 'Shopping', amount: '&#8377;35,097', pct: 22 },
+            { name: 'Travel', amount: '&#8377;31,906', pct: 20 },
+            { name: 'Utilities', amount: '&#8377;27,120', pct: 17 },
+            { name: 'Entertainment', amount: '&#8377;22,335', pct: 14 }
+          ],
+          trend: [32000, 38500, 41200, 47830],
+          trendLabels: ['Jan', 'Feb', 'Mar', 'Apr']
+        }
+      };
+
+      periodButtons.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          periodButtons.forEach(function(b) { b.classList.remove('active'); });
+          this.classList.add('active');
+          currentPeriod = this.getAttribute('data-period');
+          updateStats(currentPeriod);
+          updateCategories(currentPeriod);
+          drawTrendChart(currentPeriod);
+        });
+      });
+
+      function updateStats(period) {
+        var data = periodData[period];
+        if (!data) return;
+        document.getElementById('stat-total-spent').innerHTML = data.totalSpent;
+        document.getElementById('stat-avg-daily').innerHTML = data.avgDaily;
+        document.getElementById('stat-highest').innerHTML = data.highest;
+        document.getElementById('stat-highest-label').textContent = data.highestLabel;
+        document.getElementById('stat-transactions').textContent = data.transactions;
+
+        // Update detail labels
+        var detailEls = document.querySelectorAll('.stat-card .stat-card-detail');
+        if (detailEls[0]) detailEls[0].textContent = data.periodLabel;
+      }
+
+      function updateCategories(period) {
+        var data = periodData[period];
+        if (!data) return;
+        var container = document.getElementById('category-breakdown');
+        var html = '';
+        data.categories.forEach(function(cat) {
+          html += '<div class="category-row">' +
+            '<div class="category-row-header">' +
+            '<span class="category-row-name">' + cat.name + '</span>' +
+            '<span class="category-row-value">' + cat.amount + ' <span class="category-row-pct">' + cat.pct + '%</span></span>' +
+            '</div>' +
+            '<div class="category-bar"><div class="category-bar-fill" style="width: ' + cat.pct + '%"></div></div>' +
+            '</div>';
+        });
+        container.innerHTML = html;
+      }
+
+      // =========================================================================
+      // MONTHLY TREND CANVAS CHART
+      // =========================================================================
+
+      function drawTrendChart(period) {
+        var data = periodData[period];
+        if (!data) return;
+
+        var canvas = document.getElementById('trend-chart');
+        if (!canvas || !canvas.getContext) return;
+
+        var ctx = canvas.getContext('2d');
+        var dpr = window.devicePixelRatio || 1;
+
+        // Responsive canvas sizing
+        var containerWidth = canvas.parentElement.clientWidth;
+        var canvasWidth = containerWidth;
+        var canvasHeight = 300;
+
+        canvas.width = canvasWidth * dpr;
+        canvas.height = canvasHeight * dpr;
+        canvas.style.width = canvasWidth + 'px';
+        canvas.style.height = canvasHeight + 'px';
+        ctx.scale(dpr, dpr);
+
+        var values = data.trend;
+        var labels = data.trendLabels;
+
+        var padding = { top: 30, right: 30, bottom: 50, left: 70 };
+        var chartWidth = canvasWidth - padding.left - padding.right;
+        var chartHeight = canvasHeight - padding.top - padding.bottom;
+
+        var maxVal = Math.max.apply(null, values) * 1.15;
+        var minVal = 0;
+
+        // Clear
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+        // Compute styles from CSS variables
+        var computedStyle = getComputedStyle(document.documentElement);
+        var textColor = computedStyle.getPropertyValue('--color-text-secondary').trim() || '#757575';
+        var borderColor = computedStyle.getPropertyValue('--color-border').trim() || '#eeeeee';
+        var primaryColor = computedStyle.getPropertyValue('--color-text-primary').trim() || '#0a0a0a';
+
+        // Grid lines
+        var gridLines = 5;
+        ctx.strokeStyle = borderColor;
+        ctx.lineWidth = 1;
+        ctx.font = '12px -apple-system, BlinkMacSystemFont, sans-serif';
+        ctx.fillStyle = textColor;
+        ctx.textAlign = 'right';
+
+        for (var i = 0; i <= gridLines; i++) {
+          var y = padding.top + (chartHeight / gridLines) * i;
+          var val = maxVal - (maxVal / gridLines) * i;
+          ctx.beginPath();
+          ctx.moveTo(padding.left, y);
+          ctx.lineTo(canvasWidth - padding.right, y);
+          ctx.stroke();
+          ctx.fillText(formatCurrency(Math.round(val)), padding.left - 10, y + 4);
+        }
+
+        // X-axis labels
+        ctx.textAlign = 'center';
+        ctx.fillStyle = textColor;
+        var stepX = chartWidth / (labels.length - 1 || 1);
+
+        labels.forEach(function(label, idx) {
+          var x = padding.left + stepX * idx;
+          ctx.fillText(label, x, canvasHeight - padding.bottom + 25);
+        });
+
+        // Draw filled area
+        ctx.beginPath();
+        values.forEach(function(val, idx) {
+          var x = padding.left + stepX * idx;
+          var y = padding.top + chartHeight - (val / maxVal) * chartHeight;
+          if (idx === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+
+        // Close area path
+        var lastX = padding.left + stepX * (values.length - 1);
+        var firstX = padding.left;
+        ctx.lineTo(lastX, padding.top + chartHeight);
+        ctx.lineTo(firstX, padding.top + chartHeight);
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        ctx.fill();
+
+        // Draw line
+        ctx.beginPath();
+        values.forEach(function(val, idx) {
+          var x = padding.left + stepX * idx;
+          var y = padding.top + chartHeight - (val / maxVal) * chartHeight;
+          if (idx === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.strokeStyle = primaryColor;
+        ctx.lineWidth = 2.5;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        ctx.stroke();
+
+        // Draw data points
+        values.forEach(function(val, idx) {
+          var x = padding.left + stepX * idx;
+          var y = padding.top + chartHeight - (val / maxVal) * chartHeight;
+
+          ctx.beginPath();
+          ctx.arc(x, y, 5, 0, Math.PI * 2);
+          ctx.fillStyle = '#ffffff';
+          ctx.fill();
+          ctx.strokeStyle = primaryColor;
+          ctx.lineWidth = 2.5;
+          ctx.stroke();
+
+          // Value label above point
+          ctx.fillStyle = primaryColor;
+          ctx.font = 'bold 12px -apple-system, BlinkMacSystemFont, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(formatCurrency(val), x, y - 14);
+        });
+      }
+
+      function formatCurrency(val) {
+        if (val >= 100000) return (val / 100000).toFixed(1) + 'L';
+        if (val >= 1000) return (val / 1000).toFixed(1) + 'K';
+        return val.toString();
+      }
+
+      // Initial render
+      drawTrendChart('this-month');
+
+      // Redraw on resize
+      var resizeTimer;
+      window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function() {
+          drawTrendChart(currentPeriod);
+        }, 150);
+      });
+
+      // =========================================================================
+      // EXPORT TO GOOGLE SHEETS
+      // =========================================================================
+
+      var exportBtn = document.getElementById('export-sheets-btn');
+      if (exportBtn) {
+        exportBtn.addEventListener('click', async function() {
+          exportBtn.disabled = true;
+          exportBtn.textContent = 'Exporting...';
+
+          try {
+            // Check if google-sheets-service is available
+            if (typeof window.googleSheetsService !== 'undefined' && window.googleSheetsService.exportExpenses) {
+              await window.googleSheetsService.exportExpenses();
+            } else {
+              // Simulated export for demo
+              await new Promise(function(resolve) { setTimeout(resolve, 1500); });
+            }
+            exportBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><polyline points="20 6 9 17 4 12"/></svg> Exported!';
+            setTimeout(function() {
+              exportBtn.disabled = false;
+              exportBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> Export to Google Sheets';
+            }, 2000);
+          } catch (err) {
+            exportBtn.textContent = 'Export failed. Try again.';
+            exportBtn.disabled = false;
+          }
+        });
+      }
+
+    });
+  </script>
+</body>
+</html>
