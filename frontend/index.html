@@ -104,7 +104,6 @@
             }));
         };
     </script>
-</head>
 <body>
     <!-- PROFESSIONAL ADMIN-STYLE LAYOUT -->
     <div class="admin-layout">
@@ -114,50 +113,34 @@
                 <img src="fluxgen-logo.jpg" alt="FluxGen">
                 <h1>Expense Tracker</h1>
                 <small>Employee Dashboard</small>
-                <small id="orgName">Loading...</small>
+                <small id="orgName"></small>
             </div>
             <nav class="admin-sidebar__nav">
-                <button class="admin-nav-item active" data-section="overview">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="3" y="3" width="7" height="7"></rect>
-                        <rect x="14" y="3" width="7" height="7"></rect>
-                        <rect x="14" y="14" width="7" height="7"></rect>
-                        <rect x="3" y="14" width="7" height="7"></rect>
-                    </svg>
-                    <span>Overview</span>
-                </button>
-                <button class="admin-nav-item" data-section="expenses">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="1"/><path d="M12 8v8m0-8v8"/>
-                    </svg>
+                <button class="admin-nav-item active" data-section="expenses" onclick="switchSection('expenses', this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
                     <span>Expenses</span>
                 </button>
-                <button class="admin-nav-item" data-section="advance">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 2v20M2 12h20"/>
-                    </svg>
+                <button class="admin-nav-item" data-section="advance" onclick="switchSection('advance', this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>
                     <span>Advance</span>
                 </button>
-                <button class="admin-nav-item" data-section="reports">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"/><polyline points="13 2 13 9 20 9"/>
-                    </svg>
+                <button class="admin-nav-item" data-section="reports" onclick="switchSection('reports', this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
                     <span>Reports</span>
                 </button>
-                <button class="admin-nav-item" data-section="settings">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m2.98 2.98l4.24 4.24M1 12h6m6 0h6m-16.78 7.78l4.24-4.24m2.98-2.98l4.24-4.24"/>
-                    </svg>
+                <button class="admin-nav-item" data-section="settings" onclick="switchSection('settings', this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
                     <span>Settings</span>
                 </button>
             </nav>
             <div class="admin-sidebar__footer">
+                <span id="realtimeStatus" class="realtime-dot realtime-dot--disconnected" title="Realtime sync"></span>
                 <div class="admin-sidebar__user">
-                    <strong id="userName">User</strong>
-                    <span id="userEmail">Loading...</span>
+                    <strong id="sidebarUserName">User</strong>
+                    <span id="sidebarUserEmail"></span>
                 </div>
                 <div class="admin-sidebar__links">
-                    <button class="admin-sidebar__link admin-sidebar__link--danger" onclick="logout()" style="cursor: pointer;">Logout</button>
+                    <button class="admin-sidebar__link admin-sidebar__link--danger" onclick="logout()">Logout</button>
                 </div>
             </div>
         </aside>
@@ -165,382 +148,269 @@
         <!-- MAIN CONTENT -->
         <main class="admin-main">
 
-            <!-- OVERVIEW SECTION -->
-            <div class="admin-section active" id="section-overview">
-                <div class="admin-main__header">
-                    <div>
-                        <h2>Overview</h2>
-                        <p>Your expense summary and quick stats</p>
+            <!-- Hidden userInfo container for JS population -->
+            <div id="userInfo" style="display:none;"></div>
+
+            <!-- EXPENSES SECTION (default active) -->
+            <div class="admin-section active" id="section-expenses">
+            <!-- Bill OCR Section -->
+            <section id="ocrSection" class="ocr-section ocr-dropzone">
+                <!-- Drag overlay shown when dragging files over the card -->
+                <div class="ocr-drag-overlay" id="ocrDragOverlay">
+                    <div class="ocr-drag-overlay__content">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                        <div class="ocr-drag-overlay__text">Drop receipt images or PDFs here</div>
                     </div>
                 </div>
-                <div class="admin-stats-grid">
-                    <div class="admin-stat-card admin-stat-card--blue">
-                        <div class="admin-stat-card__value" id="statTotalExpenses">₹0.00</div>
-                        <div class="admin-stat-card__label">Total Expenses</div>
+
+                <h2>📷 Scan Your Bill</h2>
+                <p>Upload bill images to automatically extract expense details</p>
+
+                <div class="form-group">
+                    <div style="display: flex; gap: 10px;">
+                        <button type="button" id="cameraBtn" class="btn-secondary" style="flex: 1;">
+                            📷 Camera
+                        </button>
+                        <button type="button" id="galleryBtn" class="btn-secondary" style="flex: 1;">
+                            🖼️ Gallery
+                        </button>
                     </div>
-                    <div class="admin-stat-card admin-stat-card--green">
-                        <div class="admin-stat-card__value" id="statMonthlySpend">₹0.00</div>
-                        <div class="admin-stat-card__label">Monthly Spend</div>
-                    </div>
-                    <div class="admin-stat-card admin-stat-card--amber">
-                        <div class="admin-stat-card__value" id="statPendingApproval">0</div>
-                        <div class="admin-stat-card__label">Pending Approval</div>
+                    <!-- Hidden inputs for camera and gallery -->
+                    <input type="file" id="cameraInput" name="cameraInput" accept="image/*" capture="environment" style="display: none;" multiple>
+                    <input type="file" id="galleryInput" name="galleryInput" accept="image/*,.pdf,application/pdf" style="display: none;" multiple>
+                    <!-- Original hidden input for compatibility -->
+                    <input type="file" id="billImages" name="billImages" accept="image/*,.pdf,application/pdf" style="display: none;" multiple>
+                    <small style="text-align: center; display: block; margin-top: 8px;">Drag & drop anywhere on this card, use camera, or select from gallery</small>
+                </div>
+
+                <!-- Image preview / drag-drop hint -->
+                <div id="imagePreview" class="image-preview-container drag-drop-zone">
+                    <div id="dragDropHint" class="drag-drop-hint">
+                        <div class="drag-drop-text">Drag & Drop Receipt Images Here</div>
+                        <div class="drag-drop-subtext">or click to browse files</div>
                     </div>
                 </div>
-                <div style="text-align: center; padding: 40px; color: var(--gray-500);">
-                    Add your first expense to see statistics here.
-                </div>
-            </div>
 
-            <!-- EXPENSES SECTION -->
-            <div class="admin-section" id="section-expenses">
-                    <div class="admin-main__header">
-                        <div>
-                            <h2>Expenses</h2>
-                            <p>Manage and track your expense submissions</p>
+                <button type="button" id="scanBills" class="btn-primary" style="display: none;">
+                    <span id="scanText">🔍 Scan Bills</span>
+                    <span id="scanProgress" style="display: none;">Processing... <span id="progressText">0%</span></span>
+                </button>
+
+                <div style="text-align: center; margin-top: 15px;">
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 12px;">
+                        <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
+                        <span style="color: var(--text-secondary); font-size: 0.85rem;">OR</span>
+                        <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
+                    </div>
+                    <button type="button" id="skipToManualEntry" class="btn-secondary" style="width: 100%;">
+                        ✍️ Enter Expense Manually (Without Bill)
+                    </button>
+                    <small style="display: block; margin-top: 6px; color: var(--text-secondary);">
+                        Perfect for cash payments or when you don't have a receipt
+                    </small>
+                </div>
+
+                <!-- UPI Import Section (Hidden by default) -->
+                <div class="upi-import-section" id="upiImportSection" style="display: none;">
+                    <div class="upi-import-header">
+                        <div class="upi-import-title">
+                            <span style="font-size: 24px;">📱</span>
+                            <h3 style="margin: 0;">Import from UPI App</h3>
+                        </div>
+                        <button class="upi-close-btn" id="upiCloseBtn" title="Close">&times;</button>
+                    </div>
+                    <div class="upi-apps-grid">
+                        <button class="upi-app-btn" id="gpayBtn">
+                            <span class="upi-app-icon">💳</span>
+                            <span class="upi-app-name">Google Pay</span>
+                        </button>
+                        <button class="upi-app-btn" id="phonepeBtn">
+                            <span class="upi-app-icon">📱</span>
+                            <span class="upi-app-name">PhonePe</span>
+                        </button>
+                        <button class="upi-app-btn" id="paytmBtn">
+                            <span class="upi-app-icon">💰</span>
+                            <span class="upi-app-name">Paytm</span>
+                        </button>
+                    </div>
+                    <div class="upi-import-hint">
+                        <strong>How it works:</strong> Tap an app to open it, go to payment history, take a screenshot, then come back and scan it using the Camera/Gallery buttons above.
+                    </div>
+                </div>
+            </section>
+
+            <!-- Expense Entry Form -->
+            <section class="expense-form-section" id="expenseFormSection" style="display: none;">
+                <h2>✏️ Review & Edit Details</h2>
+                <p>Verify the extracted information and make corrections if needed</p>
+                <form id="expenseForm">
+                    <div class="form-group date-input-wrapper">
+                        <label for="date">Date:</label>
+                        <div style="position: relative;">
+                            <input type="date" id="date" name="date" placeholder="Click to select date" required>
+                            <svg class="custom-calendar-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
                         </div>
                     </div>
 
-                    <!-- Bill OCR Section -->
-                    <section id="ocrSection" class="ocr-section ocr-dropzone">
-                        <!-- Drag overlay shown when dragging files over the card -->
-                        <div class="ocr-drag-overlay" id="ocrDragOverlay">
-                            <div class="ocr-drag-overlay__content">
-                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                                    <polyline points="7 10 12 15 17 10"/>
-                                    <line x1="12" y1="15" x2="12" y2="3"/>
-                                </svg>
-                                <div class="ocr-drag-overlay__text">Drop receipt images or PDFs here</div>
-                            </div>
+                    <div class="form-group">
+                        <label for="mainCategory">Main Category:</label>
+                        <select id="mainCategory" name="mainCategory" class="category-select" required>
+                            <option value="">Select Main Category</option>
+                            <option value="Transportation">🚗 Transportation</option>
+                            <option value="Local Conveyance">🛺 Local Conveyance</option>
+                            <option value="Mileage">📏 Mileage</option>
+                            <option value="Accommodation">🏨 Accommodation</option>
+                            <option value="Meals">🍽️ Meals</option>
+                            <option value="Business Meal (Client)">🤝 Business Meal (Client)</option>
+                            <option value="Own Arrangement">🏠 Own Arrangement</option>
+                            <option value="Fuel">⛽ Fuel</option>
+                            <option value="Miscellaneous">📦 Miscellaneous</option>
+                            <option value="Others">✨ Others</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="subcategoryGroup" style="display: none;">
+                        <label for="subcategory">Subcategory:</label>
+                        <select id="subcategory" name="subcategory" class="category-select">
+                            <option value="">Select Subcategory</option>
+                        </select>
+                    </div>
+
+                    <!-- Custom text input for "Others" category -->
+                    <div class="form-group" id="customCategoryGroup" style="display: none;">
+                        <label for="customCategory">Specify Category:</label>
+                        <input type="text" id="customCategory" name="customCategory" class="category-select" placeholder="Enter custom category">
+                        <small>Enter a custom category description</small>
+                    </div>
+
+                    <!-- Hidden field to store combined category -->
+                    <input type="hidden" id="category" name="category">
+
+                    <div class="form-group">
+                        <label for="description">Description:</label>
+                        <input type="text" id="description" name="description" placeholder="Brief description of expense" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="amount">Amount (₹):</label>
+                        <input type="number" id="amount" name="amount" step="0.01" placeholder="0.00" required>
+                    </div>
+
+                    <!-- Company mode: searchable project dropdown -->
+                    <div class="form-group" id="projectDropdownContainer" style="display:none;">
+                        <label>Project:</label>
+                        <!-- Populated by project-dropdown.js -->
+                    </div>
+
+                    <!-- Personal mode: free-text vendor input -->
+                    <div class="form-group">
+                        <label for="vendor">Project Name:</label>
+                        <input type="text" id="vendor" name="vendor" placeholder="Enter project name">
+                    </div>
+
+                    <div class="form-group" id="expenseVisitTypeGroup">
+                        <label>Visit Type:</label>
+                        <div class="visit-type-toggle" id="expenseVisitType">
+                            <button type="button" class="visit-type-btn visit-type-btn--project active" data-type="project">Project</button>
+                            <button type="button" class="visit-type-btn visit-type-btn--service" data-type="service">Service</button>
+                            <button type="button" class="visit-type-btn visit-type-btn--survey" data-type="survey">Survey</button>
                         </div>
+                    </div>
 
-                        <h2>📷 Scan Your Bill</h2>
-                        <p>Upload bill images to automatically extract expense details</p>
-
-                        <div class="form-group">
-                            <div style="display: flex; gap: 10px;">
-                                <button type="button" id="cameraBtn" class="btn-secondary" style="flex: 1;">
-                                    📷 Camera
-                                </button>
-                                <button type="button" id="galleryBtn" class="btn-secondary" style="flex: 1;">
-                                    🖼️ Gallery
-                                </button>
-                            </div>
-                            <!-- Hidden inputs for camera and gallery -->
-                            <input type="file" id="cameraInput" name="cameraInput" accept="image/*" capture="environment" style="display: none;" multiple>
-                            <input type="file" id="galleryInput" name="galleryInput" accept="image/*,.pdf,application/pdf" style="display: none;" multiple>
-                            <!-- Original hidden input for compatibility -->
-                            <input type="file" id="billImages" name="billImages" accept="image/*,.pdf,application/pdf" style="display: none;" multiple>
-                            <small style="text-align: center; display: block; margin-top: 8px;">Drag & drop anywhere on this card, use camera, or select from gallery</small>
+                    <!-- Payment Mode Toggle -->
+                    <div class="form-group" id="paymentModeGroup">
+                        <label>Payment Mode:</label>
+                        <div class="visit-type-toggle" id="paymentModeToggle">
+                            <button type="button" class="visit-type-btn visit-type-btn--cash active" data-type="cash">Cash</button>
+                            <button type="button" class="visit-type-btn visit-type-btn--bank" data-type="bank_transfer">Bank Transfer</button>
+                            <button type="button" class="visit-type-btn visit-type-btn--upi" data-type="upi">UPI</button>
                         </div>
+                    </div>
 
-                        <!-- Image preview / drag-drop hint -->
-                        <div id="imagePreview" class="image-preview-container drag-drop-zone">
-                            <div id="dragDropHint" class="drag-drop-hint">
-                                <div class="drag-drop-text">Drag & Drop Receipt Images Here</div>
-                                <div class="drag-drop-subtext">or click to browse files</div>
-                            </div>
+                    <!-- Bill Attached Toggle (hidden — auto-detected from receipt upload) -->
+                    <div class="form-group" id="billAttachedGroup" style="display:none;">
+                        <label>Bill Attached:</label>
+                        <div class="visit-type-toggle" id="billAttachedToggle">
+                            <button type="button" class="visit-type-btn visit-type-btn--bill-yes active" data-type="yes">Yes</button>
+                            <button type="button" class="visit-type-btn visit-type-btn--bill-no" data-type="no">No</button>
                         </div>
+                    </div>
 
-                        <button type="button" id="scanBills" class="btn-primary" style="display: none;">
-                            <span id="scanText">🔍 Scan Bills</span>
-                            <span id="scanProgress" style="display: none;">Processing... <span id="progressText">0%</span></span>
+                    <div class="form-group">
+                        <label for="receipt">Receipt/Bill Image (Optional):</label>
+                        <input type="file" id="receipt" name="receipt" accept="image/*,.pdf,application/pdf" multiple>
+                        <small>You can attach receipt images later or leave empty for manual entries</small>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" id="backToScan" class="btn-secondary">← Back to Scan</button>
+                        <button type="submit" class="btn-primary">✅ Confirm & Add Expense</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Expenses List -->
+            <section class="expenses-list-section">
+                <div class="section-header">
+                    <h2>Your Expenses</h2>
+                    <div class="action-buttons">
+                        <button id="exportToGoogleSheets" class="btn-primary">
+                            <span class="btn-icon">☁️</span>
+                            <span class="btn-text">Google Export</span>
+                        </button>
+                        <button id="viewGoogleSheet" class="btn-secondary" style="display: none;">
+                            <span class="btn-icon">🔗</span>
+                            <span class="btn-text">View Sheet</span>
+                        </button>
+                        <button id="viewSavedImages" class="btn-secondary btn-view-images-premium">
+                            <span class="btn-icon">🖼️</span>
+                            <span class="btn-text">View Images</span>
+                        </button>
+                        <!-- Premium Clear Data Modal -->
+                        <button class="btn-danger btn-clear-data-premium" id="clearDataBtn">
+                            <span class="btn-icon">🗑️</span>
+                            <span class="btn-text">Clear Data</span>
                         </button>
 
-                        <div style="text-align: center; margin-top: 15px;">
-                            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 12px;">
-                                <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
-                                <span style="color: var(--text-secondary); font-size: 0.85rem;">OR</span>
-                                <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
-                            </div>
-                            <button type="button" id="skipToManualEntry" class="btn-secondary" style="width: 100%;">
-                                ✍️ Enter Expense Manually (Without Bill)
-                            </button>
-                            <small style="display: block; margin-top: 6px; color: var(--text-secondary);">
-                                Perfect for cash payments or when you don't have a receipt
-                            </small>
-                        </div>
-
-                        <!-- UPI Import Section (Hidden by default) -->
-                        <div class="upi-import-section" id="upiImportSection" style="display: none;">
-                            <div class="upi-import-header">
-                                <div class="upi-import-title">
-                                    <span style="font-size: 24px;">📱</span>
-                                    <h3 style="margin: 0;">Import from UPI App</h3>
-                                </div>
-                                <button class="upi-close-btn" id="upiCloseBtn" title="Close">&times;</button>
-                            </div>
-                            <div class="upi-apps-grid">
-                                <button class="upi-app-btn" id="gpayBtn">
-                                    <span class="upi-app-icon">💳</span>
-                                    <span class="upi-app-name">Google Pay</span>
-                                </button>
-                                <button class="upi-app-btn" id="phonepeBtn">
-                                    <span class="upi-app-icon">📱</span>
-                                    <span class="upi-app-name">PhonePe</span>
-                                </button>
-                                <button class="upi-app-btn" id="paytmBtn">
-                                    <span class="upi-app-icon">💰</span>
-                                    <span class="upi-app-name">Paytm</span>
-                                </button>
-                            </div>
-                            <div class="upi-import-hint">
-                                <strong>How it works:</strong> Tap an app to open it, go to payment history, take a screenshot, then come back and scan it using the Camera/Gallery buttons above.
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- Expense Entry Form -->
-                    <section class="expense-form-section" id="expenseFormSection" style="display: none;">
-                        <h2>✏️ Review & Edit Details</h2>
-                        <p>Verify the extracted information and make corrections if needed</p>
-                        <form id="expenseForm">
-                            <div class="form-group date-input-wrapper">
-                                <label for="date">Date:</label>
-                                <div style="position: relative;">
-                                    <input type="date" id="date" name="date" placeholder="Click to select date" required>
-                                    <svg class="custom-calendar-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                        <line x1="16" y1="2" x2="16" y2="6"></line>
-                                        <line x1="8" y1="2" x2="8" y2="6"></line>
-                                        <line x1="3" y1="10" x2="21" y2="10"></line>
-                                    </svg>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="mainCategory">Main Category:</label>
-                                <select id="mainCategory" name="mainCategory" class="category-select" required>
-                                    <option value="">Select Main Category</option>
-                                    <option value="Transportation">🚗 Transportation</option>
-                                    <option value="Local Conveyance">🛺 Local Conveyance</option>
-                                    <option value="Mileage">📏 Mileage</option>
-                                    <option value="Accommodation">🏨 Accommodation</option>
-                                    <option value="Meals">🍽️ Meals</option>
-                                    <option value="Business Meal (Client)">🤝 Business Meal (Client)</option>
-                                    <option value="Own Arrangement">🏠 Own Arrangement</option>
-                                    <option value="Fuel">⛽ Fuel</option>
-                                    <option value="Miscellaneous">📦 Miscellaneous</option>
-                                    <option value="Others">✨ Others</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group" id="subcategoryGroup" style="display: none;">
-                                <label for="subcategory">Subcategory:</label>
-                                <select id="subcategory" name="subcategory" class="category-select">
-                                    <option value="">Select Subcategory</option>
-                                </select>
-                            </div>
-
-                            <!-- Custom text input for "Others" category -->
-                            <div class="form-group" id="customCategoryGroup" style="display: none;">
-                                <label for="customCategory">Specify Category:</label>
-                                <input type="text" id="customCategory" name="customCategory" class="category-select" placeholder="Enter custom category">
-                                <small>Enter a custom category description</small>
-                            </div>
-
-                            <!-- Hidden field to store combined category -->
-                            <input type="hidden" id="category" name="category">
-
-                            <div class="form-group">
-                                <label for="description">Description:</label>
-                                <input type="text" id="description" name="description" placeholder="Brief description of expense" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="amount">Amount (₹):</label>
-                                <input type="number" id="amount" name="amount" step="0.01" placeholder="0.00" required>
-                            </div>
-
-                            <!-- Company mode: searchable project dropdown -->
-                            <div class="form-group" id="projectDropdownContainer" style="display:none;">
-                                <label>Project:</label>
-                                <!-- Populated by project-dropdown.js -->
-                            </div>
-
-                            <!-- Personal mode: free-text vendor input -->
-                            <div class="form-group">
-                                <label for="vendor">Project Name:</label>
-                                <input type="text" id="vendor" name="vendor" placeholder="Enter project name">
-                            </div>
-
-                            <div class="form-group" id="expenseVisitTypeGroup">
-                                <label>Visit Type:</label>
-                                <div class="visit-type-toggle" id="expenseVisitType">
-                                    <button type="button" class="visit-type-btn visit-type-btn--project active" data-type="project">Project</button>
-                                    <button type="button" class="visit-type-btn visit-type-btn--service" data-type="service">Service</button>
-                                    <button type="button" class="visit-type-btn visit-type-btn--survey" data-type="survey">Survey</button>
-                                </div>
-                            </div>
-
-                            <!-- Payment Mode Toggle -->
-                            <div class="form-group" id="paymentModeGroup">
-                                <label>Payment Mode:</label>
-                                <div class="visit-type-toggle" id="paymentModeToggle">
-                                    <button type="button" class="visit-type-btn visit-type-btn--cash active" data-type="cash">Cash</button>
-                                    <button type="button" class="visit-type-btn visit-type-btn--bank" data-type="bank_transfer">Bank Transfer</button>
-                                    <button type="button" class="visit-type-btn visit-type-btn--upi" data-type="upi">UPI</button>
-                                </div>
-                            </div>
-
-                            <!-- Bill Attached Toggle (hidden — auto-detected from receipt upload) -->
-                            <div class="form-group" id="billAttachedGroup" style="display:none;">
-                                <label>Bill Attached:</label>
-                                <div class="visit-type-toggle" id="billAttachedToggle">
-                                    <button type="button" class="visit-type-btn visit-type-btn--bill-yes active" data-type="yes">Yes</button>
-                                    <button type="button" class="visit-type-btn visit-type-btn--bill-no" data-type="no">No</button>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="receipt">Receipt/Bill Image (Optional):</label>
-                                <input type="file" id="receipt" name="receipt" accept="image/*,.pdf,application/pdf" multiple>
-                                <small>You can attach receipt images later or leave empty for manual entries</small>
-                            </div>
-
-                            <div class="form-actions">
-                                <button type="button" id="backToScan" class="btn-secondary">← Back to Scan</button>
-                                <button type="submit" class="btn-primary">✅ Confirm & Add Expense</button>
-                            </div>
-                        </form>
-                    </section>
-
-                    <!-- Expenses List -->
-                    <section class="expenses-list-section">
-                        <div class="section-header">
-                            <h2>Your Expenses</h2>
-                            <div class="action-buttons">
-                                <button id="exportToGoogleSheets" class="btn-primary">
-                                    <span class="btn-icon">☁️</span>
-                                    <span class="btn-text">Google Export</span>
-                                </button>
-                                <button id="viewGoogleSheet" class="btn-secondary" style="display: none;">
-                                    <span class="btn-icon">🔗</span>
-                                    <span class="btn-text">View Sheet</span>
-                                </button>
-                                <button id="viewSavedImages" class="btn-secondary btn-view-images-premium">
-                                    <span class="btn-icon">🖼️</span>
-                                    <span class="btn-text">View Images</span>
-                                </button>
-                                <!-- Premium Clear Data Modal -->
-                                <button class="btn-danger btn-clear-data-premium" id="clearDataBtn">
-                                    <span class="btn-icon">🗑️</span>
-                                    <span class="btn-text">Clear Data</span>
-                                </button>
-
-                                <button id="downloadReimbursementPackage" class="btn-highlight">
-                                    <span class="btn-highlight__icon-wrap">
-                                        <svg class="btn-highlight__svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <line x1="22" y1="2" x2="11" y2="13"/>
-                                            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-                                        </svg>
-                                    </span>
-                                    <span class="btn-highlight__content">
-                                        <span class="btn-highlight__label">Submit</span>
-                                        <span class="btn-highlight__sub">Reimbursement Package</span>
-                                    </span>
-                                    <span class="btn-highlight__arrow">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                            <polyline points="9 18 15 12 9 6"/>
-                                        </svg>
-                                    </span>
-                                </button>
-                                <!-- Submit for Approval is now integrated into the Submit Wizard -->
-                                <button id="resetGoogleSheet" class="btn-reset">
-                                    <span class="btn-icon">🔄</span>
-                                    <span class="btn-text">Reset Sheet</span>
-                                </button>
-                                <button id="pdfLibraryBtn" class="btn-pdf-library" onclick="pdfLibrary.openLibrary()" title="PDF Library">
-                                    <span class="btn-icon">📄</span>
-                                    <span class="btn-text">PDF Library</span>
-                                </button>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- Full-width Expense List Section (below the 2-column grid) -->
-                    <section class="expenses-fullwidth-section">
-                        <div class="select-all-container" id="selectAllContainer" style="display: none;">
-                            <label class="select-all-label">
-                                <input type="checkbox" id="selectAllCheckbox" class="select-all-checkbox">
-                                <span class="select-all-text">Select All</span>
-                            </label>
-                        </div>
-
-                        <!-- Search and Filter -->
-                        <div class="search-filter-container hidden" id="searchFilterContainer">
-                            <div class="search-bar" id="searchBarWrapper">
-                                <svg class="search-icon clean" width="20" height="20" viewBox="0 0 24 24" fill="none">
-                                    <path d="M21 21l-5.2-5.2m0 0A7.5 7.5 0 105.8 15.8l5.2 5.2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <button id="downloadReimbursementPackage" class="btn-highlight">
+                            <span class="btn-highlight__icon-wrap">
+                                <svg class="btn-highlight__svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="22" y1="2" x2="11" y2="13"/>
+                                    <polygon points="22 2 15 22 11 13 2 9 22 2"/>
                                 </svg>
-                                <input type="text" id="searchInput" class="search-input clean" placeholder="Search by project, description, or category..." aria-label="Search">
-                                <button id="clearSearch" class="clear-search-btn" style="display: none;">✕</button>
-                                <button id="expandFiltersBtn" class="expand-filters-btn" aria-label="Expand filters">
-                                    <span class="expand-icon">▼</span>
-                                </button>
-                            </div>
-                            <div class="filters-wrapper collapsed" id="filtersWrapper">
-                                <div class="filter-row">
-                                    <select id="projectFilter" class="filter-select">
-                                        <option value="">All Projects</option>
-                                    </select>
-                                    <select id="categoryFilter" class="filter-select">
-                                        <option value="">All Categories</option>
-                                    </select>
-                                    <select id="visitTypeFilter" class="filter-select">
-                                        <option value="">All Types</option>
-                                        <option value="project">Project</option>
-                                        <option value="service">Service</option>
-                                        <option value="survey">Survey</option>
-                                    </select>
-                                    <div class="date-input-wrapper">
-                                        <label for="dateFromFilter" class="date-label">From Date</label>
-                                        <input type="date" id="dateFromFilter" class="filter-date">
-                                    </div>
-                                    <div class="date-input-wrapper">
-                                        <label for="dateToFilter" class="date-label">To Date</label>
-                                        <input type="date" id="dateToFilter" class="filter-date">
-                                    </div>
-                                    <button id="resetFilters" class="reset-filters-btn">Reset Filters</button>
-                                </div>
-                            </div>
-                            <div id="searchResults" class="search-results-info" style="display: none;"></div>
-                        </div>
-
-                        <div id="expensesList" class="expenses-container">
-                            <!-- Expenses will be displayed here -->
-                        </div>
-
-                        <!-- Pagination -->
-                        <div class="pagination-container" id="paginationContainer" style="display: none;">
-                            <div class="pagination-info">
-                                <span id="paginationInfo">Showing 1-10 of 100 expenses</span>
-                            </div>
-                            <div class="pagination-controls">
-                                <button id="prevPage" class="pagination-btn" disabled>
-                                    <span class="btn-text-full">← Previous</span>
-                                    <span class="btn-text-short">←</span>
-                                </button>
-                                <select id="pageSize" class="page-size-select">
-                                    <option value="10">10 per page</option>
-                                    <option value="25" selected>25 per page</option>
-                                    <option value="50">50 per page</option>
-                                    <option value="100">100 per page</option>
-                                    <option value="all">Show All</option>
-                                </select>
-                                <button id="nextPage" class="pagination-btn">
-                                    <span class="btn-text-full">Next →</span>
-                                    <span class="btn-text-short">→</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div id="totalAmount" class="total-section">
-                            <strong>Total Amount: ₹0.00</strong>
-                        </div>
-                    </section>
+                            </span>
+                            <span class="btn-highlight__content">
+                                <span class="btn-highlight__label">Submit</span>
+                                <span class="btn-highlight__sub">Reimbursement Package</span>
+                            </span>
+                            <span class="btn-highlight__arrow">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="9 18 15 12 9 6"/>
+                                </svg>
+                            </span>
+                        </button>
+                        <!-- Submit for Approval is now integrated into the Submit Wizard -->
+                        <button id="resetGoogleSheet" class="btn-reset">
+                            <span class="btn-icon">🔄</span>
+                            <span class="btn-text">Reset Sheet</span>
+                        </button>
+                        <button id="pdfLibraryBtn" class="btn-pdf-library" onclick="pdfLibrary.openLibrary()" title="PDF Library">
+                            <span class="btn-icon">📄</span>
+                            <span class="btn-text">PDF Library</span>
+                        </button>
+                    </div>
                 </div>
+            </section>
+            </div><!-- /section-expenses -->
 
             <!-- ADVANCE SECTION -->
             <div class="admin-section" id="section-advance">
@@ -549,12 +419,20 @@
                         <h2>Advance Tracker</h2>
                         <p>Manage your advance requests and track status</p>
                     </div>
-                    <button class="admin-sidebar__link" id="openAdvanceModal" style="margin: 0;">New Advance</button>
                 </div>
-                <div class="advance-cards-container" id="advanceCardsContainer">
-                    <!-- Advance cards rendered by JS -->
-                </div>
+        <section class="advance-summary-section" id="advanceSummarySection" style="display: none;">
+            <div class="advance-summary-header">
+                <h3>Advance Tracker</h3>
+                <button class="btn-advance-add" id="openAdvanceModal" title="Add New Advance">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    New Advance
+                </button>
             </div>
+            <div class="advance-cards-container" id="advanceCardsContainer">
+                <!-- Advance cards rendered by JS -->
+            </div>
+        </section>
+            </div><!-- /section-advance -->
 
             <!-- REPORTS SECTION -->
             <div class="admin-section" id="section-reports">
@@ -567,7 +445,7 @@
                 <div style="text-align: center; padding: 40px; color: var(--gray-500);">
                     Advanced reporting features coming soon.
                 </div>
-            </div>
+            </div><!-- /section-reports -->
 
             <!-- SETTINGS SECTION -->
             <div class="admin-section" id="section-settings">
@@ -580,199 +458,1035 @@
                 <div style="text-align: center; padding: 40px; color: var(--gray-500);">
                     Settings features coming soon.
                 </div>
-            </div>
+            </div><!-- /section-settings -->
 
         </main><!-- .admin-main -->
     </div><!-- .admin-layout -->
 
-    <!-- ALL MODALS AT BODY LEVEL (MOVED HERE FROM INSIDE CONTAINER) -->
+    <!-- FAB BUTTON -->
+    <button id="quickAddFAB" class="quick-add-fab" onclick="expenseTracker.openQuickAdd()" aria-label="Quick Add Expense" title="Quick Add (or shake phone)">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </button>
 
-    <!-- Global Progress Modal -->
-    <div id="global-progress-modal" class="progress-modal-overlay" style="display: none;">
-        <div class="progress-modal-card">
-            <div class="progress-spinner"></div>
-            <h2 id="progress-title" class="progress-title">Processing...</h2>
-            <p class="progress-message">Please wait</p>
-            <div class="progress-bar-container" style="height: 4px; background: var(--gray-200); border-radius: 2px; margin: 12px 0; overflow: hidden;">
-                <div class="progress-bar-fill" style="height: 100%; background: var(--accent); width: 0%; transition: width 0.3s ease;"></div>
-            </div>
-            <div class="progress-percent" style="text-align: center; font-size: 0.85rem; color: var(--gray-500);">0%</div>
-        </div>
-    </div>
-
-    <!-- Clear Data Modal (Stage 1) -->
-    <div class="clear-data-modal" id="clearDataModal" style="display: none;">
-        <div class="clear-data-backdrop"></div>
-        <div class="clear-data-container">
-            <div class="clear-data-header">
-                <div class="clear-data-header-content">
-                    <div class="clear-data-icon-wrapper">
-                        <svg class="clear-data-header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <h2 class="clear-data-title">Clear Data Options</h2>
-                        <p class="clear-data-subtitle">Choose what you want to remove</p>
-                    </div>
-                </div>
-                <button class="clear-data-close" id="closeClearModal">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M18 6L6 18M6 6l12 12"/>
-                    </svg>
-                </button>
-            </div>
-            <div class="clear-data-options">
-                <div class="clear-data-option-card clear-data-card-images" id="clearImagesCard">
-                    <div class="clear-data-card__icon">🖼️</div>
-                    <div class="clear-data-card__content">
-                        <div class="clear-data-card__title">Clear Images Only</div>
-                        <div class="clear-data-card__desc">Remove all saved receipt images. Your expense records will remain.</div>
-                    </div>
-                </div>
-                <div class="clear-data-option-card clear-data-card-selected" id="clearSelectedCard">
-                    <div class="clear-data-card__icon">📋</div>
-                    <div class="clear-data-card__content">
-                        <div class="clear-data-card__title">Clear Selected</div>
-                        <div class="clear-data-card__desc">Choose individual expenses to remove.</div>
-                    </div>
-                </div>
-                <div class="clear-data-option-card clear-data-card-all" id="clearAllCard">
-                    <div class="clear-data-card__icon">🗑️</div>
-                    <div class="clear-data-card__content">
-                        <div class="clear-data-card__title">Clear All Data</div>
-                        <div class="clear-data-card__desc">Permanently delete all expenses and images. Cannot be undone.</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Clear Data Confirmation Modal (Stage 2) -->
-    <div id="clearDataConfirmModal" class="clear-data-confirm-modal" style="display: none;" role="alertdialog" aria-modal="true" aria-labelledby="confirmClearTitle" aria-describedby="confirmClearWarning">
-        <div class="clear-data-confirm-backdrop"></div>
-        <div class="clear-data-confirm-container">
-            <div class="clear-data-confirm-header">
-                <div class="clear-data-confirm-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="12" y1="8" x2="12" y2="12"></line>
-                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                    </svg>
-                </div>
-                <h2 id="confirmClearTitle" class="clear-data-confirm-title">Confirm Deletion</h2>
-                <button class="clear-data-confirm-close" id="closeConfirmClearModal" aria-label="Close confirmation">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M18 6L6 18M6 6l12 12"/>
-                    </svg>
-                </button>
-            </div>
-            <div class="clear-data-confirm-body">
-                <p id="confirmClearWarning"></p>
-                <div id="selectedExpensesList" style="display: none;"></div>
-                <div class="clear-data-confirm-type-section" id="confirmTypeSection" style="display: none;">
-                    <label class="clear-data-confirm-label" style="margin-top: 16px;">
-                        <input type="checkbox" id="confirmClearType" style="width: 18px; height: 18px; cursor: pointer;">
-                        <span style="color: var(--text-secondary); font-size: 0.9rem;">I understand this action cannot be undone</span>
+        <section class="expenses-fullwidth-section">
+                <div class="select-all-container" id="selectAllContainer" style="display: none;">
+                    <label class="select-all-label">
+                        <input type="checkbox" id="selectAllCheckbox" class="select-all-checkbox">
+                        <span class="select-all-text">Select All</span>
                     </label>
                 </div>
-            </div>
-            <div class="clear-data-confirm-footer">
-                <button id="cancelClearDataConfirm" class="btn-secondary">Cancel</button>
-                <button id="confirmClearDataDelete" class="btn-danger" disabled>Delete Permanently</button>
-            </div>
-        </div>
-    </div>
 
-    <!-- Orphaned Images Modal (Saved Images View) -->
-    <div id="orphanedImagesModal" class="saved-images-modal" style="display: none;">
-        <div class="saved-images-backdrop"></div>
-        <div class="saved-images-container">
-            <div class="saved-images-header">
-                <h2 id="savedImagesTitle">Saved Bill Images</h2>
-                <button id="closeSavedImages" class="saved-images-close">&times;</button>
-            </div>
-            <div id="savedImagesList" class="saved-images-list">
-                <!-- Images will be displayed here -->
-            </div>
-        </div>
-    </div>
+                <!-- Search and Filter -->
+                <div class="search-filter-container hidden" id="searchFilterContainer">
+                    <div class="search-bar" id="searchBarWrapper">
+                        <svg class="search-icon clean" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M21 21l-5.2-5.2m0 0A7.5 7.5 0 105.8 15.8l5.2 5.2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <input type="text" id="searchInput" class="search-input clean" placeholder="Search by project, description, or category..." aria-label="Search">
+                        <button id="clearSearch" class="clear-search-btn" style="display: none;">✕</button>
+                        <button id="expandFiltersBtn" class="expand-filters-btn" aria-label="Expand filters">
+                            <span class="expand-icon">▼</span>
+                        </button>
+                    </div>
+                    <div class="filters-wrapper collapsed" id="filtersWrapper">
+                        <div class="filter-row">
+                            <select id="projectFilter" class="filter-select">
+                                <option value="">All Projects</option>
+                            </select>
+                            <select id="categoryFilter" class="filter-select">
+                                <option value="">All Categories</option>
+                            </select>
+                            <select id="visitTypeFilter" class="filter-select">
+                                <option value="">All Types</option>
+                                <option value="project">Project</option>
+                                <option value="service">Service</option>
+                                <option value="survey">Survey</option>
+                            </select>
+                            <div class="date-input-wrapper">
+                                <label for="dateFromFilter" class="date-label">From Date</label>
+                                <input type="date" id="dateFromFilter" class="filter-date">
+                            </div>
+                            <div class="date-input-wrapper">
+                                <label for="dateToFilter" class="date-label">To Date</label>
+                                <input type="date" id="dateToFilter" class="filter-date">
+                            </div>
+                            <button id="resetFilters" class="reset-filters-btn">Reset Filters</button>
+                        </div>
+                    </div>
+                    <div id="searchResults" class="search-results-info" style="display: none;"></div>
+                </div>
 
-    <!-- Image Viewer Modal -->
-    <div id="imageViewerModal" class="img-viewer image-viewer-modal" style="display: none;">
-        <button class="img-viewer-close" id="closeImageViewer">&times;</button>
-        <div class="img-viewer-content">
-            <img id="imageViewerImg" alt="Receipt image viewer" style="max-width: 100%; max-height: 90vh; object-fit: contain;">
-            <div id="pdfViewerContainer" style="display:none;width:100%;height:90vh;background:#f5f5f5;"></div>
-        </div>
-        <div class="img-viewer-actions">
-            <button id="imgViewerDelete" class="btn-danger btn-sm">Delete</button>
-            <button id="imgViewerDownload" class="btn-primary btn-sm">Download</button>
-        </div>
-    </div>
+                <div id="expensesList" class="expenses-container">
+                    <!-- Expenses will be displayed here -->
+                </div>
 
-    <!-- Employee Info Modal (Kodo) -->
-    <div id="employeeInfoModal" class="kodo-modal-overlay" style="display: none;">
-        <div class="kodo-modal">
-            <button class="kodo-modal-close" id="closeEmployeeModal">&times;</button>
-            <div class="kodo-modal-content">
-                <h2 style="margin-top: 0;">Manage Employee Information</h2>
-                <p>Sync your employee information from Kodo or other sources.</p>
-                <div style="margin-top: 20px; padding: 20px; background: rgba(139,92,246,0.08); border-radius: 8px;">
-                    <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">Feature coming soon. Stay tuned!</p>
+                <!-- Pagination -->
+                <div class="pagination-container" id="paginationContainer" style="display: none;">
+                    <div class="pagination-info">
+                        <span id="paginationInfo">Showing 1-10 of 100 expenses</span>
+                    </div>
+                    <div class="pagination-controls">
+                        <button id="prevPage" class="pagination-btn" disabled>
+                            <span class="btn-text-full">← Previous</span>
+                            <span class="btn-text-short">←</span>
+                        </button>
+                        <select id="pageSize" class="page-size-select">
+                            <option value="10">10 per page</option>
+                            <option value="25" selected>25 per page</option>
+                            <option value="50">50 per page</option>
+                            <option value="100">100 per page</option>
+                            <option value="all">Show All</option>
+                        </select>
+                        <button id="nextPage" class="pagination-btn">
+                            <span class="btn-text-full">Next →</span>
+                            <span class="btn-text-short">→</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="totalAmount" class="total-section">
+                    <strong>Total Amount: ₹0.00</strong>
+                </div>
+        </section>
+
+
+        <!-- Clear Data Modal (Stage 1) -->
+        <div class="clear-data-modal" id="clearDataModal" style="display: none;">
+            <div class="clear-data-backdrop"></div>
+            <div class="clear-data-container">
+                <div class="clear-data-header">
+                    <div class="clear-data-header-content">
+                        <div class="clear-data-icon-wrapper">
+                            <svg class="clear-data-header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h2 class="clear-data-title">Clear Data Options</h2>
+                            <p class="clear-data-subtitle">Choose what you want to remove</p>
+                        </div>
+                    </div>
+                    <button class="clear-data-close" id="closeClearModal">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 6L6 18M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="clear-data-stats" id="clearDataStats">
+                    <!-- Stats will be populated by JavaScript -->
+                </div>
+
+                <!-- Saved Images Preview (hidden until JS populates) -->
+                <div class="clear-data-images-preview hidden" id="clearDataImagesPreview">
+                    <!-- Saved images will be populated by JavaScript -->
+                </div>
+
+                <div class="clear-data-cards">
+                    <!-- Safe Option -->
+                    <div class="clear-data-card clear-data-card--safe" id="clearDataOnlyCard" tabindex="0" role="button">
+                        <div class="clear-data-card__header">
+                            <div class="clear-data-card__icon clear-data-card__icon--safe">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                                    <path d="M14 2v6h6M9 15h6"/>
+                                </svg>
+                            </div>
+                            <div class="clear-data-badge clear-data-badge--safe">Safe</div>
+                        </div>
+                        <h3 class="clear-data-card__title">Clear Data Only</h3>
+                        <p class="clear-data-card__description">Remove expense records but keep bill images saved for 30 days</p>
+                        <div class="clear-data-card__items">
+                            <div class="clear-data-card__item">
+                                <svg class="clear-data-card__item-icon clear-data-card__item-icon--delete" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 6L9 17l-5-5"/>
+                                </svg>
+                                <span>Deletes expense records</span>
+                            </div>
+                            <div class="clear-data-card__item">
+                                <svg class="clear-data-card__item-icon clear-data-card__item-icon--keep" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M9 12l2 2 4-4"/>
+                                    <circle cx="12" cy="12" r="10"/>
+                                </svg>
+                                <span>Keeps all bill images</span>
+                            </div>
+                        </div>
+                        <button class="clear-data-card__button clear-data-card__button--safe">
+                            <span>Clear Data</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Warning Option -->
+                    <div class="clear-data-card clear-data-card--caution" id="clearImagesOnlyCard" tabindex="0" role="button">
+                        <div class="clear-data-card__header">
+                            <div class="clear-data-card__icon clear-data-card__icon--caution">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <path d="M21 15l-5-5L5 21"/>
+                                </svg>
+                            </div>
+                            <div class="clear-data-badge clear-data-badge--caution">Caution</div>
+                        </div>
+                        <h3 class="clear-data-card__title">Clear Saved Images</h3>
+                        <p class="clear-data-card__description">Delete saved bill photos to free up storage space</p>
+                        <div class="clear-data-card__items">
+                            <div class="clear-data-card__item">
+                                <svg class="clear-data-card__item-icon clear-data-card__item-icon--delete" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 6L9 17l-5-5"/>
+                                </svg>
+                                <span>Deletes saved images</span>
+                            </div>
+                            <div class="clear-data-card__item">
+                                <svg class="clear-data-card__item-icon clear-data-card__item-icon--keep" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M9 12l2 2 4-4"/>
+                                    <circle cx="12" cy="12" r="10"/>
+                                </svg>
+                                <span>Keeps expense data</span>
+                            </div>
+                        </div>
+                        <button class="clear-data-card__button clear-data-card__button--caution">
+                            <span>Clear Images</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Danger Option -->
+                    <div class="clear-data-card clear-data-card--danger" id="clearEverythingCard" tabindex="0" role="button">
+                        <div class="clear-data-card__header">
+                            <div class="clear-data-card__icon clear-data-card__icon--danger">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                                    <path d="M10 11v6M14 11v6"/>
+                                </svg>
+                            </div>
+                            <div class="clear-data-badge clear-data-badge--danger">Danger</div>
+                        </div>
+                        <h3 class="clear-data-card__title">Clear Everything</h3>
+                        <p class="clear-data-card__description">Permanently delete all expenses and images. This cannot be undone</p>
+                        <div class="clear-data-card__items">
+                            <div class="clear-data-card__item">
+                                <svg class="clear-data-card__item-icon clear-data-card__item-icon--delete" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 6L9 17l-5-5"/>
+                                </svg>
+                                <span>Deletes all expense records</span>
+                            </div>
+                            <div class="clear-data-card__item">
+                                <svg class="clear-data-card__item-icon clear-data-card__item-icon--delete" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 6L9 17l-5-5"/>
+                                </svg>
+                                <span>Deletes all bill images</span>
+                            </div>
+                        </div>
+                        <button class="clear-data-card__button clear-data-card__button--danger">
+                            <span>Clear Everything</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="clear-data-footer">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 16v-4M12 8h.01"/>
+                    </svg>
+                    <span>All actions require confirmation. No data is deleted immediately.</span>
                 </div>
             </div>
         </div>
+
+        <!-- Clear Data Confirmation Modal (Stage 2) -->
+        <div id="clearDataConfirmModal" class="clear-data-confirm-modal" style="display: none;" role="alertdialog" aria-modal="true" aria-labelledby="confirmClearTitle" aria-describedby="confirmClearWarning">
+            <div class="clear-data-confirm-backdrop"></div>
+            <div class="clear-data-confirm-container">
+                <div class="clear-data-confirm-header">
+                    <div class="clear-data-confirm-header-content">
+                        <div class="clear-data-confirm-icon-wrapper">
+                            <svg class="clear-data-confirm-header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h2 id="confirmClearTitle" class="clear-data-confirm-title">Clear All Data</h2>
+                            <p class="clear-data-confirm-subtitle">This action cannot be undone</p>
+                        </div>
+                    </div>
+                    <button class="clear-data-confirm-close" id="closeConfirmClearModal" aria-label="Close confirmation">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 6L6 18M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="clear-data-confirm-warning" id="confirmClearWarning">
+                    <div class="clear-data-confirm-warning-card">
+                        <div class="clear-data-confirm-warning-header">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                                <line x1="12" y1="9" x2="12" y2="13"/>
+                                <line x1="12" y1="17" x2="12.01" y2="17"/>
+                            </svg>
+                            <span>You are about to permanently delete:</span>
+                        </div>
+                        <div class="clear-data-confirm-items" id="confirmClearItems">
+                            <!-- Items populated by JS based on action type -->
+                        </div>
+                        <p class="clear-data-confirm-warning-footer">This data cannot be recovered after deletion.</p>
+                    </div>
+                </div>
+
+                <div class="clear-data-confirm-body">
+                    <label class="clear-data-confirm-checkbox-label" id="confirmCheckboxLabel">
+                        <input type="checkbox" class="clear-data-confirm-checkbox-input" id="confirmClearCheckbox" aria-required="true">
+                        <span class="clear-data-confirm-checkbox-visual">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <path d="M20 6L9 17l-5-5"/>
+                            </svg>
+                        </span>
+                        <span class="clear-data-confirm-checkbox-text">I understand this will permanently delete all my data</span>
+                    </label>
+
+                    <div class="clear-data-confirm-type-section" id="confirmTypeSection" style="display: none;">
+                        <label for="confirmTypeInput" class="clear-data-confirm-type-label">Type DELETE to confirm:</label>
+                        <input type="text" id="confirmTypeInput" class="clear-data-confirm-type-input" autocomplete="off" spellcheck="false" placeholder="DELETE" aria-describedby="confirmTypeHint">
+                        <span id="confirmTypeHint" class="clear-data-sr-only">Type the word DELETE in capital letters to enable the delete button</span>
+                    </div>
+                </div>
+
+                <div class="clear-data-confirm-actions">
+                    <button class="clear-data-confirm-btn-cancel" id="confirmClearCancel">Cancel</button>
+                    <button class="clear-data-confirm-btn-delete" id="confirmClearDelete" aria-disabled="true" aria-describedby="deleteBtnHint">
+                        <span class="confirm-btn-text">Delete All Data</span>
+                        <span class="confirm-btn-spinner" style="display: none;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10" opacity="0.3"/>
+                                <path d="M12 2a10 10 0 019.95 9" stroke-linecap="round"/>
+                            </svg>
+                        </span>
+                    </button>
+                    <span id="deleteBtnHint" class="clear-data-sr-only">Check the confirmation checkbox to enable this button</span>
+                </div>
+
+                <!-- Live region for screen reader announcements -->
+                <div aria-live="polite" aria-atomic="true" class="clear-data-sr-only" id="confirmClearAnnounce"></div>
+            </div>
+        </div>
+
+        <!-- Saved Bill Images Modal (Premium Redesign) -->
+        <div id="orphanedImagesModal" class="saved-images-modal" style="display: none;">
+            <div class="saved-images-backdrop" onclick="expenseTracker.closeOrphanedImagesModal()"></div>
+            <div class="saved-images-container">
+                <div class="saved-images-header">
+                    <div class="saved-images-header-content">
+                        <div class="saved-images-icon-wrapper">
+                            <svg class="saved-images-header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                <circle cx="8.5" cy="8.5" r="1.5"/>
+                                <path d="M21 15l-5-5L5 21"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h2 class="saved-images-title">Saved Bill Images</h2>
+                            <p class="saved-images-subtitle">Images kept for 30 days after clearing data</p>
+                        </div>
+                    </div>
+                    <button class="saved-images-close" onclick="expenseTracker.closeOrphanedImagesModal()" aria-label="Close modal">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 6L6 18M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="saved-images-stats" id="orphanedImagesStats">
+                    <!-- Stats will be populated by JavaScript -->
+                </div>
+
+                <div class="saved-images-grid" id="orphanedImagesGrid">
+                    <!-- Image cards will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Image Viewer Modal (Premium Redesign) -->
+        <div id="imageViewerModal" class="img-viewer image-viewer-modal" style="display: none;">
+            <div class="img-viewer__backdrop image-viewer-overlay" onclick="expenseTracker.closeImageModal()"></div>
+            <div class="img-viewer__container">
+                <!-- Top Bar -->
+                <div class="img-viewer__topbar">
+                    <div class="img-viewer__info">
+                        <span class="img-viewer__filename" id="imageViewerName">Bill Image</span>
+                        <span class="img-viewer__counter" id="imageViewerCounter">1 of 1</span>
+                    </div>
+                    <button class="img-viewer__close image-viewer-close" onclick="expenseTracker.closeImageModal()" aria-label="Close viewer">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 6L6 18M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Navigation Arrows -->
+                <button class="img-viewer__nav img-viewer__nav--prev" id="imageViewerPrev" onclick="expenseTracker.prevImage()" aria-label="Previous image">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 18l-6-6 6-6"/>
+                    </svg>
+                </button>
+                <button class="img-viewer__nav img-viewer__nav--next" id="imageViewerNext" onclick="expenseTracker.nextImage()" aria-label="Next image">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 18l6-6-6-6"/>
+                    </svg>
+                </button>
+
+                <!-- Image -->
+                <div class="img-viewer__image-wrapper image-viewer-content">
+                    <img id="imageViewerImg" class="img-viewer__image" src="" alt="Bill Image">
+                </div>
+
+                <!-- Bottom Toolbar -->
+                <div class="img-viewer__toolbar">
+                    <div class="img-viewer__zoom-group">
+                        <button class="img-viewer__zoom-btn" id="zoomOut" onclick="expenseTracker.zoomImage(-0.25)" aria-label="Zoom out">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35M8 11h6"/>
+                            </svg>
+                        </button>
+                        <input type="range" class="img-viewer__zoom-slider" id="zoomSlider" min="50" max="300" value="100"
+                               onchange="expenseTracker.setZoom(this.value / 100)" aria-label="Zoom level">
+                        <span class="img-viewer__zoom-level" id="zoomLevel">100%</span>
+                        <button class="img-viewer__zoom-btn" id="zoomIn" onclick="expenseTracker.zoomImage(0.25)" aria-label="Zoom in">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35M11 8v6M8 11h6"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="img-viewer__divider"></div>
+                    <button class="img-viewer__action" onclick="expenseTracker.rotateImage()" aria-label="Rotate image">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+                        </svg>
+                    </button>
+                    <button class="img-viewer__action" onclick="expenseTracker.downloadCurrentImage()" aria-label="Download image">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                        </svg>
+                    </button>
+                    <button class="img-viewer__action" onclick="expenseTracker.toggleFullscreen()" aria-label="Toggle fullscreen">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Employee Info Modal for PDF Download -->
+        <div id="employeeInfoModal" class="kodo-modal-overlay" style="display: none;">
+            <div class="kodo-confirm-modal">
+                <!-- Header -->
+                <div class="kodo-confirm-modal__header">
+                    <div class="kodo-confirm-modal__header-accent"></div>
+                    <div class="kodo-confirm-modal__header-content">
+                        <div class="kodo-confirm-modal__icon-wrap">
+                            <svg class="kodo-confirm-modal__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <line x1="16" y1="13" x2="8" y2="13"/>
+                                <line x1="16" y1="17" x2="8" y2="17"/>
+                            </svg>
+                        </div>
+                        <div class="kodo-confirm-modal__title-group">
+                            <h3 class="kodo-confirm-modal__title">Submit Reimbursement</h3>
+                            <span class="kodo-confirm-modal__subtitle">Complete Your Details</span>
+                        </div>
+                    </div>
+                    <div class="kodo-confirm-modal__header-actions">
+                        <button class="kodo-confirm-modal__close" onclick="expenseTracker.closeEmployeeInfoModal()" aria-label="Close">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Body -->
+                <div class="kodo-confirm-modal__body">
+                    <form id="employeeInfoForm">
+                        <!-- Employee Name -->
+                        <div class="kodo-confirm-modal__field">
+                            <label class="kodo-confirm-modal__label" for="empName">
+                                <svg class="kodo-confirm-modal__label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                                </svg>
+                                Employee Name <span style="color:#f87171">*</span>
+                            </label>
+                            <input class="kodo-confirm-modal__input" type="text" id="empName" name="empName" placeholder="Enter your full name" required>
+                        </div>
+
+                        <!-- Employee Code -->
+                        <div class="kodo-confirm-modal__field">
+                            <label class="kodo-confirm-modal__label" for="empCode">
+                                <svg class="kodo-confirm-modal__label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                                </svg>
+                                Employee Code
+                            </label>
+                            <input class="kodo-confirm-modal__input" type="text" id="empCode" name="empCode" placeholder="Optional — leave blank if not applicable">
+                        </div>
+
+                        <!-- Date range side by side -->
+                        <div class="kodo-confirm-modal__field-row">
+                            <div class="kodo-confirm-modal__field">
+                                <label class="kodo-confirm-modal__label" for="expensePeriodFrom">
+                                    <svg class="kodo-confirm-modal__label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                                    </svg>
+                                    Period From <span style="color:#f87171">*</span>
+                                </label>
+                                <input class="kodo-confirm-modal__input" type="date" id="expensePeriodFrom" name="expensePeriodFrom" required>
+                            </div>
+                            <div class="kodo-confirm-modal__field">
+                                <label class="kodo-confirm-modal__label" for="expensePeriodTo">
+                                    <svg class="kodo-confirm-modal__label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                                    </svg>
+                                    Period To <span style="color:#f87171">*</span>
+                                </label>
+                                <input class="kodo-confirm-modal__input" type="date" id="expensePeriodTo" name="expensePeriodTo" required>
+                            </div>
+                        </div>
+
+                        <!-- Business Purpose -->
+                        <div class="kodo-confirm-modal__field">
+                            <label class="kodo-confirm-modal__label" for="businessPurpose">
+                                <svg class="kodo-confirm-modal__label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+                                </svg>
+                                Business Purpose <span style="color:#f87171">*</span>
+                            </label>
+                            <textarea class="kodo-confirm-modal__input" id="businessPurpose" name="businessPurpose" rows="3" placeholder="Describe the business purpose or project related to these expenses" required style="resize:vertical;min-height:80px;line-height:1.5"></textarea>
+                        </div>
+
+                        <!-- Action buttons -->
+                        <div class="kodo-confirm-modal__actions reimb-actions">
+                            <button type="submit" class="kodo-confirm-modal__btn reimb-act reimb-act--download" data-action="download">
+                                <svg class="kodo-confirm-modal__btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                                </svg>
+                                Download PDF
+                            </button>
+                            <button type="button" class="kodo-confirm-modal__btn reimb-act reimb-act--kodo" id="submitToKodoBtn" data-action="kodo" style="display:none;">
+                                <svg class="kodo-confirm-modal__btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 00-8 0v2"/><circle cx="12" cy="14" r="1.5"/>
+                                </svg>
+                                Submit to Kodo
+                            </button>
+                            <button type="button" class="kodo-confirm-modal__btn reimb-act reimb-act--email" id="emailToAccountsBtn" data-action="email">
+                                <svg class="kodo-confirm-modal__btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+                                </svg>
+                                Email to Accounts
+                            </button>
+                            <button type="button" class="kodo-confirm-modal__btn reimb-act reimb-act--approval" id="submitForApprovalReimbBtn" data-action="approval" style="display:none;">
+                                <svg class="kodo-confirm-modal__btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+                                </svg>
+                                Submit for Approval
+                            </button>
+                            <button type="button" class="kodo-confirm-modal__btn kodo-confirm-modal__btn--cancel" onclick="expenseTracker.closeEmployeeInfoModal()">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
     </div>
+
+    <!-- Scripts are loaded with defer in head - no duplicates needed here -->
+
+    <!-- Authentication Check & User Info Display (runs after deferred scripts) -->
+    <script>
+        // Wait for DOM and deferred scripts to load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Eagerly populate user info from localStorage so it appears instantly
+            // (displayUserInfo in supabase-auth.js will overwrite this once auth confirms)
+            const user = JSON.parse(localStorage.getItem('user') || 'null');
+            if (user) {
+                const userInfoElement = document.getElementById('userInfo');
+                if (userInfoElement) {
+                    const safeName = (user.name || '').replace(/[<>&"']/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]));
+                    const safeEmail = (user.email || '').replace(/[<>&"']/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]));
+                    userInfoElement.innerHTML = `
+                        <div class="user-info-content">
+                            <button class="theme-toggle-btn" onclick="expenseTracker.toggleTheme()" aria-label="Toggle Theme" title="Switch Theme">
+                                <span class="theme-icon" id="themeIcon">🌈</span>
+                            </button>
+                            <div class="user-details">
+                                <div class="user-email">${safeEmail}</div>
+                                ${user.organization_id ? `<span class="role-badge role-badge--${user.role || 'employee'}">${(user.role || 'employee').toUpperCase()}</span>` : ''}
+                            </div>
+                            ${user.role === 'admin' ? `<button class="theme-toggle-btn" onclick="window.location.href='admin.html'" aria-label="Admin Dashboard" title="Admin Dashboard"><span class="theme-icon">&#9881;</span></button>` : ''}
+                            ${user.organization_id ? `<button class="theme-toggle-btn notif-bell-btn" id="notifBellBtn" onclick="notificationCenter.toggle()" aria-label="Notifications" title="Notifications"><span class="theme-icon">🔔</span><span class="notif-badge" id="notifBadge" style="display:none;">0</span></button>` : ''}
+                            ${user.organization_id ? `<button class="theme-toggle-btn" onclick="approvalWorkflow.openApprovalsPanel()" aria-label="Approvals" title="Approvals"><span class="theme-icon">&#9989;</span></button>` : ''}
+                            <button class="theme-toggle-btn" onclick="activityLog.open()" aria-label="Activity Log" title="Activity Log">
+                                <span class="theme-icon">📋</span>
+                            </button>
+                            <button class="theme-toggle-btn" onclick="openProfileModal()" aria-label="Profile" title="Profile"><span class="theme-icon">👤</span></button>
+                            <button onclick="logout()" class="logout-btn">Logout</button>
+                        </div>
+                    `;
+                    userInfoElement.style.display = 'flex';
+                }
+            }
+        });
+    </script>
+
+    <!-- Global Progress Modal -->
+    <div id="global-progress-modal" class="progress-modal-overlay" aria-modal="true" role="dialog" aria-labelledby="progress-title">
+        <div class="progress-modal-card">
+            <div class="progress-spinner"></div>
+            <h2 id="progress-title" class="progress-title">Uploading Bill...</h2>
+            <p class="progress-message">Finalizing...</p>
+            <div class="progress-bar-container">
+                <div class="progress-bar-fill"></div>
+            </div>
+            <div class="progress-percent">0%</div>
+        </div>
+    </div>
+
+    <!-- PWA Service Worker Registration -->
+    <script>
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', async () => {
+                try {
+                    const registration = await navigator.serviceWorker.register('/sw.js');
+                    console.log('✅ PWA Service Worker registered:', registration.scope);
+
+                    // Check for updates
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        console.log('🔄 New Service Worker installing...');
+
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // New version available - auto reload
+                                console.log('🔄 New version detected, reloading...');
+                                window.location.reload();
+                            }
+                        });
+                    });
+                } catch (error) {
+                    console.warn('⚠️ Service Worker registration failed:', error);
+                }
+            });
+
+            // Auto-reload when new SW takes control
+            let refreshing = false;
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                if (!refreshing) {
+                    refreshing = true;
+                    console.log('🔄 New Service Worker active, reloading...');
+                    window.location.reload();
+                }
+            });
+        }
+
+        // PWA Install Prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+
+            // Check if user already dismissed or installed
+            const dismissed = localStorage.getItem('pwa-install-dismissed');
+            const installed = localStorage.getItem('pwa-installed');
+
+            if (dismissed || installed) {
+                console.log('PWA banner already dismissed or app installed');
+                return;
+            }
+
+            // Show install button after a delay (non-intrusive)
+            setTimeout(() => {
+                showInstallPrompt();
+            }, 30000); // Show after 30 seconds of usage
+        });
+
+        function showInstallPrompt() {
+            if (!deferredPrompt) return;
+
+            // Double-check dismissal status
+            if (localStorage.getItem('pwa-install-dismissed') || localStorage.getItem('pwa-installed')) {
+                return;
+            }
+
+            // Don't show if banner already exists
+            if (document.getElementById('pwa-install-banner')) return;
+
+            // Create install banner
+            const banner = document.createElement('div');
+            banner.id = 'pwa-install-banner';
+            banner.innerHTML = `
+                <div style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+                            background: linear-gradient(135deg, #14b8a6, #0d9488); color: white;
+                            padding: 15px 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                            display: flex; align-items: center; gap: 15px; z-index: 10000; max-width: 90%;">
+                    <span style="font-size: 24px;">📱</span>
+                    <div>
+                        <div style="font-weight: bold;">Install Expense Tracker</div>
+                        <div style="font-size: 12px; opacity: 0.9;">Add to home screen for quick access</div>
+                    </div>
+                    <button id="pwa-install-btn" style="background: white; color: #0d9488; border: none;
+                            padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                        Install
+                    </button>
+                    <button id="pwa-dismiss-btn" style="background: transparent; color: white; border: none;
+                            font-size: 20px; cursor: pointer; padding: 5px;">✕</button>
+                </div>
+            `;
+            document.body.appendChild(banner);
+
+            document.getElementById('pwa-install-btn').addEventListener('click', async () => {
+                banner.remove();
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log('PWA install outcome:', outcome);
+                if (outcome === 'accepted') {
+                    localStorage.setItem('pwa-installed', 'true');
+                }
+                deferredPrompt = null;
+            });
+
+            document.getElementById('pwa-dismiss-btn').addEventListener('click', () => {
+                banner.remove();
+                // Don't show again permanently
+                localStorage.setItem('pwa-install-dismissed', 'true');
+            });
+        }
+
+        // Handle app installed event
+        window.addEventListener('appinstalled', () => {
+            console.log('✅ PWA was installed');
+            deferredPrompt = null;
+            localStorage.setItem('pwa-installed', 'true');
+            const banner = document.getElementById('pwa-install-banner');
+            if (banner) banner.remove();
+        });
+    </script>
 
     <!-- Kodo Settings Modal -->
     <div id="kodoSettingsModal" class="kodo-modal-overlay" style="display: none;">
         <div class="kodo-modal">
-            <button class="kodo-modal-close" id="closeKodoSettingsModal">&times;</button>
-            <div class="kodo-modal-content">
-                <h2 style="margin-top: 0;">Kodo Settings</h2>
+            <div class="kodo-modal-header">
+                <h3>Kodo Reimbursement Settings</h3>
+                <button class="kodo-modal-close" id="closeKodoSettings">&times;</button>
+            </div>
+            <div class="kodo-modal-body">
+                <div class="kodo-form-group">
+                    <label for="kodoEmail">Kodo Email</label>
+                    <input type="email" id="kodoEmail" placeholder="your.email@company.com" autocomplete="email">
+                </div>
+                <div class="kodo-form-group">
+                    <label for="kodoPasscode">Kodo Passcode</label>
+                    <input type="password" id="kodoPasscode" placeholder="Your Kodo passcode" autocomplete="current-password">
+                </div>
+                <div class="kodo-form-actions">
+                    <button id="kodoTestConnection" class="kodo-btn kodo-btn-secondary">Test Connection</button>
+                    <button id="kodoSaveSettings" class="kodo-btn kodo-btn-primary">Save Settings</button>
+                </div>
                 <div id="kodoSettingsStatus" class="kodo-status" style="display: none;"></div>
-                <p>Configure your Kodo integration settings here.</p>
             </div>
         </div>
     </div>
 
-    <!-- Kodo Confirm Modal -->
+    <!-- Kodo Confirmation Modal -->
     <div id="kodoConfirmModal" class="kodo-modal-overlay kodo-modal-overlay--bottomsheet" style="display: none;">
-        <div class="kodo-modal">
-            <button class="kodo-modal-close" id="closeKodoConfirmModal">&times;</button>
-            <div class="kodo-modal-content">
-                <h2 style="margin-top: 0;">Confirm Action</h2>
-                <p id="kodoConfirmText"></p>
-                <div style="display: flex; gap: 10px; margin-top: 20px;">
-                    <button class="btn-secondary" id="kodoConfirmCancel">Cancel</button>
-                    <button class="btn-primary" id="kodoConfirmYes">Confirm</button>
+        <div class="kodo-confirm-modal">
+            <!-- Header with gradient accent -->
+            <div class="kodo-confirm-modal__header">
+                <div class="kodo-confirm-modal__header-accent"></div>
+                <div class="kodo-confirm-modal__header-content">
+                    <div class="kodo-confirm-modal__icon-wrap">
+                        <svg class="kodo-confirm-modal__icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="1.8"/>
+                        </svg>
+                    </div>
+                    <div class="kodo-confirm-modal__title-group">
+                        <h3 class="kodo-confirm-modal__title">Submit to Kodo</h3>
+                        <span class="kodo-confirm-modal__subtitle">Reimbursement Claim</span>
+                    </div>
+                </div>
+                <div class="kodo-confirm-modal__header-actions">
+                    <button class="kodo-confirm-modal__settings" id="kodoTrackClaimsBtn" title="Track Claims" onclick="expenseTracker.showKodoClaimsModal()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                        </svg>
+                    </button>
+                    <button class="kodo-confirm-modal__settings" id="kodoSettingsBtn" title="Kodo Settings">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="18" height="18">
+                            <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+                        </svg>
+                    </button>
+                    <button class="kodo-confirm-modal__close" id="closeKodoConfirm" aria-label="Close">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Body -->
+            <div class="kodo-confirm-modal__body">
+                <!-- Dynamic summary -->
+                <div class="kodo-confirm-modal__summary" id="kodoConfirmSummary"></div>
+
+                <!-- Checker + Category side by side -->
+                <div class="kodo-confirm-modal__field-row">
+                    <div class="kodo-confirm-modal__field">
+                        <label class="kodo-confirm-modal__label" for="kodoConfirmChecker">
+                            <svg class="kodo-confirm-modal__label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/>
+                                <polyline points="17 11 19 13 23 9"/>
+                            </svg>
+                            Checker (Approver)
+                        </label>
+                        <select class="kodo-confirm-modal__select" id="kodoConfirmChecker"></select>
+                    </div>
+                    <div class="kodo-confirm-modal__field">
+                        <label class="kodo-confirm-modal__label" for="kodoConfirmCategory">
+                            <svg class="kodo-confirm-modal__label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 7h16M4 12h16M4 17h10"/>
+                            </svg>
+                            Category
+                        </label>
+                        <select class="kodo-confirm-modal__select" id="kodoConfirmCategory"></select>
+                    </div>
+                </div>
+
+                <!-- Comment -->
+                <div class="kodo-confirm-modal__field">
+                    <label class="kodo-confirm-modal__label" for="kodoConfirmComment">
+                        <svg class="kodo-confirm-modal__label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+                        </svg>
+                        Comment
+                    </label>
+                    <input class="kodo-confirm-modal__input" type="text" id="kodoConfirmComment" placeholder="Reimbursement claim from Expense Tracker">
+                </div>
+
+                <!-- Action buttons -->
+                <div class="kodo-confirm-modal__actions">
+                    <button id="kodoCancelSubmit" class="kodo-confirm-modal__btn kodo-confirm-modal__btn--cancel">Cancel</button>
+                    <button id="kodoConfirmSubmit" class="kodo-confirm-modal__btn kodo-confirm-modal__btn--submit">
+                        <svg class="kodo-confirm-modal__btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 11 12 14 22 4"/>
+                            <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+                        </svg>
+                        Confirm &amp; Submit
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Kodo Claims Modal -->
+    <!-- Kodo Claims Status Modal -->
     <div id="kodoClaimsModal" class="kodo-modal-overlay" style="display: none;">
-        <div class="kodo-modal">
-            <button class="kodo-modal-close" id="closeKodoClaimsModal">&times;</button>
-            <div class="kodo-modal-content">
-                <h2 style="margin-top: 0;">My Claims</h2>
+        <div class="kodo-confirm-modal">
+            <div class="kodo-confirm-modal__header">
+                <div class="kodo-confirm-modal__header-accent" style="background: linear-gradient(135deg, #10b981, #06b6d4, #3b82f6)"></div>
+                <div class="kodo-confirm-modal__header-content">
+                    <div class="kodo-confirm-modal__icon-wrap">
+                        <svg class="kodo-confirm-modal__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                        </svg>
+                    </div>
+                    <div class="kodo-confirm-modal__title-group">
+                        <h3 class="kodo-confirm-modal__title">Kodo Claims</h3>
+                        <span class="kodo-confirm-modal__subtitle">Track Approval Status</span>
+                    </div>
+                </div>
+                <div class="kodo-confirm-modal__header-actions">
+                    <button class="kodo-confirm-modal__close" id="closeKodoClaims" aria-label="Close">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="kodo-confirm-modal__body">
                 <div id="kodoClaimsList" class="kodo-claims-list">
-                    <!-- Claims will be populated here -->
+                    <div class="kodo-claims-empty">No claims submitted yet</div>
+                </div>
+                <div class="kodo-confirm-modal__actions">
+                    <button id="kodoClaimsRefresh" class="kodo-confirm-modal__btn kodo-confirm-modal__btn--submit" style="background: linear-gradient(135deg, #10b981, #06b6d4);">
+                        <svg class="kodo-confirm-modal__btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+                            <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+                        </svg>
+                        Check Status
+                    </button>
+                    <button id="kodoClaimsClose" class="kodo-confirm-modal__btn kodo-confirm-modal__btn--cancel">Close</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Email Accounts Modal -->
+    <!-- Email to Accounts Modal -->
     <div id="emailAccountsModal" class="kodo-modal-overlay kodo-modal-overlay--bottomsheet" style="display: none;">
-        <div class="kodo-modal">
-            <button class="kodo-modal-close" id="closeEmailAccountsModal">&times;</button>
-            <div class="kodo-modal-content">
-                <h2 style="margin-top: 0;">Email Accounts</h2>
-                <p>Link email accounts for automated receipt processing.</p>
-                <div id="emailAccountsList" style="margin-top: 20px;"></div>
+        <div class="email-modal">
+            <!-- Header with gradient accent -->
+            <div class="email-modal__header">
+                <div class="email-modal__header-accent"></div>
+                <div class="email-modal__header-content">
+                    <div class="email-modal__icon-wrap">
+                        <svg class="email-modal__icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="2" y="4" width="20" height="16" rx="3" stroke="currentColor" stroke-width="1.8"/>
+                            <path d="M2 8l9.293 5.879a1 1 0 001.414 0L22 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <div class="email-modal__title-group">
+                        <h3 class="email-modal__title">Email Reimbursement</h3>
+                        <span class="email-modal__subtitle">Send to Accounts</span>
+                    </div>
+                </div>
+                <button class="email-modal__close" id="closeEmailAccounts" aria-label="Close">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Step indicator -->
+            <div class="email-modal__steps">
+                <div class="email-modal__step email-modal__step--done">
+                    <span class="email-modal__step-num">
+                        <svg width="12" height="12" viewBox="0 0 12 10" fill="none"><polyline points="1,5 4,8 11,1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </span>
+                    <span class="email-modal__step-text">Employee Info</span>
+                </div>
+                <div class="email-modal__step-line"></div>
+                <div class="email-modal__step email-modal__step--active">
+                    <span class="email-modal__step-num">2</span>
+                    <span class="email-modal__step-text">Compose Email</span>
+                </div>
+                <div class="email-modal__step-line email-modal__step-line--pending"></div>
+                <div class="email-modal__step email-modal__step--pending">
+                    <span class="email-modal__step-num">3</span>
+                    <span class="email-modal__step-text">Send</span>
+                </div>
+            </div>
+
+            <!-- Body -->
+            <div class="email-modal__body">
+                <!-- Dynamic summary injected by JS -->
+                <div class="email-modal__summary" id="emailAccountsSummary"></div>
+
+                <!-- Attachment preview -->
+                <div class="email-modal__attachment">
+                    <div class="email-modal__attachment-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                        </svg>
+                    </div>
+                    <div class="email-modal__attachment-info">
+                        <span class="email-modal__attachment-name" id="emailAttachmentName">Reimbursement_Package.pdf</span>
+                        <span class="email-modal__attachment-meta" id="emailAttachmentMeta">PDF with expense sheet + bill images</span>
+                    </div>
+                    <div class="email-modal__attachment-badge">PDF</div>
+                </div>
+
+                <!-- Recipients -->
+                <div class="email-modal__field">
+                    <label class="email-modal__label" for="emailAccountsTo">
+                        <svg class="email-modal__label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+                        </svg>
+                        To (Recipients)
+                    </label>
+                    <input
+                        class="email-modal__input"
+                        type="text"
+                        id="emailAccountsTo"
+                        placeholder="accounts@company.com"
+                        autocomplete="email"
+                    >
+                    <span class="email-modal__hint">Separate multiple with commas</span>
+                </div>
+
+                <!-- Subject -->
+                <div class="email-modal__field">
+                    <label class="email-modal__label" for="emailAccountsSubject">
+                        <svg class="email-modal__label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="4" y1="9" x2="20" y2="9"/>
+                            <line x1="4" y1="15" x2="14" y2="15"/>
+                        </svg>
+                        Subject
+                    </label>
+                    <input
+                        class="email-modal__input"
+                        type="text"
+                        id="emailAccountsSubject"
+                        placeholder="Reimbursement Claim - [Month Year]"
+                    >
+                </div>
+
+                <!-- Message -->
+                <div class="email-modal__field">
+                    <label class="email-modal__label" for="emailAccountsBody">
+                        <svg class="email-modal__label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+                        </svg>
+                        Message
+                    </label>
+                    <textarea
+                        class="email-modal__textarea"
+                        id="emailAccountsBody"
+                        rows="7"
+                        placeholder="Dear Accounts Team,&#10;&#10;Please find attached the reimbursement claim for the period..."
+                    ></textarea>
+                </div>
+
+                <!-- Remember checkbox -->
+                <label class="email-modal__remember" for="emailAccountsRemember">
+                    <input class="email-modal__checkbox-input" type="checkbox" id="emailAccountsRemember">
+                    <span class="email-modal__checkbox-box">
+                        <svg class="email-modal__checkbox-tick" viewBox="0 0 12 10" fill="none">
+                            <polyline points="1,5 4,8 11,1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </span>
+                    <span class="email-modal__remember-text">Remember this email as default</span>
+                </label>
+
+                <!-- Action buttons -->
+                <div class="email-modal__actions">
+                    <button id="emailAccountsCancel" class="email-modal__btn email-modal__btn--cancel">
+                        Cancel
+                    </button>
+                    <button id="emailAccountsSend" class="email-modal__btn email-modal__btn--send">
+                        <svg class="email-modal__btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="22" y1="2" x2="11" y2="13"/>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                        </svg>
+                        Send Email
+                    </button>
+                </div>
+
+                <!-- Status feedback -->
                 <div id="emailAccountsStatus" class="email-modal__status" style="display: none;"></div>
             </div>
         </div>
@@ -780,223 +1494,330 @@
 
     <!-- PDF Library Modal -->
     <div id="pdfLibraryModal" class="pdfs-library-overlay" role="dialog" aria-modal="true" aria-labelledby="pdfLibraryTitle">
-        <div class="pdfs-library-container">
-            <div class="pdfs-library-header">
-                <h2 id="pdfLibraryTitle">PDF Library</h2>
-                <button class="pdfs-library-close" onclick="pdfLibrary.closeLibrary()">&times;</button>
+
+        <!-- Header -->
+        <div class="pdfs-library-header">
+            <h2 class="pdfs-library-title" id="pdfLibraryTitle">
+                <span aria-hidden="true">📄</span>
+                PDF Library
+            </h2>
+            <button class="pdfs-library-close" onclick="pdfLibrary.closeLibrary()" aria-label="Close PDF Library">✕</button>
+        </div>
+
+        <!-- Fixed: Upload Zone -->
+        <div class="pdfs-library-fixed">
+            <div class="pdfs-upload-zone" id="uploadZone" role="button" tabindex="0" aria-label="Upload a PDF file — click or drag and drop">
+                <input type="file" id="pdfFileInput" accept=".pdf,application/pdf" aria-label="Select PDF file to upload">
+                <span class="pdfs-upload-zone__icon" aria-hidden="true">📁</span>
+                <div class="pdfs-upload-zone__title">Choose a PDF to upload</div>
+                <div class="pdfs-upload-zone__subtitle">or drag &amp; drop your PDF here</div>
+                <button class="pdfs-upload-zone__cta" tabindex="-1" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    Choose PDF File
+                </button>
+                <div class="pdfs-upload-zone__hint">
+                    Supports <strong>single and multi-page PDFs</strong> &bull; Max 50MB
+                </div>
+                <div class="pdfs-upload-progress" id="uploadProgress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Upload progress">
+                    <div class="pdfs-upload-progress__bar" id="uploadProgressBar"></div>
+                </div>
             </div>
-            <div class="pdfs-library-content" id="pdfLibraryContent">
-                <!-- PDF list will be populated here -->
+
+            <!-- Fixed: Stats Bar + Search -->
+            <div class="pdfs-stats-bar">
+                <div class="pdfs-stats-pills">
+                    <span class="pdfs-stat-pill"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> <span id="pdfCount">0</span> files</span>
+                    <span class="pdfs-stat-pill"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> <span id="pdfTotalSize">0 B</span></span>
+                </div>
+                <div class="pdfs-search-wrap">
+                    <svg class="pdfs-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" class="pdfs-search-input" id="pdfSearchInput" placeholder="Search files..." oninput="pdfLibrary.filterFiles(this.value)" aria-label="Search PDF files">
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Upload Meta Modal -->
-    <div class="pdfs-modal-overlay" id="uploadMetaModal" role="dialog" aria-modal="true" aria-labelledby="uploadMetaTitle">
-        <div class="pdfs-modal">
-            <div class="pdfs-modal-header">
-                <h3 id="uploadMetaTitle">PDF Upload Metadata</h3>
-                <button class="pdfs-modal-close" onclick="pdfLibrary.closeUploadMeta()">&times;</button>
+        <!-- Scrollable: File List only -->
+        <div class="pdfs-library-body">
+            <div id="pdfGallery" class="pdfs-file-list" aria-live="polite" aria-label="PDF library">
+                <div class="pdfs-loading">
+                    <div class="pdfs-loading__spinner" role="status" aria-label="Loading PDFs"></div>
+                    <span>Loading your PDFs...</span>
+                </div>
             </div>
-            <div class="pdfs-modal-body">
+        </div>
+
+        <!-- Upload Metadata Sub-modal -->
+        <div class="pdfs-modal-overlay" id="uploadMetaModal" role="dialog" aria-modal="true" aria-labelledby="uploadMetaTitle">
+            <div class="pdfs-modal">
+                <h2 class="pdfs-modal__title" id="uploadMetaTitle">
+                    <span aria-hidden="true">📋</span>
+                    PDF Details
+                </h2>
+                <div class="pdfs-modal__field">
+                    <label class="pdfs-modal__label" for="metaAmount">Total Amount (₹) *</label>
+                    <input type="number" id="metaAmount" class="pdfs-modal__input" placeholder="e.g. 12500" min="0" step="0.01" required>
+                </div>
+                <div class="pdfs-modal__field">
+                    <label class="pdfs-modal__label">Period</label>
+                    <div class="pdfs-modal__row">
+                        <input type="date" id="metaDateFrom" class="pdfs-modal__input" aria-label="Period start date">
+                        <input type="date" id="metaDateTo" class="pdfs-modal__input" aria-label="Period end date">
+                    </div>
+                </div>
+                <div class="pdfs-modal__field">
+                    <label class="pdfs-modal__label" for="metaPurpose">Purpose / Description</label>
+                    <textarea id="metaPurpose" class="pdfs-modal__textarea" placeholder="e.g. Business travel expenses for March 2026" rows="2"></textarea>
+                </div>
                 <div class="pdfs-modal__field" id="metaFileInfo" style="font-size:0.8rem;color:#8892b0;" aria-live="polite"></div>
-                <div class="pdfs-modal__field">
-                    <label for="pdfMetaDescription">Description</label>
-                    <input type="text" id="pdfMetaDescription" class="pdfs-modal__input" placeholder="Brief description">
+                <div class="pdfs-modal__actions">
+                    <button class="pdfs-modal__btn pdfs-modal__btn--secondary" onclick="pdfLibrary.cancelUpload()">Cancel</button>
+                    <button class="pdfs-modal__btn pdfs-modal__btn--primary" id="uploadConfirmBtn" onclick="pdfLibrary.confirmUpload()">Upload PDF</button>
                 </div>
             </div>
-            <div class="pdfs-modal-footer">
-                <button class="btn-secondary" onclick="pdfLibrary.closeUploadMeta()">Cancel</button>
-                <button class="btn-primary" onclick="pdfLibrary.confirmUploadMeta()">Upload</button>
-            </div>
         </div>
-    </div>
 
-    <!-- Email Modal -->
-    <div class="pdfs-modal-overlay" id="emailModal" role="dialog" aria-modal="true" aria-labelledby="emailModalTitle">
-        <div class="pdfs-modal">
-            <div class="pdfs-modal-header">
-                <h3 id="emailModalTitle">Email PDF</h3>
-                <button class="pdfs-modal-close" onclick="pdfLibrary.closeEmailModal()">&times;</button>
-            </div>
-            <div class="pdfs-modal-body">
+        <!-- Email Sub-modal -->
+        <div class="pdfs-modal-overlay" id="emailModal" role="dialog" aria-modal="true" aria-labelledby="emailModalTitle">
+            <div class="pdfs-modal">
+                <h2 class="pdfs-modal__title" id="emailModalTitle">
+                    <span aria-hidden="true">📧</span>
+                    Email to Accounts
+                </h2>
                 <div class="pdfs-modal__field">
-                    <label for="emailRecipient">Email To</label>
-                    <input type="email" id="emailRecipient" class="pdfs-modal__input" placeholder="recipient@example.com">
+                    <label class="pdfs-modal__label" for="emailTo">To (email address) *</label>
+                    <input type="email" id="emailTo" class="pdfs-modal__input" placeholder="accounts@company.com">
+                </div>
+                <div class="pdfs-modal__field">
+                    <label class="pdfs-modal__label" for="emailSubject">Subject</label>
+                    <input type="text" id="emailSubject" class="pdfs-modal__input" placeholder="Reimbursement Request">
+                </div>
+                <div class="pdfs-modal__field">
+                    <label class="pdfs-modal__label" for="emailBody">Message Body</label>
+                    <textarea id="emailBody" class="pdfs-modal__textarea" rows="5" placeholder="Hi team, please find attached..."></textarea>
+                </div>
+                <div class="pdfs-modal__actions">
+                    <button class="pdfs-modal__btn pdfs-modal__btn--secondary" onclick="pdfLibrary.closeEmailModal()">Cancel</button>
+                    <button class="pdfs-modal__btn pdfs-modal__btn--email" id="emailSendBtn" onclick="pdfLibrary.sendEmail()">Send Email</button>
                 </div>
             </div>
-            <div class="pdfs-modal-footer">
-                <button class="btn-secondary" onclick="pdfLibrary.closeEmailModal()">Cancel</button>
-                <button class="btn-primary" onclick="pdfLibrary.sendEmail()">Send</button>
-            </div>
         </div>
-    </div>
 
-    <!-- Delete Modal -->
-    <div class="pdfs-modal-overlay" id="deleteModal" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
-        <div class="pdfs-modal">
-            <div class="pdfs-modal-header">
-                <h3 id="deleteModalTitle">Confirm Delete</h3>
-                <button class="pdfs-modal-close" onclick="pdfLibrary.closeDeleteModal()">&times;</button>
-            </div>
-            <div class="pdfs-modal-body">
-                <p>Are you sure you want to delete this PDF?</p>
-            </div>
-            <div class="pdfs-modal-footer">
-                <button class="btn-secondary" onclick="pdfLibrary.closeDeleteModal()">Cancel</button>
-                <button class="btn-danger" onclick="pdfLibrary.confirmDelete()">Delete</button>
+        <!-- Delete Confirm Sub-modal -->
+        <div class="pdfs-modal-overlay" id="deleteModal" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
+            <div class="pdfs-modal">
+                <h2 class="pdfs-modal__title" id="deleteModalTitle">
+                    <span aria-hidden="true">🗑️</span>
+                    Delete PDF
+                </h2>
+                <p style="color:#8892b0;font-size:0.9rem;margin:0 0 20px;line-height:1.6;">
+                    Are you sure you want to permanently delete
+                    <strong id="deleteFileName" style="color:#e0e0ff;"></strong>?
+                </p>
+                <div class="pdfs-modal__field">
+                    <label class="pdfs-modal__delete-confirm" for="deleteConfirmCheck">
+                        <input type="checkbox" id="deleteConfirmCheck" onchange="pdfLibrary.onDeleteCheckChange(this)">
+                        <span>I understand this cannot be undone and the PDF will be permanently deleted</span>
+                    </label>
+                    <p class="pdfs-modal__delete-hint" id="deleteHint">Check the box above to confirm deletion</p>
+                </div>
+                <div class="pdfs-modal__actions">
+                    <button class="pdfs-modal__btn pdfs-modal__btn--secondary" onclick="pdfLibrary.closeDeleteModal()">Cancel</button>
+                    <button class="pdfs-modal__btn pdfs-modal__btn--danger" id="deleteConfirmBtn" onclick="pdfLibrary.confirmDelete()" disabled>Delete</button>
+                </div>
             </div>
         </div>
-    </div>
+
+        <!-- Toast -->
+        <div class="pdfs-toast" id="pdfToast" role="status" aria-live="polite"></div>
+
+    </div><!-- /pdfLibraryModal -->
 
     <!-- Activity Log Modal -->
     <div id="activityLogModal" class="activity-log-overlay" role="dialog" aria-modal="true" aria-labelledby="activityLogTitle">
-        <div class="activity-log-container">
-            <div class="activity-log-header">
-                <h2 id="activityLogTitle">Activity Log</h2>
-                <button class="activity-log-close" onclick="activityLog.closeModal()">&times;</button>
+        <div class="activity-log-header">
+            <h2 class="activity-log-title" id="activityLogTitle">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg>
+                Activity Log
+            </h2>
+            <button class="activity-log-close" onclick="activityLog.close()" aria-label="Close Activity Log">&times;</button>
+        </div>
+
+        <!-- Stats Bar + Search -->
+        <div class="activity-stats-bar">
+            <div class="activity-stats-pills">
+                <span class="activity-stat-pill activity-stat-pill--total">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+                    <span id="activityTotalCount">0</span> events
+                </span>
+                <span class="activity-stat-pill activity-stat-pill--today">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <span id="activityTodayCount">0</span> today
+                </span>
             </div>
-            <div class="activity-log-content" id="activityLogContent">
-                <!-- Activity log entries will be populated here -->
+            <div class="activity-search-wrap">
+                <svg class="activity-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" class="activity-search-input" id="activitySearchInput" placeholder="Filter activity..." oninput="activityLog.filter(this.value)" aria-label="Filter activity log">
             </div>
+        </div>
+
+        <div class="activity-log-body" id="activityLogBody">
+            <div class="activity-log-loading">Loading activity...</div>
         </div>
     </div>
 
-    <!-- Profile Modal -->
+    <!-- Profile / Settings Modal (Full Screen Overlay) -->
     <div id="profileModal" class="activity-log-overlay" role="dialog" aria-modal="true" aria-labelledby="profileModalTitle">
-        <div class="activity-log-container" style="max-width: 600px;">
-            <div class="activity-log-header">
-                <h2 id="profileModalTitle">Profile Settings</h2>
-                <button class="activity-log-close" onclick="closeProfileModal()">&times;</button>
+        <div class="activity-log-header">
+            <h2 class="activity-log-title" id="profileModalTitle">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                Profile &amp; Settings
+            </h2>
+            <button class="activity-log-close" onclick="closeProfileModal()" aria-label="Close Profile">&times;</button>
+        </div>
+
+        <div class="activity-log-body" id="profileModalBody" style="padding: 20px; display: flex; flex-direction: column; gap: 24px;">
+
+            <!-- Personal Info Section -->
+            <div class="profile-section">
+                <h3 class="profile-section-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    Personal Information
+                </h3>
+                <div class="profile-field-group">
+                    <label class="profile-label">Name</label>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <input type="text" id="profileNameInput" class="profile-input" placeholder="Your name">
+                        <button class="profile-save-btn" onclick="saveProfileName()">Save</button>
+                    </div>
+                </div>
+                <div class="profile-field-group">
+                    <label class="profile-label">Email</label>
+                    <input type="text" id="profileEmailDisplay" class="profile-input profile-input--readonly" readonly>
+                </div>
+                <div class="profile-field-row">
+                    <div class="profile-field-group">
+                        <label class="profile-label">Employee ID</label>
+                        <input type="text" id="profileEmpId" class="profile-input profile-input--readonly" readonly>
+                    </div>
+                    <div class="profile-field-group">
+                        <label class="profile-label">Department</label>
+                        <input type="text" id="profileDept" class="profile-input profile-input--readonly" readonly>
+                    </div>
+                </div>
+                <div class="profile-field-row">
+                    <div class="profile-field-group">
+                        <label class="profile-label">Designation</label>
+                        <input type="text" id="profileDesignation" class="profile-input profile-input--readonly" readonly>
+                    </div>
+                    <div class="profile-field-group">
+                        <label class="profile-label">Role</label>
+                        <div id="profileRoleBadge" style="padding-top:6px;"></div>
+                    </div>
+                </div>
             </div>
-            <div class="activity-log-content">
-                <div class="profile-section">
-                    <div class="profile-section-title">Personal Information</div>
-                    <div class="profile-field-row">
-                        <div>
-                            <div class="profile-label">Name</div>
-                            <div style="display: flex; gap: 8px; align-items: center;">
-                                <input type="text" id="profileNameInput" class="profile-input" placeholder="Your name">
-                                <button class="profile-save-btn" onclick="saveProfileName()">Save</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="profile-field-row">
-                        <div>
-                            <div class="profile-label">Email</div>
-                            <input type="email" id="profileEmailDisplay" class="profile-input profile-input--readonly" readonly>
-                        </div>
-                    </div>
-                    <div class="profile-field-row">
-                        <div>
-                            <div class="profile-label">Role</div>
-                            <div id="profileRoleBadge"></div>
-                        </div>
-                    </div>
-                    <div class="profile-field-row">
-                        <div>
-                            <div class="profile-label">Employee ID</div>
-                            <input type="text" id="profileEmpId" class="profile-input profile-input--readonly" readonly>
-                        </div>
-                        <div>
-                            <div class="profile-label">Department</div>
-                            <input type="text" id="profileDept" class="profile-input profile-input--readonly" readonly>
-                        </div>
-                    </div>
-                    <div class="profile-field-row">
-                        <div>
-                            <div class="profile-label">Designation</div>
-                            <input type="text" id="profileDesignation" class="profile-input profile-input--readonly" readonly>
-                        </div>
-                    </div>
-                </div>
 
-                <div class="profile-section">
-                    <div class="profile-section-title">Change Password</div>
-                    <div class="profile-field-row">
-                        <div>
-                            <div class="profile-label">New Password</div>
-                            <input type="password" id="profileNewPassword" class="profile-input" placeholder="New password">
-                        </div>
-                        <div>
-                            <div class="profile-label">Confirm Password</div>
-                            <input type="password" id="profileConfirmPassword" class="profile-input" placeholder="Confirm password">
-                        </div>
-                    </div>
-                    <div id="profilePasswordError" style="color: #ef4444; font-size: 0.9rem; display: none;"></div>
-                    <button class="profile-save-btn" onclick="changePassword()">Update Password</button>
+            <!-- Change Password Section -->
+            <div class="profile-section">
+                <h3 class="profile-section-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    Change Password
+                </h3>
+                <div class="profile-field-group">
+                    <label class="profile-label">New Password</label>
+                    <input type="password" id="profileNewPassword" class="profile-input" placeholder="Min 6 chars, upper, lower, number">
                 </div>
+                <div class="profile-field-group">
+                    <label class="profile-label">Confirm Password</label>
+                    <input type="password" id="profileConfirmPassword" class="profile-input" placeholder="Re-enter new password">
+                </div>
+                <div id="profilePasswordError" style="color:#ef4444;font-size:13px;margin-top:4px;display:none;"></div>
+                <button class="profile-save-btn" onclick="changePassword()" style="margin-top:8px;">Update Password</button>
+            </div>
 
-                <div class="profile-section" id="profileVoucherSection" style="display:none;">
-                    <div class="profile-section-title">Reimbursement Summary</div>
-                    <div class="profile-voucher-grid">
-                        <div class="profile-voucher-card profile-voucher-card--amount">
-                            <div class="profile-voucher-value" id="pvTotalAmount">₹0.00</div>
-                            <div class="profile-voucher-label">Total Amount</div>
-                        </div>
-                        <div class="profile-voucher-card profile-voucher-card--pending">
-                            <div class="profile-voucher-value" id="pvPending">0</div>
-                            <div class="profile-voucher-label">Pending</div>
-                        </div>
-                        <div class="profile-voucher-card profile-voucher-card--approved">
-                            <div class="profile-voucher-value" id="pvApproved">0</div>
-                            <div class="profile-voucher-label">Approved</div>
-                        </div>
-                        <div class="profile-voucher-card profile-voucher-card--rejected">
-                            <div class="profile-voucher-value" id="pvRejected">0</div>
-                            <div class="profile-voucher-label">Rejected</div>
-                        </div>
-                        <div class="profile-voucher-card profile-voucher-card--reimbursed">
-                            <div class="profile-voucher-value" id="pvReimbursed">0</div>
-                            <div class="profile-voucher-label">Reimbursed</div>
-                        </div>
-                        <div class="profile-voucher-card profile-voucher-card--amount">
-                            <div class="profile-voucher-value" id="pvTotal">0</div>
-                            <div class="profile-voucher-label">Total Count</div>
-                        </div>
+            <!-- Voucher Summary Section -->
+            <div class="profile-section" id="profileVoucherSection" style="display:none;">
+                <h3 class="profile-section-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    My Vouchers Summary
+                </h3>
+                <div class="profile-voucher-grid" id="profileVoucherStats">
+                    <div class="profile-voucher-card">
+                        <span class="profile-voucher-value" id="pvTotal">0</span>
+                        <span class="profile-voucher-label">Total Submitted</span>
+                    </div>
+                    <div class="profile-voucher-card profile-voucher-card--pending">
+                        <span class="profile-voucher-value" id="pvPending">0</span>
+                        <span class="profile-voucher-label">Pending</span>
+                    </div>
+                    <div class="profile-voucher-card profile-voucher-card--approved">
+                        <span class="profile-voucher-value" id="pvApproved">0</span>
+                        <span class="profile-voucher-label">Approved</span>
+                    </div>
+                    <div class="profile-voucher-card profile-voucher-card--rejected">
+                        <span class="profile-voucher-value" id="pvRejected">0</span>
+                        <span class="profile-voucher-label">Rejected</span>
+                    </div>
+                    <div class="profile-voucher-card profile-voucher-card--reimbursed">
+                        <span class="profile-voucher-value" id="pvReimbursed">0</span>
+                        <span class="profile-voucher-label">Reimbursed</span>
+                    </div>
+                    <div class="profile-voucher-card profile-voucher-card--amount">
+                        <span class="profile-voucher-value" id="pvTotalAmount">0</span>
+                        <span class="profile-voucher-label">Total Amount</span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Profile Modal Inline Styles -->
     <style>
         .profile-section {
-            background: rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.1);
             border-radius: 12px;
             padding: 20px;
-            margin-bottom: 16px;
         }
         .profile-section-title {
-            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
             font-weight: 600;
             color: #e2e8f0;
-            margin-bottom: 16px;
+            margin: 0 0 16px 0;
+        }
+        .profile-section-title svg { opacity: 0.7; }
+        .profile-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: #94a3b8;
+            margin-bottom: 4px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
+        .profile-field-group { margin-bottom: 12px; }
+        .profile-field-group:last-child { margin-bottom: 0; }
         .profile-field-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-bottom: 12px;
+            gap: 12px;
         }
-        .profile-label {
-            font-size: 12px;
-            font-weight: 600;
-            color: #cbd5e1;
-            margin-bottom: 6px;
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
-        }
+        .profile-field-row .profile-field-group { margin-bottom: 0; }
         .profile-input {
+            width: 100%;
             padding: 10px 12px;
-            background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(139,92,246,0.3);
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
             border-radius: 8px;
             color: #e2e8f0;
             font-size: 14px;
+            outline: none;
             transition: border-color 0.2s;
             box-sizing: border-box;
         }
@@ -1496,5 +2317,9 @@
         </div>
     </div>
 
+    <!-- Floating Quick Add Button -->
+    <button id="quickAddFAB" class="quick-add-fab" onclick="expenseTracker.openQuickAdd()" aria-label="Quick Add Expense" title="Quick Add (or shake phone)">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </button>
+
 </body>
-</html>
