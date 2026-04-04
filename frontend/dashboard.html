@@ -314,51 +314,279 @@
     </main>
   </div>
 
+  <!-- Load Supabase Client -->
+  <script src="supabase-client.js"></script>
+  <script src="supabase-auth.js"></script>
+  <script src="supabase-api.js"></script>
+
   <script>
-    // Spending data for different periods
-    const spendingData = {
-      'this-month': {
-        Food: 12450,
-        Travel: 8230,
-        Utilities: 5600,
-        Entertainment: 3200,
-        Shopping: 15750,
-        Other: 2400
+    // ==============================================
+    // DASHBOARD DATA STATE
+    // ==============================================
+    let dashboardState = {
+      spendingData: {
+        'this-month': {},
+        'last-month': {},
+        '3-months': {}
       },
-      'last-month': {
-        Food: 10200,
-        Travel: 6500,
-        Utilities: 5400,
-        Entertainment: 4100,
-        Shopping: 12300,
-        Other: 1800
-      },
-      '3-months': {
-        Food: 35600,
-        Travel: 22100,
-        Utilities: 16200,
-        Entertainment: 10800,
-        Shopping: 42500,
-        Other: 6200
-      }
+      transactions: [],
+      wallets: [],
+      balance: 0,
+      monthlyChange: 0,
+      isLoading: false
     };
 
-    // Chart rendering function
+    // ==============================================
+    // DATE UTILITIES
+    // ==============================================
+    function getDateRange(period) {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = today.getMonth();
+      const date = today.getDate();
+
+      let startDate, endDate = new Date();
+      endDate.setHours(23, 59, 59, 999);
+
+      switch (period) {
+        case 'this-month':
+          startDate = new Date(year, month, 1);
+          break;
+        case 'last-month':
+          startDate = new Date(year, month - 1, 1);
+          endDate = new Date(year, month, 0, 23, 59, 59, 999);
+          break;
+        case '3-months':
+          startDate = new Date(year, month - 2, 1);
+          break;
+        default:
+          startDate = new Date(year, month, 1);
+      }
+
+      return {
+        start: startDate.toISOString().split('T')[0],
+        end: endDate.toISOString().split('T')[0]
+      };
+    }
+
+    function formatDate(dateStr) {
+      const date = new Date(dateStr);
+      const today = new Date();
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+
+      const isToday = date.toDateString() === today.toDateString();
+      const isYesterday = date.toDateString() === yesterday.toDateString();
+
+      if (isToday) {
+        return `Today at ${date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}`;
+      } else if (isYesterday) {
+        return `Yesterday at ${date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}`;
+      } else {
+        const daysAgo = Math.floor((today - date) / (1000 * 60 * 60 * 24));
+        if (daysAgo < 7) {
+          return `${daysAgo} day${daysAgo > 1 ? 's' : ''} ago`;
+        }
+        return date.toLocaleDateString('en-IN');
+      }
+    }
+
+    // ==============================================
+    // DATA FETCHING FUNCTIONS
+    // ==============================================
+
+    async function fetchUserBalance() {
+      try {
+        const result = await api.getExpenseStats();
+        if (result.success) {
+          const stats = result.data;
+          const totalExpenses = stats.total_amount || 0;
+          const income = stats.total_income || 0;
+          const balance = income - totalExpenses;
+          dashboardState.balance = balance;
+          return balance;
+        }
+      } catch (error) {
+        console.error('Error fetching balance:', error);
+      }
+      return 0;
+    }
+
+    async function fetchSpendingByCategory(period) {
+      try {
+        const range = getDateRange(period);
+        const result = await api.getExpenses(1, 1000);
+
+        if (result.success) {
+          const expenses = result.data || [];
+          const filtered = expenses.filter(exp => {
+            const expDate = exp.date;
+            return expDate >= range.start && expDate <= range.end;
+          });
+
+          // Group by category
+          const categoryData = {};
+          filtered.forEach(exp => {
+            const cat = exp.category || 'Other';
+            categoryData[cat] = (categoryData[cat] || 0) + (exp.amount || 0);
+          });
+
+          dashboardState.spendingData[period] = categoryData;
+          return categoryData;
+        }
+      } catch (error) {
+        console.error(`Error fetching spending for ${period}:`, error);
+      }
+      return {};
+    }
+
+    async function fetchRecentTransactions() {
+      try {
+        const result = await api.getExpenses(1, 10);
+        if (result.success) {
+          dashboardState.transactions = result.data || [];
+          return result.data || [];
+        }
+      } catch (error) {
+        console.error('Error fetching transactions:', error);
+      }
+      return [];
+    }
+
+    async function fetchMonthlyComparison() {
+      try {
+        // Get this month's total
+        const thisMonthRange = getDateRange('this-month');
+        const result = await api.getExpenses(1, 1000);
+
+        if (result.success) {
+          const expenses = result.data || [];
+
+          // This month
+          const thisMonthExpenses = expenses.filter(exp => {
+            const expDate = exp.date;
+            return expDate >= thisMonthRange.start && expDate <= thisMonthRange.end;
+          });
+          const thisMonthTotal = thisMonthExpenses.reduce((sum, exp) => sum + (exp.amount || 0), 0);
+
+          // Last month
+          const lastMonthRange = getDateRange('last-month');
+          const lastMonthExpenses = expenses.filter(exp => {
+            const expDate = exp.date;
+            return expDate >= lastMonthRange.start && expDate <= lastMonthRange.end;
+          });
+          const lastMonthTotal = lastMonthExpenses.reduce((sum, exp) => sum + (exp.amount || 0), 0);
+
+          // Calculate change (assuming income is constant, savings is income - expenses)
+          const change = lastMonthTotal - thisMonthTotal; // Lower expenses = more savings
+          dashboardState.monthlyChange = change;
+          return change;
+        }
+      } catch (error) {
+        console.error('Error fetching monthly comparison:', error);
+      }
+      return 0;
+    }
+
+    // ==============================================
+    // DOM UPDATE FUNCTIONS
+    // ==============================================
+
+    function updateHeroCard() {
+      const balanceEl = document.querySelector('.dashboard-hero-card [style*="font-size: var(--font-size-display)"]');
+      const changeEl = document.querySelector('.dashboard-hero-card [style*="color: var(--color-success)"]');
+      const messageEl = changeEl?.nextElementSibling;
+
+      if (balanceEl) {
+        balanceEl.textContent = '₹' + dashboardState.balance.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+      }
+
+      if (changeEl) {
+        const change = dashboardState.monthlyChange;
+        const isPositive = change >= 0;
+        changeEl.style.color = isPositive ? 'var(--color-success)' : 'var(--color-error)';
+        changeEl.textContent = (isPositive ? '+' : '') + '₹' + Math.abs(change).toLocaleString('en-IN', { minimumFractionDigits: 2 }) + ' this month';
+      }
+
+      if (messageEl) {
+        const isPositive = dashboardState.monthlyChange >= 0;
+        messageEl.textContent = isPositive ? 'You saved more than last month' : 'You spent more than last month';
+      }
+    }
+
+    function updateRecentTransactions() {
+      const tbody = document.querySelector('.transactions-table tbody');
+      if (!tbody) return;
+
+      if (dashboardState.transactions.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--color-text-secondary); padding: var(--spacing-lg);">No transactions found</td></tr>';
+        return;
+      }
+
+      let html = '';
+      dashboardState.transactions.slice(0, 10).forEach(transaction => {
+        const categoryBadgeClass = `badge-${transaction.category?.toLowerCase().replace(/\s+/g, '-') || 'other'}`;
+        html += `
+          <tr>
+            <td style="font-weight: var(--font-weight-semibold);">${transaction.vendor || transaction.description || 'N/A'}</td>
+            <td style="text-align: center;">
+              <span class="badge ${categoryBadgeClass}">${transaction.category || 'Other'}</span>
+            </td>
+            <td style="text-align: right; color: var(--color-text-primary);">₹${transaction.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+            <td style="text-align: right; color: var(--color-text-secondary); font-size: var(--font-size-caption);">${formatDate(transaction.date)}</td>
+          </tr>
+        `;
+      });
+
+      tbody.innerHTML = html;
+    }
+
+    function updateUserProfile() {
+      const user = getCurrentUser();
+      if (!user) return;
+
+      const nameEl = document.querySelector('.header-user-name');
+      const emailEl = document.querySelector('.header-user-email');
+      const avatarEl = document.querySelector('.header-user-avatar');
+
+      if (nameEl) nameEl.textContent = user.name || 'User';
+      if (emailEl) emailEl.textContent = user.email || '';
+      if (avatarEl) {
+        const initials = (user.name || 'U')
+          .split(' ')
+          .map(n => n[0])
+          .join('')
+          .toUpperCase()
+          .slice(0, 2);
+        avatarEl.textContent = initials;
+      }
+    }
+
+    // ==============================================
+    // CHART RENDERING (from original implementation)
+    // ==============================================
+
     function renderSpendingChart(period = 'this-month') {
       const canvas = document.getElementById('spending-chart');
       if (!canvas) return;
 
-      // Issue 4: Add parameter validation
-      if (!spendingData[period]) {
-        console.error('Invalid period:', period);
+      const data = dashboardState.spendingData[period] || {};
+      const categories = Object.keys(data).sort((a, b) => data[b] - data[a]);
+      const values = categories.map(cat => data[cat]);
+
+      if (values.length === 0) {
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'var(--color-text-secondary)';
+        ctx.font = '14px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('No spending data for this period', canvas.width / 2, canvas.height / 2);
+        updateLegend(period);
         return;
       }
 
-      const ctx = canvas.getContext('2d');
-      const data = spendingData[period];
-      const categories = Object.keys(data);
-      const values = Object.values(data);
       const maxValue = Math.max(...values);
+      const ctx = canvas.getContext('2d');
 
       // Set canvas size based on container
       const container = canvas.parentElement;
@@ -374,7 +602,6 @@
       const canvasHeight = 300;
 
       // Clear canvas
-      ctx.fillStyle = 'var(--color-white)';
       ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
       // Chart dimensions
@@ -417,12 +644,6 @@
       ctx.stroke();
 
       // Draw bars and labels
-      ctx.fillStyle = barColor;
-      ctx.strokeStyle = barColor;
-      ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillStyle = textColor;
-
       categories.forEach((category, index) => {
         const value = values[index];
         const barHeight = (value / maxValue) * chartHeight;
@@ -460,29 +681,72 @@
         ctx.fillText('₹' + (value / 1000).toFixed(0) + 'k', padding.left - 10, y + 4);
       }
 
-      // Issue 2: Generate legend dynamically from spendingData
       updateLegend(period);
     }
 
-    // Issue 2: Function to update legend from spending data
     function updateLegend(period) {
       const legendContainer = document.getElementById('spending-legend');
-      if (!legendContainer || !spendingData[period]) return;
+      if (!legendContainer) return;
 
-      const data = spendingData[period];
+      const data = dashboardState.spendingData[period] || {};
+      if (Object.keys(data).length === 0) {
+        legendContainer.innerHTML = '';
+        return;
+      }
+
       let legendHTML = '';
-
-      Object.entries(data).forEach(([category, amount]) => {
-        legendHTML += `
-          <div class="legend-item">
-            <div class="legend-color" style="background-color: var(--color-gray-950);"></div>
-            <div class="legend-label">${category}</div>
-            <div class="legend-value">₹${amount.toLocaleString('en-IN')}</div>
-          </div>
-        `;
-      });
+      Object.entries(data)
+        .sort((a, b) => b[1] - a[1])
+        .forEach(([category, amount]) => {
+          legendHTML += `
+            <div class="legend-item">
+              <div class="legend-color" style="background-color: var(--color-gray-950);"></div>
+              <div class="legend-label">${category}</div>
+              <div class="legend-value">₹${amount.toLocaleString('en-IN')}</div>
+            </div>
+          `;
+        });
 
       legendContainer.innerHTML = legendHTML;
+    }
+
+    // ==============================================
+    // MAIN INITIALIZATION
+    // ==============================================
+
+    async function loadDashboardData() {
+      if (!requireAuth()) return;
+
+      try {
+        dashboardState.isLoading = true;
+
+        // Load all data in parallel
+        await Promise.all([
+          fetchUserBalance(),
+          fetchSpendingByCategory('this-month'),
+          fetchSpendingByCategory('last-month'),
+          fetchSpendingByCategory('3-months'),
+          fetchRecentTransactions(),
+          fetchMonthlyComparison()
+        ]);
+
+        // Update UI with fetched data
+        updateHeroCard();
+        updateRecentTransactions();
+        updateUserProfile();
+        renderSpendingChart('this-month');
+
+        dashboardState.isLoading = false;
+      } catch (error) {
+        console.error('Error loading dashboard data:', error);
+        dashboardState.isLoading = false;
+        // Show error message to user
+        const errorMsg = document.createElement('div');
+        errorMsg.style.cssText = 'position: fixed; top: 20px; right: 20px; background: var(--color-error); color: white; padding: 12px 16px; border-radius: 4px; z-index: 9999;';
+        errorMsg.textContent = 'Failed to load dashboard data. Please refresh the page.';
+        document.body.appendChild(errorMsg);
+        setTimeout(() => errorMsg.remove(), 5000);
+      }
     }
 
     // Mobile hamburger menu functionality
@@ -506,13 +770,13 @@
         }
       });
 
-      // Initialize chart
-      renderSpendingChart('this-month');
+      // Load dashboard data on page load
+      loadDashboardData();
 
       // Period selector button handlers
       const periodButtons = document.querySelectorAll('.period-btn');
       periodButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
+        button.addEventListener('click', async function(e) {
           e.preventDefault();
 
           // Remove active class from all buttons
@@ -521,13 +785,14 @@
           // Add active class to clicked button
           this.classList.add('active');
 
-          // Render chart with new period
+          // Fetch and render chart with new period
           const period = this.getAttribute('data-period');
+          await fetchSpendingByCategory(period);
           renderSpendingChart(period);
         });
       });
 
-      // Issue 5: Debounce resize handler to prevent excessive re-renders
+      // Debounce resize handler
       let resizeTimer;
       window.addEventListener('resize', function() {
         clearTimeout(resizeTimer);
@@ -536,6 +801,15 @@
           renderSpendingChart(activePeriod);
         }, 150);
       });
+
+      // Logout button handler
+      const logoutBtn = document.querySelector('.sidebar-footer-item:last-child');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          logout();
+        });
+      }
     });
   </script>
 </body>
