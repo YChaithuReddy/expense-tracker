@@ -105,31 +105,30 @@
         };
     </script>
 <body>
-    <!-- PROFESSIONAL ADMIN-STYLE LAYOUT -->
     <div class="admin-layout">
-        <!-- SIDEBAR -->
+        <!-- Sidebar (matches admin.html exactly) -->
         <aside class="admin-sidebar">
             <div class="admin-sidebar__logo">
-                <img src="fluxgen-logo.jpg" alt="FluxGen">
-                <h1>Expense Tracker</h1>
-                <small>Employee Dashboard</small>
-                <small id="orgName"></small>
+                <img src="fluxgen-logo.jpg" alt="FluxGen" style="width:100%;object-fit:contain;margin-bottom:4px;border-radius:4px;">
+                <h1><span>Expense Tracker</span></h1>
+                <small style="display:block;font-size:0.72rem;font-weight:600;color:var(--gray-500);margin-bottom:2px;">Employee Dashboard</small>
+                <small id="orgName">FluxGen Technologies</small>
             </div>
             <nav class="admin-sidebar__nav">
                 <button class="admin-nav-item active" data-section="expenses" onclick="switchSection('expenses', this)">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                     <span>Expenses</span>
                 </button>
                 <button class="admin-nav-item" data-section="advance" onclick="switchSection('advance', this)">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
                     <span>Advance</span>
                 </button>
                 <button class="admin-nav-item" data-section="reports" onclick="switchSection('reports', this)">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="18" y="3" width="4" height="18"/><rect x="10" y="8" width="4" height="13"/><rect x="2" y="13" width="4" height="8"/></svg>
                     <span>Reports</span>
                 </button>
                 <button class="admin-nav-item" data-section="settings" onclick="switchSection('settings', this)">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4"/></svg>
                     <span>Settings</span>
                 </button>
             </nav>
@@ -140,19 +139,31 @@
                     <span id="sidebarUserEmail"></span>
                 </div>
                 <div class="admin-sidebar__links">
+                    <button class="admin-sidebar__link" onclick="window.location.href='admin.html'">Admin</button>
                     <button class="admin-sidebar__link admin-sidebar__link--danger" onclick="logout()">Logout</button>
                 </div>
             </div>
         </aside>
 
-        <!-- MAIN CONTENT -->
-        <main class="admin-main">
+        <!-- Main Content -->
+        <main class="admin-main" style="display:block !important;grid-template-columns:unset !important;">
 
             <!-- Hidden userInfo container for JS population -->
             <div id="userInfo" style="display:none;"></div>
 
             <!-- EXPENSES SECTION (default active) -->
             <div class="admin-section active" id="section-expenses">
+                <div class="admin-main__header">
+                    <div>
+                        <h2>Expenses</h2>
+                        <p>Scan bills, add expenses, and manage submissions</p>
+                    </div>
+                    <div class="admin-quick-actions">
+                        <button class="admin-btn admin-btn--primary" onclick="document.getElementById('skipToManualEntry')?.click()">Add Expense</button>
+                        <button class="admin-btn admin-btn--secondary" onclick="document.getElementById('exportToGoogleSheets')?.click()">Export to Sheets</button>
+                        <button class="admin-btn admin-btn--secondary" onclick="document.getElementById('downloadReimbursementPackage')?.click()">Submit Package</button>
+                    </div>
+                </div>
             <!-- Bill OCR Section -->
             <section id="ocrSection" class="ocr-section ocr-dropzone">
                 <!-- Drag overlay shown when dragging files over the card -->
@@ -419,6 +430,9 @@
                         <h2>Advance Tracker</h2>
                         <p>Manage your advance requests and track status</p>
                     </div>
+                    <div class="admin-quick-actions">
+                        <button class="admin-btn admin-btn--primary" id="openAdvanceModalBtn" onclick="document.getElementById('openAdvanceModal')?.click()">New Advance</button>
+                    </div>
                 </div>
         <section class="advance-summary-section" id="advanceSummarySection" style="display: none;">
             <div class="advance-summary-header">
@@ -441,9 +455,14 @@
                         <h2>Reports</h2>
                         <p>View detailed reports and analytics of your expenses</p>
                     </div>
+                    <div class="admin-quick-actions">
+                        <button class="admin-btn admin-btn--secondary" onclick="document.getElementById('exportToGoogleSheets')?.click()">Export to Sheets</button>
+                    </div>
                 </div>
-                <div style="text-align: center; padding: 40px; color: var(--gray-500);">
-                    Advanced reporting features coming soon.
+                <div class="admin-empty">
+                    <p style="font-size:2rem;margin-bottom:8px;">📊</p>
+                    <p style="font-weight:600;color:var(--gray-900);">Reports Coming Soon</p>
+                    <p>Advanced reporting and analytics features are being built.</p>
                 </div>
             </div><!-- /section-reports -->
 
@@ -455,8 +474,10 @@
                         <p>Manage your preferences and account settings</p>
                     </div>
                 </div>
-                <div style="text-align: center; padding: 40px; color: var(--gray-500);">
-                    Settings features coming soon.
+                <div class="admin-empty">
+                    <p style="font-size:2rem;margin-bottom:8px;">⚙️</p>
+                    <p style="font-weight:600;color:var(--gray-900);">Settings Coming Soon</p>
+                    <p>Account preferences and configuration options are being built.</p>
                 </div>
             </div><!-- /section-settings -->
 
