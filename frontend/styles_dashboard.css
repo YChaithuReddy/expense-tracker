@@ -275,6 +275,286 @@ body {
 .admin-section.active { display: block; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
+/* ============================================================
+   EXPENSES SECTION LAYOUT & STYLING
+   ============================================================ */
+#section-expenses .section-header {
+    margin-bottom: 20px;
+}
+#section-expenses .section-header h2 {
+    margin: 0 0 12px 0;
+    color: var(--gray-900);
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+#section-expenses .action-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+#section-expenses .action-buttons button {
+    padding: 8px 14px;
+    font-size: 0.85rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    background: var(--white);
+    color: var(--gray-600);
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+#section-expenses .action-buttons button:hover {
+    background: var(--gray-50);
+    border-color: var(--gray-300);
+}
+#section-expenses .btn-primary {
+    background: var(--blue);
+    color: var(--white);
+    border-color: var(--blue);
+}
+#section-expenses .btn-primary:hover {
+    background: #1d4ed8;
+}
+#section-expenses .btn-danger {
+    color: var(--red);
+    border-color: #fecaca;
+    background: var(--red-bg);
+}
+#section-expenses .btn-danger:hover {
+    background: #fee2e2;
+}
+
+/* OCR Section */
+#ocrSection {
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin-bottom: 24px;
+}
+#ocrSection h2 {
+    margin: 0 0 8px 0;
+    color: var(--gray-900);
+    font-size: 1.1rem;
+}
+#ocrSection > p {
+    margin: 0 0 16px 0;
+    color: var(--gray-500);
+    font-size: 0.9rem;
+}
+
+/* Drag Drop Zone */
+.drag-drop-zone {
+    border: 2px dashed var(--blue);
+    border-radius: var(--radius-lg);
+    padding: 40px 20px;
+    text-align: center;
+    background: #f0f7ff;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin: 16px 0;
+}
+.drag-drop-zone:hover {
+    border-color: var(--blue);
+    background: #e3f2fd;
+}
+.drag-drop-hint {
+    pointer-events: none;
+}
+.drag-drop-text {
+    font-weight: 500;
+    color: var(--gray-900);
+    margin-bottom: 4px;
+}
+.drag-drop-subtext {
+    font-size: 0.85rem;
+    color: var(--gray-500);
+}
+
+/* Expenses List Section */
+.expenses-list-section {
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin-bottom: 24px;
+}
+
+/* Expenses Full Width Section */
+.expenses-fullwidth-section {
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+}
+.search-filter-container {
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+.search-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--gray-50);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    margin-bottom: 12px;
+}
+.search-input {
+    flex: 1;
+    border: none;
+    background: none;
+    outline: none;
+    font-size: 0.9rem;
+}
+.filters-wrapper {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    margin-top: 12px;
+}
+.filter-select,
+.filter-date {
+    padding: 8px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--white);
+    font-size: 0.85rem;
+}
+.reset-filters-btn {
+    padding: 8px 12px;
+    background: var(--gray-100);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+/* Pagination */
+.pagination-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+}
+.pagination-info {
+    font-size: 0.85rem;
+    color: var(--gray-500);
+}
+.pagination-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+.pagination-btn {
+    padding: 6px 12px;
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+.page-size-select {
+    padding: 6px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+}
+
+/* Total Amount */
+.total-section {
+    text-align: right;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+    font-weight: 600;
+    color: var(--gray-900);
+}
+
+/* Expense Form */
+#expenseFormSection {
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin-bottom: 24px;
+}
+#expenseFormSection h2 {
+    margin: 0 0 8px 0;
+    color: var(--gray-900);
+}
+#expenseFormSection p {
+    margin: 0 0 16px 0;
+    color: var(--gray-500);
+}
+
+/* Form Groups */
+.form-group {
+    margin-bottom: 16px;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: var(--gray-700);
+    font-size: 0.9rem;
+}
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    font-family: inherit;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px #eff6ff;
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+.form-actions button {
+    flex: 1;
+    padding: 10px 16px;
+    border-radius: var(--radius-md);
+    border: none;
+    font-weight: 500;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+.form-actions .btn-primary {
+    background: var(--blue);
+    color: white;
+}
+.form-actions .btn-secondary {
+    background: var(--gray-100);
+    color: var(--gray-700);
+    border: 1px solid var(--border-color);
+}
+
+/* Advance Cards Container */
+.advance-cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .admin-layout { flex-direction: column; }
