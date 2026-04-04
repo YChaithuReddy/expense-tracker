@@ -288,30 +288,14 @@
     </main>
   </div>
 
+  <script src="../js/navigation.js"></script>
+  <script src="../js/ui-states.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
 
       // =========================================================================
-      // SIDEBAR & TAB NAVIGATION
+      // TAB NAVIGATION
       // =========================================================================
-
-      const hamburgerBtn = document.getElementById('hamburger-btn');
-      const sidebar = document.querySelector('.sidebar');
-
-      if (hamburgerBtn) {
-        hamburgerBtn.addEventListener('click', function(e) {
-          e.preventDefault();
-          sidebar.classList.toggle('open');
-        });
-      }
-
-      document.addEventListener('click', function(e) {
-        if (sidebar && sidebar.classList.contains('open')) {
-          if (!sidebar.contains(e.target) && !hamburgerBtn.contains(e.target)) {
-            sidebar.classList.remove('open');
-          }
-        }
-      });
 
       const tabButtons = document.querySelectorAll('.tab-button');
       const tabPanels = document.querySelectorAll('.tab-panel');
@@ -327,11 +311,6 @@
           if (activePanel) activePanel.classList.add('active');
         });
       });
-
-      const logoutBtn = document.querySelector('.sidebar-footer-item:last-child');
-      if (logoutBtn) {
-        logoutBtn.addEventListener('click', function(e) { e.preventDefault(); });
-      }
 
       // =========================================================================
       // FORM VALIDATION UTILITIES

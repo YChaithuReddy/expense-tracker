@@ -166,19 +166,7 @@
   <!-- Mobile sidebar overlay -->
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
-  <script>
-    // Sidebar toggle for mobile
-    const hamburgerBtn = document.getElementById('hamburger-btn');
-    const sidebar = document.querySelector('.sidebar');
-    const overlay = document.getElementById('sidebar-overlay');
-
-    function toggleSidebar() {
-      sidebar.classList.toggle('open');
-      overlay.classList.toggle('active');
-    }
-
-    hamburgerBtn.addEventListener('click', toggleSidebar);
-    overlay.addEventListener('click', toggleSidebar);
-  </script>
+  <script src="../js/navigation.js"></script>
+  <script src="../js/ui-states.js"></script>
 </body>
 </html>
