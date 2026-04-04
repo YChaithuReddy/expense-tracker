@@ -41,6 +41,12 @@
   --color-text-disabled: var(--color-gray-400);
   --color-text-inverse: var(--color-white);
 
+  /* Status Colors */
+  --color-error: #dc2626;
+  --color-success: #16a34a;
+  --color-info: #2563eb;
+  --color-warning: #ea8c55;
+
   /* Dark Mode (Toggle Support) */
   --color-background-dark: #0f0f0f;
   --color-surface-dark: #1a1a1a;
