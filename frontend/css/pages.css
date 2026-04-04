@@ -142,3 +142,136 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* =============================================================================
+   WALLETS SECTION
+   ============================================================================= */
+
+.wallets-section {
+  /* Inherits card base styles from components.css */
+}
+
+/* Wallets Grid Layout */
+.wallets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+}
+
+/* Individual Wallet Card */
+.wallet-card {
+  background-color: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.wallet-card:hover {
+  border-color: var(--color-border-secondary);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Wallet Icon */
+.wallet-icon {
+  font-size: 32px;
+  margin-bottom: var(--spacing-xs);
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  height: 40px;
+}
+
+/* Wallet Name */
+.wallet-name {
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0;
+  padding: 0;
+}
+
+/* Wallet Type */
+.wallet-type {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-secondary);
+  margin: 0;
+  padding: 0;
+  font-weight: var(--font-weight-normal);
+}
+
+/* Wallet Balance - Large, Bold Typography */
+.wallet-balance {
+  font-size: 24px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: var(--spacing-sm) 0 0 0;
+  padding: 0;
+  line-height: 1.2;
+}
+
+/* Wallet Updated Time */
+.wallet-updated {
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+  margin: var(--spacing-xs) 0 0 0;
+  padding: 0;
+  font-weight: var(--font-weight-normal);
+}
+
+/* Text Link Styling */
+.text-link {
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text-primary);
+  text-decoration: none;
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.text-link:hover {
+  color: var(--color-text-secondary);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .wallets-grid {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: var(--spacing-sm);
+  }
+
+  .wallet-card {
+    padding: var(--spacing-sm);
+  }
+
+  .wallet-icon {
+    font-size: 28px;
+    height: 36px;
+  }
+
+  .wallet-balance {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .wallets-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wallet-card {
+    padding: var(--spacing-md);
+  }
+
+  .wallet-icon {
+    font-size: 24px;
+    height: 32px;
+  }
+
+  .wallet-balance {
+    font-size: 18px;
+  }
+}
