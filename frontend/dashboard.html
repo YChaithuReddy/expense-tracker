@@ -109,17 +109,58 @@
 
         <!-- Content Grid - Three Column Layout -->
         <div class="grid grid-3">
-          <!-- Section 1: Spending Insights Placeholder -->
-          <div class="card" style="grid-column: span 2;">
+          <!-- Section 1: Spending Insights Chart -->
+          <div class="card spending-insights-card" style="grid-column: span 2;">
             <div class="card-header">
               <h2 class="card-title" style="font-size: var(--font-size-h3); margin: 0;">Spending Insights</h2>
             </div>
             <div class="card-body">
-              <p style="color: var(--color-text-secondary); margin: 0;">
-                📊 Chart visualization will be added in Phase 2 Task 6
-              </p>
-              <div style="height: 200px; background-color: var(--color-surface-secondary); border-radius: var(--border-radius-md); display: flex; align-items: center; justify-content: center; margin-top: var(--spacing-lg); color: var(--color-text-tertiary);">
-                Placeholder for chart
+              <!-- Period Selector -->
+              <div class="chart-period-selector">
+                <button class="btn btn-sm period-btn active" data-period="this-month">This Month</button>
+                <button class="btn btn-sm period-btn" data-period="last-month">Last Month</button>
+                <button class="btn btn-sm period-btn" data-period="3-months">Last 3 Months</button>
+              </div>
+
+              <!-- Canvas Chart -->
+              <div class="chart-container">
+                <canvas id="spending-chart" class="spending-chart-canvas"></canvas>
+              </div>
+
+              <!-- Legend -->
+              <div class="chart-legend">
+                <div class="legend-grid">
+                  <div class="legend-item">
+                    <div class="legend-color" style="background-color: var(--color-gray-950);"></div>
+                    <div class="legend-label">Food</div>
+                    <div class="legend-value">₹12,450</div>
+                  </div>
+                  <div class="legend-item">
+                    <div class="legend-color" style="background-color: var(--color-gray-950);"></div>
+                    <div class="legend-label">Travel</div>
+                    <div class="legend-value">₹8,230</div>
+                  </div>
+                  <div class="legend-item">
+                    <div class="legend-color" style="background-color: var(--color-gray-950);"></div>
+                    <div class="legend-label">Utilities</div>
+                    <div class="legend-value">₹5,600</div>
+                  </div>
+                  <div class="legend-item">
+                    <div class="legend-color" style="background-color: var(--color-gray-950);"></div>
+                    <div class="legend-label">Entertainment</div>
+                    <div class="legend-value">₹3,200</div>
+                  </div>
+                  <div class="legend-item">
+                    <div class="legend-color" style="background-color: var(--color-gray-950);"></div>
+                    <div class="legend-label">Shopping</div>
+                    <div class="legend-value">₹15,750</div>
+                  </div>
+                  <div class="legend-item">
+                    <div class="legend-color" style="background-color: var(--color-gray-950);"></div>
+                    <div class="legend-label">Other</div>
+                    <div class="legend-value">₹2,400</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -240,6 +281,146 @@
   </div>
 
   <script>
+    // Spending data for different periods
+    const spendingData = {
+      'this-month': {
+        Food: 12450,
+        Travel: 8230,
+        Utilities: 5600,
+        Entertainment: 3200,
+        Shopping: 15750,
+        Other: 2400
+      },
+      'last-month': {
+        Food: 10200,
+        Travel: 6500,
+        Utilities: 5400,
+        Entertainment: 4100,
+        Shopping: 12300,
+        Other: 1800
+      },
+      '3-months': {
+        Food: 35600,
+        Travel: 22100,
+        Utilities: 16200,
+        Entertainment: 10800,
+        Shopping: 42500,
+        Other: 6200
+      }
+    };
+
+    // Chart rendering function
+    function renderSpendingChart(period = 'this-month') {
+      const canvas = document.getElementById('spending-chart');
+      if (!canvas) return;
+
+      const ctx = canvas.getContext('2d');
+      const data = spendingData[period];
+      const categories = Object.keys(data);
+      const values = Object.values(data);
+      const maxValue = Math.max(...values);
+
+      // Set canvas size based on container
+      const container = canvas.parentElement;
+      const rect = container.getBoundingClientRect();
+      const pixelRatio = window.devicePixelRatio || 1;
+
+      canvas.width = rect.width * pixelRatio;
+      canvas.height = 300 * pixelRatio;
+
+      ctx.scale(pixelRatio, pixelRatio);
+
+      const canvasWidth = rect.width;
+      const canvasHeight = 300;
+
+      // Clear canvas
+      ctx.fillStyle = 'var(--color-white)';
+      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+      // Chart dimensions
+      const padding = { top: 20, right: 20, bottom: 50, left: 50 };
+      const chartWidth = canvasWidth - padding.left - padding.right;
+      const chartHeight = canvasHeight - padding.top - padding.bottom;
+      const barWidth = chartWidth / (categories.length * 1.5);
+      const barSpacing = chartWidth / categories.length;
+
+      // Get computed style for colors
+      const style = getComputedStyle(document.documentElement);
+      const textColor = style.getPropertyValue('--color-text-primary').trim() || '#000000';
+      const barColor = style.getPropertyValue('--color-gray-950').trim() || '#000000';
+      const gridColor = style.getPropertyValue('--color-gray-200').trim() || '#eeeeee';
+
+      // Draw grid lines
+      ctx.strokeStyle = gridColor;
+      ctx.lineWidth = 1;
+      const gridLines = 4;
+      for (let i = 0; i <= gridLines; i++) {
+        const y = padding.top + (chartHeight / gridLines) * i;
+        ctx.beginPath();
+        ctx.moveTo(padding.left, y);
+        ctx.lineTo(canvasWidth - padding.right, y);
+        ctx.stroke();
+      }
+
+      // Draw Y-axis
+      ctx.strokeStyle = textColor;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(padding.left, padding.top);
+      ctx.lineTo(padding.left, canvasHeight - padding.bottom);
+      ctx.stroke();
+
+      // Draw X-axis
+      ctx.beginPath();
+      ctx.moveTo(padding.left, canvasHeight - padding.bottom);
+      ctx.lineTo(canvasWidth - padding.right, canvasHeight - padding.bottom);
+      ctx.stroke();
+
+      // Draw bars and labels
+      ctx.fillStyle = barColor;
+      ctx.strokeStyle = barColor;
+      ctx.font = '12px var(--font-family-system)';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = textColor;
+
+      categories.forEach((category, index) => {
+        const value = values[index];
+        const barHeight = (value / maxValue) * chartHeight;
+        const x = padding.left + index * barSpacing + (barSpacing - barWidth) / 2;
+        const y = canvasHeight - padding.bottom - barHeight;
+
+        // Draw bar
+        ctx.fillStyle = barColor;
+        ctx.fillRect(x, y, barWidth, barHeight);
+
+        // Draw value label on top of bar
+        ctx.fillStyle = textColor;
+        ctx.font = 'bold 11px var(--font-family-system)';
+        ctx.textAlign = 'center';
+        ctx.fillText('₹' + (value / 1000).toFixed(1) + 'k', x + barWidth / 2, y - 8);
+
+        // Draw category label below X-axis
+        ctx.fillStyle = textColor;
+        ctx.font = '12px var(--font-family-system)';
+        ctx.save();
+        ctx.translate(x + barWidth / 2, canvasHeight - padding.bottom + 35);
+        ctx.rotate(-Math.PI / 4);
+        ctx.textAlign = 'right';
+        ctx.fillText(category, 0, 0);
+        ctx.restore();
+      });
+
+      // Draw Y-axis labels
+      ctx.fillStyle = textColor;
+      ctx.font = '11px var(--font-family-system)';
+      ctx.textAlign = 'right';
+      for (let i = 0; i <= gridLines; i++) {
+        const value = (maxValue / gridLines) * i;
+        const y = canvasHeight - padding.bottom - (chartHeight / gridLines) * i;
+        ctx.fillText('₹' + (value / 1000).toFixed(0) + 'k', padding.left - 10, y + 4);
+      }
+    }
+
     // Mobile hamburger menu functionality
     document.addEventListener('DOMContentLoaded', function() {
       const hamburgerBtn = document.getElementById('hamburger-btn');
@@ -259,6 +440,33 @@
             sidebar.classList.remove('open');
           }
         }
+      });
+
+      // Initialize chart
+      renderSpendingChart('this-month');
+
+      // Period selector button handlers
+      const periodButtons = document.querySelectorAll('.period-btn');
+      periodButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+
+          // Remove active class from all buttons
+          periodButtons.forEach(btn => btn.classList.remove('active'));
+
+          // Add active class to clicked button
+          this.classList.add('active');
+
+          // Render chart with new period
+          const period = this.getAttribute('data-period');
+          renderSpendingChart(period);
+        });
+      });
+
+      // Re-render chart on window resize
+      window.addEventListener('resize', function() {
+        const activePeriod = document.querySelector('.period-btn.active')?.getAttribute('data-period') || 'this-month';
+        renderSpendingChart(activePeriod);
       });
     });
   </script>
