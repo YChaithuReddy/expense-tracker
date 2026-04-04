@@ -953,3 +953,212 @@
     width: 100%;
   }
 }
+
+/* =============================================================================
+   EXPENSES LIST PAGE
+   ============================================================================= */
+
+/* Filter Bar */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  align-items: flex-end;
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background-color: var(--color-surface);
+  border: var(--border-width-thin) solid var(--color-gray-300);
+  border-radius: var(--border-radius-sm);
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  min-width: 140px;
+}
+
+.filter-group-search {
+  flex: 1;
+  min-width: 180px;
+}
+
+.filter-group-actions {
+  min-width: auto;
+}
+
+.filter-label {
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+}
+
+.filter-select,
+.filter-input {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-body-sm);
+  padding: 6px 10px;
+  border: var(--border-width-thin) solid var(--color-gray-300);
+  border-radius: var(--border-radius-sm);
+  background-color: var(--color-white);
+  color: var(--color-black);
+  min-height: 36px;
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+
+.filter-select:focus,
+.filter-input:focus {
+  outline: none;
+  border-color: var(--color-black);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Expenses Table Card */
+.expenses-table-card {
+  overflow: hidden;
+}
+
+.expenses-table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.expenses-table {
+  width: 100%;
+  border: none;
+  border-radius: 0;
+}
+
+.expenses-table th:last-child,
+.expenses-table td:last-child {
+  text-align: right;
+}
+
+.amount-cell {
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.actions-cell {
+  white-space: nowrap;
+}
+
+.btn-icon {
+  padding: 4px 8px;
+  min-height: 32px;
+  font-size: 16px;
+}
+
+/* Loading State */
+.expenses-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xxl);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-body-sm);
+}
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-xxl) var(--spacing-lg);
+  text-align: center;
+}
+
+.empty-state-icon {
+  font-size: 48px;
+  opacity: 0.5;
+}
+
+.empty-state-title {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.empty-state-text {
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+  max-width: 320px;
+}
+
+/* Pagination */
+.expenses-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-top: var(--border-width-thin) solid var(--color-gray-300);
+}
+
+.pagination-info {
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text-secondary);
+}
+
+.pagination-controls {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+/* Responsive - Expenses Page */
+@media (max-width: 768px) {
+  .filter-bar {
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm);
+  }
+
+  .filter-group {
+    min-width: calc(50% - var(--spacing-sm));
+  }
+
+  .filter-group-search {
+    min-width: 100%;
+  }
+
+  .expenses-table th:nth-child(5),
+  .expenses-table td:nth-child(5) {
+    display: none;
+  }
+
+  .expenses-pagination {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm);
+  }
+}
+
+@media (max-width: 480px) {
+  .filter-group {
+    min-width: 100%;
+  }
+
+  .expenses-table th:nth-child(4),
+  .expenses-table td:nth-child(4) {
+    display: none;
+  }
+
+  .expenses-table th:nth-child(5),
+  .expenses-table td:nth-child(5) {
+    display: none;
+  }
+
+  .btn-icon {
+    padding: 2px 4px;
+    min-height: 28px;
+    font-size: 14px;
+  }
+
+  .amount-cell {
+    font-size: var(--font-size-body-sm);
+  }
+}
