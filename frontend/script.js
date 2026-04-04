@@ -6869,7 +6869,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                                 <div class="img-card__preview" data-action="view">
                                     <img class="img-card__image" src="${img.url}" alt="${img.filename || 'Bill image'}"
                                          loading="lazy" decoding="async"
-                                         data-image-id="${img._id}">`
+                                         data-image-id="${img._id}">
                                     <div class="img-card__overlay">
                                         <button class="img-card__overlay-btn" data-action="view">
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
