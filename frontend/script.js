@@ -842,55 +842,17 @@ class ExpenseTracker {
             </div>
         `;
 
-        // Add styles for OCR progress
-        if (!document.getElementById('ocrProgressStyles')) {
-            const style = document.createElement('style');
-            style.id = 'ocrProgressStyles';
-            style.textContent = `
-                .ocr-progress-overlay {
-                    position: fixed;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    background: rgba(0, 0, 0, 0.9);
-                    padding: 40px;
-                    border-radius: 12px;
-                    z-index: 9999;
-                    text-align: center;
-                    min-width: 300px;
-                    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-                }
-                .ocr-progress-content h3 {
-                    color: #4FACFE;
-                    margin: 20px 0 10px;
-                }
-                #ocrStatus {
-                    color: #aaa;
-                    margin: 10px 0;
-                }
-                #ocrProgressText {
-                    color: #4FACFE;
-                    font-weight: 600;
-                    display: block;
-                    margin-top: 10px;
-                }
-            `;
-            document.head.appendChild(style);
-        }
-
         document.body.appendChild(progressOverlay);
 
         // Clear previous extracted expenses
         this.extractedExpenses = [];
 
-        // OCR.space API key - Get free key at https://ocr.space/ocrapi/freekey
-        const OCR_SPACE_API_KEY = 'K87818719388957'; // Free tier key
+        // OCR backend proxy URL (API key stored server-side)
+        const OCR_BACKEND_URL = '/api/ocr/scan';
 
         try {
             // Show initializing status
             document.getElementById('ocrStatus').textContent = 'Connecting to OCR.space...';
-
-            console.log('🔧 Using OCR.space API (99% accuracy)...');
 
             // Process each image separately for batch upload
             for (let i = 0; i < this.scannedImages.length; i++) {
@@ -904,10 +866,6 @@ class ExpenseTracker {
                 if (ocrProgressText) ocrProgressText.textContent = `${overallProgress}%`;
                 if (ocrStatus) ocrStatus.textContent = `Scanning bill ${i + 1} of ${this.scannedImages.length}`;
 
-                console.log(`\n📸 Processing bill ${i + 1}/${this.scannedImages.length}...`);
-                console.log(`   Image: ${this.scannedImages[i].name}`);
-                console.log(`   Size: ${(this.scannedImages[i].file.size / 1024).toFixed(2)} KB`);
-
                 let ocrText = '';
                 let ocrConfidence = 0;
                 let retryCount = 0;
@@ -916,25 +874,20 @@ class ExpenseTracker {
                 // Retry logic for individual image OCR
                 while (retryCount <= maxRetries) {
                     try {
-                        console.log(`   Attempt ${retryCount + 1}/${maxRetries + 1}...`);
                         if (ocrStatus) ocrStatus.textContent = `Scanning bill ${i + 1} of ${this.scannedImages.length}${retryCount > 0 ? ' (retry)' : ''}...`;
 
-                        // Call OCR.space API with 15s timeout
-                        const formData = new FormData();
-                        formData.append('apikey', OCR_SPACE_API_KEY);
-                        formData.append('base64Image', this.scannedImages[i].data);
-                        formData.append('language', 'eng');
-                        formData.append('isOverlayRequired', 'false');
-                        formData.append('detectOrientation', 'true');
-                        formData.append('scale', 'true');
-                        formData.append('OCREngine', '2'); // Engine 2 is better for receipts
-
+                        // Call backend OCR proxy (API key stored server-side)
                         const controller = new AbortController();
-                        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+                        const timeoutId = setTimeout(() => controller.abort(), 20000);
 
-                        const response = await fetch('https://api.ocr.space/parse/image', {
+                        const response = await fetch(OCR_BACKEND_URL, {
                             method: 'POST',
-                            body: formData,
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                base64Image: this.scannedImages[i].data,
+                                language: 'eng',
+                                ocrEngine: '2'
+                            }),
                             signal: controller.signal
                         });
                         clearTimeout(timeoutId);
@@ -943,7 +896,11 @@ class ExpenseTracker {
                             throw new Error(`OCR API error: ${response.status}`);
                         }
 
-                        const result = await response.json();
+                        const proxyResult = await response.json();
+                        if (!proxyResult.success) {
+                            throw new Error(proxyResult.error || 'OCR processing failed');
+                        }
+                        const result = proxyResult.data;
 
                         if (result.ParsedResults && result.ParsedResults.length > 0) {
                             const parsedResult = result.ParsedResults[0];
@@ -956,10 +913,7 @@ class ExpenseTracker {
                             // OCR.space doesn't return confidence %, estimate from exit code
                             ocrConfidence = parsedResult.FileParseExitCode === 1 ? 95 : 70;
 
-                            console.log(`✅ Bill ${i + 1} OCR completed`);
-                            console.log(`   Extracted text length: ${ocrText.length} characters`);
-                            console.log(`   Processing time: ${result.ProcessingTimeInMilliseconds}ms`);
-                            // Add delay between requests to avoid OCR.space rate limiting
+                            // Add delay between requests to avoid rate limiting
                             if (i < this.scannedImages.length - 1) {
                                 await new Promise(resolve => setTimeout(resolve, 1000));
                             }
@@ -971,10 +925,7 @@ class ExpenseTracker {
                     } catch (imageError) {
                         retryCount++;
                         const isTimeout = imageError.name === 'AbortError';
-                        console.error(`❌ OCR failed for bill ${i + 1}, attempt ${retryCount}:`, isTimeout ? 'Request timed out (15s)' : imageError.message);
-
                         if (retryCount > maxRetries) {
-                            console.warn(`⚠️ Skipping bill ${i + 1} after ${maxRetries + 1} attempts`);
                             if (ocrStatus) ocrStatus.textContent = `Bill ${i + 1}: OCR timed out — you can enter details manually`;
                             // Create expense with empty OCR text (user can edit manually)
                             ocrText = '';
@@ -991,7 +942,6 @@ class ExpenseTracker {
 
                 // If OCR failed completely, add default values
                 if (!ocrText) {
-                    console.warn(`⚠️ Using default values for bill ${i + 1}`);
                     expenseData.amount = expenseData.amount || '';
                     expenseData.vendor = expenseData.vendor || 'Unknown Vendor';
                     expenseData.date = expenseData.date || new Date().toISOString().split('T')[0];
@@ -1001,7 +951,6 @@ class ExpenseTracker {
                 // Validate category before storing - ensure it's a valid backend category
                 const validCategories = ['Transportation', 'Accommodation', 'Meals', 'Fuel', 'Miscellaneous'];
                 if (expenseData.category && !validCategories.includes(expenseData.category)) {
-                    console.warn(`Mapping invalid category "${expenseData.category}" to Miscellaneous for bill ${i + 1}`);
                     expenseData.category = 'Miscellaneous';
                 }
 
@@ -1019,7 +968,6 @@ class ExpenseTracker {
                     edited: false
                 });
 
-                console.log(`✅ Bill ${i + 1} extracted:`, expenseData);
             }
 
             // Update status
@@ -1030,11 +978,6 @@ class ExpenseTracker {
             // Check how many had OCR failures
             const failedCount = this.extractedExpenses.filter(e => e.ocrFailed).length;
             const successCount = this.extractedExpenses.length - failedCount;
-
-            console.log(`\n📊 OCR Results:`);
-            console.log(`   ✅ Successful: ${successCount}`);
-            console.log(`   ⚠️ Failed: ${failedCount}`);
-            console.log(`   📝 Total: ${this.extractedExpenses.length}`);
 
             // If only one bill, use the old single-bill flow
             if (this.extractedExpenses.length === 1) {
@@ -1061,12 +1004,6 @@ class ExpenseTracker {
             }
 
         } catch (error) {
-            console.error('❌ Critical OCR Error:', error);
-            console.error('Error details:', {
-                name: error.name,
-                message: error.message,
-                stack: error.stack
-            });
 
             let errorMessage = '❌ OCR Service Error\n\n';
 
@@ -1116,7 +1053,6 @@ class ExpenseTracker {
         };
 
         const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
-        console.log('OCR Text Lines:', lines); // Debug log
 
         // Enhanced amount extraction with better Indian currency patterns
         const fullText = text.toLowerCase();
@@ -1189,7 +1125,6 @@ class ExpenseTracker {
                 const amount = cleanAmount(match[1]);
                 if (amount) {
                     data.amount = amount.toString();
-                    console.log('✅ Amount found (context):', data.amount, 'Pattern:', pattern.source.substring(0, 30));
                     break;
                 }
             }
@@ -1213,7 +1148,6 @@ class ExpenseTracker {
             if (foundAmounts.length > 0) {
                 const largestAmount = Math.max(...foundAmounts);
                 data.amount = largestAmount.toString();
-                console.log('✅ Amount found (currency symbol):', data.amount, `(from ${foundAmounts.length} candidates)`);
             }
         }
 
@@ -1251,7 +1185,6 @@ class ExpenseTracker {
 
                 if (total > 0) {
                     data.amount = total.toString();
-                    console.log('✅ Amount found (word):', data.amount, `from "${match[0]}"`);
                     break;
                 }
             }
@@ -1266,7 +1199,6 @@ class ExpenseTracker {
                         const amount = cleanAmount(match[1]);
                         if (amount && amount > 10) { // Minimum ₹10
                             data.amount = amount.toString();
-                            console.log('✅ Amount found (fallback):', data.amount);
                             break;
                         }
                     }
@@ -1335,8 +1267,6 @@ class ExpenseTracker {
         if (vendorCandidates.length > 0) {
             vendorCandidates.sort((a, b) => b.confidence - a.confidence);
             data.vendor = vendorCandidates[0].name.substring(0, 50).trim();
-            console.log('✅ Vendor found:', data.vendor, `(confidence: ${vendorCandidates[0].confidence})`);
-            console.log('   Other candidates:', vendorCandidates.slice(1, 3).map(v => `${v.name} (${v.confidence})`));
         }
 
         // Comprehensive date extraction supporting multiple formats
@@ -1763,20 +1693,6 @@ class ExpenseTracker {
             qualityLevel = 'Poor';
             qualityIcon = '❌';
         }
-
-        console.log('✅ Parsed OCR data:', data);
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        console.log('📊 EXTRACTION QUALITY SUMMARY');
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        console.log(`${qualityIcon} Overall Quality: ${qualityLevel} (${extractionScore}/${qualityMaxScore})`);
-        console.log('');
-        console.log('Field Detection Results:');
-        console.log(`  💰 Amount:   ${data.amount ? '✅ ' + data.amount : '❌ NOT FOUND'}`);
-        console.log(`  🏪 Vendor:   ${data.vendor ? '✅ ' + data.vendor : '⚠️  Not extracted (will enter manually)'}`);
-        console.log(`  📅 Date:     ${data.date ? '✅ ' + data.date : '❌ NOT FOUND'}`);
-        console.log(`  ⏰ Time:     ${data.time ? '✅ ' + data.time : '⚠️  Not found (optional)'}`);
-        console.log(`  📂 Category: ${data.category ? '✅ ' + data.category : '❌ NOT FOUND'}`);
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
         // Add quality metadata to data
         data._quality = {
@@ -8419,24 +8335,21 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             });
             this._quickAddImageData = dataUrl;
 
-            // Call OCR.space API
-            const formData = new FormData();
-            formData.append('apikey', typeof OCR_SPACE_API_KEY !== 'undefined' ? OCR_SPACE_API_KEY : 'K86784458388957');
-            formData.append('base64Image', dataUrl);
-            formData.append('language', 'eng');
-            formData.append('isOverlayRequired', 'false');
-            formData.append('detectOrientation', 'true');
-            formData.append('scale', 'true');
-            formData.append('OCREngine', '2');
-
-            const response = await fetch('https://api.ocr.space/parse/image', {
+            // Call backend OCR proxy (API key stored server-side)
+            const response = await fetch('/api/ocr/scan', {
                 method: 'POST',
-                body: formData
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    base64Image: dataUrl,
+                    language: 'eng',
+                    ocrEngine: '2'
+                })
             });
 
             let ocrText = '';
             if (response.ok) {
-                const result = await response.json();
+                const proxyResult = await response.json();
+                const result = proxyResult.success ? proxyResult.data : {};
                 if (result.ParsedResults?.[0]?.ParsedText) {
                     ocrText = result.ParsedResults[0].ParsedText;
                 }

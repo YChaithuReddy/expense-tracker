@@ -185,10 +185,91 @@
         <div class="tab-panel" id="scan-receipt">
           <div class="card" style="margin-bottom: var(--spacing-xl);">
             <div class="card-body">
-              <!-- Scan Receipt Content (Task 12) -->
-              <p style="color: var(--color-text-secondary); font-size: var(--font-size-body-sm); margin: 0;">
-                Receipt OCR upload will be implemented in Task 12.
-              </p>
+              <!-- Upload Area -->
+              <div class="ocr-upload-area" id="ocr-upload-area" role="button" tabindex="0" aria-label="Drag and drop receipt image or click to browse">
+                <input type="file" id="ocr-file-input" class="ocr-file-input" accept=".jpg,.jpeg,.png,.gif,.webp" aria-label="Upload receipt image" />
+                <div class="ocr-upload-icon">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                  </svg>
+                </div>
+                <p class="ocr-upload-text">Upload a clear photo of your receipt</p>
+                <p class="ocr-upload-hint">Click to upload or drag image here</p>
+                <p class="ocr-upload-formats">JPG, PNG, GIF, WEBP &middot; Max 5MB</p>
+              </div>
+
+              <!-- Image Preview -->
+              <div class="ocr-preview" id="ocr-preview" style="display: none;">
+                <div class="ocr-preview-header">
+                  <span class="ocr-preview-label">Selected Image</span>
+                  <button type="button" class="btn btn-ghost btn-sm ocr-remove-btn" id="ocr-remove-btn">Remove</button>
+                </div>
+                <img id="ocr-preview-img" class="ocr-preview-img" alt="Receipt preview" />
+              </div>
+
+              <!-- Processing State -->
+              <div class="ocr-processing" id="ocr-processing" role="alert" aria-live="polite" style="display: none;">
+                <div class="ocr-spinner"></div>
+                <p class="ocr-processing-text">Scanning receipt with OCR...</p>
+                <p class="ocr-processing-hint">This may take a few seconds</p>
+              </div>
+
+              <!-- Error State -->
+              <div class="ocr-error" id="ocr-error" role="alert" aria-live="assertive" style="display: none;">
+                <div class="ocr-error-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="15" y1="9" x2="9" y2="15"/>
+                    <line x1="9" y1="9" x2="15" y2="15"/>
+                  </svg>
+                </div>
+                <p class="ocr-error-text" id="ocr-error-text">Failed to process receipt</p>
+                <button type="button" class="btn btn-secondary btn-sm" id="ocr-retry-btn">Try Again</button>
+              </div>
+
+              <!-- Extracted Data Form -->
+              <div class="ocr-extracted-data" id="ocr-extracted-data" style="display: none;">
+                <h3 class="ocr-section-title">Extracted Data</h3>
+                <p class="ocr-section-hint">Review and edit the extracted information before saving.</p>
+
+                <!-- OCR message banner placeholder -->
+                <div id="ocr-message-banner"></div>
+
+                <form id="ocr-form" novalidate>
+                  <div class="form-group">
+                    <label class="form-label required" for="ocr-merchant">Merchant / Vendor</label>
+                    <input type="text" id="ocr-merchant" placeholder="e.g. Starbucks, Amazon" minlength="3" required />
+                    <span class="form-error-message" id="ocr-merchant-error"></span>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label required" for="ocr-amount">Total Amount</label>
+                    <div class="input-with-prefix">
+                      <span class="input-prefix">&#8377;</span>
+                      <input type="number" id="ocr-amount" placeholder="0.00" step="0.01" min="0.01" required />
+                    </div>
+                    <span class="form-error-message" id="ocr-amount-error"></span>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" for="ocr-date">Date</label>
+                    <input type="date" id="ocr-date" />
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" for="ocr-items">Items (optional)</label>
+                    <textarea id="ocr-items" rows="3" placeholder="Extracted line items..." maxlength="200"></textarea>
+                    <span class="form-char-count"><span id="ocr-items-char-count">0</span>/200</span>
+                  </div>
+
+                  <div class="ocr-form-actions">
+                    <button type="button" class="btn btn-secondary" id="ocr-cancel-btn">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="ocr-save-btn">Save as Expense</button>
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
         </div>
@@ -208,9 +289,12 @@
   </div>
 
   <script>
-    // Tab Navigation Functionality
     document.addEventListener('DOMContentLoaded', function() {
-      // Mobile hamburger menu functionality
+
+      // =========================================================================
+      // SIDEBAR & TAB NAVIGATION
+      // =========================================================================
+
       const hamburgerBtn = document.getElementById('hamburger-btn');
       const sidebar = document.querySelector('.sidebar');
 
@@ -221,7 +305,6 @@
         });
       }
 
-      // Close sidebar when clicking outside
       document.addEventListener('click', function(e) {
         if (sidebar && sidebar.classList.contains('open')) {
           if (!sidebar.contains(e.target) && !hamburgerBtn.contains(e.target)) {
@@ -230,48 +313,479 @@
         }
       });
 
-      // Tab switching functionality
       const tabButtons = document.querySelectorAll('.tab-button');
       const tabPanels = document.querySelectorAll('.tab-panel');
 
-      tabButtons.forEach(button => {
+      tabButtons.forEach(function(button) {
         button.addEventListener('click', function(e) {
           e.preventDefault();
-
           const tabId = this.getAttribute('data-tab');
-
-          // Remove active class from all buttons and panels
-          tabButtons.forEach(btn => btn.classList.remove('active'));
-          tabPanels.forEach(panel => panel.classList.remove('active'));
-
-          // Add active class to clicked button
+          tabButtons.forEach(function(btn) { btn.classList.remove('active'); });
+          tabPanels.forEach(function(panel) { panel.classList.remove('active'); });
           this.classList.add('active');
-
-          // Add active class to corresponding panel
           const activePanel = document.getElementById(tabId);
-          if (activePanel) {
-            activePanel.classList.add('active');
-          }
+          if (activePanel) activePanel.classList.add('active');
         });
       });
 
-      // Notes character counter
-      const notesField = document.getElementById('expense-notes');
-      const charCount = document.getElementById('notes-char-count');
-      if (notesField && charCount) {
-        notesField.addEventListener('input', function() {
-          charCount.textContent = this.value.length;
+      const logoutBtn = document.querySelector('.sidebar-footer-item:last-child');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', function(e) { e.preventDefault(); });
+      }
+
+      // =========================================================================
+      // FORM VALIDATION UTILITIES
+      // =========================================================================
+
+      function showFieldError(fieldId, errorId, message) {
+        const field = document.getElementById(fieldId);
+        const errorEl = document.getElementById(errorId);
+        if (field) field.classList.add('form-error');
+        if (errorEl) {
+          errorEl.textContent = message;
+          errorEl.style.display = 'block';
+        }
+      }
+
+      function clearFieldError(fieldId, errorId) {
+        const field = document.getElementById(fieldId);
+        const errorEl = document.getElementById(errorId);
+        if (field) field.classList.remove('form-error');
+        if (errorEl) {
+          errorEl.textContent = '';
+          errorEl.style.display = 'none';
+        }
+      }
+
+      function showBanner(containerId, type, message) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        const cssClass = type === 'success' ? 'form-success-message' : 'form-error-banner';
+        container.innerHTML = '<div class="' + cssClass + '">' + message + '</div>';
+      }
+
+      function clearBanner(containerId) {
+        const container = document.getElementById(containerId);
+        if (container) container.innerHTML = '';
+      }
+
+      function updateCharCounter(textareaId, counterId, max) {
+        const textarea = document.getElementById(textareaId);
+        const counter = document.getElementById(counterId);
+        if (!textarea || !counter) return;
+        const len = textarea.value.length;
+        counter.textContent = len;
+        const wrapper = counter.parentElement;
+        wrapper.classList.remove('warning', 'exceeded');
+        if (len > max) {
+          wrapper.classList.add('exceeded');
+        } else if (len >= max * 0.9) {
+          wrapper.classList.add('warning');
+        }
+      }
+
+      // =========================================================================
+      // QUICK ADD FORM VALIDATION
+      // =========================================================================
+
+      const quickForm = document.getElementById('quick-add-form');
+      const quickSubmitBtn = document.getElementById('quick-add-submit');
+      const quickBannerId = 'quick-add-message-banner';
+
+      // Insert banner container before form
+      if (quickForm) {
+        const bannerDiv = document.createElement('div');
+        bannerDiv.id = quickBannerId;
+        quickForm.parentNode.insertBefore(bannerDiv, quickForm);
+      }
+
+      function validateDescription() {
+        const val = document.getElementById('expense-description').value.trim();
+        if (!val) {
+          showFieldError('expense-description', 'description-error', 'Description is required.');
+          return false;
+        }
+        if (val.length < 3) {
+          showFieldError('expense-description', 'description-error', 'Enter at least 3 characters.');
+          return false;
+        }
+        clearFieldError('expense-description', 'description-error');
+        return true;
+      }
+
+      function validateAmount() {
+        const field = document.getElementById('expense-amount');
+        const val = parseFloat(field.value);
+        if (!field.value || isNaN(val)) {
+          showFieldError('expense-amount', 'amount-error', 'Enter a valid amount.');
+          return false;
+        }
+        if (val <= 0) {
+          showFieldError('expense-amount', 'amount-error', 'Amount must be greater than zero.');
+          return false;
+        }
+        if (val > 9999999) {
+          showFieldError('expense-amount', 'amount-error', 'Amount cannot exceed 99,99,999.');
+          return false;
+        }
+        clearFieldError('expense-amount', 'amount-error');
+        return true;
+      }
+
+      function validateCategory() {
+        const val = document.getElementById('expense-category').value;
+        if (!val) {
+          showFieldError('expense-category', 'category-error', 'Select a category.');
+          return false;
+        }
+        clearFieldError('expense-category', 'category-error');
+        return true;
+      }
+
+      function validateQuickAddForm() {
+        const d = validateDescription();
+        const a = validateAmount();
+        const c = validateCategory();
+        return d && a && c;
+      }
+
+      // Real-time validation on blur
+      const descField = document.getElementById('expense-description');
+      const amtField = document.getElementById('expense-amount');
+      const catField = document.getElementById('expense-category');
+
+      if (descField) {
+        descField.addEventListener('blur', validateDescription);
+        descField.addEventListener('input', function() {
+          if (this.classList.contains('form-error')) clearFieldError('expense-description', 'description-error');
+        });
+      }
+      if (amtField) {
+        amtField.addEventListener('blur', validateAmount);
+        amtField.addEventListener('input', function() {
+          if (this.classList.contains('form-error')) clearFieldError('expense-amount', 'amount-error');
+        });
+      }
+      if (catField) {
+        catField.addEventListener('blur', validateCategory);
+        catField.addEventListener('change', function() {
+          if (this.classList.contains('form-error')) clearFieldError('expense-category', 'category-error');
         });
       }
 
-      // Logout button handler
-      const logoutBtn = document.querySelector('.sidebar-footer-item:last-child');
-      if (logoutBtn) {
-        logoutBtn.addEventListener('click', (e) => {
-          e.preventDefault();
-          // TODO: Implement logout functionality
+      // Notes character counter with warning states
+      const notesField = document.getElementById('expense-notes');
+      if (notesField) {
+        notesField.addEventListener('input', function() {
+          updateCharCounter('expense-notes', 'notes-char-count', 200);
         });
       }
+
+      // Quick Add Form Submit
+      if (quickForm) {
+        quickForm.addEventListener('submit', async function(e) {
+          e.preventDefault();
+          clearBanner(quickBannerId);
+
+          if (!validateQuickAddForm()) return;
+
+          // Disable submit button to prevent double-submit
+          quickSubmitBtn.disabled = true;
+          quickSubmitBtn.textContent = 'Saving...';
+
+          try {
+            const data = {
+              description: document.getElementById('expense-description').value.trim(),
+              amount: parseFloat(document.getElementById('expense-amount').value),
+              category: document.getElementById('expense-category').value,
+              paymentMethod: document.querySelector('input[name="payment-method"]:checked').value,
+              notes: document.getElementById('expense-notes').value.trim()
+            };
+
+            // TODO: Replace with actual API call (e.g., api.addExpense(data))
+            await new Promise(function(resolve) { setTimeout(resolve, 500); });
+
+            // Show success
+            showBanner(quickBannerId, 'success', 'Expense added successfully!');
+
+            // Reset form
+            quickForm.reset();
+            document.getElementById('notes-char-count').textContent = '0';
+            document.getElementById('notes-char-count').parentElement.classList.remove('warning', 'exceeded');
+
+            // Auto-clear success message after 3 seconds
+            setTimeout(function() { clearBanner(quickBannerId); }, 3000);
+
+          } catch (err) {
+            if (err.message && err.message.includes('NetworkError')) {
+              showBanner(quickBannerId, 'error', 'Unable to save expense. Please check your connection and try again.');
+            } else {
+              showBanner(quickBannerId, 'error', 'Error saving expense. Please try again.');
+            }
+          } finally {
+            setTimeout(function() {
+              quickSubmitBtn.disabled = false;
+              quickSubmitBtn.textContent = 'Add Expense';
+            }, 1000);
+          }
+        });
+      }
+
+      // =========================================================================
+      // OCR FORM VALIDATION
+      // =========================================================================
+
+      const ocrForm = document.getElementById('ocr-form');
+      const ocrSaveBtn = document.getElementById('ocr-save-btn');
+      const ocrBannerId = 'ocr-message-banner';
+
+      function validateOCRMerchant() {
+        const val = document.getElementById('ocr-merchant').value.trim();
+        if (!val) {
+          showFieldError('ocr-merchant', 'ocr-merchant-error', 'Merchant name is required.');
+          return false;
+        }
+        if (val.length < 3) {
+          showFieldError('ocr-merchant', 'ocr-merchant-error', 'Enter at least 3 characters.');
+          return false;
+        }
+        clearFieldError('ocr-merchant', 'ocr-merchant-error');
+        return true;
+      }
+
+      function validateOCRAmount() {
+        const field = document.getElementById('ocr-amount');
+        const val = parseFloat(field.value);
+        if (!field.value || isNaN(val)) {
+          showFieldError('ocr-amount', 'ocr-amount-error', 'Enter a valid amount.');
+          return false;
+        }
+        if (val <= 0) {
+          showFieldError('ocr-amount', 'ocr-amount-error', 'Amount must be greater than zero.');
+          return false;
+        }
+        if (val > 9999999) {
+          showFieldError('ocr-amount', 'ocr-amount-error', 'Amount cannot exceed 99,99,999.');
+          return false;
+        }
+        clearFieldError('ocr-amount', 'ocr-amount-error');
+        return true;
+      }
+
+      function validateOCRForm() {
+        const m = validateOCRMerchant();
+        const a = validateOCRAmount();
+        return m && a;
+      }
+
+      // Real-time validation on blur for OCR fields
+      const ocrMerchantField = document.getElementById('ocr-merchant');
+      const ocrAmountField = document.getElementById('ocr-amount');
+
+      if (ocrMerchantField) {
+        ocrMerchantField.addEventListener('blur', validateOCRMerchant);
+        ocrMerchantField.addEventListener('input', function() {
+          if (this.classList.contains('form-error')) clearFieldError('ocr-merchant', 'ocr-merchant-error');
+        });
+      }
+      if (ocrAmountField) {
+        ocrAmountField.addEventListener('blur', validateOCRAmount);
+        ocrAmountField.addEventListener('input', function() {
+          if (this.classList.contains('form-error')) clearFieldError('ocr-amount', 'ocr-amount-error');
+        });
+      }
+
+      // OCR items character counter
+      const ocrItemsField = document.getElementById('ocr-items');
+      if (ocrItemsField) {
+        ocrItemsField.addEventListener('input', function() {
+          updateCharCounter('ocr-items', 'ocr-items-char-count', 200);
+        });
+      }
+
+      // OCR Form Submit
+      if (ocrForm) {
+        ocrForm.addEventListener('submit', async function(e) {
+          e.preventDefault();
+          clearBanner(ocrBannerId);
+
+          if (!validateOCRForm()) return;
+
+          ocrSaveBtn.disabled = true;
+          ocrSaveBtn.textContent = 'Saving...';
+
+          try {
+            const data = {
+              description: document.getElementById('ocr-merchant').value.trim(),
+              amount: parseFloat(document.getElementById('ocr-amount').value),
+              date: document.getElementById('ocr-date').value || null,
+              notes: (document.getElementById('ocr-items').value || '').trim()
+            };
+
+            // TODO: Replace with actual API call
+            await new Promise(function(resolve) { setTimeout(resolve, 500); });
+
+            showBanner(ocrBannerId, 'success', 'Expense added successfully!');
+
+            // Reset OCR form and clear scanned image cache
+            ocrForm.reset();
+            if (ocrFileInput) ocrFileInput.value = '';
+            if (ocrPreviewImg) ocrPreviewImg.src = '';
+            showOcrState('upload');
+            const ocrItemsCount = document.getElementById('ocr-items-char-count');
+            if (ocrItemsCount) {
+              ocrItemsCount.textContent = '0';
+              ocrItemsCount.parentElement.classList.remove('warning', 'exceeded');
+            }
+
+            setTimeout(function() { clearBanner(ocrBannerId); }, 3000);
+
+          } catch (err) {
+            if (err.message && err.message.includes('NetworkError')) {
+              showBanner(ocrBannerId, 'error', 'Unable to save expense. Please check your connection and try again.');
+            } else {
+              showBanner(ocrBannerId, 'error', 'Error saving expense. Please try again.');
+            }
+          } finally {
+            setTimeout(function() {
+              ocrSaveBtn.disabled = false;
+              ocrSaveBtn.textContent = 'Save as Expense';
+            }, 1000);
+          }
+        });
+      }
+
+      // =========================================================================
+      // OCR SCAN RECEIPT FUNCTIONALITY (File Upload / Preview / Processing)
+      // =========================================================================
+
+      const ocrUploadArea = document.getElementById('ocr-upload-area');
+      const ocrFileInput = document.getElementById('ocr-file-input');
+      const ocrPreview = document.getElementById('ocr-preview');
+      const ocrPreviewImg = document.getElementById('ocr-preview-img');
+      const ocrRemoveBtn = document.getElementById('ocr-remove-btn');
+      const ocrProcessing = document.getElementById('ocr-processing');
+      const ocrError = document.getElementById('ocr-error');
+      const ocrErrorText = document.getElementById('ocr-error-text');
+      const ocrRetryBtn = document.getElementById('ocr-retry-btn');
+      const ocrExtractedData = document.getElementById('ocr-extracted-data');
+      const ocrCancelBtn = document.getElementById('ocr-cancel-btn');
+
+      const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+      const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+
+      function showOcrState(state) {
+        if (ocrUploadArea) ocrUploadArea.style.display = state === 'upload' ? '' : 'none';
+        if (ocrPreview) ocrPreview.style.display = state === 'preview' ? '' : 'none';
+        if (ocrProcessing) ocrProcessing.style.display = state === 'processing' ? '' : 'none';
+        if (ocrError) ocrError.style.display = state === 'error' ? '' : 'none';
+        if (ocrExtractedData) ocrExtractedData.style.display = state === 'extracted' ? '' : 'none';
+      }
+
+      function validateFile(file) {
+        if (!file) return 'No file selected.';
+        if (!ALLOWED_TYPES.includes(file.type)) {
+          return 'Invalid file type. Please upload a JPG, PNG, GIF, or WEBP image.';
+        }
+        if (file.size > MAX_FILE_SIZE) {
+          return 'File is too large. Maximum size is 5MB.';
+        }
+        return null;
+      }
+
+      function handleFile(file) {
+        const error = validateFile(file);
+        if (error) {
+          if (ocrErrorText) ocrErrorText.textContent = error;
+          showOcrState('error');
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          if (ocrPreviewImg) ocrPreviewImg.src = e.target.result;
+          showOcrState('preview');
+        };
+        reader.onerror = function() {
+          if (ocrErrorText) ocrErrorText.textContent = 'Unable to process image. Please try a clearer photo.';
+          showOcrState('error');
+        };
+        reader.readAsDataURL(file);
+      }
+
+      // Click to upload
+      if (ocrUploadArea) {
+        ocrUploadArea.addEventListener('click', function() {
+          ocrFileInput.click();
+        });
+        ocrUploadArea.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            ocrFileInput.click();
+          }
+        });
+      }
+
+      if (ocrFileInput) {
+        ocrFileInput.addEventListener('change', function(e) {
+          if (e.target.files && e.target.files[0]) {
+            handleFile(e.target.files[0]);
+          }
+        });
+      }
+
+      // Drag and drop
+      if (ocrUploadArea) {
+        ocrUploadArea.addEventListener('dragover', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          this.classList.add('dragover');
+        });
+
+        ocrUploadArea.addEventListener('dragleave', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          this.classList.remove('dragover');
+        });
+
+        ocrUploadArea.addEventListener('drop', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          this.classList.remove('dragover');
+          if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            handleFile(e.dataTransfer.files[0]);
+          }
+        });
+      }
+
+      // Remove image
+      if (ocrRemoveBtn) {
+        ocrRemoveBtn.addEventListener('click', function() {
+          if (ocrFileInput) ocrFileInput.value = '';
+          if (ocrPreviewImg) ocrPreviewImg.src = '';
+          showOcrState('upload');
+        });
+      }
+
+      // Retry
+      if (ocrRetryBtn) {
+        ocrRetryBtn.addEventListener('click', function() {
+          if (ocrFileInput) ocrFileInput.value = '';
+          showOcrState('upload');
+        });
+      }
+
+      // Cancel extracted data
+      if (ocrCancelBtn) {
+        ocrCancelBtn.addEventListener('click', function() {
+          if (ocrFileInput) ocrFileInput.value = '';
+          if (ocrPreviewImg) ocrPreviewImg.src = '';
+          if (ocrForm) ocrForm.reset();
+          clearBanner(ocrBannerId);
+          showOcrState('upload');
+        });
+      }
+
     });
   </script>
 </body>
