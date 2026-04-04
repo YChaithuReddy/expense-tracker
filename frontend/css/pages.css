@@ -87,6 +87,123 @@
 }
 
 /* =============================================================================
+   QUICK ADD FORM - ADD EXPENSE PAGE
+   ============================================================================= */
+
+.quick-add-form {
+  max-width: 560px;
+}
+
+/* Input with currency prefix */
+.input-with-prefix {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.input-prefix {
+  position: absolute;
+  left: 12px;
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.input-with-prefix input {
+  padding-left: 28px;
+  width: 100%;
+}
+
+/* Radio button group */
+.radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm) var(--spacing-lg);
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  cursor: pointer;
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-normal);
+  user-select: none;
+}
+
+.radio-label input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  min-height: 18px;
+  border: 2px solid var(--color-gray-400);
+  border-radius: 50%;
+  cursor: pointer;
+  position: relative;
+  padding: 0;
+  margin: 0;
+  flex-shrink: 0;
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+
+.radio-label input[type="radio"]:checked {
+  border-color: var(--color-text-primary);
+}
+
+.radio-label input[type="radio"]:checked::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--color-text-primary);
+}
+
+.radio-label input[type="radio"]:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Character count */
+.form-char-count {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-tertiary);
+  text-align: right;
+}
+
+/* Form actions / submit */
+.form-actions {
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--color-border);
+}
+
+.form-actions .btn-lg {
+  width: 100%;
+  padding: var(--spacing-md) var(--spacing-xl);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  min-height: 48px;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .radio-group {
+    gap: var(--spacing-sm) var(--spacing-md);
+  }
+
+  .radio-label {
+    font-size: var(--font-size-caption);
+  }
+}
+
+/* =============================================================================
    SPENDING INSIGHTS CHART SECTION
    ============================================================================= */
 
