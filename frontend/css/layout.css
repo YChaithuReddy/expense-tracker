@@ -1,0 +1,484 @@
+/* =============================================================================
+   LAYOUT - CURATOR EXPENSE TRACKER
+
+   Sidebar navigation, header/top bar, main content area
+   Builds on design-system.css foundation
+   ============================================================================= */
+
+/* =============================================================================
+   MAIN LAYOUT STRUCTURE
+   Full-height flex layout with sidebar and main content area
+   ============================================================================= */
+
+html, body {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: row;
+  background-color: var(--color-background);
+  transition: background-color var(--transition-normal);
+}
+
+/* =============================================================================
+   SIDEBAR NAVIGATION
+   Fixed 240px width sidebar with white background and border-right
+   ============================================================================= */
+
+.sidebar {
+  width: var(--layout-sidebar-width);
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  background-color: var(--color-surface);
+  border-right: var(--border-width-thin) solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  z-index: var(--z-fixed);
+  transition: background-color var(--transition-normal), border-color var(--transition-normal);
+  overflow-y: auto;
+}
+
+/* Sidebar Header - Logo Section */
+.sidebar-header {
+  padding: var(--spacing-lg);
+  border-bottom: var(--border-width-thin) solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--layout-header-height);
+  flex-shrink: 0;
+}
+
+.sidebar-logo {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+}
+
+.sidebar-logo-icon {
+  width: 28px;
+  height: 28px;
+  background-color: var(--color-text-primary);
+  border-radius: var(--border-radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-surface);
+  font-weight: var(--font-weight-bold);
+  flex-shrink: 0;
+}
+
+/* Sidebar Navigation Items */
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-md) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+  font-size: var(--font-size-body-sm);
+  border-left: 3px solid transparent;
+  user-select: none;
+}
+
+.sidebar-nav-item:hover {
+  background-color: var(--color-surface-secondary);
+  color: var(--color-text-primary);
+}
+
+.sidebar-nav-item.active {
+  background-color: var(--color-surface-secondary);
+  color: var(--color-text-primary);
+  border-left-color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.sidebar-nav-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+.sidebar-nav-label {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Sidebar Footer - Settings/Logout */
+.sidebar-footer {
+  padding: var(--spacing-md) 0;
+  border-top: var(--border-width-thin) solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  flex-shrink: 0;
+}
+
+.sidebar-footer-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+  font-size: var(--font-size-body-sm);
+  border-left: 3px solid transparent;
+  user-select: none;
+}
+
+.sidebar-footer-item:hover {
+  background-color: var(--color-surface-secondary);
+  color: var(--color-text-primary);
+}
+
+.sidebar-footer-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+/* =============================================================================
+   MAIN CONTAINER
+   Flex container that takes remaining space after sidebar
+   ============================================================================= */
+
+.main-container {
+  margin-left: var(--layout-sidebar-width);
+  width: calc(100% - var(--layout-sidebar-width));
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-background);
+  transition: background-color var(--transition-normal);
+}
+
+/* =============================================================================
+   HEADER / TOP BAR
+   64px height, white background, flex layout with search and user profile
+   ============================================================================= */
+
+.header {
+  height: var(--layout-header-height);
+  background-color: var(--color-surface);
+  border-bottom: var(--border-width-thin) solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--spacing-lg);
+  flex-shrink: 0;
+  gap: var(--spacing-lg);
+  transition: background-color var(--transition-normal), border-color var(--transition-normal);
+}
+
+/* Header Search Bar */
+.header-search {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  max-width: 400px;
+}
+
+.header-search-input {
+  flex: 1;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  background-color: var(--color-surface-secondary);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-body-sm);
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.header-search-input::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.header-search-input:focus {
+  outline: none;
+  border-color: var(--color-text-primary);
+  background-color: var(--color-surface);
+}
+
+.header-search-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--color-text-tertiary);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Header User Profile */
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-left: auto;
+}
+
+.header-user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--border-radius-full);
+  background-color: var(--color-gray-300);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-body-sm);
+  flex-shrink: 0;
+}
+
+.header-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.header-user-name {
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.header-user-email {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-secondary);
+}
+
+/* =============================================================================
+   MAIN CONTENT AREA
+   Scrollable content area with gray background
+   ============================================================================= */
+
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: var(--color-background);
+  transition: background-color var(--transition-normal);
+}
+
+/* Page Wrapper - Max Width Constraint */
+.page-wrapper {
+  max-width: var(--layout-max-content);
+  margin: 0 auto;
+  padding: var(--spacing-xl);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Page Header Section */
+.page-header {
+  margin-bottom: var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.page-title {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-h2);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.page-subtitle {
+  font-size: var(--font-size-body);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.page-header-actions {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: center;
+}
+
+/* =============================================================================
+   GRID UTILITIES
+   Multi-column grid layouts
+   ============================================================================= */
+
+.grid {
+  display: grid;
+  width: 100%;
+  gap: var(--spacing-lg);
+}
+
+.grid-2 {
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.grid-3 {
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.grid-4 {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.grid-auto {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+/* =============================================================================
+   FLEX UTILITIES (Enhanced - Building on design-system.css)
+   ============================================================================= */
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.gap-responsive {
+  gap: var(--spacing-md);
+}
+
+/* =============================================================================
+   CARD / CONTENT CONTAINERS
+   Container styles for content sections
+   ============================================================================= */
+
+.card {
+  background-color: var(--color-surface);
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  transition: background-color var(--transition-normal), border-color var(--transition-normal);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* =============================================================================
+   RESPONSIVE ADJUSTMENTS
+   Mobile and tablet specific styles
+   ============================================================================= */
+
+/* Tablet - Hide sidebar on small screens, show hamburger */
+@media (max-width: var(--breakpoint-lg)) {
+  .sidebar {
+    display: none;
+  }
+
+  .main-container {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Mobile - Full responsive */
+@media (max-width: var(--breakpoint-md)) {
+  .header {
+    padding: 0 var(--spacing-md);
+    height: 56px;
+  }
+
+  .header-search {
+    max-width: none;
+  }
+
+  .header-user-info {
+    display: none;
+  }
+
+  .page-wrapper {
+    padding: var(--spacing-md);
+  }
+
+  .page-header {
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .page-title {
+    font-size: var(--font-size-h3);
+  }
+
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .grid-4 {
+    grid-template-columns: 1fr;
+  }
+
+  .grid {
+    gap: var(--spacing-md);
+  }
+}
+
+/* Dark Mode Adjustments */
+@media (prefers-color-scheme: dark) {
+  .sidebar,
+  .header {
+    background-color: var(--color-surface);
+    border-color: var(--color-border);
+  }
+
+  .sidebar-nav-item:hover {
+    background-color: var(--color-surface-secondary);
+  }
+
+  .card {
+    background-color: var(--color-surface);
+  }
+}
+
+/* End of Layout CSS */
