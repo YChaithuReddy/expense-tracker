@@ -106,94 +106,94 @@
     </script>
 </head>
 <body>
-    <!-- MODERN DASHBOARD SHELL -->
-    <div class="dashboard-shell">
+    <!-- PROFESSIONAL ADMIN-STYLE LAYOUT -->
+    <div class="admin-layout">
         <!-- SIDEBAR -->
-        <aside class="dashboard-sidebar" id="dashboardSidebar">
-            <div class="sidebar-brand">
-                <img src="fluxgen-logo.jpg" alt="FluxGen" class="sidebar-logo">
-                <span class="sidebar-brand-name">FluxGen</span>
+        <aside class="admin-sidebar">
+            <div class="admin-sidebar__logo">
+                <img src="fluxgen-logo.jpg" alt="FluxGen">
+                <h1>Expense Tracker</h1>
+                <small>Employee Dashboard</small>
+                <small id="orgName">Loading...</small>
             </div>
-            <nav class="sidebar-nav">
-                <button class="sidebar-nav-item active" data-section="dashboard">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <nav class="admin-sidebar__nav">
+                <button class="admin-nav-item active" data-section="overview">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <rect x="3" y="3" width="7" height="7"></rect>
                         <rect x="14" y="3" width="7" height="7"></rect>
                         <rect x="14" y="14" width="7" height="7"></rect>
                         <rect x="3" y="14" width="7" height="7"></rect>
                     </svg>
-                    <span class="sidebar-nav-label">Dashboard</span>
+                    <span>Overview</span>
                 </button>
-                <button class="sidebar-nav-item" data-section="expenses">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"></path>
+                <button class="admin-nav-item" data-section="expenses">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="1"/><path d="M12 8v8m0-8v8"/>
                     </svg>
-                    <span class="sidebar-nav-label">Expenses</span>
+                    <span>Expenses</span>
                 </button>
-                <button class="sidebar-nav-item" data-section="advance">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 2v20M2 12h20"></path>
+                <button class="admin-nav-item" data-section="advance">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2v20M2 12h20"/>
                     </svg>
-                    <span class="sidebar-nav-label">Advance</span>
+                    <span>Advance</span>
                 </button>
-                <button class="sidebar-nav-item" data-section="reports">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"></path>
-                        <polyline points="13 2 13 9 20 9"></polyline>
+                <button class="admin-nav-item" data-section="reports">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"/><polyline points="13 2 13 9 20 9"/>
                     </svg>
-                    <span class="sidebar-nav-label">Reports</span>
+                    <span>Reports</span>
                 </button>
-                <button class="sidebar-nav-item" data-section="settings">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="3"></circle>
-                        <path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m2.98 2.98l4.24 4.24M1 12h6m6 0h6m-16.78 7.78l4.24-4.24m2.98-2.98l4.24-4.24"></path>
+                <button class="admin-nav-item" data-section="settings">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m2.98 2.98l4.24 4.24M1 12h6m6 0h6m-16.78 7.78l4.24-4.24m2.98-2.98l4.24-4.24"/>
                     </svg>
-                    <span class="sidebar-nav-label">Settings</span>
+                    <span>Settings</span>
                 </button>
             </nav>
-            <div class="sidebar-footer">
-                <span id="realtimeStatus" class="realtime-dot realtime-dot--disconnected" title="Realtime sync"></span>
+            <div class="admin-sidebar__footer">
+                <div class="admin-sidebar__user">
+                    <strong id="userName">User</strong>
+                    <span id="userEmail">Loading...</span>
+                </div>
+                <div class="admin-sidebar__links">
+                    <button class="admin-sidebar__link admin-sidebar__link--danger" onclick="logout()" style="cursor: pointer;">Logout</button>
+                </div>
             </div>
         </aside>
 
-        <!-- MAIN AREA -->
-        <div class="dashboard-main">
-            <!-- TOPBAR -->
-            <header class="dashboard-topbar">
-                <button class="sidebar-toggle-btn" id="sidebarToggleBtn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="3" y1="12" x2="21" y2="12"></line>
-                        <line x1="3" y1="6" x2="21" y2="6"></line>
-                        <line x1="3" y1="18" x2="21" y2="18"></line>
-                    </svg>
-                </button>
-                <div class="topbar-greeting">
-                    <h2 class="topbar-title">Welcome back</h2>
-                    <p class="topbar-date"></p>
-                </div>
-                <div class="topbar-search">
-                    <div class="topbar-search-inner">
-                        <input type="text" class="topbar-search-input" id="topbarSearch" placeholder="Search expenses...">
+        <!-- MAIN CONTENT -->
+        <main class="admin-main">
+
+            <!-- OVERVIEW SECTION -->
+            <div class="admin-section active" id="section-overview">
+                <div class="admin-main__header">
+                    <div>
+                        <h2>Overview</h2>
+                        <p>Your expense summary and quick stats</p>
                     </div>
                 </div>
-                <div class="topbar-actions">
-                    <div id="userInfo"></div>
-                </div>
-            </header>
-
-            <!-- CONTENT AREA -->
-            <div class="dashboard-content">
-
-                <!-- DASHBOARD SECTION (Home/Overview) -->
-                <div class="dashboard-section dashboard-section--dashboard is-active" data-section="dashboard">
-                    <div class="dashboard-panel">
-                        <h2>Dashboard</h2>
-                        <p>Welcome to your expense tracking dashboard. Use the sidebar to navigate.</p>
+                <div class="admin-stats-grid">
+                    <div class="admin-stat-card admin-stat-card--blue">
+                        <div class="admin-stat-card__value" id="statTotalExpenses">₹0.00</div>
+                        <div class="admin-stat-card__label">Total Expenses</div>
+                    </div>
+                    <div class="admin-stat-card admin-stat-card--green">
+                        <div class="admin-stat-card__value" id="statMonthlySpend">₹0.00</div>
+                        <div class="admin-stat-card__label">Monthly Spend</div>
+                    </div>
+                    <div class="admin-stat-card admin-stat-card--amber">
+                        <div class="admin-stat-card__value" id="statPendingApproval">0</div>
+                        <div class="admin-stat-card__label">Pending Approval</div>
                     </div>
                 </div>
+                <div style="text-align: center; padding: 40px; color: var(--gray-500);">
+                    Add your first expense to see statistics here.
+                </div>
+            </div>
 
-                <!-- EXPENSES SECTION -->
-                <div class="dashboard-section dashboard-section--expenses" data-section="expenses">
+            <!-- EXPENSES SECTION -->
+            <div class="admin-section" id="section-expenses">
                     <!-- Bill OCR Section -->
                     <section id="ocrSection" class="ocr-section ocr-dropzone">
                         <!-- Drag overlay shown when dragging files over the card -->
@@ -535,49 +535,57 @@
                     </section>
                 </div>
 
-                <!-- ADVANCE SECTION -->
-                <div class="dashboard-section dashboard-section--advance" data-section="advance">
-                    <!-- Advance Tracker -->
-                    <section class="advance-summary-section" id="advanceSummarySection">
-                        <div class="advance-summary-header">
-                            <h3>Advance Tracker</h3>
-                            <button class="btn-advance-add" id="openAdvanceModal" title="Add New Advance">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                                New Advance
-                            </button>
-                        </div>
-                        <div class="advance-cards-container" id="advanceCardsContainer">
-                            <!-- Advance cards rendered by JS -->
-                        </div>
-                    </section>
+            <!-- ADVANCE SECTION -->
+            <div class="admin-section" id="section-advance">
+                <div class="admin-main__header">
+                    <div>
+                        <h2>Advance Tracker</h2>
+                        <p>Manage your advance requests and track status</p>
+                    </div>
+                    <button class="admin-sidebar__link" id="openAdvanceModal" style="margin: 0;">New Advance</button>
                 </div>
+                <div class="advance-cards-container" id="advanceCardsContainer">
+                    <!-- Advance cards rendered by JS -->
+                </div>
+            </div>
 
-                <!-- REPORTS SECTION -->
-                <div class="dashboard-section dashboard-section--reports" data-section="reports">
-                    <div class="dashboard-panel">
+            <!-- REPORTS SECTION -->
+            <div class="admin-section" id="section-reports">
+                <div class="admin-main__header">
+                    <div>
                         <h2>Reports</h2>
-                        <p>Advanced reporting and analytics features coming soon.</p>
+                        <p>Advanced reporting and analytics features coming soon</p>
                     </div>
                 </div>
+            </div>
 
-                <!-- SETTINGS SECTION -->
-                <div class="dashboard-section dashboard-section--settings" data-section="settings">
-                    <div class="dashboard-panel">
+            <!-- SETTINGS SECTION -->
+            <div class="admin-section" id="section-settings">
+                <div class="admin-main__header">
+                    <div>
                         <h2>Settings</h2>
-                        <p>Configure your preferences and account settings.</p>
+                        <p>Configure your preferences and account settings</p>
                     </div>
                 </div>
+            </div>
 
-            </div><!-- .dashboard-content -->
-        </div><!-- .dashboard-main -->
-    </div><!-- .dashboard-shell -->
-
-    <!-- FAB BUTTON -->
-    <button id="quickAddFAB" class="quick-add-fab" onclick="expenseTracker.openQuickAdd()" aria-label="Quick Add Expense" title="Quick Add (or shake phone)">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-    </button>
+        </main><!-- .admin-main -->
+    </div><!-- .admin-layout -->
 
     <!-- ALL MODALS AT BODY LEVEL (MOVED HERE FROM INSIDE CONTAINER) -->
+
+    <!-- Global Progress Modal -->
+    <div id="global-progress-modal" class="progress-modal-overlay" style="display: none;">
+        <div class="progress-modal-card">
+            <div class="progress-spinner"></div>
+            <h2 id="progress-title" class="progress-title">Processing...</h2>
+            <p class="progress-message">Please wait</p>
+            <div class="progress-bar-container" style="height: 4px; background: var(--gray-200); border-radius: 2px; margin: 12px 0; overflow: hidden;">
+                <div class="progress-bar-fill" style="height: 100%; background: var(--accent); width: 0%; transition: width 0.3s ease;"></div>
+            </div>
+            <div class="progress-percent" style="text-align: center; font-size: 0.85rem; color: var(--gray-500);">0%</div>
+        </div>
+    </div>
 
     <!-- Clear Data Modal (Stage 1) -->
     <div class="clear-data-modal" id="clearDataModal" style="display: none;">

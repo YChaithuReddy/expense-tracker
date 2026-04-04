@@ -1,62 +1,57 @@
-// Dashboard Manager - Handles section switching and dashboard interactions
+// Dashboard Navigation Controller — matches admin.html pattern
 const dashboardManager = {
-    currentSection: 'dashboard',
+    currentSection: 'overview',
 
     init() {
         this.setupNavigation();
-        this.setupFAB();
         this.populateDashboard();
+        this.setupUserInfo();
     },
 
     setupNavigation() {
-        const navItems = document.querySelectorAll('.nav-item');
+        const navItems = document.querySelectorAll('.admin-nav-item');
         navItems.forEach(item => {
             item.addEventListener('click', (e) => {
                 e.preventDefault();
                 const section = item.getAttribute('data-section');
-                this.switchSection(section);
+                this.switchSection(section, item);
             });
         });
     },
 
-    switchSection(section) {
+    switchSection(section, btn) {
         // Hide all sections
-        document.querySelectorAll('.dashboard-section').forEach(s => {
-            s.classList.remove('is-active');
+        document.querySelectorAll('.admin-section').forEach(s => {
+            s.classList.remove('active');
         });
 
-        // Update nav active state
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.classList.remove('nav-item--active');
+        // Deactivate all nav items
+        document.querySelectorAll('.admin-nav-item').forEach(item => {
+            item.classList.remove('active');
         });
 
         // Show selected section
-        const sectionEl = document.getElementById(`${section}Section`);
+        const sectionEl = document.getElementById(`section-${section}`);
         if (sectionEl) {
-            sectionEl.classList.add('is-active');
+            sectionEl.classList.add('active');
         }
 
         // Update nav active state
-        const navItem = document.querySelector(`[data-section="${section}"]`);
-        if (navItem) {
-            navItem.classList.add('nav-item--active');
+        if (btn) {
+            btn.classList.add('active');
+        } else {
+            const navItem = document.querySelector(`[data-section="${section}"]`);
+            if (navItem) {
+                navItem.classList.add('active');
+            }
         }
 
         this.currentSection = section;
     },
 
-    setupFAB() {
-        const fab = document.getElementById('fabAddExpense');
-        if (fab) {
-            fab.addEventListener('click', () => {
-                this.switchSection('expenses');
-                // Trigger the manual entry flow
-                const skipBtn = document.getElementById('skipToManualEntry');
-                if (skipBtn) {
-                    skipBtn.click();
-                }
-            });
-        }
+    setupUserInfo() {
+        // Will be called after auth is initialized
+        // to populate user name and email in sidebar
     },
 
     populateDashboard() {
