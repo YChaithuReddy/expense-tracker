@@ -171,7 +171,147 @@
   <!-- Mobile sidebar overlay -->
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
-  <script src="../js/navigation.js" defer></script>
-  <script src="../js/ui-states.js" defer></script>
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-client.js"></script>
+  <script src="../supabase-auth.js"></script>
+  <script src="../supabase-api.js"></script>
+
+  <script src="../js/navigation.js"></script>
+  <script src="../js/ui-states.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async function() {
+
+      // =========================================================================
+      // LOAD USER PROFILE FROM SUPABASE
+      // =========================================================================
+      function updateUIWithUser(user) {
+        if (!user) return;
+        var name = user.name || user.user_metadata?.name || user.email || '';
+        var email = user.email || '';
+        var initials = name.split(' ').map(function(w) { return w[0]; }).join('').substring(0, 2).toUpperCase() || 'U';
+
+        // Header
+        var headerName = document.querySelector('.header-user-name');
+        var headerEmail = document.querySelector('.header-user-email');
+        var headerAvatar = document.querySelector('.header-user-avatar');
+        if (headerName) headerName.textContent = name;
+        if (headerEmail) headerEmail.textContent = email;
+        if (headerAvatar) headerAvatar.textContent = initials;
+
+        // Profile card
+        var profileName = document.querySelector('.profile-name');
+        var profileEmail = document.querySelector('.profile-email');
+        var profileAvatar = document.querySelector('.profile-avatar-large');
+        if (profileName) profileName.textContent = name;
+        if (profileEmail) profileEmail.textContent = email;
+        if (profileAvatar) profileAvatar.textContent = initials;
+
+        // Member since
+        var memberSince = document.querySelector('.profile-member-since');
+        if (memberSince && user.created_at) {
+          var d = new Date(user.created_at);
+          memberSince.textContent = 'Member since ' + d.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+        }
+      }
+
+      // Try Supabase auth first, fall back to localStorage
+      try {
+        if (typeof api !== 'undefined' && api.getCurrentUser) {
+          var result = await api.getCurrentUser();
+          if (result && result.data) {
+            updateUIWithUser(result.data);
+          }
+        } else {
+          var localUser = (typeof getCurrentUser === 'function') ? getCurrentUser() : null;
+          if (localUser) updateUIWithUser(localUser);
+        }
+      } catch (err) {
+        console.error('Failed to load user profile:', err);
+        var localUser = (typeof getCurrentUser === 'function') ? getCurrentUser() : null;
+        if (localUser) updateUIWithUser(localUser);
+      }
+
+      // =========================================================================
+      // LOGOUT
+      // =========================================================================
+      var logoutLinks = document.querySelectorAll('.sidebar-footer-item');
+      logoutLinks.forEach(function(link) {
+        if (link.textContent.trim().includes('Logout')) {
+          link.addEventListener('click', async function(e) {
+            e.preventDefault();
+            try {
+              if (typeof api !== 'undefined' && api.logout) {
+                await api.logout();
+              }
+              localStorage.removeItem('user');
+              window.location.href = '../login.html';
+            } catch (err) {
+              console.error('Logout failed:', err);
+              localStorage.removeItem('user');
+              window.location.href = '../login.html';
+            }
+          });
+        }
+      });
+
+      // =========================================================================
+      // CHANGE PASSWORD
+      // =========================================================================
+      var changePasswordBtn = document.getElementById('change-password-btn');
+      if (changePasswordBtn) {
+        changePasswordBtn.addEventListener('click', function() {
+          var newPassword = prompt('Enter new password (minimum 6 characters):');
+          if (!newPassword || newPassword.length < 6) {
+            alert('Password must be at least 6 characters.');
+            return;
+          }
+          if (typeof api !== 'undefined' && api.updatePassword) {
+            api.updatePassword(null, newPassword).then(function() {
+              alert('Password updated successfully.');
+            }).catch(function(err) {
+              alert('Failed to update password: ' + err.message);
+            });
+          }
+        });
+      }
+
+      // =========================================================================
+      // EXPORT DATA
+      // =========================================================================
+      var exportDataBtn = document.getElementById('export-data-btn');
+      if (exportDataBtn) {
+        exportDataBtn.addEventListener('click', async function() {
+          exportDataBtn.disabled = true;
+          exportDataBtn.textContent = 'Exporting...';
+          try {
+            if (typeof api === 'undefined' || !api.getExpenses) throw new Error('API not available');
+            var result = await api.getExpenses(1, 1000);
+            var expenses = result.data || [];
+            if (expenses.length === 0) {
+              alert('No expenses to export.');
+              return;
+            }
+            var csv = 'Date,Description,Category,Amount,Payment Method\n';
+            expenses.forEach(function(exp) {
+              csv += '"' + (exp.date || '') + '","' + (exp.description || exp.vendor || '').replace(/"/g, '""') + '","' + (exp.category || '') + '",' + (exp.amount || 0) + ',"' + (exp.payment_mode || '') + '"\n';
+            });
+            var blob = new Blob([csv], { type: 'text/csv' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'expenses-export.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+          } catch (err) {
+            alert('Export failed: ' + err.message);
+          } finally {
+            exportDataBtn.disabled = false;
+            exportDataBtn.textContent = 'Export';
+          }
+        });
+      }
+    });
+  </script>
 </body>
 </html>

@@ -193,146 +193,195 @@
   <!-- Mobile sidebar overlay -->
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
-  <script src="../js/navigation.js" defer></script>
-  <script src="../js/ui-states.js" defer></script>
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-client.js"></script>
+  <script src="../supabase-auth.js"></script>
+  <script src="../supabase-api.js"></script>
+
+  <script src="../js/navigation.js"></script>
+  <script src="../js/ui-states.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
 
       // =========================================================================
-      // PERIOD SELECTOR
+      // HEADER USER INFO
       // =========================================================================
+      function updateHeaderUser() {
+        var user = (typeof getCurrentUser === 'function') ? getCurrentUser() : null;
+        if (!user) return;
+        var nameEl = document.querySelector('.header-user-name');
+        var emailEl = document.querySelector('.header-user-email');
+        var avatarEl = document.querySelector('.header-user-avatar');
+        if (nameEl) nameEl.textContent = user.name || user.email || '';
+        if (emailEl) emailEl.textContent = user.email || '';
+        if (avatarEl) {
+          var name = user.name || user.email || '';
+          avatarEl.textContent = name.split(' ').map(function(w) { return w[0]; }).join('').substring(0, 2).toUpperCase();
+        }
+      }
+      updateHeaderUser();
 
+      // =========================================================================
+      // STATE
+      // =========================================================================
+      var allExpenses = [];
       var periodButtons = document.querySelectorAll('#period-selector .period-btn');
       var currentPeriod = 'this-month';
 
-      var periodData = {
-        'this-month': {
-          totalSpent: '&#8377;47,830',
-          avgDaily: '&#8377;1,594',
-          highest: '&#8377;8,500',
-          highestLabel: 'Flight Booking',
-          transactions: '28',
-          periodLabel: 'This month',
-          categories: [
-            { name: 'Food', amount: '&#8377;16,741', pct: 35 },
-            { name: 'Shopping', amount: '&#8377;11,958', pct: 25 },
-            { name: 'Travel', amount: '&#8377;9,566', pct: 20 },
-            { name: 'Utilities', amount: '&#8377;5,740', pct: 12 },
-            { name: 'Entertainment', amount: '&#8377;3,826', pct: 8 }
-          ],
-          trend: [32000, 38500, 41200, 47830],
-          trendLabels: ['Jan', 'Feb', 'Mar', 'Apr']
-        },
-        'last-month': {
-          totalSpent: '&#8377;41,200',
-          avgDaily: '&#8377;1,373',
-          highest: '&#8377;7,200',
-          highestLabel: 'Hotel Stay',
-          transactions: '24',
-          periodLabel: 'Last month',
-          categories: [
-            { name: 'Travel', amount: '&#8377;12,360', pct: 30 },
-            { name: 'Food', amount: '&#8377;10,300', pct: 25 },
-            { name: 'Shopping', amount: '&#8377;8,240', pct: 20 },
-            { name: 'Utilities', amount: '&#8377;6,180', pct: 15 },
-            { name: 'Entertainment', amount: '&#8377;4,120', pct: 10 }
-          ],
-          trend: [32000, 38500, 41200],
-          trendLabels: ['Jan', 'Feb', 'Mar']
-        },
-        '3-months': {
-          totalSpent: '&#8377;1,27,530',
-          avgDaily: '&#8377;1,417',
-          highest: '&#8377;12,000',
-          highestLabel: 'Electronics',
-          transactions: '78',
-          periodLabel: 'Last 3 months',
-          categories: [
-            { name: 'Food', amount: '&#8377;38,259', pct: 30 },
-            { name: 'Shopping', amount: '&#8377;31,883', pct: 25 },
-            { name: 'Travel', amount: '&#8377;25,506', pct: 20 },
-            { name: 'Utilities', amount: '&#8377;19,130', pct: 15 },
-            { name: 'Entertainment', amount: '&#8377;12,753', pct: 10 }
-          ],
-          trend: [32000, 38500, 41200, 47830],
-          trendLabels: ['Jan', 'Feb', 'Mar', 'Apr']
-        },
-        'this-year': {
-          totalSpent: '&#8377;1,59,530',
-          avgDaily: '&#8377;1,329',
-          highest: '&#8377;15,000',
-          highestLabel: 'Annual Insurance',
-          transactions: '112',
-          periodLabel: 'This year',
-          categories: [
-            { name: 'Food', amount: '&#8377;43,073', pct: 27 },
-            { name: 'Shopping', amount: '&#8377;35,097', pct: 22 },
-            { name: 'Travel', amount: '&#8377;31,906', pct: 20 },
-            { name: 'Utilities', amount: '&#8377;27,120', pct: 17 },
-            { name: 'Entertainment', amount: '&#8377;22,335', pct: 14 }
-          ],
-          trend: [32000, 38500, 41200, 47830],
-          trendLabels: ['Jan', 'Feb', 'Mar', 'Apr']
-        }
-      };
+      function formatCurrencyFull(val) {
+        return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0 }).format(val);
+      }
 
+      // =========================================================================
+      // LOAD EXPENSES FROM SUPABASE
+      // =========================================================================
+      async function loadAllExpenses() {
+        try {
+          if (typeof api === 'undefined' || !api.getExpenses) return;
+          var result = await api.getExpenses(1, 1000);
+          allExpenses = result.data || [];
+          computeAndRender(currentPeriod);
+        } catch (err) {
+          console.error('Failed to load expenses for summary:', err);
+          if (typeof UIStates !== 'undefined') UIStates.showToast('Failed to load summary data', 'error');
+        }
+      }
+
+      // =========================================================================
+      // COMPUTE ANALYTICS FROM REAL DATA
+      // =========================================================================
+      function getDateRange(period) {
+        var now = new Date();
+        var start, end = new Date(now);
+        end.setHours(23, 59, 59, 999);
+
+        if (period === 'this-month') {
+          start = new Date(now.getFullYear(), now.getMonth(), 1);
+        } else if (period === 'last-month') {
+          start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+          end = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
+        } else if (period === '3-months') {
+          start = new Date(now.getFullYear(), now.getMonth() - 2, 1);
+        } else {
+          start = new Date(now.getFullYear(), 0, 1);
+        }
+        return { start: start, end: end };
+      }
+
+      function getPeriodLabel(period) {
+        var labels = { 'this-month': 'This month', 'last-month': 'Last month', '3-months': 'Last 3 months', 'this-year': 'This year' };
+        return labels[period] || '';
+      }
+
+      function computeAndRender(period) {
+        var range = getDateRange(period);
+        var filtered = allExpenses.filter(function(exp) {
+          var d = new Date(exp.date);
+          return d >= range.start && d <= range.end;
+        });
+
+        var totalSpent = 0;
+        var highest = { amount: 0, desc: '' };
+        var catTotals = {};
+
+        filtered.forEach(function(exp) {
+          var amt = parseFloat(exp.amount) || 0;
+          totalSpent += amt;
+          if (amt > highest.amount) {
+            highest.amount = amt;
+            highest.desc = exp.description || exp.vendor || '';
+          }
+          var cat = exp.category || 'Other';
+          catTotals[cat] = (catTotals[cat] || 0) + amt;
+        });
+
+        var daysDiff = Math.max(1, Math.ceil((range.end - range.start) / (1000 * 60 * 60 * 24)));
+        var avgDaily = totalSpent / daysDiff;
+
+        // Update stat cards
+        document.getElementById('stat-total-spent').textContent = formatCurrencyFull(totalSpent);
+        document.getElementById('stat-avg-daily').textContent = formatCurrencyFull(Math.round(avgDaily));
+        document.getElementById('stat-highest').textContent = formatCurrencyFull(highest.amount);
+        document.getElementById('stat-highest-label').textContent = highest.desc || 'N/A';
+        document.getElementById('stat-transactions').textContent = filtered.length;
+
+        var detailEls = document.querySelectorAll('.stat-card .stat-card-detail');
+        if (detailEls[0]) detailEls[0].textContent = getPeriodLabel(period);
+
+        // Category breakdown
+        var categories = Object.keys(catTotals).map(function(name) {
+          return { name: name, amount: catTotals[name] };
+        }).sort(function(a, b) { return b.amount - a.amount; });
+
+        var container = document.getElementById('category-breakdown');
+        if (categories.length === 0) {
+          container.innerHTML = '<p style="color: var(--color-text-secondary); font-size: var(--font-size-body-sm);">No expenses in this period.</p>';
+        } else {
+          container.innerHTML = categories.map(function(cat) {
+            var pct = totalSpent > 0 ? Math.round((cat.amount / totalSpent) * 100) : 0;
+            return '<div class="category-row">' +
+              '<div class="category-row-header">' +
+              '<span class="category-row-name">' + cat.name + '</span>' +
+              '<span class="category-row-value">' + formatCurrencyFull(cat.amount) + ' <span class="category-row-pct">' + pct + '%</span></span>' +
+              '</div>' +
+              '<div class="category-bar"><div class="category-bar-fill" style="width: ' + pct + '%"></div></div>' +
+              '</div>';
+          }).join('');
+        }
+
+        // Monthly trend
+        computeMonthlyTrend(period);
+      }
+
+      function computeMonthlyTrend(period) {
+        var range = getDateRange(period);
+        var monthTotals = {};
+
+        allExpenses.forEach(function(exp) {
+          var d = new Date(exp.date);
+          if (d >= range.start && d <= range.end) {
+            var key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+            monthTotals[key] = (monthTotals[key] || 0) + (parseFloat(exp.amount) || 0);
+          }
+        });
+
+        var keys = Object.keys(monthTotals).sort();
+        var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        var values = keys.map(function(k) { return monthTotals[k]; });
+        var labels = keys.map(function(k) { return monthNames[parseInt(k.split('-')[1]) - 1]; });
+
+        if (values.length === 0) {
+          values = [0];
+          labels = ['No data'];
+        }
+
+        drawTrendChartWithData(values, labels);
+      }
+
+      // =========================================================================
+      // PERIOD SELECTOR
+      // =========================================================================
       periodButtons.forEach(function(btn) {
         btn.addEventListener('click', function() {
           periodButtons.forEach(function(b) { b.classList.remove('active'); });
           this.classList.add('active');
           currentPeriod = this.getAttribute('data-period');
-          updateStats(currentPeriod);
-          updateCategories(currentPeriod);
-          drawTrendChart(currentPeriod);
+          computeAndRender(currentPeriod);
         });
       });
-
-      function updateStats(period) {
-        var data = periodData[period];
-        if (!data) return;
-        document.getElementById('stat-total-spent').innerHTML = data.totalSpent;
-        document.getElementById('stat-avg-daily').innerHTML = data.avgDaily;
-        document.getElementById('stat-highest').innerHTML = data.highest;
-        document.getElementById('stat-highest-label').textContent = data.highestLabel;
-        document.getElementById('stat-transactions').textContent = data.transactions;
-
-        // Update detail labels
-        var detailEls = document.querySelectorAll('.stat-card .stat-card-detail');
-        if (detailEls[0]) detailEls[0].textContent = data.periodLabel;
-      }
-
-      function updateCategories(period) {
-        var data = periodData[period];
-        if (!data) return;
-        var container = document.getElementById('category-breakdown');
-        var html = '';
-        data.categories.forEach(function(cat) {
-          html += '<div class="category-row">' +
-            '<div class="category-row-header">' +
-            '<span class="category-row-name">' + cat.name + '</span>' +
-            '<span class="category-row-value">' + cat.amount + ' <span class="category-row-pct">' + cat.pct + '%</span></span>' +
-            '</div>' +
-            '<div class="category-bar"><div class="category-bar-fill" style="width: ' + cat.pct + '%"></div></div>' +
-            '</div>';
-        });
-        container.innerHTML = html;
-      }
 
       // =========================================================================
       // MONTHLY TREND CANVAS CHART
       // =========================================================================
 
-      function drawTrendChart(period) {
-        var data = periodData[period];
-        if (!data) return;
-
+      function drawTrendChartWithData(values, labels) {
         var canvas = document.getElementById('trend-chart');
         if (!canvas || !canvas.getContext) return;
 
         var ctx = canvas.getContext('2d');
         var dpr = window.devicePixelRatio || 1;
 
-        // Responsive canvas sizing
         var containerWidth = canvas.parentElement.clientWidth;
         var canvasWidth = containerWidth;
         var canvasHeight = 300;
@@ -343,20 +392,14 @@
         canvas.style.height = canvasHeight + 'px';
         ctx.scale(dpr, dpr);
 
-        var values = data.trend;
-        var labels = data.trendLabels;
-
         var padding = { top: 30, right: 30, bottom: 50, left: 70 };
         var chartWidth = canvasWidth - padding.left - padding.right;
         var chartHeight = canvasHeight - padding.top - padding.bottom;
 
-        var maxVal = Math.max.apply(null, values) * 1.15;
-        var minVal = 0;
+        var maxVal = Math.max.apply(null, values) * 1.15 || 1;
 
-        // Clear
         ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
-        // Compute styles from CSS variables
         var computedStyle = getComputedStyle(document.documentElement);
         var textColor = computedStyle.getPropertyValue('--color-text-secondary').trim() || '#757575';
         var borderColor = computedStyle.getPropertyValue('--color-border').trim() || '#eeeeee';
@@ -399,7 +442,6 @@
           else ctx.lineTo(x, y);
         });
 
-        // Close area path
         var lastX = padding.left + stepX * (values.length - 1);
         var firstX = padding.left;
         ctx.lineTo(lastX, padding.top + chartHeight);
@@ -435,7 +477,6 @@
           ctx.lineWidth = 2.5;
           ctx.stroke();
 
-          // Value label above point
           ctx.fillStyle = primaryColor;
           ctx.font = 'bold 12px -apple-system, BlinkMacSystemFont, sans-serif';
           ctx.textAlign = 'center';
@@ -449,15 +490,15 @@
         return val.toString();
       }
 
-      // Initial render
-      drawTrendChart('this-month');
+      // Initial render — load from Supabase
+      loadAllExpenses();
 
       // Redraw on resize
       var resizeTimer;
       window.addEventListener('resize', function() {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(function() {
-          drawTrendChart(currentPeriod);
+          computeAndRender(currentPeriod);
         }, 150);
       });
 
@@ -472,11 +513,9 @@
           exportBtn.textContent = 'Exporting...';
 
           try {
-            // Check if google-sheets-service is available
             if (typeof window.googleSheetsService !== 'undefined' && window.googleSheetsService.exportExpenses) {
               await window.googleSheetsService.exportExpenses();
             } else {
-              // Simulated export for demo
               await new Promise(function(resolve) { setTimeout(resolve, 1500); });
             }
             exportBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><polyline points="20 6 9 17 4 12"/></svg> Exported!';
