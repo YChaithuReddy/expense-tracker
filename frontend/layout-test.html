@@ -6,6 +6,8 @@
   <title>Layout Test - Curator Expense Tracker</title>
   <link rel="stylesheet" href="css/design-system.css">
   <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/pages.css">
   <style>
     /* Test specific styles */
     .sidebar-nav-icon::before {
@@ -137,6 +139,9 @@
   <div class="main-container">
     <!-- HEADER / TOP BAR -->
     <header class="header">
+      <!-- Hamburger Menu Button (Mobile) -->
+      <button class="hamburger-btn" id="hamburger-btn">☰</button>
+
       <!-- Search Bar -->
       <div class="header-search">
         <div class="header-search-icon"></div>
@@ -264,5 +269,29 @@
       </div>
     </main>
   </div>
+
+  <script>
+    // Mobile hamburger menu functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const hamburgerBtn = document.getElementById('hamburger-btn');
+      const sidebar = document.querySelector('.sidebar');
+
+      if (hamburgerBtn) {
+        hamburgerBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          sidebar.classList.toggle('open');
+        });
+      }
+
+      // Close sidebar when clicking outside
+      document.addEventListener('click', function(e) {
+        if (sidebar && sidebar.classList.contains('open')) {
+          if (!sidebar.contains(e.target) && !hamburgerBtn.contains(e.target)) {
+            sidebar.classList.remove('open');
+          }
+        }
+      });
+    });
+  </script>
 </body>
 </html>
