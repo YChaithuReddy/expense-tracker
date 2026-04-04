@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Expense Tracker</title>
+  <link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+  <!-- SIDEBAR NAVIGATION -->
+  <aside class="sidebar">
+    <!-- Sidebar Header -->
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">C</div>
+        <span>Curator</span>
+      </div>
+    </div>
+
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="sidebar-nav-item active">
+        <div class="sidebar-nav-icon">📊</div>
+        <span class="sidebar-nav-label">Dashboard</span>
+      </a>
+      <a href="#" class="sidebar-nav-item">
+        <div class="sidebar-nav-icon">➕</div>
+        <span class="sidebar-nav-label">Add Expense</span>
+      </a>
+      <a href="#" class="sidebar-nav-item">
+        <div class="sidebar-nav-icon">🏦</div>
+        <span class="sidebar-nav-label">Advances</span>
+      </a>
+      <a href="#" class="sidebar-nav-item">
+        <div class="sidebar-nav-icon">📄</div>
+        <span class="sidebar-nav-label">Reports</span>
+      </a>
+    </nav>
+
+    <!-- Sidebar Footer -->
+    <div class="sidebar-footer">
+      <a href="#" class="sidebar-footer-item">
+        <div class="sidebar-footer-icon">⚙️</div>
+        <span class="sidebar-nav-label">Settings</span>
+      </a>
+      <a href="#" class="sidebar-footer-item">
+        <div class="sidebar-footer-icon">🚪</div>
+        <span class="sidebar-nav-label">Logout</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTAINER -->
+  <div class="main-container">
+    <!-- HEADER / TOP BAR -->
+    <header class="header">
+      <!-- Hamburger Menu Button (Mobile) -->
+      <button class="hamburger-btn" id="hamburger-btn">☰</button>
+
+      <!-- Search Bar -->
+      <div class="header-search">
+        <div class="header-search-icon">🔍</div>
+        <input type="text" class="header-search-input" placeholder="Search expenses...">
+      </div>
+
+      <!-- User Profile -->
+      <div class="header-user">
+        <div class="header-user-avatar">JD</div>
+        <div class="header-user-info">
+          <div class="header-user-name">John Doe</div>
+          <div class="header-user-email">john@example.com</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="main-content">
+      <div class="page-wrapper">
+        <!-- Page Header -->
+        <div class="page-header">
+          <h1 class="page-title">Dashboard</h1>
+          <p class="page-subtitle">Welcome back! Here's your expense overview.</p>
+        </div>
+
+        <!-- Hero Balance Card -->
+        <div class="card dashboard-hero-card" style="margin-bottom: var(--spacing-xl); background-color: var(--color-surface); border: 1px solid var(--color-gray-300);">
+          <div class="card-body">
+            <!-- Balance Amount (32px display text) -->
+            <div style="display: flex; flex-direction: column; gap: var(--spacing-sm);">
+              <div style="font-size: var(--font-size-display); font-weight: var(--font-weight-display); color: var(--color-text-primary); line-height: var(--line-height-display);">
+                ₹45,230.50
+              </div>
+              <!-- Subtitle -->
+              <div style="font-size: var(--font-size-caption); color: var(--color-text-secondary); font-weight: var(--font-weight-normal);">
+                Total Balance
+              </div>
+            </div>
+            <!-- Monthly Change Indicator -->
+            <div style="margin-top: var(--spacing-lg); padding-top: var(--spacing-lg); border-top: 1px solid var(--color-border);">
+              <span style="font-size: var(--font-size-caption); color: var(--color-success); font-weight: var(--font-weight-semibold);">
+                +₹12,345 this month
+              </span>
+              <p style="font-size: var(--font-size-body-sm); color: var(--color-text-secondary); margin: var(--spacing-sm) 0 0 0;">
+                You saved more than last month
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Content Grid - Three Column Layout -->
+        <div class="grid grid-3">
+          <!-- Section 1: Spending Insights Placeholder -->
+          <div class="card" style="grid-column: span 2;">
+            <div class="card-header">
+              <h2 class="card-title" style="font-size: var(--font-size-h3); margin: 0;">Spending Insights</h2>
+            </div>
+            <div class="card-body">
+              <p style="color: var(--color-text-secondary); margin: 0;">
+                📊 Chart visualization will be added in Phase 2 Task 6
+              </p>
+              <div style="height: 200px; background-color: var(--color-surface-secondary); border-radius: var(--border-radius-md); display: flex; align-items: center; justify-content: center; margin-top: var(--spacing-lg); color: var(--color-text-tertiary);">
+                Placeholder for chart
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 2: Wallets Placeholder -->
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title" style="font-size: var(--font-size-h3); margin: 0;">Wallets</h2>
+            </div>
+            <div class="card-body">
+              <p style="color: var(--color-text-secondary); margin: 0; font-size: var(--font-size-body-sm);">
+                🏦 Wallet management coming in Phase 2 Task 7
+              </p>
+              <div style="margin-top: var(--spacing-lg);">
+                <div style="padding: var(--spacing-md); background-color: var(--color-surface-secondary); border-radius: var(--border-radius-md); color: var(--color-text-tertiary); text-align: center; font-size: var(--font-size-body-sm);">
+                  Wallet items here
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3: Recent Transactions -->
+        <div class="card" style="margin-top: var(--spacing-xl);">
+          <div class="card-header">
+            <h2 class="card-title" style="font-size: var(--font-size-h3); margin: 0;">Recent Transactions</h2>
+          </div>
+          <div class="card-body">
+            <!-- Transaction List -->
+            <div style="display: flex; flex-direction: column; gap: 0;">
+              <!-- Transaction Item 1 -->
+              <div style="padding: var(--spacing-md); border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div style="font-size: var(--font-size-body); font-weight: var(--font-weight-semibold); color: var(--color-text-primary);">
+                    Groceries
+                  </div>
+                  <div style="font-size: var(--font-size-caption); color: var(--color-text-secondary); margin-top: 4px;">
+                    Today at 10:30 AM
+                  </div>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-size: var(--font-size-body); font-weight: var(--font-weight-semibold); color: var(--color-text-primary);">
+                    -₹450.00
+                  </div>
+                  <div style="font-size: var(--font-size-caption); color: var(--color-text-secondary); margin-top: 4px;">
+                    Food
+                  </div>
+                </div>
+              </div>
+
+              <!-- Transaction Item 2 -->
+              <div style="padding: var(--spacing-md); border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div style="font-size: var(--font-size-body); font-weight: var(--font-weight-semibold); color: var(--color-text-primary);">
+                    Electricity Bill
+                  </div>
+                  <div style="font-size: var(--font-size-caption); color: var(--color-text-secondary); margin-top: 4px;">
+                    Yesterday at 3:15 PM
+                  </div>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-size: var(--font-size-body); font-weight: var(--font-weight-semibold); color: var(--color-text-primary);">
+                    -₹1,200.00
+                  </div>
+                  <div style="font-size: var(--font-size-caption); color: var(--color-text-secondary); margin-top: 4px;">
+                    Utilities
+                  </div>
+                </div>
+              </div>
+
+              <!-- Transaction Item 3 -->
+              <div style="padding: var(--spacing-md); border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div style="font-size: var(--font-size-body); font-weight: var(--font-weight-semibold); color: var(--color-text-primary);">
+                    Restaurant Dinner
+                  </div>
+                  <div style="font-size: var(--font-size-caption); color: var(--color-text-secondary); margin-top: 4px;">
+                    2 days ago at 7:45 PM
+                  </div>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-size: var(--font-size-body); font-weight: var(--font-weight-semibold); color: var(--color-text-primary);">
+                    -₹850.00
+                  </div>
+                  <div style="font-size: var(--font-size-caption); color: var(--color-text-secondary); margin-top: 4px;">
+                    Food
+                  </div>
+                </div>
+              </div>
+
+              <!-- Transaction Item 4 -->
+              <div style="padding: var(--spacing-md); display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div style="font-size: var(--font-size-body); font-weight: var(--font-weight-semibold); color: var(--color-text-primary);">
+                    Salary Credit
+                  </div>
+                  <div style="font-size: var(--font-size-caption); color: var(--color-text-secondary); margin-top: 4px;">
+                    3 days ago at 9:00 AM
+                  </div>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-size: var(--font-size-body); font-weight: var(--font-weight-semibold); color: var(--color-success);">
+                    +₹50,000.00
+                  </div>
+                  <div style="font-size: var(--font-size-caption); color: var(--color-text-secondary); margin-top: 4px;">
+                    Income
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer Padding -->
+        <div style="height: var(--spacing-xl);"></div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Mobile hamburger menu functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const hamburgerBtn = document.getElementById('hamburger-btn');
+      const sidebar = document.querySelector('.sidebar');
+
+      if (hamburgerBtn) {
+        hamburgerBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          sidebar.classList.toggle('open');
+        });
+      }
+
+      // Close sidebar when clicking outside
+      document.addEventListener('click', function(e) {
+        if (sidebar && sidebar.classList.contains('open')) {
+          if (!sidebar.contains(e.target) && !hamburgerBtn.contains(e.target)) {
+            sidebar.classList.remove('open');
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
