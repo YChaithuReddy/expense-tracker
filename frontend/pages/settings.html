@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings - Expense Tracker</title>
+  <link rel="stylesheet" href="../css/index.css">
+</head>
+<body>
+  <!-- SIDEBAR NAVIGATION -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">C</div>
+        <span>Curator</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="../dashboard.html" class="sidebar-nav-item">
+        <div class="sidebar-nav-icon">📊</div>
+        <span class="sidebar-nav-label">Dashboard</span>
+      </a>
+      <a href="./add-expense.html" class="sidebar-nav-item">
+        <div class="sidebar-nav-icon">➕</div>
+        <span class="sidebar-nav-label">Add Expense</span>
+      </a>
+      <a href="#" class="sidebar-nav-item">
+        <div class="sidebar-nav-icon">🏦</div>
+        <span class="sidebar-nav-label">Advances</span>
+      </a>
+      <a href="#" class="sidebar-nav-item">
+        <div class="sidebar-nav-icon">📄</div>
+        <span class="sidebar-nav-label">Reports</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="./accounts.html" class="sidebar-footer-item">
+        <div class="sidebar-footer-icon">👤</div>
+        <span class="sidebar-nav-label">Account</span>
+      </a>
+      <a href="./settings.html" class="sidebar-footer-item active">
+        <div class="sidebar-footer-icon">⚙️</div>
+        <span class="sidebar-nav-label">Settings</span>
+      </a>
+      <a href="#" class="sidebar-footer-item">
+        <div class="sidebar-footer-icon">🚪</div>
+        <span class="sidebar-nav-label">Logout</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTAINER -->
+  <div class="main-container">
+    <!-- HEADER -->
+    <header class="header">
+      <button class="hamburger-btn" id="hamburger-btn">☰</button>
+      <div class="header-search">
+        <div class="header-search-icon">🔍</div>
+        <input type="text" class="header-search-input" placeholder="Search expenses...">
+      </div>
+      <div class="header-user">
+        <div class="header-user-avatar">JD</div>
+        <div class="header-user-info">
+          <div class="header-user-name">John Doe</div>
+          <div class="header-user-email">john@example.com</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      <div class="page-wrapper">
+        <!-- Page Header -->
+        <div class="page-header">
+          <h1 class="page-title">Settings</h1>
+          <p class="page-subtitle">App preferences</p>
+        </div>
+
+        <!-- General Settings -->
+        <div class="settings-section card">
+          <div class="card-header">
+            <h3 class="card-title">General</h3>
+          </div>
+          <div class="card-body">
+            <div class="settings-row">
+              <div class="settings-row-info">
+                <div class="settings-row-label">Currency</div>
+                <div class="settings-row-desc">Default currency for expenses</div>
+              </div>
+              <select class="form-select settings-select" id="currency-select">
+                <option value="INR" selected>&#8377; INR</option>
+                <option value="USD">$ USD</option>
+                <option value="EUR">&euro; EUR</option>
+                <option value="GBP">&pound; GBP</option>
+              </select>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-info">
+                <div class="settings-row-label">Date Format</div>
+                <div class="settings-row-desc">How dates are displayed</div>
+              </div>
+              <select class="form-select settings-select" id="date-format-select">
+                <option value="DD/MM/YYYY" selected>DD/MM/YYYY</option>
+                <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+              </select>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-info">
+                <div class="settings-row-label">Language</div>
+                <div class="settings-row-desc">App display language</div>
+              </div>
+              <select class="form-select settings-select" id="language-select">
+                <option value="en" selected>English</option>
+                <option value="hi">Hindi</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notifications -->
+        <div class="settings-section card" style="margin-top: var(--spacing-lg);">
+          <div class="card-header">
+            <h3 class="card-title">Notifications</h3>
+          </div>
+          <div class="card-body">
+            <div class="settings-row">
+              <div class="settings-row-info">
+                <div class="settings-row-label">Email Notifications</div>
+                <div class="settings-row-desc">Receive weekly expense summaries via email</div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="email-notifications-toggle">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-info">
+                <div class="settings-row-label">Budget Alerts</div>
+                <div class="settings-row-desc">Get notified when spending exceeds budget limits</div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="budget-alerts-toggle" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Display -->
+        <div class="settings-section card" style="margin-top: var(--spacing-lg);">
+          <div class="card-header">
+            <h3 class="card-title">Display</h3>
+          </div>
+          <div class="card-body">
+            <div class="settings-row">
+              <div class="settings-row-info">
+                <div class="settings-row-label">Dark Mode</div>
+                <div class="settings-row-desc">Switch between light and dark theme</div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="dark-mode-toggle">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-info">
+                <div class="settings-row-label">Compact View</div>
+                <div class="settings-row-desc">Show more items with reduced spacing</div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="compact-view-toggle">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Data -->
+        <div class="settings-section danger-zone" style="margin-top: var(--spacing-lg);">
+          <div class="card-header">
+            <h3 class="card-title" style="color: var(--color-error);">Data Management</h3>
+          </div>
+          <div class="card-body">
+            <div class="settings-row">
+              <div class="settings-row-info">
+                <div class="settings-row-label">Export Data</div>
+                <div class="settings-row-desc">Download all expenses as CSV</div>
+              </div>
+              <button class="btn btn-sm btn-outline" id="export-btn">Export</button>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-info">
+                <div class="settings-row-label">Import Data</div>
+                <div class="settings-row-desc">Import expenses from a CSV file</div>
+              </div>
+              <button class="btn btn-sm btn-outline" id="import-btn">Import</button>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-info">
+                <div class="settings-row-label">Clear All Data</div>
+                <div class="settings-row-desc">Permanently delete all expense records. This cannot be undone.</div>
+              </div>
+              <button class="btn btn-sm btn-danger" id="clear-data-btn">Clear Data</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Save Button -->
+        <div class="form-actions" style="margin-top: var(--spacing-xl);">
+          <button class="btn btn-primary btn-lg" id="save-settings-btn">Save Settings</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Mobile sidebar overlay -->
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <script>
+    // Sidebar toggle for mobile
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+
+    function toggleSidebar() {
+      sidebar.classList.toggle('open');
+      overlay.classList.toggle('active');
+    }
+
+    hamburgerBtn.addEventListener('click', toggleSidebar);
+    overlay.addEventListener('click', toggleSidebar);
+
+    // Save settings handler
+    document.getElementById('save-settings-btn').addEventListener('click', function() {
+      const settings = {
+        currency: document.getElementById('currency-select').value,
+        dateFormat: document.getElementById('date-format-select').value,
+        language: document.getElementById('language-select').value,
+        emailNotifications: document.getElementById('email-notifications-toggle').checked,
+        budgetAlerts: document.getElementById('budget-alerts-toggle').checked,
+        darkMode: document.getElementById('dark-mode-toggle').checked,
+        compactView: document.getElementById('compact-view-toggle').checked
+      };
+      localStorage.setItem('app-settings', JSON.stringify(settings));
+      this.textContent = 'Saved!';
+      setTimeout(() => { this.textContent = 'Save Settings'; }, 2000);
+    });
+
+    // Load saved settings
+    const saved = JSON.parse(localStorage.getItem('app-settings') || '{}');
+    if (saved.currency) document.getElementById('currency-select').value = saved.currency;
+    if (saved.dateFormat) document.getElementById('date-format-select').value = saved.dateFormat;
+    if (saved.language) document.getElementById('language-select').value = saved.language;
+    if (saved.emailNotifications !== undefined) document.getElementById('email-notifications-toggle').checked = saved.emailNotifications;
+    if (saved.budgetAlerts !== undefined) document.getElementById('budget-alerts-toggle').checked = saved.budgetAlerts;
+    if (saved.darkMode !== undefined) document.getElementById('dark-mode-toggle').checked = saved.darkMode;
+    if (saved.compactView !== undefined) document.getElementById('compact-view-toggle').checked = saved.compactView;
+  </script>
+</body>
+</html>
