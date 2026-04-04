@@ -1,0 +1,27 @@
+/* =============================================================================
+   INDEX.CSS - Main CSS Entry Point
+
+   Imports all CSS modules in the correct order:
+   1. Design System (colors, typography, spacing, shadows, transitions)
+   2. Layout (sidebar, header, main content areas)
+   3. Components (buttons, cards, forms, modals)
+   4. Pages (page-specific styles)
+   5. Responsive (media queries and breakpoints)
+   ============================================================================= */
+
+/* Design System - Core design tokens, variables, global styles */
+@import url('./design-system.css');
+
+/* Layout - Sidebar, header, main container structure */
+@import url('./layout.css');
+
+/* Components - Reusable component styles (buttons, cards, forms, modals) */
+@import url('./components.css');
+
+/* Pages - Page-specific styles */
+@import url('./pages.css');
+
+/* Responsive - Media queries and responsive utilities */
+@import url('./responsive.css');
+
+/* End of CSS Index */
