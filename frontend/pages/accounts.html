@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account - Expense Tracker</title>
+  <link rel="stylesheet" href="../css/index.css">
+</head>
+<body>
+  <!-- SIDEBAR NAVIGATION -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">C</div>
+        <span>Curator</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="../dashboard.html" class="sidebar-nav-item">
+        <div class="sidebar-nav-icon">📊</div>
+        <span class="sidebar-nav-label">Dashboard</span>
+      </a>
+      <a href="./add-expense.html" class="sidebar-nav-item">
+        <div class="sidebar-nav-icon">➕</div>
+        <span class="sidebar-nav-label">Add Expense</span>
+      </a>
+      <a href="#" class="sidebar-nav-item">
+        <div class="sidebar-nav-icon">🏦</div>
+        <span class="sidebar-nav-label">Advances</span>
+      </a>
+      <a href="#" class="sidebar-nav-item">
+        <div class="sidebar-nav-icon">📄</div>
+        <span class="sidebar-nav-label">Reports</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="./accounts.html" class="sidebar-footer-item active">
+        <div class="sidebar-footer-icon">👤</div>
+        <span class="sidebar-nav-label">Account</span>
+      </a>
+      <a href="./settings.html" class="sidebar-footer-item">
+        <div class="sidebar-footer-icon">⚙️</div>
+        <span class="sidebar-nav-label">Settings</span>
+      </a>
+      <a href="#" class="sidebar-footer-item">
+        <div class="sidebar-footer-icon">🚪</div>
+        <span class="sidebar-nav-label">Logout</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTAINER -->
+  <div class="main-container">
+    <!-- HEADER -->
+    <header class="header">
+      <button class="hamburger-btn" id="hamburger-btn">☰</button>
+      <div class="header-search">
+        <div class="header-search-icon">🔍</div>
+        <input type="text" class="header-search-input" placeholder="Search expenses...">
+      </div>
+      <div class="header-user">
+        <div class="header-user-avatar">JD</div>
+        <div class="header-user-info">
+          <div class="header-user-name">John Doe</div>
+          <div class="header-user-email">john@example.com</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      <div class="page-wrapper">
+        <!-- Page Header -->
+        <div class="page-header">
+          <h1 class="page-title">Account</h1>
+          <p class="page-subtitle">Manage your profile</p>
+        </div>
+
+        <!-- Profile Card -->
+        <div class="profile-card card">
+          <div class="card-body">
+            <div class="profile-header">
+              <div class="profile-avatar-large">JD</div>
+              <div class="profile-info">
+                <h2 class="profile-name">John Doe</h2>
+                <p class="profile-email">john@example.com</p>
+                <p class="profile-member-since">Member since April 2026</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Connected Services -->
+        <div class="card" style="margin-top: var(--spacing-lg);">
+          <div class="card-header">
+            <h3 class="card-title">Connected Services</h3>
+          </div>
+          <div class="card-body">
+            <div class="connected-service">
+              <div class="connected-service-info">
+                <span class="connected-service-icon">📊</span>
+                <div>
+                  <div class="connected-service-name">Google Sheets</div>
+                  <div class="connected-service-status connected">Connected</div>
+                </div>
+              </div>
+              <button class="btn btn-sm btn-outline" id="disconnect-sheets-btn">Disconnect</button>
+            </div>
+            <div class="connected-service">
+              <div class="connected-service-info">
+                <span class="connected-service-icon">🗄️</span>
+                <div>
+                  <div class="connected-service-name">Supabase</div>
+                  <div class="connected-service-status connected">Connected</div>
+                </div>
+              </div>
+              <span class="connected-service-badge">Active</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Account Actions -->
+        <div class="card" style="margin-top: var(--spacing-lg);">
+          <div class="card-header">
+            <h3 class="card-title">Account Actions</h3>
+          </div>
+          <div class="card-body">
+            <div class="account-action-row">
+              <div>
+                <div class="account-action-label">Change Password</div>
+                <div class="account-action-desc">Update your account password</div>
+              </div>
+              <button class="btn btn-sm btn-outline" id="change-password-btn">Change</button>
+            </div>
+            <div class="account-action-row">
+              <div>
+                <div class="account-action-label">Export Data</div>
+                <div class="account-action-desc">Download all your expense data as CSV</div>
+              </div>
+              <button class="btn btn-sm btn-outline" id="export-data-btn">Export</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Danger Zone -->
+        <div class="danger-zone" style="margin-top: var(--spacing-lg);">
+          <div class="card-header">
+            <h3 class="card-title" style="color: var(--color-error);">Danger Zone</h3>
+          </div>
+          <div class="card-body">
+            <div class="account-action-row">
+              <div>
+                <div class="account-action-label">Delete Account</div>
+                <div class="account-action-desc">Permanently delete your account and all data. This cannot be undone.</div>
+              </div>
+              <button class="btn btn-sm btn-danger" id="delete-account-btn">Delete Account</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Mobile sidebar overlay -->
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <script>
+    // Sidebar toggle for mobile
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+
+    function toggleSidebar() {
+      sidebar.classList.toggle('open');
+      overlay.classList.toggle('active');
+    }
+
+    hamburgerBtn.addEventListener('click', toggleSidebar);
+    overlay.addEventListener('click', toggleSidebar);
+  </script>
+</body>
+</html>
