@@ -224,9 +224,30 @@
   <!-- Mobile sidebar overlay -->
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
-  <script src="../js/navigation.js" defer></script>
-  <script src="../js/ui-states.js" defer></script>
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-client.js"></script>
+  <script src="../supabase-auth.js"></script>
+  <script src="../supabase-api.js"></script>
+
+  <script src="../js/navigation.js"></script>
+  <script src="../js/ui-states.js"></script>
   <script>
+    // Header user info
+    (function() {
+      var user = (typeof getCurrentUser === 'function') ? getCurrentUser() : null;
+      if (!user) return;
+      var nameEl = document.querySelector('.header-user-name');
+      var emailEl = document.querySelector('.header-user-email');
+      var avatarEl = document.querySelector('.header-user-avatar');
+      if (nameEl) nameEl.textContent = user.name || user.email || '';
+      if (emailEl) emailEl.textContent = user.email || '';
+      if (avatarEl) {
+        var name = user.name || user.email || '';
+        avatarEl.textContent = name.split(' ').map(function(w) { return w[0]; }).join('').substring(0, 2).toUpperCase();
+      }
+    })();
+
     // Save settings handler
     document.getElementById('save-settings-btn').addEventListener('click', function() {
       const settings = {
