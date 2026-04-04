@@ -6869,8 +6869,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                                 <div class="img-card__preview" data-action="view">
                                     <img class="img-card__image" src="${img.url}" alt="${img.filename || 'Bill image'}"
                                          loading="lazy" decoding="async"
-                                         onload="this.classList.add('is-loaded')"
-                                         onerror="this.parentElement.innerHTML='<div class=\\'img-card__error-content\\'><svg width=\\'32\\' height=\\'32\\' viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\'><circle cx=\\'12\\' cy=\\'12\\' r=\\'10\\'/><path d=\\'M12 8v4M12 16h.01\\'/></svg><span>Failed to load</span></div>'">
+                                         data-image-id="${img._id}">`
                                     <div class="img-card__overlay">
                                         <button class="img-card__overlay-btn" data-action="view">
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -6936,6 +6935,41 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                             </article>
                         `;
                     }).join('');
+
+                    // Add safe error handlers for images (XSS Fix #1)
+                    gridDiv.querySelectorAll('.img-card__image').forEach(img => {
+                        img.addEventListener('error', function() {
+                            const errorDiv = document.createElement('div');
+                            errorDiv.className = 'img-card__error-content';
+
+                            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                            svg.setAttribute('width', '32');
+                            svg.setAttribute('height', '32');
+                            svg.setAttribute('viewBox', '0 0 24 24');
+                            svg.setAttribute('fill', 'none');
+                            svg.setAttribute('stroke', 'currentColor');
+
+                            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                            circle.setAttribute('cx', '12');
+                            circle.setAttribute('cy', '12');
+                            circle.setAttribute('r', '10');
+                            svg.appendChild(circle);
+
+                            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                            path.setAttribute('d', 'M12 8v4M12 16h.01');
+                            svg.appendChild(path);
+
+                            errorDiv.appendChild(svg);
+
+                            const span = document.createElement('span');
+                            span.textContent = 'Failed to load';
+                            errorDiv.appendChild(span);
+
+                            if (this.parentElement) {
+                                this.parentElement.replaceChild(errorDiv, this);
+                            }
+                        });
+                    });
                 }
 
                 // Event delegation for grid clicks (avoids inline onclick per card)
@@ -8081,7 +8115,18 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                     </div>`;
             }).join('');
         } catch (err) {
-            container.innerHTML = `<div class="kodo-claims-empty">Failed to load claims: ${err.message}</div>`;
+            // XSS Fix #2: Sanitize error message before rendering
+            const sanitize = (str) => {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            };
+
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'kodo-claims-empty';
+            errorDiv.innerHTML = `Failed to load claims: ${sanitize(err.message)}`;
+            container.innerHTML = '';
+            container.appendChild(errorDiv);
         }
     }
 
@@ -8666,8 +8711,27 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                         ]);
                         const mgrSelect = document.getElementById('advanceManagerSelect');
                         const acctSelect = document.getElementById('advanceAccountantSelect');
-                        if (mgrSelect) mgrSelect.innerHTML = mgrs.map(m => `<option value="${m.id}">${m.name} (${m.email})</option>`).join('');
-                        if (acctSelect) acctSelect.innerHTML = accts.map(a => `<option value="${a.id}">${a.name} (${a.email})</option>`).join('');
+
+                        // XSS Fix #3: Use createElement instead of innerHTML for user data
+                        if (mgrSelect) {
+                            mgrSelect.innerHTML = ''; // Clear existing options
+                            mgrs.forEach(m => {
+                                const option = document.createElement('option');
+                                option.value = m.id;
+                                option.textContent = `${m.name} (${m.email})`; // textContent is safe
+                                mgrSelect.appendChild(option);
+                            });
+                        }
+
+                        if (acctSelect) {
+                            acctSelect.innerHTML = '';
+                            accts.forEach(a => {
+                                const option = document.createElement('option');
+                                option.value = a.id;
+                                option.textContent = `${a.name} (${a.email})`; // textContent is safe
+                                acctSelect.appendChild(option);
+                            });
+                        }
                     }
                 } catch (e) {
                     console.warn('Failed to load approvers:', e);
