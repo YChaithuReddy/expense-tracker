@@ -1650,3 +1650,139 @@
     justify-content: center;
   }
 }
+
+/* =============================================================================
+   WALLETS MANAGEMENT PAGE
+   ============================================================================= */
+
+/* Wallets Management Grid - 3 columns desktop, 2 tablet, 1 mobile */
+.wallets-management-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-lg);
+}
+
+/* Individual Wallet Management Card */
+.wallet-management-card {
+  background-color: var(--color-surface);
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  transition: all var(--duration-fast) var(--ease-out);
+  position: relative;
+}
+
+.wallet-management-card:hover {
+  border-color: var(--color-border-secondary);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Card Header: icon + actions row */
+.wallet-management-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-xs);
+}
+
+.wallet-management-card-icon {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.wallet-management-card-actions {
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-out);
+}
+
+.wallet-management-card:hover .wallet-management-card-actions {
+  opacity: 1;
+}
+
+.wallet-management-card-actions .btn-ghost {
+  padding: 6px;
+  min-height: auto;
+  color: var(--color-text-tertiary);
+}
+
+.wallet-management-card-actions .btn-ghost:hover {
+  color: var(--color-text-primary);
+}
+
+.wallet-management-card-actions .wallet-delete-btn:hover {
+  color: var(--color-error);
+}
+
+/* Card Content */
+.wallet-management-card-name {
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.wallet-management-card-type {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-normal);
+}
+
+/* Large balance display */
+.wallet-management-card-balance {
+  font-size: 24px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-top: var(--spacing-sm);
+  line-height: 1.2;
+}
+
+.wallet-management-card-updated {
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+  margin-top: var(--spacing-xs);
+}
+
+/* Empty State */
+.wallets-empty-state {
+  margin-top: var(--spacing-lg);
+}
+
+/* Responsive: Tablet */
+@media (max-width: 768px) {
+  .wallets-management-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
+  }
+
+  .wallet-management-card {
+    padding: var(--spacing-md);
+  }
+
+  .wallet-management-card-actions {
+    opacity: 1;
+  }
+
+  .wallet-management-card-balance {
+    font-size: 20px;
+  }
+}
+
+/* Responsive: Mobile */
+@media (max-width: 480px) {
+  .wallets-management-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wallet-management-card {
+    padding: var(--spacing-md);
+  }
+
+  .wallet-management-card-balance {
+    font-size: 18px;
+  }
+}

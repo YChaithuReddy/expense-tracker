@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wallets - Expense Tracker</title>
+  <link rel="stylesheet" href="../css/index.css">
+</head>
+<body>
+  <!-- SIDEBAR NAVIGATION -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">C</div>
+        <span>Curator</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="../dashboard.html" class="sidebar-nav-item">
+        <div class="sidebar-nav-icon">📊</div>
+        <span class="sidebar-nav-label">Dashboard</span>
+      </a>
+      <a href="./add-expense.html" class="sidebar-nav-item">
+        <div class="sidebar-nav-icon">➕</div>
+        <span class="sidebar-nav-label">Add Expense</span>
+      </a>
+      <a href="./wallets.html" class="sidebar-nav-item active">
+        <div class="sidebar-nav-icon">💳</div>
+        <span class="sidebar-nav-label">Wallets</span>
+      </a>
+      <a href="#" class="sidebar-nav-item">
+        <div class="sidebar-nav-icon">🏦</div>
+        <span class="sidebar-nav-label">Advances</span>
+      </a>
+      <a href="#" class="sidebar-nav-item">
+        <div class="sidebar-nav-icon">📄</div>
+        <span class="sidebar-nav-label">Reports</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="#" class="sidebar-footer-item">
+        <div class="sidebar-footer-icon">⚙️</div>
+        <span class="sidebar-nav-label">Settings</span>
+      </a>
+      <a href="#" class="sidebar-footer-item">
+        <div class="sidebar-footer-icon">🚪</div>
+        <span class="sidebar-nav-label">Logout</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTAINER -->
+  <div class="main-container">
+    <!-- HEADER -->
+    <header class="header">
+      <button class="hamburger-btn" id="hamburger-btn">☰</button>
+      <div class="header-search">
+        <div class="header-search-icon">🔍</div>
+        <input type="text" class="header-search-input" placeholder="Search wallets...">
+      </div>
+      <div class="header-user">
+        <div class="header-user-avatar">JD</div>
+        <div class="header-user-info">
+          <div class="header-user-name">John Doe</div>
+          <div class="header-user-email">john@example.com</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      <div class="page-wrapper">
+        <!-- Page Header -->
+        <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--spacing-md);">
+          <div>
+            <h1 class="page-title">Wallets</h1>
+            <p class="page-subtitle">Manage your accounts and payment methods</p>
+          </div>
+          <button class="btn btn-primary" id="add-wallet-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Add Wallet
+          </button>
+        </div>
+
+        <!-- Wallet Cards Grid -->
+        <div class="wallets-management-grid" id="wallets-grid">
+          <!-- SBI Checking -->
+          <div class="wallet-management-card" data-wallet-id="1">
+            <div class="wallet-management-card-header">
+              <div class="wallet-management-card-icon">🏦</div>
+              <div class="wallet-management-card-actions">
+                <button class="btn btn-ghost btn-sm wallet-edit-btn" title="Edit wallet">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
+                </button>
+                <button class="btn btn-ghost btn-sm wallet-delete-btn" title="Delete wallet">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <h3 class="wallet-management-card-name">SBI Checking</h3>
+            <span class="wallet-management-card-type">Bank Account</span>
+            <div class="wallet-management-card-balance">&#8377;28,450</div>
+            <span class="wallet-management-card-updated">Last transaction: 2 hours ago</span>
+          </div>
+
+          <!-- HDFC Savings -->
+          <div class="wallet-management-card" data-wallet-id="2">
+            <div class="wallet-management-card-header">
+              <div class="wallet-management-card-icon">🏦</div>
+              <div class="wallet-management-card-actions">
+                <button class="btn btn-ghost btn-sm wallet-edit-btn" title="Edit wallet">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
+                </button>
+                <button class="btn btn-ghost btn-sm wallet-delete-btn" title="Delete wallet">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <h3 class="wallet-management-card-name">HDFC Savings</h3>
+            <span class="wallet-management-card-type">Bank Account</span>
+            <div class="wallet-management-card-balance">&#8377;1,25,600</div>
+            <span class="wallet-management-card-updated">Last transaction: Yesterday</span>
+          </div>
+
+          <!-- ICICI Credit Card -->
+          <div class="wallet-management-card" data-wallet-id="3">
+            <div class="wallet-management-card-header">
+              <div class="wallet-management-card-icon">💳</div>
+              <div class="wallet-management-card-actions">
+                <button class="btn btn-ghost btn-sm wallet-edit-btn" title="Edit wallet">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
+                </button>
+                <button class="btn btn-ghost btn-sm wallet-delete-btn" title="Delete wallet">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <h3 class="wallet-management-card-name">ICICI Credit Card</h3>
+            <span class="wallet-management-card-type">Credit Card</span>
+            <div class="wallet-management-card-balance">&#8377;12,300 <span style="font-size: var(--font-size-caption); font-weight: var(--font-weight-normal); color: var(--color-text-secondary);">available</span></div>
+            <span class="wallet-management-card-updated">Last transaction: 3 days ago</span>
+          </div>
+
+          <!-- PhonePe UPI -->
+          <div class="wallet-management-card" data-wallet-id="4">
+            <div class="wallet-management-card-header">
+              <div class="wallet-management-card-icon">📱</div>
+              <div class="wallet-management-card-actions">
+                <button class="btn btn-ghost btn-sm wallet-edit-btn" title="Edit wallet">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
+                </button>
+                <button class="btn btn-ghost btn-sm wallet-delete-btn" title="Delete wallet">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <h3 class="wallet-management-card-name">PhonePe UPI</h3>
+            <span class="wallet-management-card-type">UPI</span>
+            <div class="wallet-management-card-balance">&#8377;5,230</div>
+            <span class="wallet-management-card-updated">Last transaction: 5 hours ago</span>
+          </div>
+
+          <!-- Cash -->
+          <div class="wallet-management-card" data-wallet-id="5">
+            <div class="wallet-management-card-header">
+              <div class="wallet-management-card-icon">💵</div>
+              <div class="wallet-management-card-actions">
+                <button class="btn btn-ghost btn-sm wallet-edit-btn" title="Edit wallet">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
+                </button>
+                <button class="btn btn-ghost btn-sm wallet-delete-btn" title="Delete wallet">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <h3 class="wallet-management-card-name">Cash</h3>
+            <span class="wallet-management-card-type">Cash</span>
+            <div class="wallet-management-card-balance">&#8377;3,500</div>
+            <span class="wallet-management-card-updated">Last transaction: 1 week ago</span>
+          </div>
+        </div>
+
+        <!-- Empty State (hidden when wallets exist) -->
+        <div class="wallets-empty-state" id="wallets-empty-state" style="display: none;">
+          <div class="card" style="text-align: center; padding: var(--spacing-xxl);">
+            <div style="font-size: 48px; margin-bottom: var(--spacing-md);">💳</div>
+            <h3 style="font-size: var(--font-size-h3); font-weight: var(--font-weight-semibold); color: var(--color-text-primary); margin: 0 0 var(--spacing-sm);">No wallets yet</h3>
+            <p style="font-size: var(--font-size-body-sm); color: var(--color-text-secondary); margin: 0 0 var(--spacing-lg);">Add your first wallet to start tracking your accounts and payment methods.</p>
+            <button class="btn btn-primary" id="empty-add-wallet-btn">Add Your First Wallet</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ADD WALLET MODAL -->
+  <div class="modal-overlay" id="add-wallet-modal" style="display: none;">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="wallet-modal-title">Add Wallet</h2>
+        <button class="modal-close" id="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="add-wallet-form" novalidate>
+          <div class="form-group">
+            <label class="form-label required" for="wallet-name">Wallet Name</label>
+            <input type="text" id="wallet-name" name="name" placeholder="e.g., SBI Savings, PhonePe" minlength="2" required>
+            <span class="form-error-message" id="wallet-name-error"></span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label required" for="wallet-type">Type</label>
+            <select id="wallet-type" name="type" required>
+              <option value="" disabled selected>Select wallet type</option>
+              <option value="bank">Bank Account</option>
+              <option value="credit">Credit Card</option>
+              <option value="upi">UPI</option>
+              <option value="cash">Cash</option>
+            </select>
+            <span class="form-error-message" id="wallet-type-error"></span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label required" for="wallet-balance">Initial Balance</label>
+            <div class="input-with-prefix">
+              <span class="input-prefix">&#8377;</span>
+              <input type="number" id="wallet-balance" name="balance" placeholder="0.00" min="0" step="0.01" required>
+            </div>
+            <span class="form-error-message" id="wallet-balance-error"></span>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="modal-cancel-btn">Cancel</button>
+        <button class="btn btn-primary" id="modal-save-btn">Add Wallet</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DELETE CONFIRMATION MODAL -->
+  <div class="modal-overlay" id="delete-wallet-modal" style="display: none;">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title">Delete Wallet</h2>
+        <button class="modal-close" id="delete-modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: var(--font-size-body); color: var(--color-text-primary); margin: 0 0 var(--spacing-sm);">Are you sure you want to delete <strong id="delete-wallet-name"></strong>?</p>
+        <p style="font-size: var(--font-size-body-sm); color: var(--color-text-secondary); margin: 0;">This action cannot be undone. All transaction history for this wallet will be preserved.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="delete-cancel-btn">Cancel</button>
+        <button class="btn btn-primary" id="delete-confirm-btn" style="background-color: var(--color-error);">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+      // =========================================================================
+      // SIDEBAR NAVIGATION
+      // =========================================================================
+
+      const hamburgerBtn = document.getElementById('hamburger-btn');
+      const sidebar = document.querySelector('.sidebar');
+
+      if (hamburgerBtn) {
+        hamburgerBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          sidebar.classList.toggle('open');
+        });
+      }
+
+      document.addEventListener('click', function(e) {
+        if (sidebar && sidebar.classList.contains('open')) {
+          if (!sidebar.contains(e.target) && !hamburgerBtn.contains(e.target)) {
+            sidebar.classList.remove('open');
+          }
+        }
+      });
+
+      // =========================================================================
+      // ADD WALLET MODAL
+      // =========================================================================
+
+      const addWalletModal = document.getElementById('add-wallet-modal');
+      const addWalletForm = document.getElementById('add-wallet-form');
+      const modalTitle = document.getElementById('wallet-modal-title');
+      const modalSaveBtn = document.getElementById('modal-save-btn');
+      let editingWalletId = null;
+
+      function openAddWalletModal() {
+        editingWalletId = null;
+        modalTitle.textContent = 'Add Wallet';
+        modalSaveBtn.textContent = 'Add Wallet';
+        addWalletForm.reset();
+        clearAllWalletErrors();
+        addWalletModal.style.display = 'flex';
+      }
+
+      function closeAddWalletModal() {
+        addWalletModal.style.display = 'none';
+        addWalletForm.reset();
+        clearAllWalletErrors();
+        editingWalletId = null;
+      }
+
+      document.getElementById('add-wallet-btn').addEventListener('click', openAddWalletModal);
+      var emptyAddBtn = document.getElementById('empty-add-wallet-btn');
+      if (emptyAddBtn) emptyAddBtn.addEventListener('click', openAddWalletModal);
+      document.getElementById('modal-close-btn').addEventListener('click', closeAddWalletModal);
+      document.getElementById('modal-cancel-btn').addEventListener('click', closeAddWalletModal);
+
+      addWalletModal.addEventListener('click', function(e) {
+        if (e.target === addWalletModal) closeAddWalletModal();
+      });
+
+      // =========================================================================
+      // WALLET FORM VALIDATION
+      // =========================================================================
+
+      function showFieldError(fieldId, errorId, message) {
+        var field = document.getElementById(fieldId);
+        var errorEl = document.getElementById(errorId);
+        if (field) field.classList.add('form-error');
+        if (errorEl) { errorEl.textContent = message; errorEl.style.display = 'block'; }
+      }
+
+      function clearFieldError(fieldId, errorId) {
+        var field = document.getElementById(fieldId);
+        var errorEl = document.getElementById(errorId);
+        if (field) field.classList.remove('form-error');
+        if (errorEl) { errorEl.textContent = ''; errorEl.style.display = 'none'; }
+      }
+
+      function clearAllWalletErrors() {
+        clearFieldError('wallet-name', 'wallet-name-error');
+        clearFieldError('wallet-type', 'wallet-type-error');
+        clearFieldError('wallet-balance', 'wallet-balance-error');
+      }
+
+      function validateWalletForm() {
+        var valid = true;
+        var name = document.getElementById('wallet-name').value.trim();
+        var type = document.getElementById('wallet-type').value;
+        var balance = document.getElementById('wallet-balance').value;
+
+        if (!name || name.length < 2) {
+          showFieldError('wallet-name', 'wallet-name-error', 'Enter a wallet name (at least 2 characters).');
+          valid = false;
+        } else {
+          clearFieldError('wallet-name', 'wallet-name-error');
+        }
+
+        if (!type) {
+          showFieldError('wallet-type', 'wallet-type-error', 'Select a wallet type.');
+          valid = false;
+        } else {
+          clearFieldError('wallet-type', 'wallet-type-error');
+        }
+
+        if (balance === '' || isNaN(parseFloat(balance)) || parseFloat(balance) < 0) {
+          showFieldError('wallet-balance', 'wallet-balance-error', 'Enter a valid balance (0 or more).');
+          valid = false;
+        } else {
+          clearFieldError('wallet-balance', 'wallet-balance-error');
+        }
+
+        return valid;
+      }
+
+      // Save wallet
+      modalSaveBtn.addEventListener('click', async function() {
+        if (!validateWalletForm()) return;
+
+        modalSaveBtn.disabled = true;
+        modalSaveBtn.textContent = 'Saving...';
+
+        try {
+          var data = {
+            name: document.getElementById('wallet-name').value.trim(),
+            type: document.getElementById('wallet-type').value,
+            balance: parseFloat(document.getElementById('wallet-balance').value)
+          };
+
+          // TODO: Replace with Supabase API call
+          // e.g., await api.addWallet(data) or await api.updateWallet(editingWalletId, data)
+          await new Promise(function(resolve) { setTimeout(resolve, 500); });
+
+          closeAddWalletModal();
+          // TODO: Reload wallets from API
+
+        } catch (err) {
+          alert('Error saving wallet. Please try again.');
+        } finally {
+          modalSaveBtn.disabled = false;
+          modalSaveBtn.textContent = editingWalletId ? 'Save Changes' : 'Add Wallet';
+        }
+      });
+
+      // =========================================================================
+      // EDIT WALLET
+      // =========================================================================
+
+      document.querySelectorAll('.wallet-edit-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var card = this.closest('.wallet-management-card');
+          editingWalletId = card.dataset.walletId;
+          modalTitle.textContent = 'Edit Wallet';
+          modalSaveBtn.textContent = 'Save Changes';
+
+          // Populate form with current values
+          document.getElementById('wallet-name').value = card.querySelector('.wallet-management-card-name').textContent;
+          var typeText = card.querySelector('.wallet-management-card-type').textContent;
+          var typeMap = { 'Bank Account': 'bank', 'Credit Card': 'credit', 'UPI': 'upi', 'Cash': 'cash' };
+          document.getElementById('wallet-type').value = typeMap[typeText] || '';
+
+          // Extract numeric balance
+          var balanceText = card.querySelector('.wallet-management-card-balance').textContent;
+          var numericBalance = balanceText.replace(/[^\d.]/g, '');
+          document.getElementById('wallet-balance').value = numericBalance;
+
+          clearAllWalletErrors();
+          addWalletModal.style.display = 'flex';
+        });
+      });
+
+      // =========================================================================
+      // DELETE WALLET
+      // =========================================================================
+
+      var deleteModal = document.getElementById('delete-wallet-modal');
+      var deleteWalletName = document.getElementById('delete-wallet-name');
+      var deletingWalletId = null;
+
+      function openDeleteModal(walletId, walletName) {
+        deletingWalletId = walletId;
+        deleteWalletName.textContent = walletName;
+        deleteModal.style.display = 'flex';
+      }
+
+      function closeDeleteModal() {
+        deleteModal.style.display = 'none';
+        deletingWalletId = null;
+      }
+
+      document.getElementById('delete-modal-close-btn').addEventListener('click', closeDeleteModal);
+      document.getElementById('delete-cancel-btn').addEventListener('click', closeDeleteModal);
+
+      deleteModal.addEventListener('click', function(e) {
+        if (e.target === deleteModal) closeDeleteModal();
+      });
+
+      document.querySelectorAll('.wallet-delete-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var card = this.closest('.wallet-management-card');
+          var walletId = card.dataset.walletId;
+          var walletName = card.querySelector('.wallet-management-card-name').textContent;
+          openDeleteModal(walletId, walletName);
+        });
+      });
+
+      document.getElementById('delete-confirm-btn').addEventListener('click', async function() {
+        var btn = this;
+        btn.disabled = true;
+        btn.textContent = 'Deleting...';
+
+        try {
+          // TODO: Replace with Supabase API call
+          // e.g., await api.deleteWallet(deletingWalletId)
+          await new Promise(function(resolve) { setTimeout(resolve, 500); });
+
+          // Remove card from DOM
+          var card = document.querySelector('.wallet-management-card[data-wallet-id="' + deletingWalletId + '"]');
+          if (card) card.remove();
+
+          // Show empty state if no wallets left
+          var remaining = document.querySelectorAll('.wallet-management-card');
+          if (remaining.length === 0) {
+            document.getElementById('wallets-grid').style.display = 'none';
+            document.getElementById('wallets-empty-state').style.display = 'block';
+          }
+
+          closeDeleteModal();
+
+        } catch (err) {
+          alert('Error deleting wallet. Please try again.');
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Delete';
+        }
+      });
+
+      // =========================================================================
+      // KEYBOARD: ESC TO CLOSE MODALS
+      // =========================================================================
+
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          if (addWalletModal.style.display !== 'none') closeAddWalletModal();
+          if (deleteModal.style.display !== 'none') closeDeleteModal();
+        }
+      });
+
+    });
+  </script>
+</body>
+</html>
