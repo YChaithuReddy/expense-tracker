@@ -1,5 +1,5 @@
 /* =====================================================
-   ADMIN PANEL STYLES — PREMIUM INDIGO THEME
+   ADMIN PANEL STYLES — PREMIUM BLACK & WHITE THEME
    Elevated SaaS aesthetic: Linear / Stripe / Notion
    ===================================================== */
 
@@ -110,7 +110,7 @@
 .admin-stat-pill--active     { color: #059669; background: #ecfdf5; border-color: #a7f3d0; }
 .admin-stat-pill--admin      { color: #dc2626; background: #fef2f2; border-color: #fecaca; }
 .admin-stat-pill--manager    { color: #d97706; background: #fffbeb; border-color: #fde68a; }
-.admin-stat-pill--accountant { color: #4f46e5; background: #eef2ff; border-color: #c7d2fe; }
+.admin-stat-pill--accountant { color: #111827; background: #f3f4f6; border-color: #d1d5db; }
 
 /* ============================================================
    TABS (legacy, kept for compatibility)
@@ -134,7 +134,7 @@
     margin-bottom: -2px;
 }
 .admin-tab:hover { color: #475569; }
-.admin-tab.active { color: #4f46e5; border-bottom-color: #4f46e5; }
+.admin-tab.active { color: #111827; border-bottom-color: #111827; }
 
 /* ============================================================
    CSV IMPORT — premium drop zone
@@ -167,16 +167,16 @@
 }
 .admin-csv-zone:hover,
 .admin-csv-zone--dragover {
-    border-color: #4f46e5;
-    background: linear-gradient(135deg, #ffffff 0%, #eef2ff 100%);
-    box-shadow: 0 0 0 4px rgba(79,70,229,0.08);
+    border-color: #111827;
+    background: linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%);
+    box-shadow: 0 0 0 4px rgba(0,0,0,0.06);
 }
 .admin-csv-zone--dragover {
     border-style: solid;
-    box-shadow: 0 0 0 6px rgba(79,70,229,0.12);
+    box-shadow: 0 0 0 6px rgba(0,0,0,0.08);
 }
 .admin-csv-zone svg { color: #94a3b8; transition: color 0.2s, transform 0.2s; }
-.admin-csv-zone:hover svg { color: #4f46e5; transform: translateY(-3px); }
+.admin-csv-zone:hover svg { color: #111827; transform: translateY(-3px); }
 .admin-csv-zone p {
     margin: 14px 0 4px;
     font-size: 0.9rem;
@@ -191,14 +191,14 @@
 }
 
 .admin-csv-browse-link {
-    color: #4f46e5;
+    color: #111827;
     cursor: pointer;
     text-decoration: underline;
     text-underline-offset: 2px;
     font-weight: 600;
     transition: color 0.15s;
 }
-.admin-csv-browse-link:hover { color: #4338ca; }
+.admin-csv-browse-link:hover { color: #1f2937; }
 
 /* CSV Template block */
 .admin-csv-template {
@@ -269,11 +269,11 @@
     box-sizing: border-box;
 }
 
-/* Thin indigo scrollbar */
+/* Thin dark scrollbar */
 .admin-table-wrap::-webkit-scrollbar { height: 4px; }
 .admin-table-wrap::-webkit-scrollbar-track { background: #f8fafc; border-radius: 2px; }
-.admin-table-wrap::-webkit-scrollbar-thumb { background: #c7d2fe; border-radius: 2px; }
-.admin-table-wrap::-webkit-scrollbar-thumb:hover { background: #4f46e5; }
+.admin-table-wrap::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 2px; }
+.admin-table-wrap::-webkit-scrollbar-thumb:hover { background: #111827; }
 
 .admin-table {
     width: 100%;
@@ -317,7 +317,7 @@
     background: #fafbff;
 }
 .admin-table tbody tr:hover td:first-child {
-    box-shadow: inset 3px 0 0 #4f46e5;
+    box-shadow: inset 3px 0 0 #111827;
     padding-left: 17px;
 }
 
@@ -344,8 +344,8 @@
     font-family: inherit;
 }
 .admin-role-select:focus {
-    border-color: #4f46e5;
-    box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+    border-color: #111827;
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.08);
 }
 .admin-role-select:hover { border-color: #94a3b8; }
 
@@ -357,9 +357,9 @@
 .admin-emp-id {
     font-family: 'Fira Code', 'Courier New', ui-monospace, monospace;
     font-size: 0.73rem;
-    color: #4f46e5;
-    background: #eef2ff;
-    border: 1px solid #c7d2fe;
+    color: #111827;
+    background: #f3f4f6;
+    border: 1px solid #d1d5db;
     padding: 2px 8px;
     border-radius: 6px;
     font-weight: 600;
@@ -415,9 +415,9 @@
     box-shadow: 0 1px 2px rgba(15,23,42,0.05);
 }
 .admin-action-btn:hover {
-    background: #eef2ff;
-    border-color: #c7d2fe;
-    color: #4f46e5;
+    background: #f3f4f6;
+    border-color: #d1d5db;
+    color: #111827;
     transform: scale(1.08);
 }
 
@@ -441,21 +441,21 @@
     white-space: nowrap;
 }
 
-/* Primary — indigo gradient with glow */
+/* Primary — dark gradient with glow */
 .admin-btn--primary {
-    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
     color: #ffffff;
-    box-shadow: 0 2px 8px rgba(79,70,229,0.28);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 .admin-btn--primary:hover {
-    background: linear-gradient(135deg, #4338ca 0%, #6d28d9 100%);
-    box-shadow: 0 4px 16px rgba(79,70,229,0.38);
+    background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.25);
     transform: translateY(-1px);
 }
 .admin-btn--primary:active {
     background: linear-gradient(135deg, #3730a3 0%, #5b21b6 100%);
     transform: translateY(0);
-    box-shadow: 0 2px 6px rgba(79,70,229,0.22);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
 .admin-btn--primary:disabled {
     opacity: 0.5;
@@ -473,9 +473,9 @@
 }
 .admin-btn--secondary:hover {
     background: #f8faff;
-    border-color: #c7d2fe;
-    color: #4f46e5;
-    box-shadow: 0 2px 8px rgba(79,70,229,0.1);
+    border-color: #d1d5db;
+    color: #111827;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     transform: translateY(-1px);
 }
 
@@ -541,8 +541,8 @@
 .admin-form-group input:focus,
 .admin-form-group select:focus,
 .admin-form-group textarea:focus {
-    border-color: #4f46e5;
-    box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+    border-color: #111827;
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.08);
 }
 .admin-form-group input::placeholder,
 .admin-form-group textarea::placeholder { color: #cbd5e1; }
@@ -571,11 +571,11 @@
     height: 56px;
     margin: 0 auto 16px;
     border-radius: 16px;
-    background: linear-gradient(135deg, #eef2ff, #f5f3ff);
+    background: linear-gradient(135deg, #f3f4f6, #f9fafb);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #a5b4fc;
+    color: #9ca3af;
     animation: float 3s ease-in-out infinite;
 }
 .admin-empty__icon svg { width: 26px; height: 26px; }
@@ -623,7 +623,7 @@
 }
 .role-badge--admin       { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
 .role-badge--manager     { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
-.role-badge--accountant  { background: #eef2ff; color: #4f46e5; border: 1px solid #c7d2fe; }
+.role-badge--accountant  { background: #f3f4f6; color: #111827; border: 1px solid #d1d5db; }
 .role-badge--employee    { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
 
 /* ============================================================
@@ -646,8 +646,8 @@
 }
 .admin-nav-btn:hover {
     background: #f8faff;
-    border-color: #c7d2fe;
-    color: #4f46e5;
+    border-color: #d1d5db;
+    color: #111827;
 }
 .admin-nav-btn.visible { display: inline-flex; }
 
