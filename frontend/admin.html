@@ -6,195 +6,384 @@
     <meta name="theme-color" content="#ffffff">
     <title>Admin Dashboard - Expense Tracker</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="styles_admin.css">
     <link rel="stylesheet" href="styles_projects.css">
     <link rel="stylesheet" href="styles_approval.css">
     <style>
         /* ============================================================
-           ADMIN DASHBOARD — PROFESSIONAL WHITE/BLACK THEME
-           Inspired by Stripe, Linear, and Notion
+           ADMIN DASHBOARD — PREMIUM INDIGO/DARK THEME
+           Inspired by Linear, Stripe, and Notion — elevated to luxury SaaS
            ============================================================ */
+
+        /* ---- Google Font enforcement ---- */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
         /* ---- Override global dark-theme CSS vars from styles.css ---- */
         html {
-            --background-primary: #f9fafb;
+            --background-primary: #f8fafc;
             --background-secondary: #ffffff;
-            --text-primary: #111827;
-            --text-secondary: #6b7280;
-            --border-color: #e5e7eb;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
         }
 
         /* ---- Design Tokens ---- */
         :root {
-            --white:       #ffffff;
-            --gray-50:     #f9fafb;
-            --gray-100:    #f3f4f6;
-            --gray-200:    #e5e7eb;
-            --gray-300:    #d1d5db;
-            --gray-400:    #9ca3af;
-            --gray-500:    #6b7280;
-            --gray-600:    #4b5563;
-            --gray-700:    #374151;
-            --gray-800:    #1f2937;
-            --gray-900:    #111827;
-            --black:       #0a0a0a;
+            --white:        #ffffff;
+            --gray-50:      #f8fafc;
+            --gray-100:     #f1f5f9;
+            --gray-200:     #e2e8f0;
+            --gray-300:     #cbd5e1;
+            --gray-400:     #94a3b8;
+            --gray-500:     #64748b;
+            --gray-600:     #475569;
+            --gray-700:     #334155;
+            --gray-800:     #1e293b;
+            --gray-900:     #0f172a;
+            --black:        #020617;
 
-            /* Accent — used sparingly for CTAs only */
-            --accent:      #111827;
-            --accent-hover:#1f2937;
+            /* Indigo accent system */
+            --accent:         #4f46e5;
+            --accent-hover:   #4338ca;
+            --accent-active:  #3730a3;
+            --accent-light:   #eef2ff;
+            --accent-mid:     #c7d2fe;
+            --accent-glow:    rgba(79, 70, 229, 0.15);
+
+            /* Sidebar palette — deep indigo */
+            --sidebar-bg-from: #1e1b4b;
+            --sidebar-bg-to:   #312e81;
+            --sidebar-text:    rgba(255,255,255,0.72);
+            --sidebar-text-hover: rgba(255,255,255,0.92);
+            --sidebar-text-active: #ffffff;
+            --sidebar-item-hover: rgba(255,255,255,0.08);
+            --sidebar-item-active: rgba(255,255,255,0.12);
+            --sidebar-border: rgba(255,255,255,0.08);
 
             /* Status colors */
-            --green:       #059669;
-            --green-bg:    #ecfdf5;
-            --amber:       #d97706;
-            --amber-bg:    #fffbeb;
-            --red:         #dc2626;
-            --red-bg:      #fef2f2;
-            --blue:        #2563eb;
-            --blue-bg:     #eff6ff;
+            --green:        #059669;
+            --green-bg:     #ecfdf5;
+            --amber:        #d97706;
+            --amber-bg:     #fffbeb;
+            --red:          #dc2626;
+            --red-bg:       #fef2f2;
+            --blue:         #2563eb;
+            --blue-bg:      #eff6ff;
+            --purple:       #7c3aed;
+            --purple-bg:    #f5f3ff;
 
-            --shadow-xs:  0 1px 2px rgba(0,0,0,0.05);
-            --shadow-sm:  0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
-            --shadow-md:  0 4px 6px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.04);
+            /* Shadows with color tint */
+            --shadow-xs:  0 1px 2px rgba(0,0,0,0.04);
+            --shadow-sm:  0 1px 3px rgba(15,23,42,0.08), 0 1px 2px rgba(15,23,42,0.04);
+            --shadow-md:  0 4px 12px rgba(15,23,42,0.06), 0 2px 4px rgba(15,23,42,0.04);
+            --shadow-lg:  0 10px 25px rgba(79,70,229,0.08), 0 4px 10px rgba(15,23,42,0.06);
+            --shadow-xl:  0 20px 40px rgba(79,70,229,0.12), 0 8px 16px rgba(15,23,42,0.08);
+            --shadow-accent: 0 4px 14px rgba(79,70,229,0.35);
+
+            /* Radii */
             --radius-sm:  6px;
-            --radius-md:  8px;
-            --radius-lg:  12px;
-            --font:       -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+            --radius-md:  10px;
+            --radius-lg:  14px;
+            --radius-xl:  18px;
+            --radius-2xl: 24px;
+
+            /* Typography */
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
 
+        /* ============================================================
+           GLOBAL RESETS & BASE
+           ============================================================ */
         * { box-sizing: border-box; }
+
         body {
             margin: 0;
-            background: var(--gray-50);
+            background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
             color: var(--gray-900);
             font-family: var(--font);
             overflow: hidden;
             -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Custom scrollbar — thin, indigo-tinted */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--accent-mid); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+        /* Focus ring */
+        *:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+            border-radius: var(--radius-sm);
         }
 
         /* ---- Layout ---- */
         .admin-layout { display: flex; height: 100vh; }
 
         /* ============================================================
-           SIDEBAR
+           SIDEBAR — Glassmorphic dark indigo gradient
            ============================================================ */
         .admin-sidebar {
-            width: 240px;
-            background: var(--white);
-            border-right: 1px solid var(--gray-200);
+            width: 248px;
+            background: linear-gradient(180deg, var(--sidebar-bg-from) 0%, var(--sidebar-bg-to) 100%);
+            border-right: none;
             display: flex;
             flex-direction: column;
             flex-shrink: 0;
+            position: relative;
+            box-shadow: 4px 0 24px rgba(30,27,75,0.18);
+            transition: width 0.25s cubic-bezier(0.4,0,0.2,1);
+            z-index: 10;
+        }
+
+        /* Subtle noise/texture overlay on sidebar */
+        .admin-sidebar::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            border-radius: inherit;
         }
 
         /* Logo / Brand */
         .admin-sidebar__logo {
-            padding: 20px 20px 16px;
-            border-bottom: 1px solid var(--gray-100);
+            padding: 20px 18px 16px;
+            border-bottom: 1px solid var(--sidebar-border);
+            position: relative;
         }
+
+        /* Brand mark — gradient pill */
+        .admin-sidebar__brand-mark {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+        .admin-sidebar__brand-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #818cf8 0%, #4f46e5 50%, #7c3aed 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(79,70,229,0.4);
+        }
+        .admin-sidebar__brand-icon svg {
+            width: 18px;
+            height: 18px;
+            color: #ffffff;
+        }
+
         .admin-sidebar__logo h1 {
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             font-weight: 700;
-            color: var(--gray-900);
+            color: #ffffff;
             margin: 0;
             display: flex;
             align-items: center;
             gap: 9px;
             letter-spacing: -0.01em;
         }
-        .admin-sidebar__logo h1 svg { color: var(--gray-700); }
         .admin-sidebar__logo small {
             display: block;
-            color: var(--gray-400);
-            font-size: 0.7rem;
+            color: rgba(255,255,255,0.45);
+            font-size: 0.68rem;
             font-weight: 500;
-            margin-top: 5px;
-            letter-spacing: 0.01em;
+            margin-top: 3px;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        /* Org badge */
+        .admin-sidebar__org-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 10px;
+            padding: 4px 10px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.75);
+            letter-spacing: 0.02em;
+            backdrop-filter: blur(4px);
+        }
+        .admin-sidebar__org-badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #34d399;
+            box-shadow: 0 0 6px rgba(52,211,153,0.6);
+            flex-shrink: 0;
         }
 
         /* Nav */
         .admin-sidebar__nav {
             flex: 1;
-            padding: 10px 10px;
+            padding: 12px 10px;
             overflow-y: auto;
         }
+        .admin-sidebar__nav::-webkit-scrollbar { width: 3px; }
+        .admin-sidebar__nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); }
+
+        /* Nav section label */
+        .admin-nav-section-label {
+            font-size: 0.62rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: rgba(255,255,255,0.3);
+            padding: 8px 12px 4px;
+            display: block;
+        }
+
         .admin-nav-item {
             display: flex;
             align-items: center;
-            gap: 9px;
-            padding: 8px 12px;
+            gap: 10px;
+            padding: 9px 12px;
             border-radius: var(--radius-md);
-            color: var(--gray-500);
-            font-size: 0.835rem;
+            color: var(--sidebar-text);
+            font-size: 0.84rem;
             font-weight: 500;
             cursor: pointer;
-            transition: background 0.15s, color 0.15s;
+            transition: background 0.18s ease, color 0.18s ease, transform 0.15s ease;
             border: none;
             background: none;
             width: 100%;
             text-align: left;
             letter-spacing: 0.005em;
+            margin-bottom: 2px;
+            position: relative;
         }
         .admin-nav-item:hover {
-            background: var(--gray-100);
-            color: var(--gray-900);
+            background: var(--sidebar-item-hover);
+            color: var(--sidebar-text-hover);
+            transform: translateX(2px);
         }
         .admin-nav-item.active {
-            background: var(--gray-900);
-            color: var(--white);
+            background: var(--sidebar-item-active);
+            color: var(--sidebar-text-active);
+            font-weight: 600;
         }
-        .admin-nav-item.active svg { color: var(--white); }
+        /* Active indicator */
+        .admin-nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 60%;
+            background: linear-gradient(180deg, #818cf8, #4f46e5);
+            border-radius: 0 3px 3px 0;
+        }
+        .admin-nav-item.active svg { color: #a5b4fc; }
         .admin-nav-item svg {
             width: 16px;
             height: 16px;
             flex-shrink: 0;
             color: currentColor;
+            opacity: 0.8;
+            transition: opacity 0.15s;
         }
+        .admin-nav-item:hover svg,
+        .admin-nav-item.active svg { opacity: 1; }
 
         /* Footer */
         .admin-sidebar__footer {
-            padding: 14px 16px;
-            border-top: 1px solid var(--gray-100);
+            padding: 14px 14px 18px;
+            border-top: 1px solid var(--sidebar-border);
+        }
+
+        /* User avatar block */
+        .admin-sidebar__user-block {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .admin-sidebar__avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #818cf8, #4f46e5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #ffffff;
+            flex-shrink: 0;
+            text-transform: uppercase;
+            box-shadow: 0 2px 8px rgba(79,70,229,0.35);
+            letter-spacing: 0.03em;
         }
         .admin-sidebar__user {
-            font-size: 0.775rem;
-            color: var(--gray-500);
-            margin-bottom: 10px;
+            flex: 1;
+            min-width: 0;
+            font-size: 0.78rem;
+            color: rgba(255,255,255,0.55);
             line-height: 1.4;
         }
         .admin-sidebar__user strong {
-            color: var(--gray-900);
+            color: rgba(255,255,255,0.9);
             display: block;
             font-weight: 600;
             font-size: 0.82rem;
             margin-bottom: 1px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
+        .admin-sidebar__user span {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+            font-size: 0.7rem;
+        }
+
         .admin-sidebar__links { display: flex; gap: 7px; }
         .admin-sidebar__link {
-            padding: 5px 11px;
-            border-radius: var(--radius-sm);
+            padding: 6px 12px;
+            border-radius: var(--radius-md);
             font-size: 0.73rem;
             font-weight: 600;
             cursor: pointer;
-            border: 1px solid var(--gray-200);
-            background: var(--white);
-            color: var(--gray-600);
-            transition: background 0.15s, border-color 0.15s;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.06);
+            color: rgba(255,255,255,0.6);
+            transition: background 0.18s, border-color 0.18s, color 0.18s;
             letter-spacing: 0.01em;
+            backdrop-filter: blur(4px);
         }
         .admin-sidebar__link:hover {
-            background: var(--gray-50);
-            border-color: var(--gray-300);
+            background: rgba(255,255,255,0.12);
+            border-color: rgba(255,255,255,0.2);
+            color: rgba(255,255,255,0.85);
         }
         .admin-sidebar__link--danger {
-            color: var(--red);
-            border-color: #fecaca;
-            background: var(--red-bg);
+            color: #fca5a5;
+            border-color: rgba(252,165,165,0.2);
+            background: rgba(220,38,38,0.08);
         }
         .admin-sidebar__link--danger:hover {
-            background: #fee2e2;
-            border-color: #fca5a5;
+            background: rgba(220,38,38,0.16);
+            border-color: rgba(252,165,165,0.35);
+            color: #fca5a5;
         }
 
         /* ============================================================
@@ -203,8 +392,8 @@
         .admin-main {
             flex: 1;
             overflow-y: auto;
-            background: var(--gray-50);
-            padding: 32px 36px;
+            background: transparent;
+            padding: 32px 40px;
             display: block !important;
             grid-template-columns: none !important;
         }
@@ -214,62 +403,154 @@
             align-items: flex-start;
             justify-content: space-between;
             margin-bottom: 28px;
+            gap: 16px;
         }
+        .admin-main__header-left { flex: 1; min-width: 0; }
+
+        /* Breadcrumb section indicator */
+        .admin-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            margin-bottom: 6px;
+        }
+        .admin-breadcrumb svg { width: 12px; height: 12px; opacity: 0.7; }
+
         .admin-main__header h2 {
             margin: 0;
             color: var(--gray-900);
-            font-size: 1.25rem;
-            font-weight: 700;
-            letter-spacing: -0.02em;
+            font-size: 1.35rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1.2;
         }
         .admin-main__header p {
-            margin: 4px 0 0;
+            margin: 5px 0 0;
             color: var(--gray-500);
-            font-size: 0.825rem;
+            font-size: 0.83rem;
+            font-weight: 400;
+        }
+
+        /* Search bar in header */
+        .admin-search-bar {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .admin-search-bar input {
+            width: 240px;
+            padding: 9px 14px 9px 38px;
+            border: 1.5px solid var(--gray-200);
+            border-radius: var(--radius-xl);
+            font-size: 0.82rem;
+            font-family: var(--font);
+            background: var(--white);
+            color: var(--gray-900);
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s, width 0.3s ease;
+            box-shadow: var(--shadow-xs);
+        }
+        .admin-search-bar input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+            width: 280px;
+        }
+        .admin-search-bar input::placeholder { color: var(--gray-400); }
+        .admin-search-bar__icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: var(--gray-400);
+            width: 15px;
+            height: 15px;
         }
 
         /* ============================================================
-           STATS GRID
+           STATS GRID — with gradient icons & stagger animation
            ============================================================ */
         .admin-stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-            gap: 14px;
-            margin-bottom: 28px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
         }
+
         .admin-stat-card {
-            padding: 20px 22px;
+            padding: 22px 24px;
             background: var(--white);
             border: 1px solid var(--gray-200);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-xs);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-sm);
             position: relative;
             overflow: hidden;
+            transition: transform 0.22s cubic-bezier(0.4,0,0.2,1),
+                        box-shadow 0.22s cubic-bezier(0.4,0,0.2,1);
+            animation: fadeInUp 0.5s ease both;
         }
+
+        /* Stagger children */
+        .admin-stats-grid .admin-stat-card:nth-child(1) { animation-delay: 0.05s; }
+        .admin-stats-grid .admin-stat-card:nth-child(2) { animation-delay: 0.10s; }
+        .admin-stats-grid .admin-stat-card:nth-child(3) { animation-delay: 0.15s; }
+        .admin-stats-grid .admin-stat-card:nth-child(4) { animation-delay: 0.20s; }
+
+        .admin-stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Remove old top bar, add bottom gradient line */
         .admin-stat-card::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0;
+            bottom: 0; left: 0; right: 0;
             height: 3px;
             background: var(--gray-200);
-            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+            transition: opacity 0.2s;
         }
-        .admin-stat-card--blue::before  { background: var(--blue); }
-        .admin-stat-card--green::before { background: var(--green); }
-        .admin-stat-card--amber::before { background: var(--amber); }
+        .admin-stat-card--blue::before  { background: linear-gradient(90deg, var(--blue), #60a5fa); }
+        .admin-stat-card--green::before { background: linear-gradient(90deg, var(--green), #34d399); }
+        .admin-stat-card--amber::before { background: linear-gradient(90deg, var(--amber), #fbbf24); }
+        .admin-stat-card--indigo::before { background: linear-gradient(90deg, var(--accent), var(--purple)); }
+
+        /* Gradient icon circle */
+        .admin-stat-card__icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 14px;
+            flex-shrink: 0;
+        }
+        .admin-stat-card__icon svg { width: 20px; height: 20px; color: #ffffff; }
+        .admin-stat-card--blue .admin-stat-card__icon  { background: linear-gradient(135deg, #3b82f6, #2563eb); box-shadow: 0 4px 12px rgba(37,99,235,0.3); }
+        .admin-stat-card--green .admin-stat-card__icon { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 12px rgba(5,150,105,0.3); }
+        .admin-stat-card--amber .admin-stat-card__icon { background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 4px 12px rgba(217,119,6,0.3); }
+        .admin-stat-card__icon--default { background: linear-gradient(135deg, #6366f1, #4f46e5); box-shadow: 0 4px 12px rgba(79,70,229,0.3); }
 
         .admin-stat-card__value {
-            font-size: 2rem;
+            font-size: 2.1rem;
             font-weight: 800;
             color: var(--gray-900);
             letter-spacing: -0.04em;
             line-height: 1;
-            margin-bottom: 6px;
+            margin-bottom: 5px;
         }
         .admin-stat-card--blue  .admin-stat-card__value { color: var(--blue); }
         .admin-stat-card--green .admin-stat-card__value { color: var(--green); }
         .admin-stat-card--amber .admin-stat-card__value { color: var(--amber); }
         .admin-stat-card--red   .admin-stat-card__value { color: var(--red); }
+        .admin-stat-card--indigo .admin-stat-card__value { color: var(--accent); }
 
         .admin-stat-card__label {
             font-size: 0.72rem;
@@ -279,12 +560,71 @@
             letter-spacing: 0.07em;
         }
 
+        /* Change indicator */
+        .admin-stat-card__change {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--green);
+            background: var(--green-bg);
+            border: 1px solid #a7f3d0;
+            padding: 2px 7px;
+            border-radius: 20px;
+            letter-spacing: 0.02em;
+        }
+
+        /* Subtle background decoration on stat cards */
+        .admin-stat-card::after {
+            content: '';
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(79,70,229,0.05) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
         /* ============================================================
-           SECTION VISIBILITY
+           SECTION VISIBILITY — smooth fade-up entrance
            ============================================================ */
-        .admin-section { display: none; animation: fadeIn 0.18s ease; }
-        .admin-section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+        .admin-section { display: none; }
+        .admin-section.active {
+            display: block;
+            animation: fadeInUp 0.28s cubic-bezier(0.4,0,0.2,1);
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-16px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes shimmer {
+            0%   { background-position: -400px 0; }
+            100% { background-position: 400px 0; }
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50%       { opacity: 0.6; transform: scale(0.85); }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50%       { transform: translateY(-6px); }
+        }
+
+        /* Skeleton loader */
+        .admin-skeleton {
+            background: linear-gradient(90deg, var(--gray-100) 25%, var(--gray-200) 50%, var(--gray-100) 75%);
+            background-size: 400px 100%;
+            animation: shimmer 1.4s ease-in-out infinite;
+            border-radius: var(--radius-md);
+        }
 
         /* Import tab switcher */
         .import-tab {
@@ -300,12 +640,12 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            transition: color 0.15s, border-color 0.15s;
+            transition: color 0.18s, border-color 0.18s;
         }
         .import-tab:hover { color: var(--gray-700); }
         .import-tab--active {
-            color: var(--gray-900);
-            border-bottom-color: var(--gray-900);
+            color: var(--accent);
+            border-bottom-color: var(--accent);
         }
 
         /* ============================================================
@@ -313,12 +653,12 @@
            ============================================================ */
         .admin-quick-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
         h3.admin-section-label {
-            font-size: 0.7rem;
+            font-size: 0.68rem;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.08em;
+            letter-spacing: 0.09em;
             color: var(--gray-400);
-            margin: 0 0 12px;
+            margin: 0 0 14px;
         }
 
         /* ============================================================
@@ -326,19 +666,28 @@
            ============================================================ */
         @media (max-width: 768px) {
             /* Sidebar: collapse to icon-only */
-            .admin-sidebar { width: 60px; }
+            .admin-sidebar { width: 62px; }
             .admin-sidebar__logo h1 span,
             .admin-sidebar__logo small,
             .admin-nav-item span,
             .admin-sidebar__user,
-            .admin-sidebar__links { display: none; }
+            .admin-sidebar__links,
+            .admin-sidebar__user-block > :not(.admin-sidebar__avatar),
+            .admin-sidebar__org-badge,
+            .admin-nav-section-label { display: none; }
             .admin-sidebar__logo img { display: none; }
+            .admin-sidebar__brand-mark { justify-content: center; }
+            .admin-sidebar__brand-icon { width: 38px; height: 38px; border-radius: 12px; }
             .admin-sidebar__logo h1 { justify-content: center; }
             .admin-sidebar__logo h1 svg { width: 24px; height: 24px; }
-            .admin-nav-item { justify-content: center; padding: 12px; min-height: 44px; }
+            .admin-nav-item { justify-content: center; padding: 13px 0; min-height: 46px; border-radius: var(--radius-md); }
+            .admin-nav-item.active::before { display: none; }
+            .admin-sidebar__footer { padding: 10px; }
+            .admin-sidebar__user-block { justify-content: center; }
 
             /* Main content area */
-            .admin-main { padding: 16px 12px; }
+            .admin-main { padding: 16px 14px; }
+            .admin-search-bar { display: none; }
 
             /* Header: stack vertically */
             .admin-main__header { flex-direction: column; gap: 12px; }
@@ -355,16 +704,16 @@
             .admin-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
             .admin-table { min-width: 600px; }
 
-            /* Advances table needs more width (9 columns) */
+            /* Advances table */
             #section-advances .admin-table { min-width: 800px; }
 
-            /* Analytics grid: force single column */
+            /* Analytics grid */
             #section-analytics [style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
 
-            /* Pipeline: allow horizontal scroll */
+            /* Pipeline */
             #section-pipeline [style*="display:flex"] { overflow-x: auto !important; }
 
-            /* CSV import: prevent overflow */
+            /* CSV import */
             .admin-csv-zone { padding: 24px 16px; }
             .admin-csv-template { overflow-x: auto; }
             .admin-csv-template__code { font-size: 0.7rem; white-space: pre; overflow-x: auto; display: block; }
@@ -380,29 +729,17 @@
         }
 
         @media (max-width: 480px) {
-            /* Smaller phones */
             .admin-main { padding: 12px 8px; }
-            .admin-main__header h2 { font-size: 1.05rem; }
-            .admin-main__header p { font-size: 0.75rem; }
-
-            /* Stat cards: tighter */
-            .admin-stat-card { padding: 14px 16px; }
-            .admin-stat-card__value { font-size: 1.3rem; }
-            .admin-stat-card__label { font-size: 0.72rem; }
-
-            /* Stats bar pills: smaller */
+            .admin-main__header h2 { font-size: 1.1rem; }
+            .admin-main__header p { font-size: 0.76rem; }
+            .admin-stat-card { padding: 16px 18px; }
+            .admin-stat-card__value { font-size: 1.55rem; }
+            .admin-stat-card__label { font-size: 0.69rem; }
             .admin-stat-pill { font-size: 0.68rem; padding: 3px 8px; }
-
-            /* Tables: smaller text */
             .admin-table { min-width: 520px; font-size: 0.74rem; }
-            .admin-table th,
-            .admin-table td { padding: 6px 8px; }
-
-            /* Quick actions: stack */
+            .admin-table th, .admin-table td { padding: 6px 8px; }
             .admin-quick-actions { flex-direction: column; }
             .admin-quick-actions .admin-btn { width: 100%; justify-content: center; }
-
-            /* CSV zone */
             .admin-csv-zone { padding: 20px 12px; }
             .admin-csv-template__code { font-size: 0.65rem; }
         }
@@ -419,12 +756,14 @@
         <!-- Sidebar -->
         <aside class="admin-sidebar">
             <div class="admin-sidebar__logo">
-                <img src="fluxgen-logo.jpg" alt="FluxGen" style="width:100%;object-fit:contain;margin-bottom:4px;border-radius:4px;">
-                <h1>
-                    <span>Expense Tracker</span>
-                </h1>
-                <small style="display:block;font-size:0.72rem;font-weight:600;color:var(--gray-500);margin-bottom:2px;">Admin Dashboard</small>
-                <small id="orgName">Loading...</small>
+                <div class="admin-sidebar__brand-mark">
+                    <div class="admin-sidebar__brand-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                    </div>
+                    <h1><span>FluxGen</span></h1>
+                </div>
+                <small>Admin Dashboard</small>
+                <div class="admin-sidebar__org-badge" id="orgName">Loading...</div>
             </div>
 
             <nav class="admin-sidebar__nav">
@@ -467,9 +806,12 @@
             </nav>
 
             <div class="admin-sidebar__footer">
-                <div class="admin-sidebar__user">
-                    <strong id="adminName">Admin</strong>
-                    <span id="adminEmail">admin@fluxgentech.com</span>
+                <div class="admin-sidebar__user-block">
+                    <div class="admin-sidebar__avatar" id="adminAvatar">A</div>
+                    <div class="admin-sidebar__user">
+                        <strong id="adminName">Admin</strong>
+                        <span id="adminEmail">admin@fluxgentech.com</span>
+                    </div>
                 </div>
                 <div class="admin-sidebar__links">
                     <button class="admin-sidebar__link" onclick="window.location.href='index.html'">App</button>
@@ -484,16 +826,48 @@
             <!-- Overview Section -->
             <div class="admin-section active" id="section-overview">
                 <div class="admin-main__header">
-                    <div>
-                        <h2>Dashboard Overview</h2>
+                    <div class="admin-main__header-left">
+                        <div class="admin-breadcrumb">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                            Overview
+                        </div>
+                        <h2 id="overviewGreeting">Good morning</h2>
                         <p>Organization summary and quick actions</p>
+                    </div>
+                    <div class="admin-search-bar">
+                        <svg class="admin-search-bar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <input type="text" placeholder="Search anything..." aria-label="Global search">
                     </div>
                 </div>
                 <div class="admin-stats-grid" id="overviewStats">
-                    <div class="admin-stat-card"><div class="admin-stat-card__value" id="statEmployees">-</div><div class="admin-stat-card__label">Employees</div></div>
-                    <div class="admin-stat-card admin-stat-card--blue"><div class="admin-stat-card__value" id="statProjects">-</div><div class="admin-stat-card__label">Active Projects</div></div>
-                    <div class="admin-stat-card admin-stat-card--amber"><div class="admin-stat-card__value" id="statPending">-</div><div class="admin-stat-card__label">Pending Vouchers</div></div>
-                    <div class="admin-stat-card admin-stat-card--green"><div class="admin-stat-card__value" id="statApproved">-</div><div class="admin-stat-card__label">Approved Vouchers</div></div>
+                    <div class="admin-stat-card">
+                        <div class="admin-stat-card__icon admin-stat-card__icon--default">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+                        </div>
+                        <div class="admin-stat-card__value" id="statEmployees">-</div>
+                        <div class="admin-stat-card__label">Employees</div>
+                    </div>
+                    <div class="admin-stat-card admin-stat-card--blue">
+                        <div class="admin-stat-card__icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+                        </div>
+                        <div class="admin-stat-card__value" id="statProjects">-</div>
+                        <div class="admin-stat-card__label">Active Projects</div>
+                    </div>
+                    <div class="admin-stat-card admin-stat-card--amber">
+                        <div class="admin-stat-card__icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
+                        </div>
+                        <div class="admin-stat-card__value" id="statPending">-</div>
+                        <div class="admin-stat-card__label">Pending Vouchers</div>
+                    </div>
+                    <div class="admin-stat-card admin-stat-card--green">
+                        <div class="admin-stat-card__icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                        <div class="admin-stat-card__value" id="statApproved">-</div>
+                        <div class="admin-stat-card__label">Approved Vouchers</div>
+                    </div>
                 </div>
                 <h3 class="admin-section-label">Quick Actions</h3>
                 <div class="admin-quick-actions">
@@ -506,7 +880,10 @@
             <!-- Employees Section -->
             <div class="admin-section" id="section-employees">
                 <div class="admin-main__header">
-                    <div><h2>Employees</h2><p>Manage team members and roles</p></div>
+                    <div class="admin-main__header-left">
+                        <div class="admin-breadcrumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Team</div>
+                        <h2>Employees</h2><p>Manage team members and roles</p>
+                    </div>
                 </div>
                 <div class="admin-stats-bar" id="empStats"></div>
                 <div id="empList"><div class="admin-empty"><p>Loading employees...</p></div></div>
@@ -515,7 +892,10 @@
             <!-- Projects Section -->
             <div class="admin-section" id="section-projects">
                 <div class="admin-main__header">
-                    <div><h2>Projects</h2><p>Manage project database with codes</p></div>
+                    <div class="admin-main__header-left">
+                        <div class="admin-breadcrumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>Workspace</div>
+                        <h2>Projects</h2><p>Manage project database with codes</p>
+                    </div>
                     <button class="admin-btn admin-btn--primary" onclick="openCreateProject()">+ New Project</button>
                 </div>
                 <!-- Search Bar -->
@@ -530,7 +910,10 @@
             <!-- Vouchers Section -->
             <div class="admin-section" id="section-vouchers">
                 <div class="admin-main__header">
-                    <div><h2>All Vouchers</h2><p>View and track all vouchers across the organization</p></div>
+                    <div class="admin-main__header-left">
+                        <div class="admin-breadcrumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Finance</div>
+                        <h2>All Vouchers</h2><p>View and track all vouchers across the organization</p>
+                    </div>
                 </div>
                 <div id="voucherList"><div class="admin-empty"><p>Loading vouchers...</p></div></div>
             </div>
@@ -538,7 +921,10 @@
             <!-- Advances Overview Section -->
             <div class="admin-section" id="section-advances">
                 <div class="admin-main__header">
-                    <div><h2>Advances Overview</h2><p>All advance requests across the organization</p></div>
+                    <div class="admin-main__header-left">
+                        <div class="admin-breadcrumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Finance</div>
+                        <h2>Advances Overview</h2><p>All advance requests across the organization</p>
+                    </div>
                 </div>
                 <!-- Advance Stats -->
                 <div class="admin-stats-bar" id="advanceStats"></div>
@@ -559,7 +945,10 @@
             <!-- Approval Pipeline Section -->
             <div class="admin-section" id="section-pipeline">
                 <div class="admin-main__header">
-                    <div><h2>Approval Pipeline</h2><p>Visual flow of all vouchers through the approval process</p></div>
+                    <div class="admin-main__header-left">
+                        <div class="admin-breadcrumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Workflow</div>
+                        <h2>Approval Pipeline</h2><p>Visual flow of all vouchers through the approval process</p>
+                    </div>
                 </div>
                 <div id="pipelineView"><div class="admin-empty"><p>Loading pipeline...</p></div></div>
             </div>
@@ -567,7 +956,8 @@
             <!-- Analytics Section -->
             <div class="admin-section" id="section-analytics">
                 <div class="admin-main__header">
-                    <div>
+                    <div class="admin-main__header-left">
+                        <div class="admin-breadcrumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="18" y="3" width="4" height="18"/><rect x="10" y="8" width="4" height="13"/><rect x="2" y="13" width="4" height="8"/></svg>Insights</div>
                         <h2>Analytics</h2>
                         <p>Spending insights across departments, projects, and employees</p>
                     </div>
@@ -631,7 +1021,10 @@
             <!-- Import CSV Section -->
             <div class="admin-section" id="section-import">
                 <div class="admin-main__header">
-                    <div><h2>Import CSV</h2><p>Upload CSV files to add employees or projects</p></div>
+                    <div class="admin-main__header-left">
+                        <div class="admin-breadcrumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>Data</div>
+                        <h2>Import CSV</h2><p>Upload CSV files to add employees or projects</p>
+                    </div>
                 </div>
 
                 <!-- Tab switcher -->
@@ -686,7 +1079,10 @@ WDL1,WONDERLA,Amusement Park,Amusement Park</code>
             <!-- Settings Section -->
             <div class="admin-section" id="section-settings">
                 <div class="admin-main__header">
-                    <div><h2>Organization Settings</h2><p>Configure your company expense tracker</p></div>
+                    <div class="admin-main__header-left">
+                        <div class="admin-breadcrumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83"/></svg>Configuration</div>
+                        <h2>Organization Settings</h2><p>Configure your company expense tracker</p>
+                    </div>
                 </div>
                 <div style="max-width:500px;">
                     <div class="admin-form-group">
@@ -718,8 +1114,28 @@ WDL1,WONDERLA,Amusement Park,Amusement Park</code>
             if (!user) { window.location.href = 'login.html'; return; }
 
             // Set sidebar info
-            document.getElementById('adminName').textContent = user.name || 'Admin';
+            const displayName = user.name || 'Admin';
+            document.getElementById('adminName').textContent = displayName;
             document.getElementById('adminEmail').textContent = user.email || '';
+
+            // Set avatar initials
+            const avatarEl = document.getElementById('adminAvatar');
+            if (avatarEl) {
+                const parts = displayName.trim().split(/\s+/);
+                const initials = parts.length >= 2
+                    ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+                    : displayName.slice(0, 2).toUpperCase();
+                avatarEl.textContent = initials;
+            }
+
+            // Set greeting based on time of day
+            const greetEl = document.getElementById('overviewGreeting');
+            if (greetEl) {
+                const h = new Date().getHours();
+                const period = h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
+                const firstName = displayName.split(' ')[0];
+                greetEl.textContent = `Good ${period}, ${firstName}`;
+            }
 
             // Load data
             await loadOverview();
