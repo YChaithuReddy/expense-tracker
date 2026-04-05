@@ -111,10 +111,7 @@
         <aside class="admin-sidebar">
             <div class="admin-sidebar__logo">
                 <div class="admin-sidebar__brand-mark">
-                    <div class="admin-sidebar__brand-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-                    </div>
-                    <h1><span>FluxGen</span></h1>
+                    <img src="fluxgen-logo.jpg" alt="FluxGen" class="admin-sidebar__brand-logo">
                 </div>
                 <small>Employee Dashboard</small>
                 <div class="admin-sidebar__role-badge">
@@ -194,8 +191,6 @@
                     </p>
                 </div>
 
-                <!-- Right: User Info + Actions (JS fills this) -->
-                <div id="userInfo" style="display:none; position:relative; z-index:1; align-items:center; gap:10px; flex-shrink:1; min-width:0; max-width:60%;"></div>
             </div>
 
             <!-- EXPENSES SECTION (default active) -->
@@ -210,9 +205,12 @@
                     <h2 id="expenseGreeting">My Expenses</h2>
                     <p>Track, scan, and submit your reimbursements</p>
                 </div>
-                <div class="admin-search-bar">
-                    <svg class="admin-search-bar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" placeholder="Search expenses..." aria-label="Search expenses" oninput="document.getElementById('searchInput') && (document.getElementById('searchInput').value = this.value, document.getElementById('searchInput').dispatchEvent(new Event('input')))">
+                <div class="admin-main__header-right">
+                    <div id="userInfo" style="display:none; align-items:center; gap:6px;"></div>
+                    <div class="admin-search-bar">
+                        <svg class="admin-search-bar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <input type="text" placeholder="Search expenses..." aria-label="Search expenses" oninput="document.getElementById('searchInput') && (document.getElementById('searchInput').value = this.value, document.getElementById('searchInput').dispatchEvent(new Event('input')))">
+                    </div>
                 </div>
             </div>
             <!-- Bill OCR Section -->
