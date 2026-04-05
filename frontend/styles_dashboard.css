@@ -1015,6 +1015,124 @@ h3.admin-section-label {
 }
 
 /* ============================================================
+   PROFILE & SETTINGS OVERLAY — Force white/light theme
+   ============================================================ */
+.activity-log-overlay {
+    background: #f9fafb !important;
+}
+.activity-log-header {
+    background: #ffffff !important;
+    border-color: #e5e7eb !important;
+}
+.activity-log-title {
+    color: #111827 !important;
+}
+.activity-log-title svg {
+    color: #111827 !important;
+    stroke: #111827 !important;
+}
+.activity-log-body {
+    background: #f9fafb !important;
+    color: #111827 !important;
+}
+.activity-log-close {
+    color: #6b7280 !important;
+}
+.activity-log-close:hover {
+    color: #111827 !important;
+}
+
+/* Profile sections */
+.profile-section {
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 12px !important;
+    padding: 20px !important;
+    color: #111827 !important;
+}
+.profile-section-title {
+    color: #111827 !important;
+}
+.profile-section-title svg {
+    stroke: #111827 !important;
+}
+.profile-label {
+    color: #374151 !important;
+}
+.profile-input {
+    background: #ffffff !important;
+    color: #111827 !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 8px !important;
+}
+.profile-input:focus {
+    border-color: #9ca3af !important;
+    box-shadow: 0 0 0 3px rgba(17,24,39,0.06) !important;
+}
+.profile-input--readonly {
+    background: #f3f4f6 !important;
+    color: #6b7280 !important;
+}
+.profile-save-btn {
+    background: #111827 !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 8px 20px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+}
+.profile-save-btn:hover {
+    background: #1f2937 !important;
+}
+.profile-field-group {
+    color: #111827 !important;
+}
+.profile-voucher-card {
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    color: #111827 !important;
+}
+.profile-voucher-value {
+    color: #111827 !important;
+}
+.profile-voucher-label {
+    color: #6b7280 !important;
+}
+
+/* Activity log rows (used in activity panel too) */
+.activity-row {
+    border-color: #f3f4f6 !important;
+    color: #111827 !important;
+}
+.activity-row:hover {
+    background: #f9fafb !important;
+}
+.activity-row__action {
+    color: #111827 !important;
+}
+.activity-row__details {
+    color: #6b7280 !important;
+}
+.activity-row__time {
+    color: #9ca3af !important;
+}
+
+/* Notification panel */
+.notification-panel {
+    background: #ffffff !important;
+    border-color: #e5e7eb !important;
+    color: #111827 !important;
+}
+.notification-item {
+    color: #111827 !important;
+    border-color: #f3f4f6 !important;
+}
+.notification-item:hover {
+    background: #f9fafb !important;
+}
+
+/* ============================================================
    SKELETON LOADER
    ============================================================ */
 .admin-skeleton {
