@@ -1147,46 +1147,146 @@ h3.admin-section-label {
    Section wrappers styled as premium white cards
    ============================================================ */
 
-/* OCR section */
-#section-expenses .ocr-section {
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-xl);
-    padding: 28px;
-    margin-bottom: 20px;
-    box-shadow: var(--shadow-sm);
-    transition: box-shadow 0.2s;
-}
-#section-expenses .ocr-section:hover { box-shadow: var(--shadow-md); }
-
-/* Expense form card */
-#section-expenses .expense-form-section {
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-xl);
-    padding: 28px;
-    margin-bottom: 20px;
-    box-shadow: var(--shadow-sm);
-}
-
-/* Expenses list actions */
-#section-expenses .expenses-list-section {
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-xl);
-    padding: 20px 24px;
-    margin-bottom: 20px;
-    box-shadow: var(--shadow-sm);
-}
-
-/* Full-width expenses list */
+/* ============================================================
+   OVERRIDE dark-theme section styles from styles.css
+   (glass-bg, dark shadows, hover lift, overflow issues)
+   ============================================================ */
+.ocr-section,
+.expense-form-section,
+.expenses-list-section,
 .expenses-fullwidth-section {
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-xl);
-    padding: 20px 24px;
-    box-shadow: var(--shadow-sm);
+    background: var(--white) !important;
+    border: 1px solid var(--gray-200) !important;
+    border-radius: var(--radius-xl) !important;
+    padding: 24px !important;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-sm) !important;
+    overflow: hidden !important;
+    transform: none !important;
+    position: relative;
+}
+.ocr-section::after,
+.expense-form-section::after,
+.expenses-list-section::after,
+.expenses-fullwidth-section::after {
+    display: none !important;
+}
+.ocr-section:hover,
+.expense-form-section:hover,
+.expenses-list-section:hover,
+.expenses-fullwidth-section:hover {
+    transform: none !important;
+    box-shadow: var(--shadow-md) !important;
+}
+
+/* Action buttons — wrap in a clean grid */
+.expenses-list-section .action-buttons {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+    align-items: stretch;
+}
+.expenses-list-section .action-buttons button {
+    min-height: auto !important;
+    padding: 10px 16px !important;
+    font-size: 0.82rem !important;
+    border-radius: var(--radius-md) !important;
+    background: var(--white) !important;
+    color: var(--gray-700) !important;
+    border: 1px solid var(--gray-200) !important;
+    display: inline-flex !important;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+}
+.expenses-list-section .action-buttons button:hover {
+    background: var(--gray-50) !important;
+    border-color: var(--gray-300) !important;
+}
+.expenses-list-section .action-buttons button svg {
+    flex-shrink: 0;
+}
+
+/* Primary button style override for Google Export */
+.expenses-list-section .action-buttons .btn-primary {
+    background: var(--gray-900) !important;
+    color: var(--white) !important;
+    border-color: var(--gray-900) !important;
+}
+.expenses-list-section .action-buttons .btn-primary:hover {
+    background: var(--gray-800) !important;
+}
+
+/* Danger button style override for Clear Data */
+.expenses-list-section .action-buttons .btn-danger,
+.expenses-list-section .action-buttons .btn-clear-data-premium {
+    color: var(--red) !important;
+    border-color: #fecaca !important;
+}
+.expenses-list-section .action-buttons .btn-danger:hover,
+.expenses-list-section .action-buttons .btn-clear-data-premium:hover {
+    background: var(--red-bg) !important;
+}
+
+/* Submit/Highlight button — keep special styling but toned down */
+.expenses-list-section .btn-highlight {
+    background: var(--gray-900) !important;
+    color: var(--white) !important;
+    border: none !important;
+    padding: 12px 20px !important;
+    border-radius: var(--radius-md) !important;
+    display: flex !important;
+    align-items: center;
+    gap: 10px;
+    flex-basis: 100%;
+}
+.expenses-list-section .btn-highlight::before,
+.expenses-list-section .btn-highlight::after {
+    display: none !important;
+}
+.expenses-list-section .btn-highlight:hover {
+    background: var(--gray-800) !important;
+}
+.expenses-list-section .btn-highlight__label,
+.expenses-list-section .btn-highlight__sub {
+    color: var(--white) !important;
+}
+.expenses-list-section .btn-highlight__arrow svg {
+    stroke: var(--white) !important;
+}
+.expenses-list-section .btn-highlight__icon-wrap svg {
+    stroke: var(--white) !important;
+}
+
+/* Section header layout */
+.expenses-list-section .section-header {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.expenses-list-section .section-header h2 {
+    color: var(--gray-900);
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* Full-width section spacing */
+.expenses-fullwidth-section {
     margin-top: 20px;
+}
+
+/* Select all bar */
+.select-all-container,
+.batch-select-bar {
+    background: var(--white) !important;
+    border: 1px solid var(--gray-200) !important;
+    border-radius: var(--radius-lg) !important;
+    padding: 10px 16px !important;
+    margin-bottom: 12px;
+    color: var(--gray-700) !important;
 }
 
 /* Force search/filters visible (overrides JS hide logic for dashboard) */
