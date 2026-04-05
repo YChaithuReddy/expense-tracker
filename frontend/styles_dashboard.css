@@ -1312,6 +1312,331 @@ h3.admin-section-label {
 .admin-table tbody tr:last-child { border-bottom: none; }
 
 /* ============================================================
+   EXPENSES PAGE — CLEAN WHITE OVERRIDES
+   Forces all expense sections to match the clean accountant
+   "All Vouchers" aesthetic: white cards, light borders,
+   no dark-theme glass/glow effects from styles.css.
+   ============================================================ */
+
+/* 1. Force all content sections to clean white cards */
+.ocr-section,
+.expense-form-section,
+.expenses-list-section,
+.expenses-fullwidth-section,
+.advance-summary-section {
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 12px !important;
+    padding: 24px !important;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04) !important;
+    overflow: hidden !important;
+    transform: none !important;
+}
+/* Kill dark-theme pseudo-elements */
+.ocr-section::after,
+.expense-form-section::after,
+.expenses-list-section::after,
+.expenses-fullwidth-section::after {
+    display: none !important;
+}
+/* No hover lift */
+.ocr-section:hover,
+.expense-form-section:hover,
+.expenses-list-section:hover,
+.expenses-fullwidth-section:hover {
+    transform: none !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.06) !important;
+}
+
+/* 2. Section headings — clean black, no decorations */
+.ocr-section h2,
+.expense-form-section h2,
+.expenses-list-section h2,
+.expenses-list-section .section-header h2 {
+    color: #111827 !important;
+    font-size: 1.05rem !important;
+    font-weight: 700 !important;
+    margin: 0 0 4px !important;
+    font-family: 'Inter', sans-serif !important;
+}
+.ocr-section > p,
+.expense-form-section > p {
+    color: #6b7280 !important;
+    font-size: 0.82rem !important;
+    margin: 0 0 16px !important;
+}
+
+/* 3. Form inputs — clean borders, white bg, proper spacing */
+.admin-main .form-group {
+    margin-bottom: 16px;
+}
+.admin-main .form-group label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.admin-main .form-group input[type="text"],
+.admin-main .form-group input[type="number"],
+.admin-main .form-group input[type="date"],
+.admin-main .form-group select,
+.admin-main .form-group textarea,
+.admin-main .category-select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 8px !important;
+    font-size: 0.88rem;
+    color: #111827 !important;
+    background: #ffffff !important;
+    font-family: 'Inter', sans-serif;
+    transition: border-color 0.15s;
+    outline: none;
+}
+.admin-main .form-group input:focus,
+.admin-main .form-group select:focus,
+.admin-main .form-group textarea:focus,
+.admin-main .category-select:focus {
+    border-color: #111827 !important;
+    box-shadow: 0 0 0 3px rgba(17,24,39,0.06) !important;
+}
+.admin-main .form-group input::placeholder {
+    color: #9ca3af !important;
+}
+.admin-main .form-group small {
+    color: #9ca3af;
+    font-size: 0.75rem;
+    margin-top: 4px;
+    display: block;
+}
+
+/* 4. Buttons — btn-primary, btn-secondary clean styles */
+.admin-main .btn-primary {
+    background: #111827 !important;
+    color: #ffffff !important;
+    border: none !important;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.84rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    font-family: 'Inter', sans-serif;
+}
+.admin-main .btn-primary:hover {
+    background: #1f2937 !important;
+}
+.admin-main .btn-secondary {
+    background: #ffffff !important;
+    color: #374151 !important;
+    border: 1px solid #e5e7eb !important;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.84rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    font-family: 'Inter', sans-serif;
+}
+.admin-main .btn-secondary:hover {
+    background: #f9fafb !important;
+    border-color: #d1d5db !important;
+}
+.admin-main .btn-danger,
+.admin-main .btn-clear-data-premium {
+    background: #ffffff !important;
+    color: #dc2626 !important;
+    border: 1px solid #fecaca !important;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+}
+.admin-main .btn-danger:hover,
+.admin-main .btn-clear-data-premium:hover {
+    background: #fef2f2 !important;
+}
+
+/* 5. Action buttons grid — clean compact row */
+.expenses-list-section .section-header {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.expenses-list-section .action-buttons {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+}
+.expenses-list-section .action-buttons button {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px !important;
+    font-size: 0.8rem !important;
+    min-height: auto !important;
+    border-radius: 8px !important;
+    white-space: nowrap;
+}
+
+/* 6. Submit/highlight button — clean dark bar */
+.btn-highlight {
+    background: #111827 !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 10px !important;
+    padding: 14px 20px !important;
+    display: flex !important;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+.btn-highlight::before,
+.btn-highlight::after {
+    display: none !important;
+}
+.btn-highlight:hover {
+    background: #1f2937 !important;
+}
+.btn-highlight__label,
+.btn-highlight__sub {
+    color: #ffffff !important;
+}
+.btn-highlight__arrow svg,
+.btn-highlight__icon-wrap svg {
+    stroke: #ffffff !important;
+}
+.btn-reset {
+    background: #ffffff !important;
+    color: #374151 !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 8px !important;
+}
+.btn-pdf-library {
+    background: #ffffff !important;
+    color: #374151 !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 8px !important;
+}
+
+/* 7. Visit type toggle buttons — clean pill style */
+.visit-type-toggle {
+    display: flex;
+    gap: 0;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #ffffff;
+}
+.visit-type-btn {
+    background: #ffffff !important;
+    color: #6b7280 !important;
+    border: none !important;
+    border-right: 1px solid #e5e7eb !important;
+    padding: 8px 16px !important;
+    font-size: 0.82rem !important;
+    font-weight: 500 !important;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+.visit-type-btn:last-child {
+    border-right: none !important;
+}
+.visit-type-btn.active {
+    background: #111827 !important;
+    color: #ffffff !important;
+}
+
+/* 8. Drag & drop zone — clean dashed border */
+.drag-drop-zone,
+.image-preview-container {
+    border: 2px dashed #d1d5db !important;
+    border-radius: 12px !important;
+    background: #f9fafb !important;
+    padding: 32px 20px !important;
+    text-align: center;
+    transition: border-color 0.2s, background 0.2s;
+}
+.drag-drop-zone:hover,
+.image-preview-container:hover {
+    border-color: #9ca3af !important;
+    background: #f3f4f6 !important;
+}
+.drag-drop-text {
+    color: #374151 !important;
+    font-weight: 600 !important;
+    font-size: 0.9rem !important;
+}
+.drag-drop-subtext {
+    color: #9ca3af !important;
+    font-size: 0.8rem !important;
+}
+
+/* 9. Search bar and filters in history section */
+.search-bar {
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 10px !important;
+    padding: 0 14px !important;
+    display: flex;
+    align-items: center;
+}
+.search-input {
+    border: none !important;
+    background: transparent !important;
+    color: #111827 !important;
+    font-size: 0.88rem !important;
+    padding: 10px 8px !important;
+    flex: 1;
+    outline: none !important;
+}
+.search-icon {
+    color: #9ca3af !important;
+}
+.filter-select {
+    padding: 8px 12px !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 8px !important;
+    font-size: 0.82rem !important;
+    color: #374151 !important;
+    background: #ffffff !important;
+}
+.filter-date {
+    padding: 8px 12px !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 8px !important;
+    font-size: 0.82rem !important;
+    color: #374151 !important;
+    background: #ffffff !important;
+}
+
+/* 10. Total amount bar */
+.total-section {
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 10px !important;
+    padding: 14px 20px !important;
+    margin-top: 12px;
+    text-align: center;
+    color: #111827 !important;
+    font-size: 0.95rem !important;
+}
+
+/* 11. Form actions row */
+.form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid #f3f4f6;
+}
+
+/* ============================================================
    RESPONSIVE — MOBILE (768px)
    ============================================================ */
 @media (max-width: 768px) {
