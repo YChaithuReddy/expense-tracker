@@ -91,6 +91,18 @@ class ExpenseTracker {
         return div.innerHTML;
     }
 
+    // Hide/show the expense dashboard rows (top row, submit bar, action cards)
+    _hideExpDashboard() {
+        document.querySelector('.exp-top-row')?.style.setProperty('display', 'none');
+        document.querySelector('.exp-submit-bar')?.style.setProperty('display', 'none');
+        document.querySelector('.exp-actions-row')?.style.setProperty('display', 'none');
+    }
+    _showExpDashboard() {
+        document.querySelector('.exp-top-row')?.style.removeProperty('display');
+        document.querySelector('.exp-submit-bar')?.style.removeProperty('display');
+        document.querySelector('.exp-actions-row')?.style.removeProperty('display');
+    }
+
     initializeEventListeners() {
         // Camera and Gallery buttons
         document.getElementById('cameraBtn').addEventListener('click', () => {
@@ -1810,7 +1822,8 @@ class ExpenseTracker {
     }
 
     showBatchReviewUI() {
-        // Hide OCR section
+        // Hide dashboard layout
+        this._hideExpDashboard();
         const ocrSection = document.getElementById('ocrSection');
         if (ocrSection) {
             ocrSection.style.display = 'none';
@@ -2430,7 +2443,8 @@ class ExpenseTracker {
         // Force a reflow to ensure styles are applied
         void document.body.offsetHeight;
 
-        // Show OCR section again (home page)
+        // Show OCR section and restore dashboard layout
+        this._showExpDashboard();
         const ocrSection = document.getElementById('ocrSection');
         if (ocrSection) {
             ocrSection.style.display = 'block';
@@ -2869,6 +2883,7 @@ class ExpenseTracker {
     }
 
     showExpenseForm() {
+        this._hideExpDashboard();
         document.getElementById('ocrSection').style.display = 'none';
         document.getElementById('expenseFormSection').style.display = 'block';
 
@@ -2921,7 +2936,8 @@ class ExpenseTracker {
     }
 
     showManualEntryForm() {
-        // Hide OCR section and show form
+        // Hide entire dashboard layout and show form
+        this._hideExpDashboard();
         document.getElementById('ocrSection').style.display = 'none';
         document.getElementById('expenseFormSection').style.display = 'block';
 
@@ -2968,6 +2984,8 @@ class ExpenseTracker {
 
     backToScan() {
         document.getElementById('expenseFormSection').style.display = 'none';
+        // Restore entire dashboard layout
+        this._showExpDashboard();
         document.getElementById('ocrSection').style.display = 'block';
 
         // Reset form
@@ -3507,6 +3525,7 @@ class ExpenseTracker {
         this.editingExpenseId = id;
 
         // Show the form section
+        this._hideExpDashboard();
         document.getElementById('ocrSection').style.display = 'none';
         document.getElementById('expenseFormSection').style.display = 'block';
 
