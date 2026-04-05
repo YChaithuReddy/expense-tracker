@@ -9,8 +9,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Expense Tracker">
-    <title>Expense Tracker</title>
+    <title>Expense Tracker - Reimbursement Helper</title>
 
+    <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="icon" type="image/svg+xml" sizes="32x32" href="icons/icon-72x72.svg">
     <link rel="shortcut icon" href="favicon.svg">
@@ -19,28 +20,29 @@
     <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-192x192.svg">
     <link rel="apple-touch-icon" sizes="167x167" href="icons/icon-192x192.svg">
 
+    <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="application-name" content="Expense Tracker">
     <meta name="msapplication-TileColor" content="#0f0f23">
     <meta name="msapplication-TileImage" content="icons/icon-144x144.svg">
 
+    <!-- Flatpickr CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
 
+    <!-- Chart.js for analytics -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
-    <!-- NEW Curator Design System CSS -->
-    <link rel="stylesheet" href="css/index.css">
-
-    <!-- ORIGINAL CSS files -->
-    <link rel="stylesheet" href="styles.css?v=5.0">
-    <link rel="stylesheet" href="styles_dropdown.css?v=5.0">
-    <link rel="stylesheet" href="styles_images.css?v=5.0">
-    <link rel="stylesheet" href="styles_clear_data.css?v=5.0">
-    <link rel="stylesheet" href="styles_saved_images.css?v=5.0">
+    <link rel="stylesheet" href="styles.css?v=4.1">
+    <link rel="stylesheet" href="styles_dropdown.css?v=4.0">
+    <link rel="stylesheet" href="styles_images.css?v=4.0">
+    <link rel="stylesheet" href="styles_clear_data.css?v=4.0">
+    <link rel="stylesheet" href="styles_saved_images.css?v=4.0">
     <link rel="stylesheet" href="styles_pdfs.css">
     <link rel="stylesheet" href="styles_admin.css">
     <link rel="stylesheet" href="styles_projects.css">
@@ -48,6 +50,7 @@
     <link rel="stylesheet" href="styles_notifications.css">
     <link rel="stylesheet" href="styles_dashboard.css">
 
+    <!-- Essential scripts with defer - loads in parallel, executes after HTML parsed -->
     <script defer src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script defer src="toast.js"></script>
@@ -62,6 +65,7 @@
     <script defer src="upi-import.js"></script>
     <script defer src="progress-modal.js"></script>
     <script defer src="script.js"></script>
+    <!-- pdf-lib is lazy-loaded by loadExportLibraries() when needed -->
     <script defer src="pdfs.js"></script>
     <script defer src="activity-log.js"></script>
     <script defer src="submit-wizard.js"></script>
@@ -73,201 +77,82 @@
     <script defer src="realtime.js"></script>
     <script defer src="dashboard.js"></script>
 
+    <!-- Heavy export libraries - lazy loaded when needed -->
     <script>
+        // Lazy load export libraries only when export feature is used
         window.loadExportLibraries = async function() {
             if (window.XLSX && window.jspdf && window.PDFLib) return Promise.resolve();
-            var scripts = [
+
+            const scripts = [
                 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
                 'https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js'
             ];
-            return Promise.all(scripts.map(function(src) {
-                return new Promise(function(resolve, reject) {
-                    if (document.querySelector('script[src="' + src + '"]')) { resolve(); return; }
-                    var s = document.createElement('script');
-                    s.src = src; s.onload = resolve; s.onerror = reject;
-                    document.head.appendChild(s);
+
+            return Promise.all(scripts.map(src => {
+                return new Promise((resolve, reject) => {
+                    if (document.querySelector(`script[src="${src}"]`)) {
+                        resolve();
+                        return;
+                    }
+                    const script = document.createElement('script');
+                    script.src = src;
+                    script.onload = resolve;
+                    script.onerror = reject;
+                    document.head.appendChild(script);
                 });
             }));
         };
     </script>
-
-    <style>
-        /* Hide original admin sidebar - Curator sidebar replaces it */
-        .admin-sidebar { display: none !important; }
-
-        /* Hide original admin header/topbar */
-        .admin-header,
-        .admin-topbar,
-        .topbar,
-        .top-bar,
-        .header-bar,
-        .admin-main__topbar,
-        .company-header { display: none !important; }
-
-        /* Remove admin-layout grid */
-        .admin-layout {
-            display: block !important;
-            min-height: unset !important;
-            grid-template-columns: none !important;
-        }
-
-        /* Admin main full width, no left margin */
-        .admin-main {
-            margin-left: 0 !important;
-            padding: 0 !important;
-            display: block !important;
-            width: 100% !important;
-            max-width: 100% !important;
-        }
-
-        /* Section toggle */
-        .admin-section { display: none; }
-        .admin-section.active { display: block; }
-
-        /* Fix any content that tries to position itself with old sidebar offset */
-        .main-content {
-            padding: 20px !important;
-            overflow-y: auto !important;
-            flex: 1 !important;
-        }
-
-        /* Ensure content sections don't overflow */
-        .admin-section {
-            max-width: 100%;
-            overflow-x: hidden;
-        }
-
-        /* Fix buttons row alignment in header area */
-        .admin-main__header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        /* Fix action buttons to not overflow */
-        .admin-main__actions {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        /* Ensure fieldsets/forms respect container width */
-        fieldset, .scan-section, .manual-section {
-            max-width: 100%;
-            box-sizing: border-box;
-        }
-
-        /* Fix the floating action buttons (FAB) position */
-        .fab-container, .quick-add-fab {
-            z-index: 50 !important;
-        }
-
-        /* Hide duplicate org name if shown elsewhere */
-        #orgNameHeader { display: none !important; }
-
-        /* Curator header styling */
-        .header {
-            background: #fff !important;
-            border-bottom: 1px solid #e5e7eb !important;
-            height: 56px !important;
-            min-height: 56px !important;
-            z-index: 90 !important;
-        }
-
-        /* Sidebar styling overrides */
-        .sidebar {
-            background: #fff !important;
-            border-right: 1px solid #e5e7eb !important;
-        }
-
-        .sidebar-header {
-            padding: 16px 20px !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            border-bottom: 1px solid #e5e7eb !important;
-            min-height: 56px !important;
-        }
-
-        /* Page section container */
-        .page-section { display: none; }
-        .page-section.active { display: block; }
-    </style>
-</head>
 <body>
-    <!-- CURATOR SIDEBAR -->
-    <aside class="sidebar" id="curator-sidebar">
-        <div class="sidebar-header">
-            <div class="sidebar-logo">
-                <img src="assets/fluxgen-logo.jpg" alt="FluxGen" style="height: 32px; width: auto;">
+    <!-- PROFESSIONAL ADMIN-STYLE LAYOUT -->
+    <div class="admin-layout">
+        <!-- SIDEBAR -->
+        <aside class="admin-sidebar">
+            <div class="admin-sidebar__logo">
+                <img src="fluxgen-logo.jpg" alt="FluxGen" style="height: 28px; width: auto; margin-bottom: 6px;">
+                <h1>Expense Tracker</h1>
+                <small>Employee Dashboard</small>
+                <small id="orgName"></small>
             </div>
-        </div>
-        <nav class="sidebar-nav">
-            <a href="#expenses" class="sidebar-nav-item active" data-section="expenses">
-                <div class="sidebar-nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
-                <span class="sidebar-nav-label">Expenses</span>
-            </a>
-            <a href="#advance" class="sidebar-nav-item" data-section="advance">
-                <div class="sidebar-nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
-                <span class="sidebar-nav-label">Advance</span>
-            </a>
-            <a href="#reports" class="sidebar-nav-item" data-section="reports">
-                <div class="sidebar-nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="18" y="3" width="4" height="18"/><rect x="10" y="8" width="4" height="13"/><rect x="2" y="13" width="4" height="8"/></svg></div>
-                <span class="sidebar-nav-label">Reports</span>
-            </a>
-            <a href="#settings" class="sidebar-nav-item" data-section="settings">
-                <div class="sidebar-nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4"/></svg></div>
-                <span class="sidebar-nav-label">Settings</span>
-            </a>
-        </nav>
-        <div class="sidebar-footer">
-            <div style="padding: 0 16px; margin-bottom: 8px;">
+            <nav class="admin-sidebar__nav">
+                <button class="admin-nav-item active" data-section="expenses" onclick="switchSection('expenses', this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                    <span>Expenses</span>
+                </button>
+                <button class="admin-nav-item" data-section="advance" onclick="switchSection('advance', this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>
+                    <span>Advance</span>
+                </button>
+                <button class="admin-nav-item" data-section="reports" onclick="switchSection('reports', this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+                    <span>Reports</span>
+                </button>
+                <button class="admin-nav-item" data-section="settings" onclick="switchSection('settings', this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+                    <span>Settings</span>
+                </button>
+            </nav>
+            <div class="admin-sidebar__footer">
                 <span id="realtimeStatus" class="realtime-dot realtime-dot--disconnected" title="Realtime sync"></span>
-                <strong id="sidebarUserName" style="font-size: 0.85rem;">User</strong>
-                <br><span id="sidebarUserEmail" style="font-size: 0.72rem; opacity: 0.6;"></span>
-            </div>
-            <a href="admin.html" class="sidebar-nav-item" title="Admin Panel">
-                <div class="sidebar-nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33"/></svg></div>
-                <span class="sidebar-nav-label">Admin</span>
-            </a>
-            <a href="#" class="sidebar-nav-item" id="curator-logout">
-                <div class="sidebar-nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></div>
-                <span class="sidebar-nav-label">Logout</span>
-            </a>
-        </div>
-    </aside>
-
-    <div class="sidebar-overlay" id="sidebar-overlay"></div>
-
-    <!-- MAIN CONTAINER (Curator layout) -->
-    <div class="main-container">
-        <header class="header" id="curator-header">
-            <div class="header-left" style="display:flex;align-items:center;gap:12px;">
-                <button class="hamburger-btn" id="hamburger-btn" aria-label="Menu" style="display:none;">&#9776;</button>
-                <span id="orgName" style="font-size: 0.9rem; font-weight: 600; color: #1e293b;">FluxGen Technologies</span>
-            </div>
-            <div class="header-right" style="display:flex;align-items:center;gap:12px;">
-                <div id="userInfo" style="display:none;"></div>
-            </div>
-        </header>
-
-        <div class="main-content" style="padding: 24px; overflow-y: auto; flex: 1;">
-            <div class="admin-section active" id="section-expenses">
-                <div class="admin-main__header">
-                    <div>
-                        <h2>Expenses</h2>
-                        <p>Scan bills, add expenses, and manage submissions</p>
-                    </div>
-                    <div class="admin-quick-actions">
-                        <button class="admin-btn admin-btn--primary" onclick="document.getElementById('skipToManualEntry')?.click()">Add Expense</button>
-                        <button class="admin-btn admin-btn--secondary" onclick="document.getElementById('exportToGoogleSheets')?.click()">Export to Sheets</button>
-                        <button class="admin-btn admin-btn--secondary" onclick="document.getElementById('downloadReimbursementPackage')?.click()">Submit Package</button>
-                    </div>
+                <div class="admin-sidebar__user">
+                    <strong id="sidebarUserName">User</strong>
+                    <span id="sidebarUserEmail"></span>
                 </div>
+                <div class="admin-sidebar__links">
+                    <button class="admin-sidebar__link admin-sidebar__link--danger" onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="admin-main">
+
+            <!-- Hidden userInfo container for JS population -->
+            <div id="userInfo" style="display:none;"></div>
+
+            <!-- EXPENSES SECTION (default active) -->
+            <div class="admin-section active" id="section-expenses">
             <!-- Bill OCR Section -->
             <section id="ocrSection" class="ocr-section ocr-dropzone">
                 <!-- Drag overlay shown when dragging files over the card -->
@@ -534,9 +419,6 @@
                         <h2>Advance Tracker</h2>
                         <p>Manage your advance requests and track status</p>
                     </div>
-                    <div class="admin-quick-actions">
-                        <button class="admin-btn admin-btn--primary" id="openAdvanceModalBtn" onclick="document.getElementById('openAdvanceModal')?.click()">New Advance</button>
-                    </div>
                 </div>
         <section class="advance-summary-section" id="advanceSummarySection" style="display: none;">
             <div class="advance-summary-header">
@@ -559,14 +441,9 @@
                         <h2>Reports</h2>
                         <p>View detailed reports and analytics of your expenses</p>
                     </div>
-                    <div class="admin-quick-actions">
-                        <button class="admin-btn admin-btn--secondary" onclick="document.getElementById('exportToGoogleSheets')?.click()">Export to Sheets</button>
-                    </div>
                 </div>
-                <div class="admin-empty">
-                    <p style="font-size:2rem;margin-bottom:8px;">📊</p>
-                    <p style="font-weight:600;color:var(--gray-900);">Reports Coming Soon</p>
-                    <p>Advanced reporting and analytics features are being built.</p>
+                <div style="text-align: center; padding: 40px; color: var(--gray-500);">
+                    Advanced reporting features coming soon.
                 </div>
             </div><!-- /section-reports -->
 
@@ -578,14 +455,18 @@
                         <p>Manage your preferences and account settings</p>
                     </div>
                 </div>
-                <div class="admin-empty">
-                    <p style="font-size:2rem;margin-bottom:8px;">⚙️</p>
-                    <p style="font-weight:600;color:var(--gray-900);">Settings Coming Soon</p>
-                    <p>Account preferences and configuration options are being built.</p>
+                <div style="text-align: center; padding: 40px; color: var(--gray-500);">
+                    Settings features coming soon.
                 </div>
             </div><!-- /section-settings -->
 
-        <!-- end of admin sections -->
+        </main><!-- .admin-main -->
+    </div><!-- .admin-layout -->
+
+    <!-- FAB BUTTON -->
+    <button id="quickAddFAB" class="quick-add-fab" onclick="expenseTracker.openQuickAdd()" aria-label="Quick Add Expense" title="Quick Add (or shake phone)">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </button>
 
         <section class="expenses-fullwidth-section">
                 <div class="select-all-container" id="selectAllContainer" style="display: none;">
@@ -2436,107 +2317,9 @@
         </div>
     </div>
 
-
-    <!-- Curator Sidebar Router -->
-    <script>
-    (function() {
-        document.addEventListener('DOMContentLoaded', function() {
-            var sidebar = document.getElementById('curator-sidebar');
-            var overlay = document.getElementById('sidebar-overlay');
-            var hamburger = document.getElementById('hamburger-btn');
-
-            // Sidebar nav clicks -> call original switchSection from dashboard.js
-            sidebar.querySelectorAll('.sidebar-nav-item[data-section]').forEach(function(item) {
-                item.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    var section = this.getAttribute('data-section');
-                    
-                    // Update Curator sidebar active state
-                    sidebar.querySelectorAll('.sidebar-nav-item[data-section]').forEach(function(nav) {
-                        nav.classList.remove('active');
-                    });
-                    this.classList.add('active');
-
-                    // Call original switchSection (from dashboard.js)
-                    if (typeof switchSection === 'function') {
-                        switchSection(section, document.querySelector('.admin-nav-item[data-section="' + section + '"]'));
-                    }
-
-                    // Show/hide expenses fullwidth section
-                    var fw = document.querySelector('.expenses-fullwidth-section');
-                    if (fw) fw.style.display = (section === 'expenses') ? '' : 'none';
-
-                    history.replaceState(null, '', '#' + section);
-                    var mc = document.querySelector('.main-content');
-                    if (mc) mc.scrollTop = 0;
-                    closeMobileSidebar();
-                });
-            });
-
-            function openMobileSidebar() {
-                sidebar.classList.add('open');
-                if (overlay) overlay.classList.add('active');
-            }
-            function closeMobileSidebar() {
-                sidebar.classList.remove('open');
-                if (overlay) overlay.classList.remove('active');
-            }
-
-            if (hamburger) {
-                hamburger.addEventListener('click', function(e) {
-                    e.preventDefault(); e.stopPropagation();
-                    sidebar.classList.contains('open') ? closeMobileSidebar() : openMobileSidebar();
-                });
-            }
-            if (overlay) overlay.addEventListener('click', closeMobileSidebar);
-            document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeMobileSidebar(); });
-
-            // Logout
-            var logoutBtn = document.getElementById('curator-logout');
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    if (typeof logout === 'function') logout();
-                    else { localStorage.removeItem('user'); window.location.href = 'login.html'; }
-                });
-            }
-
-            // Initial route from hash
-            var hash = window.location.hash.slice(1) || 'expenses';
-            var valid = ['expenses', 'advance', 'reports', 'settings'];
-            if (valid.indexOf(hash) === -1) hash = 'expenses';
-
-            sidebar.querySelectorAll('.sidebar-nav-item[data-section]').forEach(function(nav) {
-                nav.classList.toggle('active', nav.getAttribute('data-section') === hash);
-            });
-
-            // Ensure the fullwidth section matches
-            var fw = document.querySelector('.expenses-fullwidth-section');
-            if (fw) fw.style.display = (hash === 'expenses') ? '' : 'none';
-
-            // Hash change listener
-            window.addEventListener('hashchange', function() {
-                var s = window.location.hash.slice(1) || 'expenses';
-                if (valid.indexOf(s) === -1) return;
-                sidebar.querySelectorAll('.sidebar-nav-item[data-section]').forEach(function(nav) {
-                    nav.classList.toggle('active', nav.getAttribute('data-section') === s);
-                });
-                if (typeof switchSection === 'function') {
-                    switchSection(s, document.querySelector('.admin-nav-item[data-section="' + s + '"]'));
-                }
-                if (fw) fw.style.display = (s === 'expenses') ? '' : 'none';
-            });
-        });
-    })();
-    </script>
-
-        </div><!-- .main-content -->
-    </div><!-- .main-container -->
-
     <!-- Floating Quick Add Button -->
     <button id="quickAddFAB" class="quick-add-fab" onclick="expenseTracker.openQuickAdd()" aria-label="Quick Add Expense" title="Quick Add (or shake phone)">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     </button>
 
 </body>
-</html>
