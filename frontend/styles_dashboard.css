@@ -1215,10 +1215,13 @@ h3.admin-section-label {
    ============================================================ */
 
 /* ---- NEW EXPENSE PAGE LAYOUT ---- */
-#section-expenses {
+#section-expenses.active {
     display: flex !important;
     flex-direction: column;
     gap: 12px;
+}
+#section-expenses:not(.active) {
+    display: none !important;
 }
 
 /* ROW 1: Two cards side by side */
