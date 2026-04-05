@@ -192,6 +192,8 @@ body {
     overflow-y: auto;
     background: var(--gray-50);
     padding: 32px 36px;
+    display: flex;
+    flex-direction: column;
 }
 .admin-main__header {
     display: flex;
@@ -265,8 +267,8 @@ body {
 /* ============================================================
    SECTIONS (exact admin.html copy)
    ============================================================ */
-.admin-section { display: none; animation: fadeIn 0.18s ease; }
-.admin-section.active { display: block; }
+.admin-section { display: none; animation: fadeIn 0.18s ease; width: 100%; }
+.admin-section.active { display: block; flex: 1; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
 /* ============================================================
