@@ -9,6 +9,41 @@ function switchSection(section, btn) {
     if (el) el.classList.add('active');
     // Mark the nav button as active
     if (btn) btn.classList.add('active');
+
+    // When switching to history, update stats and trigger expense load
+    if (section === 'history') {
+        updateHistoryStats();
+        // Trigger expense loading if expenseTracker is available
+        if (window.expenseTracker && typeof expenseTracker.loadExpenses === 'function') {
+            expenseTracker.loadExpenses();
+        }
+    }
+}
+
+// Update history stats from loaded expenses
+function updateHistoryStats() {
+    try {
+        const totalEl = document.getElementById('histStatTotal');
+        const amountEl = document.getElementById('histStatAmount');
+        const monthEl = document.getElementById('histStatMonth');
+        if (!totalEl) return;
+
+        // Try to get expense data from expenseTracker
+        const expenses = (window.expenseTracker && expenseTracker.expenses) || [];
+        const total = expenses.length;
+        const totalAmt = expenses.reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
+
+        // This month count
+        const now = new Date();
+        const thisMonth = expenses.filter(e => {
+            const d = new Date(e.date || e.created_at);
+            return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+        }).length;
+
+        totalEl.textContent = total;
+        amountEl.textContent = '₹' + totalAmt.toLocaleString('en-IN');
+        monthEl.textContent = thisMonth;
+    } catch(e) { /* ignore */ }
 }
 
 // ---- Premium sidebar helpers ----
