@@ -199,18 +199,18 @@
 
             <!-- EXPENSES SECTION (default active) -->
             <div class="admin-section active" id="section-expenses">
-            <!-- Section header: greeting + userInfo + search -->
+            <!-- Section header -->
             <div class="admin-main__header">
                 <div class="admin-main__header-left">
-                    <h2 id="expenseGreeting">My Expenses</h2>
-                    <p>Track, scan, and submit your reimbursements</p>
+                    <div class="admin-breadcrumb">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+                        Add Expense
+                    </div>
+                    <h2 id="expenseGreeting">Add New Expense</h2>
+                    <p>Scan a bill or enter details manually</p>
                 </div>
                 <div class="admin-main__header-right">
-                    <div id="userInfo" style="display:none; align-items:center; gap:6px;"></div>
-                    <div class="admin-search-bar">
-                        <svg class="admin-search-bar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                        <input type="text" placeholder="Search expenses..." aria-label="Search expenses" oninput="document.getElementById('searchInput') && (document.getElementById('searchInput').value = this.value, document.getElementById('searchInput').dispatchEvent(new Event('input')))">
-                    </div>
+                    <div id="userInfo" style="display:none;"></div>
                 </div>
             </div>
             <!-- Bill OCR Section -->
@@ -597,48 +597,157 @@
             <!-- ADVANCE SECTION -->
             <div class="admin-section" id="section-advance">
                 <div class="admin-main__header">
-                    <div>
+                    <div class="admin-main__header-left">
+                        <div class="admin-breadcrumb">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v20M2 12h20"/></svg>
+                            Advances
+                        </div>
                         <h2>Advance Tracker</h2>
-                        <p>Manage your advance requests and track status</p>
+                        <p>Request and track advance payments for projects</p>
+                    </div>
+                    <button class="admin-btn admin-btn--primary" id="openAdvanceModal" title="Add New Advance">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        New Advance
+                    </button>
+                </div>
+
+                <!-- Advance Stats -->
+                <div class="admin-stats-grid" id="advanceStatsGrid">
+                    <div class="admin-stat-card admin-stat-card--blue">
+                        <div class="admin-stat-card__icon admin-stat-card__icon--blue">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+                        </div>
+                        <div class="admin-stat-card__value" id="advStatTotal">0</div>
+                        <div class="admin-stat-card__label">Total Advances</div>
+                    </div>
+                    <div class="admin-stat-card admin-stat-card--amber">
+                        <div class="admin-stat-card__icon admin-stat-card__icon--amber">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        </div>
+                        <div class="admin-stat-card__value" id="advStatPending">0</div>
+                        <div class="admin-stat-card__label">Pending</div>
+                    </div>
+                    <div class="admin-stat-card admin-stat-card--green">
+                        <div class="admin-stat-card__icon admin-stat-card__icon--green">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        </div>
+                        <div class="admin-stat-card__value" id="advStatActive">0</div>
+                        <div class="admin-stat-card__label">Active</div>
                     </div>
                 </div>
-        <section class="advance-summary-section" id="advanceSummarySection" style="display: none;">
-            <div class="advance-summary-header">
-                <h3>Advance Tracker</h3>
-                <button class="btn-advance-add" id="openAdvanceModal" title="Add New Advance">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                    New Advance
-                </button>
-            </div>
-            <div class="advance-cards-container" id="advanceCardsContainer">
-                <!-- Advance cards rendered by JS -->
-            </div>
-        </section>
+
+                <section class="advance-summary-section" id="advanceSummarySection" style="display: none;">
+                    <div class="advance-cards-container" id="advanceCardsContainer">
+                        <!-- Advance cards rendered by JS -->
+                    </div>
+                </section>
+                <div class="admin-empty" id="advanceEmptyState">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="1.5" style="margin-bottom:12px;"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+                    <p>No advance requests yet. Click "New Advance" to get started.</p>
+                </div>
             </div><!-- /section-advance -->
 
             <!-- REPORTS SECTION -->
             <div class="admin-section" id="section-reports">
                 <div class="admin-main__header">
-                    <div>
-                        <h2>Reports</h2>
-                        <p>View detailed reports and analytics of your expenses</p>
+                    <div class="admin-main__header-left">
+                        <div class="admin-breadcrumb">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+                            Reports
+                        </div>
+                        <h2>Reports & Analytics</h2>
+                        <p>View detailed reports and insights on your spending</p>
                     </div>
                 </div>
-                <div style="text-align: center; padding: 40px; color: var(--gray-500);">
-                    Advanced reporting features coming soon.
+
+                <!-- Report Stats -->
+                <div class="admin-stats-grid">
+                    <div class="admin-stat-card">
+                        <div class="admin-stat-card__icon admin-stat-card__icon--default">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        </div>
+                        <div class="admin-stat-card__value" id="reportStatMonth">-</div>
+                        <div class="admin-stat-card__label">This Month</div>
+                    </div>
+                    <div class="admin-stat-card admin-stat-card--green">
+                        <div class="admin-stat-card__icon admin-stat-card__icon--green">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+                        </div>
+                        <div class="admin-stat-card__value" id="reportStatTrend">-</div>
+                        <div class="admin-stat-card__label">vs Last Month</div>
+                    </div>
+                    <div class="admin-stat-card admin-stat-card--blue">
+                        <div class="admin-stat-card__icon admin-stat-card__icon--blue">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                        </div>
+                        <div class="admin-stat-card__value" id="reportStatCategories">-</div>
+                        <div class="admin-stat-card__label">Categories Used</div>
+                    </div>
+                </div>
+
+                <div class="admin-empty" style="margin-top:8px;">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="1.5" style="margin-bottom:12px;"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+                    <p>Advanced reporting features coming soon.</p>
+                    <p style="color:#9ca3af;font-size:0.8rem;margin-top:8px;">Charts, category breakdowns, monthly trends, and export options.</p>
                 </div>
             </div><!-- /section-reports -->
 
             <!-- SETTINGS SECTION -->
             <div class="admin-section" id="section-settings">
                 <div class="admin-main__header">
-                    <div>
+                    <div class="admin-main__header-left">
+                        <div class="admin-breadcrumb">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4"/></svg>
+                            Settings
+                        </div>
                         <h2>Settings</h2>
-                        <p>Manage your preferences and account settings</p>
+                        <p>Manage your account preferences and configuration</p>
                     </div>
                 </div>
-                <div style="text-align: center; padding: 40px; color: var(--gray-500);">
-                    Settings features coming soon.
+
+                <!-- Quick Actions -->
+                <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:16px;">
+                    <!-- Profile Card -->
+                    <div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,0.06);cursor:pointer;" onclick="openProfileModal()">
+                        <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px;">
+                            <div style="width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,#374151,#111827);display:flex;align-items:center;justify-content:center;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            </div>
+                            <div>
+                                <h3 style="margin:0;font-size:0.95rem;font-weight:700;color:#111827;">Profile & Account</h3>
+                                <p style="margin:2px 0 0;font-size:0.78rem;color:#6b7280;">Name, email, password, role</p>
+                            </div>
+                        </div>
+                        <p style="font-size:0.82rem;color:#9ca3af;margin:0;">View and edit your personal information and change password.</p>
+                    </div>
+
+                    <!-- Theme Card -->
+                    <div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,0.06);cursor:pointer;" onclick="if(window.expenseTracker)expenseTracker.toggleTheme()">
+                        <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px;">
+                            <div style="width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,#374151,#111827);display:flex;align-items:center;justify-content:center;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                            </div>
+                            <div>
+                                <h3 style="margin:0;font-size:0.95rem;font-weight:700;color:#111827;">Appearance</h3>
+                                <p style="margin:2px 0 0;font-size:0.78rem;color:#6b7280;">Theme and display</p>
+                            </div>
+                        </div>
+                        <p style="font-size:0.82rem;color:#9ca3af;margin:0;">Toggle between light and dark themes.</p>
+                    </div>
+
+                    <!-- Export Card -->
+                    <div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,0.06);cursor:pointer;" onclick="document.getElementById('exportToGoogleSheets')?.click()">
+                        <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px;">
+                            <div style="width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,#374151,#111827);display:flex;align-items:center;justify-content:center;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>
+                            </div>
+                            <div>
+                                <h3 style="margin:0;font-size:0.95rem;font-weight:700;color:#111827;">Google Sheets</h3>
+                                <p style="margin:2px 0 0;font-size:0.78rem;color:#6b7280;">Export & sync</p>
+                            </div>
+                        </div>
+                        <p style="font-size:0.82rem;color:#9ca3af;margin:0;">Export your expenses to Google Sheets for backup and sharing.</p>
+                    </div>
                 </div>
             </div><!-- /section-settings -->
 
