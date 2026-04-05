@@ -172,11 +172,12 @@ body {
 
 .admin-sidebar__brand-logo {
     width: 100%;
-    max-height: 60px;
-    object-fit: contain;
+    height: 48px;
+    object-fit: cover;
+    object-position: center;
     background: #ffffff;
     border-radius: 8px;
-    padding: 8px 12px;
+    padding: 6px 10px;
     transition: opacity 0.2s;
 }
 .admin-sidebar__brand-logo:hover {
@@ -507,32 +508,36 @@ body {
     justify-content: center;
     padding: 0 4px;
 }
-/* Show email + role inline, hide name and logout (already in sidebar) */
-#userInfo { display: flex !important; align-items: center; gap: 8px; }
-#userInfo .user-info-name-row {
+/* UserInfo: single row — email | role | icons — all side by side */
+#userInfo {
     display: flex !important;
+    flex-direction: row !important;
     align-items: center;
     gap: 8px;
+    flex-wrap: nowrap;
+}
+#userInfo .user-info-name-row {
+    display: contents !important; /* Flatten into parent flex */
 }
 #userInfo .user-info-name-row .user-details {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    display: contents; /* Flatten into parent flex */
 }
 #userInfo .user-info-name-row .user-name { display: none; }
 #userInfo .user-info-name-row .user-email {
     font-size: 0.75rem;
     color: var(--gray-500);
     white-space: nowrap;
+    order: -2;
 }
 #userInfo .user-info-name-row .role-badge {
     font-size: 0.65rem;
     padding: 2px 8px;
     border-radius: 4px;
+    order: -1;
     font-weight: 700;
     white-space: nowrap;
 }
-#userInfo .user-info-content { display: flex; align-items: center; gap: 4px; }
+#userInfo .user-info-content { display: contents; /* Flatten icons into parent row */ }
 #userInfo .logout-btn { display: none; }
 
 /* Breadcrumb section label */
