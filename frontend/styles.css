@@ -13407,3 +13407,235 @@ select.inline-input option {
 [data-theme="light"] a:hover {
     color: #374151;
 }
+
+/* ============================================================
+   41. COMPREHENSIVE VISIBILITY CATCH-ALL
+   Ensures ALL buttons, close/cancel, actions are visible
+   ============================================================ */
+
+/* ALL close buttons everywhere */
+[data-theme="light"] .close,
+[data-theme="light"] .close-btn,
+[data-theme="light"] .close-modal,
+[data-theme="light"] .modal-close,
+[data-theme="light"] .btn-close,
+[data-theme="light"] [class*="__close"],
+[data-theme="light"] [class*="-close"],
+[data-theme="light"] button[aria-label="Close"],
+[data-theme="light"] .img-viewer__close {
+    color: #374151 !important;
+    opacity: 1 !important;
+    background: rgba(0,0,0,0.05) !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 8px !important;
+}
+[data-theme="light"] .close:hover,
+[data-theme="light"] .close-btn:hover,
+[data-theme="light"] .close-modal:hover,
+[data-theme="light"] .modal-close:hover,
+[data-theme="light"] [class*="__close"]:hover,
+[data-theme="light"] [class*="-close"]:hover {
+    color: #111827 !important;
+    background: #f3f4f6 !important;
+}
+
+/* ALL cancel buttons */
+[data-theme="light"] .btn-cancel,
+[data-theme="light"] .cancel-btn,
+[data-theme="light"] [class*="cancel"],
+[data-theme="light"] button[type="reset"] {
+    color: #374151 !important;
+    background: #ffffff !important;
+    border: 1px solid #d1d5db !important;
+}
+[data-theme="light"] .btn-cancel:hover,
+[data-theme="light"] .cancel-btn:hover {
+    background: #f3f4f6 !important;
+    color: #111827 !important;
+}
+
+/* ALL action icon buttons (edit, delete, download, share, email) */
+[data-theme="light"] .pdf-row-btn,
+[data-theme="light"] .expense-action-btn,
+[data-theme="light"] .action-icon-btn,
+[data-theme="light"] [class*="action"] button,
+[data-theme="light"] [class*="actions"] button {
+    color: #4b5563 !important;
+    border: 1px solid #e5e7eb !important;
+    background: #ffffff !important;
+    border-radius: 6px !important;
+}
+[data-theme="light"] .pdf-row-btn:hover,
+[data-theme="light"] .expense-action-btn:hover,
+[data-theme="light"] [class*="action"] button:hover,
+[data-theme="light"] [class*="actions"] button:hover {
+    background: #f3f4f6 !important;
+    color: #111827 !important;
+    border-color: #9ca3af !important;
+}
+
+/* ALL modal overlays - dark semi-transparent backdrop */
+[data-theme="light"] .modal-overlay,
+[data-theme="light"] .overlay,
+[data-theme="light"] [class*="overlay"]:not(.sidebar-overlay) {
+    background: rgba(0, 0, 0, 0.45) !important;
+}
+
+/* ALL modal content - white with border */
+[data-theme="light"] .modal,
+[data-theme="light"] .modal-content,
+[data-theme="light"] [class*="modal__content"],
+[data-theme="light"] [class*="-modal"] > div:first-child {
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    color: #111827 !important;
+}
+
+/* ALL modal headers */
+[data-theme="light"] .modal-header,
+[data-theme="light"] [class*="modal__header"],
+[data-theme="light"] [class*="modal__title"] {
+    color: #111827 !important;
+    border-bottom-color: #e5e7eb !important;
+}
+
+/* ALL secondary/ghost buttons */
+[data-theme="light"] .btn-ghost,
+[data-theme="light"] .btn-outline,
+[data-theme="light"] .btn-secondary {
+    color: #374151 !important;
+    border: 1px solid #d1d5db !important;
+    background: #ffffff !important;
+}
+[data-theme="light"] .btn-ghost:hover,
+[data-theme="light"] .btn-outline:hover,
+[data-theme="light"] .btn-secondary:hover {
+    background: #f3f4f6 !important;
+}
+
+/* ALL text that might be white-on-white */
+[data-theme="light"] .text-white,
+[data-theme="light"] [style*="color: white"],
+[data-theme="light"] [style*="color:#fff"],
+[data-theme="light"] [style*="color: #fff"] {
+    color: #111827 !important;
+}
+
+/* Expense item action buttons specifically */
+[data-theme="light"] .expense-item .edit-btn,
+[data-theme="light"] .expense-item .delete-btn {
+    color: #4b5563 !important;
+    border: 1px solid #e5e7eb !important;
+    background: #ffffff !important;
+    padding: 4px 8px !important;
+    border-radius: 4px !important;
+}
+[data-theme="light"] .expense-item .edit-btn:hover {
+    color: #2563eb !important;
+    border-color: #2563eb !important;
+}
+[data-theme="light"] .expense-item .delete-btn:hover {
+    color: #dc2626 !important;
+    border-color: #dc2626 !important;
+}
+
+/* Image viewer close and nav buttons */
+[data-theme="light"] .img-viewer__close,
+[data-theme="light"] .img-viewer__nav,
+[data-theme="light"] .img-viewer__btn {
+    color: #374151 !important;
+    background: rgba(255,255,255,0.9) !important;
+    border: 1px solid #d1d5db !important;
+}
+
+/* Config/settings section buttons */
+[data-theme="light"] .config-btn,
+[data-theme="light"] .settings-btn {
+    color: #374151 !important;
+    border: 1px solid #d1d5db !important;
+    background: #ffffff !important;
+}
+
+/* Advance card buttons */
+[data-theme="light"] .advance-card button,
+[data-theme="light"] .advance-actions button {
+    color: #374151 !important;
+    border: 1px solid #d1d5db !important;
+    background: #ffffff !important;
+}
+
+/* WhatsApp and share buttons */
+[data-theme="light"] .whatsapp-btn,
+[data-theme="light"] .share-btn {
+    color: #374151 !important;
+    border: 1px solid #d1d5db !important;
+}
+
+/* Dropdown menus */
+[data-theme="light"] .dropdown-menu,
+[data-theme="light"] .context-menu {
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+}
+[data-theme="light"] .dropdown-item,
+[data-theme="light"] .context-menu-item {
+    color: #374151 !important;
+}
+[data-theme="light"] .dropdown-item:hover,
+[data-theme="light"] .context-menu-item:hover {
+    background: #f3f4f6 !important;
+}
+
+/* FAB buttons */
+[data-theme="light"] .fab-btn,
+[data-theme="light"] .quick-add-fab {
+    background: #111827 !important;
+    color: #ffffff !important;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+}
+
+/* Notification badges */
+[data-theme="light"] .badge,
+[data-theme="light"] .notification-badge {
+    background: #ef4444 !important;
+    color: #ffffff !important;
+}
+
+/* ALL SVG icons in buttons — ensure dark color */
+[data-theme="light"] button svg,
+[data-theme="light"] .btn svg,
+[data-theme="light"] a svg {
+    color: currentColor !important;
+    stroke: currentColor !important;
+}
+
+/* Tabs and tab buttons */
+[data-theme="light"] .tab-btn,
+[data-theme="light"] .tab-button {
+    color: #6b7280 !important;
+    border-bottom: 2px solid transparent !important;
+}
+[data-theme="light"] .tab-btn.active,
+[data-theme="light"] .tab-button.active {
+    color: #111827 !important;
+    border-bottom-color: #111827 !important;
+}
+
+/* Chips and tags */
+[data-theme="light"] .chip,
+[data-theme="light"] .tag,
+[data-theme="light"] .filter-chip {
+    background: #f3f4f6 !important;
+    color: #374151 !important;
+    border: 1px solid #e5e7eb !important;
+}
+
+/* Progress bars */
+[data-theme="light"] .progress-bar {
+    background: #e5e7eb !important;
+}
+[data-theme="light"] .progress-fill {
+    background: #111827 !important;
+}
