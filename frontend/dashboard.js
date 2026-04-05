@@ -28,14 +28,22 @@ function updateSidebarAvatar() {
     }
 }
 
-// Time-of-day greeting
+// Time-of-day greeting — pulls name from sidebar OR localStorage
 function updateExpenseGreeting() {
     const greetingEl = document.getElementById('expenseGreeting');
     if (!greetingEl) return;
+    // Try sidebar first, fall back to localStorage
     const nameEl = document.getElementById('sidebarUserName');
-    const name = (nameEl && nameEl.textContent.trim() && nameEl.textContent.trim() !== 'User')
-        ? ', ' + nameEl.textContent.split(' ')[0]
+    let userName = (nameEl && nameEl.textContent.trim() && nameEl.textContent.trim() !== 'User')
+        ? nameEl.textContent.split(' ')[0]
         : '';
+    if (!userName) {
+        try {
+            const stored = JSON.parse(localStorage.getItem('user') || '{}');
+            userName = stored.name ? stored.name.split(' ')[0] : '';
+        } catch(e) {}
+    }
+    const name = userName ? ', ' + userName : '';
     const hour = new Date().getHours();
     let tod;
     if (hour < 12) tod = 'Good morning';
