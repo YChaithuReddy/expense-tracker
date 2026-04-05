@@ -163,7 +163,7 @@
             <div id="appHeaderBar" style="
                 background: linear-gradient(135deg, #1a2332 0%, #2a3a4e 30%, #1e3045 60%, #1a2332 100%);
                 padding: 24px 32px;
-                display: flex;
+                display: none;
                 align-items: center;
                 justify-content: space-between;
                 flex-wrap: wrap;
@@ -229,16 +229,16 @@
                     </div>
                 </div>
 
-                <h2>📷 Scan Your Bill</h2>
+                <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>Scan Your Bill</h2>
                 <p>Upload bill images to automatically extract expense details</p>
 
                 <div class="form-group">
                     <div style="display: flex; gap: 10px;">
                         <button type="button" id="cameraBtn" class="btn-secondary" style="flex: 1;">
-                            📷 Camera
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg> Camera
                         </button>
                         <button type="button" id="galleryBtn" class="btn-secondary" style="flex: 1;">
-                            🖼️ Gallery
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> Gallery
                         </button>
                     </div>
                     <!-- Hidden inputs for camera and gallery -->
@@ -415,7 +415,7 @@
 
                     <div class="form-actions">
                         <button type="button" id="backToScan" class="btn-secondary">← Back to Scan</button>
-                        <button type="submit" class="btn-primary">✅ Confirm & Add Expense</button>
+                        <button type="submit" class="btn-primary"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Confirm & Add Expense</button>
                     </div>
                 </form>
             </section>
@@ -426,20 +426,20 @@
                     <h2>Your Expenses</h2>
                     <div class="action-buttons">
                         <button id="exportToGoogleSheets" class="btn-primary">
-                            <span class="btn-icon">☁️</span>
+                            <span class="btn-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg></span>
                             <span class="btn-text">Google Export</span>
                         </button>
                         <button id="viewGoogleSheet" class="btn-secondary" style="display: none;">
-                            <span class="btn-icon">🔗</span>
+                            <span class="btn-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
                             <span class="btn-text">View Sheet</span>
                         </button>
                         <button id="viewSavedImages" class="btn-secondary btn-view-images-premium">
-                            <span class="btn-icon">🖼️</span>
+                            <span class="btn-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></span>
                             <span class="btn-text">View Images</span>
                         </button>
                         <!-- Premium Clear Data Modal -->
                         <button class="btn-danger btn-clear-data-premium" id="clearDataBtn">
-                            <span class="btn-icon">🗑️</span>
+                            <span class="btn-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></span>
                             <span class="btn-text">Clear Data</span>
                         </button>
 
@@ -462,11 +462,11 @@
                         </button>
                         <!-- Submit for Approval is now integrated into the Submit Wizard -->
                         <button id="resetGoogleSheet" class="btn-reset">
-                            <span class="btn-icon">🔄</span>
+                            <span class="btn-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg></span>
                             <span class="btn-text">Reset Sheet</span>
                         </button>
                         <button id="pdfLibraryBtn" class="btn-pdf-library" onclick="pdfLibrary.openLibrary()" title="PDF Library">
-                            <span class="btn-icon">📄</span>
+                            <span class="btn-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
                             <span class="btn-text">PDF Library</span>
                         </button>
                     </div>
