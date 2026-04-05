@@ -154,6 +154,23 @@
             border-radius: 8px;
             opacity: 0.95;
         }
+        .admin-sidebar__brand-mark {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+        .admin-sidebar__brand-logo {
+            height: 32px;
+            width: auto;
+            object-fit: contain;
+            filter: brightness(0) invert(1);
+            opacity: 0.9;
+            transition: opacity 0.2s;
+        }
+        .admin-sidebar__brand-logo:hover {
+            opacity: 1;
+        }
         .admin-sidebar__logo h1 {
             font-size: 0.875rem;
             font-weight: 700;
@@ -1373,11 +1390,9 @@
         <!-- Sidebar -->
         <aside class="admin-sidebar">
             <div class="admin-sidebar__logo">
-                <img src="fluxgen-logo.jpg" alt="FluxGen" style="width:100%;object-fit:contain;margin-bottom:8px;border-radius:6px;">
-                <h1>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                    <span>Expense Tracker</span>
-                </h1>
+                <div class="admin-sidebar__brand-mark">
+                    <img src="fluxgen-logo.jpg" alt="FluxGen" class="admin-sidebar__brand-logo">
+                </div>
                 <small id="orgName">Loading...</small>
                 <span class="sidebar-role-badge">Accountant</span>
             </div>
