@@ -209,170 +209,184 @@
                     <div id="userInfo" style="display:none;"></div>
                 </div>
             </div>
-            <!-- Bill OCR Section -->
-            <section id="ocrSection" class="ocr-section ocr-dropzone">
-                <!-- Drag overlay shown when dragging files over the card -->
-                <div class="ocr-drag-overlay" id="ocrDragOverlay">
-                    <div class="ocr-drag-overlay__content">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                            <polyline points="7 10 12 15 17 10"/>
-                            <line x1="12" y1="15" x2="12" y2="3"/>
-                        </svg>
-                        <div class="ocr-drag-overlay__text">Drop receipt images or PDFs here</div>
-                    </div>
-                </div>
 
-                <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>Scan Your Bill</h2>
-                <p>Upload bill images to automatically extract expense details</p>
-
-                <div class="form-group">
-                    <div style="display: flex; gap: 10px;">
-                        <button type="button" id="cameraBtn" class="btn-secondary" style="flex: 1;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg> Camera
-                        </button>
-                        <button type="button" id="galleryBtn" class="btn-secondary" style="flex: 1;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> Gallery
-                        </button>
-                    </div>
-                    <!-- Hidden inputs for camera and gallery -->
-                    <input type="file" id="cameraInput" name="cameraInput" accept="image/*" capture="environment" style="display: none;" multiple>
-                    <input type="file" id="galleryInput" name="galleryInput" accept="image/*,.pdf,application/pdf" style="display: none;" multiple>
-                    <!-- Original hidden input for compatibility -->
-                    <input type="file" id="billImages" name="billImages" accept="image/*,.pdf,application/pdf" style="display: none;" multiple>
-                    <small style="text-align: center; display: block; margin-top: 4px; font-size: 0.72rem;">Drag & drop anywhere on this card, use camera, or select from gallery</small>
-                </div>
-
-                <!-- Image preview / drag-drop hint -->
-                <div id="imagePreview" class="image-preview-container drag-drop-zone">
-                    <div id="dragDropHint" class="drag-drop-hint">
-                        <div class="drag-drop-text">Drag & Drop Receipt Images Here</div>
-                        <div class="drag-drop-subtext">or click to browse files</div>
-                    </div>
-                </div>
-
-                <button type="button" id="scanBills" class="btn-primary" style="display: none;">
-                    <span id="scanText">🔍 Scan Bills</span>
-                    <span id="scanProgress" style="display: none;">Processing... <span id="progressText">0%</span></span>
-                </button>
-
-                <div style="text-align: center; margin-top: 8px;">
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-                        <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
-                        <span style="color: var(--text-secondary); font-size: 0.78rem;">OR</span>
-                        <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
-                    </div>
-                    <button type="button" id="skipToManualEntry" class="btn-secondary" style="width: 100%;">
-                        ✍️ Enter Expense Manually (Without Bill)
-                    </button>
-                    <small style="display: block; margin-top: 6px; color: var(--text-secondary);">
-                        Perfect for cash payments or when you don't have a receipt
-                    </small>
-                </div>
-
-                <!-- UPI Import Section (Hidden by default) -->
-                <div class="upi-import-section" id="upiImportSection" style="display: none;">
-                    <div class="upi-import-header">
-                        <div class="upi-import-title">
-                            <span style="font-size: 24px;">📱</span>
-                            <h3 style="margin: 0;">Import from UPI App</h3>
+            <!-- ROW 1: Scan Receipt (left) + Enter Manually (right) -->
+            <div class="exp-top-row">
+                <!-- LEFT: Scan Receipt -->
+                <section id="ocrSection" class="exp-card exp-card--scan ocr-section ocr-dropzone">
+                    <!-- Drag overlay -->
+                    <div class="ocr-drag-overlay" id="ocrDragOverlay">
+                        <div class="ocr-drag-overlay__content">
+                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            <div class="ocr-drag-overlay__text">Drop receipt images or PDFs here</div>
                         </div>
-                        <button class="upi-close-btn" id="upiCloseBtn" title="Close">&times;</button>
                     </div>
-                    <div class="upi-apps-grid">
-                        <button class="upi-app-btn" id="gpayBtn">
-                            <span class="upi-app-icon">💳</span>
-                            <span class="upi-app-name">Google Pay</span>
-                        </button>
-                        <button class="upi-app-btn" id="phonepeBtn">
-                            <span class="upi-app-icon">📱</span>
-                            <span class="upi-app-name">PhonePe</span>
-                        </button>
-                        <button class="upi-app-btn" id="paytmBtn">
-                            <span class="upi-app-icon">💰</span>
-                            <span class="upi-app-name">Paytm</span>
-                        </button>
-                    </div>
-                    <div class="upi-import-hint">
-                        <strong>How it works:</strong> Tap an app to open it, go to payment history, take a screenshot, then come back and scan it using the Camera/Gallery buttons above.
-                    </div>
-                </div>
-            </section>
 
-            <!-- Expense Entry Form -->
-            <section class="expense-form-section" id="expenseFormSection" style="display: none;">
-                <h2>✏️ Review & Edit Details</h2>
+                    <div class="exp-card__icon exp-card__icon--blue">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                    </div>
+                    <h3 class="exp-card__title">Scan Receipt</h3>
+                    <p class="exp-card__desc">Take a photo or upload a bill image to auto-extract details</p>
+
+                    <div class="exp-card__buttons">
+                        <button type="button" id="cameraBtn" class="exp-btn exp-btn--dark">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                            Camera
+                        </button>
+                        <button type="button" id="galleryBtn" class="exp-btn exp-btn--outline">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                            Gallery
+                        </button>
+                    </div>
+                    <!-- Hidden file inputs -->
+                    <input type="file" id="cameraInput" name="cameraInput" accept="image/*" capture="environment" style="display:none;" multiple>
+                    <input type="file" id="galleryInput" name="galleryInput" accept="image/*,.pdf,application/pdf" style="display:none;" multiple>
+                    <input type="file" id="billImages" name="billImages" accept="image/*,.pdf,application/pdf" style="display:none;" multiple>
+
+                    <!-- Drop zone -->
+                    <div id="imagePreview" class="image-preview-container drag-drop-zone exp-dropzone">
+                        <div id="dragDropHint" class="drag-drop-hint">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            <div class="drag-drop-text">Drop files here</div>
+                            <div class="drag-drop-subtext">or click to browse</div>
+                        </div>
+                    </div>
+
+                    <button type="button" id="scanBills" class="btn-primary" style="display:none;width:100%;">
+                        <span id="scanText">Scan Bills</span>
+                        <span id="scanProgress" style="display:none;">Processing... <span id="progressText">0%</span></span>
+                    </button>
+
+                    <!-- UPI Import Section (Hidden) -->
+                    <div class="upi-import-section" id="upiImportSection" style="display:none;">
+                        <div class="upi-import-header">
+                            <div class="upi-import-title">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                                <h3 style="margin:0;font-size:0.9rem;">Import from UPI App</h3>
+                            </div>
+                            <button class="upi-close-btn" id="upiCloseBtn" title="Close">&times;</button>
+                        </div>
+                        <div class="upi-apps-grid">
+                            <button class="upi-app-btn" id="gpayBtn"><span class="upi-app-name">Google Pay</span></button>
+                            <button class="upi-app-btn" id="phonepeBtn"><span class="upi-app-name">PhonePe</span></button>
+                            <button class="upi-app-btn" id="paytmBtn"><span class="upi-app-name">Paytm</span></button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- RIGHT: Enter Manually -->
+                <div class="exp-card exp-card--manual">
+                    <div class="exp-card__icon exp-card__icon--green">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    </div>
+                    <h3 class="exp-card__title">Enter Manually</h3>
+                    <p class="exp-card__desc">Add expense details without a receipt — perfect for cash payments</p>
+                    <button type="button" id="skipToManualEntry" class="exp-link">Start entry <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
+                </div>
+            </div>
+
+            <!-- ROW 2: Submit Reimbursement (full width) -->
+            <button id="downloadReimbursementPackage" class="exp-submit-bar">
+                <span class="exp-submit-bar__icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                </span>
+                <span class="exp-submit-bar__text">
+                    <strong>Submit Reimbursement</strong>
+                    <small>Package &amp; send for approval</small>
+                </span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="exp-submit-bar__arrow"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+
+            <!-- ROW 3: Action cards (4 columns) -->
+            <div class="exp-actions-row">
+                <button id="exportToGoogleSheets" class="exp-action-card">
+                    <span class="exp-action-card__icon exp-action-card__icon--teal">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>
+                    </span>
+                    <span class="exp-action-card__label">Export</span>
+                    <span class="exp-action-card__sub">Google Sheets</span>
+                </button>
+                <button id="viewSavedImages" class="exp-action-card">
+                    <span class="exp-action-card__icon exp-action-card__icon--purple">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    </span>
+                    <span class="exp-action-card__label">Images</span>
+                    <span class="exp-action-card__sub">Saved Bills</span>
+                </button>
+                <button id="pdfLibraryBtn" class="exp-action-card" onclick="pdfLibrary.openLibrary()">
+                    <span class="exp-action-card__icon exp-action-card__icon--amber">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    </span>
+                    <span class="exp-action-card__label">PDF Library</span>
+                    <span class="exp-action-card__sub">Documents</span>
+                </button>
+                <button id="clearDataBtn" class="exp-action-card exp-action-card--danger">
+                    <span class="exp-action-card__icon exp-action-card__icon--red">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                    </span>
+                    <span class="exp-action-card__label">Clear Data</span>
+                    <span class="exp-action-card__sub">Remove All</span>
+                </button>
+            </div>
+
+            <!-- Hidden buttons for JS compatibility -->
+            <div style="display:none;">
+                <button id="viewGoogleSheet"></button>
+                <button id="resetGoogleSheet"></button>
+            </div>
+
+            <!-- Expense Entry Form (hidden, shown after scan/manual) -->
+            <section class="expense-form-section" id="expenseFormSection" style="display:none;">
+                <h2>Review &amp; Edit Details</h2>
                 <p>Verify the extracted information and make corrections if needed</p>
                 <form id="expenseForm">
                     <div class="form-group date-input-wrapper">
                         <label for="date">Date:</label>
-                        <div style="position: relative;">
+                        <div style="position:relative;">
                             <input type="date" id="date" name="date" placeholder="Click to select date" required>
-                            <svg class="custom-calendar-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                <line x1="16" y1="2" x2="16" y2="6"></line>
-                                <line x1="8" y1="2" x2="8" y2="6"></line>
-                                <line x1="3" y1="10" x2="21" y2="10"></line>
-                            </svg>
+                            <svg class="custom-calendar-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                         </div>
                     </div>
-
                     <div class="form-group">
                         <label for="mainCategory">Main Category:</label>
                         <select id="mainCategory" name="mainCategory" class="category-select" required>
                             <option value="">Select Main Category</option>
-                            <option value="Transportation">🚗 Transportation</option>
-                            <option value="Local Conveyance">🛺 Local Conveyance</option>
-                            <option value="Mileage">📏 Mileage</option>
-                            <option value="Accommodation">🏨 Accommodation</option>
-                            <option value="Meals">🍽️ Meals</option>
-                            <option value="Business Meal (Client)">🤝 Business Meal (Client)</option>
-                            <option value="Own Arrangement">🏠 Own Arrangement</option>
-                            <option value="Fuel">⛽ Fuel</option>
-                            <option value="Miscellaneous">📦 Miscellaneous</option>
-                            <option value="Others">✨ Others</option>
+                            <option value="Transportation">Transportation</option>
+                            <option value="Local Conveyance">Local Conveyance</option>
+                            <option value="Mileage">Mileage</option>
+                            <option value="Accommodation">Accommodation</option>
+                            <option value="Meals">Meals</option>
+                            <option value="Business Meal (Client)">Business Meal (Client)</option>
+                            <option value="Own Arrangement">Own Arrangement</option>
+                            <option value="Fuel">Fuel</option>
+                            <option value="Miscellaneous">Miscellaneous</option>
+                            <option value="Others">Others</option>
                         </select>
                     </div>
-
-                    <div class="form-group" id="subcategoryGroup" style="display: none;">
+                    <div class="form-group" id="subcategoryGroup" style="display:none;">
                         <label for="subcategory">Subcategory:</label>
-                        <select id="subcategory" name="subcategory" class="category-select">
-                            <option value="">Select Subcategory</option>
-                        </select>
+                        <select id="subcategory" name="subcategory" class="category-select"><option value="">Select Subcategory</option></select>
                     </div>
-
-                    <!-- Custom text input for "Others" category -->
-                    <div class="form-group" id="customCategoryGroup" style="display: none;">
+                    <div class="form-group" id="customCategoryGroup" style="display:none;">
                         <label for="customCategory">Specify Category:</label>
                         <input type="text" id="customCategory" name="customCategory" class="category-select" placeholder="Enter custom category">
-                        <small>Enter a custom category description</small>
                     </div>
-
-                    <!-- Hidden field to store combined category -->
                     <input type="hidden" id="category" name="category">
-
                     <div class="form-group">
                         <label for="description">Description:</label>
                         <input type="text" id="description" name="description" placeholder="Brief description of expense" required>
                     </div>
-
                     <div class="form-group">
                         <label for="amount">Amount (₹):</label>
                         <input type="number" id="amount" name="amount" step="0.01" placeholder="0.00" required>
                     </div>
-
-                    <!-- Company mode: searchable project dropdown -->
                     <div class="form-group" id="projectDropdownContainer" style="display:none;">
                         <label>Project:</label>
-                        <!-- Populated by project-dropdown.js -->
                     </div>
-
-                    <!-- Personal mode: free-text vendor input -->
                     <div class="form-group">
                         <label for="vendor">Project Name:</label>
                         <input type="text" id="vendor" name="vendor" placeholder="Enter project name">
                     </div>
-
                     <div class="form-group" id="expenseVisitTypeGroup">
                         <label>Visit Type:</label>
                         <div class="visit-type-toggle" id="expenseVisitType">
@@ -381,8 +395,6 @@
                             <button type="button" class="visit-type-btn visit-type-btn--survey" data-type="survey">Survey</button>
                         </div>
                     </div>
-
-                    <!-- Payment Mode Toggle -->
                     <div class="form-group" id="paymentModeGroup">
                         <label>Payment Mode:</label>
                         <div class="visit-type-toggle" id="paymentModeToggle">
@@ -391,8 +403,6 @@
                             <button type="button" class="visit-type-btn visit-type-btn--upi" data-type="upi">UPI</button>
                         </div>
                     </div>
-
-                    <!-- Bill Attached Toggle (hidden — auto-detected from receipt upload) -->
                     <div class="form-group" id="billAttachedGroup" style="display:none;">
                         <label>Bill Attached:</label>
                         <div class="visit-type-toggle" id="billAttachedToggle">
@@ -400,71 +410,16 @@
                             <button type="button" class="visit-type-btn visit-type-btn--bill-no" data-type="no">No</button>
                         </div>
                     </div>
-
                     <div class="form-group">
                         <label for="receipt">Receipt/Bill Image (Optional):</label>
                         <input type="file" id="receipt" name="receipt" accept="image/*,.pdf,application/pdf" multiple>
                         <small>You can attach receipt images later or leave empty for manual entries</small>
                     </div>
-
                     <div class="form-actions">
                         <button type="button" id="backToScan" class="btn-secondary">← Back to Scan</button>
-                        <button type="submit" class="btn-primary"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Confirm & Add Expense</button>
+                        <button type="submit" class="btn-primary">Confirm &amp; Add Expense</button>
                     </div>
                 </form>
-            </section>
-
-            <!-- Expenses List -->
-            <section class="expenses-list-section">
-                <div class="section-header">
-                    <h2>Your Expenses</h2>
-                    <div class="action-buttons">
-                        <button id="exportToGoogleSheets" class="btn-primary">
-                            <span class="btn-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg></span>
-                            <span class="btn-text">Google Export</span>
-                        </button>
-                        <button id="viewGoogleSheet" class="btn-secondary" style="display: none;">
-                            <span class="btn-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
-                            <span class="btn-text">View Sheet</span>
-                        </button>
-                        <button id="viewSavedImages" class="btn-secondary btn-view-images-premium">
-                            <span class="btn-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></span>
-                            <span class="btn-text">View Images</span>
-                        </button>
-                        <!-- Premium Clear Data Modal -->
-                        <button class="btn-danger btn-clear-data-premium" id="clearDataBtn">
-                            <span class="btn-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></span>
-                            <span class="btn-text">Clear Data</span>
-                        </button>
-
-                        <button id="downloadReimbursementPackage" class="btn-highlight">
-                            <span class="btn-highlight__icon-wrap">
-                                <svg class="btn-highlight__svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <line x1="22" y1="2" x2="11" y2="13"/>
-                                    <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-                                </svg>
-                            </span>
-                            <span class="btn-highlight__content">
-                                <span class="btn-highlight__label">Submit</span>
-                                <span class="btn-highlight__sub">Reimbursement Package</span>
-                            </span>
-                            <span class="btn-highlight__arrow">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                    <polyline points="9 18 15 12 9 6"/>
-                                </svg>
-                            </span>
-                        </button>
-                        <!-- Submit for Approval is now integrated into the Submit Wizard -->
-                        <button id="resetGoogleSheet" class="btn-reset">
-                            <span class="btn-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg></span>
-                            <span class="btn-text">Reset Sheet</span>
-                        </button>
-                        <button id="pdfLibraryBtn" class="btn-pdf-library" onclick="pdfLibrary.openLibrary()" title="PDF Library">
-                            <span class="btn-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
-                            <span class="btn-text">PDF Library</span>
-                        </button>
-                    </div>
-                </div>
             </section>
 
             </div><!-- /section-expenses -->
