@@ -125,6 +125,10 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
                     <span>Expenses</span>
                 </button>
+                <button class="admin-nav-item" data-section="history" onclick="switchSection('history', this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <span>History</span>
+                </button>
                 <button class="admin-nav-item" data-section="advance" onclick="switchSection('advance', this)">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>
                     <span>Advance</span>
@@ -467,89 +471,128 @@
                 </div>
             </section>
 
-            <!-- Expense History: Search, Filters, Items, Pagination, Total -->
-            <section class="expenses-fullwidth-section">
-                <div class="select-all-container" id="selectAllContainer" style="display: none;">
-                    <label class="select-all-label">
-                        <input type="checkbox" id="selectAllCheckbox" class="select-all-checkbox">
-                        <span class="select-all-text">Select All</span>
-                    </label>
+            </div><!-- /section-expenses -->
+
+            <!-- HISTORY SECTION — Dedicated expense history view -->
+            <div class="admin-section" id="section-history">
+                <div class="admin-main__header">
+                    <div class="admin-main__header-left">
+                        <div class="admin-breadcrumb">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            History
+                        </div>
+                        <h2>Expense History</h2>
+                        <p>View, search, and filter all your submitted expenses</p>
+                    </div>
                 </div>
 
-                <!-- Search and Filter -->
-                <div class="search-filter-container hidden" id="searchFilterContainer">
-                    <div class="search-bar" id="searchBarWrapper">
-                        <svg class="search-icon clean" width="20" height="20" viewBox="0 0 24 24" fill="none">
-                            <path d="M21 21l-5.2-5.2m0 0A7.5 7.5 0 105.8 15.8l5.2 5.2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                        </svg>
-                        <input type="text" id="searchInput" class="search-input clean" placeholder="Search by project, description, or category..." aria-label="Search">
-                        <button id="clearSearch" class="clear-search-btn" style="display: none;">✕</button>
-                        <button id="expandFiltersBtn" class="expand-filters-btn" aria-label="Expand filters">
-                            <span class="expand-icon">▼</span>
-                        </button>
+                <!-- Stats summary cards -->
+                <div class="admin-stats-grid" id="historyStats">
+                    <div class="admin-stat-card">
+                        <div class="admin-stat-card__icon admin-stat-card__icon--blue">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        </div>
+                        <div class="admin-stat-card__value" id="histStatTotal">0</div>
+                        <div class="admin-stat-card__label">Total Expenses</div>
                     </div>
-                    <div class="filters-wrapper collapsed" id="filtersWrapper">
-                        <div class="filter-row">
-                            <select id="projectFilter" class="filter-select">
-                                <option value="">All Projects</option>
-                            </select>
-                            <select id="categoryFilter" class="filter-select">
-                                <option value="">All Categories</option>
-                            </select>
-                            <select id="visitTypeFilter" class="filter-select">
-                                <option value="">All Types</option>
-                                <option value="project">Project</option>
-                                <option value="service">Service</option>
-                                <option value="survey">Survey</option>
-                            </select>
-                            <div class="date-input-wrapper">
-                                <label for="dateFromFilter" class="date-label">From Date</label>
-                                <input type="date" id="dateFromFilter" class="filter-date">
+                    <div class="admin-stat-card admin-stat-card--green">
+                        <div class="admin-stat-card__icon admin-stat-card__icon--green">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+                        </div>
+                        <div class="admin-stat-card__value" id="histStatAmount">₹0</div>
+                        <div class="admin-stat-card__label">Total Amount</div>
+                    </div>
+                    <div class="admin-stat-card admin-stat-card--amber">
+                        <div class="admin-stat-card__icon admin-stat-card__icon--amber">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        </div>
+                        <div class="admin-stat-card__value" id="histStatMonth">0</div>
+                        <div class="admin-stat-card__label">This Month</div>
+                    </div>
+                </div>
+
+                <!-- Filter bar — admin-style -->
+                <div class="expenses-fullwidth-section" style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+                    <div class="select-all-container" id="selectAllContainer" style="display: none;">
+                        <label class="select-all-label">
+                            <input type="checkbox" id="selectAllCheckbox" class="select-all-checkbox">
+                            <span class="select-all-text">Select All</span>
+                        </label>
+                    </div>
+
+                    <!-- Search and Filter -->
+                    <div class="search-filter-container hidden" id="searchFilterContainer">
+                        <div class="search-bar" id="searchBarWrapper">
+                            <svg class="search-icon clean" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                <path d="M21 21l-5.2-5.2m0 0A7.5 7.5 0 105.8 15.8l5.2 5.2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            <input type="text" id="searchInput" class="search-input clean" placeholder="Search by project, description, or category..." aria-label="Search">
+                            <button id="clearSearch" class="clear-search-btn" style="display: none;">✕</button>
+                            <button id="expandFiltersBtn" class="expand-filters-btn" aria-label="Expand filters">
+                                <span class="expand-icon">▼</span>
+                            </button>
+                        </div>
+                        <div class="filters-wrapper collapsed" id="filtersWrapper">
+                            <div class="filter-row">
+                                <select id="projectFilter" class="filter-select">
+                                    <option value="">All Projects</option>
+                                </select>
+                                <select id="categoryFilter" class="filter-select">
+                                    <option value="">All Categories</option>
+                                </select>
+                                <select id="visitTypeFilter" class="filter-select">
+                                    <option value="">All Types</option>
+                                    <option value="project">Project</option>
+                                    <option value="service">Service</option>
+                                    <option value="survey">Survey</option>
+                                </select>
+                                <div class="date-input-wrapper">
+                                    <label for="dateFromFilter" class="date-label">From Date</label>
+                                    <input type="date" id="dateFromFilter" class="filter-date">
+                                </div>
+                                <div class="date-input-wrapper">
+                                    <label for="dateToFilter" class="date-label">To Date</label>
+                                    <input type="date" id="dateToFilter" class="filter-date">
+                                </div>
+                                <button id="resetFilters" class="reset-filters-btn">Reset Filters</button>
                             </div>
-                            <div class="date-input-wrapper">
-                                <label for="dateToFilter" class="date-label">To Date</label>
-                                <input type="date" id="dateToFilter" class="filter-date">
-                            </div>
-                            <button id="resetFilters" class="reset-filters-btn">Reset Filters</button>
+                        </div>
+                        <div id="searchResults" class="search-results-info" style="display: none;"></div>
+                    </div>
+
+                    <div id="expensesList" class="expenses-container">
+                        <!-- Expenses will be displayed here -->
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="pagination-container" id="paginationContainer" style="display: none;">
+                        <div class="pagination-info">
+                            <span id="paginationInfo">Showing 1-10 of 100 expenses</span>
+                        </div>
+                        <div class="pagination-controls">
+                            <button id="prevPage" class="pagination-btn" disabled>
+                                <span class="btn-text-full">← Previous</span>
+                                <span class="btn-text-short">←</span>
+                            </button>
+                            <select id="pageSize" class="page-size-select">
+                                <option value="10">10 per page</option>
+                                <option value="25" selected>25 per page</option>
+                                <option value="50">50 per page</option>
+                                <option value="100">100 per page</option>
+                                <option value="all">Show All</option>
+                            </select>
+                            <button id="nextPage" class="pagination-btn">
+                                <span class="btn-text-full">Next →</span>
+                                <span class="btn-text-short">→</span>
+                            </button>
                         </div>
                     </div>
-                    <div id="searchResults" class="search-results-info" style="display: none;"></div>
-                </div>
 
-                <div id="expensesList" class="expenses-container">
-                    <!-- Expenses will be displayed here -->
-                </div>
-
-                <!-- Pagination -->
-                <div class="pagination-container" id="paginationContainer" style="display: none;">
-                    <div class="pagination-info">
-                        <span id="paginationInfo">Showing 1-10 of 100 expenses</span>
-                    </div>
-                    <div class="pagination-controls">
-                        <button id="prevPage" class="pagination-btn" disabled>
-                            <span class="btn-text-full">← Previous</span>
-                            <span class="btn-text-short">←</span>
-                        </button>
-                        <select id="pageSize" class="page-size-select">
-                            <option value="10">10 per page</option>
-                            <option value="25" selected>25 per page</option>
-                            <option value="50">50 per page</option>
-                            <option value="100">100 per page</option>
-                            <option value="all">Show All</option>
-                        </select>
-                        <button id="nextPage" class="pagination-btn">
-                            <span class="btn-text-full">Next →</span>
-                            <span class="btn-text-short">→</span>
-                        </button>
+                    <div id="totalAmount" class="total-section">
+                        <strong>Total Amount: ₹0.00</strong>
                     </div>
                 </div>
-
-                <div id="totalAmount" class="total-section">
-                    <strong>Total Amount: ₹0.00</strong>
-                </div>
-            </section>
-
-            </div><!-- /section-expenses -->
+            </div><!-- /section-history -->
 
             <!-- ADVANCE SECTION -->
             <div class="admin-section" id="section-advance">
