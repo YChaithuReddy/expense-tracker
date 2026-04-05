@@ -1201,8 +1201,9 @@
 }
 
 /* ---- Library Overlay ---- */
-[data-theme="light"] .pdfs-library-overlay {
-    background: #f9fafb;
+[data-theme="light"] .pdfs-library-overlay,
+.pdfs-library-overlay {
+    background: #ffffff !important;
 }
 
 /* ---- Library Header ---- */
