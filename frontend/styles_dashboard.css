@@ -1214,52 +1214,257 @@ h3.admin-section-label {
    Section wrappers styled as premium white cards
    ============================================================ */
 
-/* Two-column grid: Scan Bill (left) + Your Expenses (right) */
+/* ---- NEW EXPENSE PAGE LAYOUT ---- */
 #section-expenses {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    display: flex !important;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* ROW 1: Two cards side by side */
+.exp-top-row {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: 12px;
     align-items: stretch;
 }
-/* Header spans full width */
-#section-expenses > .admin-main__header {
-    grid-column: 1 / -1;
-}
-/* Expense form and full-width sections span both columns */
-#section-expenses > .expense-form-section,
-#section-expenses > .expenses-fullwidth-section {
-    grid-column: 1 / -1;
-}
 
-/* OCR section */
-#section-expenses .ocr-section {
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-lg);
-    padding: 18px;
-    box-shadow: var(--shadow-sm);
+/* Card base */
+.exp-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 20px 22px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    display: flex;
+    flex-direction: column;
     transition: box-shadow 0.2s;
-    align-self: stretch;
 }
-#section-expenses .ocr-section:hover { box-shadow: var(--shadow-md); }
+.exp-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
 
-/* Expense form card */
+/* Card icon badge */
+.exp-card__icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+    flex-shrink: 0;
+}
+.exp-card__icon--blue  { background: #eff6ff; color: #2563eb; }
+.exp-card__icon--blue svg  { stroke: #2563eb; }
+.exp-card__icon--green { background: #ecfdf5; color: #059669; }
+.exp-card__icon--green svg { stroke: #059669; }
+
+.exp-card__title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 4px;
+}
+.exp-card__desc {
+    font-size: 0.78rem;
+    color: #6b7280;
+    margin: 0 0 14px;
+    line-height: 1.4;
+}
+
+/* Camera / Gallery buttons */
+.exp-card__buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.exp-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: none;
+    font-family: var(--font);
+}
+.exp-btn--dark {
+    background: #111827;
+    color: #ffffff;
+}
+.exp-btn--dark:hover { background: #1f2937; }
+.exp-btn--outline {
+    background: #ffffff;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+}
+.exp-btn--outline:hover { background: #f9fafb; border-color: #d1d5db; }
+
+/* Drop zone inside scan card */
+.exp-dropzone {
+    border: 1.5px dashed #d1d5db !important;
+    border-radius: 10px !important;
+    background: #f9fafb !important;
+    padding: 20px 16px !important;
+    text-align: center;
+    flex: 1;
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+.exp-dropzone:hover {
+    border-color: #9ca3af !important;
+    background: #f3f4f6 !important;
+}
+
+/* Manual entry link */
+.exp-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: #111827;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    margin-top: auto;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    font-family: var(--font);
+}
+.exp-link:hover { color: #374151; }
+
+/* ROW 2: Submit Reimbursement bar */
+.exp-submit-bar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 22px;
+    background: linear-gradient(135deg, #111827 0%, #1f2937 50%, #111827 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    font-family: var(--font);
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow 0.2s, transform 0.15s;
+    box-shadow: 0 4px 14px rgba(17,24,39,0.25);
+}
+.exp-submit-bar:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(17,24,39,0.35);
+}
+.exp-submit-bar__icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.exp-submit-bar__icon svg { stroke: #ffffff; }
+.exp-submit-bar__text {
+    flex: 1;
+}
+.exp-submit-bar__text strong {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+.exp-submit-bar__text small {
+    display: block;
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.6);
+    margin-top: 1px;
+}
+.exp-submit-bar__arrow { stroke: rgba(255,255,255,0.5); flex-shrink: 0; }
+
+/* ROW 3: Action cards (4-col) */
+.exp-actions-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+.exp-action-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 18px 12px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+    font-family: var(--font);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+}
+.exp-action-card:hover {
+    border-color: #d1d5db;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    transform: translateY(-2px);
+}
+.exp-action-card__icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2px;
+}
+.exp-action-card__icon--teal   { background: #ecfdf5; }
+.exp-action-card__icon--teal svg   { stroke: #0d9488; }
+.exp-action-card__icon--purple { background: #f5f3ff; }
+.exp-action-card__icon--purple svg { stroke: #7c3aed; }
+.exp-action-card__icon--amber  { background: #fffbeb; }
+.exp-action-card__icon--amber svg  { stroke: #d97706; }
+.exp-action-card__icon--red    { background: #fef2f2; }
+.exp-action-card__icon--red svg    { stroke: #dc2626; }
+.exp-action-card__label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #111827;
+}
+.exp-action-card--danger .exp-action-card__label { color: #dc2626; }
+.exp-action-card__sub {
+    font-size: 0.68rem;
+    color: #9ca3af;
+}
+
+/* Expense form spans full width */
 #section-expenses .expense-form-section {
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-lg);
-    padding: 18px;
-    box-shadow: var(--shadow-sm);
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 22px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
 }
 
-/* Expenses list actions */
-#section-expenses .expenses-list-section {
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-lg);
-    padding: 16px 18px;
-    box-shadow: var(--shadow-sm);
-    align-self: stretch;
+/* Override old section styles for new layout */
+#section-expenses .ocr-section {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    overflow: visible !important;
 }
 
 /* Full-width expenses list */
@@ -1674,9 +1879,12 @@ h3.admin-section-label {
    RESPONSIVE — MOBILE (768px)
    ============================================================ */
 @media (max-width: 768px) {
-    /* Stack two-column grid on mobile */
-    #section-expenses {
+    /* Stack layout on mobile */
+    .exp-top-row {
         grid-template-columns: 1fr !important;
+    }
+    .exp-actions-row {
+        grid-template-columns: 1fr 1fr !important;
     }
 
     /* Prevent styles.css grid override on admin-main */
