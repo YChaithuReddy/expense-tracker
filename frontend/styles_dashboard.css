@@ -454,7 +454,7 @@ body {
     flex: 1;
     overflow-y: auto;
     background: var(--gray-50);
-    padding: 32px 40px;
+    padding: 22px 28px;
     display: flex;
     flex-direction: column;
     min-width: 0;
@@ -468,8 +468,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 24px;
-    gap: 16px;
+    margin-bottom: 14px;
+    gap: 12px;
 }
 .admin-main__header-left { flex-shrink: 0; }
 .admin-main__header-left h2 { margin: 0; font-size: 1.25rem; font-weight: 700; color: var(--gray-900); }
@@ -483,9 +483,9 @@ body {
 
 /* Header action icons */
 .theme-toggle-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
     border: 1px solid var(--gray-200);
     background: var(--white);
     display: flex;
@@ -570,15 +570,15 @@ body {
 .admin-main__header h2 {
     margin: 0;
     color: var(--gray-900);
-    font-size: 1.35rem;
+    font-size: 1.18rem;
     font-weight: 800;
     letter-spacing: -0.03em;
     line-height: 1.2;
 }
 .admin-main__header p {
-    margin: 5px 0 0;
+    margin: 3px 0 0;
     color: var(--gray-500);
-    font-size: 0.83rem;
+    font-size: 0.78rem;
     font-weight: 400;
 }
 
@@ -1214,15 +1214,32 @@ h3.admin-section-label {
    Section wrappers styled as premium white cards
    ============================================================ */
 
+/* Two-column grid: Scan Bill (left) + Your Expenses (right) */
+#section-expenses {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    align-items: stretch;
+}
+/* Header spans full width */
+#section-expenses > .admin-main__header {
+    grid-column: 1 / -1;
+}
+/* Expense form and full-width sections span both columns */
+#section-expenses > .expense-form-section,
+#section-expenses > .expenses-fullwidth-section {
+    grid-column: 1 / -1;
+}
+
 /* OCR section */
 #section-expenses .ocr-section {
     background: var(--white);
     border: 1px solid var(--gray-200);
-    border-radius: var(--radius-xl);
-    padding: 28px;
-    margin-bottom: 20px;
+    border-radius: var(--radius-lg);
+    padding: 18px;
     box-shadow: var(--shadow-sm);
     transition: box-shadow 0.2s;
+    align-self: stretch;
 }
 #section-expenses .ocr-section:hover { box-shadow: var(--shadow-md); }
 
@@ -1230,9 +1247,8 @@ h3.admin-section-label {
 #section-expenses .expense-form-section {
     background: var(--white);
     border: 1px solid var(--gray-200);
-    border-radius: var(--radius-xl);
-    padding: 28px;
-    margin-bottom: 20px;
+    border-radius: var(--radius-lg);
+    padding: 18px;
     box-shadow: var(--shadow-sm);
 }
 
@@ -1240,10 +1256,10 @@ h3.admin-section-label {
 #section-expenses .expenses-list-section {
     background: var(--white);
     border: 1px solid var(--gray-200);
-    border-radius: var(--radius-xl);
-    padding: 20px 24px;
-    margin-bottom: 20px;
+    border-radius: var(--radius-lg);
+    padding: 16px 18px;
     box-shadow: var(--shadow-sm);
+    align-self: stretch;
 }
 
 /* Full-width expenses list */
@@ -1326,9 +1342,9 @@ h3.admin-section-label {
 .advance-summary-section {
     background: #ffffff !important;
     border: 1px solid #e5e7eb !important;
-    border-radius: 12px !important;
-    padding: 24px !important;
-    margin-bottom: 16px;
+    border-radius: 10px !important;
+    padding: 16px 18px !important;
+    margin-bottom: 10px;
     box-shadow: 0 1px 2px rgba(0,0,0,0.04) !important;
     overflow: hidden !important;
     transform: none !important;
@@ -1355,21 +1371,21 @@ h3.admin-section-label {
 .expenses-list-section h2,
 .expenses-list-section .section-header h2 {
     color: #111827 !important;
-    font-size: 1.05rem !important;
+    font-size: 0.92rem !important;
     font-weight: 700 !important;
-    margin: 0 0 4px !important;
+    margin: 0 0 2px !important;
     font-family: 'Inter', sans-serif !important;
 }
 .ocr-section > p,
 .expense-form-section > p {
     color: #6b7280 !important;
-    font-size: 0.82rem !important;
-    margin: 0 0 16px !important;
+    font-size: 0.76rem !important;
+    margin: 0 0 10px !important;
 }
 
 /* 3. Form inputs — clean borders, white bg, proper spacing */
 .admin-main .form-group {
-    margin-bottom: 16px;
+    margin-bottom: 10px;
 }
 .admin-main .form-group label {
     display: block;
@@ -1460,39 +1476,57 @@ h3.admin-section-label {
     background: #fef2f2 !important;
 }
 
-/* 5. Action buttons grid — clean compact row */
+/* 5. Action buttons grid — compact 2-col grid */
 .expenses-list-section .section-header {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 10px;
 }
 .expenses-list-section .action-buttons {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    gap: 8px !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 6px !important;
 }
 .expenses-list-section .action-buttons button {
     display: inline-flex !important;
     align-items: center;
-    gap: 6px;
-    padding: 8px 14px !important;
-    font-size: 0.8rem !important;
-    min-height: auto !important;
+    justify-content: center;
+    gap: 5px;
+    padding: 8px 10px !important;
+    font-size: 0.76rem !important;
+    min-height: 38px !important;
     border-radius: 8px !important;
     white-space: nowrap;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+}
+.expenses-list-section .action-buttons button:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1) !important;
+}
+.expenses-list-section .action-buttons button::before {
+    display: none !important;
+}
+/* Button span colors — override .admin-main span rule */
+.expenses-list-section .action-buttons button span {
+    color: inherit !important;
+}
+.expenses-list-section .action-buttons .btn-icon {
+    font-size: 0.9rem !important;
+    filter: none !important;
 }
 
-/* 6. Submit/highlight button — clean dark bar */
+/* 6. Submit/highlight button — clean dark bar, spans full grid width */
 .btn-highlight {
     background: #111827 !important;
     color: #ffffff !important;
     border: none !important;
-    border-radius: 10px !important;
-    padding: 14px 20px !important;
+    border-radius: 8px !important;
+    padding: 10px 16px !important;
     display: flex !important;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     width: 100%;
+    grid-column: 1 / -1;
     position: relative;
     overflow: hidden;
 }
@@ -1552,13 +1586,13 @@ h3.admin-section-label {
     color: #ffffff !important;
 }
 
-/* 8. Drag & drop zone — clean dashed border */
+/* 8. Drag & drop zone — compact dashed border */
 .drag-drop-zone,
 .image-preview-container {
-    border: 2px dashed #d1d5db !important;
-    border-radius: 12px !important;
+    border: 1.5px dashed #d1d5db !important;
+    border-radius: 8px !important;
     background: #f9fafb !important;
-    padding: 32px 20px !important;
+    padding: 14px 16px !important;
     text-align: center;
     transition: border-color 0.2s, background 0.2s;
 }
@@ -1570,11 +1604,11 @@ h3.admin-section-label {
 .drag-drop-text {
     color: #374151 !important;
     font-weight: 600 !important;
-    font-size: 0.9rem !important;
+    font-size: 0.82rem !important;
 }
 .drag-drop-subtext {
     color: #9ca3af !important;
-    font-size: 0.8rem !important;
+    font-size: 0.74rem !important;
 }
 
 /* 9. Search bar and filters in history section */
@@ -1640,6 +1674,11 @@ h3.admin-section-label {
    RESPONSIVE — MOBILE (768px)
    ============================================================ */
 @media (max-width: 768px) {
+    /* Stack two-column grid on mobile */
+    #section-expenses {
+        grid-template-columns: 1fr !important;
+    }
+
     /* Prevent styles.css grid override on admin-main */
     .admin-main {
         display: block !important;
