@@ -466,65 +466,9 @@
                     </div>
                 </div>
             </section>
-            </div><!-- /section-expenses -->
 
-            <!-- ADVANCE SECTION -->
-            <div class="admin-section" id="section-advance">
-                <div class="admin-main__header">
-                    <div>
-                        <h2>Advance Tracker</h2>
-                        <p>Manage your advance requests and track status</p>
-                    </div>
-                </div>
-        <section class="advance-summary-section" id="advanceSummarySection" style="display: none;">
-            <div class="advance-summary-header">
-                <h3>Advance Tracker</h3>
-                <button class="btn-advance-add" id="openAdvanceModal" title="Add New Advance">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                    New Advance
-                </button>
-            </div>
-            <div class="advance-cards-container" id="advanceCardsContainer">
-                <!-- Advance cards rendered by JS -->
-            </div>
-        </section>
-            </div><!-- /section-advance -->
-
-            <!-- REPORTS SECTION -->
-            <div class="admin-section" id="section-reports">
-                <div class="admin-main__header">
-                    <div>
-                        <h2>Reports</h2>
-                        <p>View detailed reports and analytics of your expenses</p>
-                    </div>
-                </div>
-                <div style="text-align: center; padding: 40px; color: var(--gray-500);">
-                    Advanced reporting features coming soon.
-                </div>
-            </div><!-- /section-reports -->
-
-            <!-- SETTINGS SECTION -->
-            <div class="admin-section" id="section-settings">
-                <div class="admin-main__header">
-                    <div>
-                        <h2>Settings</h2>
-                        <p>Manage your preferences and account settings</p>
-                    </div>
-                </div>
-                <div style="text-align: center; padding: 40px; color: var(--gray-500);">
-                    Settings features coming soon.
-                </div>
-            </div><!-- /section-settings -->
-
-        </main><!-- .admin-main -->
-    </div><!-- .admin-layout -->
-
-    <!-- FAB BUTTON -->
-    <button id="quickAddFAB" class="quick-add-fab" onclick="expenseTracker.openQuickAdd()" aria-label="Quick Add Expense" title="Quick Add (or shake phone)">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-    </button>
-
-        <section class="expenses-fullwidth-section">
+            <!-- Expense History: Search, Filters, Items, Pagination, Total -->
+            <section class="expenses-fullwidth-section">
                 <div class="select-all-container" id="selectAllContainer" style="display: none;">
                     <label class="select-all-label">
                         <input type="checkbox" id="selectAllCheckbox" class="select-all-checkbox">
@@ -603,7 +547,67 @@
                 <div id="totalAmount" class="total-section">
                     <strong>Total Amount: ₹0.00</strong>
                 </div>
+            </section>
+
+            </div><!-- /section-expenses -->
+
+            <!-- ADVANCE SECTION -->
+            <div class="admin-section" id="section-advance">
+                <div class="admin-main__header">
+                    <div>
+                        <h2>Advance Tracker</h2>
+                        <p>Manage your advance requests and track status</p>
+                    </div>
+                </div>
+        <section class="advance-summary-section" id="advanceSummarySection" style="display: none;">
+            <div class="advance-summary-header">
+                <h3>Advance Tracker</h3>
+                <button class="btn-advance-add" id="openAdvanceModal" title="Add New Advance">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    New Advance
+                </button>
+            </div>
+            <div class="advance-cards-container" id="advanceCardsContainer">
+                <!-- Advance cards rendered by JS -->
+            </div>
         </section>
+            </div><!-- /section-advance -->
+
+            <!-- REPORTS SECTION -->
+            <div class="admin-section" id="section-reports">
+                <div class="admin-main__header">
+                    <div>
+                        <h2>Reports</h2>
+                        <p>View detailed reports and analytics of your expenses</p>
+                    </div>
+                </div>
+                <div style="text-align: center; padding: 40px; color: var(--gray-500);">
+                    Advanced reporting features coming soon.
+                </div>
+            </div><!-- /section-reports -->
+
+            <!-- SETTINGS SECTION -->
+            <div class="admin-section" id="section-settings">
+                <div class="admin-main__header">
+                    <div>
+                        <h2>Settings</h2>
+                        <p>Manage your preferences and account settings</p>
+                    </div>
+                </div>
+                <div style="text-align: center; padding: 40px; color: var(--gray-500);">
+                    Settings features coming soon.
+                </div>
+            </div><!-- /section-settings -->
+
+        </main><!-- .admin-main -->
+    </div><!-- .admin-layout -->
+
+    <!-- FAB BUTTON -->
+    <button id="quickAddFAB" class="quick-add-fab" onclick="expenseTracker.openQuickAdd()" aria-label="Quick Add Expense" title="Quick Add (or shake phone)">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </button>
+
+        <!-- expenses-fullwidth-section moved inside section-expenses -->
 
 
         <!-- Clear Data Modal (Stage 1) -->
