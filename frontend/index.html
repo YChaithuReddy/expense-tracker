@@ -148,8 +148,35 @@
         <!-- MAIN CONTENT -->
         <main class="admin-main">
 
-            <!-- Hidden userInfo container for JS population -->
-            <div id="userInfo" style="display:none;"></div>
+            <!-- HEADER BAR (B&W version of old header) -->
+            <div id="appHeaderBar" style="
+                background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #1e293b 100%);
+                padding: 20px 28px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                border-radius: 12px;
+                margin-bottom: 24px;
+                position: relative;
+                overflow: hidden;
+                min-height: 80px;
+            ">
+                <!-- Decorative diagonal stripe -->
+                <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.03) 40%, rgba(255,255,255,0.03) 60%, transparent 60%);pointer-events:none;"></div>
+
+                <!-- Left: Title -->
+                <div style="position:relative;z-index:1;">
+                    <h1 style="margin:0;font-size:1.6rem;font-weight:700;color:#ffffff;letter-spacing:-0.02em;font-family:'Poppins',sans-serif;">
+                        Expense Tracker
+                    </h1>
+                    <p style="margin:4px 0 0;font-size:0.7rem;color:rgba(255,255,255,0.5);letter-spacing:0.15em;text-transform:uppercase;font-weight:500;">
+                        Automate Your Reimbursement Submissions
+                    </p>
+                </div>
+
+                <!-- Right: User Info + Actions -->
+                <div id="userInfo" style="display:none; position:relative; z-index:1; align-items:center; gap:12px;"></div>
+            </div>
 
             <!-- EXPENSES SECTION (default active) -->
             <div class="admin-section active" id="section-expenses">
