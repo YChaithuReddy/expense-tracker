@@ -12804,3 +12804,606 @@ select.inline-input option {
     border-color: #fecaca;
     color: #dc2626;
 }
+
+/* ============================================================
+   COMPREHENSIVE LIGHT THEME CONTRAST FIXES
+   Ensures ALL elements have proper visibility on light backgrounds.
+   Appended 2026-04-05.
+   ============================================================ */
+
+/* --- 1. MODAL OVERLAYS & BACKDROPS --- */
+[data-theme="light"] .modal {
+    background-color: rgba(0, 0, 0, 0.45);
+}
+[data-theme="light"] .modal-content {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+[data-theme="light"] .modal-header {
+    background: linear-gradient(135deg, #111827, #374151);
+    border-bottom: 1px solid #e5e7eb;
+}
+[data-theme="light"] .modal-header h2 {
+    color: #ffffff;
+}
+[data-theme="light"] .modal-body {
+    background: #ffffff;
+    color: #111827;
+}
+[data-theme="light"] .modal-body::-webkit-scrollbar-track {
+    background: #f3f4f6;
+}
+[data-theme="light"] .modal-body::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+}
+[data-theme="light"] .modal-footer {
+    background: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+}
+
+/* --- 2. CLOSE / CANCEL BUTTONS (all modals) --- */
+[data-theme="light"] .close,
+[data-theme="light"] .close-modal {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.2);
+}
+[data-theme="light"] .close:hover,
+[data-theme="light"] .close-modal:hover {
+    background: rgba(255, 255, 255, 0.35);
+    color: #ffffff;
+}
+[data-theme="light"] .close-image {
+    background: rgba(0, 0, 0, 0.6);
+    color: #ffffff;
+}
+[data-theme="light"] .close-image:hover {
+    background: rgba(0, 0, 0, 0.8);
+    color: #ffffff;
+}
+[data-theme="light"] .image-viewer-close {
+    color: #ffffff;
+    background: rgba(0, 0, 0, 0.5);
+}
+[data-theme="light"] .image-viewer-close:hover {
+    color: #ffffff;
+    background: rgba(0, 0, 0, 0.7);
+}
+[data-theme="light"] .upi-close-btn {
+    color: #374151;
+}
+[data-theme="light"] .upi-close-btn:hover {
+    color: #111827;
+}
+
+/* --- 3. IMAGE VIEWER --- */
+[data-theme="light"] .image-viewer-overlay {
+    background: rgba(0, 0, 0, 0.75);
+}
+[data-theme="light"] .image-viewer-info {
+    color: #ffffff;
+}
+[data-theme="light"] .image-viewer-nav button {
+    background: #111827;
+    color: #ffffff;
+}
+[data-theme="light"] .image-viewer-nav button:hover {
+    background: #374151;
+}
+[data-theme="light"] .image-viewer-nav button:disabled {
+    background: #d1d5db;
+    color: #9ca3af;
+}
+[data-theme="light"] #imageViewerCounter {
+    color: #ffffff;
+}
+[data-theme="light"] #modalImage {
+    background: #ffffff;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3), 0 0 0 2px #d1d5db;
+}
+[data-theme="light"] .image-info {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    color: #111827;
+}
+
+/* --- 4. CONFIG SECTION --- */
+[data-theme="light"] .config-section {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+}
+[data-theme="light"] .config-section h3 {
+    color: #111827;
+}
+[data-theme="light"] .config-section h3::before {
+    background: #111827;
+}
+
+/* --- 5. EXPENSE SUMMARY --- */
+[data-theme="light"] .expense-summary {
+    background: #f9fafb;
+    border: 1px solid #d1d5db;
+}
+[data-theme="light"] .expense-summary span {
+    color: #111827;
+}
+
+/* --- 6. SELECT ALL CONTAINER --- */
+[data-theme="light"] .select-all-container {
+    background: #f9fafb;
+    border: 1px solid #d1d5db;
+}
+[data-theme="light"] .select-all-container:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+}
+[data-theme="light"] .select-all-text {
+    color: #111827;
+}
+
+/* --- 7. TOTAL SECTION --- */
+[data-theme="light"] .total-section {
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+}
+[data-theme="light"] .total-section::before {
+    background: linear-gradient(90deg, #d1d5db, #9ca3af, #d1d5db);
+}
+
+/* --- 8. EMPTY STATE --- */
+[data-theme="light"] .empty-state {
+    background: #f9fafb;
+    border: 2px dashed #d1d5db;
+    color: #6b7280;
+}
+
+/* --- 9. SEARCH & FILTER CONTAINER --- */
+[data-theme="light"] .search-filter-container {
+    background: #f9fafb;
+    border-color: #e5e7eb;
+}
+[data-theme="light"] .search-input,
+[data-theme="light"] .filter-select,
+[data-theme="light"] .search-filter-container input,
+[data-theme="light"] .search-filter-container select {
+    background: #ffffff;
+    border-color: #d1d5db;
+    color: #111827;
+}
+[data-theme="light"] .search-input::placeholder {
+    color: #9ca3af;
+}
+[data-theme="light"] .search-input:focus,
+[data-theme="light"] .filter-select:focus {
+    border-color: #374151;
+    box-shadow: 0 0 0 2px rgba(55, 65, 81, 0.1);
+}
+
+/* --- 10. WHATSAPP MODAL --- */
+[data-theme="light"] .whatsapp-modal .modal-body {
+    background: #ffffff;
+}
+[data-theme="light"] .whatsapp-status.not-configured {
+    background: rgba(255, 193, 7, 0.08);
+    color: #b45309;
+}
+[data-theme="light"] .whatsapp-status.configured {
+    background: rgba(5, 150, 105, 0.08);
+    color: #059669;
+}
+
+/* --- 11. EMAIL MODAL --- */
+[data-theme="light"] .email-modal {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+[data-theme="light"] .email-modal::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+}
+[data-theme="light"] .email-modal__header-accent {
+    background: linear-gradient(90deg, #111827 0%, #374151 55%, #6b7280 100%);
+}
+[data-theme="light"] .email-modal__header::after {
+    background: radial-gradient(ellipse, rgba(17, 24, 39, 0.04) 0%, transparent 70%);
+}
+[data-theme="light"] .email-modal__icon-wrap {
+    background: linear-gradient(135deg, rgba(17, 24, 39, 0.08), rgba(55, 65, 81, 0.08));
+    border-color: #e5e7eb;
+}
+[data-theme="light"] .email-modal__icon {
+    color: #111827;
+}
+[data-theme="light"] .email-modal__subtitle {
+    color: #6b7280;
+}
+[data-theme="light"] .email-modal__close {
+    border-color: #e5e7eb;
+    color: #6b7280;
+}
+[data-theme="light"] .email-modal__close:hover {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #dc2626;
+}
+[data-theme="light"] .email-modal__step--pending .email-modal__step-num {
+    background: #f3f4f6;
+    color: #9ca3af;
+    border-color: #e5e7eb;
+}
+[data-theme="light"] .email-modal__step--pending .email-modal__step-text {
+    color: #9ca3af;
+}
+[data-theme="light"] .email-modal__step-line--pending {
+    background: #e5e7eb;
+}
+[data-theme="light"] .email-modal__attachment {
+    background: #f9fafb;
+    border-color: #d1d5db;
+}
+[data-theme="light"] .email-modal__attachment:hover {
+    border-color: #9ca3af;
+    background: #f3f4f6;
+}
+[data-theme="light"] .email-modal__summary {
+    background: #f9fafb;
+    border-color: #e5e7eb;
+}
+[data-theme="light"] .email-modal__summary::before {
+    background: radial-gradient(circle, rgba(17, 24, 39, 0.04) 0%, transparent 70%);
+}
+[data-theme="light"] .email-modal__summary .kodo-summary-row + .kodo-summary-row {
+    border-left-color: #e5e7eb;
+}
+[data-theme="light"] .email-modal__summary .kodo-summary-total .kodo-summary-value {
+    background: none;
+    -webkit-text-fill-color: #111827;
+    color: #111827;
+}
+[data-theme="light"] .email-modal__input,
+[data-theme="light"] .email-modal__textarea {
+    background: #ffffff;
+    border-color: #d1d5db;
+    color: #111827;
+}
+[data-theme="light"] .email-modal__input:focus,
+[data-theme="light"] .email-modal__textarea:focus {
+    border-color: #374151;
+    box-shadow: 0 0 0 3px rgba(55, 65, 81, 0.08);
+}
+[data-theme="light"] .email-modal__input::placeholder,
+[data-theme="light"] .email-modal__textarea::placeholder {
+    color: #9ca3af;
+}
+
+/* --- 12. UPI SCREENSHOT MODAL --- */
+[data-theme="light"] .upi-screenshot-modal {
+    background: rgba(0, 0, 0, 0.4);
+}
+[data-theme="light"] .upi-screenshot-content {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+}
+[data-theme="light"] .upi-screenshot-header {
+    border-bottom-color: #e5e7eb;
+}
+
+/* --- 13. SCROLLBARS (global) --- */
+[data-theme="light"] ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+[data-theme="light"] ::-webkit-scrollbar-track {
+    background: #f3f4f6;
+}
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 4px;
+}
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+/* --- 14. EXPENSE ITEM BORDER-LEFT ACCENT --- */
+[data-theme="light"] .expense-item {
+    border-left: 3px solid #111827;
+}
+
+/* --- 15. OCR DRAG OVERLAY --- */
+[data-theme="light"] .ocr-drag-overlay {
+    background: rgba(0, 0, 0, 0.4);
+}
+[data-theme="light"] .ocr-drag-overlay__text {
+    color: #ffffff;
+}
+
+/* --- 16. CHECKBOX GROUP --- */
+[data-theme="light"] .checkbox-group label {
+    color: #374151;
+}
+
+/* --- 17. ADVANCE CARDS (comprehensive) --- */
+[data-theme="light"] .advance-card {
+    border-color: #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+[data-theme="light"] .advance-card:hover {
+    border-color: #d1d5db;
+}
+[data-theme="light"] .advance-card__title,
+[data-theme="light"] .advance-card__amount {
+    color: #111827;
+}
+[data-theme="light"] .advance-card__meta {
+    color: #6b7280;
+}
+[data-theme="light"] .advance-card__btn {
+    background: #f9fafb;
+    color: #374151;
+    border-color: #d1d5db;
+}
+[data-theme="light"] .advance-card__btn:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+}
+[data-theme="light"] .advance-card__btn--delete {
+    background: #fef2f2;
+    color: #dc2626;
+    border-color: #fecaca;
+}
+
+/* --- 18. ACTIVITY LOG --- */
+[data-theme="light"] .activity-log-overlay .close-btn,
+[data-theme="light"] .activity-log-close {
+    color: #374151;
+    border-color: #e5e7eb;
+    background: #f9fafb;
+}
+[data-theme="light"] .activity-log-overlay .close-btn:hover,
+[data-theme="light"] .activity-log-close:hover {
+    background: #f3f4f6;
+    color: #111827;
+}
+
+/* --- 19. APPROVAL PANEL CLOSE BTN --- */
+[data-theme="light"] .approvals-panel-close {
+    color: #374151;
+    border-color: #e5e7eb;
+    background: #f9fafb;
+}
+[data-theme="light"] .approvals-panel-close:hover {
+    background: #f3f4f6;
+    color: #111827;
+}
+
+/* --- 20. GENERIC SVG ICON VISIBILITY --- */
+[data-theme="light"] .expense-actions svg,
+[data-theme="light"] .action-btn svg,
+[data-theme="light"] .pdf-row-btn svg {
+    color: currentColor;
+}
+
+/* --- 21. TOOLTIP OVERRIDES --- */
+[data-theme="light"] [data-tooltip]::after {
+    background: #111827;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* --- 22. TOGGLE SWITCH --- */
+[data-theme="light"] .toggle-switch {
+    background: #d1d5db;
+}
+[data-theme="light"] .toggle-switch.active {
+    background: #111827;
+}
+
+/* --- 23. STATUS BADGES (generic) --- */
+[data-theme="light"] .status-badge--pending {
+    background: #fffbeb;
+    color: #d97706;
+    border-color: #fde68a;
+}
+[data-theme="light"] .status-badge--approved {
+    background: #ecfdf5;
+    color: #059669;
+    border-color: #a7f3d0;
+}
+[data-theme="light"] .status-badge--rejected {
+    background: #fef2f2;
+    color: #dc2626;
+    border-color: #fecaca;
+}
+
+/* --- 24. TOAST NOTIFICATIONS --- */
+[data-theme="light"] .toast,
+[data-theme="light"] .toast-notification {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    color: #111827;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+[data-theme="light"] .toast.success {
+    border-left: 4px solid #059669;
+}
+[data-theme="light"] .toast.error {
+    border-left: 4px solid #dc2626;
+}
+[data-theme="light"] .toast.warning {
+    border-left: 4px solid #d97706;
+}
+
+/* --- 25. LOADING SPINNER --- */
+[data-theme="light"] .loading-spinner,
+[data-theme="light"] .spinner {
+    border-color: #e5e7eb;
+    border-top-color: #111827;
+}
+
+/* --- 26. ORPHANED IMAGES MODAL (in dropdown CSS) --- */
+[data-theme="light"] .orphaned-images-modal {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+[data-theme="light"] .orphaned-images-content {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+}
+[data-theme="light"] .orphaned-images-header {
+    background: linear-gradient(135deg, rgba(17, 24, 39, 0.04), rgba(55, 65, 81, 0.04));
+    border-bottom: 1px solid #e5e7eb;
+}
+[data-theme="light"] .orphaned-images-header h2 {
+    color: #111827;
+}
+[data-theme="light"] .orphaned-images-stats {
+    background: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+/* --- 27. PDF ROW BUTTONS VISIBILITY --- */
+[data-theme="light"] .pdf-row-btn {
+    color: #6b7280;
+}
+[data-theme="light"] .pdf-row-btn:hover {
+    color: #111827;
+}
+[data-theme="light"] .pdf-row-btn--view:hover { color: #0284c7; background: rgba(2, 132, 199, 0.08); }
+[data-theme="light"] .pdf-row-btn--approval:hover { color: #7c3aed; background: rgba(124, 58, 237, 0.08); }
+[data-theme="light"] .pdf-row-btn--email:hover { color: #7c3aed; background: rgba(124, 58, 237, 0.08); }
+[data-theme="light"] .pdf-row-btn--download:hover { color: #059669; background: rgba(5, 150, 105, 0.08); }
+[data-theme="light"] .pdf-row-btn--delete:hover { color: #dc2626; background: rgba(220, 38, 38, 0.08); }
+
+/* --- 28. EXPENSE ITEM EDIT/DELETE HOVER STATES --- */
+[data-theme="light"] .edit-btn:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+[data-theme="light"] .delete-btn:hover {
+    background: #fee2e2;
+    border-color: #fca5a5;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.1);
+}
+
+/* --- 29. SEARCH INPUT .clean (uses !important - needs !important overrides) --- */
+[data-theme="light"] .search-input.clean {
+    background: #ffffff !important;
+    border: 1px solid #d1d5db !important;
+    color: #111827 !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+[data-theme="light"] .search-input.clean::placeholder {
+    color: #9ca3af !important;
+}
+[data-theme="light"] .search-input.clean:focus {
+    border-color: #374151 !important;
+    box-shadow: 0 0 0 2px rgba(55, 65, 81, 0.1) !important;
+}
+[data-theme="light"] .search-icon.clean {
+    color: #9ca3af !important;
+}
+
+/* --- 30. LOADING OVERLAY --- */
+[data-theme="light"] .loading-overlay {
+    background: rgba(255, 255, 255, 0.85);
+}
+[data-theme="light"] .loading-text {
+    color: #111827;
+}
+[data-theme="light"] .loading-subtext {
+    color: #6b7280;
+}
+[data-theme="light"] .loading-spinner {
+    border-color: #e5e7eb;
+    border-top-color: #111827;
+}
+
+/* --- 31. EXPENSE META ITEMS (dark mode specific colors) --- */
+[data-theme="light"] .expense-meta-item svg {
+    color: #6b7280;
+}
+[data-theme="light"] .expense-description {
+    background: #f9fafb;
+}
+
+/* --- 32. EXPENSE HEADER BOTTOM BORDER --- */
+[data-theme="light"] .expense-header {
+    border-bottom-color: #e5e7eb;
+}
+
+/* --- 33. ADVANCE SUMMARY SECTION --- */
+[data-theme="light"] .advance-summary-section {
+    background: #ffffff;
+    border-color: #e5e7eb;
+}
+
+/* --- 34. SEARCH FILTER CLEAR BUTTON --- */
+[data-theme="light"] .clear-search-btn,
+[data-theme="light"] .filter-clear-btn,
+[data-theme="light"] .search-clear-btn {
+    color: #6b7280;
+    background: #f3f4f6;
+    border-color: #d1d5db;
+}
+[data-theme="light"] .clear-search-btn:hover,
+[data-theme="light"] .filter-clear-btn:hover,
+[data-theme="light"] .search-clear-btn:hover {
+    background: #e5e7eb;
+    color: #111827;
+}
+
+/* --- 35. DATE RANGE PICKERS --- */
+[data-theme="light"] .date-filter input[type="date"],
+[data-theme="light"] .date-range-picker input {
+    background: #ffffff;
+    border-color: #d1d5db;
+    color: #111827;
+}
+
+/* --- 36. CATEGORY FILTER CHIPS --- */
+[data-theme="light"] .filter-chip,
+[data-theme="light"] .category-chip {
+    background: #f3f4f6;
+    color: #374151;
+    border-color: #d1d5db;
+}
+[data-theme="light"] .filter-chip.active,
+[data-theme="light"] .category-chip.active {
+    background: #111827;
+    color: #ffffff;
+    border-color: #111827;
+}
+
+/* --- 37. PROGRESS MODAL --- */
+[data-theme="light"] .progress-modal-overlay {
+    background: rgba(0, 0, 0, 0.4);
+}
+[data-theme="light"] .progress-modal-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    color: #111827;
+}
+
+/* --- 38. EXPENSE FORM SECTIONS --- */
+[data-theme="light"] .expense-form-section,
+[data-theme="light"] .ocr-section,
+[data-theme="light"] .expenses-list-section,
+[data-theme="light"] .expenses-fullwidth-section {
+    background: #ffffff;
+    border-color: #e5e7eb;
+}
+
+/* --- 39. ADMIN PANEL LIGHT OVERRIDE (in case opened from main app) --- */
+[data-theme="light"] .admin-panel-overlay {
+    background: #f9fafb;
+}
+
+/* --- 40. GENERIC LINK VISIBILITY --- */
+[data-theme="light"] a {
+    color: #111827;
+}
+[data-theme="light"] a:hover {
+    color: #374151;
+}
