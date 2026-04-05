@@ -13402,39 +13402,70 @@ select.inline-input option {
 
 /* --- 40. HEADER BAR USER INFO (dark header in light theme) --- */
 [data-theme="light"] #appHeaderBar .user-info-content {
-    background: rgba(255,255,255,0.1) !important;
-    border-color: rgba(255,255,255,0.15) !important;
+    background: rgba(255,255,255,0.08) !important;
+    border: 1px solid rgba(255,255,255,0.12) !important;
     backdrop-filter: blur(8px);
+    border-radius: 10px !important;
+    padding: 8px 12px !important;
+    gap: 8px !important;
+    flex-wrap: wrap !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
 }
-[data-theme="light"] #appHeaderBar .user-name {
+[data-theme="light"] #appHeaderBar .user-name,
+[data-theme="light"] #appHeaderBar .user-details strong {
     color: #ffffff !important;
+    font-size: 0.85rem !important;
 }
 [data-theme="light"] #appHeaderBar .user-email {
-    color: rgba(255,255,255,0.7) !important;
+    color: rgba(255,255,255,0.65) !important;
+    font-size: 0.75rem !important;
+}
+[data-theme="light"] #appHeaderBar .user-details {
+    max-width: 180px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
 }
 [data-theme="light"] #appHeaderBar .theme-toggle-btn {
-    background: rgba(255,255,255,0.1) !important;
-    border-color: rgba(255,255,255,0.15) !important;
+    background: rgba(255,255,255,0.08) !important;
+    border: 1px solid rgba(255,255,255,0.12) !important;
     color: #ffffff !important;
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 8px !important;
+    flex-shrink: 0 !important;
 }
 [data-theme="light"] #appHeaderBar .theme-toggle-btn:hover {
-    background: rgba(255,255,255,0.2) !important;
+    background: rgba(255,255,255,0.18) !important;
 }
 [data-theme="light"] #appHeaderBar .logout-btn {
     color: #fca5a5 !important;
-    border-color: rgba(252,165,165,0.3) !important;
-    background: rgba(252,165,165,0.1) !important;
+    border: 1px solid rgba(252,165,165,0.25) !important;
+    background: rgba(252,165,165,0.08) !important;
+    font-size: 0.8rem !important;
+    padding: 6px 14px !important;
+    border-radius: 8px !important;
+    flex-shrink: 0 !important;
 }
 [data-theme="light"] #appHeaderBar .logout-btn:hover {
-    background: rgba(252,165,165,0.2) !important;
+    background: rgba(252,165,165,0.18) !important;
 }
 [data-theme="light"] #appHeaderBar .role-badge {
-    background: rgba(255,255,255,0.15) !important;
+    background: rgba(255,255,255,0.12) !important;
     color: #ffffff !important;
+    font-size: 0.65rem !important;
+    padding: 2px 8px !important;
+    border-radius: 4px !important;
 }
 [data-theme="light"] #appHeaderBar .notif-badge {
     background: #ef4444 !important;
     color: #ffffff !important;
+}
+/* Ensure userInfo flex container fits inside header */
+#appHeaderBar #userInfo {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    overflow: hidden;
 }
 
 /* --- 41. GENERIC LINK VISIBILITY --- */
