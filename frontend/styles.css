@@ -13400,7 +13400,44 @@ select.inline-input option {
     background: #f9fafb;
 }
 
-/* --- 40. GENERIC LINK VISIBILITY --- */
+/* --- 40. HEADER BAR USER INFO (dark header in light theme) --- */
+[data-theme="light"] #appHeaderBar .user-info-content {
+    background: rgba(255,255,255,0.1) !important;
+    border-color: rgba(255,255,255,0.15) !important;
+    backdrop-filter: blur(8px);
+}
+[data-theme="light"] #appHeaderBar .user-name {
+    color: #ffffff !important;
+}
+[data-theme="light"] #appHeaderBar .user-email {
+    color: rgba(255,255,255,0.7) !important;
+}
+[data-theme="light"] #appHeaderBar .theme-toggle-btn {
+    background: rgba(255,255,255,0.1) !important;
+    border-color: rgba(255,255,255,0.15) !important;
+    color: #ffffff !important;
+}
+[data-theme="light"] #appHeaderBar .theme-toggle-btn:hover {
+    background: rgba(255,255,255,0.2) !important;
+}
+[data-theme="light"] #appHeaderBar .logout-btn {
+    color: #fca5a5 !important;
+    border-color: rgba(252,165,165,0.3) !important;
+    background: rgba(252,165,165,0.1) !important;
+}
+[data-theme="light"] #appHeaderBar .logout-btn:hover {
+    background: rgba(252,165,165,0.2) !important;
+}
+[data-theme="light"] #appHeaderBar .role-badge {
+    background: rgba(255,255,255,0.15) !important;
+    color: #ffffff !important;
+}
+[data-theme="light"] #appHeaderBar .notif-badge {
+    background: #ef4444 !important;
+    color: #ffffff !important;
+}
+
+/* --- 41. GENERIC LINK VISIBILITY --- */
 [data-theme="light"] a {
     color: #111827;
 }
