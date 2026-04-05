@@ -8,12 +8,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 /* ---- Override global dark-theme CSS vars from styles.css ---- */
-html {
+/* Force light theme for all content areas regardless of data-theme */
+html, html[data-theme="teal"], html[data-theme="minimalist"], html[data-theme="light"] {
     --background-primary: #f9fafb;
     --background-secondary: #ffffff;
     --text-primary: #111827;
     --text-secondary: #6b7280;
     --border-color: #e5e7eb;
+    --dark-bg: #f9fafb;
+    --card-bg: #ffffff;
+    --neon-cyan: #111827;
+    --neon-pink: #374151;
+    --neon-purple: #1f2937;
+    --neon-green: #059669;
+    --cyber-blue: #111827;
+    --input-bg: #ffffff;
+    --hover-bg: #f3f4f6;
 }
 
 /* ---- Design Tokens ---- */
@@ -872,6 +882,137 @@ h3.admin-section-label {
 }
 .admin-form-group input::placeholder { color: var(--gray-400); }
 .admin-form-group small { color: var(--gray-400); font-size: 0.75rem; }
+
+/* ============================================================
+   FORCE WHITE/LIGHT BACKGROUNDS ON ALL CONTENT
+   Override any dark-theme vars bleeding through from styles.css
+   ============================================================ */
+.admin-main {
+    color: var(--gray-900) !important;
+}
+
+/* All cards, containers, sections inside main get white bg */
+.admin-main .card,
+.admin-main .expense-card,
+.admin-main .modal-content,
+.admin-main .dropdown-content,
+.admin-main .form-group,
+.admin-main section,
+.admin-main .settings-section,
+.admin-main .profile-section,
+.admin-main .advance-card,
+.admin-main .report-card {
+    background: var(--white);
+    color: var(--gray-900);
+}
+
+/* Inputs, selects, textareas — white bg, dark text */
+.admin-main input,
+.admin-main select,
+.admin-main textarea {
+    background: var(--white) !important;
+    color: var(--gray-900) !important;
+    border-color: var(--gray-200) !important;
+}
+.admin-main input:focus,
+.admin-main select:focus,
+.admin-main textarea:focus {
+    border-color: var(--gray-400) !important;
+}
+.admin-main input::placeholder {
+    color: var(--gray-400) !important;
+}
+
+/* Labels, paragraphs, headings — dark text */
+.admin-main label,
+.admin-main p,
+.admin-main h1, .admin-main h2, .admin-main h3, .admin-main h4, .admin-main h5, .admin-main h6,
+.admin-main span,
+.admin-main small,
+.admin-main strong,
+.admin-main .text-primary {
+    color: var(--gray-900);
+}
+.admin-main .text-secondary,
+.admin-main .text-muted {
+    color: var(--gray-500);
+}
+
+/* Buttons inside main — ensure readable */
+.admin-main .btn-secondary,
+.admin-main .btn-primary {
+    color: var(--white);
+}
+.admin-main .btn-secondary {
+    background: var(--white);
+    color: var(--gray-700);
+    border: 1px solid var(--gray-200);
+}
+
+/* Dropdown menus */
+.admin-main .dropdown-menu,
+.admin-main .custom-dropdown__options,
+.admin-main .category-dropdown {
+    background: var(--white) !important;
+    border: 1px solid var(--gray-200);
+    box-shadow: var(--shadow-lg);
+}
+.admin-main .dropdown-menu li,
+.admin-main .dropdown-item,
+.admin-main .custom-dropdown__option {
+    color: var(--gray-700);
+}
+.admin-main .dropdown-menu li:hover,
+.admin-main .dropdown-item:hover,
+.admin-main .custom-dropdown__option:hover {
+    background: var(--gray-50);
+}
+
+/* Expense items in list */
+.admin-main .expense-item,
+.admin-main .expense-entry {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    color: var(--gray-900);
+}
+.admin-main .expense-item:hover,
+.admin-main .expense-entry:hover {
+    background: var(--gray-50);
+}
+
+/* Toggle buttons */
+.admin-main .visit-type-btn {
+    background: var(--white);
+    color: var(--gray-600);
+    border-color: var(--gray-200);
+}
+.admin-main .visit-type-btn.active {
+    color: var(--white);
+}
+
+/* Search & filter container */
+.admin-main .search-filter-container {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+}
+.admin-main .search-filter-container input {
+    background: var(--white) !important;
+}
+
+/* Total amount bar */
+.admin-main .total-amount,
+.admin-main #totalAmountDisplay {
+    background: var(--white);
+    color: var(--gray-900);
+    border: 1px solid var(--gray-200);
+}
+
+/* Pagination */
+.admin-main .pagination-container {
+    background: var(--white);
+    color: var(--gray-700);
+}
 
 /* ============================================================
    SKELETON LOADER
