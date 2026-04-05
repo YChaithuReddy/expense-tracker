@@ -1133,6 +1133,73 @@ h3.admin-section-label {
 }
 
 /* ============================================================
+   EXPENSE HISTORY ITEMS — Force white/light theme
+   Override dark transparent bg + hover overlap from styles.css
+   ============================================================ */
+.expense-item {
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    border-left: 3px solid #111827 !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03) !important;
+    color: #111827 !important;
+}
+.expense-item:hover {
+    transform: none !important;
+    background: #f9fafb !important;
+    border-color: #d1d5db !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06) !important;
+}
+
+/* Expense text elements */
+.expense-category-badge {
+    background: #f3f4f6 !important;
+    color: #374151 !important;
+    border-color: #e5e7eb !important;
+}
+.expense-amount,
+.expense-amount label {
+    color: #111827 !important;
+}
+.expense-header,
+.expense-description,
+.expense-date,
+.expense-details {
+    color: #374151 !important;
+}
+.expense-details span,
+.expense-meta {
+    color: #6b7280 !important;
+}
+
+/* Edit/Delete buttons on expense items */
+.expense-item .edit-btn,
+.expense-item .delete-btn {
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    color: #6b7280 !important;
+}
+.expense-item .edit-btn:hover {
+    background: #f3f4f6 !important;
+    color: #111827 !important;
+}
+.expense-item .delete-btn:hover {
+    background: #fef2f2 !important;
+    color: #dc2626 !important;
+    border-color: #fecaca !important;
+}
+
+/* Advance cards — same treatment */
+.advance-card {
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    color: #111827 !important;
+}
+.advance-card:hover {
+    transform: none !important;
+    background: #f9fafb !important;
+}
+
+/* ============================================================
    SKELETON LOADER
    ============================================================ */
 .admin-skeleton {
