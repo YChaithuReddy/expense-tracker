@@ -110,14 +110,22 @@
         <!-- SIDEBAR -->
         <aside class="admin-sidebar">
             <div class="admin-sidebar__logo">
-                <img src="fluxgen-logo.jpg" alt="FluxGen" style="height: 28px; width: auto; margin-bottom: 6px;">
-                <h1>Expense Tracker</h1>
+                <div class="admin-sidebar__brand-mark">
+                    <div class="admin-sidebar__brand-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                    </div>
+                    <h1><span>FluxGen</span></h1>
+                </div>
                 <small>Employee Dashboard</small>
-                <small id="orgName"></small>
+                <div class="admin-sidebar__role-badge">
+                    <span class="admin-sidebar__role-badge__dot"></span>
+                    Employee
+                </div>
+                <div class="admin-sidebar__org-badge" id="orgName"></div>
             </div>
             <nav class="admin-sidebar__nav">
                 <button class="admin-nav-item active" data-section="expenses" onclick="switchSection('expenses', this)">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
                     <span>Expenses</span>
                 </button>
                 <button class="admin-nav-item" data-section="advance" onclick="switchSection('advance', this)">
@@ -135,9 +143,12 @@
             </nav>
             <div class="admin-sidebar__footer">
                 <span id="realtimeStatus" class="realtime-dot realtime-dot--disconnected" title="Realtime sync"></span>
-                <div class="admin-sidebar__user">
-                    <strong id="sidebarUserName">User</strong>
-                    <span id="sidebarUserEmail"></span>
+                <div class="admin-sidebar__user-block">
+                    <div class="admin-sidebar__avatar" id="sidebarAvatar">U</div>
+                    <div class="admin-sidebar__user">
+                        <strong id="sidebarUserName">User</strong>
+                        <span id="sidebarUserEmail"></span>
+                    </div>
                 </div>
                 <div class="admin-sidebar__links">
                     <button class="admin-sidebar__link admin-sidebar__link--danger" onclick="logout()">Logout</button>
@@ -189,6 +200,21 @@
 
             <!-- EXPENSES SECTION (default active) -->
             <div class="admin-section active" id="section-expenses">
+            <!-- Section header: breadcrumb + greeting + search -->
+            <div class="admin-main__header">
+                <div class="admin-main__header-left">
+                    <div class="admin-breadcrumb">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+                        Expenses
+                    </div>
+                    <h2 id="expenseGreeting">My Expenses</h2>
+                    <p>Track, scan, and submit your reimbursements</p>
+                </div>
+                <div class="admin-search-bar">
+                    <svg class="admin-search-bar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" placeholder="Search expenses..." aria-label="Search expenses" oninput="document.getElementById('searchInput') && (document.getElementById('searchInput').value = this.value, document.getElementById('searchInput').dispatchEvent(new Event('input')))">
+                </div>
+            </div>
             <!-- Bill OCR Section -->
             <section id="ocrSection" class="ocr-section ocr-dropzone">
                 <!-- Drag overlay shown when dragging files over the card -->
