@@ -95,25 +95,107 @@
     <style>
         /* Hide original admin sidebar - Curator sidebar replaces it */
         .admin-sidebar { display: none !important; }
-        
+
+        /* Hide original admin header/topbar */
+        .admin-header,
+        .admin-topbar,
+        .topbar,
+        .top-bar,
+        .header-bar,
+        .admin-main__topbar,
+        .company-header { display: none !important; }
+
         /* Remove admin-layout grid */
         .admin-layout {
             display: block !important;
             min-height: unset !important;
+            grid-template-columns: none !important;
         }
-        
-        /* Admin main full width */
+
+        /* Admin main full width, no left margin */
         .admin-main {
             margin-left: 0 !important;
             padding: 0 !important;
             display: block !important;
+            width: 100% !important;
+            max-width: 100% !important;
         }
-        
+
         /* Section toggle */
         .admin-section { display: none; }
         .admin-section.active { display: block; }
-        
-        /* Expenses fullwidth section visibility managed by JS */
+
+        /* Fix any content that tries to position itself with old sidebar offset */
+        .main-content {
+            padding: 20px !important;
+            overflow-y: auto !important;
+            flex: 1 !important;
+        }
+
+        /* Ensure content sections don't overflow */
+        .admin-section {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        /* Fix buttons row alignment in header area */
+        .admin-main__header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        /* Fix action buttons to not overflow */
+        .admin-main__actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* Ensure fieldsets/forms respect container width */
+        fieldset, .scan-section, .manual-section {
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Fix the floating action buttons (FAB) position */
+        .fab-container, .quick-add-fab {
+            z-index: 50 !important;
+        }
+
+        /* Hide duplicate org name if shown elsewhere */
+        #orgNameHeader { display: none !important; }
+
+        /* Curator header styling */
+        .header {
+            background: #fff !important;
+            border-bottom: 1px solid #e5e7eb !important;
+            height: 56px !important;
+            min-height: 56px !important;
+            z-index: 90 !important;
+        }
+
+        /* Sidebar styling overrides */
+        .sidebar {
+            background: #fff !important;
+            border-right: 1px solid #e5e7eb !important;
+        }
+
+        .sidebar-header {
+            padding: 16px 20px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border-bottom: 1px solid #e5e7eb !important;
+            min-height: 56px !important;
+        }
+
+        /* Page section container */
+        .page-section { display: none; }
+        .page-section.active { display: block; }
     </style>
 </head>
 <body>
@@ -121,7 +203,7 @@
     <aside class="sidebar" id="curator-sidebar">
         <div class="sidebar-header">
             <div class="sidebar-logo">
-                <span style="font-size: 1.25rem; font-weight: 700; letter-spacing: -0.5px;">FluxGen</span>
+                <img src="assets/fluxgen-logo.jpg" alt="FluxGen" style="height: 32px; width: auto;">
             </div>
         </div>
         <nav class="sidebar-nav">
@@ -164,11 +246,11 @@
     <!-- MAIN CONTAINER (Curator layout) -->
     <div class="main-container">
         <header class="header" id="curator-header">
-            <div class="header-left">
-                <button class="hamburger-btn" id="hamburger-btn" aria-label="Menu">&#9776;</button>
-                <span id="orgName" style="font-size: 0.85rem; font-weight: 600; margin-left: 8px;">FluxGen Technologies</span>
+            <div class="header-left" style="display:flex;align-items:center;gap:12px;">
+                <button class="hamburger-btn" id="hamburger-btn" aria-label="Menu" style="display:none;">&#9776;</button>
+                <span id="orgName" style="font-size: 0.9rem; font-weight: 600; color: #1e293b;">FluxGen Technologies</span>
             </div>
-            <div class="header-right">
+            <div class="header-right" style="display:flex;align-items:center;gap:12px;">
                 <div id="userInfo" style="display:none;"></div>
             </div>
         </header>
