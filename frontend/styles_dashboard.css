@@ -8,8 +8,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 /* ---- Override global dark-theme CSS vars from styles.css ---- */
-/* Force light theme for all content areas regardless of data-theme */
-html, html[data-theme="teal"], html[data-theme="minimalist"], html[data-theme="light"] {
+/* Force light theme for dashboard content areas */
+.admin-layout {
     --background-primary: #f9fafb;
     --background-secondary: #ffffff;
     --text-primary: #111827;
@@ -17,14 +17,10 @@ html, html[data-theme="teal"], html[data-theme="minimalist"], html[data-theme="l
     --border-color: #e5e7eb;
     --dark-bg: #f9fafb;
     --card-bg: #ffffff;
-    --neon-cyan: #111827;
-    --neon-pink: #374151;
-    --neon-purple: #1f2937;
-    --neon-green: #059669;
-    --cyber-blue: #111827;
     --input-bg: #ffffff;
     --hover-bg: #f3f4f6;
 }
+/* Keep neon/cyber colors intact for modals that use them */
 
 /* ---- Design Tokens ---- */
 :root {
@@ -891,13 +887,13 @@ h3.admin-section-label {
     color: var(--gray-900) !important;
 }
 
-/* All cards, containers, sections inside main get white bg */
+/* All cards, containers, sections inside main get white bg
+   EXCEPT modals — they keep their own styling */
 .admin-main .card,
 .admin-main .expense-card,
-.admin-main .modal-content,
 .admin-main .dropdown-content,
 .admin-main .form-group,
-.admin-main section,
+.admin-main .admin-section section,
 .admin-main .settings-section,
 .admin-main .profile-section,
 .admin-main .advance-card,
@@ -906,31 +902,30 @@ h3.admin-section-label {
     color: var(--gray-900);
 }
 
-/* Inputs, selects, textareas — white bg, dark text */
-.admin-main input,
-.admin-main select,
-.admin-main textarea {
+/* Inputs, selects, textareas — white bg, dark text
+   EXCEPT those inside modals/overlays */
+.admin-section input,
+.admin-section select,
+.admin-section textarea {
     background: var(--white) !important;
     color: var(--gray-900) !important;
     border-color: var(--gray-200) !important;
 }
-.admin-main input:focus,
-.admin-main select:focus,
-.admin-main textarea:focus {
+.admin-section input:focus,
+.admin-section select:focus,
+.admin-section textarea:focus {
     border-color: var(--gray-400) !important;
 }
-.admin-main input::placeholder {
+.admin-section input::placeholder {
     color: var(--gray-400) !important;
 }
 
-/* Labels, paragraphs, headings — dark text */
-.admin-main label,
-.admin-main p,
-.admin-main h1, .admin-main h2, .admin-main h3, .admin-main h4, .admin-main h5, .admin-main h6,
-.admin-main span,
-.admin-main small,
-.admin-main strong,
-.admin-main .text-primary {
+/* Labels, paragraphs, headings — dark text
+   Scoped to admin-section only, NOT modals/overlays */
+.admin-section label,
+.admin-section > p,
+.admin-section h1, .admin-section h2, .admin-section h3, .admin-section h4,
+.admin-section .text-primary {
     color: var(--gray-900);
 }
 .admin-main .text-secondary,
@@ -938,15 +933,54 @@ h3.admin-section-label {
     color: var(--gray-500);
 }
 
-/* Buttons inside main — ensure readable */
-.admin-main .btn-secondary,
-.admin-main .btn-primary {
+/* MODAL EXCLUSION — prevent dashboard overrides from bleeding into modals.
+   Modals have their own CSS in styles_pdfs.css, styles_clear_data.css, etc. */
+
+/* Buttons inside sections — ensure readable */
+.admin-section .btn-primary {
     color: var(--white);
 }
-.admin-main .btn-secondary {
+.admin-section .btn-secondary {
     background: var(--white);
     color: var(--gray-700);
     border: 1px solid var(--gray-200);
+}
+
+/* ---- Expense dashboard color fixes ---- */
+/* Submit bar — ensure white text */
+.exp-submit-bar,
+.exp-submit-bar * {
+    color: #ffffff !important;
+}
+.exp-submit-bar small {
+    color: rgba(255,255,255,0.6) !important;
+}
+
+/* Action cards — ensure proper label colors */
+.exp-action-card span {
+    color: inherit;
+}
+.exp-action-card__label {
+    color: #111827 !important;
+}
+.exp-action-card--danger .exp-action-card__label {
+    color: #dc2626 !important;
+}
+.exp-action-card__sub {
+    color: #9ca3af !important;
+}
+
+/* Scan/Manual card text */
+.exp-card__title { color: #111827 !important; }
+.exp-card__desc { color: #6b7280 !important; }
+
+/* Dark button text must be white */
+.exp-btn--dark,
+.exp-btn--dark * {
+    color: #ffffff !important;
+}
+.exp-btn--outline {
+    color: #374151 !important;
 }
 
 /* Dropdown menus */
