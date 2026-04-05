@@ -431,6 +431,47 @@
                         <h2>Expense History</h2>
                         <p>View, search, and filter all your submitted expenses</p>
                     </div>
+                    <div class="admin-main__header-right hist-header-right">
+                        <!-- Search bar in header -->
+                        <div class="hist-search-compact" id="searchFilterContainer">
+                            <div class="search-bar" id="searchBarWrapper">
+                                <svg class="search-icon clean" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                    <path d="M21 21l-5.2-5.2m0 0A7.5 7.5 0 105.8 15.8l5.2 5.2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                <input type="text" id="searchInput" class="search-input clean" placeholder="Search expenses..." aria-label="Search">
+                                <button id="clearSearch" class="clear-search-btn" style="display:none;">✕</button>
+                                <button id="expandFiltersBtn" class="expand-filters-btn" aria-label="Expand filters">
+                                    <span class="expand-icon">▼</span>
+                                </button>
+                            </div>
+                            <div class="filters-wrapper collapsed" id="filtersWrapper">
+                                <div class="filter-row">
+                                    <select id="projectFilter" class="filter-select">
+                                        <option value="">All Projects</option>
+                                    </select>
+                                    <select id="categoryFilter" class="filter-select">
+                                        <option value="">All Categories</option>
+                                    </select>
+                                    <select id="visitTypeFilter" class="filter-select">
+                                        <option value="">All Types</option>
+                                        <option value="project">Project</option>
+                                        <option value="service">Service</option>
+                                        <option value="survey">Survey</option>
+                                    </select>
+                                    <div class="date-input-wrapper">
+                                        <label for="dateFromFilter" class="date-label">From Date</label>
+                                        <input type="date" id="dateFromFilter" class="filter-date">
+                                    </div>
+                                    <div class="date-input-wrapper">
+                                        <label for="dateToFilter" class="date-label">To Date</label>
+                                        <input type="date" id="dateToFilter" class="filter-date">
+                                    </div>
+                                    <button id="resetFilters" class="reset-filters-btn">Reset Filters</button>
+                                </div>
+                            </div>
+                            <div id="searchResults" class="search-results-info" style="display:none;"></div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Stats summary cards -->
@@ -458,53 +499,14 @@
                     </div>
                 </div>
 
-                <!-- Filter bar — admin-style -->
-                <div class="expenses-fullwidth-section" style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
-                    <div class="select-all-container" id="selectAllContainer" style="display: none;">
+                <!-- Expenses list card -->
+                <div class="expenses-fullwidth-section" style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:16px 20px;box-shadow:0 1px 3px rgba(0,0,0,0.06);position:relative;">
+                    <!-- Select All — compact, top-right -->
+                    <div class="select-all-container hist-select-all" id="selectAllContainer" style="display:none;">
                         <label class="select-all-label">
                             <input type="checkbox" id="selectAllCheckbox" class="select-all-checkbox">
                             <span class="select-all-text">Select All</span>
                         </label>
-                    </div>
-
-                    <!-- Search and Filter -->
-                    <div class="search-filter-container hidden" id="searchFilterContainer">
-                        <div class="search-bar" id="searchBarWrapper">
-                            <svg class="search-icon clean" width="20" height="20" viewBox="0 0 24 24" fill="none">
-                                <path d="M21 21l-5.2-5.2m0 0A7.5 7.5 0 105.8 15.8l5.2 5.2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                            </svg>
-                            <input type="text" id="searchInput" class="search-input clean" placeholder="Search by project, description, or category..." aria-label="Search">
-                            <button id="clearSearch" class="clear-search-btn" style="display: none;">✕</button>
-                            <button id="expandFiltersBtn" class="expand-filters-btn" aria-label="Expand filters">
-                                <span class="expand-icon">▼</span>
-                            </button>
-                        </div>
-                        <div class="filters-wrapper collapsed" id="filtersWrapper">
-                            <div class="filter-row">
-                                <select id="projectFilter" class="filter-select">
-                                    <option value="">All Projects</option>
-                                </select>
-                                <select id="categoryFilter" class="filter-select">
-                                    <option value="">All Categories</option>
-                                </select>
-                                <select id="visitTypeFilter" class="filter-select">
-                                    <option value="">All Types</option>
-                                    <option value="project">Project</option>
-                                    <option value="service">Service</option>
-                                    <option value="survey">Survey</option>
-                                </select>
-                                <div class="date-input-wrapper">
-                                    <label for="dateFromFilter" class="date-label">From Date</label>
-                                    <input type="date" id="dateFromFilter" class="filter-date">
-                                </div>
-                                <div class="date-input-wrapper">
-                                    <label for="dateToFilter" class="date-label">To Date</label>
-                                    <input type="date" id="dateToFilter" class="filter-date">
-                                </div>
-                                <button id="resetFilters" class="reset-filters-btn">Reset Filters</button>
-                            </div>
-                        </div>
-                        <div id="searchResults" class="search-results-info" style="display: none;"></div>
                     </div>
 
                     <div id="expensesList" class="expenses-container">

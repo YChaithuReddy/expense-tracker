@@ -1857,6 +1857,106 @@ h3.admin-section-label {
     background: #ffffff !important;
 }
 
+/* ---- HISTORY PAGE: Search in header + Select All top-right ---- */
+
+/* Search bar compact in header */
+.hist-header-right {
+    flex: 1;
+    max-width: 360px;
+}
+.hist-search-compact {
+    width: 100%;
+}
+.hist-search-compact .search-bar {
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 10px !important;
+    padding: 6px 12px !important;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.hist-search-compact .search-input {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    padding: 4px 0 !important;
+    font-size: 0.82rem !important;
+    background: transparent !important;
+    flex: 1;
+    min-width: 0;
+}
+.hist-search-compact .search-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    color: #9ca3af;
+}
+.hist-search-compact .expand-filters-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px;
+    color: #9ca3af;
+    font-size: 0.7rem;
+}
+.hist-search-compact .filters-wrapper {
+    margin-top: 8px;
+}
+.hist-search-compact .filters-wrapper.collapsed {
+    display: none;
+}
+.hist-search-compact .filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.hist-search-compact .filter-select,
+.hist-search-compact .filter-date {
+    font-size: 0.78rem;
+    padding: 6px 8px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    background: #fff;
+}
+.hist-search-compact .reset-filters-btn {
+    font-size: 0.75rem;
+    padding: 6px 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    background: #fff;
+    cursor: pointer;
+    color: #6b7280;
+}
+
+/* Select All — compact, positioned top-right of list card */
+.hist-select-all {
+    position: absolute !important;
+    top: 12px;
+    right: 16px;
+    display: flex !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+.hist-select-all .select-all-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: #6b7280;
+    cursor: pointer;
+}
+.hist-select-all .select-all-checkbox {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: #111827;
+}
+
 /* 10. Total amount bar */
 .total-section {
     background: #ffffff !important;
