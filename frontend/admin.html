@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="styles_approval.css">
     <style>
         /* ============================================================
-           ADMIN DASHBOARD — PREMIUM INDIGO/DARK THEME
+           ADMIN DASHBOARD — PREMIUM BLACK & WHITE THEME
            Inspired by Linear, Stripe, and Notion — elevated to luxury SaaS
            ============================================================ */
 
@@ -46,17 +46,17 @@
             --gray-900:     #0f172a;
             --black:        #020617;
 
-            /* Indigo accent system */
-            --accent:         #4f46e5;
-            --accent-hover:   #4338ca;
-            --accent-active:  #3730a3;
-            --accent-light:   #eef2ff;
-            --accent-mid:     #c7d2fe;
-            --accent-glow:    rgba(79, 70, 229, 0.15);
+            /* Black accent system */
+            --accent:         #111827;
+            --accent-hover:   #1f2937;
+            --accent-active:  #030712;
+            --accent-light:   #f3f4f6;
+            --accent-mid:     #d1d5db;
+            --accent-glow:    rgba(17, 24, 39, 0.12);
 
-            /* Sidebar palette — deep indigo */
-            --sidebar-bg-from: #1e1b4b;
-            --sidebar-bg-to:   #312e81;
+            /* Sidebar palette — dark */
+            --sidebar-bg-from: #111827;
+            --sidebar-bg-to:   #1f2937;
             --sidebar-text:    rgba(255,255,255,0.72);
             --sidebar-text-hover: rgba(255,255,255,0.92);
             --sidebar-text-active: #ffffff;
@@ -80,9 +80,9 @@
             --shadow-xs:  0 1px 2px rgba(0,0,0,0.04);
             --shadow-sm:  0 1px 3px rgba(15,23,42,0.08), 0 1px 2px rgba(15,23,42,0.04);
             --shadow-md:  0 4px 12px rgba(15,23,42,0.06), 0 2px 4px rgba(15,23,42,0.04);
-            --shadow-lg:  0 10px 25px rgba(79,70,229,0.08), 0 4px 10px rgba(15,23,42,0.06);
-            --shadow-xl:  0 20px 40px rgba(79,70,229,0.12), 0 8px 16px rgba(15,23,42,0.08);
-            --shadow-accent: 0 4px 14px rgba(79,70,229,0.35);
+            --shadow-lg:  0 10px 25px rgba(0,0,0,0.08), 0 4px 10px rgba(15,23,42,0.06);
+            --shadow-xl:  0 20px 40px rgba(0,0,0,0.10), 0 8px 16px rgba(15,23,42,0.08);
+            --shadow-accent: 0 4px 14px rgba(17,24,39,0.3);
 
             /* Radii */
             --radius-sm:  6px;
@@ -102,7 +102,7 @@
 
         body {
             margin: 0;
-            background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+            background: #f9fafb;
             color: var(--gray-900);
             font-family: var(--font);
             overflow: hidden;
@@ -110,7 +110,7 @@
             -moz-osx-font-smoothing: grayscale;
         }
 
-        /* Custom scrollbar — thin, indigo-tinted */
+        /* Custom scrollbar — thin, dark-tinted */
         ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--accent-mid); border-radius: 10px; }
@@ -127,7 +127,7 @@
         .admin-layout { display: flex; height: 100vh; }
 
         /* ============================================================
-           SIDEBAR — Glassmorphic dark indigo gradient
+           SIDEBAR — Glassmorphic dark gradient
            ============================================================ */
         .admin-sidebar {
             width: 248px;
@@ -137,7 +137,7 @@
             flex-direction: column;
             flex-shrink: 0;
             position: relative;
-            box-shadow: 4px 0 24px rgba(30,27,75,0.18);
+            box-shadow: 4px 0 24px rgba(17,24,39,0.18);
             transition: width 0.25s cubic-bezier(0.4,0,0.2,1);
             z-index: 10;
         }
@@ -170,12 +170,12 @@
             width: 34px;
             height: 34px;
             border-radius: 10px;
-            background: linear-gradient(135deg, #818cf8 0%, #4f46e5 50%, #7c3aed 100%);
+            background: linear-gradient(135deg, #374151 0%, #111827 50%, #1f2937 100%);
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            box-shadow: 0 4px 12px rgba(79,70,229,0.4);
+            box-shadow: 0 4px 12px rgba(17,24,39,0.4);
         }
         .admin-sidebar__brand-icon svg {
             width: 18px;
@@ -287,10 +287,10 @@
             transform: translateY(-50%);
             width: 3px;
             height: 60%;
-            background: linear-gradient(180deg, #818cf8, #4f46e5);
+            background: linear-gradient(180deg, #374151, #111827);
             border-radius: 0 3px 3px 0;
         }
-        .admin-nav-item.active svg { color: #a5b4fc; }
+        .admin-nav-item.active svg { color: #d1d5db; }
         .admin-nav-item svg {
             width: 16px;
             height: 16px;
@@ -319,7 +319,7 @@
             width: 36px;
             height: 36px;
             border-radius: 10px;
-            background: linear-gradient(135deg, #818cf8, #4f46e5);
+            background: linear-gradient(135deg, #374151, #111827);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -328,7 +328,7 @@
             color: #ffffff;
             flex-shrink: 0;
             text-transform: uppercase;
-            box-shadow: 0 2px 8px rgba(79,70,229,0.35);
+            box-shadow: 0 2px 8px rgba(17,24,39,0.3);
             letter-spacing: 0.03em;
         }
         .admin-sidebar__user {
@@ -536,7 +536,7 @@
         .admin-stat-card--blue .admin-stat-card__icon  { background: linear-gradient(135deg, #3b82f6, #2563eb); box-shadow: 0 4px 12px rgba(37,99,235,0.3); }
         .admin-stat-card--green .admin-stat-card__icon { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 12px rgba(5,150,105,0.3); }
         .admin-stat-card--amber .admin-stat-card__icon { background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 4px 12px rgba(217,119,6,0.3); }
-        .admin-stat-card__icon--default { background: linear-gradient(135deg, #6366f1, #4f46e5); box-shadow: 0 4px 12px rgba(79,70,229,0.3); }
+        .admin-stat-card__icon--default { background: linear-gradient(135deg, #374151, #111827); box-shadow: 0 4px 12px rgba(17,24,39,0.25); }
 
         .admin-stat-card__value {
             font-size: 2.1rem;
@@ -584,7 +584,7 @@
             width: 80px;
             height: 80px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(79,70,229,0.05) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(17,24,39,0.04) 0%, transparent 70%);
             pointer-events: none;
         }
 

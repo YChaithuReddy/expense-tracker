@@ -12,13 +12,13 @@
     <link rel="stylesheet" href="styles.css">
     <style>
         /* ============================================================
-           ACCOUNTANT DASHBOARD — PREMIUM INDIGO DESIGN SYSTEM
+           ACCOUNTANT DASHBOARD — PREMIUM BLACK & WHITE DESIGN SYSTEM
            Aligned with Admin Dashboard design tokens
            ============================================================ */
 
         /* ---- Reset global dark-theme CSS vars ---- */
         html {
-            --background-primary: #f8f9ff;
+            --background-primary: #f9fafb;
             --background-secondary: #ffffff;
             --text-primary: #0f172a;
             --text-secondary: #64748b;
@@ -39,12 +39,12 @@
             --gray-800:       #1e293b;
             --gray-900:       #0f172a;
 
-            /* Indigo accent system — matches admin exactly */
-            --accent:         #4f46e5;
-            --accent-hover:   #4338ca;
-            --accent-light:   #eef2ff;
-            --accent-mid:     #818cf8;
-            --accent-glow:    rgba(79, 70, 229, 0.15);
+            /* Black accent system — matches admin exactly */
+            --accent:         #111827;
+            --accent-hover:   #1f2937;
+            --accent-light:   #f3f4f6;
+            --accent-mid:     #d1d5db;
+            --accent-glow:    rgba(17, 24, 39, 0.12);
 
             /* Status colors — enhanced */
             --green:          #059669;
@@ -72,8 +72,8 @@
             --shadow-xs:      0 1px 2px rgba(15, 23, 42, 0.04);
             --shadow-sm:      0 1px 3px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.04);
             --shadow-md:      0 4px 6px rgba(15, 23, 42, 0.06), 0 2px 4px rgba(15, 23, 42, 0.04);
-            --shadow-lg:      0 10px 25px rgba(79, 70, 229, 0.08), 0 4px 6px rgba(15, 23, 42, 0.04);
-            --shadow-xl:      0 20px 40px rgba(79, 70, 229, 0.12), 0 8px 16px rgba(15, 23, 42, 0.06);
+            --shadow-lg:      0 10px 25px rgba(0, 0, 0, 0.06), 0 4px 6px rgba(15, 23, 42, 0.04);
+            --shadow-xl:      0 20px 40px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(15, 23, 42, 0.06);
 
             /* Radii */
             --radius-sm:      6px;
@@ -86,10 +86,10 @@
             --font:           'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
             /* Sidebar */
-            --sidebar-bg:     #1e1b4b;
+            --sidebar-bg:     #111827;
             --sidebar-hover:  rgba(255, 255, 255, 0.07);
-            --sidebar-active: rgba(79, 70, 229, 0.85);
-            --sidebar-text:   rgba(196, 194, 255, 0.85);
+            --sidebar-active: rgba(255, 255, 255, 0.12);
+            --sidebar-text:   rgba(209, 213, 219, 0.85);
             --sidebar-border: rgba(255, 255, 255, 0.06);
         }
 
@@ -103,7 +103,7 @@
 
         body {
             margin: 0;
-            background: linear-gradient(135deg, #f0f0ff 0%, #f8f9ff 50%, #f0f4ff 100%);
+            background: #f9fafb;
             color: var(--gray-900);
             font-family: var(--font);
             overflow: hidden;
@@ -117,11 +117,11 @@
         .admin-layout { display: flex; height: 100vh; }
 
         /* ============================================================
-           SIDEBAR — DARK INDIGO PREMIUM
+           SIDEBAR — DARK PREMIUM
            ============================================================ */
         .admin-sidebar {
             width: 248px;
-            background: linear-gradient(180deg, #1e1b4b 0%, #1a1745 50%, #161240 100%);
+            background: linear-gradient(180deg, #111827 0%, #1f2937 50%, #0f172a 100%);
             border-right: none;
             display: flex;
             flex-direction: column;
@@ -137,7 +137,7 @@
             position: absolute;
             top: 0; left: 0; right: 0;
             height: 200px;
-            background: radial-gradient(ellipse at 50% 0%, rgba(99, 91, 255, 0.18) 0%, transparent 70%);
+            background: radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.06) 0%, transparent 70%);
             pointer-events: none;
         }
 
@@ -157,7 +157,7 @@
         .admin-sidebar__logo h1 {
             font-size: 0.875rem;
             font-weight: 700;
-            color: #e0e7ff;
+            color: #e5e7eb;
             margin: 0;
             display: flex;
             align-items: center;
@@ -180,19 +180,19 @@
             gap: 5px;
             margin-top: 8px;
             padding: 3px 10px;
-            background: rgba(79, 70, 229, 0.25);
-            border: 1px solid rgba(129, 140, 248, 0.3);
+            background: rgba(17, 24, 39, 0.25);
+            border: 1px solid rgba(209, 213, 219, 0.3);
             border-radius: 99px;
             font-size: 0.65rem;
             font-weight: 700;
-            color: #a5b4fc;
+            color: #9ca3af;
             letter-spacing: 0.06em;
             text-transform: uppercase;
         }
         .sidebar-role-badge::before {
             content: '';
             width: 5px; height: 5px;
-            background: #a5b4fc;
+            background: #9ca3af;
             border-radius: 50%;
             flex-shrink: 0;
         }
@@ -226,13 +226,13 @@
         }
         .admin-nav-item:hover {
             background: var(--sidebar-hover);
-            color: #e0e7ff;
+            color: #e5e7eb;
             transform: translateX(2px);
         }
         .admin-nav-item.active {
             background: var(--sidebar-active);
             color: #ffffff;
-            box-shadow: 0 2px 12px rgba(79, 70, 229, 0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255,255,255,0.1);
         }
         .admin-nav-item.active::before {
             content: '';
@@ -240,7 +240,7 @@
             left: 0; top: 50%;
             transform: translateY(-50%);
             width: 3px; height: 60%;
-            background: #a5b4fc;
+            background: #9ca3af;
             border-radius: 0 3px 3px 0;
         }
         .admin-nav-item svg {
@@ -262,7 +262,7 @@
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.1em;
-            color: rgba(165, 180, 252, 0.45);
+            color: rgba(156, 163, 175, 0.45);
             padding: 10px 13px 4px;
         }
 
@@ -282,13 +282,13 @@
         .sidebar-avatar {
             width: 34px; height: 34px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--accent) 0%, #7c3aed 100%);
+            background: linear-gradient(135deg, var(--accent) 0%, #1f2937 100%);
             display: flex; align-items: center; justify-content: center;
             font-size: 0.75rem;
             font-weight: 700;
             color: #fff;
             flex-shrink: 0;
-            border: 2px solid rgba(165, 180, 252, 0.3);
+            border: 2px solid rgba(156, 163, 175, 0.3);
         }
         .sidebar-user-info { min-width: 0; }
         .admin-sidebar__user {
@@ -297,7 +297,7 @@
             line-height: 1.4;
         }
         .admin-sidebar__user strong {
-            color: #e0e7ff;
+            color: #e5e7eb;
             display: block;
             font-weight: 600;
             font-size: 0.8rem;
@@ -316,14 +316,14 @@
             cursor: pointer;
             border: 1px solid rgba(255,255,255,0.12);
             background: rgba(255,255,255,0.07);
-            color: rgba(196, 194, 255, 0.8);
+            color: rgba(209, 213, 219, 0.8);
             transition: background 0.15s, border-color 0.15s;
             text-align: center;
         }
         .admin-sidebar__link:hover {
             background: rgba(255,255,255,0.13);
             border-color: rgba(255,255,255,0.2);
-            color: #e0e7ff;
+            color: #e5e7eb;
         }
         .admin-sidebar__link--danger {
             color: #fca5a5;
@@ -584,7 +584,7 @@
         .admin-table tbody tr {
             transition: background 0.15s;
         }
-        .admin-table tbody tr:hover { background: rgba(79, 70, 229, 0.03); }
+        .admin-table tbody tr:hover { background: rgba(17, 24, 39, 0.03); }
 
         .admin-table--compact thead th,
         .admin-table--compact tbody td { padding: 8px 11px; font-size: 0.8rem; }
@@ -657,10 +657,10 @@
         .admin-btn--primary {
             background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
             color: var(--white);
-            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
         }
         .admin-btn--primary:hover:not(:disabled) {
-            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
             transform: translateY(-1px);
         }
         .admin-btn--secondary {
@@ -751,7 +751,7 @@
         }
 
         /* ============================================================
-           SELECTION BAR — INDIGO GRADIENT
+           SELECTION BAR — DARK GRADIENT
            ============================================================ */
         .acct-selection-bar {
             display: flex;
@@ -759,13 +759,13 @@
             justify-content: space-between;
             padding: 11px 18px;
             margin-bottom: 12px;
-            background: linear-gradient(135deg, var(--accent) 0%, #6d28d9 100%);
+            background: linear-gradient(135deg, var(--accent) 0%, #374151 100%);
             border: none;
             border-radius: var(--radius-lg);
             font-size: 0.82rem;
             color: #ffffff;
             font-weight: 600;
-            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
             animation: selectionSlide 0.22s cubic-bezier(0.22, 1, 0.36, 1);
         }
         @keyframes selectionSlide {
@@ -813,7 +813,7 @@
            ============================================================ */
         .acct-voucher-detail {
             padding: 20px 22px;
-            background: linear-gradient(135deg, rgba(238, 242, 255, 0.7) 0%, rgba(248, 250, 252, 0.9) 100%);
+            background: linear-gradient(135deg, rgba(243, 244, 246, 0.7) 0%, rgba(248, 250, 252, 0.9) 100%);
             border-top: 1px solid var(--gray-200);
             border-radius: 0 0 var(--radius-lg) var(--radius-lg);
             animation: expandDown 0.2s cubic-bezier(0.22, 1, 0.36, 1);
@@ -896,7 +896,7 @@
         /* Gradient header */
         .acct-export-summary__header {
             padding: 14px 20px;
-            background: linear-gradient(135deg, var(--accent) 0%, #6d28d9 100%);
+            background: linear-gradient(135deg, var(--accent) 0%, #374151 100%);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -929,7 +929,7 @@
             transition: background 0.15s;
         }
         .acct-export-summary__row:last-child { border-bottom: none; }
-        .acct-export-summary__row:hover { background: rgba(79, 70, 229, 0.025); }
+        .acct-export-summary__row:hover { background: rgba(17, 24, 39, 0.025); }
         .acct-export-summary__label { color: var(--gray-500); }
         .acct-export-summary__value {
             font-weight: 700;
@@ -1124,7 +1124,7 @@
         .acct-mapping-delete:hover { background: var(--red-bg); color: var(--red); }
 
         /* ============================================================
-           CHECKBOX — CUSTOM INDIGO
+           CHECKBOX — CUSTOM DARK
            ============================================================ */
         .acct-checkbox {
             width: 16px;
