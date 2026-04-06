@@ -1666,6 +1666,12 @@ h3.admin-section-label {
     align-items: center;
     justify-content: center;
     margin-bottom: 2px;
+    flex-shrink: 0;
+}
+.exp-action-card__icon svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
 }
 .exp-action-card__icon--teal   { background: #ecfdf5; }
 .exp-action-card__icon--teal svg   { stroke: #0d9488; }
