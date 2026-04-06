@@ -1478,7 +1478,7 @@ const api = {
         const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
-        const profile = await this.getProfile();
+        const { data: profile } = await supabase.from('profiles').select('role, organization_id').eq('id', user.id).single();
         const role = profile?.role || 'employee';
 
         let query = supabase.from('advances').select('*, profiles!advances_user_id_fkey(name, email)');
@@ -2396,18 +2396,36 @@ const api = {
         try {
             const supabase = getSupabase();
             const user = await getCachedUser();
-            const profile = await this.getProfile();
-            const orgId = profile?.organization_id;
+            if (!user) return;
 
-            const { error } = await supabase.from('notifications').insert({
+            // Get org ID from current user's profile
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('organization_id')
+                .eq('id', user.id)
+                .single();
+
+            // Use 'system' type as fallback if advance types not in DB constraint
+            const safeType = ['voucher_submitted', 'voucher_approved', 'voucher_rejected',
+                'voucher_reimbursed', 'voucher_resubmitted',
+                'employee_joined', 'project_created', 'system'].includes(type)
+                ? type : 'system';
+
+            const insertData = {
                 user_id: userId,
-                organization_id: orgId,
-                type: type,
+                organization_id: profile?.organization_id || null,
+                type: safeType,
                 title: title,
                 message: message,
-                related_id: relatedId,
                 is_read: false
-            });
+            };
+            // Only add reference_id if it's a valid UUID
+            if (relatedId && typeof relatedId === 'string' && relatedId.includes('-')) {
+                insertData.reference_id = relatedId;
+                insertData.reference_type = type.startsWith('advance') ? 'advance' : 'voucher';
+            }
+
+            const { error } = await supabase.from('notifications').insert(insertData);
             if (error) console.error('Create notification error:', error);
         } catch (e) {
             console.error('Failed to create notification:', e);
