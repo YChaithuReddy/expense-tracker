@@ -39,6 +39,11 @@ const notificationCenter = (() => {
         voucher_rejected: { icon: '❌', color: '#ef4444' },
         voucher_reimbursed: { icon: '💰', color: '#06b6d4' },
         voucher_resubmitted: { icon: '🔄', color: '#f59e0b' },
+        advance_submitted: { icon: '💸', color: '#8b5cf6' },
+        advance_approved: { icon: '✅', color: '#10b981' },
+        advance_rejected: { icon: '❌', color: '#ef4444' },
+        advance_resubmitted: { icon: '🔄', color: '#f59e0b' },
+        expense_added: { icon: '🧾', color: '#0ea5e9' },
         employee_joined: { icon: '👤', color: '#3b82f6' },
         project_created: { icon: '📁', color: '#a78bfa' },
         system: { icon: '🔔', color: '#64748b' }
