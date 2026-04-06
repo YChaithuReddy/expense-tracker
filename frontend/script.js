@@ -4864,63 +4864,7 @@ class ExpenseTracker {
                 totalPages = mergedPdf.getPageCount();
             }
 
-            // Step 4b: Prepend advance summary page if advances exist
-            if (this.advances && this.advances.length > 0) {
-                try {
-                    const { StandardFonts, rgb } = PDFLib;
-                    const summaryDoc = await PDFDocument.create();
-                    const summaryPage = summaryDoc.addPage([595, 842]); // A4 points
-                    const boldFont = await summaryDoc.embedFont(StandardFonts.HelveticaBold);
-                    const regularFont = await summaryDoc.embedFont(StandardFonts.Helvetica);
-
-                    const margin = 50;
-                    let y = 800;
-
-                    // Title
-                    summaryPage.drawText('Advance Summary', {
-                        x: margin, y, font: boldFont, size: 18, color: rgb(0.06, 0.47, 0.51)
-                    });
-                    y -= 30;
-                    summaryPage.drawText(new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' }), {
-                        x: margin, y, font: regularFont, size: 10, color: rgb(0.45, 0.45, 0.45)
-                    });
-                    y -= 25;
-                    summaryPage.drawLine({ start: { x: margin, y }, end: { x: 545, y }, thickness: 0.5, color: rgb(0.8, 0.8, 0.8) });
-                    y -= 20;
-
-                    // Headers
-                    const col = [margin, 220, 320, 420];
-                    summaryPage.drawText('Project', { x: col[0], y, font: boldFont, size: 9, color: rgb(0.3, 0.3, 0.3) });
-                    summaryPage.drawText('Advance', { x: col[1], y, font: boldFont, size: 9, color: rgb(0.3, 0.3, 0.3) });
-                    summaryPage.drawText('Spent', { x: col[2], y, font: boldFont, size: 9, color: rgb(0.3, 0.3, 0.3) });
-                    summaryPage.drawText('Remaining', { x: col[3], y, font: boldFont, size: 9, color: rgb(0.3, 0.3, 0.3) });
-                    y -= 14;
-                    summaryPage.drawLine({ start: { x: margin, y }, end: { x: 545, y }, thickness: 0.3, color: rgb(0.85, 0.85, 0.85) });
-                    y -= 16;
-
-                    for (const adv of this.advances) {
-                        if (y < 80) break;
-                        const isOverspent = adv.remaining < 0;
-                        const remainColor = isOverspent ? rgb(0.94, 0.27, 0.27) : rgb(0.06, 0.72, 0.51);
-                        const typeLabel = adv.visit_type ? ` (${adv.visit_type})` : '';
-                        const projectLabel = adv.project_name.substring(0, 22) + typeLabel;
-
-                        summaryPage.drawText(projectLabel, { x: col[0], y, font: regularFont, size: 9, color: rgb(0.1, 0.1, 0.1) });
-                        summaryPage.drawText(`Rs.${adv.amount.toLocaleString('en-IN')}`, { x: col[1], y, font: regularFont, size: 9, color: rgb(0.1, 0.1, 0.1) });
-                        summaryPage.drawText(`Rs.${adv.totalSpent.toLocaleString('en-IN')}`, { x: col[2], y, font: regularFont, size: 9, color: rgb(0.1, 0.1, 0.1) });
-                        summaryPage.drawText(`${isOverspent ? '-' : ''}Rs.${Math.abs(adv.remaining).toLocaleString('en-IN')}`, { x: col[3], y, font: boldFont, size: 9, color: remainColor });
-                        y -= 18;
-                        summaryPage.drawLine({ start: { x: margin, y: y + 4 }, end: { x: 545, y: y + 4 }, thickness: 0.2, color: rgb(0.92, 0.92, 0.92) });
-                    }
-
-                    // Copy summary page and insert as first page
-                    const [copiedSummaryPage] = await mergedPdf.copyPages(summaryDoc, [0]);
-                    mergedPdf.insertPage(0, copiedSummaryPage);
-                    totalPages = (totalPages || 0) + 1;
-                } catch (summaryErr) {
-                    console.warn('Could not add advance summary page:', summaryErr);
-                }
-            }
+            // Advance summary page removed — not needed in reimbursement PDF
 
             this.updateLoadingText('💾 Saving package...', 'Almost done');
 
