@@ -13,9 +13,15 @@ function switchSection(section, btn) {
     // When switching to history, update stats and trigger expense load
     if (section === 'history') {
         updateHistoryStats();
-        // Trigger expense loading if expenseTracker is available
         if (window.expenseTracker && typeof expenseTracker.loadExpenses === 'function') {
             expenseTracker.loadExpenses();
+        }
+    }
+
+    // When switching to reports, render analytics
+    if (section === 'reports') {
+        if (window.expenseTracker && typeof expenseTracker.renderReports === 'function') {
+            expenseTracker.renderReports();
         }
     }
 }
