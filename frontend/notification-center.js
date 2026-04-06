@@ -200,6 +200,11 @@ const notificationCenter = (() => {
             if (typeof approvalWorkflow !== 'undefined') {
                 approvalWorkflow.openVoucherDetail(refId);
             }
+        } else if (refType === 'advance' && refId) {
+            close();
+            if (typeof approvalWorkflow !== 'undefined') {
+                approvalWorkflow.openAdvanceDetail(refId);
+            }
         }
     }
 
