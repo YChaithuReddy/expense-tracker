@@ -299,11 +299,11 @@
 
             <!-- ROW 3: Action cards (4 columns) -->
             <div class="exp-actions-row">
-                <button id="exportToGoogleSheets" class="exp-action-card">
+                <button id="viewGoogleSheet" class="exp-action-card" onclick="expenseTracker.openGoogleSheet()">
                     <span class="exp-action-card__icon exp-action-card__icon--teal">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                     </span>
-                    <span class="exp-action-card__label">Export</span>
+                    <span class="exp-action-card__label">View Sheet</span>
                     <span class="exp-action-card__sub">Google Sheets</span>
                 </button>
                 <button id="viewSavedImages" class="exp-action-card">
@@ -432,9 +432,9 @@
                         <h2>Expense History</h2>
                         <p>View, search, and filter all your submitted expenses</p>
                     </div>
-                    <button id="historyExportBtn" style="display:none;align-items:center;gap:8px;padding:9px 20px;background:#059669;color:#ffffff;border:none;border-radius:10px;font-size:0.84rem;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(5,150,105,0.3);transition:all 0.18s;" onmouseover="this.style.background='#047857';this.style.boxShadow='0 6px 20px rgba(5,150,105,0.4)'" onmouseout="this.style.background='#059669';this.style.boxShadow='0 4px 14px rgba(5,150,105,0.3)'" onclick="expenseTracker.exportToGoogleSheets()">
+                    <button id="historyExportBtn" style="display:inline-flex;align-items:center;gap:8px;padding:9px 20px;background:#059669;color:#ffffff;border:none;border-radius:10px;font-size:0.84rem;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(5,150,105,0.3);transition:all 0.18s;" onmouseover="this.style.background='#047857';this.style.boxShadow='0 6px 20px rgba(5,150,105,0.4)'" onmouseout="this.style.background='#059669';this.style.boxShadow='0 4px 14px rgba(5,150,105,0.3)'" onclick="expenseTracker.exportToGoogleSheets()">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>
-                        <span id="historyExportBtnText">Export Selected</span>
+                        <span id="historyExportBtnText">Export to Google Sheets</span>
                     </button>
                 </div>
 
@@ -643,18 +643,18 @@
                         <p style="font-size:0.82rem;color:#9ca3af;margin:0;">Toggle between light and dark themes.</p>
                     </div>
 
-                    <!-- Export Card -->
-                    <div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,0.06);cursor:pointer;" onclick="document.getElementById('exportToGoogleSheets')?.click()">
+                    <!-- View Sheet Card -->
+                    <div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,0.06);cursor:pointer;" onclick="expenseTracker.openGoogleSheet()">
                         <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px;">
                             <div style="width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,#374151,#111827);display:flex;align-items:center;justify-content:center;">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                             </div>
                             <div>
                                 <h3 style="margin:0;font-size:0.95rem;font-weight:700;color:#111827;">Google Sheets</h3>
-                                <p style="margin:2px 0 0;font-size:0.78rem;color:#6b7280;">Export & sync</p>
+                                <p style="margin:2px 0 0;font-size:0.78rem;color:#6b7280;">View your sheet</p>
                             </div>
                         </div>
-                        <p style="font-size:0.82rem;color:#9ca3af;margin:0;">Export your expenses to Google Sheets for backup and sharing.</p>
+                        <p style="font-size:0.82rem;color:#9ca3af;margin:0;">Open your Google Sheet to view exported expenses.</p>
                     </div>
                 </div>
             </div><!-- /section-settings -->

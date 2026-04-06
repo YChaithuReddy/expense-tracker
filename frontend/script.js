@@ -143,7 +143,7 @@ class ExpenseTracker {
         this.initializeClearDropdown();
 
         // Google Sheets export (simplified - no configuration needed)
-        document.getElementById('exportToGoogleSheets').addEventListener('click', () => this.exportToGoogleSheets());
+        document.getElementById('exportToGoogleSheets')?.addEventListener('click', () => this.exportToGoogleSheets());
 
         // Download combined reimbursement package
         document.getElementById('downloadReimbursementPackage').addEventListener('click', () => this.generateCombinedReimbursementPDF());
@@ -6388,15 +6388,13 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             btnText.textContent = 'Google Export';
         }
 
-        // History page export button
-        const histExportBtn = document.getElementById('historyExportBtn');
+        // History page export button — always visible, text updates with count
         const histExportText = document.getElementById('historyExportBtnText');
-        if (histExportBtn) {
+        if (histExportText) {
             if (checkboxes.length > 0) {
-                histExportBtn.style.display = 'inline-flex';
-                if (histExportText) histExportText.textContent = `Export Selected (${checkboxes.length})`;
+                histExportText.textContent = `Export Selected (${checkboxes.length})`;
             } else {
-                histExportBtn.style.display = 'none';
+                histExportText.textContent = 'Export to Google Sheets';
             }
         }
     }
@@ -6405,6 +6403,15 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         const checkboxes = document.querySelectorAll('.expense-checkbox:checked');
         const selectedIds = Array.from(checkboxes).map(cb => cb.dataset.expenseId); // Keep as string for MongoDB IDs
         return this.expenses.filter(expense => selectedIds.includes(expense.id));
+    }
+
+    openGoogleSheet() {
+        const sheetUrl = googleSheetsService?.sheetUrl;
+        if (sheetUrl) {
+            window.open(sheetUrl, '_blank');
+        } else {
+            this.showNotification('No Google Sheet found. Export some expenses first from the History page.');
+        }
     }
 
     async exportToGoogleSheets() {
