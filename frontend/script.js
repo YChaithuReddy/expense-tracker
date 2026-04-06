@@ -859,8 +859,9 @@ class ExpenseTracker {
         // Clear previous extracted expenses
         this.extractedExpenses = [];
 
-        // OCR backend proxy URL (Railway backend)
-        const OCR_BACKEND_URL = 'https://expense-tracker-production-8f00.up.railway.app/api/ocr/scan';
+        // OCR.space API — called directly (no backend proxy needed)
+        const OCR_API_URL = 'https://api.ocr.space/parse/image';
+        const OCR_API_KEY = 'K85403785688957'; // Free tier key
 
         try {
             // Show initializing status
@@ -881,25 +882,29 @@ class ExpenseTracker {
                 let ocrText = '';
                 let ocrConfidence = 0;
                 let retryCount = 0;
-                const maxRetries = 1; // Reduced from 2 — faster failure
+                const maxRetries = 1;
 
                 // Retry logic for individual image OCR
                 while (retryCount <= maxRetries) {
                     try {
                         if (ocrStatus) ocrStatus.textContent = `Scanning bill ${i + 1} of ${this.scannedImages.length}${retryCount > 0 ? ' (retry)' : ''}...`;
 
-                        // Call backend OCR proxy (API key stored server-side)
+                        // Call OCR.space API directly
                         const controller = new AbortController();
-                        const timeoutId = setTimeout(() => controller.abort(), 20000);
+                        const timeoutId = setTimeout(() => controller.abort(), 25000);
 
-                        const response = await fetch(OCR_BACKEND_URL, {
+                        const formData = new FormData();
+                        formData.append('apikey', OCR_API_KEY);
+                        formData.append('base64Image', this.scannedImages[i].data);
+                        formData.append('language', 'eng');
+                        formData.append('isOverlayRequired', 'false');
+                        formData.append('detectOrientation', 'true');
+                        formData.append('scale', 'true');
+                        formData.append('OCREngine', '2');
+
+                        const response = await fetch(OCR_API_URL, {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                base64Image: this.scannedImages[i].data,
-                                language: 'eng',
-                                ocrEngine: '2'
-                            }),
+                            body: formData,
                             signal: controller.signal
                         });
                         clearTimeout(timeoutId);
@@ -908,11 +913,7 @@ class ExpenseTracker {
                             throw new Error(`OCR API error: ${response.status}`);
                         }
 
-                        const proxyResult = await response.json();
-                        if (!proxyResult.success) {
-                            throw new Error(proxyResult.error || 'OCR processing failed');
-                        }
-                        const result = proxyResult.data;
+                        const result = await response.json();
 
                         if (result.ParsedResults && result.ParsedResults.length > 0) {
                             const parsedResult = result.ParsedResults[0];
@@ -8351,21 +8352,24 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             });
             this._quickAddImageData = dataUrl;
 
-            // Call backend OCR proxy (API key stored server-side)
-            const response = await fetch('/api/ocr/scan', {
+            // Call OCR.space API directly
+            const ocrForm = new FormData();
+            ocrForm.append('apikey', 'K85403785688957');
+            ocrForm.append('base64Image', dataUrl);
+            ocrForm.append('language', 'eng');
+            ocrForm.append('isOverlayRequired', 'false');
+            ocrForm.append('detectOrientation', 'true');
+            ocrForm.append('scale', 'true');
+            ocrForm.append('OCREngine', '2');
+
+            const response = await fetch('https://api.ocr.space/parse/image', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    base64Image: dataUrl,
-                    language: 'eng',
-                    ocrEngine: '2'
-                })
+                body: ocrForm
             });
 
             let ocrText = '';
             if (response.ok) {
-                const proxyResult = await response.json();
-                const result = proxyResult.success ? proxyResult.data : {};
+                const result = await response.json();
                 if (result.ParsedResults?.[0]?.ParsedText) {
                     ocrText = result.ParsedResults[0].ParsedText;
                 }
