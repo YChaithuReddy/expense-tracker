@@ -192,12 +192,12 @@ const approvalWorkflow = (() => {
                         <label>Expense Period</label>
                         <div style="display:flex;gap:12px;">
                             <div style="flex:1;">
-                                <small style="color:var(--text-secondary,#5a6180);font-size:0.72rem;">From</small>
-                                <input type="date" id="approvalPeriodFrom" style="width:100%;padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:var(--text-primary,#e0e0ff);font-size:0.85rem;box-sizing:border-box;">
+                                <small style="color:#64748b;font-size:0.72rem;">From</small>
+                                <input type="date" id="approvalPeriodFrom" style="width:100%;padding:8px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#0f172a;font-size:0.85rem;box-sizing:border-box;">
                             </div>
                             <div style="flex:1;">
-                                <small style="color:var(--text-secondary,#5a6180);font-size:0.72rem;">To</small>
-                                <input type="date" id="approvalPeriodTo" style="width:100%;padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:var(--text-primary,#e0e0ff);font-size:0.85rem;box-sizing:border-box;">
+                                <small style="color:#64748b;font-size:0.72rem;">To</small>
+                                <input type="date" id="approvalPeriodTo" style="width:100%;padding:8px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#0f172a;font-size:0.85rem;box-sizing:border-box;">
                             </div>
                         </div>
                     </div>
@@ -210,7 +210,7 @@ const approvalWorkflow = (() => {
 
                     <!-- Declaration -->
                     <div style="margin-top:16px;padding:14px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15);border-radius:10px;">
-                        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:0.82rem;color:var(--text-secondary,#8892b0);">
+                        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:0.82rem;color:#64748b;">
                             <input type="checkbox" id="approvalDeclaration" style="margin-top:2px;accent-color:#10b981;width:18px;height:18px;flex-shrink:0;">
                             <span>I hereby declare that the above expenses are incurred wholly and exclusively for official purposes and are supported by valid documents.</span>
                         </label>
@@ -366,7 +366,7 @@ const approvalWorkflow = (() => {
         const body = document.getElementById('approvalsBody');
         if (!body) return;
 
-        body.innerHTML = '<div style="text-align:center;padding:40px;color:#5a6180;">Loading...</div>';
+        body.innerHTML = '<div style="text-align:center;padding:40px;color:#64748b;">Loading...</div>';
 
         try {
             if (currentTab === 'my-vouchers') {
@@ -425,7 +425,7 @@ const approvalWorkflow = (() => {
 
         // Render vouchers
         if (vouchers.length > 0) {
-            html += `<div style="margin:16px 0 8px;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#5a6180;padding:0 4px;">Vouchers (${vouchers.length})</div>`;
+            html += `<div style="margin:16px 0 8px;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#64748b;padding:0 4px;">Vouchers (${vouchers.length})</div>`;
             html += vouchers.map(v => {
                 const person = `From: ${sanitize(v.submitter?.name || v.submitted_by)}`;
                 const projectInfo = v.project ? `<span class="expense-project-badge">${sanitize(v.project.project_code)}</span>` : '';
@@ -501,7 +501,7 @@ const approvalWorkflow = (() => {
                         <div class="approval-detail-info-card">
                             <span class="approval-detail-info-label">Requested By</span>
                             <span class="approval-detail-info-value">${sanitize(adv.submitter?.name || '')}</span>
-                            <span style="font-size:0.72rem;color:#5a6180;">${sanitize(adv.submitter?.email || '')}</span>
+                            <span style="font-size:0.72rem;color:#64748b;">${sanitize(adv.submitter?.email || '')}</span>
                         </div>
                         <div class="approval-detail-info-card">
                             <span class="approval-detail-info-label">Manager</span>
@@ -517,13 +517,13 @@ const approvalWorkflow = (() => {
 
                     ${adv.history && adv.history.length > 0 ? `
                         <div style="margin-bottom:20px;">
-                            <h4 style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:#5a6180;margin:0 0 10px;">History</h4>
+                            <h4 style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:#64748b;margin:0 0 10px;">History</h4>
                             ${adv.history.map(h => `
                                 <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
                                     <span style="width:8px;height:8px;border-radius:50%;background:#a78bfa;margin-top:5px;flex-shrink:0;"></span>
                                     <div>
                                         <strong style="font-size:0.82rem;">${sanitize(h.action.replace(/_/g, ' '))}</strong>
-                                        <div style="font-size:0.75rem;color:#5a6180;">${sanitize(h.actor?.name || '')}${h.comments ? ' — ' + sanitize(h.comments) : ''}</div>
+                                        <div style="font-size:0.75rem;color:#64748b;">${sanitize(h.actor?.name || '')}${h.comments ? ' — ' + sanitize(h.comments) : ''}</div>
                                         <div style="font-size:0.7rem;color:#3a3f5c;">${h.created_at ? relativeTime(h.created_at) : ''}</div>
                                     </div>
                                 </div>
@@ -725,15 +725,15 @@ const approvalWorkflow = (() => {
                     <div style="padding:14px;background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.15);border-radius:10px;margin-bottom:16px;">
                         <h4 style="color:#a78bfa;margin:0 0 10px;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.04em;">Advance Reconciliation</h4>
                         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;font-size:0.85rem;">
-                            <div><span style="color:var(--text-secondary,#5a6180);font-size:0.72rem;display:block;">Advance Taken</span><strong style="color:#a78bfa;">${formatAmount(v.advance.amount)}</strong></div>
-                            <div><span style="color:var(--text-secondary,#5a6180);font-size:0.72rem;display:block;">Total Expenses</span><strong style="color:#10b981;">${formatAmount(v.total_amount)}</strong></div>
-                            <div><span style="color:var(--text-secondary,#5a6180);font-size:0.72rem;display:block;">${parseFloat(v.advance.amount) > parseFloat(v.total_amount) ? 'Balance Recoverable' : 'Balance Payable'}</span><strong style="color:${parseFloat(v.advance.amount) > parseFloat(v.total_amount) ? '#f59e0b' : '#ef4444'};">${formatAmount(Math.abs(parseFloat(v.advance.amount) - parseFloat(v.total_amount)))}</strong></div>
+                            <div><span style="color:#64748b;font-size:0.72rem;display:block;">Advance Taken</span><strong style="color:#a78bfa;">${formatAmount(v.advance.amount)}</strong></div>
+                            <div><span style="color:#64748b;font-size:0.72rem;display:block;">Total Expenses</span><strong style="color:#10b981;">${formatAmount(v.total_amount)}</strong></div>
+                            <div><span style="color:#64748b;font-size:0.72rem;display:block;">${parseFloat(v.advance.amount) > parseFloat(v.total_amount) ? 'Balance Recoverable' : 'Balance Payable'}</span><strong style="color:${parseFloat(v.advance.amount) > parseFloat(v.total_amount) ? '#f59e0b' : '#ef4444'};">${formatAmount(Math.abs(parseFloat(v.advance.amount) - parseFloat(v.total_amount)))}</strong></div>
                         </div>
                     </div>
                     ` : ''}
 
                     <!-- Declaration -->
-                    ${v.declaration_accepted ? `<div style="padding:10px 14px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.12);border-radius:8px;margin-bottom:16px;font-size:0.78rem;color:var(--text-secondary,#8892b0);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" style="vertical-align:middle;margin-right:6px;"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Employee declared expenses are for official purposes with valid documents</div>` : ''}
+                    ${v.declaration_accepted ? `<div style="padding:10px 14px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.12);border-radius:8px;margin-bottom:16px;font-size:0.78rem;color:#64748b;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" style="vertical-align:middle;margin-right:6px;"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Employee declared expenses are for official purposes with valid documents</div>` : ''}
 
                     <!-- Attachments -->
                     ${(v.google_sheet_url || v.pdf_filename) ? `
@@ -755,13 +755,13 @@ const approvalWorkflow = (() => {
                     <!-- Expenses -->
                     <div class="approval-detail-section">
                         <h3>Expenses (${v.expenses?.length || 0})</h3>
-                        <div class="approval-detail-expenses">${expensesHTML || '<p style="color:#5a6180;">No expenses</p>'}</div>
+                        <div class="approval-detail-expenses">${expensesHTML || '<p style="color:#64748b;">No expenses</p>'}</div>
                     </div>
 
                     <!-- Timeline -->
                     <div class="approval-detail-section">
                         <h3>History</h3>
-                        <div class="approval-timeline">${timelineHTML || '<p style="color:#5a6180;">No history</p>'}</div>
+                        <div class="approval-timeline">${timelineHTML || '<p style="color:#64748b;">No history</p>'}</div>
                     </div>
 
                     ${actionsHTML}
@@ -949,7 +949,7 @@ const approvalWorkflow = (() => {
                         </div>
                         <div style="display:flex;gap:8px;">
                             <span class="visit-type-badge visit-type-badge--${advanceData.visitType || 'project'}">${advanceData.visitType || 'project'}</span>
-                            ${advanceData.notes ? `<span style="font-size:0.78rem;color:#5a6180;">${sanitize(advanceData.notes)}</span>` : ''}
+                            ${advanceData.notes ? `<span style="font-size:0.78rem;color:#64748b;">${sanitize(advanceData.notes)}</span>` : ''}
                         </div>
                     </div>
                     <div class="approval-form-group">

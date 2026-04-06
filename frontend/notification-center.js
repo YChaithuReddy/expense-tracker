@@ -41,7 +41,7 @@ const notificationCenter = (() => {
         voucher_resubmitted: { icon: '🔄', color: '#f59e0b' },
         employee_joined: { icon: '👤', color: '#3b82f6' },
         project_created: { icon: '📁', color: '#a78bfa' },
-        system: { icon: '🔔', color: '#8892b0' }
+        system: { icon: '🔔', color: '#64748b' }
     };
 
     // ==================== Init ====================
