@@ -24,7 +24,7 @@
     z-index: 10001;
     display: flex;
     flex-direction: column;
-    background: rgba(8, 8, 22, 0.94);
+    background: rgba(0, 0, 0, 0.4);
     -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
     animation: approval-overlay-in 0.25s ease both;
@@ -33,7 +33,7 @@
 /* ---- Modal Container (Full Screen) ---- */
 .approval-modal,
 .approval-detail-modal {
-    background: linear-gradient(160deg, #0d0d24 0%, #10102e 55%, #0a0a1e 100%);
+    background: #ffffff;
     border: none;
     border-radius: 0;
     width: 100%;
@@ -126,7 +126,7 @@
     gap: 12px;
     justify-content: flex-end;
     padding: 18px 28px;
-    border-top: 1px solid rgba(255, 255, 255, 0.04);
+    border-top: 1px solid #f3f4f6;
     background: rgba(0, 0, 0, 0.2);
     flex-shrink: 0;
     max-width: 920px;
@@ -191,9 +191,9 @@
 .approval-expense-list {
     margin-bottom: 20px;
     border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.04);
+    border: 1px solid #f3f4f6;
     overflow: hidden;
-    background: rgba(255, 255, 255, 0.02);
+    background: #f3f4f6;
 }
 .approval-expense-list h4 {
     color: #5a4e7a;
@@ -203,7 +203,7 @@
     text-transform: uppercase;
     letter-spacing: 0.07em;
     font-weight: 700;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    border-bottom: 1px solid #f3f4f6;
     background: rgba(139, 92, 246, 0.04);
 }
 
@@ -212,11 +212,11 @@
     align-items: center;
     gap: 12px;
     padding: 10px 14px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid #f3f4f6;
     font-size: 0.82rem;
     transition: background 0.15s ease;
 }
-.approval-expense-row:hover { background: rgba(255, 255, 255, 0.02); }
+.approval-expense-row:hover { background: #f3f4f6; }
 .approval-expense-row:last-child { border-bottom: none; }
 
 .approval-expense-date { color: #4a4a7a; font-size: 0.74rem; min-width: 72px; }
@@ -294,13 +294,13 @@
 .approval-btn--cancel {
     background: transparent;
     color: #6a5a8a;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid #f3f4f6;
     transition: all 0.2s ease;
 }
 .approval-btn--cancel:hover {
-    background: rgba(255, 255, 255, 0.05);
+    background: #f3f4f6;
     color: #9a8aba;
-    border-color: rgba(255, 255, 255, 0.14);
+    border-color: #e5e7eb;
 }
 
 .approval-btn--approve {
@@ -359,7 +359,7 @@
     z-index: 9000;
     display: none;
     flex-direction: column;
-    background: rgba(8, 8, 22, 0.94);
+    background: rgba(0, 0, 0, 0.4);
     -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
     animation: approval-overlay-in 0.25s ease both;
@@ -411,7 +411,7 @@
     display: flex;
     gap: 2px;
     padding: 12px 24px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    border-bottom: 1px solid #f3f4f6;
     background: rgba(0, 0, 0, 0.15);
     flex-shrink: 0;
 }
@@ -465,8 +465,8 @@
 .approvals-body::-webkit-scrollbar-thumb { background: rgba(139, 92, 246, 0.2); border-radius: 3px; }
 
 .approval-voucher-card {
-    background: rgba(255, 255, 255, 0.018);
-    border: 1px solid rgba(255, 255, 255, 0.055);
+    background: #f3f4f6;
+    border: 1px solid #f3f4f6;
     border-radius: 14px;
     padding: 18px;
     margin-bottom: 12px;
@@ -619,8 +619,8 @@
 /* ---- Detail Section ---- */
 .approval-detail-section {
     margin-bottom: 24px;
-    background: rgba(255, 255, 255, 0.015);
-    border: 1px solid rgba(255, 255, 255, 0.04);
+    background: #f3f4f6;
+    border: 1px solid #f3f4f6;
     border-radius: 14px;
     overflow: hidden;
 }
@@ -632,7 +632,7 @@
     text-transform: uppercase;
     letter-spacing: 0.07em;
     font-weight: 700;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    border-bottom: 1px solid #f3f4f6;
     background: rgba(139, 92, 246, 0.04);
 }
 
@@ -641,10 +641,10 @@
     align-items: center;
     justify-content: space-between;
     padding: 11px 16px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid #f3f4f6;
     transition: background 0.15s ease;
 }
-.approval-detail-expense:hover { background: rgba(255, 255, 255, 0.02); }
+.approval-detail-expense:hover { background: #f3f4f6; }
 .approval-detail-expense:last-child { border-bottom: none; }
 
 .approval-detail-expense__info {
@@ -724,7 +724,7 @@
     gap: 12px;
     justify-content: flex-end;
     padding-top: 20px;
-    border-top: 1px solid rgba(255, 255, 255, 0.04);
+    border-top: 1px solid #f3f4f6;
     margin-top: 20px;
     position: relative;
 }
@@ -758,7 +758,7 @@
     padding: 11px 13px;
     border-radius: 9px;
     border: 1px solid rgba(239, 68, 68, 0.18);
-    background: rgba(255, 255, 255, 0.03);
+    background: #f3f4f6;
     color: #c8c0f0;
     font-size: 0.85rem;
     outline: none;
