@@ -1566,15 +1566,31 @@ WDL1,WONDERLA,Amusement Park,Amusement Park</code>
             const statusFilter = document.getElementById('advanceStatusFilter')?.value || '';
 
             try {
-                let query = supabase
-                    .from('advances')
-                    .select('*, submitter:user_id(name, email, employee_id, department)')
-                    .eq('organization_id', orgId)
-                    .order('created_at', { ascending: false });
+                // Try with profile join first, fall back to plain select if FK doesn't exist
+                let advances;
+                try {
+                    let query = supabase
+                        .from('advances')
+                        .select('*, submitter:user_id(name, email, employee_id, department)')
+                        .eq('organization_id', orgId)
+                        .order('created_at', { ascending: false });
+                    if (statusFilter) query = query.eq('status', statusFilter);
+                    const res = await query;
+                    if (res.error) throw res.error;
+                    advances = res.data;
+                } catch (joinErr) {
+                    console.warn('Advance join failed, falling back to plain query:', joinErr.message);
+                    let query = supabase
+                        .from('advances')
+                        .select('*')
+                        .eq('organization_id', orgId)
+                        .order('created_at', { ascending: false });
+                    if (statusFilter) query = query.eq('status', statusFilter);
+                    const res = await query;
+                    advances = res.data;
+                }
 
-                if (statusFilter) query = query.eq('status', statusFilter);
-
-                const { data: advances } = await query;
+                console.log('Advances loaded:', advances?.length || 0, 'orgId:', orgId);
 
                 // Stats
                 const stats = document.getElementById('advanceStats');

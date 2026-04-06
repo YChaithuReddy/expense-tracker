@@ -1740,13 +1740,29 @@
             const statusFilter = document.getElementById('advanceStatusFilter')?.value || '';
 
             try {
-                let query = supabase
-                    .from('advances')
-                    .select('*, submitter:user_id(name, email, employee_id, department)')
-                    .eq('organization_id', orgId)
-                    .order('created_at', { ascending: false });
-                if (statusFilter) query = query.eq('status', statusFilter);
-                const { data: advances } = await query;
+                let advances;
+                try {
+                    let query = supabase
+                        .from('advances')
+                        .select('*, submitter:user_id(name, email, employee_id, department)')
+                        .eq('organization_id', orgId)
+                        .order('created_at', { ascending: false });
+                    if (statusFilter) query = query.eq('status', statusFilter);
+                    const res = await query;
+                    if (res.error) throw res.error;
+                    advances = res.data;
+                } catch (joinErr) {
+                    console.warn('Advance join failed, falling back:', joinErr.message);
+                    let query = supabase
+                        .from('advances')
+                        .select('*')
+                        .eq('organization_id', orgId)
+                        .order('created_at', { ascending: false });
+                    if (statusFilter) query = query.eq('status', statusFilter);
+                    const res = await query;
+                    advances = res.data;
+                }
+                console.log('Advances loaded:', advances?.length || 0, 'orgId:', orgId);
 
                 const stats = document.getElementById('advanceStats');
                 const all = advances || [];
