@@ -1802,58 +1802,7 @@ html.modal-open body {
 /* ═══════════════════════════════════════════════════════════════════════════
    SECTION 13: LIGHT THEME OVERRIDES
    ═══════════════════════════════════════════════════════════════════════════ */
-
-{
-  /* Design Tokens - Light overrides */
-  --clear-bg-base: #f9fafb;
-  --clear-bg-surface: #ffffff;
-  --clear-bg-elevated: #ffffff;
-  --clear-bg-card: #ffffff;
-  --clear-bg-card-hover: #f9fafb;
-  --clear-bg-overlay: rgba(241, 245, 249, 0.92);
-
-  --clear-accent-primary: #111827;
-  --clear-accent-secondary: #374151;
-
-  --clear-text-primary: #111827;
-  --clear-text-secondary: #374151;
-  --clear-text-muted: #6b7280;
-  --clear-text-disabled: #94a3b8;
-
-  --clear-border-subtle: rgba(226, 232, 240, 0.6);
-  --clear-border-default: #e5e7eb;
-  --clear-border-strong: #d1d5db;
-  --clear-border-accent: rgba(30, 41, 59, 0.4);
-
-  --clear-shadow-sm:
-    0 1px 2px rgba(0, 0, 0, 0.05),
-    0 1px 3px rgba(0, 0, 0, 0.04);
-
-  --clear-shadow-md:
-    0 4px 6px rgba(0, 0, 0, 0.06),
-    0 2px 4px rgba(0, 0, 0, 0.04),
-    0 1px 2px rgba(0, 0, 0, 0.03);
-
-  --clear-shadow-lg:
-    0 10px 20px rgba(0, 0, 0, 0.08),
-    0 6px 12px rgba(0, 0, 0, 0.05),
-    0 2px 4px rgba(0, 0, 0, 0.03);
-
-  --clear-shadow-xl:
-    0 20px 40px rgba(0, 0, 0, 0.1),
-    0 15px 30px rgba(0, 0, 0, 0.06);
-
-  --clear-glow-cyan-soft: none;
-  --clear-glow-cyan-strong: none;
-  --clear-glow-success: 0 0 12px rgba(34, 197, 94, 0.15);
-  --clear-glow-danger: 0 0 12px rgba(220, 38, 38, 0.15);
-  --clear-glow-warning: 0 0 12px rgba(245, 158, 11, 0.15);
-
-  --clear-glass-bg: rgba(255, 255, 255, 0.85);
-  --clear-glass-bg-light: rgba(241, 245, 249, 0.5);
-  --clear-glass-blur: blur(20px) saturate(120%);
-  --clear-glass-border: 1px solid #e5e7eb;
-}
+
 
 /* ── Modal Container ── */
 .clear-data-backdrop {

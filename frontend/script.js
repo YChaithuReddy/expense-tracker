@@ -6374,7 +6374,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         const selectAllCheckbox = document.getElementById('selectAllCheckbox');
         const allCheckboxes = document.querySelectorAll('.expense-checkbox');
         const exportBtn = document.getElementById('exportToGoogleSheets');
-        const btnText = exportBtn.querySelector('.btn-text');
+        const btnText = exportBtn.querySelector('.exp-action-card__label, .btn-text');
 
         // Update select all checkbox state
         if (allCheckboxes.length > 0) {
@@ -6428,7 +6428,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
 
         try {
             const button = document.getElementById('exportToGoogleSheets');
-            button.querySelector('.btn-text').textContent = 'Exporting...';
+            button.querySelector('.exp-action-card__label, .btn-text').textContent = 'Exporting...';
             button.disabled = true;
 
             // Show loading indicator
@@ -6469,7 +6469,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             this.showNotification('❌ Export failed: ' + error.message);
         } finally {
             const button = document.getElementById('exportToGoogleSheets');
-            button.querySelector('.btn-text').textContent = 'Google Export';
+            button.querySelector('.exp-action-card__label, .btn-text').textContent = 'Google Export';
             button.disabled = false;
         }
     }
@@ -6556,8 +6556,8 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
 
         try {
             const button = document.getElementById('resetGoogleSheet');
-            const originalText = button.querySelector('.btn-text').textContent;
-            button.querySelector('.btn-text').textContent = 'Resetting...';
+            const originalText = button.querySelector('.exp-action-card__label, .btn-text').textContent;
+            button.querySelector('.exp-action-card__label, .btn-text').textContent = 'Resetting...';
             button.disabled = true;
 
             console.log('Resetting Google Sheet...');
@@ -6576,7 +6576,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             this.showNotification('❌ Failed to reset sheet: ' + error.message);
         } finally {
             const button = document.getElementById('resetGoogleSheet');
-            button.querySelector('.btn-text').textContent = 'Reset Sheet';
+            button.querySelector('.exp-action-card__label, .btn-text').textContent = 'Reset Sheet';
             button.disabled = false;
         }
     }
