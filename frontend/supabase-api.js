@@ -2391,6 +2391,28 @@ const api = {
         return { success: true };
     },
 
+    async createNotification(userId, type, title, message, relatedId = null) {
+        try {
+            const supabase = getSupabase();
+            const user = await getCachedUser();
+            const profile = await this.getProfile();
+            const orgId = profile?.organization_id;
+
+            const { error } = await supabase.from('notifications').insert({
+                user_id: userId,
+                organization_id: orgId,
+                type: type,
+                title: title,
+                message: message,
+                related_id: relatedId,
+                is_read: false
+            });
+            if (error) console.error('Create notification error:', error);
+        } catch (e) {
+            console.error('Failed to create notification:', e);
+        }
+    },
+
     async sendNotificationEmail(to, subject, message, voucherNumber = '') {
         try {
             const supabase = getSupabase();

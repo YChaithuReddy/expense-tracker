@@ -1004,6 +1004,13 @@ const approvalWorkflow = (() => {
             window.expenseTracker?.showNotification(`Advance of ₹${parseFloat(advData.amount).toLocaleString('en-IN')} submitted for approval!`);
             await api.logActivity?.('advance_submitted', `Submitted advance of ₹${advData.amount} for ${advData.projectName}`);
 
+            // Notify manager (in-app)
+            if (managerId) {
+                api.createNotification(managerId, 'advance_submitted', 'New advance request',
+                    `${JSON.parse(localStorage.getItem('user') || '{}').name || 'An employee'} requests ₹${parseFloat(advData.amount).toLocaleString('en-IN')} advance for ${advData.projectName}.`,
+                    result?.id);
+            }
+
             // Email manager
             const user = JSON.parse(localStorage.getItem('user') || '{}');
             const orgId = getOrganizationId();
@@ -1033,6 +1040,19 @@ const approvalWorkflow = (() => {
             const user = JSON.parse(localStorage.getItem('user') || '{}');
             const amt = `₹${parseFloat(detail.amount).toLocaleString('en-IN')}`;
 
+            // In-app notifications
+            if (result.newStatus === 'pending_accountant' && detail.accountant_id) {
+                api.createNotification(detail.accountant_id, 'advance_submitted', 'Advance ready for verification',
+                    `Advance ${amt} for ${detail.project_name} approved by ${user.name || 'Manager'}. Please review.`, advanceId);
+            }
+            if (detail.user_id) {
+                api.createNotification(detail.user_id, 'advance_approved',
+                    result.newStatus === 'active' ? 'Advance approved!' : 'Manager approved your advance',
+                    `Your advance ${amt} for ${detail.project_name} was approved by ${user.name || 'Approver'}.${result.newStatus === 'pending_accountant' ? ' Pending accountant verification.' : ' Funds will be transferred.'}`,
+                    advanceId);
+            }
+
+            // Email notifications
             if (result.newStatus === 'pending_accountant' && detail.accountant?.email && typeof sendEmailNotification === 'function') {
                 sendEmailNotification(detail.accountant.email, 'Advance request ready for verification',
                     `Advance ${amt} for ${detail.project_name} was approved by ${user.name || 'Manager'}. Please review and process.`, 'Advance Approval');
@@ -1059,6 +1079,14 @@ const approvalWorkflow = (() => {
             const detail = await api.getAdvanceDetail(advanceId);
             await api.rejectAdvance(advanceId, reason);
             window.expenseTracker?.showNotification('Advance rejected');
+
+            // In-app notification to employee
+            if (detail.user_id) {
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                api.createNotification(detail.user_id, 'advance_rejected', 'Advance rejected',
+                    `Your advance of ₹${parseFloat(detail.amount).toLocaleString('en-IN')} for ${detail.project_name} was rejected by ${user.name || 'Approver'}.${reason ? ' Reason: ' + reason : ' You can edit and resubmit.'}`,
+                    advanceId);
+            }
 
             if (detail.submitter?.email && typeof sendEmailNotification === 'function') {
                 const user = JSON.parse(localStorage.getItem('user') || '{}');
