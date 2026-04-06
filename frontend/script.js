@@ -6509,27 +6509,27 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             overlay.style.cssText = 'position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);';
 
             const dupList = alreadyExported.slice(0, 5).map(e =>
-                `<div style="display:flex;justify-content:space-between;padding:6px 10px;background:rgba(245,158,11,0.08);border-radius:6px;margin:4px 0;font-size:0.8rem;">
-                    <span style="color:#e0e0ff;">${this.sanitizeHTML(e.vendor || e.description || 'Expense')}</span>
-                    <span style="color:#f59e0b;font-weight:600;">₹${this.formatAmount(e.amount)}</span>
+                `<div style="display:flex;justify-content:space-between;padding:6px 10px;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;margin:4px 0;font-size:0.8rem;">
+                    <span style="color:#0f172a;">${this.sanitizeHTML(e.vendor || e.description || 'Expense')}</span>
+                    <span style="color:#d97706;font-weight:600;">₹${this.formatAmount(e.amount)}</span>
                 </div>`
             ).join('');
-            const moreCount = alreadyExported.length > 5 ? `<div style="color:#5a6180;font-size:0.75rem;text-align:center;margin-top:4px;">...and ${alreadyExported.length - 5} more</div>` : '';
+            const moreCount = alreadyExported.length > 5 ? `<div style="color:#94a3b8;font-size:0.75rem;text-align:center;margin-top:4px;">...and ${alreadyExported.length - 5} more</div>` : '';
 
             const newMsg = newOnly.length > 0
                 ? `<div style="color:#10b981;font-size:0.85rem;margin-top:12px;">${newOnly.length} new expense(s) will be exported for the first time.</div>`
                 : '';
 
             overlay.innerHTML = `
-                <div style="background:var(--bg-secondary, #1a1a2e);border:1px solid rgba(245,158,11,0.3);border-radius:16px;padding:24px;max-width:440px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+                <div style="background:#ffffff;border:1px solid #fde68a;border-radius:16px;padding:24px;max-width:440px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.15);">
                     <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
-                        <div style="width:36px;height:36px;border-radius:10px;background:rgba(245,158,11,0.12);display:flex;align-items:center;justify-content:center;">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        <div style="width:36px;height:36px;border-radius:10px;background:#fffbeb;display:flex;align-items:center;justify-content:center;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                         </div>
-                        <h3 style="color:#f59e0b;margin:0;font-size:1rem;">Already Exported</h3>
+                        <h3 style="color:#d97706;margin:0;font-size:1rem;">Already Exported</h3>
                     </div>
-                    <p style="color:#8892b0;font-size:0.85rem;margin:0 0 12px;line-height:1.5;">
-                        <strong style="color:#e0e0ff;">${alreadyExported.length} of ${allSelected.length}</strong> selected expense(s) have already been exported to Google Sheets. Exporting again will create <strong style="color:#ef4444;">duplicate rows</strong>.
+                    <p style="color:#64748b;font-size:0.85rem;margin:0 0 12px;line-height:1.5;">
+                        <strong style="color:#0f172a;">${alreadyExported.length} of ${allSelected.length}</strong> selected expense(s) have already been exported to Google Sheets. Exporting again will create <strong style="color:#dc2626;">duplicate rows</strong>.
                     </p>
                     <div style="max-height:180px;overflow-y:auto;margin-bottom:8px;">
                         ${dupList}
@@ -6537,9 +6537,9 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                     </div>
                     ${newMsg}
                     <div style="display:flex;gap:10px;margin-top:20px;">
-                        <button class="exp-cancel" style="flex:1;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:#8892b0;cursor:pointer;font-size:0.85rem;">Cancel</button>
-                        ${newOnly.length > 0 ? `<button class="exp-new-only" style="flex:1;padding:10px;border-radius:8px;border:1px solid rgba(16,185,129,0.3);background:rgba(16,185,129,0.1);color:#10b981;cursor:pointer;font-size:0.85rem;font-weight:600;">Export New Only (${newOnly.length})</button>` : ''}
-                        <button class="exp-all" style="flex:1;padding:10px;border-radius:8px;border:none;background:#f59e0b;color:#000;cursor:pointer;font-size:0.85rem;font-weight:600;">Export All (${allSelected.length})</button>
+                        <button class="exp-cancel" style="flex:1;padding:10px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#64748b;cursor:pointer;font-size:0.85rem;">Cancel</button>
+                        ${newOnly.length > 0 ? `<button class="exp-new-only" style="flex:1;padding:10px;border-radius:8px;border:1px solid #a7f3d0;background:#ecfdf5;color:#059669;cursor:pointer;font-size:0.85rem;font-weight:600;">Export New Only (${newOnly.length})</button>` : ''}
+                        <button class="exp-all" style="flex:1;padding:10px;border-radius:8px;border:none;background:#d97706;color:#fff;cursor:pointer;font-size:0.85rem;font-weight:600;">Export All (${allSelected.length})</button>
                     </div>
                 </div>
             `;
