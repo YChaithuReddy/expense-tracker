@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#ffffff">
+    <meta name="theme-color" content="#0f172a">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Expense Tracker">
     <title>Login — FluxGen Expense Tracker</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -15,340 +15,363 @@
     <link rel="manifest" href="manifest.json">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --white: #ffffff;
-            --gray-50: #f8fafc;
-            --gray-100: #f1f5f9;
-            --gray-200: #e2e8f0;
-            --gray-300: #cbd5e1;
-            --gray-400: #94a3b8;
-            --gray-500: #64748b;
-            --gray-600: #475569;
-            --gray-700: #334155;
-            --gray-800: #1e293b;
-            --gray-900: #0f172a;
-            --black: #020617;
-            --accent: #111827;
-            --green: #059669;
-            --green-bg: #ecfdf5;
-            --red: #dc2626;
-            --red-bg: #fef2f2;
             --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 16px;
-            --radius-xl: 24px;
-            --shadow-sm: 0 1px 3px rgba(15,23,42,0.08), 0 1px 2px rgba(15,23,42,0.04);
-            --shadow-md: 0 4px 12px rgba(15,23,42,0.06), 0 2px 4px rgba(15,23,42,0.04);
-            --shadow-lg: 0 10px 25px rgba(0,0,0,0.08), 0 4px 10px rgba(15,23,42,0.06);
-            --shadow-xl: 0 20px 40px rgba(0,0,0,0.10), 0 8px 16px rgba(15,23,42,0.08);
         }
 
         html, body {
             height: 100%; width: 100%; margin: 0;
             font-family: var(--font);
-            background: var(--gray-50);
-            color: var(--gray-900);
             -webkit-font-smoothing: antialiased;
             overflow: hidden;
         }
 
-        /* ─── Layout ─── */
-        .login-shell {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            height: 100vh;
+        /* ─── Full-page Background ─── */
+        .login-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0f172a;
+            position: relative;
+            overflow: hidden;
         }
 
-        /* ─── Left Panel ─── */
-        .login-panel-left {
-            position: relative;
+        /* Mesh gradient orbs */
+        .login-page::before {
+            content: '';
+            position: absolute;
+            width: 600px; height: 600px;
+            top: -10%; left: -5%;
+            background: radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%);
+            filter: blur(60px);
+            animation: floatOrb1 15s ease-in-out infinite alternate;
+        }
+        .login-page::after {
+            content: '';
+            position: absolute;
+            width: 500px; height: 500px;
+            bottom: -10%; right: -5%;
+            background: radial-gradient(circle, rgba(14,165,233,0.12) 0%, transparent 70%);
+            filter: blur(60px);
+            animation: floatOrb2 12s ease-in-out infinite alternate;
+        }
+        @keyframes floatOrb1 { 0% { transform: translate(0,0); } 100% { transform: translate(60px, 40px); } }
+        @keyframes floatOrb2 { 0% { transform: translate(0,0); } 100% { transform: translate(-40px, -30px); } }
+
+        /* Subtle grid */
+        .grid-overlay {
+            position: absolute; inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+        }
+
+        /* ─── Main Card ─── */
+        .login-card {
+            position: relative; z-index: 1;
+            display: grid;
+            grid-template-columns: 380px 420px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 24px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            overflow: hidden;
+            box-shadow:
+                0 0 0 1px rgba(255,255,255,0.05),
+                0 20px 60px rgba(0,0,0,0.4),
+                0 0 120px rgba(99,102,241,0.06);
+            animation: cardIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* ─── Left Side — Branding ─── */
+        .card-left {
+            padding: 40px 36px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 40px 48px;
-            background: linear-gradient(135deg, var(--gray-800) 0%, var(--black) 100%);
+            position: relative;
             overflow: hidden;
         }
-        .login-panel-left::before {
+        .card-left::before {
             content: '';
-            position: absolute;
-            inset: 0;
-            background:
-                radial-gradient(ellipse 80% 60% at 20% 20%, rgba(255,255,255,0.04) 0%, transparent 60%),
-                radial-gradient(ellipse 60% 80% at 80% 80%, rgba(255,255,255,0.02) 0%, transparent 60%);
-            pointer-events: none;
-        }
-        .login-panel-left::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background-image:
-                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-            background-size: 48px 48px;
+            position: absolute; inset: 0;
+            background: linear-gradient(160deg, rgba(99,102,241,0.08) 0%, rgba(14,165,233,0.04) 50%, transparent 100%);
             pointer-events: none;
         }
 
-        .left-content { position: relative; z-index: 1; display: flex; flex-direction: column; height: 100%; justify-content: space-between; }
+        .brand-block { position: relative; z-index: 1; }
 
-        .brand-top-row { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
-        .brand-top-text { flex: 1; min-width: 0; }
-
-        .left-eyebrow {
-            display: inline-flex; align-items: center; gap: 8px;
-            font-size: 11px; font-weight: 600; letter-spacing: 0.12em;
-            text-transform: uppercase; color: var(--gray-400); margin-bottom: 16px;
+        .brand-logo {
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 10px 22px;
+            display: inline-flex;
+            align-items: center;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+            margin-bottom: 28px;
         }
-        .left-eyebrow-dot {
-            width: 6px; height: 6px; border-radius: 50%;
-            background: var(--green); box-shadow: 0 0 6px rgba(5,150,105,0.6);
-            animation: dotPulse 2s ease-in-out infinite;
-        }
-        @keyframes dotPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .brand-logo img { height: 40px; width: auto; display: block; }
 
-        .brand-logo-pill {
-            background: var(--white); border-radius: 16px; padding: 14px 28px;
-            display: inline-flex; align-items: center;
-            box-shadow: var(--shadow-xl);
+        .brand-tagline {
+            font-size: 11px; font-weight: 700;
+            letter-spacing: 0.14em; text-transform: uppercase;
+            color: rgba(255,255,255,0.35); margin-bottom: 14px;
         }
-        .brand-logo-pill img { height: 56px; width: auto; object-fit: contain; display: block; }
 
-        .left-hero { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 20px 0; }
-
-        .left-headline {
-            font-size: clamp(26px, 3vw, 38px); font-weight: 800;
-            line-height: 1.15; color: var(--white);
-            letter-spacing: -0.03em; margin-bottom: 18px;
+        .brand-headline {
+            font-size: 1.6rem; font-weight: 800;
+            line-height: 1.2; color: #ffffff;
+            letter-spacing: -0.03em; margin-bottom: 14px;
         }
-        .left-headline em {
-            font-style: normal;
-            background: linear-gradient(135deg, #e2e8f0, #ffffff);
+        .brand-headline span {
+            background: linear-gradient(135deg, #818cf8, #38bdf8);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
         }
 
-        .left-subtext { font-size: 14px; line-height: 1.7; color: var(--gray-400); max-width: 360px; }
-
-        .left-features { display: flex; flex-direction: column; gap: 14px; margin-top: 36px; list-style: none; }
-        .left-feature { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--gray-400); font-weight: 450; }
-        .left-feature-icon {
-            width: 28px; height: 28px; border-radius: 8px;
-            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
-            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        .brand-sub {
+            font-size: 0.82rem; line-height: 1.65;
+            color: rgba(255,255,255,0.45); max-width: 300px;
         }
-        .left-feature-icon svg { width: 14px; height: 14px; stroke: var(--gray-300); }
 
-        .left-footer { font-size: 12px; color: var(--gray-500); letter-spacing: 0.01em; }
-
-        /* ─── Right Panel ─── */
-        .login-panel-right {
+        /* Feature pills */
+        .feature-pills {
+            position: relative; z-index: 1;
+            display: flex; flex-direction: column; gap: 10px;
+            margin-top: 32px;
+        }
+        .feature-pill {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 14px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .feature-pill:hover {
+            background: rgba(255,255,255,0.07);
+            border-color: rgba(255,255,255,0.12);
+        }
+        .feature-pill-icon {
+            width: 32px; height: 32px; border-radius: 8px;
             display: flex; align-items: center; justify-content: center;
-            padding: 48px 40px; background: var(--white);
-            overflow-y: auto;
+            flex-shrink: 0;
         }
-        .login-form-card { width: 100%; max-width: 400px; }
+        .feature-pill-icon--blue { background: rgba(56,189,248,0.12); }
+        .feature-pill-icon--purple { background: rgba(129,140,248,0.12); }
+        .feature-pill-icon--green { background: rgba(52,211,153,0.12); }
+        .feature-pill-icon svg { width: 16px; height: 16px; }
+        .feature-pill-icon--blue svg { stroke: #38bdf8; }
+        .feature-pill-icon--purple svg { stroke: #818cf8; }
+        .feature-pill-icon--green svg { stroke: #34d399; }
+        .feature-pill-text { font-size: 0.78rem; color: rgba(255,255,255,0.55); font-weight: 500; }
 
-        .mobile-brand { display: none; text-align: center; margin-bottom: 24px; }
-        .mobile-brand-pill {
-            display: inline-flex; background: var(--gray-50); border-radius: 12px;
-            padding: 10px 20px; box-shadow: var(--shadow-sm);
+        .brand-footer {
+            position: relative; z-index: 1;
+            font-size: 0.68rem; color: rgba(255,255,255,0.2);
+            margin-top: 24px;
         }
-        .mobile-brand-pill img { height: 40px; width: auto; }
 
-        .form-header { margin-bottom: 32px; }
+        /* ─── Right Side — Form ─── */
+        .card-right {
+            padding: 40px 36px;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .form-header { margin-bottom: 28px; }
         .form-header-title {
-            font-size: 1.5rem; font-weight: 800; color: var(--gray-900);
+            font-size: 1.4rem; font-weight: 800; color: #0f172a;
             letter-spacing: -0.03em; margin-bottom: 6px;
         }
-        .form-header-sub { font-size: 0.88rem; color: var(--gray-500); }
+        .form-header-sub { font-size: 0.84rem; color: #64748b; }
 
-        /* Messages */
         .message {
-            padding: 12px 16px; border-radius: var(--radius-md);
-            font-size: 0.84rem; font-weight: 500; margin-bottom: 20px;
+            padding: 12px 14px; border-radius: 10px;
+            font-size: 0.82rem; font-weight: 500; margin-bottom: 18px;
         }
-        .message.error { background: var(--red-bg); color: var(--red); border: 1px solid #fecaca; }
-        .message.success { background: var(--green-bg); color: var(--green); border: 1px solid #a7f3d0; }
+        .message.error { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+        .message.success { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
 
-        /* Form */
-        .auth-form { display: flex; flex-direction: column; gap: 18px; }
-        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .auth-form { display: flex; flex-direction: column; gap: 16px; }
+
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
         .form-group label {
-            font-size: 0.8rem; font-weight: 600; color: var(--gray-700);
-            letter-spacing: 0.01em;
+            font-size: 0.78rem; font-weight: 600; color: #334155;
         }
         .form-group input {
-            padding: 11px 14px; border: 1.5px solid var(--gray-200);
-            border-radius: var(--radius-md); font-size: 0.88rem;
-            font-family: var(--font); color: var(--gray-900);
-            background: var(--white); outline: none;
+            padding: 10px 13px; border: 1.5px solid #e2e8f0;
+            border-radius: 10px; font-size: 0.86rem;
+            font-family: var(--font); color: #0f172a;
+            background: #ffffff; outline: none;
             transition: border-color 0.2s, box-shadow 0.2s;
         }
-        .form-group input::placeholder { color: var(--gray-400); }
+        .form-group input::placeholder { color: #94a3b8; }
         .form-group input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(17,24,39,0.08);
+            border-color: #0f172a;
+            box-shadow: 0 0 0 3px rgba(15,23,42,0.08);
         }
-        .form-group small {
-            font-size: 0.72rem; color: var(--gray-500); margin-top: 2px;
-        }
+        .form-group small { font-size: 0.7rem; color: #64748b; }
 
         .password-input-wrapper { position: relative; }
-        .password-input-wrapper input { width: 100%; padding-right: 42px; }
+        .password-input-wrapper input { width: 100%; padding-right: 40px; }
         .password-toggle-icon {
             position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-            cursor: pointer; font-size: 16px; user-select: none; opacity: 0.5;
+            cursor: pointer; font-size: 15px; user-select: none; opacity: 0.4;
             transition: opacity 0.15s;
         }
-        .password-toggle-icon:hover { opacity: 0.8; }
+        .password-toggle-icon:hover { opacity: 0.7; }
 
-        .forgot-row { display: flex; justify-content: flex-end; margin-top: -8px; }
+        .forgot-row { display: flex; justify-content: flex-end; margin-top: -6px; }
         .auth-link {
-            color: var(--accent); font-weight: 600; text-decoration: none;
-            transition: opacity 0.15s; font-size: 0.82rem;
+            color: #0f172a; font-weight: 600; text-decoration: none;
+            font-size: 0.78rem; transition: opacity 0.15s;
         }
-        .auth-link:hover { opacity: 0.7; text-decoration: underline; }
+        .auth-link:hover { opacity: 0.6; }
 
         .btn-primary {
-            width: 100%; padding: 12px; border: none;
-            border-radius: var(--radius-md);
-            background: var(--accent); color: var(--white);
-            font-size: 0.88rem; font-weight: 600; font-family: var(--font);
-            cursor: pointer; transition: background 0.18s, box-shadow 0.18s, transform 0.15s;
-            box-shadow: 0 4px 14px rgba(17,24,39,0.25);
+            width: 100%; padding: 11px; border: none;
+            border-radius: 10px;
+            background: #0f172a; color: #ffffff;
+            font-size: 0.86rem; font-weight: 600; font-family: var(--font);
+            cursor: pointer; transition: all 0.18s;
+            box-shadow: 0 4px 14px rgba(15,23,42,0.25);
         }
         .btn-primary:hover {
-            background: var(--gray-800);
-            box-shadow: 0 6px 20px rgba(17,24,39,0.35);
+            background: #1e293b;
+            box-shadow: 0 6px 20px rgba(15,23,42,0.35);
             transform: translateY(-1px);
         }
         .btn-primary:active { transform: translateY(0); }
         .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
-        /* Divider */
         .auth-divider {
-            display: flex; align-items: center; gap: 14px;
+            display: flex; align-items: center; gap: 12px; margin: 4px 0;
         }
-        .auth-divider-line { flex: 1; height: 1px; background: var(--gray-200); }
-        .auth-divider-text { font-size: 0.78rem; color: var(--gray-400); font-weight: 500; }
+        .auth-divider-line { flex: 1; height: 1px; background: #e2e8f0; }
+        .auth-divider-text { font-size: 0.75rem; color: #94a3b8; font-weight: 500; }
 
-        /* Google button */
         .btn-google {
-            width: 100%; padding: 11px; border: 1.5px solid var(--gray-200);
-            border-radius: var(--radius-md); background: var(--white);
-            font-size: 0.86rem; font-weight: 600; font-family: var(--font);
-            color: var(--gray-700); cursor: pointer;
+            width: 100%; padding: 10px; border: 1.5px solid #e2e8f0;
+            border-radius: 10px; background: #ffffff;
+            font-size: 0.84rem; font-weight: 600; font-family: var(--font);
+            color: #334155; cursor: pointer;
             display: flex; align-items: center; justify-content: center; gap: 10px;
-            transition: background 0.18s, border-color 0.18s, box-shadow 0.18s;
+            transition: all 0.18s;
         }
         .btn-google:hover {
-            background: var(--gray-50); border-color: var(--gray-300);
-            box-shadow: var(--shadow-sm);
+            background: #f8fafc; border-color: #cbd5e1;
+            box-shadow: 0 2px 8px rgba(15,23,42,0.06);
         }
 
-        /* APK banner */
         .apk-banner {
-            display: none; text-align: center; margin-top: 20px;
-            padding: 14px; background: var(--gray-50);
-            border: 1px solid var(--gray-200); border-radius: var(--radius-md);
+            display: none; text-align: center; margin-top: 16px;
+            padding: 10px; background: #f8fafc;
+            border: 1px solid #e2e8f0; border-radius: 10px;
         }
-        .apk-banner-text { font-size: 0.78rem; color: var(--gray-500); margin-bottom: 8px; }
+        .apk-banner-text { font-size: 0.75rem; color: #64748b; margin-bottom: 6px; }
         .apk-btn {
-            display: inline-flex; align-items: center; gap: 6px;
-            padding: 7px 16px; border-radius: 8px;
-            background: var(--gray-100); border: 1px solid var(--gray-200);
-            color: var(--gray-700); font-size: 0.78rem; font-weight: 600;
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 6px 14px; border-radius: 8px;
+            background: #f1f5f9; border: 1px solid #e2e8f0;
+            color: #334155; font-size: 0.75rem; font-weight: 600;
             text-decoration: none; transition: all 0.15s;
         }
-        .apk-btn:hover { background: var(--gray-200); color: var(--accent); }
-        .apk-btn svg { width: 14px; height: 14px; stroke: currentColor; }
+        .apk-btn:hover { background: #e2e8f0; }
+        .apk-btn svg { width: 13px; height: 13px; stroke: currentColor; }
 
-        /* Footer */
-        .auth-footer { text-align: center; margin-top: 24px; font-size: 0.84rem; color: var(--gray-500); }
-        .auth-footer a { color: var(--accent); font-weight: 600; text-decoration: none; }
+        .auth-footer {
+            text-align: center; margin-top: 20px;
+            font-size: 0.82rem; color: #64748b;
+        }
+        .auth-footer a { color: #0f172a; font-weight: 600; text-decoration: none; }
         .auth-footer a:hover { text-decoration: underline; }
 
+        /* ─── Mobile-only logo ─── */
+        .mobile-brand { display: none; text-align: center; margin-bottom: 20px; }
+        .mobile-brand-pill {
+            display: inline-flex; background: #f8fafc; border-radius: 12px;
+            padding: 10px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        .mobile-brand-pill img { height: 36px; width: auto; }
+
         /* ─── Responsive ─── */
-        @media (max-width: 900px) {
-            .login-shell { grid-template-columns: 1fr; }
-            .login-panel-left { display: none; }
-            .login-panel-right { padding: 40px 24px; }
+        @media (max-width: 860px) {
+            .login-card { grid-template-columns: 1fr; max-width: 440px; width: 90%; }
+            .card-left { display: none; }
+            .card-right { border-radius: 24px; }
             .mobile-brand { display: block; }
         }
         @media (max-width: 480px) {
-            .login-panel-right { padding: 32px 20px; }
+            .login-page { padding: 16px; }
+            .login-card { width: 100%; border-radius: 20px; }
+            .card-right { padding: 28px 24px; }
         }
     </style>
 </head>
 <body>
 
-<div class="login-shell">
+<div class="login-page">
+    <div class="grid-overlay"></div>
 
-    <!-- LEFT PANEL — Branding -->
-    <aside class="login-panel-left">
-        <div class="left-content">
-            <div class="brand-top-row">
-                <div class="brand-top-text">
-                    <span class="left-eyebrow">
-                        <span class="left-eyebrow-dot"></span>
-                        FluxGen Technologies Pvt Ltd
-                    </span>
-                    <h2 class="left-headline">
-                        Simplify your<br>
-                        <em>expense management.</em>
-                    </h2>
-                </div>
-                <div class="brand-logo-wrap">
-                    <div class="brand-logo-pill">
-                        <img src="fluxgen-logo.jpg" alt="FluxGen Technologies">
-                    </div>
-                </div>
-            </div>
-
-            <div class="left-hero">
-                <p class="left-subtext">
-                    One platform to track, approve, and report every rupee your team spends — with OCR scanning, UPI integration, and real-time insights.
-                </p>
-                <ul class="left-features">
-                    <li class="left-feature">
-                        <span class="left-feature-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
-                        </span>
-                        OCR bill scanning with instant data extraction
-                    </li>
-                    <li class="left-feature">
-                        <span class="left-feature-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
-                        </span>
-                        UPI payment integration — Google Pay, PhonePe
-                    </li>
-                    <li class="left-feature">
-                        <span class="left-feature-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                        </span>
-                        Real-time approvals and Google Sheets export
-                    </li>
-                </ul>
-            </div>
-
-            <footer class="left-footer">
-                &copy; 2025 FluxGen Technologies Pvt Ltd. All rights reserved.
-            </footer>
-        </div>
-    </aside>
-
-    <!-- RIGHT PANEL — Form -->
-    <main class="login-panel-right">
-        <div class="login-form-card">
-
-            <div class="mobile-brand">
-                <div class="mobile-brand-pill">
+    <div class="login-card">
+        <!-- LEFT — Branding -->
+        <div class="card-left">
+            <div class="brand-block">
+                <div class="brand-logo">
                     <img src="fluxgen-logo.jpg" alt="FluxGen">
                 </div>
+                <div class="brand-tagline">Expense Management Platform</div>
+                <h2 class="brand-headline">
+                    Track every rupee.<br>
+                    <span>Approve instantly.</span>
+                </h2>
+                <p class="brand-sub">
+                    From OCR bill scanning to real-time approvals and Google Sheets sync — manage your team's expenses in one place.
+                </p>
+            </div>
+
+            <div class="feature-pills">
+                <div class="feature-pill">
+                    <div class="feature-pill-icon feature-pill-icon--blue">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+                    </div>
+                    <span class="feature-pill-text">OCR bill scanning with auto-fill</span>
+                </div>
+                <div class="feature-pill">
+                    <div class="feature-pill-icon feature-pill-icon--purple">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+                    </div>
+                    <span class="feature-pill-text">UPI integration — GPay, PhonePe</span>
+                </div>
+                <div class="feature-pill">
+                    <div class="feature-pill-icon feature-pill-icon--green">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    </div>
+                    <span class="feature-pill-text">Approval workflow + Sheets export</span>
+                </div>
+            </div>
+
+            <div class="brand-footer">&copy; 2025 FluxGen Technologies Pvt Ltd</div>
+        </div>
+
+        <!-- RIGHT — Form -->
+        <div class="card-right">
+            <div class="mobile-brand">
+                <div class="mobile-brand-pill"><img src="fluxgen-logo.jpg" alt="FluxGen"></div>
             </div>
 
             <div class="form-header">
@@ -360,13 +383,13 @@
 
             <form id="loginForm" class="auth-form">
                 <div class="form-group">
-                    <label for="email">Email address</label>
+                    <label for="email">Email</label>
                     <input type="email" id="email" name="email" placeholder="you@fluxgentech.com" required autocomplete="email">
                 </div>
                 <div class="form-group">
                     <label for="password">Password</label>
                     <div class="password-input-wrapper">
-                        <input type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password" minlength="6">
+                        <input type="password" id="password" name="password" placeholder="Enter password" required autocomplete="current-password" minlength="6">
                         <span class="password-toggle-icon" onclick="togglePasswordVisibility('password', this)">&#128065;</span>
                     </div>
                 </div>
@@ -375,51 +398,42 @@
                 </div>
                 <button type="submit" class="btn-primary" id="loginBtn">
                     <span id="loginBtnText">Sign in</span>
-                    <span id="loginBtnLoading" style="display: none;">Signing in&hellip;</span>
+                    <span id="loginBtnLoading" style="display:none;">Signing in&hellip;</span>
                 </button>
             </form>
 
-            <form id="forgotPasswordForm" class="auth-form" style="display: none;">
-                <p style="font-size: 0.84rem; color: var(--gray-500); margin-bottom: 16px; line-height: 1.6;">
-                    Enter your email address and we'll send you a secure link to reset your password.
+            <form id="forgotPasswordForm" class="auth-form" style="display:none;">
+                <p style="font-size:0.82rem;color:#64748b;margin-bottom:14px;line-height:1.6;">
+                    Enter your email and we'll send a reset link.
                 </p>
                 <div class="form-group">
-                    <label for="resetEmail">Email address</label>
+                    <label for="resetEmail">Email</label>
                     <input type="email" id="resetEmail" name="email" placeholder="you@fluxgentech.com" required autocomplete="email">
                 </div>
                 <button type="submit" class="btn-primary" id="resetBtn">
                     <span id="resetBtnText">Send reset link</span>
-                    <span id="resetBtnLoading" style="display: none;">Sending&hellip;</span>
+                    <span id="resetBtnLoading" style="display:none;">Sending&hellip;</span>
                 </button>
-                <div style="text-align: center; margin-top: 16px;">
+                <div style="text-align:center;margin-top:14px;">
                     <a href="#" class="auth-link" id="backToLoginLink">&larr; Back to sign in</a>
                 </div>
             </form>
 
-            <div class="auth-divider" style="margin-top: 24px;">
+            <div class="auth-divider" style="margin-top:20px;">
                 <div class="auth-divider-line"></div>
                 <span class="auth-divider-text">or</span>
                 <div class="auth-divider-line"></div>
             </div>
 
-            <button type="button" class="btn-google" onclick="loginWithGoogle()" style="margin-top: 16px;">
-                <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
-                    <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/>
-                    <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.180l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/>
-                    <path fill="#FBBC05" d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z"/>
-                    <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.440 1.345l2.582-2.580C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/>
-                </svg>
+            <button type="button" class="btn-google" onclick="loginWithGoogle()" style="margin-top:14px;">
+                <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.180l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.440 1.345l2.582-2.580C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
                 Continue with Google
             </button>
 
             <div id="apkDownloadBanner" class="apk-banner">
                 <p class="apk-banner-text">Get the full experience on Android</p>
                 <a href="https://github.com/YChaithuReddy/expense-tracker/releases/latest/download/expense-tracker.apk" class="apk-btn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-                        <polyline points="7 10 12 15 17 10"/>
-                        <line x1="12" y1="15" x2="12" y2="3"/>
-                    </svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                     Download APK
                 </a>
             </div>
@@ -427,13 +441,10 @@
             <div class="auth-footer">
                 <p>Don't have an account? <a href="signup.html">Create one</a></p>
             </div>
-
         </div>
-    </main>
-
+    </div>
 </div>
 
-<!-- Supabase SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-client.js"></script>
 <script src="supabase-api.js"></script>
@@ -442,92 +453,66 @@
 <script>
     function togglePasswordVisibility(inputId, iconElement) {
         const input = document.getElementById(inputId);
-        if (input.type === 'password') {
-            input.type = 'text';
-            iconElement.textContent = '\uD83D\uDE48';
-        } else {
-            input.type = 'password';
-            iconElement.textContent = '\uD83D\uDC41\uFE0F';
-        }
+        if (input.type === 'password') { input.type = 'text'; iconElement.textContent = '\uD83D\uDE48'; }
+        else { input.type = 'password'; iconElement.textContent = '\uD83D\uDC41\uFE0F'; }
     }
 
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value;
-        const messageEl = document.getElementById('loginMessage');
-        const btnText = document.getElementById('loginBtnText');
-        const btnLoading = document.getElementById('loginBtnLoading');
         const loginBtn = document.getElementById('loginBtn');
 
-        messageEl.style.display = 'none';
+        document.getElementById('loginMessage').style.display = 'none';
         if (!email || !password) { showMessage('Please fill in all fields', 'error'); return; }
         if (!email.toLowerCase().endsWith('@fluxgentech.com')) {
-            showMessage('Only @fluxgentech.com email addresses are allowed. Contact your admin for access.', 'error'); return;
+            showMessage('Only @fluxgentech.com emails allowed.', 'error'); return;
         }
 
         loginBtn.disabled = true;
-        btnText.style.display = 'none';
-        btnLoading.style.display = 'inline';
+        document.getElementById('loginBtnText').style.display = 'none';
+        document.getElementById('loginBtnLoading').style.display = 'inline';
 
         try {
             const response = await api.login(email, password);
             if (response.success) {
                 showMessage('Login successful! Redirecting...', 'success');
                 const user = JSON.parse(localStorage.getItem('user') || '{}');
-                const userEmail = user.email?.toLowerCase();
-                const redirectUrl = userEmail === 'admin@fluxgentech.com' ? 'admin.html'
-                    : userEmail === 'accountant@fluxgentech.com' ? 'accountant.html'
-                    : 'index.html';
-                setTimeout(() => { window.location.href = redirectUrl; }, 1000);
-            } else {
-                showMessage(response.message || 'Login failed', 'error');
-                resetButton();
-            }
+                const e = user.email?.toLowerCase();
+                const url = e === 'admin@fluxgentech.com' ? 'admin.html' : e === 'accountant@fluxgentech.com' ? 'accountant.html' : 'index.html';
+                setTimeout(() => { window.location.href = url; }, 1000);
+            } else { showMessage(response.message || 'Login failed', 'error'); resetButton(); }
         } catch (error) {
-            console.error('Login error:', error);
             const msg = error.message || '';
-            if (msg.toLowerCase().includes('failed to fetch') || msg.toLowerCase().includes('network')) {
-                showMessage('Network error: Could not reach the server. Please check your internet connection.', 'error');
-            } else {
-                showMessage(msg || 'Login failed. Please try again.', 'error');
-            }
+            showMessage(msg.includes('fetch') || msg.includes('network') ? 'Network error. Check your connection.' : msg || 'Login failed.', 'error');
             resetButton();
         }
     });
 
     function showMessage(message, type) {
-        const messageEl = document.getElementById('loginMessage');
-        messageEl.textContent = message;
-        messageEl.className = `message ${type}`;
-        messageEl.style.display = 'block';
+        const el = document.getElementById('loginMessage');
+        el.textContent = message; el.className = `message ${type}`; el.style.display = 'block';
     }
-
     function resetButton() {
         document.getElementById('loginBtn').disabled = false;
         document.getElementById('loginBtnText').style.display = 'inline';
         document.getElementById('loginBtnLoading').style.display = 'none';
     }
 
-    function isCapacitorApp() { return window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform(); }
-    function getPlatform() { return isCapacitorApp() ? window.Capacitor.getPlatform() : 'web'; }
-
+    function isCapacitorApp() { return window.Capacitor?.isNativePlatform?.(); }
     async function loginWithGoogle() {
         try { await api.loginWithGoogle(); }
-        catch (error) { console.error('Google login error:', error); showMessage('Google login failed: ' + error.message, 'error'); }
+        catch (e) { showMessage('Google login failed: ' + e.message, 'error'); }
     }
 
-    function handleOAuthCallback() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const error = urlParams.get('error');
-        if (error === 'google_auth_failed') showMessage('Google authentication failed. Please try again.', 'error');
-        else if (error === 'auth_error') showMessage('Authentication error occurred. Please try again.', 'error');
-    }
-    handleOAuthCallback();
+    (function handleOAuthCallback() {
+        const p = new URLSearchParams(window.location.search);
+        if (p.get('error') === 'google_auth_failed') showMessage('Google auth failed.', 'error');
+        else if (p.get('error') === 'auth_error') showMessage('Auth error.', 'error');
+    })();
 
-    if (!isCapacitorApp()) { const banner = document.getElementById('apkDownloadBanner'); if (banner) banner.style.display = 'block'; }
+    if (!isCapacitorApp()) { const b = document.getElementById('apkDownloadBanner'); if (b) b.style.display = 'block'; }
 
-    // ---- Forgot Password Flow ----
     const forgotPasswordLink = document.getElementById('forgotPasswordLink');
     const backToLoginLink = document.getElementById('backToLoginLink');
     const loginForm = document.getElementById('loginForm');
@@ -542,10 +527,9 @@
         loginForm.style.display = 'none'; forgotPasswordForm.style.display = 'block';
         googleDivider.style.display = 'none'; googleBtn.style.display = 'none';
         loginHeading.textContent = 'Reset password';
-        loginSubtext.textContent = "We'll email you a secure reset link";
+        loginSubtext.textContent = "We'll email you a reset link";
         document.getElementById('loginMessage').style.display = 'none';
     });
-
     backToLoginLink.addEventListener('click', (e) => {
         e.preventDefault();
         loginForm.style.display = 'block'; forgotPasswordForm.style.display = 'none';
@@ -558,102 +542,57 @@
     forgotPasswordForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = document.getElementById('resetEmail').value.trim();
-        const resetBtn = document.getElementById('resetBtn');
-        if (!email) { showMessage('Please enter your email address', 'error'); return; }
-        resetBtn.disabled = true;
-        document.getElementById('resetBtnText').style.display = 'none';
-        document.getElementById('resetBtnLoading').style.display = 'inline';
+        if (!email) { showMessage('Enter your email', 'error'); return; }
+        const btn = document.getElementById('resetBtn');
+        btn.disabled = true; document.getElementById('resetBtnText').style.display = 'none'; document.getElementById('resetBtnLoading').style.display = 'inline';
         try {
             const supabase = window.supabaseClient?.get();
             const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/login.html?reset=true` });
             if (error) throw error;
-            showMessage('Password reset link sent! Check your email inbox (and spam folder).', 'success');
-        } catch (error) {
-            showMessage(error.message || 'Failed to send reset link.', 'error');
-        } finally {
-            resetBtn.disabled = false;
-            document.getElementById('resetBtnText').style.display = 'inline';
-            document.getElementById('resetBtnLoading').style.display = 'none';
-        }
+            showMessage('Reset link sent! Check your inbox.', 'success');
+        } catch (err) { showMessage(err.message || 'Failed.', 'error'); }
+        finally { btn.disabled = false; document.getElementById('resetBtnText').style.display = 'inline'; document.getElementById('resetBtnLoading').style.display = 'none'; }
     });
 
     async function handlePasswordReset() {
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('reset') !== 'true') return;
+        if (new URLSearchParams(window.location.search).get('reset') !== 'true') return;
         const supabase = window.supabaseClient?.get?.();
-        if (!supabase) { showMessage('System not ready. Please refresh.', 'error'); return; }
+        if (!supabase) return;
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) return;
 
         loginForm.style.display = 'none'; forgotPasswordForm.style.display = 'none';
         googleDivider.style.display = 'none'; googleBtn.style.display = 'none';
-        loginHeading.textContent = 'Set new password';
-        loginSubtext.textContent = 'Choose a strong password for your account';
+        loginHeading.textContent = 'Set new password'; loginSubtext.textContent = 'Choose a strong password';
 
-        const resetFormHTML = document.createElement('form');
-        resetFormHTML.className = 'auth-form'; resetFormHTML.id = 'newPasswordForm';
-        resetFormHTML.innerHTML = `
-            <div class="form-group"><label for="newPassword">New password</label>
-                <div class="password-input-wrapper">
-                    <input type="password" id="newPassword" placeholder="Enter new password" required minlength="6" autocomplete="new-password">
-                    <span class="password-toggle-icon" onclick="togglePasswordVisibility('newPassword', this)">&#128065;</span>
-                </div>
-                <small id="passwordStrength">Min 6 characters: uppercase, lowercase, and number required</small>
-            </div>
-            <div class="form-group"><label for="confirmNewPassword">Confirm password</label>
-                <div class="password-input-wrapper">
-                    <input type="password" id="confirmNewPassword" placeholder="Confirm new password" required minlength="6" autocomplete="new-password">
-                    <span class="password-toggle-icon" onclick="togglePasswordVisibility('confirmNewPassword', this)">&#128065;</span>
-                </div>
-            </div>
-            <button type="submit" class="btn-primary" id="setPasswordBtn">
-                <span id="setPasswordBtnText">Update password</span>
-                <span id="setPasswordBtnLoading" style="display:none;">Updating&hellip;</span>
-            </button>`;
+        const f = document.createElement('form'); f.className = 'auth-form'; f.id = 'newPasswordForm';
+        f.innerHTML = `<div class="form-group"><label>New password</label><div class="password-input-wrapper"><input type="password" id="newPassword" placeholder="New password" required minlength="6" autocomplete="new-password"><span class="password-toggle-icon" onclick="togglePasswordVisibility('newPassword', this)">&#128065;</span></div><small id="passwordStrength">Min 6 chars: uppercase, lowercase, number</small></div><div class="form-group"><label>Confirm password</label><div class="password-input-wrapper"><input type="password" id="confirmNewPassword" placeholder="Confirm password" required minlength="6" autocomplete="new-password"><span class="password-toggle-icon" onclick="togglePasswordVisibility('confirmNewPassword', this)">&#128065;</span></div></div><button type="submit" class="btn-primary" id="setPasswordBtn"><span id="setPasswordBtnText">Update password</span><span id="setPasswordBtnLoading" style="display:none;">Updating&hellip;</span></button>`;
+        document.querySelector('.card-right').appendChild(f);
 
-        document.querySelector('.login-form-card').appendChild(resetFormHTML);
-
-        const newPwInput = document.getElementById('newPassword');
-        const strengthEl = document.getElementById('passwordStrength');
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
-
-        newPwInput.addEventListener('input', () => {
-            const val = newPwInput.value;
-            if (!val) { strengthEl.style.color = 'var(--gray-500)'; strengthEl.textContent = 'Min 6 characters: uppercase, lowercase, and number required'; }
-            else if (val.length < 6) { strengthEl.style.color = '#dc2626'; strengthEl.textContent = `Too short (${val.length}/6)`; }
-            else if (!passwordRegex.test(val)) {
-                strengthEl.style.color = '#d97706';
-                const m = []; if (!/[a-z]/.test(val)) m.push('lowercase'); if (!/[A-Z]/.test(val)) m.push('uppercase'); if (!/\d/.test(val)) m.push('number');
-                strengthEl.textContent = `Missing: ${m.join(', ')}`;
-            } else { strengthEl.style.color = '#059669'; strengthEl.textContent = 'Strong password ✓'; }
+        const pw = document.getElementById('newPassword'), st = document.getElementById('passwordStrength'), rx = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
+        pw.addEventListener('input', () => {
+            const v = pw.value;
+            if (!v) { st.style.color = '#64748b'; st.textContent = 'Min 6 chars: uppercase, lowercase, number'; }
+            else if (v.length < 6) { st.style.color = '#dc2626'; st.textContent = `Too short (${v.length}/6)`; }
+            else if (!rx.test(v)) { st.style.color = '#d97706'; const m = []; if (!/[a-z]/.test(v)) m.push('lowercase'); if (!/[A-Z]/.test(v)) m.push('uppercase'); if (!/\d/.test(v)) m.push('number'); st.textContent = `Missing: ${m.join(', ')}`; }
+            else { st.style.color = '#059669'; st.textContent = 'Strong password \u2713'; }
         });
 
-        resetFormHTML.addEventListener('submit', async (e) => {
+        f.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const newPassword = newPwInput.value;
-            const confirmPassword = document.getElementById('confirmNewPassword').value;
-            if (!passwordRegex.test(newPassword)) { showMessage('Password must be at least 6 characters with uppercase, lowercase, and number', 'error'); return; }
-            if (newPassword !== confirmPassword) { showMessage('Passwords do not match', 'error'); return; }
-
-            const btn = document.getElementById('setPasswordBtn');
-            btn.disabled = true;
-            document.getElementById('setPasswordBtnText').style.display = 'none';
-            document.getElementById('setPasswordBtnLoading').style.display = 'inline';
-
+            const np = pw.value, cp = document.getElementById('confirmNewPassword').value;
+            if (!rx.test(np)) { showMessage('Need uppercase, lowercase, number, 6+ chars', 'error'); return; }
+            if (np !== cp) { showMessage('Passwords don\'t match', 'error'); return; }
+            const btn = document.getElementById('setPasswordBtn'); btn.disabled = true;
+            document.getElementById('setPasswordBtnText').style.display = 'none'; document.getElementById('setPasswordBtnLoading').style.display = 'inline';
             try {
-                const { error } = await supabase.auth.updateUser({ password: newPassword });
+                const { error } = await supabase.auth.updateUser({ password: np });
                 if (error) throw error;
-                showMessage('Password updated! You can now sign in.', 'success');
+                showMessage('Password updated! Sign in now.', 'success');
                 window.history.replaceState({}, '', window.location.pathname);
-                resetFormHTML.remove();
-                loginForm.style.display = 'block'; googleDivider.style.display = ''; googleBtn.style.display = '';
+                f.remove(); loginForm.style.display = 'block'; googleDivider.style.display = ''; googleBtn.style.display = '';
                 loginHeading.textContent = 'Welcome back'; loginSubtext.textContent = 'Sign in to your FluxGen account';
-            } catch (error) {
-                showMessage('Failed: ' + error.message, 'error');
-                btn.disabled = false;
-                document.getElementById('setPasswordBtnText').style.display = 'inline';
-                document.getElementById('setPasswordBtnLoading').style.display = 'none';
-            }
+            } catch (err) { showMessage('Failed: ' + err.message, 'error'); btn.disabled = false; document.getElementById('setPasswordBtnText').style.display = 'inline'; document.getElementById('setPasswordBtnLoading').style.display = 'none'; }
         });
     }
     handlePasswordReset();
