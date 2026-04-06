@@ -466,10 +466,11 @@ body {
 }
 
 /* Header action icons */
-.theme-toggle-btn {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
+.theme-toggle-btn,
+.header-icon-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
     border: 1px solid var(--gray-200);
     background: var(--white);
     display: flex;
@@ -478,12 +479,38 @@ body {
     cursor: pointer;
     transition: all 0.2s;
     position: relative;
+    color: #6b7280;
 }
-.theme-toggle-btn:hover {
+.theme-toggle-btn:hover,
+.header-icon-btn:hover {
     background: var(--gray-100);
     border-color: var(--gray-300);
     transform: translateY(-1px);
     box-shadow: var(--shadow-sm);
+    color: #111827;
+}
+.header-icon-btn svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+/* Notification badge on bell icon */
+.header-icon-btn .notif-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    background: #ef4444;
+    color: #fff;
+    font-size: 0.6rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    border: 2px solid #fff;
 }
 .theme-icon {
     font-size: 16px;
