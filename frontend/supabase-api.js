@@ -1487,7 +1487,11 @@ const api = {
 
         const { data: advance, error } = await supabase
             .from('advances')
-            .select('*')
+            .select(`*,
+                submitter:user_id(id, name, email, profile_picture),
+                manager:manager_id(id, name, email),
+                accountant:accountant_id(id, name, email)
+            `)
             .eq('id', advanceId)
             .single();
 
