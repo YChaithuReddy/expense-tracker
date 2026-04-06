@@ -2884,41 +2884,51 @@ class ExpenseTracker {
 
     // ==================== Modal Form Helpers ====================
 
-    _openFormModal(title, subtitle) {
+    _openFormModal(title, subtitle, iconSvg) {
         // Close any existing modal
         this._closeFormModal();
 
-        // Create modal overlay
+        // Default icon: edit/pencil
+        const icon = iconSvg || '<path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>';
+
+        // Create modal overlay (reuses kodo-modal-overlay design)
         const overlay = document.createElement('div');
-        overlay.className = 'expense-form-modal-overlay';
+        overlay.className = 'kodo-modal-overlay';
         overlay.id = 'expenseFormModalOverlay';
 
-        const modal = document.createElement('div');
-        modal.className = 'expense-form-modal';
-
-        // Header
-        const header = document.createElement('div');
-        header.className = 'expense-form-modal__header';
-        header.innerHTML = `
-            <div>
-                <h2>${title}</h2>
-                <p>${subtitle}</p>
+        overlay.innerHTML = `
+            <div class="kodo-confirm-modal" style="max-width:560px;">
+                <div class="kodo-confirm-modal__header">
+                    <div class="kodo-confirm-modal__header-accent"></div>
+                    <div class="kodo-confirm-modal__header-content">
+                        <div class="kodo-confirm-modal__icon-wrap">
+                            <svg class="kodo-confirm-modal__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                ${icon}
+                            </svg>
+                        </div>
+                        <div class="kodo-confirm-modal__title-group">
+                            <h3 class="kodo-confirm-modal__title">${title}</h3>
+                            <span class="kodo-confirm-modal__subtitle">${subtitle}</span>
+                        </div>
+                    </div>
+                    <div class="kodo-confirm-modal__header-actions">
+                        <button class="kodo-confirm-modal__close" id="expFormModalClose" aria-label="Close">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="kodo-confirm-modal__body" id="expFormModalBody"></div>
             </div>
-            <button class="expense-form-modal__close" id="expFormModalClose">&times;</button>
         `;
 
-        // Body - move the form section content into modal
-        const body = document.createElement('div');
-        body.className = 'expense-form-modal__body';
+        document.body.appendChild(overlay);
 
+        // Move the form section into the modal body
         const formSection = document.getElementById('expenseFormSection');
         formSection.style.display = 'block';
-        body.appendChild(formSection);
-
-        modal.appendChild(header);
-        modal.appendChild(body);
-        overlay.appendChild(modal);
-        document.body.appendChild(overlay);
+        document.getElementById('expFormModalBody').appendChild(formSection);
 
         // Lock scroll
         document.body.style.overflow = 'hidden';
@@ -2999,8 +3009,9 @@ class ExpenseTracker {
         const form = document.getElementById('expenseForm');
         form.insertBefore(debugInfo, form.firstChild);
 
-        // Open as modal popup
-        this._openFormModal('Review & Edit Details', 'Verify the extracted information and make corrections');
+        // Open as modal popup (scan icon)
+        this._openFormModal('Review & Edit Details', 'Scanned Data',
+            '<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>');
     }
 
     showManualEntryForm() {
@@ -3033,7 +3044,8 @@ class ExpenseTracker {
         document.getElementById('scanBills').style.display = 'none';
 
         // Open as modal popup
-        this._openFormModal('Enter Expense Details', 'Fill in the details for your expense');
+        this._openFormModal('Enter Expense', 'Manual Entry',
+            '<path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>');
     }
 
     backToScan() {
@@ -3582,7 +3594,8 @@ class ExpenseTracker {
         this.showNotification('✏️ Editing expense. Make your changes and click Update.');
 
         // Open as modal popup
-        this._openFormModal('Edit Expense', 'Make your changes and click Update');
+        this._openFormModal('Edit Expense', 'Update Details',
+            '<path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>');
     }
 
     async updateExpense(updatedExpense) {
