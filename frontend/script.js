@@ -3664,9 +3664,29 @@ class ExpenseTracker {
         const container = document.getElementById('expensesList');
         const selectAllContainer = document.getElementById('selectAllContainer');
         const searchFilterContainer = document.getElementById('searchFilterContainer');
+        const statsBar = document.getElementById('historyStatsBar');
+
+        // Update stats pills
+        if (statsBar) {
+            const all = this.expenses;
+            const totalAmt = all.reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
+            const now = new Date();
+            const thisMonth = all.filter(e => {
+                const d = new Date(e.date);
+                return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+            });
+            const thisMonthAmt = thisMonth.reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
+            const withBill = all.filter(e => e.billAttached === 'yes').length;
+            statsBar.innerHTML = `
+                <div class="admin-stat-pill">Expenses: <strong>${all.length}</strong></div>
+                <div class="admin-stat-pill admin-stat-pill--active">Total: <strong>₹${totalAmt.toLocaleString('en-IN')}</strong></div>
+                <div class="admin-stat-pill" style="color:#d97706;border-color:rgba(217,119,6,0.2);background:#fffbeb;">This Month: <strong>${thisMonth.length}</strong> (₹${thisMonthAmt.toLocaleString('en-IN')})</div>
+                <div class="admin-stat-pill" style="color:#2563eb;border-color:rgba(37,99,235,0.2);background:#eff6ff;">With Bill: <strong>${withBill}</strong></div>
+            `;
+        }
 
         if (this.expenses.length === 0) {
-            container.innerHTML = '<div class="empty-state">No expenses added yet. Add your first expense above!</div>';
+            container.innerHTML = '<div class="admin-empty"><p>No expenses added yet. Add your first expense above!</p></div>';
             selectAllContainer.style.display = 'none';
             if (searchFilterContainer) searchFilterContainer.classList.add('hidden');
             return;
@@ -3688,14 +3708,6 @@ class ExpenseTracker {
 
         if (searchFilterContainer) {
             searchFilterContainer.classList.remove('hidden');
-
-            // Auto-expand filters on mobile if any filter is active
-            const filtersWrapper = document.getElementById('filtersWrapper');
-            if (filtersWrapper && window.innerWidth <= 768 && this.isFilterActive()) {
-                filtersWrapper.classList.remove('collapsed');
-                const expandBtn = document.getElementById('expandFiltersBtn');
-                if (expandBtn) expandBtn.classList.add('expanded');
-            }
         }
 
         // Use filtered expenses if filters are active, otherwise use all expenses
@@ -3707,7 +3719,7 @@ class ExpenseTracker {
         }
 
         if (fullList.length === 0 && this.isFilterActive()) {
-            container.innerHTML = '<div class="empty-state">No expenses match your search/filter criteria.</div>';
+            container.innerHTML = '<div class="admin-empty"><p>No expenses match your search/filter criteria.</p></div>';
             return;
         }
 
@@ -3716,78 +3728,51 @@ class ExpenseTracker {
         this.updatePaginationControls(fullList.length, totalPages);
 
         if (paginatedList.length === 0) {
-            container.innerHTML = '<div class="empty-state">No expenses on this page.</div>';
+            container.innerHTML = '<div class="admin-empty"><p>No expenses on this page.</p></div>';
             return;
         }
 
-        const expensesHTML = paginatedList.map((expense, index) => {
-            // Sanitize all user-controlled data to prevent XSS
+        const rows = paginatedList.map(expense => {
             const safeId = this.sanitizeHTML(expense.id);
             const safeCategory = this.sanitizeHTML(expense.category);
             const safeVendor = this.sanitizeHTML(expense.vendor);
             const safeDescription = this.sanitizeHTML(expense.description);
+            const payLabel = expense.paymentMode === 'bank_transfer' ? 'Bank' : expense.paymentMode === 'upi' ? 'UPI' : expense.paymentMode === 'cash' ? 'Cash' : '-';
+            const hasImages = expense.images && expense.images.length > 0;
+            const billIcon = expense.billAttached === 'yes'
+                ? '<span style="color:#059669;" title="Bill attached">✓</span>'
+                : expense.billAttached === 'no'
+                ? '<span style="color:#dc2626;" title="No bill">✗</span>'
+                : '-';
 
-            // Linked advance info (for advance summary badge)
-            const linkedAdvance = expense.advance_id && this.advances
-                ? this.advances.find(a => a.id === expense.advance_id)
-                : null;
-
-            return `
-            <div class="expense-item" id="expense-${safeId}" onclick="if(event.target.tagName!=='INPUT'&&event.target.tagName!=='BUTTON'&&event.target.tagName!=='IMG'&&!event.target.closest('button')&&!event.target.closest('.expense-checkbox')&&!event.target.closest('.expense-images'))expenseDetail.open('${safeId}')" style="cursor:pointer;">
-                <div class="expense-header">
-                    <div class="expense-header-left">
-                        <input type="checkbox"
-                               class="expense-checkbox"
-                               id="checkbox-${safeId}"
-                               data-expense-id="${safeId}"
-                               onchange="expenseTracker.updateExportButton()">
-                        <label for="checkbox-${safeId}" class="expense-amount">₹${this.formatAmount(expense.amount)}</label>
+            return `<tr style="cursor:pointer;" onclick="if(event.target.tagName!=='INPUT'&&event.target.tagName!=='BUTTON'&&!event.target.closest('button'))expenseDetail.open('${safeId}')">
+                <td><input type="checkbox" class="expense-checkbox" id="checkbox-${safeId}" data-expense-id="${safeId}" onchange="expenseTracker.updateExportButton()" onclick="event.stopPropagation()"></td>
+                <td style="font-size:0.78rem;color:#64748b;">${this.formatDisplayDate(expense.date)}</td>
+                <td style="font-weight:600;">₹${this.formatAmount(expense.amount)}</td>
+                <td><span class="expense-category-badge" style="font-size:0.7rem;">${safeCategory}</span></td>
+                <td>${safeVendor || '-'}</td>
+                <td>${safeDescription ? '<span title="' + safeDescription + '" style="max-width:160px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + safeDescription + '</span>' : '-'}</td>
+                <td>${expense.visitType ? '<span class="visit-type-badge visit-type-badge--' + expense.visitType + '" style="font-size:0.65rem;">' + expense.visitType + '</span>' : '-'}</td>
+                <td style="font-size:0.78rem;">${payLabel}</td>
+                <td style="text-align:center;">${billIcon}</td>
+                <td>${hasImages ? '<span style="color:#2563eb;" title="' + expense.images.length + ' attachment(s)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg> ' + expense.images.length + '</span>' : '-'}</td>
+                <td>
+                    <div style="display:flex;gap:4px;">
+                        <button class="adv-tbl-btn" onclick="event.stopPropagation();expenseTracker.editExpense('${safeId}')" title="Edit">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        </button>
+                        <button class="adv-tbl-btn adv-tbl-btn--danger" onclick="event.stopPropagation();expenseTracker.deleteExpense('${safeId}')" title="Delete">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+                        </button>
                     </div>
-                    <span class="expense-category-badge">${safeCategory}</span>
-                </div>
-                <div class="expense-meta">
-                    <span class="expense-meta-item">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                        ${this.formatDisplayDate(expense.date)}${expense.time ? ` at ${this.formatDisplayTime(expense.time)}` : ''}
-                    </span>
-                    ${safeVendor ? `<span class="expense-meta-item">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                        ${safeVendor}
-                    </span>` : ''}
-                    ${expense.visitType ? `<span class="visit-type-badge visit-type-badge--${expense.visitType}">${expense.visitType}</span>` : ''}
-                    ${expense.paymentMode ? `<span class="payment-mode-badge payment-mode-badge--${expense.paymentMode}">${expense.paymentMode === 'bank_transfer' ? 'Bank Transfer' : expense.paymentMode === 'upi' ? 'UPI' : 'Cash'}</span>` : ''}
-                    ${expense.billAttached === 'no' ? `<span class="bill-badge bill-badge--no">No Bill</span>` : expense.billAttached === 'yes' ? `<span class="bill-badge bill-badge--yes">Bill</span>` : ''}
-                    ${googleSheetsService.isExpenseExported(expense.id) ? `<span class="exported-badge" title="Exported to Google Sheets"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Exported</span>` : ''}
-                    ${expense.voucherStatus ? `<span class="voucher-status-badge voucher-status-badge--${expense.voucherStatus}">${expense.voucherStatus === 'in_voucher' ? 'In Voucher' : expense.voucherStatus === 'submitted' ? 'Submitted' : expense.voucherStatus === 'approved' ? 'Approved' : 'Rejected'}</span>` : ''}
-                </div>
-                ${safeDescription ? `<div class="expense-description">${safeDescription}</div>` : ''}
-                ${linkedAdvance ? `<div class="expense-advance-link"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg> Part of ${this.sanitizeHTML(linkedAdvance.project_name)} advance &mdash; ₹${linkedAdvance.totalSpent.toLocaleString('en-IN')} / ₹${linkedAdvance.amount.toLocaleString('en-IN')}</div>` : ''}
-                <div class="expense-footer">
-                    ${expense.images.length > 0 ? `
-                        <div class="expense-images">
-                            ${expense.images.map((img, index) => {
-                                const safeName = this.sanitizeHTML(img.name);
-                                const isPdf = img.isPdf || img.name?.toLowerCase().endsWith('.pdf');
-                                if (isPdf) {
-                                    return `<div class="expense-pdf-thumb" data-expense-id="${expense.id}" data-image-index="${index}" onclick="expenseTracker.openImageFromCard(this)" title="${safeName}">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
-                                        <span>PDF</span>
-                                    </div>`;
-                                }
-                                return `<img src="${img.data}" alt="${safeName}" data-expense-id="${expense.id}" data-image-index="${index}" onclick="expenseTracker.openImageFromCard(this)" title="Click to view full size" onerror="this.style.display='none'">`;
-                            }).join('')}
-                        </div>
-                    ` : ''}
-                    <div class="expense-actions">
-                        <button class="edit-btn" onclick="expenseTracker.editExpense('${safeId}')">Edit</button>
-                        <button class="delete-btn" onclick="expenseTracker.deleteExpense('${safeId}')">Delete</button>
-                    </div>
-                </div>
-            </div>
-        `;
+                </td>
+            </tr>`;
         }).join('');
 
-        container.innerHTML = expensesHTML;
+        container.innerHTML = `<div class="admin-table-wrap"><table class="admin-table"><thead><tr>
+            <th style="width:36px;"></th><th>Date</th><th>Amount</th><th>Category</th><th>Vendor</th><th>Description</th><th>Type</th><th>Payment</th><th>Bill</th><th>Files</th><th>Actions</th>
+        </tr></thead><tbody>${rows}</tbody></table></div>`;
+
         this.updateExportButton();
         this.populateProjectFilter();
         this.populateCategoryFilter();
@@ -7484,72 +7469,15 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
      * Initialize theme system - load saved theme preference
      */
     initializeTheme() {
-        // Get saved theme from localStorage, default to 'teal'
-        let savedTheme = localStorage.getItem('expenseTrackerTheme') || 'light';
-        // Migrate away from removed themes
-        if (savedTheme === 'cyberpunk') savedTheme = 'light';
-
-        this.applyTheme(savedTheme);
-
-        console.log(`🎨 Theme initialized: ${savedTheme}`);
+        // Single light theme — no toggle, no alternatives
+        document.documentElement.setAttribute('data-theme', 'light');
+        localStorage.setItem('expenseTrackerTheme', 'light');
     }
 
-    /**
-     * Toggle between teal, light, and minimalist themes
-     */
-    toggleTheme() {
-        const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-
-        // Cycle: light -> teal -> minimalist -> light
-        let newTheme;
-        if (currentTheme === 'light') {
-            newTheme = 'teal';
-        } else if (currentTheme === 'teal') {
-            newTheme = 'minimalist';
-        } else {
-            newTheme = 'light';
-        }
-
-        this.applyTheme(newTheme);
-        localStorage.setItem('expenseTrackerTheme', newTheme);
-
-        const themeNames = {
-            'teal': 'Teal Business',
-            'minimalist': 'Green Minimal',
-            'light': 'Light Professional'
-        };
-
-        this.showNotification(`Theme changed to ${themeNames[newTheme]}`);
-    }
-
-    /**
-     * Apply theme to document
-     */
-    applyTheme(theme) {
-        // Set data-theme attribute on html element
-        document.documentElement.setAttribute('data-theme', theme);
-
-        // Update theme button UI
-        this.updateThemeButtonUI(theme);
-    }
-
-    /**
-     * Update theme button icon and label
-     */
-    updateThemeButtonUI(theme) {
-        const themeIcon = document.getElementById('themeIcon');
-        const themeLabel = document.getElementById('themeLabel');
-
-        const themes = {
-            teal: { icon: '🌊', label: 'Teal Business' },
-            minimalist: { icon: '🌿', label: 'Green Minimal' },
-            light: { icon: '☀️', label: 'Light Professional' }
-        };
-
-        const t = themes[theme] || themes.teal;
-        if (themeIcon) themeIcon.textContent = t.icon;
-        if (themeLabel) themeLabel.textContent = t.label;
-    }
+    // Theme toggle removed — single light theme only
+    toggleTheme() {}
+    applyTheme() { document.documentElement.setAttribute('data-theme', 'light'); }
+    updateThemeButtonUI() {}
 
     // ===== Kodo Reimbursement Integration =====
 
