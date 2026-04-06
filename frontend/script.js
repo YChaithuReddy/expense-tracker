@@ -3750,8 +3750,8 @@ class ExpenseTracker {
                 <td style="font-size:0.78rem;color:#64748b;">${this.formatDisplayDate(expense.date)}</td>
                 <td style="font-weight:600;">₹${this.formatAmount(expense.amount)}</td>
                 <td><span class="expense-category-badge" style="font-size:0.7rem;">${safeCategory}</span></td>
-                <td>${safeVendor || '-'}</td>
-                <td>${safeDescription ? '<span title="' + safeDescription + '" style="max-width:160px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + safeDescription + '</span>' : '-'}</td>
+                <td style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${safeVendor || ''}">${safeVendor || '-'}</td>
+                <td style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${safeDescription || ''}">${safeDescription || '-'}</td>
                 <td>${expense.visitType ? '<span class="visit-type-badge visit-type-badge--' + expense.visitType + '" style="font-size:0.65rem;">' + expense.visitType + '</span>' : '-'}</td>
                 <td style="font-size:0.78rem;">${payLabel}</td>
                 <td style="text-align:center;">${billIcon}</td>
@@ -3769,8 +3769,8 @@ class ExpenseTracker {
             </tr>`;
         }).join('');
 
-        container.innerHTML = `<div class="admin-table-wrap"><table class="admin-table"><thead><tr>
-            <th style="width:36px;"></th><th>Date</th><th>Amount</th><th>Category</th><th>Vendor</th><th>Description</th><th>Type</th><th>Payment</th><th>Bill</th><th>Files</th><th>Actions</th>
+        container.innerHTML = `<div class="admin-table-wrap"><table class="admin-table" style="table-layout:fixed;width:100%;"><thead><tr>
+            <th style="width:32px;"></th><th style="width:82px;">Date</th><th style="width:72px;">Amount</th><th style="width:130px;">Category</th><th style="width:90px;">Vendor</th><th>Description</th><th style="width:70px;">Type</th><th style="width:55px;">Pay</th><th style="width:36px;">Bill</th><th style="width:44px;">Files</th><th style="width:70px;">Actions</th>
         </tr></thead><tbody>${rows}</tbody></table></div>`;
 
         this.updateExportButton();
