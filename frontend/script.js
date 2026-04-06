@@ -6401,7 +6401,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
 
         if (checkboxes.length > 0) {
             btnText.textContent = `Export Selected (${checkboxes.length})`;
-            exportBtn.style.display = 'block';
+            exportBtn.style.display = 'flex';
         } else {
             btnText.textContent = 'Google Export';
         }

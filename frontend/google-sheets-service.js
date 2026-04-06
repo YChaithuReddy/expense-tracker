@@ -569,7 +569,7 @@ class GoogleSheetsService {
         }
 
         if (exportBtn) {
-            exportBtn.style.display = 'inline-block';
+            exportBtn.style.display = 'flex';
         }
     }
 
