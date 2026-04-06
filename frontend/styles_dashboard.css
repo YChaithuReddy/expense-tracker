@@ -1329,52 +1329,85 @@ h3.admin-section-label {
 
 /* Compact image preview inside scan card */
 .exp-card--scan .image-preview-container {
-    min-height: 60px !important;
-    max-height: 160px !important;
+    min-height: auto !important;
+    max-height: 120px !important;
     overflow-y: auto !important;
     padding: 8px !important;
+    border-style: solid !important;
+    border-width: 1px !important;
 }
 .exp-card--scan #imagesWrapper {
-    padding: 4px !important;
+    padding: 0 !important;
     gap: 8px !important;
+    flex-direction: column !important;
 }
+/* Single image: horizontal row — thumbnail + filename side by side */
 .exp-card--scan #imagesWrapper.single-image {
     flex-direction: row !important;
     align-items: center !important;
 }
 .exp-card--scan #imagesWrapper.single-image .image-preview-item {
     flex-direction: row !important;
+    align-items: center !important;
     max-width: 100% !important;
-    gap: 10px !important;
+    gap: 12px !important;
+    width: 100% !important;
 }
+/* Multiple images: horizontal scroll strip */
+.exp-card--scan #imagesWrapper.multiple-images {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    gap: 8px !important;
+}
+.exp-card--scan #imagesWrapper.multiple-images .image-preview-item {
+    flex-shrink: 0 !important;
+}
+/* Compact thumbnails */
 .exp-card--scan .thumb-container,
 .exp-card--scan .selected-image {
-    width: 70px !important;
-    height: 70px !important;
-    min-width: 70px !important;
+    width: 56px !important;
+    height: 56px !important;
+    min-width: 56px !important;
     border-radius: 8px !important;
-    padding: 4px !important;
+    padding: 3px !important;
     border-width: 1px !important;
+    background: #f3f4f6 !important;
+    border-color: #e5e7eb !important;
 }
 .exp-card--scan #imagesWrapper.single-image .thumb-container,
 .exp-card--scan #imagesWrapper.single-image .selected-image {
-    width: 70px !important;
-    height: 70px !important;
-    min-width: 70px !important;
+    width: 56px !important;
+    height: 56px !important;
+    min-width: 56px !important;
 }
-.exp-card--scan #imagesWrapper.multiple-images {
-    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)) !important;
-    gap: 8px !important;
-}
+/* Filename text */
 .exp-card--scan .thumb-caption,
 .exp-card--scan .image-caption {
-    font-size: 10px !important;
-    margin-top: 2px !important;
+    font-size: 0.75rem !important;
+    margin-top: 0 !important;
+    color: #374151 !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
 }
-/* Ensure scan button stays visible */
+/* Ensure scan button stays visible and readable */
 .exp-card--scan #scanBills {
     margin-top: 8px;
     flex-shrink: 0;
+    background: linear-gradient(135deg, #0ea5e9, #6366f1) !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+.exp-card--scan #scanBills:hover {
+    box-shadow: 0 4px 14px rgba(14, 165, 233, 0.3);
 }
 
 /* ====== EXPENSE FORM inside KODO MODAL ====== */
