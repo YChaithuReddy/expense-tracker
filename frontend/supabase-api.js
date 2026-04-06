@@ -1984,9 +1984,7 @@ const api = {
         if (attachments.sheetUrl) insertObj.google_sheet_url = attachments.sheetUrl;
         if (attachments.pdfUrl) insertObj.pdf_url = attachments.pdfUrl;
         if (attachments.pdfFilename) insertObj.pdf_filename = attachments.pdfFilename;
-        if (extras.periodFrom) insertObj.period_from = extras.periodFrom;
-        if (extras.periodTo) insertObj.period_to = extras.periodTo;
-        // Note: declaration_accepted column may not exist in vouchers table — skip it
+        // Note: period_from, period_to, declaration_accepted columns don't exist in vouchers table
 
         const { data: voucher, error: vError } = await supabase
             .from('vouchers')
