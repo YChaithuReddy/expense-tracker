@@ -359,9 +359,7 @@
     z-index: 9000;
     display: none;
     flex-direction: column;
-    background: rgba(0, 0, 0, 0.4);
-    -webkit-backdrop-filter: blur(20px);
-    backdrop-filter: blur(20px);
+    background: #ffffff;
     animation: approval-overlay-in 0.25s ease both;
 }
 .approvals-panel-overlay.active { display: flex; }
@@ -940,9 +938,9 @@
 .approval-btn--resubmit { border-color: rgba(245, 158, 11, 0.3); }
 
 .approvals-panel-overlay {
-    background: rgba(241, 245, 249, 0.92);
-    -webkit-backdrop-filter: blur(20px);
-    backdrop-filter: blur(20px);
+    background: #ffffff;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
 }
 .approvals-panel-header {
     background: #ffffff;
