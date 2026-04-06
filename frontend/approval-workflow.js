@@ -904,6 +904,7 @@ const approvalWorkflow = (() => {
             const result = await api.approveVoucher(voucherId);
             closeVoucherDetail();
             window.expenseTracker?.showNotification('Voucher approved!');
+            refreshApprovalBadge();
             await api.logActivity?.('voucher_approved', `Approved voucher ${detail.voucher_number}`);
 
             // Email: notify next person in chain + always notify employee
@@ -992,6 +993,7 @@ const approvalWorkflow = (() => {
             }
 
             await loadVoucherList();
+            refreshApprovalBadge();
         } catch (e) {
             window.expenseTracker?.showNotification('Failed: ' + e.message);
         }
@@ -1178,6 +1180,7 @@ const approvalWorkflow = (() => {
 
             closeVoucherDetail();
             await loadVoucherList();
+            refreshApprovalBadge();
         } catch (e) {
             window.expenseTracker?.showNotification('Failed: ' + e.message);
         }
@@ -1207,6 +1210,7 @@ const approvalWorkflow = (() => {
 
             closeVoucherDetail();
             await loadVoucherList();
+            refreshApprovalBadge();
         } catch (e) {
             window.expenseTracker?.showNotification('Failed: ' + e.message);
         }
