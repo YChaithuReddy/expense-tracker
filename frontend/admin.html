@@ -1592,6 +1592,10 @@ WDL1,WONDERLA,Amusement Park,Amusement Park</code>
 
                 console.log('Advances loaded:', advances?.length || 0, 'orgId:', orgId);
 
+                // DEBUG: check all advances without org filter
+                const { data: allAdv, error: debugErr } = await supabase.from('advances').select('id, user_id, project_name, organization_id, status').limit(20);
+                console.log('DEBUG all advances (no org filter):', allAdv, debugErr);
+
                 // Stats
                 const stats = document.getElementById('advanceStats');
                 const all = advances || [];
