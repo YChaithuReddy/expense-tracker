@@ -1478,14 +1478,24 @@ const api = {
         const user = await getCachedUser();
         if (!user) throw new Error('Not authenticated');
 
-        // Advances don't have manager/accountant columns — return user's own advances
-        const { data, error } = await supabase
-            .from('advances')
-            .select('*')
-            .eq('user_id', user.id)
-            .order('created_at', { ascending: false });
+        const profile = await this.getProfile();
+        const role = profile?.role || 'employee';
 
-        if (error) handleError(error, 'Get advances');
+        let query = supabase.from('advances').select('*, profiles!advances_user_id_fkey(name, email)');
+
+        if (role === 'manager') {
+            query = query.eq('manager_id', user.id).in('status', ['pending_manager']);
+        } else if (role === 'accountant') {
+            query = query.eq('accountant_id', user.id).in('status', ['pending_accountant']);
+        } else if (role === 'admin') {
+            const orgId = profile?.organization_id;
+            if (orgId) query = query.eq('organization_id', orgId);
+        } else {
+            query = query.eq('user_id', user.id);
+        }
+
+        const { data, error } = await query.order('created_at', { ascending: false });
+        if (error) handleError(error, 'Get advances for approval');
         return data || [];
     },
 
