@@ -3071,11 +3071,15 @@ class ExpenseTracker {
 
         // Clear preview and restore hint
         const previewContainer = document.getElementById('imagePreview');
-        const existingItems = previewContainer.querySelectorAll(':not(#dragDropHint)');
-        existingItems.forEach(item => item.remove());
-        const dragHint = document.getElementById('dragDropHint');
-        if (dragHint) dragHint.style.display = '';
-        previewContainer.className = 'image-preview-container drag-drop-zone';
+        if (previewContainer) {
+            previewContainer.innerHTML = `
+                <div id="dragDropHint" class="drag-drop-hint">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    <div class="drag-drop-text">Drop files here</div>
+                    <div class="drag-drop-subtext">or click to browse</div>
+                </div>`;
+            previewContainer.className = 'image-preview-container drag-drop-zone exp-dropzone';
+        }
 
         document.getElementById('scanBills').style.display = 'none';
     }
