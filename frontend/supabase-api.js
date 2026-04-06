@@ -1965,29 +1965,32 @@ const api = {
 
         const totalAmount = (expenses || []).reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
 
-        // Create voucher
+        // Create voucher — only include fields that have values
+        const insertObj = {
+            organization_id: orgId,
+            voucher_number: voucherNum || `VCH-${Date.now()}`,
+            submitted_by: user.id,
+            manager_id: managerId,
+            accountant_id: accountantId,
+            status: 'pending_manager',
+            total_amount: totalAmount,
+            expense_count: expenseIds.length,
+            submitted_at: new Date().toISOString()
+        };
+        // Optional fields — only add if they have values (avoids 400 if column doesn't exist)
+        if (advanceId) insertObj.advance_id = advanceId;
+        if (projectId) insertObj.project_id = projectId;
+        if (purpose) insertObj.purpose = purpose;
+        if (attachments.sheetUrl) insertObj.google_sheet_url = attachments.sheetUrl;
+        if (attachments.pdfUrl) insertObj.pdf_url = attachments.pdfUrl;
+        if (attachments.pdfFilename) insertObj.pdf_filename = attachments.pdfFilename;
+        if (extras.periodFrom) insertObj.period_from = extras.periodFrom;
+        if (extras.periodTo) insertObj.period_to = extras.periodTo;
+        if (extras.declaration !== undefined) insertObj.declaration_accepted = extras.declaration;
+
         const { data: voucher, error: vError } = await supabase
             .from('vouchers')
-            .insert({
-                organization_id: orgId,
-                voucher_number: voucherNum || `VCH-${Date.now()}`,
-                submitted_by: user.id,
-                manager_id: managerId,
-                accountant_id: accountantId,
-                advance_id: advanceId || null,
-                project_id: projectId || null,
-                status: 'pending_manager',
-                total_amount: totalAmount,
-                expense_count: expenseIds.length,
-                purpose: purpose || null,
-                submitted_at: new Date().toISOString(),
-                google_sheet_url: attachments.sheetUrl || null,
-                pdf_url: attachments.pdfUrl || null,
-                pdf_filename: attachments.pdfFilename || null,
-                period_from: extras.periodFrom || null,
-                period_to: extras.periodTo || null,
-                declaration_accepted: extras.declaration || false
-            })
+            .insert(insertObj)
             .select()
             .single();
 
