@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<script>document.documentElement.setAttribute('data-theme', 'light');</script>
+<script>document.documentElement.setAttribute('data-theme', localStorage.getItem('expenseTrackerTheme') || 'light');</script>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -301,7 +301,7 @@
             <div class="exp-actions-row">
                 <button id="exportToGoogleSheets" class="exp-action-card">
                     <span class="exp-action-card__icon exp-action-card__icon--teal">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>
                     </span>
                     <span class="exp-action-card__label">Export</span>
                     <span class="exp-action-card__sub">Google Sheets</span>
@@ -428,45 +428,80 @@
             <div class="admin-section" id="section-history">
                 <div class="admin-main__header">
                     <div class="admin-main__header-left">
-                        <div class="admin-breadcrumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Finance</div>
                         <h2>Expense History</h2>
                         <p>View, search, and filter all your submitted expenses</p>
                     </div>
-                </div>
-
-                <!-- Stats Pills -->
-                <div class="admin-stats-bar" id="historyStatsBar"></div>
-
-                <!-- Filters Row -->
-                <div class="hist-filters-row" id="searchFilterContainer">
-                    <div class="hist-search-wrap">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                        <input type="text" id="searchInput" class="hist-search-input" placeholder="Search expenses..." aria-label="Search">
-                        <button id="clearSearch" class="clear-search-btn" style="display:none;">✕</button>
+                    <div class="admin-main__header-right hist-header-right">
+                        <!-- Search bar in header -->
+                        <div class="hist-search-compact" id="searchFilterContainer">
+                            <div class="search-bar" id="searchBarWrapper">
+                                <svg class="search-icon clean" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                    <path d="M21 21l-5.2-5.2m0 0A7.5 7.5 0 105.8 15.8l5.2 5.2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                <input type="text" id="searchInput" class="search-input clean" placeholder="Search expenses..." aria-label="Search">
+                                <button id="clearSearch" class="clear-search-btn" style="display:none;">✕</button>
+                                <button id="expandFiltersBtn" class="expand-filters-btn" aria-label="Expand filters">
+                                    <span class="expand-icon">▼</span>
+                                </button>
+                            </div>
+                            <div class="filters-wrapper collapsed" id="filtersWrapper">
+                                <div class="filter-row">
+                                    <select id="projectFilter" class="filter-select">
+                                        <option value="">All Projects</option>
+                                    </select>
+                                    <select id="categoryFilter" class="filter-select">
+                                        <option value="">All Categories</option>
+                                    </select>
+                                    <select id="visitTypeFilter" class="filter-select">
+                                        <option value="">All Types</option>
+                                        <option value="project">Project</option>
+                                        <option value="service">Service</option>
+                                        <option value="survey">Survey</option>
+                                    </select>
+                                    <div class="date-input-wrapper">
+                                        <label for="dateFromFilter" class="date-label">From Date</label>
+                                        <input type="date" id="dateFromFilter" class="filter-date">
+                                    </div>
+                                    <div class="date-input-wrapper">
+                                        <label for="dateToFilter" class="date-label">To Date</label>
+                                        <input type="date" id="dateToFilter" class="filter-date">
+                                    </div>
+                                    <button id="resetFilters" class="reset-filters-btn">Reset Filters</button>
+                                </div>
+                            </div>
+                            <div id="searchResults" class="search-results-info" style="display:none;"></div>
+                        </div>
                     </div>
-                    <select id="projectFilter" class="hist-filter-select">
-                        <option value="">All Projects</option>
-                    </select>
-                    <select id="categoryFilter" class="hist-filter-select">
-                        <option value="">All Categories</option>
-                    </select>
-                    <select id="visitTypeFilter" class="hist-filter-select">
-                        <option value="">All Types</option>
-                        <option value="project">Project</option>
-                        <option value="service">Service</option>
-                        <option value="survey">Survey</option>
-                    </select>
-                    <input type="date" id="dateFromFilter" class="hist-filter-date" title="From Date">
-                    <input type="date" id="dateToFilter" class="hist-filter-date" title="To Date">
-                    <button id="resetFilters" class="adv-tbl-btn" title="Reset Filters" style="width:auto;padding:6px 12px;font-size:0.78rem;gap:4px;display:inline-flex;align-items:center;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
-                        Reset
-                    </button>
-                    <div id="searchResults" class="search-results-info" style="display:none;"></div>
                 </div>
 
-                <!-- Select All + Expenses Table -->
-                <div style="position:relative;">
+                <!-- Stats summary cards -->
+                <div class="admin-stats-grid" id="historyStats">
+                    <div class="admin-stat-card">
+                        <div class="admin-stat-card__icon admin-stat-card__icon--blue">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        </div>
+                        <div class="admin-stat-card__value" id="histStatTotal">0</div>
+                        <div class="admin-stat-card__label">Total Expenses</div>
+                    </div>
+                    <div class="admin-stat-card admin-stat-card--green">
+                        <div class="admin-stat-card__icon admin-stat-card__icon--green">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+                        </div>
+                        <div class="admin-stat-card__value" id="histStatAmount">₹0</div>
+                        <div class="admin-stat-card__label">Total Amount</div>
+                    </div>
+                    <div class="admin-stat-card admin-stat-card--amber">
+                        <div class="admin-stat-card__icon admin-stat-card__icon--amber">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        </div>
+                        <div class="admin-stat-card__value" id="histStatMonth">0</div>
+                        <div class="admin-stat-card__label">This Month</div>
+                    </div>
+                </div>
+
+                <!-- Expenses list card -->
+                <div class="expenses-fullwidth-section" style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:16px 20px;box-shadow:0 1px 3px rgba(0,0,0,0.06);position:relative;">
+                    <!-- Select All — compact, top-right -->
                     <div class="select-all-container hist-select-all" id="selectAllContainer" style="display:none;">
                         <label class="select-all-label">
                             <input type="checkbox" id="selectAllCheckbox" class="select-all-checkbox">
@@ -512,7 +547,6 @@
             <div class="admin-section" id="section-advance">
                 <div class="admin-main__header">
                     <div class="admin-main__header-left">
-                        <div class="admin-breadcrumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Finance</div>
                         <h2>Advance Tracker</h2>
                         <p>Request and track advance payments for projects</p>
                     </div>
@@ -522,27 +556,39 @@
                     </button>
                 </div>
 
-                <!-- Advance Stats Pills -->
-                <div class="admin-stats-bar" id="advanceStatsBar"></div>
-
-                <!-- Advance Filters -->
-                <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
-                    <select id="empAdvanceStatusFilter" onchange="expenseTracker.renderAdvanceCards()" style="padding:8px 12px;border:1px solid var(--gray-200,#e2e8f0);border-radius:10px;font-size:0.84rem;background:#ffffff;color:#0f172a;outline:none;font-family:inherit;">
-                        <option value="">All Statuses</option>
-                        <option value="pending_manager">Pending Manager</option>
-                        <option value="pending_accountant">Pending Accountant</option>
-                        <option value="active">Active</option>
-                        <option value="closed">Closed</option>
-                        <option value="rejected">Rejected</option>
-                    </select>
+                <!-- Advance Stats -->
+                <div class="admin-stats-grid" id="advanceStatsGrid">
+                    <div class="admin-stat-card admin-stat-card--blue">
+                        <div class="admin-stat-card__icon admin-stat-card__icon--blue">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+                        </div>
+                        <div class="admin-stat-card__value" id="advStatTotal">0</div>
+                        <div class="admin-stat-card__label">Total Advances</div>
+                    </div>
+                    <div class="admin-stat-card admin-stat-card--amber">
+                        <div class="admin-stat-card__icon admin-stat-card__icon--amber">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        </div>
+                        <div class="admin-stat-card__value" id="advStatPending">0</div>
+                        <div class="admin-stat-card__label">Pending</div>
+                    </div>
+                    <div class="admin-stat-card admin-stat-card--green">
+                        <div class="admin-stat-card__icon admin-stat-card__icon--green">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        </div>
+                        <div class="admin-stat-card__value" id="advStatActive">0</div>
+                        <div class="admin-stat-card__label">Active</div>
+                    </div>
                 </div>
 
-                <!-- Advance Table -->
-                <div id="advanceTableContainer">
-                    <div class="admin-empty" id="advanceEmptyState">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="1.5" style="margin-bottom:12px;"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
-                        <p>No advance requests yet. Click "New Advance" to get started.</p>
+                <section class="advance-summary-section" id="advanceSummarySection" style="display: none;">
+                    <div class="advance-cards-container" id="advanceCardsContainer">
+                        <!-- Advance cards rendered by JS -->
                     </div>
+                </section>
+                <div class="admin-empty" id="advanceEmptyState">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="1.5" style="margin-bottom:12px;"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+                    <p>No advance requests yet. Click "New Advance" to get started.</p>
                 </div>
             </div><!-- /section-advance -->
 
@@ -610,6 +656,20 @@
                             </div>
                         </div>
                         <p style="font-size:0.82rem;color:#9ca3af;margin:0;">View and edit your personal information and change password.</p>
+                    </div>
+
+                    <!-- Theme Card -->
+                    <div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,0.06);cursor:pointer;" onclick="if(window.expenseTracker)expenseTracker.toggleTheme()">
+                        <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px;">
+                            <div style="width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,#374151,#111827);display:flex;align-items:center;justify-content:center;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                            </div>
+                            <div>
+                                <h3 style="margin:0;font-size:0.95rem;font-weight:700;color:#111827;">Appearance</h3>
+                                <p style="margin:2px 0 0;font-size:0.78rem;color:#6b7280;">Theme and display</p>
+                            </div>
+                        </div>
+                        <p style="font-size:0.82rem;color:#9ca3af;margin:0;">Toggle between light and dark themes.</p>
                     </div>
 
                     <!-- Export Card -->
@@ -1114,6 +1174,9 @@
                     const safeEmail = (user.email || '').replace(/[<>&"']/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]));
                     userInfoElement.innerHTML = `
                         <div class="user-info-content">
+                            <button class="theme-toggle-btn" onclick="expenseTracker.toggleTheme()" aria-label="Toggle Theme" title="Switch Theme">
+                                <span class="theme-icon" id="themeIcon">🌈</span>
+                            </button>
                             <div class="user-details">
                                 <div class="user-email">${safeEmail}</div>
                                 ${user.organization_id ? `<span class="role-badge role-badge--${user.role || 'employee'}">${(user.role || 'employee').toUpperCase()}</span>` : ''}
@@ -1581,29 +1644,30 @@
     <!-- PDF Library Modal -->
     <div id="pdfLibraryModal" class="pdfs-library-overlay" role="dialog" aria-modal="true" aria-labelledby="pdfLibraryTitle">
 
-        <!-- Admin-style Header -->
+        <!-- Header -->
         <div class="pdfs-library-header">
-            <div class="pdfs-library-header__left">
-                <div class="admin-breadcrumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Documents</div>
-                <h2 class="pdfs-library-title" id="pdfLibraryTitle">PDF Library</h2>
-                <p class="pdfs-library-subtitle">Upload, manage, and share reimbursement PDFs</p>
-            </div>
+            <h2 class="pdfs-library-title" id="pdfLibraryTitle">
+                <span aria-hidden="true">📄</span>
+                PDF Library
+            </h2>
             <button class="pdfs-library-close" onclick="pdfLibrary.closeLibrary()" aria-label="Close PDF Library">✕</button>
         </div>
 
-        <!-- Fixed: Stats + Upload + Search -->
+        <!-- Fixed: Upload Zone -->
         <div class="pdfs-library-fixed">
-            <!-- Stats Pills -->
-            <div class="admin-stats-bar">
-                <div class="admin-stat-pill">Files: <strong><span id="pdfCount">0</span></strong></div>
-                <div class="admin-stat-pill admin-stat-pill--active">Size: <strong><span id="pdfTotalSize">0 B</span></strong></div>
-            </div>
-
-            <!-- Upload Zone -->
             <div class="pdfs-upload-zone" id="uploadZone" role="button" tabindex="0" aria-label="Upload a PDF file — click or drag and drop">
                 <input type="file" id="pdfFileInput" accept=".pdf,application/pdf" aria-label="Select PDF file to upload">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" style="margin-bottom:8px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                <div class="pdfs-upload-zone__title">Drop PDF here or click to browse</div>
+                <span class="pdfs-upload-zone__icon" aria-hidden="true">📁</span>
+                <div class="pdfs-upload-zone__title">Choose a PDF to upload</div>
+                <div class="pdfs-upload-zone__subtitle">or drag &amp; drop your PDF here</div>
+                <button class="pdfs-upload-zone__cta" tabindex="-1" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    Choose PDF File
+                </button>
                 <div class="pdfs-upload-zone__hint">
                     Supports <strong>single and multi-page PDFs</strong> &bull; Max 50MB
                 </div>
@@ -1612,10 +1676,16 @@
                 </div>
             </div>
 
-            <!-- Search -->
-            <div class="pdfs-search-wrap">
-                <svg class="pdfs-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" class="pdfs-search-input" id="pdfSearchInput" placeholder="Search files..." oninput="pdfLibrary.filterFiles(this.value)" aria-label="Search PDF files">
+            <!-- Fixed: Stats Bar + Search -->
+            <div class="pdfs-stats-bar">
+                <div class="pdfs-stats-pills">
+                    <span class="pdfs-stat-pill"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> <span id="pdfCount">0</span> files</span>
+                    <span class="pdfs-stat-pill"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> <span id="pdfTotalSize">0 B</span></span>
+                </div>
+                <div class="pdfs-search-wrap">
+                    <svg class="pdfs-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" class="pdfs-search-input" id="pdfSearchInput" placeholder="Search files..." oninput="pdfLibrary.filterFiles(this.value)" aria-label="Search PDF files">
+                </div>
             </div>
         </div>
 
