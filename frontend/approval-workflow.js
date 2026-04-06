@@ -829,7 +829,7 @@ const approvalWorkflow = (() => {
         }
 
         overlay.innerHTML = `
-            <div class="kodo-confirm-modal" style="max-width:680px;">
+            <div class="kodo-confirm-modal" style="max-width:860px;">
                 <div class="kodo-confirm-modal__header">
                     <div class="kodo-confirm-modal__header-accent"></div>
                     <div class="kodo-confirm-modal__header-content">
