@@ -3736,41 +3736,40 @@ class ExpenseTracker {
             const safeId = this.sanitizeHTML(expense.id);
             const safeCategory = this.sanitizeHTML(expense.category);
             const safeVendor = this.sanitizeHTML(expense.vendor);
-            const safeDescription = this.sanitizeHTML(expense.description);
             const payLabel = expense.paymentMode === 'bank_transfer' ? 'Bank' : expense.paymentMode === 'upi' ? 'UPI' : expense.paymentMode === 'cash' ? 'Cash' : '-';
             const hasImages = expense.images && expense.images.length > 0;
-            const billIcon = expense.billAttached === 'yes'
-                ? '<span style="color:#059669;" title="Bill attached">✓</span>'
-                : expense.billAttached === 'no'
-                ? '<span style="color:#dc2626;" title="No bill">✗</span>'
-                : '-';
+            const billIcon = expense.billAttached === 'yes' ? '✓' : expense.billAttached === 'no' ? '✗' : '';
+            const billColor = expense.billAttached === 'yes' ? '#059669' : '#dc2626';
+
+            // Compact badges row
+            let badges = '';
+            if (expense.visitType) badges += `<span class="visit-type-badge visit-type-badge--${expense.visitType}" style="font-size:0.6rem;padding:1px 6px;">${expense.visitType}</span> `;
+            if (hasImages) badges += `<span style="color:#2563eb;font-size:0.72rem;" title="${expense.images.length} file(s)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>${expense.images.length}</span> `;
+            if (billIcon) badges += `<span style="color:${billColor};font-weight:600;font-size:0.75rem;" title="${expense.billAttached === 'yes' ? 'Bill attached' : 'No bill'}">${billIcon}</span>`;
 
             return `<tr style="cursor:pointer;" onclick="if(event.target.tagName!=='INPUT'&&event.target.tagName!=='BUTTON'&&!event.target.closest('button'))expenseDetail.open('${safeId}')">
-                <td><input type="checkbox" class="expense-checkbox" id="checkbox-${safeId}" data-expense-id="${safeId}" onchange="expenseTracker.updateExportButton()" onclick="event.stopPropagation()"></td>
-                <td style="font-size:0.78rem;color:#64748b;">${this.formatDisplayDate(expense.date)}</td>
-                <td style="font-weight:600;">₹${this.formatAmount(expense.amount)}</td>
-                <td><span class="expense-category-badge" style="font-size:0.7rem;">${safeCategory}</span></td>
-                <td>${safeVendor || '-'}</td>
-                <td>${safeDescription ? '<span title="' + safeDescription + '" style="max-width:160px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + safeDescription + '</span>' : '-'}</td>
-                <td>${expense.visitType ? '<span class="visit-type-badge visit-type-badge--' + expense.visitType + '" style="font-size:0.65rem;">' + expense.visitType + '</span>' : '-'}</td>
-                <td style="font-size:0.78rem;">${payLabel}</td>
-                <td style="text-align:center;">${billIcon}</td>
-                <td>${hasImages ? '<span style="color:#2563eb;" title="' + expense.images.length + ' attachment(s)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg> ' + expense.images.length + '</span>' : '-'}</td>
-                <td>
-                    <div style="display:flex;gap:4px;">
-                        <button class="adv-tbl-btn" onclick="event.stopPropagation();expenseTracker.editExpense('${safeId}')" title="Edit">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                <td style="width:36px;"><input type="checkbox" class="expense-checkbox" id="checkbox-${safeId}" data-expense-id="${safeId}" onchange="expenseTracker.updateExportButton()" onclick="event.stopPropagation()"></td>
+                <td style="font-size:0.78rem;color:#64748b;white-space:nowrap;">${this.formatDisplayDate(expense.date)}</td>
+                <td style="font-weight:600;white-space:nowrap;">₹${this.formatAmount(expense.amount)}</td>
+                <td><span class="expense-category-badge" style="font-size:0.68rem;">${safeCategory}</span></td>
+                <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${safeVendor || '-'}</td>
+                <td style="font-size:0.78rem;white-space:nowrap;">${payLabel}</td>
+                <td style="white-space:nowrap;">${badges || '-'}</td>
+                <td style="width:70px;">
+                    <div style="display:flex;gap:3px;">
+                        <button class="adv-tbl-btn" onclick="event.stopPropagation();expenseTracker.editExpense('${safeId}')" title="Edit" style="width:28px;height:28px;">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                         </button>
-                        <button class="adv-tbl-btn adv-tbl-btn--danger" onclick="event.stopPropagation();expenseTracker.deleteExpense('${safeId}')" title="Delete">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+                        <button class="adv-tbl-btn adv-tbl-btn--danger" onclick="event.stopPropagation();expenseTracker.deleteExpense('${safeId}')" title="Delete" style="width:28px;height:28px;">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
                         </button>
                     </div>
                 </td>
             </tr>`;
         }).join('');
 
-        container.innerHTML = `<div class="admin-table-wrap"><table class="admin-table"><thead><tr>
-            <th style="width:36px;"></th><th>Date</th><th>Amount</th><th>Category</th><th>Vendor</th><th>Description</th><th>Type</th><th>Payment</th><th>Bill</th><th>Files</th><th>Actions</th>
+        container.innerHTML = `<div class="admin-table-wrap"><table class="admin-table admin-table--hist"><thead><tr>
+            <th style="width:36px;"></th><th>Date</th><th>Amount</th><th>Category</th><th>Vendor</th><th>Pay</th><th>Info</th><th>Actions</th>
         </tr></thead><tbody>${rows}</tbody></table></div>`;
 
         this.updateExportButton();

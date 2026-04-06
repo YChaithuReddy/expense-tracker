@@ -1807,6 +1807,18 @@ h3.admin-section-label {
 /* ============================================================
    TABLE STYLES
    ============================================================ */
+/* History table — fit to width, no horizontal scroll */
+.admin-table--hist { table-layout: fixed; width: 100%; }
+.admin-table--hist th:nth-child(1) { width: 36px; }   /* checkbox */
+.admin-table--hist th:nth-child(2) { width: 90px; }   /* date */
+.admin-table--hist th:nth-child(3) { width: 80px; }   /* amount */
+.admin-table--hist th:nth-child(4) { width: auto; }   /* category — flex */
+.admin-table--hist th:nth-child(5) { width: auto; }   /* vendor — flex */
+.admin-table--hist th:nth-child(6) { width: 52px; }   /* pay */
+.admin-table--hist th:nth-child(7) { width: 100px; }  /* info */
+.admin-table--hist th:nth-child(8) { width: 70px; }   /* actions */
+.admin-table--hist td { overflow: hidden; text-overflow: ellipsis; }
+
 .admin-table-wrap {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
