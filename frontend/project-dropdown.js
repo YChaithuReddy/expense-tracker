@@ -334,7 +334,7 @@ const projectDropdown = (() => {
         overlay.innerHTML = `
             <div class="project-create-modal">
                 <h3>Create New Project</h3>
-                <p style="color:#5a6180;font-size:0.82rem;margin:0 0 16px;">Project code will be auto-generated</p>
+                <p style="color:#64748b;font-size:0.82rem;margin:0 0 16px;">Project code will be auto-generated</p>
                 <form id="quickProjectForm">
                     <div class="admin-form-group">
                         <label>Project Name *</label>
@@ -425,7 +425,7 @@ const projectDropdown = (() => {
                             <option value="cancelled" ${p.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
                         </select>
                     </td>
-                    <td style="font-size:0.75rem;color:#5a6180;">${p.created_at ? new Date(p.created_at).toLocaleDateString('en-IN') : '-'}</td>
+                    <td style="font-size:0.75rem;color:#64748b;">${p.created_at ? new Date(p.created_at).toLocaleDateString('en-IN') : '-'}</td>
                 </tr>
             `;
         }).join('');

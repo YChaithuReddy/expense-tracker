@@ -2977,8 +2977,8 @@ class ExpenseTracker {
         const debugInfo = document.createElement('div');
         debugInfo.className = 'extracted-data-box';
         debugInfo.style.cssText = `
-            background: rgba(0, 212, 255, 0.08);
-            border: 1px solid rgba(0, 212, 255, 0.3);
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
             border-radius: 12px;
             padding: 15px;
             margin-bottom: 20px;
@@ -2995,7 +2995,7 @@ class ExpenseTracker {
 
         if (extractedFieldsList.length > 0) {
             debugInfo.innerHTML = `
-                <strong style="color: var(--neon-cyan);">🔍 Extracted Data:</strong><br>
+                <strong style="color: #059669;">🔍 Extracted Data:</strong><br>
                 ${extractedFieldsList.join('<br>')}
                 <br><br>
                 <small style="opacity: 0.7;">ℹ️ Empty fields were not found - fill them manually</small>
@@ -6788,7 +6788,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         statsDiv.innerHTML = '';
         gridDiv.innerHTML = `
             <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:16px;color:var(--text-secondary);">
-                <div style="width:40px;height:40px;border:3px solid rgba(0,212,255,0.3);border-top-color:#00d4ff;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+                <div style="width:40px;height:40px;border:3px solid #e2e8f0;border-top-color:#111827;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
                 <span>Loading saved images...</span>
             </div>`;
         modal.style.display = 'flex';
@@ -8958,12 +8958,12 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             overlay.style.cssText = 'position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);';
 
             overlay.innerHTML = `
-                <div style="background:var(--bg-secondary, #1a1a2e);border:1px solid rgba(139,92,246,0.2);border-radius:16px;padding:24px;max-width:400px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
-                    <h3 style="color:#a78bfa;margin:0 0 12px;font-size:1.1rem;">${title}</h3>
-                    <p style="color:#8892b0;font-size:0.9rem;white-space:pre-line;margin:0 0 20px;line-height:1.5;">${message}</p>
+                <div style="background:#ffffff;border:1px solid #fecaca;border-radius:16px;padding:24px;max-width:400px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.15);">
+                    <h3 style="color:#dc2626;margin:0 0 12px;font-size:1.1rem;">${title}</h3>
+                    <p style="color:#64748b;font-size:0.9rem;white-space:pre-line;margin:0 0 20px;line-height:1.5;">${message}</p>
                     <div style="display:flex;gap:12px;justify-content:flex-end;">
-                        <button class="confirm-cancel" style="padding:8px 20px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:#8892b0;cursor:pointer;font-size:0.85rem;">Cancel</button>
-                        <button class="confirm-ok" style="padding:8px 20px;border-radius:8px;border:none;background:#ef4444;color:white;cursor:pointer;font-size:0.85rem;font-weight:600;">Delete</button>
+                        <button class="confirm-cancel" style="padding:8px 20px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#64748b;cursor:pointer;font-size:0.85rem;">Cancel</button>
+                        <button class="confirm-ok" style="padding:8px 20px;border-radius:8px;border:none;background:#dc2626;color:white;cursor:pointer;font-size:0.85rem;font-weight:600;">Delete</button>
                     </div>
                 </div>
             `;

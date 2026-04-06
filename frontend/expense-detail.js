@@ -204,20 +204,20 @@ const expenseDetail = (() => {
                 .map(a => `<option value="${a.id}">${sanitize(a.project_name)} (₹${a.remaining?.toLocaleString('en-IN') || 0} left)</option>`)
                 .join('');
             const moveDropdown = otherAdvances
-                ? `<select id="moveAdvanceSelect" style="padding:6px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#e0e0ff;font-size:0.8rem;flex:1;">
+                ? `<select id="moveAdvanceSelect" style="padding:6px 10px;border-radius:6px;border:1px solid #e2e8f0;background:#ffffff;color:#0f172a;font-size:0.8rem;flex:1;">
                        <option value="">Move to...</option>
                        ${otherAdvances}
                    </select>
-                   <button onclick="expenseDetail.moveToAdvance()" style="padding:6px 12px;border-radius:6px;border:none;background:#8b5cf6;color:white;cursor:pointer;font-size:0.8rem;font-weight:600;">Move</button>`
+                   <button onclick="expenseDetail.moveToAdvance()" style="padding:6px 12px;border-radius:6px;border:none;background:#7c3aed;color:white;cursor:pointer;font-size:0.8rem;font-weight:600;">Move</button>`
                 : '';
 
             advanceHtml = `
-                <div class="expense-detail-advance" style="margin:12px 0;padding:12px;background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.2);border-radius:10px;">
+                <div class="expense-detail-advance" style="margin:12px 0;padding:12px;background:#f5f3ff;border:1px solid #ddd6fe;border-radius:10px;">
                     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-                        <span style="color:#a78bfa;font-weight:600;font-size:0.85rem;">Linked to: ${advanceName}</span>
-                        <button onclick="expenseDetail.unlinkFromAdvance()" style="padding:4px 10px;border-radius:6px;border:1px solid rgba(239,68,68,0.3);background:transparent;color:#ef4444;cursor:pointer;font-size:0.75rem;">Unlink</button>
+                        <span style="color:#7c3aed;font-weight:600;font-size:0.85rem;">Linked to: ${advanceName}</span>
+                        <button onclick="expenseDetail.unlinkFromAdvance()" style="padding:4px 10px;border-radius:6px;border:1px solid #fecaca;background:#fef2f2;color:#dc2626;cursor:pointer;font-size:0.75rem;">Unlink</button>
                     </div>
-                    <div style="color:#8892b0;font-size:0.8rem;margin-bottom:8px;">₹${remaining.toLocaleString('en-IN')} remaining of ₹${(linkedAdvance.amount || 0).toLocaleString('en-IN')}</div>
+                    <div style="color:#64748b;font-size:0.8rem;margin-bottom:8px;">₹${remaining.toLocaleString('en-IN')} remaining of ₹${(linkedAdvance.amount || 0).toLocaleString('en-IN')}</div>
                     ${moveDropdown ? `<div style="display:flex;gap:8px;align-items:center;">${moveDropdown}</div>` : ''}
                 </div>`;
         } else if (advances.filter(a => a.status === 'active').length > 0) {
@@ -226,14 +226,14 @@ const expenseDetail = (() => {
                 .map(a => `<option value="${a.id}">${sanitize(a.project_name)} (₹${a.remaining?.toLocaleString('en-IN') || 0} left)</option>`)
                 .join('');
             advanceHtml = `
-                <div class="expense-detail-advance" style="margin:12px 0;padding:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;">
-                    <div style="color:#8892b0;font-size:0.8rem;margin-bottom:8px;">Not linked to any advance</div>
+                <div class="expense-detail-advance" style="margin:12px 0;padding:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;">
+                    <div style="color:#64748b;font-size:0.8rem;margin-bottom:8px;">Not linked to any advance</div>
                     <div style="display:flex;gap:8px;align-items:center;">
-                        <select id="moveAdvanceSelect" style="padding:6px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#e0e0ff;font-size:0.8rem;flex:1;">
+                        <select id="moveAdvanceSelect" style="padding:6px 10px;border-radius:6px;border:1px solid #e2e8f0;background:#ffffff;color:#0f172a;font-size:0.8rem;flex:1;">
                             <option value="">Link to advance...</option>
                             ${activeAdvances}
                         </select>
-                        <button onclick="expenseDetail.moveToAdvance()" style="padding:6px 12px;border-radius:6px;border:none;background:#10b981;color:white;cursor:pointer;font-size:0.8rem;font-weight:600;">Link</button>
+                        <button onclick="expenseDetail.moveToAdvance()" style="padding:6px 12px;border-radius:6px;border:none;background:#059669;color:white;cursor:pointer;font-size:0.8rem;font-weight:600;">Link</button>
                     </div>
                 </div>`;
         }

@@ -150,7 +150,7 @@ const pdfLibrary = (() => {
             : '';
         const sourceIcon = row.source === 'generated'
             ? `<svg class="pdf-row__icon pdf-row__icon--generated" width="32" height="32" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="14" height="18" rx="2" stroke="currentColor" stroke-width="1.5" fill="rgba(16,185,129,0.1)"/><path d="M9 3V7H3" stroke="currentColor" stroke-width="1.5"/><rect x="6" y="11" width="8" height="1.5" rx=".75" fill="currentColor" opacity=".4"/><rect x="6" y="14" width="6" height="1.5" rx=".75" fill="currentColor" opacity=".3"/></svg>`
-            : `<svg class="pdf-row__icon pdf-row__icon--uploaded" width="32" height="32" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="14" height="18" rx="2" stroke="currentColor" stroke-width="1.5" fill="rgba(0,212,255,0.1)"/><path d="M9 3V7H3" stroke="currentColor" stroke-width="1.5"/><rect x="6" y="11" width="8" height="1.5" rx=".75" fill="currentColor" opacity=".4"/><rect x="6" y="14" width="6" height="1.5" rx=".75" fill="currentColor" opacity=".3"/></svg>`;
+            : `<svg class="pdf-row__icon pdf-row__icon--uploaded" width="32" height="32" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="14" height="18" rx="2" stroke="currentColor" stroke-width="1.5" fill="rgba(17,24,39,0.08)"/><path d="M9 3V7H3" stroke="currentColor" stroke-width="1.5"/><rect x="6" y="11" width="8" height="1.5" rx=".75" fill="currentColor" opacity=".4"/><rect x="6" y="14" width="6" height="1.5" rx=".75" fill="currentColor" opacity=".3"/></svg>`;
 
         return `
             <div class="pdf-row" data-id="${escapedId}" data-name="${escapedName.toLowerCase()}">
