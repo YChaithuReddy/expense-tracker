@@ -2488,9 +2488,107 @@ h3.admin-section-label {
     .admin-btn { min-height: 44px; padding: 10px 16px; }
     .admin-btn--sm { min-height: 40px; }
 
-    /* Table */
-    .admin-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .admin-table { min-width: 540px; }
+    /* Table — card-style rows on mobile instead of horizontal scroll */
+    .admin-table-wrap {
+        overflow-x: hidden;
+        border: none;
+        box-shadow: none;
+        background: transparent;
+    }
+    .admin-table { min-width: 0; }
+    .admin-table thead { display: none; }
+    .admin-table tbody tr {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 12px;
+        padding: 14px 16px;
+        margin-bottom: 8px;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        position: relative;
+        border-left: none;
+    }
+    .admin-table tbody tr:hover {
+        background: #ffffff;
+        border-left: none;
+    }
+    .admin-table tbody tr:hover td:first-child {
+        box-shadow: none;
+        padding-left: 0;
+    }
+    .admin-table tbody td {
+        padding: 0;
+        border-bottom: none;
+        white-space: normal;
+        font-size: 0.82rem;
+    }
+    /* Checkbox — top-left */
+    .admin-table tbody td:first-child {
+        position: absolute;
+        top: 14px;
+        left: 14px;
+    }
+    /* Hide action buttons column label */
+    .admin-table tbody td:last-child {
+        width: 100%;
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px solid #f1f5f9;
+    }
+
+    /* Stats bar — scroll horizontally on mobile */
+    .admin-stats-bar {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        flex-wrap: nowrap;
+        padding-bottom: 4px;
+    }
+    .admin-stat-pill {
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    /* History filters — stack vertically */
+    .hist-filters-row {
+        flex-direction: column;
+        gap: 8px;
+    }
+    .hist-search-wrap {
+        width: 100%;
+    }
+    .hist-search-input {
+        width: 100% !important;
+    }
+    .hist-filter-select,
+    .hist-filter-date {
+        width: 100%;
+    }
+
+    /* Advance filter dropdown */
+    #empAdvanceStatusFilter {
+        width: 100%;
+    }
+
+    /* Export button on mobile — full width below title */
+    #historyExportBtn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Breadcrumb */
+    .admin-breadcrumb { font-size: 0.65rem; }
+
+    /* Mobile card layout — show amount prominently, stack fields */
+    .admin-table tbody td:nth-child(2) { font-size: 0.75rem !important; color: #64748b; } /* date */
+    .admin-table tbody td:nth-child(3) { font-size: 1rem !important; font-weight: 800 !important; color: #0f172a; width: 100%; } /* amount */
+    .admin-table tbody td:nth-child(4) { } /* category badge */
+    .admin-table tbody td:nth-child(5) { color: #334155; font-weight: 500; } /* vendor */
+
+    /* Select all on mobile */
+    .select-all-container { margin-bottom: 8px; }
+    .select-all-label { font-size: 0.8rem; }
 
     /* FAB positioning */
     .quick-add-fab {
@@ -2540,9 +2638,9 @@ h3.admin-section-label {
         grid-template-columns: 1fr !important;
     }
 
-    /* Table: narrower */
-    .admin-table { min-width: 420px; font-size: 0.76rem; }
-    .admin-table th, .admin-table td { padding: 8px 10px; }
+    /* Table card rows — tighter on small screens */
+    .admin-table tbody tr { padding: 12px 14px; margin-bottom: 6px; }
+    .admin-table tbody td { font-size: 0.78rem; }
 
     /* OCR buttons */
     .ocr-section h2 { font-size: 1.1rem !important; }
