@@ -576,65 +576,103 @@ const approvalWorkflow = (() => {
 
     function renderAdvanceDetail(adv) {
         const user = JSON.parse(localStorage.getItem('user') || '{}');
-        const isManager = adv.manager_id === user.id && adv.status === 'pending_manager';
-        const isAccountant = adv.accountant_id === user.id && adv.status === 'pending_accountant';
+        const userRole = user.role || 'employee';
+        const isAdmin = userRole === 'admin';
+        const canApprove = (adv.manager_id === user.id && adv.status === 'pending_manager')
+            || (adv.accountant_id === user.id && adv.status === 'pending_accountant')
+            || (isAdmin && ['pending_manager', 'pending_accountant'].includes(adv.status));
 
         let existing = document.getElementById('voucherDetailOverlay');
         if (existing) existing.remove();
 
+        const statusColors = { pending_manager: '#d97706', pending_accountant: '#d97706', active: '#059669', closed: '#64748b', rejected: '#dc2626' };
+        const statusLabels = { pending_manager: 'Pending Manager', pending_accountant: 'Pending Accountant', active: 'Active', closed: 'Closed', rejected: 'Rejected' };
+        const sc = statusColors[adv.status] || '#64748b';
+
         const overlay = document.createElement('div');
         overlay.id = 'voucherDetailOverlay';
-        overlay.className = 'approval-overlay active';
+        overlay.className = 'kodo-modal-overlay';
+        overlay.style.display = 'flex';
 
         overlay.innerHTML = `
-            <div class="approval-detail">
-                <div class="approval-detail__header">
-                    <button class="approval-detail__back" onclick="approvalWorkflow.closeVoucherDetail()">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-                    </button>
-                    <h2 style="color:#a78bfa;">Advance Request</h2>
-                    ${statusBadge(adv.status)}
+            <div class="kodo-confirm-modal" style="max-width:600px;">
+                <!-- Header -->
+                <div class="kodo-confirm-modal__header">
+                    <div class="kodo-confirm-modal__header-accent"></div>
+                    <div class="kodo-confirm-modal__header-content">
+                        <div class="kodo-confirm-modal__icon-wrap">
+                            <svg class="kodo-confirm-modal__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+                            </svg>
+                        </div>
+                        <div class="kodo-confirm-modal__title-group">
+                            <h3 class="kodo-confirm-modal__title">Advance Request</h3>
+                            <span class="kodo-confirm-modal__subtitle">${sanitize(adv.project_name)}</span>
+                        </div>
+                    </div>
+                    <div class="kodo-confirm-modal__header-actions">
+                        <button class="kodo-confirm-modal__close" onclick="approvalWorkflow.closeVoucherDetail()" aria-label="Close">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
-                <div class="approval-detail__body" style="padding:20px;">
-                    <div style="background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.15);border-radius:12px;padding:20px;margin-bottom:20px;">
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-                            <h3 style="margin:0;font-size:1.1rem;">${sanitize(adv.project_name)}</h3>
-                            <span style="font-size:1.3rem;font-weight:700;color:#10b981;">₹${parseFloat(adv.amount).toLocaleString('en-IN')}</span>
+
+                <!-- Body -->
+                <div class="kodo-confirm-modal__body">
+                    <!-- Summary row -->
+                    <div class="kodo-confirm-modal__summary">
+                        <div class="kodo-summary-row">
+                            <span class="kodo-summary-label">Amount</span>
+                            <span class="kodo-summary-value" style="color:#059669;font-size:1.15rem;">₹${parseFloat(adv.amount).toLocaleString('en-IN')}</span>
                         </div>
-                        <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                            <span class="visit-type-badge visit-type-badge--${adv.visit_type || 'project'}">${adv.visit_type || 'project'}</span>
-                            ${adv.notes ? `<span style="font-size:0.82rem;color:#8890b5;">${sanitize(adv.notes)}</span>` : ''}
+                        <div class="kodo-summary-row">
+                            <span class="kodo-summary-label">Type</span>
+                            <span class="kodo-summary-value">${adv.visit_type || 'project'}</span>
+                        </div>
+                        <div class="kodo-summary-row">
+                            <span class="kodo-summary-label">Status</span>
+                            <span class="kodo-summary-value" style="color:${sc};">${statusLabels[adv.status] || adv.status}</span>
                         </div>
                     </div>
 
-                    <div class="approval-detail-info-grid" style="margin-bottom:20px;">
-                        <div class="approval-detail-info-card">
-                            <span class="approval-detail-info-label">Requested By</span>
-                            <span class="approval-detail-info-value">${sanitize(adv.submitter?.name || '')}</span>
-                            <span style="font-size:0.72rem;color:#64748b;">${sanitize(adv.submitter?.email || '')}</span>
+                    ${adv.notes ? `<div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px;margin-bottom:16px;font-size:0.85rem;color:#374151;"><strong style="color:#6b7280;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.04em;">Notes</strong><div style="margin-top:4px;">${sanitize(adv.notes)}</div></div>` : ''}
+
+                    <!-- People -->
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+                        <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px;">
+                            <div style="font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#9ca3af;margin-bottom:4px;">Requested By</div>
+                            <div style="font-weight:600;font-size:0.88rem;color:#111827;">${sanitize(adv.submitter?.name || '-')}</div>
+                            <div style="font-size:0.72rem;color:#6b7280;">${sanitize(adv.submitter?.email || '')}</div>
                         </div>
-                        <div class="approval-detail-info-card">
-                            <span class="approval-detail-info-label">Manager</span>
-                            <span class="approval-detail-info-value">${sanitize(adv.manager?.name || '-')}</span>
+                        <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px;">
+                            <div style="font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#9ca3af;margin-bottom:4px;">Manager</div>
+                            <div style="font-weight:600;font-size:0.88rem;color:#111827;">${sanitize(adv.manager?.name || '-')}</div>
                         </div>
-                        <div class="approval-detail-info-card">
-                            <span class="approval-detail-info-label">Accountant</span>
-                            <span class="approval-detail-info-value">${sanitize(adv.accountant?.name || '-')}</span>
+                        <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px;">
+                            <div style="font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#9ca3af;margin-bottom:4px;">Accountant</div>
+                            <div style="font-weight:600;font-size:0.88rem;color:#111827;">${sanitize(adv.accountant?.name || '-')}</div>
+                        </div>
+                        <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px;">
+                            <div style="font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#9ca3af;margin-bottom:4px;">Submitted</div>
+                            <div style="font-weight:600;font-size:0.88rem;color:#111827;">${adv.submitted_at ? new Date(adv.submitted_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'}</div>
                         </div>
                     </div>
 
-                    ${adv.rejection_reason ? `<div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:8px;padding:12px;margin-bottom:16px;color:#f87171;font-size:0.85rem;"><strong>Rejection Reason:</strong> ${sanitize(adv.rejection_reason)}</div>` : ''}
+                    ${adv.rejection_reason ? `<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:12px;margin-bottom:16px;"><div style="font-size:0.72rem;font-weight:600;text-transform:uppercase;color:#dc2626;margin-bottom:4px;">Rejection Reason</div><div style="font-size:0.85rem;color:#991b1b;">${sanitize(adv.rejection_reason)}</div></div>` : ''}
 
+                    <!-- History -->
                     ${adv.history && adv.history.length > 0 ? `
-                        <div style="margin-bottom:20px;">
-                            <h4 style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:#64748b;margin:0 0 10px;">History</h4>
+                        <div>
+                            <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#9ca3af;margin-bottom:10px;">Activity</div>
                             ${adv.history.map(h => `
-                                <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
-                                    <span style="width:8px;height:8px;border-radius:50%;background:#a78bfa;margin-top:5px;flex-shrink:0;"></span>
+                                <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid #f3f4f6;">
+                                    <span style="width:8px;height:8px;border-radius:50%;background:#0ea5e9;margin-top:5px;flex-shrink:0;"></span>
                                     <div>
-                                        <strong style="font-size:0.82rem;">${sanitize(h.action.replace(/_/g, ' '))}</strong>
-                                        <div style="font-size:0.75rem;color:#64748b;">${sanitize(h.actor?.name || '')}${h.comments ? ' — ' + sanitize(h.comments) : ''}</div>
-                                        <div style="font-size:0.7rem;color:#3a3f5c;">${h.created_at ? relativeTime(h.created_at) : ''}</div>
+                                        <strong style="font-size:0.82rem;color:#111827;">${sanitize(h.action.replace(/_/g, ' '))}</strong>
+                                        <div style="font-size:0.75rem;color:#6b7280;">${sanitize(h.actor?.name || '')}${h.comments ? ' — ' + sanitize(h.comments) : ''}</div>
+                                        <div style="font-size:0.7rem;color:#9ca3af;">${h.created_at ? relativeTime(h.created_at) : ''}</div>
                                     </div>
                                 </div>
                             `).join('')}
@@ -642,13 +680,14 @@ const approvalWorkflow = (() => {
                     ` : ''}
                 </div>
 
-                ${isManager || isAccountant ? `
-                <div class="approval-detail__actions">
-                    <button class="approval-btn approval-btn--reject" onclick="approvalWorkflow.rejectAdvance('${adv.id}')">
+                <!-- Actions -->
+                ${canApprove ? `
+                <div class="kodo-confirm-modal__actions" style="padding:0 28px 24px;">
+                    <button class="kodo-confirm-modal__btn kodo-confirm-modal__btn--cancel" onclick="approvalWorkflow.rejectAdvance('${adv.id}')">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
                         Reject
                     </button>
-                    <button class="approval-btn approval-btn--approve" onclick="approvalWorkflow.approveAdvance('${adv.id}')">
+                    <button class="kodo-confirm-modal__btn kodo-confirm-modal__btn--submit" onclick="approvalWorkflow.approveAdvance('${adv.id}')">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                         Approve
                     </button>
@@ -656,8 +695,9 @@ const approvalWorkflow = (() => {
             </div>
         `;
 
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) closeVoucherDetail(); });
         document.body.appendChild(overlay);
-        document.body.classList.add('modal-open');
+        document.body.style.overflow = 'hidden';
     }
 
     function renderVoucherList(vouchers) {
@@ -892,6 +932,7 @@ const approvalWorkflow = (() => {
         if (overlay) {
             overlay.remove();
             document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
         }
     }
 
