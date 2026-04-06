@@ -640,7 +640,7 @@ const approvalWorkflow = (() => {
                     ${adv.notes ? `<div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px;margin-bottom:16px;font-size:0.85rem;color:#374151;"><strong style="color:#6b7280;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.04em;">Notes</strong><div style="margin-top:4px;">${sanitize(adv.notes)}</div></div>` : ''}
 
                     <!-- People -->
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;">
                         <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px;">
                             <div style="font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#9ca3af;margin-bottom:4px;">Requested By</div>
                             <div style="font-weight:600;font-size:0.88rem;color:#111827;">${sanitize(adv.submitter?.name || '-')}</div>
@@ -868,7 +868,7 @@ const approvalWorkflow = (() => {
                     </div>
 
                     <!-- People -->
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;">
                         <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px;">
                             <div style="font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#9ca3af;margin-bottom:4px;">Submitted By</div>
                             <div style="font-weight:600;font-size:0.88rem;color:#111827;">${sanitize(v.submitter?.name || '-')}</div>
