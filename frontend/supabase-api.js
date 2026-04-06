@@ -1212,14 +1212,21 @@ const api = {
             visit_type: visitType || 'project'
         };
 
-        if (isCompany && managerId && accountantId) {
+        // Always set organization_id in company mode so admin/accountant can see it
+        if (isCompany) {
             insertObj.organization_id = profile.organization_id;
+        }
+
+        if (isCompany && managerId && accountantId) {
             insertObj.status = 'pending_manager';
             insertObj.manager_id = managerId;
             insertObj.accountant_id = accountantId;
             insertObj.submitted_at = new Date().toISOString();
+        } else if (isCompany) {
+            // Company mode but no approvers selected — still visible to admin, active immediately
+            insertObj.status = 'active';
         }
-        // Personal mode or no approvers → active immediately (legacy behavior)
+        // Personal mode (no org) → active immediately (legacy behavior)
 
         const { data, error } = await supabase
             .from('advances')
