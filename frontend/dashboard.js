@@ -18,10 +18,14 @@ function switchSection(section, btn) {
         }
     }
 
-    // When switching to reports, render analytics
+    // When switching to reports, load expenses first then render
     if (section === 'reports') {
-        if (window.expenseTracker && typeof expenseTracker.renderReports === 'function') {
-            expenseTracker.renderReports();
+        if (window.expenseTracker) {
+            if (expenseTracker.expenses?.length > 0) {
+                expenseTracker.renderReports();
+            } else if (typeof expenseTracker.loadExpenses === 'function') {
+                expenseTracker.loadExpenses().then(() => expenseTracker.renderReports());
+            }
         }
     }
 }
