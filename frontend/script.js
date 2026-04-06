@@ -6446,9 +6446,12 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         }
 
         try {
-            const button = document.getElementById('exportToGoogleSheets');
-            button.querySelector('.exp-action-card__label, .btn-text').textContent = 'Exporting...';
-            button.disabled = true;
+            const button = document.getElementById('historyExportBtn') || document.getElementById('exportToGoogleSheets');
+            if (button) {
+                const btnText = button.querySelector('#historyExportBtnText') || button.querySelector('.exp-action-card__label, .btn-text');
+                if (btnText) btnText.textContent = 'Exporting...';
+                button.disabled = true;
+            }
 
             // Show loading indicator
             this.showLoading(
@@ -6487,9 +6490,12 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             this.hideLoading();
             this.showNotification('❌ Export failed: ' + error.message);
         } finally {
-            const button = document.getElementById('exportToGoogleSheets');
-            button.querySelector('.exp-action-card__label, .btn-text').textContent = 'Google Export';
-            button.disabled = false;
+            const button = document.getElementById('historyExportBtn') || document.getElementById('exportToGoogleSheets');
+            if (button) {
+                const btnText = button.querySelector('#historyExportBtnText') || button.querySelector('.exp-action-card__label, .btn-text');
+                if (btnText) btnText.textContent = 'Export to Google Sheets';
+                button.disabled = false;
+            }
         }
     }
 
