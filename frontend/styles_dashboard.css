@@ -1642,6 +1642,7 @@ h3.admin-section-label {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 6px;
     padding: 18px 12px;
     background: #ffffff;
@@ -1652,6 +1653,11 @@ h3.admin-section-label {
     text-align: center;
     font-family: var(--font);
     box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+}
+.exp-action-card__label,
+.exp-action-card__sub {
+    width: 100%;
+    text-align: center;
 }
 .exp-action-card:hover {
     border-color: #d1d5db;
