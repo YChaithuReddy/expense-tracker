@@ -8,6 +8,41 @@ const approvalWorkflow = (() => {
     let currentTab = 'my-vouchers';
     let managers = [];
     let accountants = [];
+    let approvalChannel = null;
+
+    // Realtime badge for pending approvals
+    async function initApprovalBadge() {
+        try {
+            await refreshApprovalBadge();
+            subscribeApprovalRealtime();
+        } catch (e) { /* silent */ }
+    }
+
+    async function refreshApprovalBadge() {
+        try {
+            const [vouchers, advances] = await Promise.all([
+                api.getVouchersForApproval().catch(() => []),
+                api.getAdvancesForApproval().catch(() => [])
+            ]);
+            const count = (vouchers?.length || 0) + (advances?.length || 0);
+            const badge = document.getElementById('approvalBadge');
+            if (badge) {
+                badge.textContent = count;
+                badge.style.display = count > 0 ? 'flex' : 'none';
+            }
+        } catch (e) { /* silent */ }
+    }
+
+    function subscribeApprovalRealtime() {
+        const supabase = window.supabaseClient?.get();
+        if (!supabase) return;
+        if (approvalChannel) supabase.removeChannel(approvalChannel);
+
+        approvalChannel = supabase.channel('approvals-realtime')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'vouchers' }, () => refreshApprovalBadge())
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'advances' }, () => refreshApprovalBadge())
+            .subscribe();
+    }
 
     // ==================== Helpers ====================
 
@@ -370,8 +405,15 @@ const approvalWorkflow = (() => {
 
         try {
             if (currentTab === 'my-vouchers') {
-                const vouchers = await api.getMyVouchers();
-                renderVoucherList(vouchers);
+                // Show user's own vouchers AND advances
+                const [vouchers, advances] = await Promise.all([
+                    api.getMyVouchers(),
+                    api.getAdvancesWithBalances?.().catch(() => []) || Promise.resolve([])
+                ]);
+                // Filter advances to only show ones with approval status
+                const myAdvances = (advances || []).filter(a =>
+                    ['pending_manager', 'pending_accountant', 'rejected', 'active'].includes(a.status));
+                renderMySubmissions(vouchers, myAdvances);
             } else if (currentTab === 'pending-approval') {
                 // Load both vouchers and advances for approval
                 const [vouchers, advances] = await Promise.all([
@@ -450,6 +492,74 @@ const approvalWorkflow = (() => {
                     </div>
                 `;
             }).join('');
+        }
+
+        body.innerHTML = html;
+    }
+
+    function renderMySubmissions(vouchers, advances) {
+        const body = document.getElementById('approvalsBody');
+        if (!body) return;
+
+        if (vouchers.length === 0 && advances.length === 0) {
+            body.innerHTML = '<div class="approval-empty"><p>No submissions yet. Submit expenses or request advances to track them here.</p></div>';
+            return;
+        }
+
+        let html = '';
+
+        // My Advances
+        if (advances.length > 0) {
+            html += `<div style="margin-bottom:8px;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#a78bfa;padding:0 4px;">My Advances (${advances.length})</div>`;
+            html += advances.map(adv => {
+                const remaining = adv.remaining ?? (adv.amount - (adv.totalSpent || 0));
+                const percent = adv.percentUsed ?? 0;
+                return `
+                <div class="approval-voucher-card" style="border-left:3px solid #a78bfa;">
+                    <div class="approval-voucher-card__header">
+                        <span class="approval-voucher-card__number" style="color:#a78bfa;">${sanitize(adv.project_name)}</span>
+                        ${statusBadge(adv.status)}
+                    </div>
+                    <div class="approval-voucher-card__body">
+                        <div class="approval-voucher-card__amount">${formatAmount(adv.amount)}</div>
+                        <div class="approval-voucher-card__meta">
+                            <span>Spent: ₹${(adv.totalSpent || 0).toLocaleString('en-IN')}</span>
+                            <span>Remaining: ₹${remaining.toLocaleString('en-IN')}</span>
+                            <span>${Math.round(percent)}% used</span>
+                        </div>
+                        ${adv.rejection_reason ? `<div class="approval-voucher-card__rejection">Rejected: ${sanitize(adv.rejection_reason)}</div>` : ''}
+                    </div>
+                    <div class="approval-voucher-card__footer">
+                        <span>${adv.created_at ? relativeTime(adv.created_at) : ''}</span>
+                        ${adv.status === 'rejected' ? `<button class="approval-btn approval-btn--resubmit" onclick="event.stopPropagation();expenseTracker.openAdvanceModal(JSON.parse(decodeURIComponent('${encodeURIComponent(JSON.stringify(adv))}')))">Edit & Resubmit</button>` : ''}
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        // My Vouchers
+        if (vouchers.length > 0) {
+            html += `<div style="margin:${advances.length > 0 ? '16px' : '0'} 0 8px;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#64748b;padding:0 4px;">My Vouchers (${vouchers.length})</div>`;
+            html += vouchers.map(v => `
+                <div class="approval-voucher-card" onclick="approvalWorkflow.openVoucherDetail('${v.id}')">
+                    <div class="approval-voucher-card__header">
+                        <span class="approval-voucher-card__number">${sanitize(v.voucher_number)}</span>
+                        ${statusBadge(v.status)}
+                    </div>
+                    <div class="approval-voucher-card__body">
+                        <div class="approval-voucher-card__amount">${formatAmount(v.total_amount)}</div>
+                        <div class="approval-voucher-card__meta">
+                            <span>${v.expense_count} expense${v.expense_count !== 1 ? 's' : ''}</span>
+                            <span>To: ${sanitize(v.manager?.name || 'Manager')}</span>
+                        </div>
+                        ${v.rejection_reason ? `<div class="approval-voucher-card__rejection">Rejected: ${sanitize(v.rejection_reason)}</div>` : ''}
+                    </div>
+                    <div class="approval-voucher-card__footer">
+                        <span>${v.submitted_at ? relativeTime(v.submitted_at) : ''}</span>
+                        ${v.status === 'rejected' ? `<button class="approval-btn approval-btn--resubmit" onclick="event.stopPropagation();approvalWorkflow.resubmit('${v.id}')">Resubmit</button>` : ''}
+                    </div>
+                </div>
+            `).join('');
         }
 
         body.innerHTML = html;
@@ -1103,6 +1213,7 @@ const approvalWorkflow = (() => {
     }
 
     return {
+        initApprovalBadge,
         openSubmitModal,
         closeSubmitModal,
         submitVoucher,
