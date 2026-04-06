@@ -1377,205 +1377,156 @@ h3.admin-section-label {
     flex-shrink: 0;
 }
 
-/* ====== EXPENSE FORM MODAL ====== */
-.expense-form-modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 9999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    animation: expModalFadeIn 0.25s ease;
-}
-@keyframes expModalFadeIn {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-}
-.expense-form-modal {
-    background: #ffffff;
-    border-radius: 16px;
-    width: 100%;
-    max-width: 520px;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    animation: expModalSlideUp 0.3s ease;
-    position: relative;
-}
-@keyframes expModalSlideUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to   { opacity: 1; transform: translateY(0); }
-}
-.expense-form-modal__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 18px 22px;
-    border-bottom: 1px solid #e5e7eb;
-    position: sticky;
-    top: 0;
-    background: #ffffff;
-    border-radius: 16px 16px 0 0;
-    z-index: 1;
-}
-.expense-form-modal__header h2 {
-    font-size: 1rem;
-    font-weight: 700;
-    color: #111827;
-    margin: 0;
-}
-.expense-form-modal__header p {
-    font-size: 0.75rem;
-    color: #6b7280;
-    margin: 2px 0 0;
-}
-.expense-form-modal__close {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    border: none;
-    background: #f3f4f6;
-    color: #6b7280;
-    font-size: 18px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.15s;
-    flex-shrink: 0;
-}
-.expense-form-modal__close:hover {
-    background: #e5e7eb;
-    color: #111827;
-}
-.expense-form-modal__body {
-    padding: 20px 22px 24px;
-}
-
-/* Hide the section's own h2/p when inside modal (modal header replaces them) */
-.expense-form-modal__body .expense-form-section > h2,
-.expense-form-modal__body .expense-form-section > p {
+/* ====== EXPENSE FORM inside KODO MODAL ====== */
+/* Hide section's own h2/p — kodo header replaces them */
+#expenseFormModalOverlay .expense-form-section > h2,
+#expenseFormModalOverlay .expense-form-section > p {
     display: none;
 }
-/* Remove section padding when inside modal - modal body handles it */
-.expense-form-modal__body .expense-form-section {
+/* Strip section chrome — kodo modal provides the container */
+#expenseFormModalOverlay .expense-form-section {
     padding: 0 !important;
     border: none !important;
     box-shadow: none !important;
     background: transparent !important;
     margin: 0 !important;
 }
-/* Hide "Back to Scan" button in modal - modal close button replaces it */
-.expense-form-modal__body #backToScan {
+/* Hide "Back to Scan" — modal close button replaces it */
+#expenseFormModalOverlay #backToScan {
     display: none;
 }
 
-/* Form styles inside modal (mirrors .admin-main scoping) */
-.expense-form-modal .form-group {
-    margin-bottom: 10px;
+/* Map .form-group to kodo field style */
+#expenseFormModalOverlay .form-group {
+    margin-bottom: 14px;
 }
-.expense-form-modal .form-group label {
-    display: block;
-    font-size: 0.78rem;
+#expenseFormModalOverlay .form-group label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
     font-weight: 600;
-    color: #374151;
-    margin-bottom: 6px;
-    text-transform: uppercase;
     letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-secondary, #64748b);
+    margin-bottom: 6px;
 }
-.expense-form-modal .form-group input[type="text"],
-.expense-form-modal .form-group input[type="number"],
-.expense-form-modal .form-group input[type="date"],
-.expense-form-modal .form-group select,
-.expense-form-modal .form-group textarea,
-.expense-form-modal .category-select {
+#expenseFormModalOverlay .form-group input[type="text"],
+#expenseFormModalOverlay .form-group input[type="number"],
+#expenseFormModalOverlay .form-group input[type="date"],
+#expenseFormModalOverlay .form-group input[type="file"],
+#expenseFormModalOverlay .form-group select,
+#expenseFormModalOverlay .form-group textarea,
+#expenseFormModalOverlay .category-select {
     width: 100%;
     padding: 10px 14px;
-    border: 1px solid #e5e7eb !important;
-    border-radius: 8px !important;
-    font-size: 0.88rem;
-    color: #111827 !important;
-    background: #ffffff !important;
-    font-family: 'Inter', sans-serif;
-    transition: border-color 0.15s;
-    outline: none;
+    border: 1.5px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 12px !important;
+    font-size: 0.9rem;
+    background: rgba(255, 255, 255, 0.04) !important;
+    color: var(--text-primary, #e2e8f0) !important;
+    transition: border-color 0.2s, box-shadow 0.2s;
     box-sizing: border-box;
+    font-family: inherit;
+    outline: none;
 }
-.expense-form-modal .form-group input:focus,
-.expense-form-modal .form-group select:focus,
-.expense-form-modal .form-group textarea:focus,
-.expense-form-modal .category-select:focus {
-    border-color: #111827 !important;
-    box-shadow: 0 0 0 3px rgba(17,24,39,0.06) !important;
+#expenseFormModalOverlay .form-group input:hover,
+#expenseFormModalOverlay .form-group select:hover,
+#expenseFormModalOverlay .category-select:hover {
+    border-color: rgba(56, 189, 248, 0.2) !important;
 }
-.expense-form-modal .form-group input::placeholder {
-    color: #9ca3af !important;
+#expenseFormModalOverlay .form-group input:focus,
+#expenseFormModalOverlay .form-group select:focus,
+#expenseFormModalOverlay .form-group textarea:focus,
+#expenseFormModalOverlay .category-select:focus {
+    border-color: rgba(56, 189, 248, 0.4) !important;
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.08) !important;
 }
-.expense-form-modal .form-group small {
-    color: #9ca3af;
+#expenseFormModalOverlay .form-group input::placeholder,
+#expenseFormModalOverlay .form-group textarea::placeholder {
+    color: var(--text-secondary, #475569) !important;
+    opacity: 0.7;
+}
+#expenseFormModalOverlay .form-group small {
+    color: var(--text-secondary, #64748b);
     font-size: 0.75rem;
     margin-top: 4px;
     display: block;
 }
-.expense-form-modal .btn-primary {
-    background: #111827 !important;
-    color: #ffffff !important;
+
+/* Submit button — gradient like kodo */
+#expenseFormModalOverlay .btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #6366f1) !important;
+    color: white !important;
     border: none !important;
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-size: 0.84rem;
+    padding: 13px 22px;
+    border-radius: 14px;
+    font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.15s;
-    font-family: 'Inter', sans-serif;
+    transition: all 0.2s;
+    font-family: inherit;
     width: 100%;
+    position: relative;
+    overflow: hidden;
 }
-.expense-form-modal .btn-primary:hover {
-    background: #1f2937 !important;
-}
-.expense-form-modal .form-actions {
-    margin-top: 16px;
+#expenseFormModalOverlay .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(14, 165, 233, 0.3) !important;
 }
 
-/* Dark theme support */
-[data-theme="dark"] .expense-form-modal {
-    background: #1a1f2e;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+/* Form actions */
+#expenseFormModalOverlay .form-actions {
+    margin-top: 18px;
+    gap: 12px;
 }
-[data-theme="dark"] .expense-form-modal__header {
-    border-color: rgba(255, 255, 255, 0.1);
-    background: #1a1f2e;
+
+/* Visit type toggles inside modal */
+#expenseFormModalOverlay .visit-type-toggle {
+    border-color: rgba(255, 255, 255, 0.08);
 }
-[data-theme="dark"] .expense-form-modal__header h2 {
-    color: #f3f4f6;
+#expenseFormModalOverlay .visit-type-btn {
+    color: var(--text-secondary, #94a3b8);
+    border-color: rgba(255, 255, 255, 0.08);
 }
-[data-theme="dark"] .expense-form-modal__close {
-    background: rgba(255, 255, 255, 0.1);
-    color: #9ca3af;
+#expenseFormModalOverlay .visit-type-btn.active {
+    background: rgba(56, 189, 248, 0.15);
+    color: #38bdf8;
+    border-color: rgba(56, 189, 248, 0.3);
 }
-[data-theme="dark"] .expense-form-modal__close:hover {
-    background: rgba(255, 255, 255, 0.15);
-    color: #f3f4f6;
+
+/* Extracted data box inside modal */
+#expenseFormModalOverlay .extracted-data-box {
+    background: rgba(14, 165, 233, 0.08) !important;
+    border: 1px solid rgba(14, 165, 233, 0.2) !important;
+    border-radius: 14px !important;
+    color: var(--text-secondary, #94a3b8) !important;
 }
-[data-theme="dark"] .expense-form-modal .form-group label {
-    color: #d1d5db;
+
+/* Light theme overrides for kodo modal form */
+[data-theme="light"] #expenseFormModalOverlay .form-group input[type="text"],
+[data-theme="light"] #expenseFormModalOverlay .form-group input[type="number"],
+[data-theme="light"] #expenseFormModalOverlay .form-group input[type="date"],
+[data-theme="light"] #expenseFormModalOverlay .form-group select,
+[data-theme="light"] #expenseFormModalOverlay .form-group textarea,
+[data-theme="light"] #expenseFormModalOverlay .category-select {
+    background: #ffffff !important;
+    border-color: rgba(0, 212, 255, 0.25) !important;
+    color: #1f2937 !important;
 }
-[data-theme="dark"] .expense-form-modal .form-group input[type="text"],
-[data-theme="dark"] .expense-form-modal .form-group input[type="number"],
-[data-theme="dark"] .expense-form-modal .form-group input[type="date"],
-[data-theme="dark"] .expense-form-modal .form-group select,
-[data-theme="dark"] .expense-form-modal .category-select {
-    background: #252b3b !important;
-    border-color: rgba(255,255,255,0.12) !important;
-    color: #f3f4f6 !important;
+[data-theme="light"] #expenseFormModalOverlay .form-group input:focus,
+[data-theme="light"] #expenseFormModalOverlay .form-group select:focus,
+[data-theme="light"] #expenseFormModalOverlay .form-group textarea:focus,
+[data-theme="light"] #expenseFormModalOverlay .category-select:focus {
+    border-color: rgba(56, 189, 248, 0.5) !important;
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1) !important;
 }
-[data-theme="dark"] .expense-form-modal .btn-primary {
-    background: #3b82f6 !important;
+[data-theme="light"] #expenseFormModalOverlay .form-group label {
+    color: #374151;
 }
-[data-theme="dark"] .expense-form-modal__header p {
-    color: #9ca3af;
+[data-theme="light"] #expenseFormModalOverlay .form-group input::placeholder,
+[data-theme="light"] #expenseFormModalOverlay .form-group textarea::placeholder {
+    color: #9ca3af !important;
 }
 
 /* Manual entry link */
