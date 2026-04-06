@@ -568,9 +568,7 @@ class GoogleSheetsService {
             }
         }
 
-        if (exportBtn) {
-            exportBtn.style.display = 'flex';
-        }
+        // Don't set inline display — CSS handles it via .exp-action-card
     }
 
     /**

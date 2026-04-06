@@ -6399,10 +6399,9 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             selectAllCheckbox.indeterminate = checkboxes.length > 0 && checkboxes.length < allCheckboxes.length;
         }
 
-        if (checkboxes.length > 0) {
+        if (checkboxes.length > 0 && btnText) {
             btnText.textContent = `Export Selected (${checkboxes.length})`;
-            exportBtn.style.display = 'flex';
-        } else {
+        } else if (btnText) {
             btnText.textContent = 'Google Export';
         }
     }
