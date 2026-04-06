@@ -3748,12 +3748,11 @@ class ExpenseTracker {
             if (hasImages) infoParts.push('<span style="color:#2563eb;font-size:0.72rem;" title="' + expense.images.length + ' file(s)">📎' + expense.images.length + '</span>');
 
             return `<tr style="cursor:pointer;" onclick="if(event.target.tagName!=='INPUT'&&event.target.tagName!=='BUTTON'&&!event.target.closest('button'))expenseDetail.open('${safeId}')">
-                <td style="width:32px;"><input type="checkbox" class="expense-checkbox" id="checkbox-${safeId}" data-expense-id="${safeId}" onchange="expenseTracker.updateExportButton()" onclick="event.stopPropagation()"></td>
-                <td style="white-space:nowrap;font-size:0.78rem;color:#64748b;">${this.formatDisplayDate(expense.date)}</td>
-                <td style="white-space:nowrap;font-weight:600;">₹${this.formatAmount(expense.amount)}</td>
-                <td><span class="expense-category-badge" style="font-size:0.7rem;">${safeCategory}</span></td>
-                <td title="${safeVendor || ''}">${safeVendor || '-'}</td>
-                <td title="${safeDescription || ''}">${safeDescription || '-'}</td>
+                <td><input type="checkbox" class="expense-checkbox" id="checkbox-${safeId}" data-expense-id="${safeId}" onchange="expenseTracker.updateExportButton()" onclick="event.stopPropagation()"></td>
+                <td style="white-space:nowrap;font-size:0.8rem;color:#64748b;">${this.formatDisplayDate(expense.date)}</td>
+                <td style="white-space:nowrap;font-weight:700;font-size:0.88rem;">₹${this.formatAmount(expense.amount)}</td>
+                <td><span class="expense-category-badge">${safeCategory}</span></td>
+                <td>${safeVendor || '-'}</td>
                 <td style="white-space:nowrap;"><div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;">${infoParts.join('')}</div></td>
                 <td style="white-space:nowrap;">
                     <div style="display:flex;gap:4px;">
@@ -3769,7 +3768,7 @@ class ExpenseTracker {
         }).join('');
 
         container.innerHTML = `<div class="admin-table-wrap"><table class="admin-table"><thead><tr>
-            <th style="width:32px;"></th><th>Date</th><th>Amount</th><th>Category</th><th>Vendor</th><th>Description</th><th>Info</th><th style="width:70px;">Actions</th>
+            <th style="width:36px;"></th><th>Date</th><th>Amount</th><th>Category</th><th>Vendor</th><th>Info</th><th style="width:80px;">Actions</th>
         </tr></thead><tbody>${rows}</tbody></table></div>`;
 
         this.updateExportButton();
