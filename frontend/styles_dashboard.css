@@ -1725,11 +1725,12 @@ h3.admin-section-label {
 
 /* Override old section styles for new layout */
 #section-expenses .ocr-section {
-    background: transparent !important;
-    border: none !important;
-    padding: 0 !important;
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 14px !important;
+    padding: 20px 22px !important;
     margin: 0 !important;
-    box-shadow: none !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
     overflow: visible !important;
 }
 
