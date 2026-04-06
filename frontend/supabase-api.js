@@ -1481,7 +1481,7 @@ const api = {
         const { data: profile } = await supabase.from('profiles').select('role, organization_id').eq('id', user.id).single();
         const role = profile?.role || 'employee';
 
-        let query = supabase.from('advances').select('*, profiles!advances_user_id_fkey(name, email)');
+        let query = supabase.from('advances').select('*, submitter:user_id(name, email)');
 
         if (role === 'manager') {
             query = query.eq('manager_id', user.id).in('status', ['pending_manager']);
@@ -1986,7 +1986,7 @@ const api = {
         if (attachments.pdfFilename) insertObj.pdf_filename = attachments.pdfFilename;
         if (extras.periodFrom) insertObj.period_from = extras.periodFrom;
         if (extras.periodTo) insertObj.period_to = extras.periodTo;
-        if (extras.declaration !== undefined) insertObj.declaration_accepted = extras.declaration;
+        // Note: declaration_accepted column may not exist in vouchers table — skip it
 
         const { data: voucher, error: vError } = await supabase
             .from('vouchers')
