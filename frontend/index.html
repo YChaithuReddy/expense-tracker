@@ -516,6 +516,7 @@
             <div class="admin-section" id="section-advance">
                 <div class="admin-main__header">
                     <div class="admin-main__header-left">
+                        <div class="admin-breadcrumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Finance</div>
                         <h2>Advance Tracker</h2>
                         <p>Request and track advance payments for projects</p>
                     </div>
@@ -525,41 +526,27 @@
                     </button>
                 </div>
 
-                <!-- Advance Stats -->
-                <div class="admin-stats-grid" id="advanceStatsGrid">
-                    <div class="admin-stat-card admin-stat-card--blue">
-                        <div class="admin-stat-card__icon admin-stat-card__icon--blue">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
-                        </div>
-                        <div class="admin-stat-card__value" id="advStatTotal">0</div>
-                        <div class="admin-stat-card__label">Total Advances</div>
-                    </div>
-                    <div class="admin-stat-card admin-stat-card--amber">
-                        <div class="admin-stat-card__icon admin-stat-card__icon--amber">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                        </div>
-                        <div class="admin-stat-card__value" id="advStatPending">0</div>
-                        <div class="admin-stat-card__label">Pending</div>
-                    </div>
-                    <div class="admin-stat-card admin-stat-card--green">
-                        <div class="admin-stat-card__icon admin-stat-card__icon--green">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                        </div>
-                        <div class="admin-stat-card__value" id="advStatActive">0</div>
-                        <div class="admin-stat-card__label">Active</div>
-                    </div>
-                </div>
+                <!-- Stats Pills -->
+                <div class="admin-stats-bar" id="advanceStatsBar"></div>
 
-                <!-- Stats pills + filter -->
-                <div id="advanceStatsBar" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;"></div>
+                <!-- Advance Filters -->
+                <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+                    <select id="empAdvanceStatusFilter" onchange="expenseTracker.renderAdvanceCards()" style="padding:8px 12px;border:1px solid #e2e8f0;border-radius:10px;font-size:0.84rem;background:#ffffff;color:#0f172a;outline:none;font-family:inherit;">
+                        <option value="">All Statuses</option>
+                        <option value="pending_manager">Pending Manager</option>
+                        <option value="pending_accountant">Pending Accountant</option>
+                        <option value="active">Active</option>
+                        <option value="closed">Closed</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
 
                 <!-- Table container -->
                 <div id="advanceTableContainer">
-                    <!-- Advance table rendered by JS -->
-                </div>
-                <div class="admin-empty" id="advanceEmptyState">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="1.5" style="margin-bottom:12px;"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
-                    <p>No advance requests yet. Click "New Advance" to get started.</p>
+                    <div class="admin-empty" id="advanceEmptyState">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="1.5" style="margin-bottom:12px;"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+                        <p>No advance requests yet. Click "New Advance" to get started.</p>
+                    </div>
                 </div>
             </div><!-- /section-advance -->
 
@@ -567,34 +554,17 @@
             <div class="admin-section" id="section-reports">
                 <div class="admin-main__header">
                     <div class="admin-main__header-left">
+                        <div class="admin-breadcrumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>Insights</div>
                         <h2>Reports & Analytics</h2>
                         <p>View detailed reports and insights on your spending</p>
                     </div>
                 </div>
 
-                <!-- Report Stats -->
-                <div class="admin-stats-grid">
-                    <div class="admin-stat-card">
-                        <div class="admin-stat-card__icon admin-stat-card__icon--default">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                        </div>
-                        <div class="admin-stat-card__value" id="reportStatMonth">-</div>
-                        <div class="admin-stat-card__label">This Month</div>
-                    </div>
-                    <div class="admin-stat-card admin-stat-card--green">
-                        <div class="admin-stat-card__icon admin-stat-card__icon--green">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
-                        </div>
-                        <div class="admin-stat-card__value" id="reportStatTrend">-</div>
-                        <div class="admin-stat-card__label">vs Last Month</div>
-                    </div>
-                    <div class="admin-stat-card admin-stat-card--blue">
-                        <div class="admin-stat-card__icon admin-stat-card__icon--blue">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-                        </div>
-                        <div class="admin-stat-card__value" id="reportStatCategories">-</div>
-                        <div class="admin-stat-card__label">Categories Used</div>
-                    </div>
+                <!-- Report Stats Pills -->
+                <div class="admin-stats-bar">
+                    <div class="admin-stat-pill" style="color:#d97706;border-color:rgba(217,119,6,0.2);background:#fffbeb;">This Month: <strong id="reportStatMonth">-</strong></div>
+                    <div class="admin-stat-pill admin-stat-pill--active">Trend: <strong id="reportStatTrend">-</strong></div>
+                    <div class="admin-stat-pill" style="color:#2563eb;border-color:rgba(37,99,235,0.2);background:#eff6ff;">Categories: <strong id="reportStatCategories">-</strong></div>
                 </div>
 
                 <div class="admin-empty" style="margin-top:8px;">
@@ -608,6 +578,7 @@
             <div class="admin-section" id="section-settings">
                 <div class="admin-main__header">
                     <div class="admin-main__header-left">
+                        <div class="admin-breadcrumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Account</div>
                         <h2>Settings</h2>
                         <p>Manage your account preferences and configuration</p>
                     </div>
