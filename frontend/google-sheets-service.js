@@ -192,10 +192,17 @@ class GoogleSheetsService {
                 data: JSON.stringify(data)
             });
 
+            // 30-second timeout to prevent infinite hang
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 30000);
+
             const response = await fetch(`${this.APPS_SCRIPT_URL}?${params}`, {
                 method: 'GET',
-                redirect: 'follow'
+                redirect: 'follow',
+                signal: controller.signal
             });
+
+            clearTimeout(timeoutId);
 
             const text = await response.text();
             try {
@@ -205,6 +212,9 @@ class GoogleSheetsService {
                 return { status: 'success', data: {} };
             }
         } catch (error) {
+            if (error.name === 'AbortError') {
+                throw new Error('Google Sheets request timed out (30s). Please try again.');
+            }
             console.error('Fetch error:', error);
             throw error;
         }
