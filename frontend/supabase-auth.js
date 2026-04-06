@@ -215,6 +215,19 @@ function displayUserInfo() {
             // Notification badge refresh is handled by notificationCenter.init()
             // called from onAuthReady() — no duplicate call needed here
         }
+
+        // Update sidebar user block (name, email, avatar initials)
+        const sidebarName = document.getElementById('sidebarUserName');
+        const sidebarEmail = document.getElementById('sidebarUserEmail');
+        const sidebarAvatar = document.getElementById('sidebarAvatar');
+        if (sidebarName) sidebarName.textContent = user.name || 'User';
+        if (sidebarEmail) sidebarEmail.textContent = user.email || '';
+        if (sidebarAvatar) {
+            const parts = (user.name || '').split(' ').filter(Boolean);
+            sidebarAvatar.textContent = parts.length >= 2
+                ? parts[0][0].toUpperCase() + parts[parts.length - 1][0].toUpperCase()
+                : parts[0] ? parts[0][0].toUpperCase() : 'U';
+        }
     }
 }
 
