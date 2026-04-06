@@ -1485,48 +1485,30 @@ const api = {
     async getAdvanceDetail(advanceId) {
         const supabase = getSupabase();
 
-        const { data: advance, error } = await supabase
-            .from('advances')
-            .select('*')
-            .eq('id', advanceId)
-            .single();
+        // Fetch advance + history in parallel
+        const [advRes, histRes] = await Promise.all([
+            supabase.from('advances').select('*').eq('id', advanceId).single(),
+            supabase.from('advance_history').select('*').eq('advance_id', advanceId).order('created_at', { ascending: true })
+        ]);
 
-        if (error) handleError(error, 'Get advance detail');
+        if (advRes.error) handleError(advRes.error, 'Get advance detail');
+        const advance = advRes.data;
+        const history = histRes.data || [];
 
-        // Fetch related profiles separately (avoids FK join issues)
-        const profileIds = [advance.user_id, advance.manager_id, advance.accountant_id].filter(Boolean);
-        let profiles = {};
-        if (profileIds.length > 0) {
-            const { data: pList } = await supabase
-                .from('profiles')
-                .select('id, name, email, profile_picture')
-                .in('id', profileIds);
-            if (pList) pList.forEach(p => profiles[p.id] = p);
+        // Collect all profile IDs needed (advance people + history actors) in one batch
+        const allIds = new Set([advance.user_id, advance.manager_id, advance.accountant_id, ...history.map(h => h.acted_by)].filter(Boolean));
+        let profileMap = {};
+        if (allIds.size > 0) {
+            const { data: pList } = await supabase.from('profiles').select('id, name, email, profile_picture').in('id', [...allIds]);
+            if (pList) pList.forEach(p => profileMap[p.id] = p);
         }
 
-        advance.submitter = profiles[advance.user_id] || null;
-        advance.manager = profiles[advance.manager_id] || null;
-        advance.accountant = profiles[advance.accountant_id] || null;
+        advance.submitter = profileMap[advance.user_id] || null;
+        advance.manager = profileMap[advance.manager_id] || null;
+        advance.accountant = profileMap[advance.accountant_id] || null;
+        history.forEach(h => h.actor = profileMap[h.acted_by] || null);
 
-        // Get history
-        const { data: history } = await supabase
-            .from('advance_history')
-            .select('*')
-            .eq('advance_id', advanceId)
-            .order('created_at', { ascending: true });
-
-        // Fetch actors for history
-        if (history?.length > 0) {
-            const actorIds = [...new Set(history.map(h => h.acted_by).filter(Boolean))];
-            if (actorIds.length > 0) {
-                const { data: actors } = await supabase.from('profiles').select('id, name').in('id', actorIds);
-                const actorMap = {};
-                if (actors) actors.forEach(a => actorMap[a.id] = a);
-                history.forEach(h => h.actor = actorMap[h.acted_by] || null);
-            }
-        }
-
-        return { ...advance, history: history || [] };
+        return { ...advance, history };
     },
 
     async approveAdvance(advanceId, comments = '') {
@@ -2126,32 +2108,18 @@ const api = {
     async getVoucherDetail(voucherId) {
         const supabase = getSupabase();
 
-        // Get voucher with related data
-        const { data: voucher, error: vErr } = await supabase
-            .from('vouchers')
-            .select(`
-                *,
-                submitter:submitted_by(id, name, email, employee_id, department, profile_picture),
-                manager:manager_id(id, name, email, profile_picture),
-                accountant:accountant_id(id, name, email, profile_picture),
-                project:project_id(id, project_code, project_name, client_name),
-                advance:advance_id(id, project_name, amount)
-            `)
-            .eq('id', voucherId)
-            .single();
+        // Fetch voucher + expense links + history in parallel
+        const [vRes, linkRes, histRes] = await Promise.all([
+            supabase.from('vouchers').select(`*, submitter:submitted_by(id, name, email, employee_id, department, profile_picture), manager:manager_id(id, name, email, profile_picture), accountant:accountant_id(id, name, email, profile_picture), project:project_id(id, project_code, project_name, client_name), advance:advance_id(id, project_name, amount)`).eq('id', voucherId).single(),
+            supabase.from('voucher_expenses').select('expense_id').eq('voucher_id', voucherId),
+            supabase.from('voucher_history').select('*, actor:acted_by(id, name, profile_picture)').eq('voucher_id', voucherId).order('created_at', { ascending: true })
+        ]);
 
-        if (vErr) handleError(vErr, 'Get voucher detail');
+        if (vRes.error) handleError(vRes.error, 'Get voucher detail');
+        const voucher = vRes.data;
 
-        // Get linked expenses from junction table
-        const { data: expenseLinks, error: linkErr } = await supabase
-            .from('voucher_expenses')
-            .select('expense_id')
-            .eq('voucher_id', voucherId);
-
-        if (linkErr) console.warn('voucher_expenses query error:', linkErr.message);
-        const expenseIds = (expenseLinks || []).map(l => l.expense_id);
-        console.log(`Voucher ${voucherId}: found ${expenseIds.length} linked expenses`);
-
+        // Fetch expenses if any links found
+        const expenseIds = (linkRes.data || []).map(l => l.expense_id);
         let expenses = [];
         if (expenseIds.length > 0) {
             const { data: expData } = await supabase
@@ -2162,17 +2130,7 @@ const api = {
             expenses = expData || [];
         }
 
-        // Get history
-        const { data: history } = await supabase
-            .from('voucher_history')
-            .select(`
-                *,
-                actor:acted_by(id, name, profile_picture)
-            `)
-            .eq('voucher_id', voucherId)
-            .order('created_at', { ascending: true });
-
-        return { ...voucher, expenses, history: history || [] };
+        return { ...voucher, expenses, history: histRes.data || [] };
     },
 
     async approveVoucher(voucherId, comments = '') {
