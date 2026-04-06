@@ -6393,7 +6393,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         const histExportText = document.getElementById('historyExportBtnText');
         if (histExportBtn) {
             if (checkboxes.length > 0) {
-                histExportBtn.style.display = '';
+                histExportBtn.style.display = 'inline-flex';
                 if (histExportText) histExportText.textContent = `Export Selected (${checkboxes.length})`;
             } else {
                 histExportBtn.style.display = 'none';
