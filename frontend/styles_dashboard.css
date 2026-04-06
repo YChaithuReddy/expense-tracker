@@ -1742,6 +1742,68 @@ h3.admin-section-label {
 }
 .adv-tbl-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
 
+/* History filters row — admin style inline */
+.hist-filters-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.hist-search-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.hist-search-wrap svg {
+    position: absolute;
+    left: 10px;
+    pointer-events: none;
+}
+.hist-search-input {
+    padding: 8px 12px 8px 34px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 0.84rem;
+    background: #ffffff;
+    color: #0f172a;
+    outline: none;
+    font-family: inherit;
+    width: 200px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.hist-search-input:focus {
+    border-color: #111827;
+    box-shadow: 0 0 0 3px rgba(17,24,39,0.08);
+}
+.hist-filter-select {
+    padding: 8px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 0.84rem;
+    background: #ffffff;
+    color: #0f172a;
+    outline: none;
+    font-family: inherit;
+    cursor: pointer;
+}
+.hist-filter-date {
+    padding: 7px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 0.84rem;
+    background: #ffffff;
+    color: #0f172a;
+    outline: none;
+    font-family: inherit;
+}
+.hist-filters-row .search-results-info {
+    width: 100%;
+    font-size: 0.78rem;
+    color: #64748b;
+    margin-top: 4px;
+}
+
 /* ============================================================
    TABLE STYLES
    ============================================================ */
