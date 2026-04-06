@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="teal">
-<script>document.documentElement.setAttribute('data-theme', localStorage.getItem('expenseTrackerTheme') || 'teal');</script>
+<html lang="en" data-theme="light">
+<script>document.documentElement.setAttribute('data-theme', 'light');</script>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#14b8a6">
+    <meta name="theme-color" content="#ffffff">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Expense Tracker">
     <title>Login — FluxGen Expense Tracker</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -15,58 +15,53 @@
     <link rel="manifest" href="manifest.json">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* ─── Reset & Base ─── */
-        *, *::before, *::after {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --navy:          #0a0f1a;
-            --navy-mid:      #0f1828;
-            --navy-card:     #111827;
-            --navy-border:   rgba(255,255,255,0.08);
-            --navy-border-focus: rgba(20,184,166,0.6);
-            --accent:        #14b8a6;
-            --accent-light:  #2dd4bf;
-            --accent-dim:    rgba(20,184,166,0.15);
-            --accent-glow:   rgba(20,184,166,0.25);
-            --text-primary:  #f0f4f8;
-            --text-secondary: #8a9ab0;
-            --text-muted:    #5a6878;
-            --success:       #10b981;
-            --error:         #ef4444;
-            --white:         #ffffff;
-            --font:          'Inter', system-ui, -apple-system, sans-serif;
-            --radius-sm:     8px;
-            --radius-md:     12px;
-            --radius-lg:     16px;
-            --radius-xl:     24px;
-            --transition:    180ms cubic-bezier(0.4, 0, 0.2, 1);
+            --white: #ffffff;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
+            --black: #020617;
+            --accent: #111827;
+            --green: #059669;
+            --green-bg: #ecfdf5;
+            --red: #dc2626;
+            --red-bg: #fef2f2;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --shadow-sm: 0 1px 3px rgba(15,23,42,0.08), 0 1px 2px rgba(15,23,42,0.04);
+            --shadow-md: 0 4px 12px rgba(15,23,42,0.06), 0 2px 4px rgba(15,23,42,0.04);
+            --shadow-lg: 0 10px 25px rgba(0,0,0,0.08), 0 4px 10px rgba(15,23,42,0.06);
+            --shadow-xl: 0 20px 40px rgba(0,0,0,0.10), 0 8px 16px rgba(15,23,42,0.08);
         }
 
         html, body {
-            height: 100%;
-            width: 100%;
-            margin: 0;
+            height: 100%; width: 100%; margin: 0;
             font-family: var(--font);
-            background: var(--navy);
-            color: var(--text-primary);
+            background: var(--gray-50);
+            color: var(--gray-900);
             -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
             overflow: hidden;
         }
 
-        /* ─── Layout Shell ─── */
+        /* ─── Layout ─── */
         .login-shell {
             display: grid;
             grid-template-columns: 1fr 1fr;
             height: 100vh;
-            width: 100%;
-            overflow: hidden;
         }
 
         /* ─── Left Panel ─── */
@@ -75,657 +70,217 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 36px 48px;
-            background: var(--navy-mid);
+            padding: 40px 48px;
+            background: linear-gradient(135deg, var(--gray-800) 0%, var(--black) 100%);
             overflow: hidden;
         }
-
-        /* Animated mesh gradient background */
         .login-panel-left::before {
             content: '';
             position: absolute;
             inset: 0;
             background:
-                radial-gradient(ellipse 80% 60% at 20% 20%, rgba(20,184,166,0.18) 0%, transparent 60%),
-                radial-gradient(ellipse 60% 80% at 80% 80%, rgba(45,212,191,0.10) 0%, transparent 60%),
-                radial-gradient(ellipse 50% 50% at 50% 100%, rgba(13,148,136,0.12) 0%, transparent 60%);
+                radial-gradient(ellipse 80% 60% at 20% 20%, rgba(255,255,255,0.04) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 80% at 80% 80%, rgba(255,255,255,0.02) 0%, transparent 60%);
             pointer-events: none;
-            z-index: 0;
-            animation: meshPulse 10s ease-in-out infinite alternate;
         }
-
-        /* Subtle grid overlay */
         .login-panel-left::after {
             content: '';
             position: absolute;
             inset: 0;
             background-image:
-                linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
             background-size: 48px 48px;
             pointer-events: none;
-            z-index: 0;
         }
 
-        @keyframes meshPulse {
-            0%   { opacity: 0.7; transform: scale(1) rotate(0deg); }
-            50%  { opacity: 1;   transform: scale(1.04) rotate(1deg); }
-            100% { opacity: 0.8; transform: scale(1.01) rotate(-0.5deg); }
-        }
+        .left-content { position: relative; z-index: 1; display: flex; flex-direction: column; height: 100%; justify-content: space-between; }
 
-        .left-content {
-            position: relative;
-            z-index: 1;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            justify-content: space-between;
-        }
-
-        /* Logo area */
-        /* Top row — text left, logo right */
-        .brand-top-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 24px;
-        }
-
-        .brand-top-text {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .brand-top-text .left-headline {
-            margin-top: 12px;
-        }
-
-        .brand-logo-wrap {
-            flex-shrink: 0;
-        }
-
-        .brand-logo-pill {
-            background: var(--white);
-            border-radius: 20px;
-            padding: 18px 36px;
-            display: inline-flex;
-            align-items: center;
-            box-shadow:
-                0 0 0 1px rgba(255,255,255,0.12),
-                0 12px 40px rgba(0,0,0,0.4),
-                0 4px 12px rgba(0,0,0,0.25);
-        }
-
-        .brand-logo-pill img {
-            height: 72px;
-            width: auto;
-            object-fit: contain;
-            display: block;
-        }
-
-        /* Hero text — features + subtext below the top row */
-        .left-hero {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 20px 0 20px;
-        }
+        .brand-top-row { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+        .brand-top-text { flex: 1; min-width: 0; }
 
         .left-eyebrow {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            color: var(--accent);
-            margin-bottom: 20px;
+            display: inline-flex; align-items: center; gap: 8px;
+            font-size: 11px; font-weight: 600; letter-spacing: 0.12em;
+            text-transform: uppercase; color: var(--gray-400); margin-bottom: 16px;
         }
-
         .left-eyebrow-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: var(--accent);
+            width: 6px; height: 6px; border-radius: 50%;
+            background: var(--green); box-shadow: 0 0 6px rgba(5,150,105,0.6);
             animation: dotPulse 2s ease-in-out infinite;
         }
+        @keyframes dotPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-        @keyframes dotPulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50%       { opacity: 0.5; transform: scale(0.75); }
+        .brand-logo-pill {
+            background: var(--white); border-radius: 16px; padding: 14px 28px;
+            display: inline-flex; align-items: center;
+            box-shadow: var(--shadow-xl);
         }
+        .brand-logo-pill img { height: 56px; width: auto; object-fit: contain; display: block; }
+
+        .left-hero { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 20px 0; }
 
         .left-headline {
-            font-size: clamp(28px, 3.2vw, 42px);
-            font-weight: 700;
-            line-height: 1.18;
-            color: var(--text-primary);
-            letter-spacing: -0.02em;
-            margin-bottom: 20px;
+            font-size: clamp(26px, 3vw, 38px); font-weight: 800;
+            line-height: 1.15; color: var(--white);
+            letter-spacing: -0.03em; margin-bottom: 18px;
         }
-
         .left-headline em {
             font-style: normal;
-            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            background: linear-gradient(135deg, #e2e8f0, #ffffff);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
         }
 
-        .left-subtext {
-            font-size: 15px;
-            font-weight: 400;
-            line-height: 1.7;
-            color: var(--text-secondary);
-            max-width: 360px;
-        }
+        .left-subtext { font-size: 14px; line-height: 1.7; color: var(--gray-400); max-width: 360px; }
 
-        /* Feature list */
-        .left-features {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-            margin-top: 40px;
-        }
-
-        .left-feature {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 13.5px;
-            color: var(--text-secondary);
-            font-weight: 450;
-        }
-
+        .left-features { display: flex; flex-direction: column; gap: 14px; margin-top: 36px; list-style: none; }
+        .left-feature { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--gray-400); font-weight: 450; }
         .left-feature-icon {
-            width: 28px;
-            height: 28px;
-            border-radius: 8px;
-            background: var(--accent-dim);
-            border: 1px solid rgba(20,184,166,0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
+            width: 28px; height: 28px; border-radius: 8px;
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
         }
+        .left-feature-icon svg { width: 14px; height: 14px; stroke: var(--gray-300); }
 
-        .left-feature-icon svg {
-            width: 14px;
-            height: 14px;
-            color: var(--accent);
-            stroke: var(--accent);
-        }
-
-        /* Footer text on left panel */
-        .left-footer {
-            font-size: 12px;
-            color: var(--text-muted);
-            letter-spacing: 0.01em;
-        }
-
-        /* Decorative floating card */
-        .left-deco-card {
-            position: absolute;
-            bottom: 60px;
-            right: -28px;
-            width: 200px;
-            background: rgba(17,24,39,0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.09);
-            border-radius: 16px;
-            padding: 18px 20px;
-            box-shadow: 0 20px 48px rgba(0,0,0,0.5);
-            z-index: 2;
-            animation: floatCard 6s ease-in-out infinite;
-        }
-
-        @keyframes floatCard {
-            0%, 100% { transform: translateY(0px); }
-            50%       { transform: translateY(-8px); }
-        }
-
-        .deco-card-label {
-            font-size: 10px;
-            font-weight: 600;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-        }
-
-        .deco-card-value {
-            font-size: 22px;
-            font-weight: 700;
-            color: var(--text-primary);
-            letter-spacing: -0.02em;
-            margin-bottom: 4px;
-        }
-
-        .deco-card-sub {
-            font-size: 11px;
-            color: var(--success);
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
+        .left-footer { font-size: 12px; color: var(--gray-500); letter-spacing: 0.01em; }
 
         /* ─── Right Panel ─── */
         .login-panel-right {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 32px 40px;
-            background: var(--navy);
-            position: relative;
+            display: flex; align-items: center; justify-content: center;
+            padding: 48px 40px; background: var(--white);
             overflow-y: auto;
-            overflow-x: hidden;
         }
+        .login-form-card { width: 100%; max-width: 400px; }
 
-        /* Very subtle right-side radial */
-        .login-panel-right::before {
-            content: '';
-            position: absolute;
-            top: -200px;
-            right: -200px;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(20,184,166,0.04) 0%, transparent 70%);
-            pointer-events: none;
+        .mobile-brand { display: none; text-align: center; margin-bottom: 24px; }
+        .mobile-brand-pill {
+            display: inline-flex; background: var(--gray-50); border-radius: 12px;
+            padding: 10px 20px; box-shadow: var(--shadow-sm);
         }
+        .mobile-brand-pill img { height: 40px; width: auto; }
 
-        /* Form card */
-        .login-form-card {
-            width: 100%;
-            max-width: 440px;
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Form header */
-        .form-header {
-            margin-bottom: 24px;
-        }
-
+        .form-header { margin-bottom: 32px; }
         .form-header-title {
-            font-size: 26px;
-            font-weight: 700;
-            color: var(--text-primary);
-            letter-spacing: -0.025em;
-            margin-bottom: 6px;
+            font-size: 1.5rem; font-weight: 800; color: var(--gray-900);
+            letter-spacing: -0.03em; margin-bottom: 6px;
         }
+        .form-header-sub { font-size: 0.88rem; color: var(--gray-500); }
 
-        .form-header-sub {
-            font-size: 14px;
-            color: var(--text-secondary);
-            line-height: 1.5;
-        }
-
-        /* Status message */
+        /* Messages */
         .message {
-            padding: 12px 16px;
-            border-radius: var(--radius-md);
-            font-size: 13.5px;
-            font-weight: 500;
-            margin-bottom: 20px;
-            display: none;
-            line-height: 1.5;
-            animation: msgSlide 0.2s ease-out;
+            padding: 12px 16px; border-radius: var(--radius-md);
+            font-size: 0.84rem; font-weight: 500; margin-bottom: 20px;
         }
+        .message.error { background: var(--red-bg); color: var(--red); border: 1px solid #fecaca; }
+        .message.success { background: var(--green-bg); color: var(--green); border: 1px solid #a7f3d0; }
 
-        @keyframes msgSlide {
-            from { opacity: 0; transform: translateY(-6px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-
-        .message.success {
-            background: rgba(16,185,129,0.10);
-            border: 1px solid rgba(16,185,129,0.28);
-            color: #6ee7b7;
-            display: block;
-        }
-
-        .message.error {
-            background: rgba(239,68,68,0.10);
-            border: 1px solid rgba(239,68,68,0.28);
-            color: #fca5a5;
-            display: block;
-        }
-
-        /* Form groups */
-        .auth-form {
-            display: flex;
-            flex-direction: column;
-            gap: 0;
-        }
-
-        .form-group {
-            margin-bottom: 16px;
-        }
-
+        /* Form */
+        .auth-form { display: flex; flex-direction: column; gap: 18px; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
         .form-group label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-            margin-bottom: 8px;
+            font-size: 0.8rem; font-weight: 600; color: var(--gray-700);
+            letter-spacing: 0.01em;
         }
-
         .form-group input {
-            width: 100%;
-            padding: 13px 16px;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid var(--navy-border);
-            border-radius: var(--radius-md);
-            font-size: 15px;
-            color: var(--text-primary);
-            font-family: var(--font);
-            transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
-            outline: none;
-            -webkit-appearance: none;
+            padding: 11px 14px; border: 1.5px solid var(--gray-200);
+            border-radius: var(--radius-md); font-size: 0.88rem;
+            font-family: var(--font); color: var(--gray-900);
+            background: var(--white); outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
-
-        .form-group input::placeholder {
-            color: var(--text-muted);
-            font-size: 14px;
-        }
-
+        .form-group input::placeholder { color: var(--gray-400); }
         .form-group input:focus {
             border-color: var(--accent);
-            background: rgba(20,184,166,0.05);
-            box-shadow: 0 0 0 3px var(--accent-glow);
+            box-shadow: 0 0 0 3px rgba(17,24,39,0.08);
+        }
+        .form-group small {
+            font-size: 0.72rem; color: var(--gray-500); margin-top: 2px;
         }
 
-        .form-group input:-webkit-autofill,
-        .form-group input:-webkit-autofill:focus {
-            -webkit-box-shadow: 0 0 0 1000px #0f1828 inset, 0 0 0 3px var(--accent-glow);
-            -webkit-text-fill-color: var(--text-primary);
-            caret-color: var(--text-primary);
-            border-color: var(--accent);
-        }
-
-        /* Password wrapper */
-        .password-input-wrapper {
-            position: relative;
-            width: 100%;
-        }
-
-        .password-input-wrapper input {
-            padding-right: 48px;
-        }
-
+        .password-input-wrapper { position: relative; }
+        .password-input-wrapper input { width: 100%; padding-right: 42px; }
         .password-toggle-icon {
-            position: absolute;
-            right: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: var(--text-muted);
-            transition: color var(--transition);
-            font-size: 16px;
-            user-select: none;
-            line-height: 1;
+            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+            cursor: pointer; font-size: 16px; user-select: none; opacity: 0.5;
+            transition: opacity 0.15s;
         }
+        .password-toggle-icon:hover { opacity: 0.8; }
 
-        .password-toggle-icon:hover {
-            color: var(--accent);
+        .forgot-row { display: flex; justify-content: flex-end; margin-top: -8px; }
+        .auth-link {
+            color: var(--accent); font-weight: 600; text-decoration: none;
+            transition: opacity 0.15s; font-size: 0.82rem;
         }
+        .auth-link:hover { opacity: 0.7; text-decoration: underline; }
 
-        /* Forgot password link row */
-        .forgot-row {
-            text-align: right;
-            margin-top: -10px;
-            margin-bottom: 24px;
-        }
-
-        /* Primary CTA button */
         .btn-primary {
-            width: 100%;
-            padding: 14px 20px;
-            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
-            color: #0a0f1a;
-            border: none;
+            width: 100%; padding: 12px; border: none;
             border-radius: var(--radius-md);
-            font-family: var(--font);
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            letter-spacing: 0.01em;
-            transition: opacity var(--transition), transform var(--transition), box-shadow var(--transition);
-            box-shadow: 0 4px 20px rgba(20,184,166,0.35);
-            margin-bottom: 0;
+            background: var(--accent); color: var(--white);
+            font-size: 0.88rem; font-weight: 600; font-family: var(--font);
+            cursor: pointer; transition: background 0.18s, box-shadow 0.18s, transform 0.15s;
+            box-shadow: 0 4px 14px rgba(17,24,39,0.25);
         }
-
-        .btn-primary:hover:not(:disabled) {
-            opacity: 0.92;
+        .btn-primary:hover {
+            background: var(--gray-800);
+            box-shadow: 0 6px 20px rgba(17,24,39,0.35);
             transform: translateY(-1px);
-            box-shadow: 0 6px 28px rgba(20,184,166,0.45);
         }
-
-        .btn-primary:active:not(:disabled) {
-            transform: translateY(0);
-            box-shadow: 0 2px 12px rgba(20,184,166,0.3);
-        }
-
-        .btn-primary:disabled {
-            opacity: 0.55;
-            cursor: not-allowed;
-            transform: none;
-        }
+        .btn-primary:active { transform: translateY(0); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
         /* Divider */
         .auth-divider {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin: 24px 0;
+            display: flex; align-items: center; gap: 14px;
         }
-
-        .auth-divider-line {
-            flex: 1;
-            height: 1px;
-            background: var(--navy-border);
-        }
-
-        .auth-divider-text {
-            font-size: 12px;
-            font-weight: 600;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: var(--text-muted);
-        }
+        .auth-divider-line { flex: 1; height: 1px; background: var(--gray-200); }
+        .auth-divider-text { font-size: 0.78rem; color: var(--gray-400); font-weight: 500; }
 
         /* Google button */
         .btn-google {
-            width: 100%;
-            padding: 13px 20px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid var(--navy-border);
-            border-radius: var(--radius-md);
-            font-family: var(--font);
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-primary);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: background var(--transition), border-color var(--transition), transform var(--transition);
+            width: 100%; padding: 11px; border: 1.5px solid var(--gray-200);
+            border-radius: var(--radius-md); background: var(--white);
+            font-size: 0.86rem; font-weight: 600; font-family: var(--font);
+            color: var(--gray-700); cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            transition: background 0.18s, border-color 0.18s, box-shadow 0.18s;
         }
-
         .btn-google:hover {
-            background: rgba(255,255,255,0.09);
-            border-color: rgba(255,255,255,0.15);
-            transform: translateY(-1px);
+            background: var(--gray-50); border-color: var(--gray-300);
+            box-shadow: var(--shadow-sm);
         }
 
-        .btn-google:active {
-            transform: translateY(0);
-        }
-
-        /* APK download section */
+        /* APK banner */
         .apk-banner {
-            margin-top: 20px;
-            padding: 14px 18px;
-            background: rgba(20,184,166,0.05);
-            border: 1px solid rgba(20,184,166,0.15);
-            border-radius: var(--radius-md);
-            text-align: center;
-            display: none;
+            display: none; text-align: center; margin-top: 20px;
+            padding: 14px; background: var(--gray-50);
+            border: 1px solid var(--gray-200); border-radius: var(--radius-md);
         }
-
-        .apk-banner-text {
-            font-size: 12.5px;
-            color: var(--text-muted);
-            margin-bottom: 10px;
-            line-height: 1.5;
-        }
-
+        .apk-banner-text { font-size: 0.78rem; color: var(--gray-500); margin-bottom: 8px; }
         .apk-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 9px 22px;
-            background: rgba(20,184,166,0.12);
-            border: 1px solid rgba(20,184,166,0.3);
-            color: var(--accent-light);
-            border-radius: var(--radius-sm);
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 600;
-            font-family: var(--font);
-            transition: background var(--transition), border-color var(--transition);
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 7px 16px; border-radius: 8px;
+            background: var(--gray-100); border: 1px solid var(--gray-200);
+            color: var(--gray-700); font-size: 0.78rem; font-weight: 600;
+            text-decoration: none; transition: all 0.15s;
         }
+        .apk-btn:hover { background: var(--gray-200); color: var(--accent); }
+        .apk-btn svg { width: 14px; height: 14px; stroke: currentColor; }
 
-        .apk-btn:hover {
-            background: rgba(20,184,166,0.2);
-            border-color: rgba(20,184,166,0.5);
+        /* Footer */
+        .auth-footer { text-align: center; margin-top: 24px; font-size: 0.84rem; color: var(--gray-500); }
+        .auth-footer a { color: var(--accent); font-weight: 600; text-decoration: none; }
+        .auth-footer a:hover { text-decoration: underline; }
+
+        /* ─── Responsive ─── */
+        @media (max-width: 900px) {
+            .login-shell { grid-template-columns: 1fr; }
+            .login-panel-left { display: none; }
+            .login-panel-right { padding: 40px 24px; }
+            .mobile-brand { display: block; }
         }
-
-        .apk-btn svg {
-            width: 15px;
-            height: 15px;
-            stroke: currentColor;
-        }
-
-        /* Auth footer */
-        .auth-footer {
-            margin-top: 28px;
-            text-align: center;
-            font-size: 13.5px;
-            color: var(--text-secondary);
-        }
-
-        .auth-link {
-            color: var(--accent);
-            text-decoration: none;
-            font-weight: 600;
-            transition: color var(--transition);
-        }
-
-        .auth-link:hover {
-            color: var(--accent-light);
-        }
-
-        /* Small helper text */
-        .form-group small {
-            display: block;
-            margin-top: 6px;
-            font-size: 12px;
-            color: var(--text-muted);
-            line-height: 1.5;
-        }
-
-        /* ─── Mobile: single column ─── */
-        @media (max-width: 767px) {
-            .login-shell {
-                grid-template-columns: 1fr;
-                height: 100vh;
-            }
-
-            .login-panel-left {
-                display: none;
-            }
-
-            .login-panel-right {
-                align-items: flex-start;
-                padding: 28px 24px 24px;
-            }
-
-            .login-form-card {
-                max-width: 100%;
-            }
-
-            .form-header {
-                margin-bottom: 28px;
-            }
-
-            /* Show small brand mark on mobile at top */
-            .mobile-brand {
-                display: flex;
-                justify-content: center;
-                margin-bottom: 28px;
-            }
-
-            .mobile-brand-pill {
-                background: var(--white);
-                border-radius: 16px;
-                padding: 14px 32px;
-                display: inline-flex;
-                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            }
-
-            .mobile-brand-pill img {
-                height: 52px;
-                width: auto;
-                object-fit: contain;
-            }
-        }
-
-        @media (min-width: 768px) {
-            .mobile-brand {
-                display: none;
-            }
-        }
-
-        /* ─── Tablet adjustment ─── */
-        @media (min-width: 768px) and (max-width: 1100px) {
-            .login-panel-left {
-                padding: 40px 36px;
-            }
-
-            .brand-top-row {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 16px;
-            }
-
-            .brand-logo-pill img {
-                height: 56px;
-            }
-
-            .brand-logo-pill {
-                padding: 12px 24px;
-            }
-
-            .left-deco-card {
-                display: none;
-            }
-
-            .login-panel-right {
-                padding: 40px 32px;
-            }
-        }
-
-        /* ─── Forgot password form header updates (JS-driven) ─── */
-        .form-header-title.reset-mode::before {
-            content: '';
+        @media (max-width: 480px) {
+            .login-panel-right { padding: 32px 20px; }
         }
     </style>
 </head>
@@ -736,8 +291,6 @@
     <!-- LEFT PANEL — Branding -->
     <aside class="login-panel-left">
         <div class="left-content">
-
-            <!-- Top row: Text left + Logo right -->
             <div class="brand-top-row">
                 <div class="brand-top-text">
                     <span class="left-eyebrow">
@@ -756,57 +309,35 @@
                 </div>
             </div>
 
-            <!-- Hero copy -->
             <div class="left-hero">
-
                 <p class="left-subtext">
                     One platform to track, approve, and report every rupee your team spends — with OCR scanning, UPI integration, and real-time insights.
                 </p>
-
-                <ul class="left-features" style="list-style:none;">
+                <ul class="left-features">
                     <li class="left-feature">
                         <span class="left-feature-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M9 12l2 2 4-4"/>
-                                <circle cx="12" cy="12" r="10"/>
-                            </svg>
+                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
                         </span>
                         OCR bill scanning with instant data extraction
                     </li>
                     <li class="left-feature">
                         <span class="left-feature-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="2" y="5" width="20" height="14" rx="2"/>
-                                <path d="M2 10h20"/>
-                            </svg>
+                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
                         </span>
                         UPI payment integration — Google Pay, PhonePe
                     </li>
                     <li class="left-feature">
                         <span class="left-feature-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-                            </svg>
+                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
                         </span>
                         Real-time approvals and Google Sheets export
                     </li>
                 </ul>
             </div>
 
-            <!-- Bottom footer -->
             <footer class="left-footer">
                 &copy; 2025 FluxGen Technologies Pvt Ltd. All rights reserved.
             </footer>
-        </div>
-
-        <!-- Floating stats card -->
-        <div class="left-deco-card">
-            <div class="deco-card-label">This month</div>
-            <div class="deco-card-value">&#8377;2.4L</div>
-            <div class="deco-card-sub">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
-                12% under budget
-            </div>
         </div>
     </aside>
 
@@ -814,29 +345,24 @@
     <main class="login-panel-right">
         <div class="login-form-card">
 
-            <!-- Mobile-only logo -->
             <div class="mobile-brand">
                 <div class="mobile-brand-pill">
                     <img src="fluxgen-logo.jpg" alt="FluxGen">
                 </div>
             </div>
 
-            <!-- Form header (JS also modifies these via querySelector) -->
             <div class="form-header">
                 <h1 class="form-header-title auth-section-title">Welcome back</h1>
                 <p class="form-header-sub auth-section-sub">Sign in to your FluxGen account</p>
             </div>
 
-            <!-- Status message -->
             <div id="loginMessage" class="message" style="display: none;"></div>
 
-            <!-- Login Form -->
             <form id="loginForm" class="auth-form">
                 <div class="form-group">
                     <label for="email">Email address</label>
                     <input type="email" id="email" name="email" placeholder="you@fluxgentech.com" required autocomplete="email">
                 </div>
-
                 <div class="form-group">
                     <label for="password">Password</label>
                     <div class="password-input-wrapper">
@@ -844,20 +370,17 @@
                         <span class="password-toggle-icon" onclick="togglePasswordVisibility('password', this)">&#128065;</span>
                     </div>
                 </div>
-
                 <div class="forgot-row">
-                    <a href="#" class="auth-link" id="forgotPasswordLink" style="font-size: 13px;">Forgot password?</a>
+                    <a href="#" class="auth-link" id="forgotPasswordLink">Forgot password?</a>
                 </div>
-
                 <button type="submit" class="btn-primary" id="loginBtn">
                     <span id="loginBtnText">Sign in</span>
                     <span id="loginBtnLoading" style="display: none;">Signing in&hellip;</span>
                 </button>
             </form>
 
-            <!-- Forgot Password Form (hidden by default) -->
             <form id="forgotPasswordForm" class="auth-form" style="display: none;">
-                <p style="font-size: 13.5px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.6;">
+                <p style="font-size: 0.84rem; color: var(--gray-500); margin-bottom: 16px; line-height: 1.6;">
                     Enter your email address and we'll send you a secure link to reset your password.
                 </p>
                 <div class="form-group">
@@ -869,19 +392,17 @@
                     <span id="resetBtnLoading" style="display: none;">Sending&hellip;</span>
                 </button>
                 <div style="text-align: center; margin-top: 16px;">
-                    <a href="#" class="auth-link" id="backToLoginLink" style="font-size: 13px;">&larr; Back to sign in</a>
+                    <a href="#" class="auth-link" id="backToLoginLink">&larr; Back to sign in</a>
                 </div>
             </form>
 
-            <!-- Divider -->
             <div class="auth-divider" style="margin-top: 24px;">
                 <div class="auth-divider-line"></div>
                 <span class="auth-divider-text">or</span>
                 <div class="auth-divider-line"></div>
             </div>
 
-            <!-- Google OAuth -->
-            <button type="button" class="btn-google" onclick="loginWithGoogle()">
+            <button type="button" class="btn-google" onclick="loginWithGoogle()" style="margin-top: 16px;">
                 <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
                     <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/>
                     <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.180l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/>
@@ -891,13 +412,9 @@
                 Continue with Google
             </button>
 
-            <!-- APK Download Banner -->
             <div id="apkDownloadBanner" class="apk-banner">
                 <p class="apk-banner-text">Get the full experience on Android</p>
-                <a href="https://github.com/YChaithuReddy/expense-tracker/releases/latest/download/expense-tracker.apk"
-                   class="apk-btn"
-                   onmouseover="this.style.background='rgba(20,184,166,0.2)'"
-                   onmouseout="this.style.background='rgba(20,184,166,0.12)'">
+                <a href="https://github.com/YChaithuReddy/expense-tracker/releases/latest/download/expense-tracker.apk" class="apk-btn">
                     <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
                         <polyline points="7 10 12 15 17 10"/>
@@ -907,9 +424,8 @@
                 </a>
             </div>
 
-            <!-- Sign up link -->
             <div class="auth-footer">
-                <p>Don't have an account? <a href="signup.html" class="auth-link">Create one</a></p>
+                <p>Don't have an account? <a href="signup.html">Create one</a></p>
             </div>
 
         </div>
@@ -924,7 +440,6 @@
 <script src="supabase-auth.js"></script>
 <script src="deep-link-handler.js"></script>
 <script>
-    // Password visibility toggle function
     function togglePasswordVisibility(inputId, iconElement) {
         const input = document.getElementById(inputId);
         if (input.type === 'password') {
@@ -938,7 +453,6 @@
 
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-
         const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value;
         const messageEl = document.getElementById('loginMessage');
@@ -946,43 +460,26 @@
         const btnLoading = document.getElementById('loginBtnLoading');
         const loginBtn = document.getElementById('loginBtn');
 
-        // Clear previous messages
         messageEl.style.display = 'none';
-
-        // Validate inputs
-        if (!email || !password) {
-            showMessage('Please fill in all fields', 'error');
-            return;
-        }
-
-        // Restrict to company email only
+        if (!email || !password) { showMessage('Please fill in all fields', 'error'); return; }
         if (!email.toLowerCase().endsWith('@fluxgentech.com')) {
-            showMessage('Only @fluxgentech.com email addresses are allowed. Contact your admin for access.', 'error');
-            return;
+            showMessage('Only @fluxgentech.com email addresses are allowed. Contact your admin for access.', 'error'); return;
         }
 
-        // Show loading state
         loginBtn.disabled = true;
         btnText.style.display = 'none';
         btnLoading.style.display = 'inline';
 
         try {
             const response = await api.login(email, password);
-
             if (response.success) {
                 showMessage('Login successful! Redirecting...', 'success');
-                // Token and user are saved automatically by supabase-api.js
-
-                // Role-based redirect after login
                 const user = JSON.parse(localStorage.getItem('user') || '{}');
-                const email = user.email?.toLowerCase();
-                const redirectUrl = email === 'admin@fluxgentech.com' ? 'admin.html'
-                    : email === 'accountant@fluxgentech.com' ? 'accountant.html'
+                const userEmail = user.email?.toLowerCase();
+                const redirectUrl = userEmail === 'admin@fluxgentech.com' ? 'admin.html'
+                    : userEmail === 'accountant@fluxgentech.com' ? 'accountant.html'
                     : 'index.html';
-
-                setTimeout(() => {
-                    window.location.href = redirectUrl;
-                }, 1000);
+                setTimeout(() => { window.location.href = redirectUrl; }, 1000);
             } else {
                 showMessage(response.message || 'Login failed', 'error');
                 resetButton();
@@ -990,8 +487,8 @@
         } catch (error) {
             console.error('Login error:', error);
             const msg = error.message || '';
-            if (msg.toLowerCase().includes('failed to fetch') || msg.toLowerCase().includes('networkerror') || msg.toLowerCase().includes('network')) {
-                showMessage('Network error: Could not reach the server. Please check your internet connection and try again. If the issue persists, clear your browser cache/site data.', 'error');
+            if (msg.toLowerCase().includes('failed to fetch') || msg.toLowerCase().includes('network')) {
+                showMessage('Network error: Could not reach the server. Please check your internet connection.', 'error');
             } else {
                 showMessage(msg || 'Login failed. Please try again.', 'error');
             }
@@ -1007,59 +504,28 @@
     }
 
     function resetButton() {
-        const loginBtn = document.getElementById('loginBtn');
-        const btnText = document.getElementById('loginBtnText');
-        const btnLoading = document.getElementById('loginBtnLoading');
-
-        loginBtn.disabled = false;
-        btnText.style.display = 'inline';
-        btnLoading.style.display = 'none';
+        document.getElementById('loginBtn').disabled = false;
+        document.getElementById('loginBtnText').style.display = 'inline';
+        document.getElementById('loginBtnLoading').style.display = 'none';
     }
 
-    // Detect if running in Capacitor (mobile app)
-    function isCapacitorApp() {
-        return window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
-    }
+    function isCapacitorApp() { return window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform(); }
+    function getPlatform() { return isCapacitorApp() ? window.Capacitor.getPlatform() : 'web'; }
 
-    // Get platform type
-    function getPlatform() {
-        if (isCapacitorApp()) {
-            return window.Capacitor.getPlatform(); // 'android' or 'ios'
-        }
-        return 'web';
-    }
-
-    // Google Sign-In function (Supabase)
     async function loginWithGoogle() {
-        try {
-            const result = await api.loginWithGoogle();
-            // Supabase handles the redirect automatically
-        } catch (error) {
-            console.error('Google login error:', error);
-            showMessage('Google login failed: ' + error.message, 'error');
-        }
+        try { await api.loginWithGoogle(); }
+        catch (error) { console.error('Google login error:', error); showMessage('Google login failed: ' + error.message, 'error'); }
     }
 
-    // Handle OAuth error messages from URL params
     function handleOAuthCallback() {
         const urlParams = new URLSearchParams(window.location.search);
         const error = urlParams.get('error');
-
-        if (error === 'google_auth_failed') {
-            showMessage('Google authentication failed. Please try again.', 'error');
-        } else if (error === 'auth_error') {
-            showMessage('Authentication error occurred. Please try again.', 'error');
-        }
+        if (error === 'google_auth_failed') showMessage('Google authentication failed. Please try again.', 'error');
+        else if (error === 'auth_error') showMessage('Authentication error occurred. Please try again.', 'error');
     }
-
-    // Call OAuth handler on page load
     handleOAuthCallback();
 
-    // Show APK download only on web (not inside the native app)
-    if (!isCapacitorApp()) {
-        const banner = document.getElementById('apkDownloadBanner');
-        if (banner) banner.style.display = 'block';
-    }
+    if (!isCapacitorApp()) { const banner = document.getElementById('apkDownloadBanner'); if (banner) banner.style.display = 'block'; }
 
     // ---- Forgot Password Flow ----
     const forgotPasswordLink = document.getElementById('forgotPasswordLink');
@@ -1073,10 +539,8 @@
 
     forgotPasswordLink.addEventListener('click', (e) => {
         e.preventDefault();
-        loginForm.style.display = 'none';
-        forgotPasswordForm.style.display = 'block';
-        googleDivider.style.display = 'none';
-        googleBtn.style.display = 'none';
+        loginForm.style.display = 'none'; forgotPasswordForm.style.display = 'block';
+        googleDivider.style.display = 'none'; googleBtn.style.display = 'none';
         loginHeading.textContent = 'Reset password';
         loginSubtext.textContent = "We'll email you a secure reset link";
         document.getElementById('loginMessage').style.display = 'none';
@@ -1084,10 +548,8 @@
 
     backToLoginLink.addEventListener('click', (e) => {
         e.preventDefault();
-        loginForm.style.display = 'block';
-        forgotPasswordForm.style.display = 'none';
-        googleDivider.style.display = '';
-        googleBtn.style.display = '';
+        loginForm.style.display = 'block'; forgotPasswordForm.style.display = 'none';
+        googleDivider.style.display = ''; googleBtn.style.display = '';
         loginHeading.textContent = 'Welcome back';
         loginSubtext.textContent = 'Sign in to your FluxGen account';
         document.getElementById('loginMessage').style.display = 'none';
@@ -1097,73 +559,48 @@
         e.preventDefault();
         const email = document.getElementById('resetEmail').value.trim();
         const resetBtn = document.getElementById('resetBtn');
-        const resetBtnText = document.getElementById('resetBtnText');
-        const resetBtnLoading = document.getElementById('resetBtnLoading');
-
-        if (!email) {
-            showMessage('Please enter your email address', 'error');
-            return;
-        }
-
+        if (!email) { showMessage('Please enter your email address', 'error'); return; }
         resetBtn.disabled = true;
-        resetBtnText.style.display = 'none';
-        resetBtnLoading.style.display = 'inline';
-
+        document.getElementById('resetBtnText').style.display = 'none';
+        document.getElementById('resetBtnLoading').style.display = 'inline';
         try {
             const supabase = window.supabaseClient?.get();
-            const { error } = await supabase.auth.resetPasswordForEmail(email, {
-                redirectTo: `${window.location.origin}/login.html?reset=true`
-            });
-
+            const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/login.html?reset=true` });
             if (error) throw error;
-
             showMessage('Password reset link sent! Check your email inbox (and spam folder).', 'success');
         } catch (error) {
-            showMessage(error.message || 'Failed to send reset link. Please try again.', 'error');
+            showMessage(error.message || 'Failed to send reset link.', 'error');
         } finally {
             resetBtn.disabled = false;
-            resetBtnText.style.display = 'inline';
-            resetBtnLoading.style.display = 'none';
+            document.getElementById('resetBtnText').style.display = 'inline';
+            document.getElementById('resetBtnLoading').style.display = 'none';
         }
     });
 
-    // Handle password reset callback (when user clicks link in email)
     async function handlePasswordReset() {
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('reset') !== 'true') return;
-
         const supabase = window.supabaseClient?.get?.();
-        if (!supabase) {
-            showMessage('System not ready. Please refresh and try again.', 'error');
-            return;
-        }
-
+        if (!supabase) { showMessage('System not ready. Please refresh.', 'error'); return; }
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) return;
 
-        // Hide login form and show password reset form
-        loginForm.style.display = 'none';
-        forgotPasswordForm.style.display = 'none';
-        googleDivider.style.display = 'none';
-        googleBtn.style.display = 'none';
+        loginForm.style.display = 'none'; forgotPasswordForm.style.display = 'none';
+        googleDivider.style.display = 'none'; googleBtn.style.display = 'none';
         loginHeading.textContent = 'Set new password';
         loginSubtext.textContent = 'Choose a strong password for your account';
 
-        // Create inline reset form
         const resetFormHTML = document.createElement('form');
-        resetFormHTML.className = 'auth-form';
-        resetFormHTML.id = 'newPasswordForm';
+        resetFormHTML.className = 'auth-form'; resetFormHTML.id = 'newPasswordForm';
         resetFormHTML.innerHTML = `
-            <div class="form-group">
-                <label for="newPassword">New password</label>
+            <div class="form-group"><label for="newPassword">New password</label>
                 <div class="password-input-wrapper">
                     <input type="password" id="newPassword" placeholder="Enter new password" required minlength="6" autocomplete="new-password">
                     <span class="password-toggle-icon" onclick="togglePasswordVisibility('newPassword', this)">&#128065;</span>
                 </div>
                 <small id="passwordStrength">Min 6 characters: uppercase, lowercase, and number required</small>
             </div>
-            <div class="form-group">
-                <label for="confirmNewPassword">Confirm password</label>
+            <div class="form-group"><label for="confirmNewPassword">Confirm password</label>
                 <div class="password-input-wrapper">
                     <input type="password" id="confirmNewPassword" placeholder="Confirm new password" required minlength="6" autocomplete="new-password">
                     <span class="password-toggle-icon" onclick="togglePasswordVisibility('confirmNewPassword', this)">&#128065;</span>
@@ -1172,55 +609,33 @@
             <button type="submit" class="btn-primary" id="setPasswordBtn">
                 <span id="setPasswordBtnText">Update password</span>
                 <span id="setPasswordBtnLoading" style="display:none;">Updating&hellip;</span>
-            </button>
-        `;
+            </button>`;
 
-        // Insert after auth section heading
-        const authSection = document.querySelector('.login-form-card');
-        authSection.appendChild(resetFormHTML);
+        document.querySelector('.login-form-card').appendChild(resetFormHTML);
 
-        // Real-time password strength
         const newPwInput = document.getElementById('newPassword');
         const strengthEl = document.getElementById('passwordStrength');
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
 
         newPwInput.addEventListener('input', () => {
             const val = newPwInput.value;
-            if (!val) {
-                strengthEl.style.color = 'var(--text-muted)';
-                strengthEl.textContent = 'Min 6 characters: uppercase, lowercase, and number required';
-            } else if (val.length < 6) {
-                strengthEl.style.color = '#ef4444';
-                strengthEl.textContent = `Too short (${val.length}/6 characters)`;
-            } else if (!passwordRegex.test(val)) {
-                strengthEl.style.color = '#f59e0b';
-                const missing = [];
-                if (!/[a-z]/.test(val)) missing.push('lowercase');
-                if (!/[A-Z]/.test(val)) missing.push('uppercase');
-                if (!/\d/.test(val)) missing.push('number');
-                strengthEl.textContent = `Missing: ${missing.join(', ')}`;
-            } else {
-                strengthEl.style.color = '#10b981';
-                strengthEl.textContent = 'Strong password \u2713';
-            }
+            if (!val) { strengthEl.style.color = 'var(--gray-500)'; strengthEl.textContent = 'Min 6 characters: uppercase, lowercase, and number required'; }
+            else if (val.length < 6) { strengthEl.style.color = '#dc2626'; strengthEl.textContent = `Too short (${val.length}/6)`; }
+            else if (!passwordRegex.test(val)) {
+                strengthEl.style.color = '#d97706';
+                const m = []; if (!/[a-z]/.test(val)) m.push('lowercase'); if (!/[A-Z]/.test(val)) m.push('uppercase'); if (!/\d/.test(val)) m.push('number');
+                strengthEl.textContent = `Missing: ${m.join(', ')}`;
+            } else { strengthEl.style.color = '#059669'; strengthEl.textContent = 'Strong password ✓'; }
         });
 
-        // Handle submit
         resetFormHTML.addEventListener('submit', async (e) => {
             e.preventDefault();
             const newPassword = newPwInput.value;
             const confirmPassword = document.getElementById('confirmNewPassword').value;
+            if (!passwordRegex.test(newPassword)) { showMessage('Password must be at least 6 characters with uppercase, lowercase, and number', 'error'); return; }
+            if (newPassword !== confirmPassword) { showMessage('Passwords do not match', 'error'); return; }
+
             const btn = document.getElementById('setPasswordBtn');
-
-            if (!passwordRegex.test(newPassword)) {
-                showMessage('Password must be at least 6 characters with uppercase, lowercase, and number', 'error');
-                return;
-            }
-            if (newPassword !== confirmPassword) {
-                showMessage('Passwords do not match', 'error');
-                return;
-            }
-
             btn.disabled = true;
             document.getElementById('setPasswordBtnText').style.display = 'none';
             document.getElementById('setPasswordBtnLoading').style.display = 'inline';
@@ -1228,17 +643,13 @@
             try {
                 const { error } = await supabase.auth.updateUser({ password: newPassword });
                 if (error) throw error;
-                showMessage('Password updated successfully! You can now sign in with your new password.', 'success');
+                showMessage('Password updated! You can now sign in.', 'success');
                 window.history.replaceState({}, '', window.location.pathname);
-                // Remove reset form and show login
                 resetFormHTML.remove();
-                loginForm.style.display = 'block';
-                googleDivider.style.display = '';
-                googleBtn.style.display = '';
-                loginHeading.textContent = 'Welcome back';
-                loginSubtext.textContent = 'Sign in to your FluxGen account';
+                loginForm.style.display = 'block'; googleDivider.style.display = ''; googleBtn.style.display = '';
+                loginHeading.textContent = 'Welcome back'; loginSubtext.textContent = 'Sign in to your FluxGen account';
             } catch (error) {
-                showMessage('Failed to update password: ' + error.message, 'error');
+                showMessage('Failed: ' + error.message, 'error');
                 btn.disabled = false;
                 document.getElementById('setPasswordBtnText').style.display = 'inline';
                 document.getElementById('setPasswordBtnLoading').style.display = 'none';
@@ -1246,9 +657,6 @@
         });
     }
     handlePasswordReset();
-
-    // Note: Auth redirect is handled by supabase-auth.js initAuth()
-
 </script>
 </body>
 </html>
