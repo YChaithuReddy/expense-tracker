@@ -5,7 +5,7 @@
 
    Features:
    - Glassmorphism effects
-   - Dark theme (#0a0a0f base, #1e1e2d cards)
+   - Dark theme (#ffffff base, #ffffff cards)
    - Scanning animation on header
    - Color-coded action cards (Green/Orange/Red)
    - Smooth transitions and micro-interactions
@@ -18,15 +18,15 @@
 
 :root {
   /* Colors - Reuse from View Images */
-  --clear-bg-base: #0a0a0f;
-  --clear-bg-surface: #12121a;
-  --clear-bg-elevated: #1a1a24;
-  --clear-bg-card: #1e1e2d;
-  --clear-bg-card-hover: #2a2a3d;
+  --clear-bg-base: #ffffff;
+  --clear-bg-surface: #f9fafb;
+  --clear-bg-elevated: #ffffff;
+  --clear-bg-card: #ffffff;
+  --clear-bg-card-hover: #f3f4f6;
   --clear-bg-overlay: rgba(10, 10, 15, 0.92);
 
   /* Accent Colors */
-  --clear-accent-primary: #00d4ff;
+  --clear-accent-primary: #0ea5e9;
   --clear-accent-secondary: #a855f7;
   --clear-accent-success: #00ffaa;
   --clear-accent-danger: #ff6b6b;
