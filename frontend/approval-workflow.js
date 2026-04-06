@@ -797,16 +797,21 @@ const approvalWorkflow = (() => {
 
         // Timeline
         const actionLabels = { created: 'Created', submitted: 'Submitted', manager_approved: 'Manager Approved', manager_rejected: 'Manager Rejected', accountant_approved: 'Accountant Approved', accountant_rejected: 'Accountant Rejected', resubmitted: 'Resubmitted', reimbursed: 'Reimbursed' };
-        const timelineHTML = (v.history || []).map(h => {
+        // Horizontal flow timeline
+        const timelineHTML = (v.history || []).map((h, i) => {
             const isReject = h.action.includes('rejected');
             const isApprove = h.action.includes('approved');
             const dotColor = isReject ? '#ef4444' : isApprove ? '#10b981' : '#0ea5e9';
-            return `<div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid #f3f4f6;">
-                <span style="width:8px;height:8px;border-radius:50%;background:${dotColor};margin-top:5px;flex-shrink:0;"></span>
-                <div>
-                    <strong style="font-size:0.82rem;color:#111827;">${actionLabels[h.action] || h.action}</strong>
-                    <div style="font-size:0.75rem;color:#6b7280;">${sanitize(h.actor?.name || 'System')}${h.comments ? ' — ' + sanitize(h.comments) : ''}</div>
-                    <div style="font-size:0.7rem;color:#9ca3af;">${h.created_at ? relativeTime(h.created_at) : ''}</div>
+            const isLast = i === (v.history || []).length - 1;
+            return `<div style="display:flex;flex-direction:column;align-items:center;flex:1;min-width:0;position:relative;">
+                <div style="width:28px;height:28px;border-radius:50%;background:${dotColor}15;border:2px solid ${dotColor};display:flex;align-items:center;justify-content:center;z-index:1;">
+                    <span style="width:8px;height:8px;border-radius:50%;background:${dotColor};"></span>
+                </div>
+                ${!isLast ? `<div style="position:absolute;top:14px;left:calc(50% + 14px);right:calc(-50% + 14px);height:2px;background:#e5e7eb;z-index:0;"></div>` : ''}
+                <div style="text-align:center;margin-top:6px;">
+                    <div style="font-size:0.72rem;font-weight:600;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${actionLabels[h.action] || h.action}</div>
+                    <div style="font-size:0.65rem;color:#6b7280;">${sanitize(h.actor?.name || '')}</div>
+                    <div style="font-size:0.6rem;color:#9ca3af;">${h.created_at ? relativeTime(h.created_at) : ''}</div>
                 </div>
             </div>`;
         }).join('');
@@ -900,7 +905,7 @@ const approvalWorkflow = (() => {
                         <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#9ca3af;margin-bottom:8px;">Attachments</div>
                         <div style="display:flex;gap:8px;flex-wrap:wrap;">
                             ${v.google_sheet_url ? `<a href="${sanitize(v.google_sheet_url)}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;background:#ecfdf5;border:1px solid #a7f3d0;color:#059669;font-size:0.82rem;font-weight:600;text-decoration:none;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Google Sheet</a>` : ''}
-                            ${v.pdf_filename ? `<a href="pdfs.html" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;background:#f5f3ff;border:1px solid #ddd6fe;color:#7c3aed;font-size:0.82rem;font-weight:600;text-decoration:none;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>${sanitize(v.pdf_filename)}</a>` : ''}
+                            ${v.pdf_url ? `<a href="${sanitize(v.pdf_url)}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;background:#f5f3ff;border:1px solid #ddd6fe;color:#7c3aed;font-size:0.82rem;font-weight:600;text-decoration:none;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>${sanitize(v.pdf_filename || 'View PDF')}</a>` : (v.pdf_filename ? `<span style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;background:#f5f3ff;border:1px solid #ddd6fe;color:#7c3aed;font-size:0.82rem;font-weight:600;cursor:pointer;" onclick="if(typeof pdfLibrary!=='undefined')pdfLibrary.openLibrary()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>${sanitize(v.pdf_filename)}</span>` : '')}
                         </div>
                     </div>` : ''}
 
@@ -930,10 +935,12 @@ const approvalWorkflow = (() => {
                         </div>
                     </div>` : ''}
 
-                    <!-- History -->
+                    <!-- History (horizontal flow) -->
                     <div>
                         <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#9ca3af;margin-bottom:10px;">Activity</div>
-                        ${timelineHTML || '<p style="color:#9ca3af;font-size:0.85rem;">No history</p>'}
+                        <div style="display:flex;gap:0;align-items:flex-start;padding:8px 0;">
+                            ${timelineHTML || '<p style="color:#9ca3af;font-size:0.85rem;">No history</p>'}
+                        </div>
                     </div>
 
                     <!-- Reject form (hidden) -->
