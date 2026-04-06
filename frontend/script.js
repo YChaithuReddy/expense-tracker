@@ -8703,15 +8703,15 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             amountInput.value = editAdvance.amount;
             notesInput.value = editAdvance.notes || '';
             this.setVisitTypeToggle('advanceVisitType', editAdvance.visit_type || 'project');
-            saveBtn.textContent = 'Update Advance';
+            saveBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg> Update Advance';
         } else {
-            title.textContent = 'Request New Advance';
+            title.textContent = 'New Advance';
             editId.value = '';
             projectInput.value = '';
             amountInput.value = '';
             notesInput.value = '';
             this.setVisitTypeToggle('advanceVisitType', 'project');
-            saveBtn.textContent = 'Submit for Approval';
+            saveBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Submit Request';
         }
 
         // Company mode: show manager/accountant dropdowns
@@ -8719,7 +8719,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         if (approvalFields) {
             if (isCompany && !editAdvance) {
                 approvalFields.style.display = '';
-                saveBtn.textContent = 'Submit for Approval';
+                saveBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Submit for Approval';
                 // Load managers and accountants
                 try {
                     const orgId = typeof getOrganizationId === 'function' ? getOrganizationId() : null;
@@ -8761,12 +8761,14 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         }
 
         overlay.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
         projectInput.focus();
     }
 
     closeAdvanceModal() {
         const overlay = document.getElementById('advanceModalOverlay');
         if (overlay) overlay.style.display = 'none';
+        document.body.style.overflow = '';
         document.getElementById('advanceForm')?.reset();
         document.getElementById('advanceEditId').value = '';
     }
