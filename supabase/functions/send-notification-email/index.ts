@@ -8,8 +8,8 @@ const corsHeaders = {
 };
 
 /**
- * Send notification emails for voucher approval workflow.
- * Called from the frontend after voucher status changes.
+ * Send notification emails for voucher/advance approval workflow.
+ * Supports both Resend and Brevo (fallback).
  *
  * Body: { notificationId: UUID } or { to: string, subject: string, message: string, voucherNumber?: string }
  */
@@ -41,7 +41,6 @@ Deno.serve(async (req: Request) => {
     let to: string, subject: string, message: string, voucherNumber: string;
 
     if (body.notificationId) {
-      // Load notification from DB
       const { data: notif, error: nErr } = await supabase
         .from("notifications")
         .select("*, recipient:user_id(email, name)")
@@ -71,14 +70,11 @@ Deno.serve(async (req: Request) => {
       });
     }
 
+    // Email config
+    const resendApiKey = Deno.env.get("RESEND_API_KEY");
     const brevoApiKey = Deno.env.get("BREVO_API_KEY");
-    if (!brevoApiKey) {
-      return new Response(JSON.stringify({ success: false, error: "Email service not configured" }), {
-        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const senderEmail = Deno.env.get("EMAIL_FROM_ADDRESS") || "noreply@expense-tracker.app";
+    const senderEmail = Deno.env.get("EMAIL_FROM_ADDRESS") || "noreply@fluxgentech.com";
+    const senderName = Deno.env.get("EMAIL_FROM_NAME") || "FluxGen Expenses";
     const appUrl = Deno.env.get("FRONTEND_URL") || "https://expense-tracker-delta-ashy.vercel.app";
 
     // Build HTML email
@@ -86,59 +82,86 @@ Deno.serve(async (req: Request) => {
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-<body style="margin:0;padding:0;background:#f4f4f8;font-family:Arial,sans-serif;">
-  <div style="max-width:560px;margin:20px auto;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
-    <div style="background:linear-gradient(135deg,#7c3aed,#8b5cf6);padding:24px 28px;">
-      <h1 style="color:#ffffff;margin:0;font-size:18px;">Expense Tracker</h1>
-      ${voucherNumber ? `<p style="color:rgba(255,255,255,0.8);margin:4px 0 0;font-size:13px;">${voucherNumber}</p>` : ""}
+<body style="margin:0;padding:0;background:#f8fafc;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+  <div style="max-width:560px;margin:24px auto;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e2e8f0;">
+    <div style="background:#111827;padding:24px 28px;">
+      <h1 style="color:#ffffff;margin:0;font-size:16px;font-weight:700;">${senderName}</h1>
+      ${voucherNumber ? `<p style="color:rgba(255,255,255,0.6);margin:4px 0 0;font-size:12px;">${voucherNumber}</p>` : ""}
     </div>
     <div style="padding:28px;">
-      <h2 style="color:#1a1a2e;margin:0 0 12px;font-size:16px;">${subject}</h2>
-      <p style="color:#4a4a68;line-height:1.6;font-size:14px;margin:0 0 24px;">${message.replace(/\n/g, "<br>")}</p>
-      <a href="${appUrl}" style="display:inline-block;padding:12px 28px;background:#8b5cf6;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:600;font-size:14px;">Open Expense Tracker</a>
+      <h2 style="color:#111827;margin:0 0 12px;font-size:16px;font-weight:700;">${subject}</h2>
+      <p style="color:#374151;line-height:1.7;font-size:14px;margin:0 0 24px;">${message.replace(/\n/g, "<br>")}</p>
+      <a href="${appUrl}" style="display:inline-block;padding:12px 28px;background:#111827;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:600;font-size:14px;">Open Dashboard</a>
     </div>
-    <div style="padding:16px 28px;background:#f8f8fc;border-top:1px solid #eeeef2;">
-      <p style="color:#9999aa;font-size:12px;margin:0;">This is an automated notification from your company's Expense Tracker.</p>
+    <div style="padding:16px 28px;background:#f8fafc;border-top:1px solid #e2e8f0;">
+      <p style="color:#9ca3af;font-size:11px;margin:0;">This is an automated notification from ${senderName}. Do not reply to this email.</p>
     </div>
   </div>
 </body>
 </html>`;
 
-    const brevoResponse = await fetch("https://api.brevo.com/v3/smtp/email", {
-      method: "POST",
-      headers: {
-        "api-key": brevoApiKey,
-        "Content-Type": "application/json",
-        "accept": "application/json",
-      },
-      body: JSON.stringify({
-        sender: { name: "Expense Tracker", email: senderEmail },
-        to: [{ email: to }],
-        subject: `[Expense Tracker] ${subject}`,
-        htmlContent,
-        textContent: message,
-      }),
-    });
+    let emailResult: { success: boolean; messageId?: string; error?: string };
 
-    const brevoData = await brevoResponse.json();
+    // Try Resend first (better deliverability), fallback to Brevo
+    if (resendApiKey) {
+      const res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${resendApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: `${senderName} <${senderEmail}>`,
+          to: [to],
+          subject: `[${senderName}] ${subject}`,
+          html: htmlContent,
+          text: message,
+        }),
+      });
+      const data = await res.json();
+      emailResult = res.ok
+        ? { success: true, messageId: data.id }
+        : { success: false, error: data.message || "Resend failed" };
+    } else if (brevoApiKey) {
+      const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+        method: "POST",
+        headers: {
+          "api-key": brevoApiKey,
+          "Content-Type": "application/json",
+          "accept": "application/json",
+        },
+        body: JSON.stringify({
+          sender: { name: senderName, email: senderEmail },
+          to: [{ email: to }],
+          subject: `[${senderName}] ${subject}`,
+          htmlContent,
+          textContent: message,
+        }),
+      });
+      const data = await res.json();
+      emailResult = res.ok
+        ? { success: true, messageId: data.messageId }
+        : { success: false, error: data.message || "Brevo failed" };
+    } else {
+      return new Response(JSON.stringify({ success: false, error: "No email service configured (set RESEND_API_KEY or BREVO_API_KEY)" }), {
+        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
-    if (!brevoResponse.ok) {
-      console.error("Brevo error:", JSON.stringify(brevoData));
-      return new Response(JSON.stringify({ success: false, error: brevoData.message || "Email send failed" }), {
+    if (!emailResult.success) {
+      console.error("Email error:", emailResult.error);
+      return new Response(JSON.stringify(emailResult), {
         status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Mark notification as email_sent if notificationId provided
+    // Mark notification as email_sent
     if (body.notificationId) {
-      await supabase
-        .from("notifications")
-        .update({ email_sent: true })
-        .eq("id", body.notificationId);
+      await supabase.from("notifications").update({ email_sent: true }).eq("id", body.notificationId);
     }
 
-    console.log(`Notification email sent to ${to}: ${subject}`);
-    return new Response(JSON.stringify({ success: true, messageId: brevoData.messageId }), {
+    console.log(`Email sent to ${to}: ${subject}`);
+    return new Response(JSON.stringify({ success: true, messageId: emailResult.messageId }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
 

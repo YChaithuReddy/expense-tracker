@@ -40,7 +40,6 @@ Deno.serve(async (req: Request) => {
       status, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
 
-    // Validate inputs
     if (!to || !Array.isArray(to) || to.length === 0) return fail("At least one recipient required");
     if (!subject) return fail("Subject is required");
     if (!pdfBase64) return fail("PDF attachment is required");
@@ -51,54 +50,81 @@ Deno.serve(async (req: Request) => {
       if (!emailRegex.test(email)) return fail(`Invalid email address: ${email}`);
     }
 
-    // Check PDF size (Brevo limit: 4MB per attachment, 20MB total)
     const estimatedSizeMB = (pdfBase64.length * 0.75) / (1024 * 1024);
-    if (estimatedSizeMB > 4) return fail(`PDF too large (${estimatedSizeMB.toFixed(1)}MB). Brevo limit is 4MB per attachment.`);
+    if (estimatedSizeMB > 10) return fail(`PDF too large (${estimatedSizeMB.toFixed(1)}MB). Limit is 10MB.`);
 
+    const resendApiKey = Deno.env.get("RESEND_API_KEY");
     const brevoApiKey = Deno.env.get("BREVO_API_KEY");
-    if (!brevoApiKey) return fail("Email service not configured. BREVO_API_KEY secret is missing.", 500);
+    const senderEmail = Deno.env.get("EMAIL_FROM_ADDRESS") || "noreply@fluxgentech.com";
+    const senderDisplayName = senderName ? `${senderName} via FluxGen Expenses` : "FluxGen Expenses";
 
-    const senderEmail = Deno.env.get("EMAIL_FROM_ADDRESS") || user.email || "noreply@example.com";
-    const senderDisplayName = senderName ? `${senderName} via Expense Tracker` : "Expense Tracker";
-
-    // Convert plain text to HTML preserving line breaks
     const htmlBody = emailBody
-      ? `<div style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #333;">${emailBody.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>")}</div>`
+      ? `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;line-height:1.6;color:#374151;">${emailBody.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>")}</div>`
       : "";
 
-    console.log(`Sending email via Brevo: to=${to.join(",")}, subject="${subject}", attachment=${fileName} (${estimatedSizeMB.toFixed(1)}MB), from=${senderEmail}`);
+    console.log(`Sending email: to=${to.join(",")}, subject="${subject}", attachment=${fileName} (${estimatedSizeMB.toFixed(1)}MB)`);
 
-    const brevoResponse = await fetch("https://api.brevo.com/v3/smtp/email", {
-      method: "POST",
-      headers: {
-        "api-key": brevoApiKey,
-        "Content-Type": "application/json",
-        "accept": "application/json",
-      },
-      body: JSON.stringify({
-        sender: { name: senderDisplayName, email: senderEmail },
-        to: to.map((email: string) => ({ email })),
-        subject,
-        htmlContent: htmlBody,
-        textContent: emailBody || "",
-        ...(replyTo ? { replyTo: { email: replyTo } } : {}),
-        attachment: [{
-          content: pdfBase64,
-          name: fileName,
-        }],
-      }),
-    });
+    let result: { success: boolean; messageId?: string; error?: string };
 
-    const brevoData = await brevoResponse.json();
-
-    if (!brevoResponse.ok) {
-      console.error("Brevo API error:", JSON.stringify(brevoData));
-      const errMsg = brevoData.message || "Failed to send email";
-      return fail(`Email service error: ${errMsg}`, brevoResponse.status >= 500 ? 502 : 400);
+    if (resendApiKey) {
+      // Resend API
+      const res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${resendApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: `${senderDisplayName} <${senderEmail}>`,
+          to,
+          subject,
+          html: htmlBody,
+          text: emailBody || "",
+          ...(replyTo ? { reply_to: replyTo } : {}),
+          attachments: [{
+            content: pdfBase64,
+            filename: fileName,
+          }],
+        }),
+      });
+      const data = await res.json();
+      result = res.ok
+        ? { success: true, messageId: data.id }
+        : { success: false, error: data.message || "Resend failed" };
+    } else if (brevoApiKey) {
+      // Brevo API (fallback)
+      const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+        method: "POST",
+        headers: {
+          "api-key": brevoApiKey,
+          "Content-Type": "application/json",
+          "accept": "application/json",
+        },
+        body: JSON.stringify({
+          sender: { name: senderDisplayName, email: senderEmail },
+          to: to.map((email: string) => ({ email })),
+          subject,
+          htmlContent: htmlBody,
+          textContent: emailBody || "",
+          ...(replyTo ? { replyTo: { email: replyTo } } : {}),
+          attachment: [{ content: pdfBase64, name: fileName }],
+        }),
+      });
+      const data = await res.json();
+      result = res.ok
+        ? { success: true, messageId: data.messageId }
+        : { success: false, error: data.message || "Brevo failed" };
+    } else {
+      return fail("No email service configured (set RESEND_API_KEY or BREVO_API_KEY)", 500);
     }
 
-    console.log(`Email sent via Brevo: messageId=${brevoData.messageId}`);
-    return ok({ emailId: brevoData.messageId, recipients: to });
+    if (!result.success) {
+      console.error("Email error:", result.error);
+      return fail(`Email service error: ${result.error}`, 502);
+    }
+
+    console.log(`Email sent: messageId=${result.messageId}`);
+    return ok({ emailId: result.messageId, recipients: to });
 
   } catch (error) {
     console.error("send-email error:", error);
