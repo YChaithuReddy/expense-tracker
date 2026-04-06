@@ -1566,35 +1566,25 @@ WDL1,WONDERLA,Amusement Park,Amusement Park</code>
             const statusFilter = document.getElementById('advanceStatusFilter')?.value || '';
 
             try {
-                // Try with profile join first, fall back to plain select if FK doesn't exist
-                let advances;
-                try {
-                    let query = supabase
-                        .from('advances')
-                        .select('*, submitter:user_id(name, email, employee_id, department)')
-                        .eq('organization_id', orgId)
-                        .order('created_at', { ascending: false });
-                    if (statusFilter) query = query.eq('status', statusFilter);
-                    const res = await query;
-                    if (res.error) throw res.error;
-                    advances = res.data;
-                } catch (joinErr) {
-                    console.warn('Advance join failed, falling back to plain query:', joinErr.message);
-                    let query = supabase
-                        .from('advances')
-                        .select('*')
-                        .eq('organization_id', orgId)
-                        .order('created_at', { ascending: false });
-                    if (statusFilter) query = query.eq('status', statusFilter);
-                    const res = await query;
-                    advances = res.data;
+                // Fetch advances
+                let query = supabase.from('advances').select('*')
+                    .eq('organization_id', orgId)
+                    .order('created_at', { ascending: false });
+                if (statusFilter) query = query.eq('status', statusFilter);
+                const { data: advances } = await query;
+
+                // Fetch submitter profiles separately (FK join not available)
+                const userIds = [...new Set((advances || []).map(a => a.user_id).filter(Boolean))];
+                let profileMap = {};
+                if (userIds.length > 0) {
+                    const { data: profiles } = await supabase
+                        .from('profiles')
+                        .select('id, name, email, employee_id, department')
+                        .in('id', userIds);
+                    (profiles || []).forEach(p => profileMap[p.id] = p);
                 }
-
-                console.log('Advances loaded:', advances?.length || 0, 'orgId:', orgId);
-
-                // DEBUG: check all advances without org filter
-                const { data: allAdv, error: debugErr } = await supabase.from('advances').select('id, user_id, project_name, organization_id, status').limit(20);
-                console.log('DEBUG all advances (no org filter):', allAdv, debugErr);
+                // Attach submitter info to each advance
+                (advances || []).forEach(a => { a.submitter = profileMap[a.user_id] || null; });
 
                 // Stats
                 const stats = document.getElementById('advanceStats');
