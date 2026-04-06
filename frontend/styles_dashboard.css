@@ -1560,7 +1560,7 @@ h3.admin-section-label {
 #expenseFormModalOverlay .form-group textarea,
 #expenseFormModalOverlay .category-select {
     background: #ffffff !important;
-    border-color: rgba(0, 212, 255, 0.25) !important;
+    border-color: #e2e8f0 !important;
     color: #1f2937 !important;
 }
 #expenseFormModalOverlay .form-group input:focus,
