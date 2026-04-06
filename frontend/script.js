@@ -8732,6 +8732,11 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                     const result = await api.createAdvance(projectName, amount, notes, visitType, managerId, accountantId);
                     this.showNotification(`Advance of ₹${parseFloat(amount).toLocaleString('en-IN')} submitted for approval!`);
                     await api.logActivity?.('advance_submitted', `Submitted advance of ₹${amount} for ${projectName}`);
+                    // Notify manager
+                    const user = JSON.parse(localStorage.getItem('user') || '{}');
+                    api.createNotification(managerId, 'advance_submitted', 'New advance request',
+                        `${user.name || 'An employee'} requests ₹${parseFloat(amount).toLocaleString('en-IN')} advance for ${projectName}.`,
+                        result?.data?.id);
                 } else {
                     // Personal mode: create immediately as active
                     const result = await api.createAdvance(projectName, amount, notes, visitType);
