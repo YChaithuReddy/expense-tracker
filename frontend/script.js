@@ -2882,11 +2882,77 @@ class ExpenseTracker {
         }
     }
 
-    showExpenseForm() {
-        this._hideExpDashboard();
-        document.getElementById('ocrSection').style.display = 'none';
-        document.getElementById('expenseFormSection').style.display = 'block';
+    // ==================== Modal Form Helpers ====================
 
+    _openFormModal(title, subtitle) {
+        // Close any existing modal
+        this._closeFormModal();
+
+        // Create modal overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'expense-form-modal-overlay';
+        overlay.id = 'expenseFormModalOverlay';
+
+        const modal = document.createElement('div');
+        modal.className = 'expense-form-modal';
+
+        // Header
+        const header = document.createElement('div');
+        header.className = 'expense-form-modal__header';
+        header.innerHTML = `
+            <div>
+                <h2>${title}</h2>
+                <p>${subtitle}</p>
+            </div>
+            <button class="expense-form-modal__close" id="expFormModalClose">&times;</button>
+        `;
+
+        // Body - move the form section content into modal
+        const body = document.createElement('div');
+        body.className = 'expense-form-modal__body';
+
+        const formSection = document.getElementById('expenseFormSection');
+        formSection.style.display = 'block';
+        body.appendChild(formSection);
+
+        modal.appendChild(header);
+        modal.appendChild(body);
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+        // Lock scroll
+        document.body.style.overflow = 'hidden';
+
+        // Close handlers
+        document.getElementById('expFormModalClose').addEventListener('click', () => this._closeFormModal());
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) this._closeFormModal();
+        });
+    }
+
+    _closeFormModal() {
+        const overlay = document.getElementById('expenseFormModalOverlay');
+        if (!overlay) return;
+
+        // Move form section back to its original parent
+        const formSection = document.getElementById('expenseFormSection');
+        if (formSection) {
+            const sectionExpenses = document.getElementById('section-expenses');
+            if (sectionExpenses) {
+                formSection.style.display = 'none';
+                sectionExpenses.appendChild(formSection);
+            }
+        }
+
+        overlay.remove();
+        document.body.style.overflow = '';
+
+        // Remove extracted data box
+        const existingDebug = document.querySelector('.extracted-data-box');
+        if (existingDebug) existingDebug.remove();
+    }
+
+    showExpenseForm() {
         // Show notification about extracted data
         const extractedFields = Object.keys(this.extractedData).filter(key => this.extractedData[key] && key !== 'category');
 
@@ -2913,7 +2979,6 @@ class ExpenseTracker {
         // Build list of extracted fields - only show what was found (excluding vendor)
         const extractedFieldsList = [];
         if (this.extractedData.amount) extractedFieldsList.push(`Amount: ₹${this.extractedData.amount}`);
-        // Vendor is intentionally excluded - user will enter manually
         if (this.extractedData.date) extractedFieldsList.push(`Date: ${this.extractedData.date}`);
         if (this.extractedData.category) extractedFieldsList.push(`Category: ${this.extractedData.category}`);
 
@@ -2933,24 +2998,15 @@ class ExpenseTracker {
 
         const form = document.getElementById('expenseForm');
         form.insertBefore(debugInfo, form.firstChild);
+
+        // Open as modal popup
+        this._openFormModal('Review & Edit Details', 'Verify the extracted information and make corrections');
     }
 
     showManualEntryForm() {
-        // Hide entire dashboard layout and show form
-        this._hideExpDashboard();
-        document.getElementById('ocrSection').style.display = 'none';
-        document.getElementById('expenseFormSection').style.display = 'block';
-
         // Reset form and set today's date
         document.getElementById('expenseForm').reset();
         this.setTodayDate();
-
-        // Update form heading for manual entry
-        const formSection = document.getElementById('expenseFormSection');
-        const heading = formSection.querySelector('h2');
-        const description = formSection.querySelector('p');
-        heading.textContent = '✍️ Enter Expense Details';
-        description.textContent = 'Fill in the details for your expense';
 
         // Reset editing mode
         this.editingExpenseId = null;
@@ -2964,9 +3020,7 @@ class ExpenseTracker {
 
         // Remove extracted data box if it exists
         const extractedDataDiv = document.getElementById('extractedData');
-        if (extractedDataDiv) {
-            extractedDataDiv.remove();
-        }
+        if (extractedDataDiv) extractedDataDiv.remove();
 
         // Clear image preview in OCR section and restore hint
         const previewContainer = document.getElementById('imagePreview');
@@ -2978,26 +3032,17 @@ class ExpenseTracker {
 
         document.getElementById('scanBills').style.display = 'none';
 
-        // Scroll to form
-        formSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Open as modal popup
+        this._openFormModal('Enter Expense Details', 'Fill in the details for your expense');
     }
 
     backToScan() {
-        document.getElementById('expenseFormSection').style.display = 'none';
-        // Restore entire dashboard layout
-        this._showExpDashboard();
-        document.getElementById('ocrSection').style.display = 'block';
+        // Close the modal
+        this._closeFormModal();
 
         // Reset form
         document.getElementById('expenseForm').reset();
         this.setTodayDate();
-
-        // Reset form heading back to default
-        const formSection = document.getElementById('expenseFormSection');
-        const heading = formSection.querySelector('h2');
-        const description = formSection.querySelector('p');
-        heading.textContent = '✏️ Review & Edit Details';
-        description.textContent = 'Verify the extracted information and make corrections if needed';
 
         // Reset editing mode
         this.editingExpenseId = null;
@@ -3005,12 +3050,6 @@ class ExpenseTracker {
         // Reset submit button text
         const submitBtn = document.querySelector('#expenseForm button[type="submit"]');
         submitBtn.textContent = '✅ Confirm & Add Expense';
-
-        // Remove extracted data box if it exists
-        const existingDebug = document.querySelector('.extracted-data-box');
-        if (existingDebug) {
-            existingDebug.remove();
-        }
 
         // Clear scanned data
         this.scannedImages = [];
@@ -3524,11 +3563,6 @@ class ExpenseTracker {
         // Set editing mode
         this.editingExpenseId = id;
 
-        // Show the form section
-        this._hideExpDashboard();
-        document.getElementById('ocrSection').style.display = 'none';
-        document.getElementById('expenseFormSection').style.display = 'block';
-
         // Populate form with expense data
         document.getElementById('date').value = expense.date;
         document.getElementById('category').value = expense.category;
@@ -3547,8 +3581,8 @@ class ExpenseTracker {
         // Show notification
         this.showNotification('✏️ Editing expense. Make your changes and click Update.');
 
-        // Scroll to form
-        document.getElementById('expenseFormSection').scrollIntoView({ behavior: 'smooth' });
+        // Open as modal popup
+        this._openFormModal('Edit Expense', 'Make your changes and click Update');
     }
 
     async updateExpense(updatedExpense) {

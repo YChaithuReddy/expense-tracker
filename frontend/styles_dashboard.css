@@ -1327,6 +1327,257 @@ h3.admin-section-label {
     background: #f3f4f6 !important;
 }
 
+/* Compact image preview inside scan card */
+.exp-card--scan .image-preview-container {
+    min-height: 60px !important;
+    max-height: 160px !important;
+    overflow-y: auto !important;
+    padding: 8px !important;
+}
+.exp-card--scan #imagesWrapper {
+    padding: 4px !important;
+    gap: 8px !important;
+}
+.exp-card--scan #imagesWrapper.single-image {
+    flex-direction: row !important;
+    align-items: center !important;
+}
+.exp-card--scan #imagesWrapper.single-image .image-preview-item {
+    flex-direction: row !important;
+    max-width: 100% !important;
+    gap: 10px !important;
+}
+.exp-card--scan .thumb-container,
+.exp-card--scan .selected-image {
+    width: 70px !important;
+    height: 70px !important;
+    min-width: 70px !important;
+    border-radius: 8px !important;
+    padding: 4px !important;
+    border-width: 1px !important;
+}
+.exp-card--scan #imagesWrapper.single-image .thumb-container,
+.exp-card--scan #imagesWrapper.single-image .selected-image {
+    width: 70px !important;
+    height: 70px !important;
+    min-width: 70px !important;
+}
+.exp-card--scan #imagesWrapper.multiple-images {
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)) !important;
+    gap: 8px !important;
+}
+.exp-card--scan .thumb-caption,
+.exp-card--scan .image-caption {
+    font-size: 10px !important;
+    margin-top: 2px !important;
+}
+/* Ensure scan button stays visible */
+.exp-card--scan #scanBills {
+    margin-top: 8px;
+    flex-shrink: 0;
+}
+
+/* ====== EXPENSE FORM MODAL ====== */
+.expense-form-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: expModalFadeIn 0.25s ease;
+}
+@keyframes expModalFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+.expense-form-modal {
+    background: #ffffff;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 520px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: expModalSlideUp 0.3s ease;
+    position: relative;
+}
+@keyframes expModalSlideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.expense-form-modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 22px;
+    border-bottom: 1px solid #e5e7eb;
+    position: sticky;
+    top: 0;
+    background: #ffffff;
+    border-radius: 16px 16px 0 0;
+    z-index: 1;
+}
+.expense-form-modal__header h2 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+}
+.expense-form-modal__header p {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin: 2px 0 0;
+}
+.expense-form-modal__close {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: none;
+    background: #f3f4f6;
+    color: #6b7280;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+}
+.expense-form-modal__close:hover {
+    background: #e5e7eb;
+    color: #111827;
+}
+.expense-form-modal__body {
+    padding: 20px 22px 24px;
+}
+
+/* Hide the section's own h2/p when inside modal (modal header replaces them) */
+.expense-form-modal__body .expense-form-section > h2,
+.expense-form-modal__body .expense-form-section > p {
+    display: none;
+}
+/* Remove section padding when inside modal - modal body handles it */
+.expense-form-modal__body .expense-form-section {
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    margin: 0 !important;
+}
+/* Hide "Back to Scan" button in modal - modal close button replaces it */
+.expense-form-modal__body #backToScan {
+    display: none;
+}
+
+/* Form styles inside modal (mirrors .admin-main scoping) */
+.expense-form-modal .form-group {
+    margin-bottom: 10px;
+}
+.expense-form-modal .form-group label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.expense-form-modal .form-group input[type="text"],
+.expense-form-modal .form-group input[type="number"],
+.expense-form-modal .form-group input[type="date"],
+.expense-form-modal .form-group select,
+.expense-form-modal .form-group textarea,
+.expense-form-modal .category-select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 8px !important;
+    font-size: 0.88rem;
+    color: #111827 !important;
+    background: #ffffff !important;
+    font-family: 'Inter', sans-serif;
+    transition: border-color 0.15s;
+    outline: none;
+    box-sizing: border-box;
+}
+.expense-form-modal .form-group input:focus,
+.expense-form-modal .form-group select:focus,
+.expense-form-modal .form-group textarea:focus,
+.expense-form-modal .category-select:focus {
+    border-color: #111827 !important;
+    box-shadow: 0 0 0 3px rgba(17,24,39,0.06) !important;
+}
+.expense-form-modal .form-group input::placeholder {
+    color: #9ca3af !important;
+}
+.expense-form-modal .form-group small {
+    color: #9ca3af;
+    font-size: 0.75rem;
+    margin-top: 4px;
+    display: block;
+}
+.expense-form-modal .btn-primary {
+    background: #111827 !important;
+    color: #ffffff !important;
+    border: none !important;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.84rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    font-family: 'Inter', sans-serif;
+    width: 100%;
+}
+.expense-form-modal .btn-primary:hover {
+    background: #1f2937 !important;
+}
+.expense-form-modal .form-actions {
+    margin-top: 16px;
+}
+
+/* Dark theme support */
+[data-theme="dark"] .expense-form-modal {
+    background: #1a1f2e;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+[data-theme="dark"] .expense-form-modal__header {
+    border-color: rgba(255, 255, 255, 0.1);
+    background: #1a1f2e;
+}
+[data-theme="dark"] .expense-form-modal__header h2 {
+    color: #f3f4f6;
+}
+[data-theme="dark"] .expense-form-modal__close {
+    background: rgba(255, 255, 255, 0.1);
+    color: #9ca3af;
+}
+[data-theme="dark"] .expense-form-modal__close:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #f3f4f6;
+}
+[data-theme="dark"] .expense-form-modal .form-group label {
+    color: #d1d5db;
+}
+[data-theme="dark"] .expense-form-modal .form-group input[type="text"],
+[data-theme="dark"] .expense-form-modal .form-group input[type="number"],
+[data-theme="dark"] .expense-form-modal .form-group input[type="date"],
+[data-theme="dark"] .expense-form-modal .form-group select,
+[data-theme="dark"] .expense-form-modal .category-select {
+    background: #252b3b !important;
+    border-color: rgba(255,255,255,0.12) !important;
+    color: #f3f4f6 !important;
+}
+[data-theme="dark"] .expense-form-modal .btn-primary {
+    background: #3b82f6 !important;
+}
+[data-theme="dark"] .expense-form-modal__header p {
+    color: #9ca3af;
+}
+
 /* Manual entry link */
 .exp-link {
     display: inline-flex;
