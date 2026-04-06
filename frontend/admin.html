@@ -1607,8 +1607,15 @@ WDL1,WONDERLA,Amusement Park,Amusement Park</code>
                     active: 'Active', closed: 'Closed', rejected: 'Rejected'
                 };
 
-                const rows = all.map(a => `
-                    <tr>
+                const rows = all.map(a => {
+                    const isPending = a.status === 'pending_manager' || a.status === 'pending_accountant';
+                    let actionBtns = '';
+                    if (isPending) {
+                        actionBtns = `
+                            <button onclick="handleAdvanceAction('${a.id}','approve')" style="padding:4px 10px;border-radius:6px;border:1px solid #a7f3d0;background:#ecfdf5;color:#059669;cursor:pointer;font-size:0.72rem;font-weight:600;">✓ Approve</button>
+                            <button onclick="handleAdvanceAction('${a.id}','reject')" style="padding:4px 10px;border-radius:6px;border:1px solid #fecaca;background:#fef2f2;color:#dc2626;cursor:pointer;font-size:0.72rem;font-weight:600;">✕ Reject</button>`;
+                    }
+                    return `<tr>
                         <td>${esc(a.submitter?.name || '-')}</td>
                         <td><span class="admin-emp-id">${esc(a.submitter?.employee_id || '-')}</span></td>
                         <td>${esc(a.submitter?.department || '-')}</td>
@@ -1617,17 +1624,38 @@ WDL1,WONDERLA,Amusement Park,Amusement Park</code>
                         <td><span class="visit-type-badge visit-type-badge--${a.visit_type || 'project'}" style="font-size:0.65rem;">${a.visit_type || 'project'}</span></td>
                         <td><span class="approval-status-badge" style="background:${statusColors[a.status]}22;color:${statusColors[a.status]};border:1px solid ${statusColors[a.status]}33;font-size:0.7rem;padding:2px 8px;border-radius:4px;">${statusLabels[a.status] || a.status}</span></td>
                         <td style="font-size:0.78rem;color:var(--gray-500);">${a.created_at ? new Date(a.created_at).toLocaleDateString('en-IN') : '-'}</td>
-                        ${a.rejection_reason ? `<td style="font-size:0.75rem;color:var(--red);">${esc(a.rejection_reason)}</td>` : '<td>-</td>'}
-                    </tr>
-                `).join('');
+                        <td>${a.rejection_reason ? `<span style="font-size:0.75rem;color:var(--red);">${esc(a.rejection_reason)}</span>` : a.notes ? `<span style="font-size:0.75rem;color:var(--gray-500);">${esc(a.notes)}</span>` : '-'}</td>
+                        <td><div style="display:flex;gap:4px;">${actionBtns}</div></td>
+                    </tr>`;
+                }).join('');
 
                 container.innerHTML = `<div class="admin-table-wrap"><table class="admin-table"><thead><tr>
-                    <th>Employee</th><th>ID</th><th>Dept</th><th>Project</th><th>Amount</th><th>Type</th><th>Status</th><th>Date</th><th>Notes</th>
+                    <th>Employee</th><th>ID</th><th>Dept</th><th>Project</th><th>Amount</th><th>Type</th><th>Status</th><th>Date</th><th>Notes</th><th>Actions</th>
                 </tr></thead><tbody>${rows}</tbody></table></div>`;
 
             } catch (e) {
                 console.error('Advances overview error:', e);
                 document.getElementById('advancesList').innerHTML = '<div class="admin-empty"><p>Failed to load advances.</p></div>';
+            }
+        }
+
+        // ==================== Advance Approve/Reject ====================
+        async function handleAdvanceAction(advanceId, action) {
+            try {
+                if (action === 'approve') {
+                    if (!confirm('Approve this advance request?')) return;
+                    await api.approveAdvance(advanceId);
+                    alert('✅ Advance approved successfully');
+                } else {
+                    const reason = prompt('Reason for rejection (optional):');
+                    if (reason === null) return; // cancelled
+                    await api.rejectAdvance(advanceId, reason);
+                    alert('Advance rejected');
+                }
+                loadAdvancesOverview(); // refresh table
+            } catch (e) {
+                console.error('Advance action error:', e);
+                alert('Action failed: ' + (e.message || 'Unknown error'));
             }
         }
 
