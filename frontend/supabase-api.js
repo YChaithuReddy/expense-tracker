@@ -1488,8 +1488,9 @@ const api = {
         } else if (role === 'accountant') {
             query = query.eq('accountant_id', user.id).in('status', ['pending_accountant']);
         } else if (role === 'admin') {
+            // Admin sees only pending items in their org (not already approved/closed)
             const orgId = profile?.organization_id;
-            if (orgId) query = query.eq('organization_id', orgId);
+            if (orgId) query = query.eq('organization_id', orgId).in('status', ['pending_manager', 'pending_accountant']);
         } else {
             query = query.eq('user_id', user.id);
         }
@@ -2077,9 +2078,9 @@ const api = {
         } else if (profile?.role === 'accountant') {
             query = query.eq('accountant_id', user.id).in('status', ['manager_approved', 'pending_accountant']);
         } else if (profile?.role === 'admin') {
-            // Admin sees all org vouchers
+            // Admin sees only pending org vouchers (not already approved/closed)
             const { data: p } = await supabase.from('profiles').select('organization_id').eq('id', user.id).single();
-            if (p?.organization_id) query = query.eq('organization_id', p.organization_id);
+            if (p?.organization_id) query = query.eq('organization_id', p.organization_id).in('status', ['pending_manager', 'pending_accountant', 'manager_approved']);
         }
 
         const { data, error } = await query;
