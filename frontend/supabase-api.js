@@ -1194,6 +1194,9 @@ const api = {
         // Always set organization_id in company mode so admin/accountant can see it
         if (isCompany) {
             insertObj.organization_id = profile.organization_id;
+            console.log('Creating advance with organization_id:', profile.organization_id);
+        } else {
+            console.log('Creating advance in personal mode (no org_id). isCompany:', isCompany, 'profile:', profile);
         }
 
         if (isCompany && managerId && accountantId) {
