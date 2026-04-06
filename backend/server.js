@@ -22,6 +22,27 @@ const app = express();
 // Trust proxy - Required for Railway/Heroku deployment behind reverse proxy
 app.set('trust proxy', 1);
 
+// CORS Configuration — MUST be before helmet so preflight responses aren't blocked
+const corsOptions = {
+    origin: function (origin, callback) {
+        if (!origin) return callback(null, true);
+        if (origin.includes('localhost') || origin.includes('127.0.0.1')) return callback(null, true);
+        if (origin.includes('vercel.app')) return callback(null, true);
+        if (origin.includes('github.io')) return callback(null, true);
+        if (process.env.FRONTEND_URL && origin === process.env.FRONTEND_URL) return callback(null, true);
+        console.log('CORS blocked origin:', origin);
+        callback(null, false);
+    },
+    credentials: true,
+    optionsSuccessStatus: 200,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    exposedHeaders: ['Content-Length', 'X-Requested-With'],
+    maxAge: 86400
+};
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+
 // Security Middleware - Configured for mobile compatibility and Google OAuth
 app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
@@ -41,46 +62,7 @@ app.use(helmet({
     }
 }));
 
-// CORS Configuration - Enhanced for mobile and Vercel preview deployments
-const corsOptions = {
-    origin: function (origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin) return callback(null, true);
-
-        // Allow localhost for development
-        if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
-            return callback(null, true);
-        }
-
-        // Allow all Vercel deployments (production and preview)
-        if (origin.includes('vercel.app')) {
-            return callback(null, true);
-        }
-
-        // Allow GitHub Pages deployments
-        if (origin.includes('github.io')) {
-            return callback(null, true);
-        }
-
-        // Allow production frontend URL
-        if (process.env.FRONTEND_URL && origin === process.env.FRONTEND_URL) {
-            return callback(null, true);
-        }
-
-        console.log('CORS blocked origin:', origin);
-        callback(null, false);
-    },
-    credentials: true,
-    optionsSuccessStatus: 200,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    exposedHeaders: ['Content-Length', 'X-Requested-With'],
-    maxAge: 86400 // 24 hours
-};
-app.use(cors(corsOptions));
-
-// Handle preflight requests for mobile browsers
-app.options('*', cors(corsOptions));
+// CORS already configured above (before helmet)
 
 // Body Parser Middleware
 app.use(express.json({ limit: '100mb' })); // Increased for batch bill uploads
