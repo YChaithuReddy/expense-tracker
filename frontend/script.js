@@ -6374,10 +6374,10 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         const selectAllCheckbox = document.getElementById('selectAllCheckbox');
         const allCheckboxes = document.querySelectorAll('.expense-checkbox');
         const exportBtn = document.getElementById('exportToGoogleSheets');
-        const btnText = exportBtn.querySelector('.exp-action-card__label, .btn-text');
+        const btnText = exportBtn?.querySelector('.exp-action-card__label, .btn-text');
 
         // Update select all checkbox state
-        if (allCheckboxes.length > 0) {
+        if (allCheckboxes.length > 0 && selectAllCheckbox) {
             selectAllCheckbox.checked = checkboxes.length === allCheckboxes.length;
             selectAllCheckbox.indeterminate = checkboxes.length > 0 && checkboxes.length < allCheckboxes.length;
         }
@@ -6386,6 +6386,18 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             btnText.textContent = `Export Selected (${checkboxes.length})`;
         } else if (btnText) {
             btnText.textContent = 'Google Export';
+        }
+
+        // History page export button
+        const histExportBtn = document.getElementById('historyExportBtn');
+        const histExportText = document.getElementById('historyExportBtnText');
+        if (histExportBtn) {
+            if (checkboxes.length > 0) {
+                histExportBtn.style.display = '';
+                if (histExportText) histExportText.textContent = `Export Selected (${checkboxes.length})`;
+            } else {
+                histExportBtn.style.display = 'none';
+            }
         }
     }
 

@@ -431,6 +431,10 @@
                         <h2>Expense History</h2>
                         <p>View, search, and filter all your submitted expenses</p>
                     </div>
+                    <button id="historyExportBtn" class="admin-btn admin-btn--primary" style="display:none;" onclick="expenseTracker.exportToGoogleSheets()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>
+                        <span id="historyExportBtnText">Export Selected</span>
+                    </button>
                     <div class="admin-main__header-right hist-header-right">
                         <!-- Search bar in header -->
                         <div class="hist-search-compact" id="searchFilterContainer">
