@@ -10,39 +10,8 @@
    THEME SYSTEM - Dual Theme Support
    ================================================ */
 
-/* Teal Business Theme (Default) */
+/* Single light professional theme */
 :root {
-    --neon-cyan: #14b8a6;
-    --neon-pink: #2dd4bf;
-    --neon-purple: #0d9488;
-    --neon-blue: #14b8a6;
-    --neon-green: #5eead4;
-    --primary-gradient: linear-gradient(135deg, #14b8a6 0%, #2dd4bf 100%);
-    --cyber-blue: #14b8a6;
-    --cyber-purple: #0d9488;
-    --cyber-pink: #2dd4bf;
-    --dark-bg: #1e293b;
-    --card-bg: #334155;
-    --glass-bg: rgba(255, 255, 255, 0.03);
-    --text-primary: #f1f5f9;
-    --text-secondary: #94a3b8;
-    --border-gradient: linear-gradient(90deg, #14b8a6, #2dd4bf, #0d9488);
-
-    --primary-color: #14b8a6;
-    --accent-color: #2dd4bf;
-    --background-primary: #1e293b;
-    --background-secondary: #334155;
-    --border-color: rgba(20, 184, 166, 0.25);
-    --hover-bg: rgba(20, 184, 166, 0.1);
-    --shadow-color: rgba(0, 0, 0, 0.2);
-}
-
-/* Modern Minimalist Theme (Green) */
-
-/* Teal Business Theme (Professional) */
-
-/* Professional Light Theme (White & Black — Soft) */
-{
     --neon-cyan: #111827;
     --neon-pink: #374151;
     --neon-purple: #6b7280;
@@ -59,7 +28,6 @@
     --text-secondary: #6b7280;
     --accent-glow: rgba(0, 0, 0, 0.04);
     --border-gradient: linear-gradient(90deg, #d1d5db, #94a3b8, #d1d5db);
-
     --primary-color: #111827;
     --accent-color: #374151;
     --background-primary: #f3f4f6;
@@ -67,8 +35,6 @@
     --border-color: #d1d5db;
     --hover-bg: rgba(0, 0, 0, 0.03);
     --shadow-color: rgba(0, 0, 0, 0.06);
-
-    /* Light-specific overrides */
     --bg-primary: #f3f4f6;
     --bg-secondary: #f9fafb;
     --input-bg: #f9fafb;
