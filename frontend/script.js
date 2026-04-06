@@ -3770,7 +3770,7 @@ class ExpenseTracker {
         }).join('');
 
         container.innerHTML = `<div class="admin-table-wrap"><table class="admin-table" style="table-layout:fixed;width:100%;"><thead><tr>
-            <th style="width:32px;"></th><th style="width:82px;">Date</th><th style="width:72px;">Amount</th><th style="width:130px;">Category</th><th style="width:90px;">Vendor</th><th>Description</th><th style="width:70px;">Type</th><th style="width:55px;">Pay</th><th style="width:36px;">Bill</th><th style="width:44px;">Files</th><th style="width:70px;">Actions</th>
+            <th style="width:30px;"></th><th style="width:78px;">Date</th><th style="width:64px;">Amt</th><th style="width:14%;">Category</th><th style="width:8%;">Vendor</th><th style="width:auto;">Description</th><th style="width:70px;">Type</th><th style="width:44px;">Pay</th><th style="width:30px;">Bill</th><th style="width:38px;">Files</th><th style="width:62px;">Actions</th>
         </tr></thead><tbody>${rows}</tbody></table></div>`;
 
         this.updateExportButton();

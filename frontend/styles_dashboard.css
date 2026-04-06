@@ -1139,6 +1139,11 @@ h3.admin-section-label {
     background: #f3f4f6 !important;
     color: #374151 !important;
     border-color: #e5e7eb !important;
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 .expense-amount,
 .expense-amount label {
@@ -1844,7 +1849,13 @@ h3.admin-section-label {
     background: var(--gray-50);
     border-left: 3px solid var(--accent);
 }
-.admin-table tbody td { padding: 11px 14px; vertical-align: middle; }
+.admin-table tbody td {
+    padding: 11px 14px;
+    vertical-align: middle;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 .admin-table tbody tr:last-child { border-bottom: none; }
 
 /* ============================================================
