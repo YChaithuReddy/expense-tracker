@@ -9,22 +9,6 @@
 
 /* ---- Override global dark-theme CSS vars from styles.css ---- */
 /* Force light theme for all content areas regardless of data-theme */
-html, html[data-theme="teal"], html[data-theme="minimalist"], html[data-theme="light"] {
-    --background-primary: #f9fafb;
-    --background-secondary: #ffffff;
-    --text-primary: #111827;
-    --text-secondary: #6b7280;
-    --border-color: #e5e7eb;
-    --dark-bg: #f9fafb;
-    --card-bg: #ffffff;
-    --neon-cyan: #111827;
-    --neon-pink: #374151;
-    --neon-purple: #1f2937;
-    --neon-green: #059669;
-    --cyber-blue: #111827;
-    --input-bg: #ffffff;
-    --hover-bg: #f3f4f6;
-}
 
 /* ---- Design Tokens ---- */
 :root {
@@ -1537,28 +1521,28 @@ h3.admin-section-label {
 }
 
 /* Light theme overrides for kodo modal form */
-[data-theme="light"] #expenseFormModalOverlay .form-group input[type="text"],
-[data-theme="light"] #expenseFormModalOverlay .form-group input[type="number"],
-[data-theme="light"] #expenseFormModalOverlay .form-group input[type="date"],
-[data-theme="light"] #expenseFormModalOverlay .form-group select,
-[data-theme="light"] #expenseFormModalOverlay .form-group textarea,
-[data-theme="light"] #expenseFormModalOverlay .category-select {
+#expenseFormModalOverlay .form-group input[type="text"],
+#expenseFormModalOverlay .form-group input[type="number"],
+#expenseFormModalOverlay .form-group input[type="date"],
+#expenseFormModalOverlay .form-group select,
+#expenseFormModalOverlay .form-group textarea,
+#expenseFormModalOverlay .category-select {
     background: #ffffff !important;
     border-color: rgba(0, 212, 255, 0.25) !important;
     color: #1f2937 !important;
 }
-[data-theme="light"] #expenseFormModalOverlay .form-group input:focus,
-[data-theme="light"] #expenseFormModalOverlay .form-group select:focus,
-[data-theme="light"] #expenseFormModalOverlay .form-group textarea:focus,
-[data-theme="light"] #expenseFormModalOverlay .category-select:focus {
+#expenseFormModalOverlay .form-group input:focus,
+#expenseFormModalOverlay .form-group select:focus,
+#expenseFormModalOverlay .form-group textarea:focus,
+#expenseFormModalOverlay .category-select:focus {
     border-color: rgba(56, 189, 248, 0.5) !important;
     box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1) !important;
 }
-[data-theme="light"] #expenseFormModalOverlay .form-group label {
+#expenseFormModalOverlay .form-group label {
     color: #374151;
 }
-[data-theme="light"] #expenseFormModalOverlay .form-group input::placeholder,
-[data-theme="light"] #expenseFormModalOverlay .form-group textarea::placeholder {
+#expenseFormModalOverlay .form-group input::placeholder,
+#expenseFormModalOverlay .form-group textarea::placeholder {
     color: #9ca3af !important;
 }
 
@@ -1757,6 +1741,68 @@ h3.admin-section-label {
     color: #dc2626;
 }
 .adv-tbl-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+/* History filters row — admin style inline */
+.hist-filters-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.hist-search-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.hist-search-wrap svg {
+    position: absolute;
+    left: 10px;
+    pointer-events: none;
+}
+.hist-search-input {
+    padding: 8px 12px 8px 34px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 0.84rem;
+    background: #ffffff;
+    color: #0f172a;
+    outline: none;
+    font-family: inherit;
+    width: 200px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.hist-search-input:focus {
+    border-color: #111827;
+    box-shadow: 0 0 0 3px rgba(17,24,39,0.08);
+}
+.hist-filter-select {
+    padding: 8px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 0.84rem;
+    background: #ffffff;
+    color: #0f172a;
+    outline: none;
+    font-family: inherit;
+    cursor: pointer;
+}
+.hist-filter-date {
+    padding: 7px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 0.84rem;
+    background: #ffffff;
+    color: #0f172a;
+    outline: none;
+    font-family: inherit;
+}
+.hist-filters-row .search-results-info {
+    width: 100%;
+    font-size: 0.78rem;
+    color: #64748b;
+    margin-top: 4px;
+}
 
 /* ============================================================
    TABLE STYLES
