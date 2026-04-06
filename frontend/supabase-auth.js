@@ -191,9 +191,6 @@ function displayUserInfo() {
                     </div>
                 </div>
                 <div class="user-info-content">
-                    <button class="theme-toggle-btn" onclick="expenseTracker.toggleTheme()" aria-label="Toggle Theme" title="Switch Theme">
-                        <span class="theme-icon" id="themeIcon">🎨</span>
-                    </button>
                     ${adminBtn}
                     ${notifBtn}
                     ${approvalsBtn}
@@ -205,12 +202,6 @@ function displayUserInfo() {
                 </div>
             `;
             userInfoEl.style.display = 'flex';
-
-            // Update theme icon to match current theme
-            if (window.expenseTracker) {
-                const currentTheme = document.documentElement.getAttribute('data-theme') || 'teal';
-                window.expenseTracker.updateThemeButtonUI(currentTheme);
-            }
 
             // Notification badge refresh is handled by notificationCenter.init()
             // called from onAuthReady() — no duplicate call needed here

@@ -178,7 +178,7 @@
    SECTION 2: LIGHT MODE OVERRIDES
    ═══════════════════════════════════════════════════════════════════════════ */
 
-[data-theme="light"],
+,
 .theme-light {
   --img-bg-base: #f8f9fc;
   --img-bg-surface: #ffffff;

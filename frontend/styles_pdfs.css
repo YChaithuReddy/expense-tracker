@@ -975,63 +975,63 @@
 
 /* ============================================
    Light Theme Overrides
-   Triggered by [data-theme="light"] on <html> or <body>
+   Triggered by on <html> or <body>
    ============================================ */
 
 /* ---- Page Layout ---- */
-[data-theme="light"] .pdfs-page {
+.pdfs-page {
     background: #f9fafb;
     color: #111827;
 }
 
 /* ---- Header ---- */
-[data-theme="light"] .pdfs-header {
+.pdfs-header {
     background: #ffffff;
     border-bottom: 1px solid #e5e7eb;
 }
 
-[data-theme="light"] .pdfs-title {
+.pdfs-title {
     color: #111827;
 }
 
-[data-theme="light"] .pdfs-back-btn {
+.pdfs-back-btn {
     border-color: #e5e7eb;
     color: #374151;
 }
-[data-theme="light"] .pdfs-back-btn:hover {
+.pdfs-back-btn:hover {
     background: #e5e7eb;
     border-color: #d1d5db;
     color: #111827;
 }
 
-[data-theme="light"] .pdfs-user-name {
+.pdfs-user-name {
     color: #374151;
 }
 
-[data-theme="light"] .pdfs-logout-btn {
+.pdfs-logout-btn {
     border-color: #fecaca;
     color: #374151;
 }
-[data-theme="light"] .pdfs-logout-btn:hover {
+.pdfs-logout-btn:hover {
     border-color: #ef4444;
     color: #ef4444;
     background: rgba(239, 68, 68, 0.06);
 }
 
 /* ---- Upload Zone ---- */
-[data-theme="light"] .pdfs-upload-zone {
+.pdfs-upload-zone {
     border-color: #d1d5db;
     background: #ffffff;
 }
-[data-theme="light"] .pdfs-upload-zone::before {
+.pdfs-upload-zone::before {
     background: radial-gradient(
         ellipse at 50% 0%,
         rgba(30, 41, 59, 0.03) 0%,
         transparent 70%
     );
 }
-[data-theme="light"] .pdfs-upload-zone:hover,
-[data-theme="light"] .pdfs-upload-zone.drag-over {
+.pdfs-upload-zone:hover,
+.pdfs-upload-zone.drag-over {
     border-color: #94a3b8;
     background: #f9fafb;
     box-shadow:
@@ -1039,323 +1039,323 @@
         0 8px 40px rgba(0, 0, 0, 0.06);
 }
 
-[data-theme="light"] .pdfs-upload-zone__icon {
+.pdfs-upload-zone__icon {
     filter: none;
 }
 
-[data-theme="light"] .pdfs-upload-zone__title {
+.pdfs-upload-zone__title {
     color: #111827;
 }
 
-[data-theme="light"] .pdfs-upload-zone__subtitle {
+.pdfs-upload-zone__subtitle {
     color: #6b7280;
 }
 
-[data-theme="light"] .pdfs-upload-zone__cta {
+.pdfs-upload-zone__cta {
     background: #111827;
     color: #ffffff;
     box-shadow:
         0 4px 16px rgba(30, 41, 59, 0.2),
         0 0 0 1px rgba(30, 41, 59, 0.1);
 }
-[data-theme="light"] .pdfs-upload-zone:hover .pdfs-upload-zone__cta {
+.pdfs-upload-zone:hover .pdfs-upload-zone__cta {
     box-shadow:
         0 6px 24px rgba(30, 41, 59, 0.3),
         0 0 0 1px rgba(30, 41, 59, 0.15);
 }
 
-[data-theme="light"] .pdfs-upload-zone__hint {
+.pdfs-upload-zone__hint {
     color: #6b7280;
 }
-[data-theme="light"] .pdfs-upload-zone__hint strong {
+.pdfs-upload-zone__hint strong {
     color: #111827;
 }
 
 /* ---- Upload Progress ---- */
-[data-theme="light"] .pdfs-upload-progress {
+.pdfs-upload-progress {
     background: #e5e7eb;
 }
-[data-theme="light"] .pdfs-upload-progress__bar {
+.pdfs-upload-progress__bar {
     background: linear-gradient(90deg, #111827, #374151);
     box-shadow: none;
 }
 
 /* ---- Stats Bar ---- */
-[data-theme="light"] .pdfs-stat-pill {
+.pdfs-stat-pill {
     background: rgba(30, 41, 59, 0.06);
     border-color: #e5e7eb;
     color: #111827;
 }
 
 /* ---- Search ---- */
-[data-theme="light"] .pdfs-search-icon {
+.pdfs-search-icon {
     color: #94a3b8;
 }
 
-[data-theme="light"] .pdfs-search-input {
+.pdfs-search-input {
     background: #ffffff;
     border-color: #e5e7eb;
     color: #111827;
 }
-[data-theme="light"] .pdfs-search-input::placeholder {
+.pdfs-search-input::placeholder {
     color: #94a3b8;
 }
-[data-theme="light"] .pdfs-search-input:focus {
+.pdfs-search-input:focus {
     border-color: #94a3b8;
     box-shadow: 0 0 0 3px rgba(30, 41, 59, 0.08);
 }
 
 /* ---- File List ---- */
-[data-theme="light"] .pdfs-file-list {
+.pdfs-file-list {
     border-color: #e5e7eb;
 }
 
 /* ---- PDF Row ---- */
-[data-theme="light"] .pdf-row {
+.pdf-row {
     background: #ffffff;
     border-bottom-color: #e5e7eb;
 }
-[data-theme="light"] .pdf-row:hover {
+.pdf-row:hover {
     background: #e5e7eb;
 }
 
-[data-theme="light"] .pdf-row__icon--uploaded {
+.pdf-row__icon--uploaded {
     color: #111827;
 }
-[data-theme="light"] .pdf-row__icon--generated {
+.pdf-row__icon--generated {
     color: #059669;
 }
 
-[data-theme="light"] .pdf-row__name {
+.pdf-row__name {
     color: #111827;
 }
 
-[data-theme="light"] .pdf-row__meta {
+.pdf-row__meta {
     color: #6b7280;
 }
 
-[data-theme="light"] .pdf-row-btn {
+.pdf-row-btn {
     color: #6b7280;
 }
-[data-theme="light"] .pdf-row-btn--view:hover {
+.pdf-row-btn--view:hover {
     color: #111827;
     background: rgba(30, 41, 59, 0.08);
 }
-[data-theme="light"] .pdf-row-btn--kodo:hover {
+.pdf-row-btn--kodo:hover {
     color: #7c3aed;
     background: rgba(124, 58, 237, 0.08);
 }
-[data-theme="light"] .pdf-row-btn--email:hover {
+.pdf-row-btn--email:hover {
     color: #a855f7;
     background: rgba(168, 85, 247, 0.08);
 }
-[data-theme="light"] .pdf-row-btn--download:hover {
+.pdf-row-btn--download:hover {
     color: #059669;
     background: rgba(5, 150, 105, 0.08);
 }
-[data-theme="light"] .pdf-row-btn--delete:hover {
+.pdf-row-btn--delete:hover {
     color: #ef4444;
     background: rgba(239, 68, 68, 0.08);
 }
 
 /* ---- Empty State ---- */
-[data-theme="light"] .pdfs-empty {
+.pdfs-empty {
     color: #6b7280;
 }
 
-[data-theme="light"] .pdfs-empty__illustration {
+.pdfs-empty__illustration {
     filter: none;
     opacity: 0.6;
 }
 
-[data-theme="light"] .pdfs-empty__title {
+.pdfs-empty__title {
     color: #111827;
 }
 
-[data-theme="light"] .pdfs-empty__hint {
+.pdfs-empty__hint {
     color: #374151;
 }
 
-[data-theme="light"] .pdfs-empty__cta {
+.pdfs-empty__cta {
     background: #111827;
     color: #ffffff;
     box-shadow:
         0 4px 16px rgba(30, 41, 59, 0.2),
         0 0 0 1px rgba(30, 41, 59, 0.1);
 }
-[data-theme="light"] .pdfs-empty__cta:hover {
+.pdfs-empty__cta:hover {
     box-shadow:
         0 6px 24px rgba(30, 41, 59, 0.3),
         0 0 0 1px rgba(30, 41, 59, 0.15);
 }
 
 /* ---- Loading State ---- */
-[data-theme="light"] .pdfs-loading {
+.pdfs-loading {
     color: #6b7280;
 }
 
-[data-theme="light"] .pdfs-loading__spinner {
+.pdfs-loading__spinner {
     border-color: #e5e7eb;
     border-top-color: #111827;
     box-shadow: none;
 }
 
 /* ---- Library Overlay ---- */
-[data-theme="light"] .pdfs-library-overlay,
+.pdfs-library-overlay,
 .pdfs-library-overlay {
     background: #ffffff !important;
 }
 
 /* ---- Library Header ---- */
-[data-theme="light"] .pdfs-library-header {
+.pdfs-library-header {
     border-bottom-color: #e5e7eb;
     background: #ffffff;
 }
 
-[data-theme="light"] .pdfs-library-title {
+.pdfs-library-title {
     color: #111827;
     border-left-color: #111827;
 }
 
-[data-theme="light"] .pdfs-library-close {
+.pdfs-library-close {
     border-color: #e5e7eb;
     color: #374151;
 }
-[data-theme="light"] .pdfs-library-close:hover {
+.pdfs-library-close:hover {
     background: #e5e7eb;
     border-color: #d1d5db;
     color: #111827;
 }
 
 /* ---- Library Fixed Section ---- */
-[data-theme="light"] .pdfs-library-fixed {
+.pdfs-library-fixed {
     border-bottom-color: #e5e7eb;
 }
 
 /* ---- Modal Overlay ---- */
-[data-theme="light"] .pdfs-modal-overlay {
+.pdfs-modal-overlay {
     background: rgba(241, 245, 249, 0.9);
     -webkit-backdrop-filter: blur(18px);
     backdrop-filter: blur(18px);
 }
 
 /* ---- Modal ---- */
-[data-theme="light"] .pdfs-modal {
+.pdfs-modal {
     background: #ffffff;
     scrollbar-color: rgba(30, 41, 59, 0.15) transparent;
 }
 
-[data-theme="light"] .pdfs-modal__title {
+.pdfs-modal__title {
     color: #111827;
     border-bottom-color: #e5e7eb;
 }
-[data-theme="light"] .pdfs-modal__title::after {
+.pdfs-modal__title::after {
     background: linear-gradient(90deg, rgba(30, 41, 59, 0.2), transparent);
 }
 
-[data-theme="light"] .pdfs-modal__label {
+.pdfs-modal__label {
     color: #6b7280;
 }
 
-[data-theme="light"] .pdfs-modal__input,
-[data-theme="light"] .pdfs-modal__textarea,
-[data-theme="light"] .pdfs-modal__select {
+.pdfs-modal__input,
+.pdfs-modal__textarea,
+.pdfs-modal__select {
     background: #ffffff;
     border-color: #e5e7eb;
     color: #111827;
 }
-[data-theme="light"] .pdfs-modal__input::placeholder { color: #d1d5db; }
-[data-theme="light"] .pdfs-modal__input:focus,
-[data-theme="light"] .pdfs-modal__textarea:focus,
-[data-theme="light"] .pdfs-modal__select:focus {
+.pdfs-modal__input::placeholder { color: #d1d5db; }
+.pdfs-modal__input:focus,
+.pdfs-modal__textarea:focus,
+.pdfs-modal__select:focus {
     border-color: #94a3b8;
     box-shadow: 0 0 0 3px rgba(30, 41, 59, 0.08);
     background: #ffffff;
 }
 
-[data-theme="light"] .pdfs-modal__select {
+.pdfs-modal__select {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
 }
-[data-theme="light"] .pdfs-modal__select option {
+.pdfs-modal__select option {
     background: #ffffff;
     color: #111827;
 }
 
 /* ---- Delete Checkbox ---- */
-[data-theme="light"] .pdfs-modal__delete-confirm {
+.pdfs-modal__delete-confirm {
     background: rgba(239, 68, 68, 0.04);
     border-color: rgba(239, 68, 68, 0.15);
     margin-left: 28px;
     margin-right: 28px;
 }
-[data-theme="light"] .pdfs-modal__delete-confirm:hover {
+.pdfs-modal__delete-confirm:hover {
     background: rgba(239, 68, 68, 0.08);
 }
-[data-theme="light"] .pdfs-modal__delete-confirm span {
+.pdfs-modal__delete-confirm span {
     color: #111827;
 }
-[data-theme="light"] .pdfs-modal__delete-hint {
+.pdfs-modal__delete-hint {
     margin-left: 28px;
     margin-right: 28px;
 }
 
 /* ---- Modal Actions ---- */
-[data-theme="light"] .pdfs-modal__actions {
+.pdfs-modal__actions {
     border-top-color: #e5e7eb;
 }
-[data-theme="light"] .pdfs-modal__actions::before {
+.pdfs-modal__actions::before {
     background: linear-gradient(90deg, rgba(30, 41, 59, 0.15), transparent);
 }
 
 /* ---- Modal Buttons ---- */
-[data-theme="light"] .pdfs-modal__btn--primary {
+.pdfs-modal__btn--primary {
     background: linear-gradient(135deg, #111827 0%, #0f172a 100%);
     color: #ffffff;
     box-shadow: 0 4px 16px rgba(30, 41, 59, 0.2);
 }
-[data-theme="light"] .pdfs-modal__btn--primary:hover {
+.pdfs-modal__btn--primary:hover {
     box-shadow: 0 6px 24px rgba(30, 41, 59, 0.32);
 }
 
-[data-theme="light"] .pdfs-modal__btn--secondary {
+.pdfs-modal__btn--secondary {
     background: #f9fafb;
     border-color: #e5e7eb;
     color: #374151;
 }
-[data-theme="light"] .pdfs-modal__btn--secondary:hover {
+.pdfs-modal__btn--secondary:hover {
     background: #e5e7eb;
     color: #111827;
 }
 
-[data-theme="light"] .pdfs-modal__btn--kodo {
+.pdfs-modal__btn--kodo {
     background: linear-gradient(135deg, #7c3aed, #6d28d9);
     color: #ffffff;
     box-shadow: 0 4px 16px rgba(124, 58, 237, 0.22);
 }
-[data-theme="light"] .pdfs-modal__btn--kodo:hover {
+.pdfs-modal__btn--kodo:hover {
     box-shadow: 0 6px 24px rgba(124, 58, 237, 0.34);
 }
 
-[data-theme="light"] .pdfs-modal__btn--email {
+.pdfs-modal__btn--email {
     background: linear-gradient(135deg, #059669, #047857);
     color: #ffffff;
     box-shadow: 0 4px 16px rgba(5, 150, 105, 0.2);
 }
-[data-theme="light"] .pdfs-modal__btn--email:hover {
+.pdfs-modal__btn--email:hover {
     box-shadow: 0 6px 24px rgba(5, 150, 105, 0.32);
 }
 
-[data-theme="light"] .pdfs-modal__btn--danger {
+.pdfs-modal__btn--danger {
     background: linear-gradient(135deg, #ef4444, #dc2626);
     color: #ffffff;
     box-shadow: 0 4px 16px rgba(239, 68, 68, 0.2);
 }
-[data-theme="light"] .pdfs-modal__btn--danger:hover {
+.pdfs-modal__btn--danger:hover {
     box-shadow: 0 6px 24px rgba(239, 68, 68, 0.32);
 }
 
 /* ---- Toast ---- */
-[data-theme="light"] .pdfs-toast {
+.pdfs-toast {
     background: #ffffff;
     border-color: #e5e7eb;
     color: #111827;
@@ -1363,13 +1363,13 @@
         0 8px 32px rgba(0, 0, 0, 0.1),
         0 0 0 1px #e5e7eb;
 }
-[data-theme="light"] .pdfs-toast--success {
+.pdfs-toast--success {
     border-color: rgba(5, 150, 105, 0.3);
     box-shadow:
         0 8px 32px rgba(0, 0, 0, 0.1),
         0 0 0 1px rgba(5, 150, 105, 0.15);
 }
-[data-theme="light"] .pdfs-toast--error {
+.pdfs-toast--error {
     border-color: rgba(239, 68, 68, 0.3);
     box-shadow:
         0 8px 32px rgba(0, 0, 0, 0.1),
