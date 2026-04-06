@@ -187,29 +187,8 @@ const api = {
         };
     },
 
-    // Update user profile
-    async updateProfile(name, email) {
-        const supabase = getSupabase();
-
-        const user = await getCachedUser();
-        if (!user) throw new Error('Not authenticated');
-
-        // Update profile table
-        const { data, error } = await supabase
-            .from('profiles')
-            .update({ name, email, updated_at: new Date().toISOString() })
-            .eq('id', user.id)
-            .select()
-            .single();
-
-        if (error) handleError(error, 'Update profile');
-
-        // Update localStorage
-        const userInfo = JSON.parse(localStorage.getItem('user') || '{}');
-        localStorage.setItem('user', JSON.stringify({ ...userInfo, name, email }));
-
-        return { success: true, data };
-    },
+    // NOTE: updateProfile is defined later (line ~2574) with (updates) signature
+    // Removed duplicate definition that was dead code
 
     // Update password
     async updatePassword(currentPassword, newPassword) {
@@ -2406,11 +2385,13 @@ const api = {
                 .eq('id', user.id)
                 .single();
 
-            // Use 'system' type as fallback if advance types not in DB constraint
-            const safeType = ['voucher_submitted', 'voucher_approved', 'voucher_rejected',
+            // Pass type directly — DB constraint should include advance types
+            // Falls back to 'system' only for truly unknown types
+            const knownTypes = ['voucher_submitted', 'voucher_approved', 'voucher_rejected',
                 'voucher_reimbursed', 'voucher_resubmitted',
-                'employee_joined', 'project_created', 'system'].includes(type)
-                ? type : 'system';
+                'advance_submitted', 'advance_approved', 'advance_rejected', 'advance_resubmitted',
+                'expense_added', 'employee_joined', 'project_created', 'system'];
+            const safeType = knownTypes.includes(type) ? type : 'system';
 
             const insertData = {
                 user_id: userId,
