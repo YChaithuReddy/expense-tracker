@@ -1487,22 +1487,44 @@ const api = {
 
         const { data: advance, error } = await supabase
             .from('advances')
-            .select(`*,
-                submitter:user_id(id, name, email, profile_picture),
-                manager:manager_id(id, name, email),
-                accountant:accountant_id(id, name, email)
-            `)
+            .select('*')
             .eq('id', advanceId)
             .single();
 
         if (error) handleError(error, 'Get advance detail');
 
+        // Fetch related profiles separately (avoids FK join issues)
+        const profileIds = [advance.user_id, advance.manager_id, advance.accountant_id].filter(Boolean);
+        let profiles = {};
+        if (profileIds.length > 0) {
+            const { data: pList } = await supabase
+                .from('profiles')
+                .select('id, name, email, profile_picture')
+                .in('id', profileIds);
+            if (pList) pList.forEach(p => profiles[p.id] = p);
+        }
+
+        advance.submitter = profiles[advance.user_id] || null;
+        advance.manager = profiles[advance.manager_id] || null;
+        advance.accountant = profiles[advance.accountant_id] || null;
+
         // Get history
         const { data: history } = await supabase
             .from('advance_history')
-            .select('*, actor:acted_by(id, name, profile_picture)')
+            .select('*')
             .eq('advance_id', advanceId)
             .order('created_at', { ascending: true });
+
+        // Fetch actors for history
+        if (history?.length > 0) {
+            const actorIds = [...new Set(history.map(h => h.acted_by).filter(Boolean))];
+            if (actorIds.length > 0) {
+                const { data: actors } = await supabase.from('profiles').select('id, name').in('id', actorIds);
+                const actorMap = {};
+                if (actors) actors.forEach(a => actorMap[a.id] = a);
+                history.forEach(h => h.actor = actorMap[h.acted_by] || null);
+            }
+        }
 
         return { ...advance, history: history || [] };
     },
