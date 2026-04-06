@@ -859,8 +859,8 @@ class ExpenseTracker {
         // Clear previous extracted expenses
         this.extractedExpenses = [];
 
-        // OCR backend proxy URL (API key stored server-side)
-        const OCR_BACKEND_URL = '/api/ocr/scan';
+        // OCR backend proxy URL (Railway backend)
+        const OCR_BACKEND_URL = 'https://expense-tracker-production-8f00.up.railway.app/api/ocr/scan';
 
         try {
             // Show initializing status
