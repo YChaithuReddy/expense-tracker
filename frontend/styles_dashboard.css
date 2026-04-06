@@ -1732,26 +1732,45 @@ h3.admin-section-label {
     display: block !important;
 }
 
-/* Advance section */
-.advance-cards-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 16px;
+/* Advance section — table action buttons */
+.adv-tbl-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.15s;
 }
-.advance-summary-section {
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-xl);
-    padding: 24px;
-    box-shadow: var(--shadow-sm);
+.adv-tbl-btn:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #111827;
 }
+.adv-tbl-btn--danger:hover {
+    background: #fef2f2;
+    border-color: #fecaca;
+    color: #dc2626;
+}
+.adv-tbl-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
 
 /* ============================================================
    TABLE STYLES
    ============================================================ */
 .admin-table-wrap {
     overflow-x: auto;
-    border-radius: var(--radius-lg);
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(15,23,42,0.05);
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 .admin-table {
     width: 100%;

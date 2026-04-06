@@ -8803,147 +8803,129 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
     }
 
     updateAdvanceSectionVisibility() {
-        const section = document.getElementById('advanceSummarySection');
-        if (!section) return;
-
-        // Always show the section so users can create their first advance
-        section.style.display = 'block';
+        // No longer needed — table container is always visible
     }
 
     renderAdvanceCards() {
-        const container = document.getElementById('advanceCardsContainer');
+        const container = document.getElementById('advanceTableContainer');
+        const statsBar = document.getElementById('advanceStatsBar');
+        const emptyState = document.getElementById('advanceEmptyState');
         if (!container) return;
 
-        // Preserve open state across re-renders
-        const openIds = new Set(
-            Array.from(container.querySelectorAll('.advance-tab--open'))
-                .map(el => el.dataset.advanceId)
-        );
+        const all = this.advances || [];
 
-        if (this.advances.length === 0) {
-            container.innerHTML = '';
+        // Apply status filter
+        const filterVal = document.getElementById('empAdvanceStatusFilter')?.value || '';
+        const filtered = filterVal ? all.filter(a => a.status === filterVal) : all;
+
+        // Render stats pills
+        const pending = all.filter(a => a.status === 'pending_manager' || a.status === 'pending_accountant');
+        const active = all.filter(a => a.status === 'active');
+        const totalActive = active.reduce((s, a) => s + (parseFloat(a.amount) || 0), 0);
+        const closed = all.filter(a => a.status === 'closed');
+        const rejected = all.filter(a => a.status === 'rejected');
+
+        if (statsBar) {
+            statsBar.innerHTML = `
+                <div class="admin-stat-pill">Total: <strong>${all.length}</strong></div>
+                <div class="admin-stat-pill" style="color:#d97706;border-color:rgba(217,119,6,0.2);background:#fffbeb;">Pending: <strong>${pending.length}</strong></div>
+                <div class="admin-stat-pill admin-stat-pill--active">Active: <strong>${active.length}</strong> (₹${totalActive.toLocaleString('en-IN')})</div>
+                <div class="admin-stat-pill" style="color:#64748b;border-color:#d1d5db;">Closed: <strong>${closed.length}</strong></div>
+                <div class="admin-stat-pill" style="color:#dc2626;border-color:rgba(220,38,38,0.2);background:#fef2f2;">Rejected: <strong>${rejected.length}</strong></div>
+            `;
+        }
+
+        if (filtered.length === 0) {
+            if (emptyState) emptyState.style.display = '';
+            // Remove table if it exists
+            const existingTable = container.querySelector('.admin-table-wrap');
+            if (existingTable) existingTable.remove();
             return;
         }
 
-        container.innerHTML = this.advances.map(adv => {
-            const percent = Math.min(adv.percentUsed, 100);
-            const isOverspent = adv.remaining < 0;
-            let statusClass, barClass, remainClass, pctClass, tabColor;
+        if (emptyState) emptyState.style.display = 'none';
 
+        const statusColors = {
+            pending_manager: '#d97706', pending_accountant: '#d97706',
+            active: '#059669', closed: '#64748b', rejected: '#dc2626'
+        };
+        const statusLabels = {
+            pending_manager: 'Pending Manager', pending_accountant: 'Pending Accountant',
+            active: 'Active', closed: 'Closed', rejected: 'Rejected'
+        };
+
+        const rows = filtered.map(adv => {
             const isPending = adv.status === 'pending_manager' || adv.status === 'pending_accountant';
             const isRejected = adv.status === 'rejected';
-
-            if (isPending) {
-                statusClass = 'advance-tab--pending';
-                barClass = 'advance-card__progress-bar--safe';
-                remainClass = '';
-                pctClass = '';
-                tabColor = '#f59e0b';
-            } else if (isRejected) {
-                statusClass = 'advance-tab--rejected';
-                barClass = 'advance-card__progress-bar--danger';
-                remainClass = 'danger';
-                pctClass = '';
-                tabColor = '#ef4444';
-            } else if (adv.status === 'closed') {
-                statusClass = 'advance-tab--closed';
-                barClass = 'advance-card__progress-bar--safe';
-                remainClass = '';
-                pctClass = 'advance-card__progress-pct--safe';
-                tabColor = '#64748b';
-            } else if (isOverspent || percent >= 90) {
-                statusClass = 'advance-tab--danger';
-                barClass = 'advance-card__progress-bar--danger';
-                remainClass = 'danger';
-                pctClass = 'advance-card__progress-pct--danger';
-                tabColor = '#ef4444';
-            } else if (percent >= 70) {
-                statusClass = 'advance-tab--warning';
-                barClass = 'advance-card__progress-bar--warning';
-                remainClass = 'warning';
-                pctClass = 'advance-card__progress-pct--warning';
-                tabColor = '#f59e0b';
-            } else {
-                statusClass = 'advance-tab--safe';
-                barClass = 'advance-card__progress-bar--safe';
-                remainClass = 'safe';
-                pctClass = 'advance-card__progress-pct--safe';
-                tabColor = '#10b981';
-            }
-
+            const percent = Math.min(adv.percentUsed, 100);
+            const isOverspent = adv.remaining < 0;
+            const displayPercent = isOverspent ? 100 : Math.round(percent);
             const remaining = adv.remaining;
             const remainText = isOverspent
                 ? `-₹${Math.abs(remaining).toLocaleString('en-IN')}`
                 : `₹${remaining.toLocaleString('en-IN')}`;
+            const remainColor = isOverspent || percent >= 90 ? '#dc2626' : percent >= 70 ? '#d97706' : '#059669';
+            const sc = statusColors[adv.status] || '#64748b';
+            const advJson = JSON.stringify(adv).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
-            const displayPercent = isOverspent ? 100 : Math.round(percent);
+            // Build actions
+            let actionsHtml = '';
+            if (isPending) {
+                actionsHtml = `<button class="adv-tbl-btn adv-tbl-btn--danger" onclick="expenseTracker.deleteAdvance('${adv.id}','${this.sanitizeHTML(adv.project_name)}')" title="Withdraw">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+                </button>`;
+            } else if (isRejected) {
+                actionsHtml = `
+                    <button class="adv-tbl-btn" onclick="expenseTracker.openAdvanceModal(${advJson})" title="Edit & Resubmit">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    </button>
+                    <button class="adv-tbl-btn adv-tbl-btn--danger" onclick="expenseTracker.deleteAdvance('${adv.id}','${this.sanitizeHTML(adv.project_name)}')" title="Delete">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+                    </button>`;
+            } else {
+                actionsHtml = `
+                    <button class="adv-tbl-btn" onclick="expenseTracker.filterByAdvance('${adv.id}','${this.sanitizeHTML(adv.project_name)}')" title="View Expenses">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                    <button class="adv-tbl-btn" onclick="expenseTracker.openAdvanceModal(${advJson})" title="Edit">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    </button>
+                    ${adv.status === 'active'
+                        ? `<button class="adv-tbl-btn" onclick="expenseTracker.closeAdvance('${adv.id}')" title="Close"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>`
+                        : `<button class="adv-tbl-btn" onclick="expenseTracker.reopenAdvance('${adv.id}')" title="Reopen"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg></button>`
+                    }
+                    <button class="adv-tbl-btn adv-tbl-btn--danger" onclick="expenseTracker.deleteAdvance('${adv.id}','${this.sanitizeHTML(adv.project_name)}')" title="Delete">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+                    </button>`;
+            }
 
-            const editIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
-            const closeIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>`;
-            const reopenIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>`;
-            const deleteIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>`;
-            const notesIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`;
-            const chevron = `<svg class="advance-tab__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>`;
-
-            return `
-                <div class="advance-tab ${statusClass} ${openIds.has(adv.id) ? 'advance-tab--open' : ''}" data-advance-id="${adv.id}">
-                    <div class="advance-tab__collapsed" onclick="expenseTracker.toggleAdvanceTab(this)">
-                        <span class="advance-tab__dot" style="background:${tabColor}"></span>
-                        <span class="advance-tab__name">${this.sanitizeHTML(adv.project_name)}</span>
-                        <span class="visit-type-badge visit-type-badge--${adv.visit_type || 'project'}">${adv.visit_type || 'project'}</span>
-                        ${isPending ? `<span class="approval-status-badge" style="background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);font-size:0.65rem;padding:2px 8px;border-radius:4px;">${adv.status === 'pending_manager' ? 'Pending Manager' : 'Pending Accountant'}</span>`
-                        : isRejected ? `<span class="approval-status-badge" style="background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.3);font-size:0.65rem;padding:2px 8px;border-radius:4px;">Rejected</span>`
-                        : `<span class="advance-tab__spent-info">₹${adv.totalSpent.toLocaleString('en-IN')} / ₹${adv.amount.toLocaleString('en-IN')}</span>`}
-                        ${!isPending && !isRejected ? `<span class="advance-tab__mini-bar"><span class="advance-tab__mini-fill ${barClass}" style="width:${displayPercent}%"></span></span>` : ''}
-                        ${chevron}
+            return `<tr>
+                <td><strong>${this.sanitizeHTML(adv.project_name)}</strong></td>
+                <td><span class="visit-type-badge visit-type-badge--${adv.visit_type || 'project'}" style="font-size:0.65rem;">${adv.visit_type || 'project'}</span></td>
+                <td style="font-weight:600;">₹${Number(adv.amount).toLocaleString('en-IN')}</td>
+                <td>₹${Number(adv.totalSpent).toLocaleString('en-IN')}</td>
+                <td style="font-weight:600;color:${remainColor};">${remainText}</td>
+                <td>
+                    <div style="display:flex;align-items:center;gap:8px;min-width:100px;">
+                        <div style="flex:1;height:4px;background:#e2e8f0;border-radius:2px;overflow:hidden;"><div style="width:${displayPercent}%;height:100%;background:${remainColor};border-radius:2px;transition:width 0.3s;"></div></div>
+                        <span style="font-size:0.72rem;font-weight:600;color:${remainColor};white-space:nowrap;">${displayPercent}%</span>
                     </div>
-                    <div class="advance-tab__expanded">
-                        <div class="advance-card__stats">
-                            <div class="advance-card__stat">
-                                <span class="advance-card__stat-label">Advance</span>
-                                <span class="advance-card__stat-value">₹${adv.amount.toLocaleString('en-IN')}</span>
-                            </div>
-                            <div class="advance-card__stat">
-                                <span class="advance-card__stat-label">Spent</span>
-                                <span class="advance-card__stat-value advance-card__stat-value--spent">₹${adv.totalSpent.toLocaleString('en-IN')}</span>
-                            </div>
-                            <div class="advance-card__stat">
-                                <span class="advance-card__stat-label">Remaining</span>
-                                <span class="advance-card__stat-value advance-card__stat-value--remaining ${remainClass}">${remainText}</span>
-                            </div>
-                        </div>
-                        <div class="advance-card__progress-wrap">
-                            <div class="advance-card__progress-meta">
-                                <span class="advance-card__progress-label">Budget used</span>
-                                <span class="advance-card__progress-pct ${pctClass}">${displayPercent}%</span>
-                            </div>
-                            <div class="advance-card__progress">
-                                <div class="advance-card__progress-bar ${barClass}" style="width: ${displayPercent}%"></div>
-                            </div>
-                        </div>
-                        ${adv.notes ? `<div class="advance-card__notes">${notesIcon} ${this.sanitizeHTML(adv.notes)}</div>` : ''}
-                        <div class="advance-card__actions">
-                            ${isPending ? `
-                                <span style="font-size:0.78rem;color:#f59e0b;font-weight:500;">Awaiting ${adv.status === 'pending_manager' ? 'manager' : 'accountant'} approval</span>
-                                <button class="advance-card__btn advance-card__btn--delete" onclick="event.stopPropagation();expenseTracker.deleteAdvance('${adv.id}', '${this.sanitizeHTML(adv.project_name)}')">${deleteIcon} Withdraw</button>
-                            ` : isRejected ? `
-                                ${adv.rejection_reason ? '<span style="font-size:0.78rem;color:#ef4444;">Reason: ' + this.sanitizeHTML(adv.rejection_reason) + '</span>' : ''}
-                                <button class="advance-card__btn advance-card__btn--edit" onclick="event.stopPropagation();expenseTracker.openAdvanceModal(${JSON.stringify(adv).replace(/"/g, '&quot;')})">${editIcon} Edit &amp; Resubmit</button>
-                                <button class="advance-card__btn advance-card__btn--delete" onclick="event.stopPropagation();expenseTracker.deleteAdvance('${adv.id}', '${this.sanitizeHTML(adv.project_name)}')">${deleteIcon}</button>
-                            ` : `
-                            <button class="advance-card__btn advance-card__btn--view-expenses" onclick="event.stopPropagation();expenseTracker.filterByAdvance('${adv.id}', '${this.sanitizeHTML(adv.project_name)}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> View Expenses</button>
-                            <button class="advance-card__btn advance-card__btn--edit" onclick="event.stopPropagation();expenseTracker.openAdvanceModal(${JSON.stringify(adv).replace(/"/g, '&quot;')})">${editIcon} Edit</button>
-                            ${adv.status === 'active'
-                                ? '<button class="advance-card__btn advance-card__btn--close" onclick="event.stopPropagation();expenseTracker.closeAdvance(\'' + adv.id + '\')">' + closeIcon + ' Close</button>'
-                                : '<button class="advance-card__btn advance-card__btn--reopen" onclick="event.stopPropagation();expenseTracker.reopenAdvance(\'' + adv.id + '\')">' + reopenIcon + ' Reopen</button>'
-                            }
-                            <button class="advance-card__btn advance-card__btn--delete" onclick="event.stopPropagation();expenseTracker.deleteAdvance('${adv.id}', '${this.sanitizeHTML(adv.project_name)}')">${deleteIcon}</button>
-                            `}
-                        </div>
-                    </div>
-                </div>
-            `;
+                </td>
+                <td><span style="display:inline-block;background:${sc}18;color:${sc};border:1px solid ${sc}33;font-size:0.7rem;padding:2px 8px;border-radius:4px;font-weight:500;">${statusLabels[adv.status] || adv.status}</span></td>
+                <td style="font-size:0.78rem;color:#64748b;">${adv.created_at ? new Date(adv.created_at).toLocaleDateString('en-IN') : '-'}</td>
+                <td><div style="display:flex;gap:4px;">${actionsHtml}</div></td>
+            </tr>`;
         }).join('');
+
+        // Remove existing table before inserting new one
+        const existingTable = container.querySelector('.admin-table-wrap');
+        if (existingTable) existingTable.remove();
+
+        const tableHtml = `<div class="admin-table-wrap"><table class="admin-table"><thead><tr>
+            <th>Project</th><th>Type</th><th>Amount</th><th>Spent</th><th>Remaining</th><th>Usage</th><th>Status</th><th>Date</th><th>Actions</th>
+        </tr></thead><tbody>${rows}</tbody></table></div>`;
+
+        container.insertAdjacentHTML('afterbegin', tableHtml);
     }
 
     toggleAdvanceTab(el) {
