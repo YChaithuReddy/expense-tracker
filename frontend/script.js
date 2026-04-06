@@ -81,6 +81,10 @@ class ExpenseTracker {
         if (typeof notificationCenter !== 'undefined') {
             notificationCenter.init();
         }
+        // Initialize approval badge (realtime pending count)
+        if (typeof approvalWorkflow !== 'undefined' && approvalWorkflow.initApprovalBadge) {
+            setTimeout(() => approvalWorkflow.initApprovalBadge(), 3000);
+        }
     }
 
     // Sanitize HTML to prevent XSS attacks
