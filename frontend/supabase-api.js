@@ -1509,11 +1509,16 @@ const api = {
         const { data: advance } = await supabase.from('advances').select('*').eq('id', advanceId).single();
         if (!advance) throw new Error('Advance not found');
 
+        // Get approver's role
+        const { data: approverProfile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+        const role = approverProfile?.role || 'employee';
+        const isAdmin = role === 'admin';
+
         let newStatus, action;
-        if (advance.status === 'pending_manager' && advance.manager_id === user.id) {
+        if (advance.status === 'pending_manager' && (advance.manager_id === user.id || isAdmin)) {
             newStatus = 'pending_accountant';
             action = 'manager_approved';
-        } else if (advance.status === 'pending_accountant' && advance.accountant_id === user.id) {
+        } else if (advance.status === 'pending_accountant' && (advance.accountant_id === user.id || isAdmin)) {
             newStatus = 'active';
             action = 'accountant_approved';
         } else {
@@ -1540,6 +1545,21 @@ const api = {
             previous_status: advance.status,
             new_status: newStatus
         });
+
+        // Notify employee
+        const amt = `₹${Number(advance.amount).toLocaleString('en-IN')}`;
+        if (action === 'manager_approved') {
+            this.createNotification(advance.user_id, 'advance_approved', 'Advance approved by manager',
+                `Your advance of ${amt} for ${advance.project_name} has been approved by manager. Now pending accountant verification.`, advanceId);
+            // Notify accountant
+            if (advance.accountant_id) {
+                this.createNotification(advance.accountant_id, 'advance_submitted', 'Advance ready for verification',
+                    `Advance of ${amt} for ${advance.project_name} has been approved by manager and is ready for your verification.`, advanceId);
+            }
+        } else if (action === 'accountant_approved') {
+            this.createNotification(advance.user_id, 'advance_approved', 'Advance fully approved!',
+                `Your advance of ${amt} for ${advance.project_name} has been fully approved and is now active.`, advanceId);
+        }
 
         return { success: true, newStatus };
     },
@@ -1573,6 +1593,12 @@ const api = {
             previous_status: advance.status,
             new_status: 'rejected'
         });
+
+        // Notify employee
+        const amt = `₹${Number(advance.amount).toLocaleString('en-IN')}`;
+        const rejector = action === 'manager_rejected' ? 'manager' : 'accountant';
+        this.createNotification(advance.user_id, 'advance_rejected', 'Advance rejected',
+            `Your advance of ${amt} for ${advance.project_name} was rejected by ${rejector}.${reason ? ' Reason: ' + reason : ''}`, advanceId);
 
         return { success: true };
     },
