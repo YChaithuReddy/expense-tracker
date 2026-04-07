@@ -1615,35 +1615,6 @@
                 <div id="paymentHistoryList"><div class="admin-empty"><p>Loading...</p></div></div>
             </div>
 
-            <!-- Mark as Paid Modal -->
-            <div id="markPaidModal" style="display:none;position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,0.4);backdrop-filter:blur(4px);">
-                <div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:24px;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.15);">
-                    <h3 style="margin:0 0 16px;font-size:1rem;font-weight:700;color:#0f172a;">Mark Payment as Completed</h3>
-                    <div id="markPaidInfo" style="padding:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:16px;font-size:0.84rem;color:#334155;"></div>
-                    <div style="margin-bottom:12px;">
-                        <label style="font-size:0.78rem;font-weight:600;color:#334155;display:block;margin-bottom:4px;">Payment Reference / UTR *</label>
-                        <input type="text" id="markPaidReference" placeholder="e.g. SBIN26040712345" style="width:100%;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:0.86rem;font-family:inherit;outline:none;">
-                    </div>
-                    <div style="margin-bottom:12px;">
-                        <label style="font-size:0.78rem;font-weight:600;color:#334155;display:block;margin-bottom:4px;">Payment Method</label>
-                        <select id="markPaidMethod" style="width:100%;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:0.86rem;font-family:inherit;outline:none;">
-                            <option value="neft">NEFT</option>
-                            <option value="imps">IMPS</option>
-                            <option value="upi">UPI</option>
-                            <option value="bank_transfer">Bank Transfer</option>
-                        </select>
-                    </div>
-                    <div style="margin-bottom:16px;">
-                        <label style="font-size:0.78rem;font-weight:600;color:#334155;display:block;margin-bottom:4px;">Notes (Optional)</label>
-                        <input type="text" id="markPaidNotes" placeholder="Any additional notes" style="width:100%;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:0.86rem;font-family:inherit;outline:none;">
-                    </div>
-                    <div style="display:flex;gap:10px;">
-                        <button onclick="closeMarkPaidModal()" style="flex:1;padding:10px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;color:#64748b;cursor:pointer;font-size:0.86rem;font-family:inherit;">Cancel</button>
-                        <button onclick="confirmMarkPaid()" id="markPaidConfirmBtn" style="flex:1;padding:10px;border-radius:10px;border:none;background:#059669;color:#fff;cursor:pointer;font-size:0.86rem;font-weight:600;font-family:inherit;">Confirm Payment</button>
-                    </div>
-                </div>
-            </div>
-
             <!-- Approval Pipeline Section -->
             <div class="admin-section" id="section-pipeline">
                 <div class="admin-main__header">
@@ -1935,17 +1906,38 @@
                             ? `A/C: ${masked} | IFSC: ${bank.ifsc_code}${bank.upi_id ? ' | UPI: ' + esc(bank.upi_id) : ''}`
                             : '<span style="color:#dc2626;">Employee has not added bank details</span>';
 
-                        return `<div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px 20px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:16px;">
-                            <div style="flex:1;min-width:0;">
-                                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-                                    <strong style="font-size:0.9rem;color:#0f172a;">${esc(user.name || 'Employee')}</strong>
-                                    ${user.employee_id ? '<span class="admin-emp-id">' + esc(user.employee_id) + '</span>' : ''}
-                                    <span style="font-weight:700;font-size:1rem;color:#059669;">${formatCurrency(t.amount)}</span>
+                        return `<div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px 20px;margin-bottom:10px;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;">
+                                <div style="flex:1;min-width:0;">
+                                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                                        <strong style="font-size:0.9rem;color:#0f172a;">${esc(user.name || 'Employee')}</strong>
+                                        ${user.employee_id ? '<span class="admin-emp-id">' + esc(user.employee_id) + '</span>' : ''}
+                                        <span style="font-weight:700;font-size:1rem;color:#059669;">${formatCurrency(t.amount)}</span>
+                                    </div>
+                                    <div style="font-size:0.78rem;color:#64748b;margin-bottom:4px;">Project: <strong>${esc(adv.project_name || '-')}</strong></div>
+                                    <div style="font-size:0.75rem;color:#94a3b8;">${bankInfo}</div>
                                 </div>
-                                <div style="font-size:0.78rem;color:#64748b;margin-bottom:4px;">Project: <strong>${esc(adv.project_name || '-')}</strong></div>
-                                <div style="font-size:0.75rem;color:#94a3b8;">${bankInfo}</div>
+                                <button class="admin-btn admin-btn--sm admin-btn--success" onclick="togglePayForm('${t.id}','${t.advance_id}')">Mark Paid</button>
                             </div>
-                            <button onclick="openMarkPaidModal('${t.id}','${t.advance_id}','${esc(user.name||'')}','${t.amount}')" style="padding:8px 18px;border-radius:10px;border:none;background:#059669;color:#fff;cursor:pointer;font-size:0.84rem;font-weight:600;font-family:inherit;white-space:nowrap;box-shadow:0 2px 8px rgba(5,150,105,0.2);">Mark as Paid</button>
+                            <div id="pay-form-${t.id}" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid #f1f5f9;">
+                                <div class="mark-paid-form">
+                                    <div class="mark-paid-field">
+                                        <label>Payment Method</label>
+                                        <select id="pay-method-adv-${t.id}">
+                                            <option value="neft">NEFT</option>
+                                            <option value="imps">IMPS</option>
+                                            <option value="upi">UPI</option>
+                                            <option value="bank_transfer" selected>Bank Transfer</option>
+                                        </select>
+                                    </div>
+                                    <div class="mark-paid-field">
+                                        <label>Reference (Optional)</label>
+                                        <input type="text" id="pay-ref-adv-${t.id}" placeholder="UTR / Cheque No." style="width:160px;">
+                                    </div>
+                                    <button class="admin-btn admin-btn--sm admin-btn--success" onclick="confirmAdvancePayment('${t.id}','${t.advance_id}')">Confirm</button>
+                                    <button class="admin-btn admin-btn--sm admin-btn--secondary" onclick="document.getElementById('pay-form-${t.id}').style.display='none'">Cancel</button>
+                                </div>
+                            </div>
                         </div>`;
                     }).join('');
                 }
@@ -1979,41 +1971,26 @@
             }
         }
 
-        function openMarkPaidModal(txnId, advanceId, employeeName, amount) {
-            _markPaidTxnId = txnId;
-            _markPaidAdvanceId = advanceId;
-            const modal = document.getElementById('markPaidModal');
-            modal.style.display = 'flex';
-            document.getElementById('markPaidInfo').innerHTML = `<strong>${esc(employeeName)}</strong> — ${formatCurrency(parseFloat(amount))}`;
-            document.getElementById('markPaidReference').value = '';
-            document.getElementById('markPaidNotes').value = '';
-            document.getElementById('markPaidReference').focus();
+        function togglePayForm(txnId, advanceId) {
+            // Close all other open forms
+            document.querySelectorAll('[id^="pay-form-"]').forEach(el => {
+                if (el.id !== `pay-form-${txnId}`) el.style.display = 'none';
+            });
+            const form = document.getElementById(`pay-form-${txnId}`);
+            if (!form) return;
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
         }
 
-        function closeMarkPaidModal() {
-            document.getElementById('markPaidModal').style.display = 'none';
-            _markPaidTxnId = null;
-            _markPaidAdvanceId = null;
-        }
+        async function confirmAdvancePayment(txnId, advanceId) {
+            const method = document.getElementById(`pay-method-adv-${txnId}`)?.value || 'bank_transfer';
+            const reference = document.getElementById(`pay-ref-adv-${txnId}`)?.value?.trim() || '';
 
-        async function confirmMarkPaid() {
-            const reference = document.getElementById('markPaidReference').value.trim();
-            if (!reference) { alert('Payment reference/UTR is required'); return; }
-            const method = document.getElementById('markPaidMethod').value;
-            const notes = document.getElementById('markPaidNotes').value.trim();
-            const btn = document.getElementById('markPaidConfirmBtn');
-            btn.disabled = true;
-            btn.textContent = 'Processing...';
             try {
-                await api.recordPayment(_markPaidTxnId, _markPaidAdvanceId, reference, method, notes);
-                closeMarkPaidModal();
+                await api.recordPayment(txnId, advanceId, reference || 'Manual', method, '');
                 alert('Payment recorded successfully!');
                 loadPayments();
             } catch (e) {
                 alert('Failed: ' + (e.message || 'Unknown error'));
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'Confirm Payment';
             }
         }
 
