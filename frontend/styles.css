@@ -5481,9 +5481,9 @@ body.modal-open {
     }
 }
 
-/* Dark theme adjustments for drag and drop */
-
-
+/* Dark theme adjustments for drag and drop */
+
+
 
 /* Light theme adjustments for drag and drop */
 .image-preview-container.drag-drop-zone {
@@ -9579,10 +9579,10 @@ select.inline-input option {
 .activity-log-overlay {
     position: fixed;
     inset: 0;
-    z-index: 9000;
+    z-index: 100001;
     display: none;
     flex-direction: column;
-    background: var(--bg-primary, #0a0a0f);
+    background: #f9fafb;
 }
 .activity-log-overlay.active { display: flex; }
 
@@ -9822,7 +9822,7 @@ select.inline-input option {
 .submit-wizard-overlay {
     position: fixed;
     inset: 0;
-    z-index: 9000;
+    z-index: 100001;
     display: none;
     flex-direction: column;
     background: rgba(8, 8, 20, 0.92);
