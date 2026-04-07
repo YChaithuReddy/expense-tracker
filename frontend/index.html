@@ -1883,6 +1883,55 @@
                 <button class="profile-save-btn" onclick="changePassword()" style="margin-top:8px;">Update Password</button>
             </div>
 
+            <!-- Bank Details Section (Company mode only) -->
+            <div class="profile-section" id="profileBankSection" style="display:none;">
+                <h3 class="profile-section-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/></svg>
+                    Bank Details
+                    <span id="bankVerifiedBadge" style="display:none;margin-left:8px;font-size:0.7rem;padding:2px 8px;border-radius:10px;background:#ecfdf5;color:#059669;font-weight:600;">Verified</span>
+                </h3>
+                <div class="profile-field-group">
+                    <label class="profile-label">Account Holder Name *</label>
+                    <input type="text" id="bankHolderName" class="profile-input" placeholder="Name as per bank account">
+                </div>
+                <div class="profile-field-group">
+                    <label class="profile-label">Account Number *</label>
+                    <input type="text" id="bankAccountNumber" class="profile-input" placeholder="Enter account number" autocomplete="off">
+                    <div id="bankAccountMasked" style="display:none;font-size:0.82rem;color:#64748b;margin-top:4px;"></div>
+                </div>
+                <div class="profile-field-group" id="bankConfirmGroup" style="display:none;">
+                    <label class="profile-label">Confirm Account Number *</label>
+                    <input type="text" id="bankAccountConfirm" class="profile-input" placeholder="Re-enter account number" autocomplete="off">
+                </div>
+                <div class="profile-field-row">
+                    <div class="profile-field-group">
+                        <label class="profile-label">IFSC Code *</label>
+                        <input type="text" id="bankIFSC" class="profile-input" placeholder="e.g. SBIN0001234" maxlength="11" style="text-transform:uppercase;" oninput="validateIFSC(this.value)">
+                    </div>
+                    <div class="profile-field-group">
+                        <label class="profile-label">Bank Name</label>
+                        <input type="text" id="bankName" class="profile-input profile-input--readonly" readonly placeholder="Auto-detected from IFSC">
+                    </div>
+                </div>
+                <div class="profile-field-row">
+                    <div class="profile-field-group">
+                        <label class="profile-label">UPI ID (Optional)</label>
+                        <input type="text" id="bankUPI" class="profile-input" placeholder="yourname@okaxis">
+                    </div>
+                    <div class="profile-field-group">
+                        <label class="profile-label">Preferred Method</label>
+                        <select id="bankPreferredMethod" class="profile-input" style="cursor:pointer;">
+                            <option value="neft">NEFT</option>
+                            <option value="imps">IMPS</option>
+                            <option value="upi">UPI</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="bankSaveError" style="color:#dc2626;font-size:13px;margin-top:4px;display:none;"></div>
+                <div id="bankSaveSuccess" style="color:#059669;font-size:13px;margin-top:4px;display:none;"></div>
+                <button class="profile-save-btn" onclick="saveBankDetails()" style="margin-top:8px;" id="bankSaveBtn">Save Bank Details</button>
+            </div>
+
             <!-- Voucher Summary Section -->
             <div class="profile-section" id="profileVoucherSection" style="display:none;">
                 <h3 class="profile-section-title">
@@ -2091,13 +2140,17 @@
             errEl.style.display = 'none';
             errEl.textContent = '';
 
-            // Load voucher summary if in company mode
+            // Load voucher summary + bank details if in company mode
             const voucherSection = document.getElementById('profileVoucherSection');
+            const bankSection = document.getElementById('profileBankSection');
             if (user.organization_id) {
                 voucherSection.style.display = 'block';
+                bankSection.style.display = 'block';
                 loadVoucherSummary();
+                loadBankDetails();
             } else {
                 voucherSection.style.display = 'none';
+                bankSection.style.display = 'none';
             }
         }
 
@@ -2106,6 +2159,133 @@
             if (!modal) return;
             modal.classList.remove('active');
             document.body.style.overflow = '';
+        }
+
+        // ---- Bank Details Functions ----
+        let _existingBankDetails = null;
+
+        async function loadBankDetails() {
+            try {
+                const data = await api.getBankDetails();
+                _existingBankDetails = data;
+                const confirmGroup = document.getElementById('bankConfirmGroup');
+                const maskedEl = document.getElementById('bankAccountMasked');
+                const verifiedBadge = document.getElementById('bankVerifiedBadge');
+                const accInput = document.getElementById('bankAccountNumber');
+
+                if (data) {
+                    document.getElementById('bankHolderName').value = data.account_holder_name || '';
+                    document.getElementById('bankIFSC').value = data.ifsc_code || '';
+                    document.getElementById('bankName').value = data.bank_name || '';
+                    document.getElementById('bankUPI').value = data.upi_id || '';
+                    document.getElementById('bankPreferredMethod').value = data.preferred_method || 'neft';
+
+                    // Show masked account number
+                    const masked = data.account_number.replace(/.(?=.{4})/g, 'X');
+                    maskedEl.textContent = 'Saved: ' + masked;
+                    maskedEl.style.display = 'block';
+                    accInput.placeholder = 'Enter new number to update';
+                    accInput.value = '';
+                    confirmGroup.style.display = 'none';
+
+                    if (data.is_verified) verifiedBadge.style.display = 'inline';
+                    else verifiedBadge.style.display = 'none';
+                } else {
+                    document.getElementById('bankHolderName').value = '';
+                    accInput.value = '';
+                    accInput.placeholder = 'Enter account number';
+                    document.getElementById('bankIFSC').value = '';
+                    document.getElementById('bankName').value = '';
+                    document.getElementById('bankUPI').value = '';
+                    document.getElementById('bankPreferredMethod').value = 'neft';
+                    maskedEl.style.display = 'none';
+                    confirmGroup.style.display = 'block';
+                    verifiedBadge.style.display = 'none';
+                }
+            } catch (e) {
+                console.error('Load bank details error:', e);
+            }
+        }
+
+        // Show confirm field when user starts typing account number
+        document.getElementById('bankAccountNumber')?.addEventListener('input', function() {
+            const confirmGroup = document.getElementById('bankConfirmGroup');
+            if (this.value.length > 0) confirmGroup.style.display = 'block';
+            else if (_existingBankDetails) confirmGroup.style.display = 'none';
+        });
+
+        async function validateIFSC(code) {
+            const bankNameEl = document.getElementById('bankName');
+            if (!code || code.length < 11) {
+                bankNameEl.value = '';
+                return;
+            }
+            code = code.toUpperCase();
+            if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(code)) {
+                bankNameEl.value = 'Invalid IFSC format';
+                return;
+            }
+            try {
+                bankNameEl.value = 'Looking up...';
+                const res = await fetch('https://ifsc.razorpay.com/' + code);
+                if (res.ok) {
+                    const data = await res.json();
+                    bankNameEl.value = data.BANK + ' — ' + data.BRANCH;
+                } else {
+                    bankNameEl.value = 'IFSC not found';
+                }
+            } catch (e) {
+                bankNameEl.value = 'Lookup failed';
+            }
+        }
+
+        async function saveBankDetails() {
+            const errEl = document.getElementById('bankSaveError');
+            const successEl = document.getElementById('bankSaveSuccess');
+            errEl.style.display = 'none';
+            successEl.style.display = 'none';
+
+            const holderName = document.getElementById('bankHolderName').value.trim();
+            const accountNumber = document.getElementById('bankAccountNumber').value.trim();
+            const confirmNumber = document.getElementById('bankAccountConfirm').value.trim();
+            const ifscCode = document.getElementById('bankIFSC').value.trim().toUpperCase();
+            const bankName = document.getElementById('bankName').value.trim();
+            const upiId = document.getElementById('bankUPI').value.trim();
+            const preferredMethod = document.getElementById('bankPreferredMethod').value;
+
+            // Validation
+            if (!holderName) { errEl.textContent = 'Account holder name is required'; errEl.style.display = 'block'; return; }
+            if (!ifscCode || !/^[A-Z]{4}0[A-Z0-9]{6}$/.test(ifscCode)) { errEl.textContent = 'Valid IFSC code is required (e.g., SBIN0001234)'; errEl.style.display = 'block'; return; }
+
+            // Account number: required for new, optional for update
+            let finalAccountNumber = _existingBankDetails?.account_number;
+            if (accountNumber) {
+                if (accountNumber.length < 8) { errEl.textContent = 'Account number must be at least 8 digits'; errEl.style.display = 'block'; return; }
+                if (accountNumber !== confirmNumber) { errEl.textContent = 'Account numbers do not match'; errEl.style.display = 'block'; return; }
+                finalAccountNumber = accountNumber;
+            }
+            if (!finalAccountNumber) { errEl.textContent = 'Account number is required'; errEl.style.display = 'block'; return; }
+
+            if (preferredMethod === 'upi' && !upiId) { errEl.textContent = 'UPI ID is required when preferred method is UPI'; errEl.style.display = 'block'; return; }
+
+            const btn = document.getElementById('bankSaveBtn');
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+
+            try {
+                await api.saveBankDetails({
+                    holderName, accountNumber: finalAccountNumber, ifscCode, bankName, upiId, preferredMethod
+                });
+                successEl.textContent = 'Bank details saved successfully!';
+                successEl.style.display = 'block';
+                await loadBankDetails(); // reload masked display
+            } catch (e) {
+                errEl.textContent = 'Failed: ' + (e.message || 'Unknown error');
+                errEl.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Save Bank Details';
+            }
         }
 
         async function loadVoucherSummary() {

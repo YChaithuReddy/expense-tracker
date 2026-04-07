@@ -1420,6 +1420,10 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
                     <span>Advances</span>
                 </button>
+                <button class="admin-nav-item" data-section="payments" onclick="switchSection('payments', this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/></svg>
+                    <span>Payments</span>
+                </button>
                 <button class="admin-nav-item" data-section="pipeline" onclick="switchSection('pipeline', this)">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
                     <span>Pipeline</span>
@@ -1593,6 +1597,51 @@
                     </select>
                 </div>
                 <div id="advancesList"><div class="admin-empty"><p>Loading advances...</p></div></div>
+            </div>
+
+            <!-- Payments Section -->
+            <div class="admin-section" id="section-payments">
+                <div class="admin-main__header">
+                    <div class="admin-main__header-left">
+                        <div class="admin-breadcrumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/></svg>Finance</div>
+                        <h2>Payment Queue</h2>
+                        <p>Process payments for approved advances</p>
+                    </div>
+                </div>
+                <div class="admin-stats-bar" id="paymentStats"></div>
+                <h3 style="font-size:0.85rem;font-weight:700;color:var(--gray-900);margin:16px 0 12px;">Pending Payments</h3>
+                <div id="pendingPaymentsList"><div class="admin-empty"><p>Loading...</p></div></div>
+                <h3 style="font-size:0.85rem;font-weight:700;color:var(--gray-900);margin:24px 0 12px;">Payment History</h3>
+                <div id="paymentHistoryList"><div class="admin-empty"><p>Loading...</p></div></div>
+            </div>
+
+            <!-- Mark as Paid Modal -->
+            <div id="markPaidModal" style="display:none;position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,0.4);backdrop-filter:blur(4px);">
+                <div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:24px;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.15);">
+                    <h3 style="margin:0 0 16px;font-size:1rem;font-weight:700;color:#0f172a;">Mark Payment as Completed</h3>
+                    <div id="markPaidInfo" style="padding:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:16px;font-size:0.84rem;color:#334155;"></div>
+                    <div style="margin-bottom:12px;">
+                        <label style="font-size:0.78rem;font-weight:600;color:#334155;display:block;margin-bottom:4px;">Payment Reference / UTR *</label>
+                        <input type="text" id="markPaidReference" placeholder="e.g. SBIN26040712345" style="width:100%;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:0.86rem;font-family:inherit;outline:none;">
+                    </div>
+                    <div style="margin-bottom:12px;">
+                        <label style="font-size:0.78rem;font-weight:600;color:#334155;display:block;margin-bottom:4px;">Payment Method</label>
+                        <select id="markPaidMethod" style="width:100%;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:0.86rem;font-family:inherit;outline:none;">
+                            <option value="neft">NEFT</option>
+                            <option value="imps">IMPS</option>
+                            <option value="upi">UPI</option>
+                            <option value="bank_transfer">Bank Transfer</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom:16px;">
+                        <label style="font-size:0.78rem;font-weight:600;color:#334155;display:block;margin-bottom:4px;">Notes (Optional)</label>
+                        <input type="text" id="markPaidNotes" placeholder="Any additional notes" style="width:100%;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:0.86rem;font-family:inherit;outline:none;">
+                    </div>
+                    <div style="display:flex;gap:10px;">
+                        <button onclick="closeMarkPaidModal()" style="flex:1;padding:10px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;color:#64748b;cursor:pointer;font-size:0.86rem;font-family:inherit;">Cancel</button>
+                        <button onclick="confirmMarkPaid()" id="markPaidConfirmBtn" style="flex:1;padding:10px;border-radius:10px;border:none;background:#059669;color:#fff;cursor:pointer;font-size:0.86rem;font-weight:600;font-family:inherit;">Confirm Payment</button>
+                    </div>
+                </div>
             </div>
 
             <!-- Approval Pipeline Section -->
@@ -1807,6 +1856,164 @@
             } catch (e) {
                 console.error('Advances overview error:', e);
                 document.getElementById('advancesList').innerHTML = '<div class="admin-empty"><p>Failed to load advances.</p></div>';
+            }
+        }
+
+        // ==================== Payments ====================
+        let _markPaidTxnId = null;
+        let _markPaidAdvanceId = null;
+
+        async function loadPayments() {
+            const orgId = _currentUser?.organization_id;
+            if (!orgId) return;
+            const supabase = window.supabaseClient?.get();
+            if (!supabase) return;
+
+            try {
+                // Pending payments
+                const { data: pending } = await supabase
+                    .from('payment_transactions')
+                    .select('*')
+                    .eq('organization_id', orgId)
+                    .eq('status', 'pending')
+                    .order('created_at', { ascending: false });
+
+                // Completed/failed payments
+                const { data: history } = await supabase
+                    .from('payment_transactions')
+                    .select('*')
+                    .eq('organization_id', orgId)
+                    .in('status', ['completed', 'failed'])
+                    .order('completed_at', { ascending: false })
+                    .limit(50);
+
+                // Fetch all user profiles for names
+                const allUserIds = [...new Set([...(pending||[]), ...(history||[])].map(t => t.user_id).filter(Boolean))];
+                let profileMap = {};
+                if (allUserIds.length > 0) {
+                    const { data: profiles } = await supabase.from('profiles').select('id, name, email, employee_id').in('id', allUserIds);
+                    (profiles || []).forEach(p => profileMap[p.id] = p);
+                }
+
+                // Fetch bank details for pending payments
+                let bankMap = {};
+                const pendingUserIds = [...new Set((pending||[]).map(t => t.user_id).filter(Boolean))];
+                if (pendingUserIds.length > 0) {
+                    const { data: banks } = await supabase.from('employee_bank_details').select('user_id, account_number, ifsc_code, bank_name, upi_id, preferred_method').in('user_id', pendingUserIds);
+                    (banks || []).forEach(b => bankMap[b.user_id] = b);
+                }
+
+                // Fetch advance project names
+                const advanceIds = [...new Set([...(pending||[]), ...(history||[])].map(t => t.advance_id).filter(Boolean))];
+                let advanceMap = {};
+                if (advanceIds.length > 0) {
+                    const { data: advs } = await supabase.from('advances').select('id, project_name').in('id', advanceIds);
+                    (advs || []).forEach(a => advanceMap[a.id] = a);
+                }
+
+                // Stats
+                const statsEl = document.getElementById('paymentStats');
+                const pendingTotal = (pending||[]).reduce((s,t) => s + parseFloat(t.amount||0), 0);
+                const completedCount = (history||[]).filter(t => t.status === 'completed').length;
+                statsEl.innerHTML = `
+                    <div class="admin-stat-pill" style="color:#d97706;border-color:rgba(217,119,6,0.2);background:#fffbeb;">Pending: <strong>${(pending||[]).length}</strong> (${formatCurrency(pendingTotal)})</div>
+                    <div class="admin-stat-pill admin-stat-pill--active">Completed: <strong>${completedCount}</strong></div>
+                    <div class="admin-stat-pill" style="color:#dc2626;border-color:rgba(220,38,38,0.2);background:#fef2f2;">Failed: <strong>${(history||[]).filter(t => t.status === 'failed').length}</strong></div>
+                `;
+
+                // Pending payments list
+                const pendingEl = document.getElementById('pendingPaymentsList');
+                if (!pending || pending.length === 0) {
+                    pendingEl.innerHTML = '<div class="admin-empty"><p>No pending payments. All caught up!</p></div>';
+                } else {
+                    pendingEl.innerHTML = pending.map(t => {
+                        const user = profileMap[t.user_id] || {};
+                        const bank = bankMap[t.user_id];
+                        const adv = advanceMap[t.advance_id] || {};
+                        const masked = bank ? bank.account_number.replace(/.(?=.{4})/g, 'X') : 'No bank details';
+                        const bankInfo = bank
+                            ? `A/C: ${masked} | IFSC: ${bank.ifsc_code}${bank.upi_id ? ' | UPI: ' + esc(bank.upi_id) : ''}`
+                            : '<span style="color:#dc2626;">Employee has not added bank details</span>';
+
+                        return `<div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px 20px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:16px;">
+                            <div style="flex:1;min-width:0;">
+                                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                                    <strong style="font-size:0.9rem;color:#0f172a;">${esc(user.name || 'Employee')}</strong>
+                                    ${user.employee_id ? '<span class="admin-emp-id">' + esc(user.employee_id) + '</span>' : ''}
+                                    <span style="font-weight:700;font-size:1rem;color:#059669;">${formatCurrency(t.amount)}</span>
+                                </div>
+                                <div style="font-size:0.78rem;color:#64748b;margin-bottom:4px;">Project: <strong>${esc(adv.project_name || '-')}</strong></div>
+                                <div style="font-size:0.75rem;color:#94a3b8;">${bankInfo}</div>
+                            </div>
+                            <button onclick="openMarkPaidModal('${t.id}','${t.advance_id}','${esc(user.name||'')}','${t.amount}')" style="padding:8px 18px;border-radius:10px;border:none;background:#059669;color:#fff;cursor:pointer;font-size:0.84rem;font-weight:600;font-family:inherit;white-space:nowrap;box-shadow:0 2px 8px rgba(5,150,105,0.2);">Mark as Paid</button>
+                        </div>`;
+                    }).join('');
+                }
+
+                // Payment history
+                const historyEl = document.getElementById('paymentHistoryList');
+                if (!history || history.length === 0) {
+                    historyEl.innerHTML = '<div class="admin-empty"><p>No payment history yet.</p></div>';
+                } else {
+                    const rows = history.map(t => {
+                        const user = profileMap[t.user_id] || {};
+                        const adv = advanceMap[t.advance_id] || {};
+                        const sc = t.status === 'completed' ? '#059669' : '#dc2626';
+                        return `<tr>
+                            <td style="font-size:0.78rem;color:#64748b;">${t.completed_at ? new Date(t.completed_at).toLocaleDateString('en-IN') : '-'}</td>
+                            <td>${esc(user.name || '-')}</td>
+                            <td>${esc(adv.project_name || '-')}</td>
+                            <td style="font-weight:600;">${formatCurrency(t.amount)}</td>
+                            <td style="font-size:0.78rem;">${(t.payment_method || '-').toUpperCase()}</td>
+                            <td style="font-size:0.78rem;color:#64748b;">${esc(t.payment_reference || '-')}</td>
+                            <td><span style="background:${sc}18;color:${sc};border:1px solid ${sc}33;font-size:0.7rem;padding:2px 8px;border-radius:4px;font-weight:500;">${t.status}</span></td>
+                        </tr>`;
+                    }).join('');
+                    historyEl.innerHTML = `<div class="admin-table-wrap"><table class="admin-table"><thead><tr>
+                        <th>Date</th><th>Employee</th><th>Project</th><th>Amount</th><th>Method</th><th>Reference</th><th>Status</th>
+                    </tr></thead><tbody>${rows}</tbody></table></div>`;
+                }
+            } catch (e) {
+                console.error('Load payments error:', e);
+                document.getElementById('pendingPaymentsList').innerHTML = '<div class="admin-empty"><p>Failed to load payments.</p></div>';
+            }
+        }
+
+        function openMarkPaidModal(txnId, advanceId, employeeName, amount) {
+            _markPaidTxnId = txnId;
+            _markPaidAdvanceId = advanceId;
+            const modal = document.getElementById('markPaidModal');
+            modal.style.display = 'flex';
+            document.getElementById('markPaidInfo').innerHTML = `<strong>${esc(employeeName)}</strong> — ${formatCurrency(parseFloat(amount))}`;
+            document.getElementById('markPaidReference').value = '';
+            document.getElementById('markPaidNotes').value = '';
+            document.getElementById('markPaidReference').focus();
+        }
+
+        function closeMarkPaidModal() {
+            document.getElementById('markPaidModal').style.display = 'none';
+            _markPaidTxnId = null;
+            _markPaidAdvanceId = null;
+        }
+
+        async function confirmMarkPaid() {
+            const reference = document.getElementById('markPaidReference').value.trim();
+            if (!reference) { alert('Payment reference/UTR is required'); return; }
+            const method = document.getElementById('markPaidMethod').value;
+            const notes = document.getElementById('markPaidNotes').value.trim();
+            const btn = document.getElementById('markPaidConfirmBtn');
+            btn.disabled = true;
+            btn.textContent = 'Processing...';
+            try {
+                await api.recordPayment(_markPaidTxnId, _markPaidAdvanceId, reference, method, notes);
+                closeMarkPaidModal();
+                alert('Payment recorded successfully!');
+                loadPayments();
+            } catch (e) {
+                alert('Failed: ' + (e.message || 'Unknown error'));
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Confirm Payment';
             }
         }
 
@@ -2051,6 +2258,7 @@
             else if (section === 'all-vouchers') loadAllVouchers();
             else if (section === 'tally-export') loadTallyExport();
             else if (section === 'advances') loadAdvancesOverview();
+            else if (section === 'payments') loadPayments();
             else if (section === 'pipeline') loadPipeline();
             else if (section === 'analytics') loadAnalytics();
             else if (section === 'settings') loadSettings();

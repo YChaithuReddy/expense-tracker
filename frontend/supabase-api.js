@@ -1570,6 +1570,25 @@ const api = {
         } else if (action === 'accountant_approved') {
             this.createNotification(advance.user_id, 'advance_approved', 'Advance fully approved!',
                 `Your advance of ${amt} for ${advance.project_name} has been fully approved and is now active.`, advanceId);
+
+            // Create payment transaction
+            try {
+                const bankDetails = await this.getBankDetailsForUser(advance.user_id);
+                const txn = await this.createPaymentTransaction(
+                    advanceId, advance.user_id, advance.organization_id,
+                    advance.amount, bankDetails?.preferred_method || 'manual', user.id
+                );
+                await supabase.from('advances')
+                    .update({ payment_status: 'pending', payment_transaction_id: txn.id })
+                    .eq('id', advanceId);
+
+                if (!bankDetails) {
+                    this.createNotification(advance.user_id, 'system', 'Add bank details',
+                        `Your advance of ${amt} is approved. Please add your bank details in Profile to receive payment.`, advanceId);
+                }
+            } catch (payErr) {
+                console.warn('Payment transaction creation failed (non-blocking):', payErr);
+            }
         }
 
         return { success: true, newStatus };
@@ -2318,6 +2337,148 @@ const api = {
 
         if (error) handleError(error, `Get ${role}s`);
         return data || [];
+    },
+
+    // ==============================================
+    // BANK DETAILS & PAYMENTS
+    // ==============================================
+
+    async getBankDetails() {
+        const supabase = getSupabase();
+        const user = await getCachedUser();
+        if (!user) return null;
+        const { data, error } = await supabase
+            .from('employee_bank_details')
+            .select('*')
+            .eq('user_id', user.id)
+            .single();
+        if (error && error.code !== 'PGRST116') console.error('Get bank details error:', error);
+        return data || null;
+    },
+
+    async saveBankDetails(details) {
+        const supabase = getSupabase();
+        const user = await getCachedUser();
+        if (!user) throw new Error('Not authenticated');
+
+        const row = {
+            user_id: user.id,
+            account_holder_name: details.holderName,
+            account_number: details.accountNumber,
+            ifsc_code: details.ifscCode.toUpperCase(),
+            bank_name: details.bankName || null,
+            upi_id: details.upiId || null,
+            preferred_method: details.preferredMethod || 'neft'
+        };
+
+        // Upsert — insert or update if user_id already exists
+        const { data, error } = await supabase
+            .from('employee_bank_details')
+            .upsert(row, { onConflict: 'user_id' })
+            .select()
+            .single();
+
+        if (error) handleError(error, 'Save bank details');
+        return data;
+    },
+
+    async getBankDetailsForUser(userId) {
+        // Accountant/admin only — fetch bank details for a specific employee
+        const supabase = getSupabase();
+        const { data, error } = await supabase
+            .from('employee_bank_details')
+            .select('*')
+            .eq('user_id', userId)
+            .single();
+        if (error && error.code !== 'PGRST116') console.error('Get bank details for user error:', error);
+        return data || null;
+    },
+
+    async createPaymentTransaction(advanceId, userId, orgId, amount, method, initiatedBy) {
+        const supabase = getSupabase();
+        const { data, error } = await supabase
+            .from('payment_transactions')
+            .insert({
+                advance_id: advanceId,
+                user_id: userId,
+                organization_id: orgId,
+                amount: amount,
+                status: 'pending',
+                payment_method: method || 'manual',
+                initiated_by: initiatedBy
+            })
+            .select()
+            .single();
+        if (error) handleError(error, 'Create payment transaction');
+        return data;
+    },
+
+    async getPendingPayments(orgId) {
+        const supabase = getSupabase();
+        const { data, error } = await supabase
+            .from('payment_transactions')
+            .select('*, advance:advance_id(project_name, visit_type)')
+            .eq('organization_id', orgId)
+            .eq('status', 'pending')
+            .order('created_at', { ascending: false });
+        if (error) {
+            // Fallback without join
+            const res = await supabase
+                .from('payment_transactions')
+                .select('*')
+                .eq('organization_id', orgId)
+                .eq('status', 'pending')
+                .order('created_at', { ascending: false });
+            return res.data || [];
+        }
+        return data || [];
+    },
+
+    async getPaymentHistory(orgId) {
+        const supabase = getSupabase();
+        const { data } = await supabase
+            .from('payment_transactions')
+            .select('*')
+            .eq('organization_id', orgId)
+            .in('status', ['completed', 'failed'])
+            .order('completed_at', { ascending: false })
+            .limit(50);
+        return data || [];
+    },
+
+    async recordPayment(transactionId, advanceId, reference, method, notes) {
+        const supabase = getSupabase();
+        const user = await getCachedUser();
+        if (!user) throw new Error('Not authenticated');
+
+        // Update transaction
+        const { error: txnError } = await supabase
+            .from('payment_transactions')
+            .update({
+                status: 'completed',
+                payment_reference: reference,
+                payment_method: method,
+                notes: notes || null,
+                completed_at: new Date().toISOString()
+            })
+            .eq('id', transactionId);
+        if (txnError) handleError(txnError, 'Record payment');
+
+        // Update advance payment_status
+        await supabase
+            .from('advances')
+            .update({ payment_status: 'completed', payment_transaction_id: transactionId })
+            .eq('id', advanceId);
+
+        // Get advance details for notification
+        const { data: advance } = await supabase.from('advances').select('user_id, amount, project_name').eq('id', advanceId).single();
+        if (advance) {
+            const amt = `₹${Number(advance.amount).toLocaleString('en-IN')}`;
+            this.createNotification(advance.user_id, 'system', 'Payment completed!',
+                `Your advance of ${amt} for ${advance.project_name} has been paid. Reference: ${reference}`, advanceId);
+        }
+
+        return { success: true };
     },
 
     // ==============================================
