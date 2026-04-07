@@ -1604,14 +1604,24 @@
                 <div class="admin-main__header">
                     <div class="admin-main__header-left">
                         <div class="admin-breadcrumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/></svg>Finance</div>
-                        <h2>Payment Queue</h2>
-                        <p>Process payments for approved advances</p>
+                        <h2>Payments</h2>
+                        <p>Process and track payments for approved advances</p>
                     </div>
                 </div>
+
+                <!-- Stats -->
                 <div class="admin-stats-bar" id="paymentStats"></div>
-                <h3 style="font-size:0.85rem;font-weight:700;color:var(--gray-900);margin:16px 0 12px;">Pending Payments</h3>
+
+                <!-- Pending Payments Table -->
+                <div style="display:flex;align-items:center;justify-content:space-between;margin:20px 0 12px;">
+                    <h3 style="font-size:0.82rem;font-weight:700;color:var(--gray-900);text-transform:uppercase;letter-spacing:0.06em;">Pending Payments</h3>
+                </div>
                 <div id="pendingPaymentsList"><div class="admin-empty"><p>Loading...</p></div></div>
-                <h3 style="font-size:0.85rem;font-weight:700;color:var(--gray-900);margin:24px 0 12px;">Payment History</h3>
+
+                <!-- Payment History Table -->
+                <div style="display:flex;align-items:center;justify-content:space-between;margin:28px 0 12px;">
+                    <h3 style="font-size:0.82rem;font-weight:700;color:var(--gray-900);text-transform:uppercase;letter-spacing:0.06em;">Payment History</h3>
+                </div>
                 <div id="paymentHistoryList"><div class="admin-empty"><p>Loading...</p></div></div>
             </div>
 
@@ -1892,54 +1902,54 @@
                     <div class="admin-stat-pill" style="color:#dc2626;border-color:rgba(220,38,38,0.2);background:#fef2f2;">Failed: <strong>${(history||[]).filter(t => t.status === 'failed').length}</strong></div>
                 `;
 
-                // Pending payments list
+                // Pending payments table
                 const pendingEl = document.getElementById('pendingPaymentsList');
                 if (!pending || pending.length === 0) {
                     pendingEl.innerHTML = '<div class="admin-empty"><p>No pending payments. All caught up!</p></div>';
                 } else {
-                    pendingEl.innerHTML = pending.map(t => {
+                    const pendingRows = pending.map(t => {
                         const user = profileMap[t.user_id] || {};
                         const bank = bankMap[t.user_id];
                         const adv = advanceMap[t.advance_id] || {};
-                        const masked = bank ? bank.account_number.replace(/.(?=.{4})/g, 'X') : 'No bank details';
-                        const bankInfo = bank
-                            ? `A/C: ${masked} | IFSC: ${bank.ifsc_code}${bank.upi_id ? ' | UPI: ' + esc(bank.upi_id) : ''}`
-                            : '<span style="color:#dc2626;">Employee has not added bank details</span>';
+                        const masked = bank ? bank.account_number.replace(/.(?=.{4})/g, 'X') : '-';
+                        const bankCol = bank
+                            ? `<span style="font-size:0.72rem;">${masked}<br>${bank.ifsc_code}</span>`
+                            : '<span style="color:#dc2626;font-size:0.72rem;">Not added</span>';
 
-                        return `<div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px 20px;margin-bottom:10px;">
-                            <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;">
-                                <div style="flex:1;min-width:0;">
-                                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-                                        <strong style="font-size:0.9rem;color:#0f172a;">${esc(user.name || 'Employee')}</strong>
-                                        ${user.employee_id ? '<span class="admin-emp-id">' + esc(user.employee_id) + '</span>' : ''}
-                                        <span style="font-weight:700;font-size:1rem;color:#059669;">${formatCurrency(t.amount)}</span>
+                        return `<tr>
+                            <td>${esc(user.name || '-')}</td>
+                            <td><span class="admin-emp-id">${esc(user.employee_id || '-')}</span></td>
+                            <td><strong>${esc(adv.project_name || '-')}</strong></td>
+                            <td style="font-weight:600;">${formatCurrency(t.amount)}</td>
+                            <td>${bankCol}</td>
+                            <td style="font-size:0.78rem;color:var(--gray-500);">${t.created_at ? new Date(t.created_at).toLocaleDateString('en-IN') : '-'}</td>
+                            <td>
+                                <button class="admin-btn admin-btn--sm admin-btn--success" onclick="togglePayForm('${t.id}')">Mark Paid</button>
+                                <div id="pay-form-${t.id}" style="display:none;margin-top:8px;">
+                                    <div class="mark-paid-form">
+                                        <div class="mark-paid-field">
+                                            <label>Payment Method</label>
+                                            <select id="pay-method-adv-${t.id}">
+                                                <option value="neft">NEFT</option>
+                                                <option value="imps">IMPS</option>
+                                                <option value="upi">UPI</option>
+                                                <option value="bank_transfer" selected>Bank Transfer</option>
+                                            </select>
+                                        </div>
+                                        <div class="mark-paid-field">
+                                            <label>Reference (Optional)</label>
+                                            <input type="text" id="pay-ref-adv-${t.id}" placeholder="UTR / Cheque No." style="width:160px;">
+                                        </div>
+                                        <button class="admin-btn admin-btn--sm admin-btn--success" onclick="confirmAdvancePayment('${t.id}','${t.advance_id}')">Confirm</button>
+                                        <button class="admin-btn admin-btn--sm admin-btn--secondary" onclick="document.getElementById('pay-form-${t.id}').style.display='none'">Cancel</button>
                                     </div>
-                                    <div style="font-size:0.78rem;color:#64748b;margin-bottom:4px;">Project: <strong>${esc(adv.project_name || '-')}</strong></div>
-                                    <div style="font-size:0.75rem;color:#94a3b8;">${bankInfo}</div>
                                 </div>
-                                <button class="admin-btn admin-btn--sm admin-btn--success" onclick="togglePayForm('${t.id}','${t.advance_id}')">Mark Paid</button>
-                            </div>
-                            <div id="pay-form-${t.id}" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid #f1f5f9;">
-                                <div class="mark-paid-form">
-                                    <div class="mark-paid-field">
-                                        <label>Payment Method</label>
-                                        <select id="pay-method-adv-${t.id}">
-                                            <option value="neft">NEFT</option>
-                                            <option value="imps">IMPS</option>
-                                            <option value="upi">UPI</option>
-                                            <option value="bank_transfer" selected>Bank Transfer</option>
-                                        </select>
-                                    </div>
-                                    <div class="mark-paid-field">
-                                        <label>Reference (Optional)</label>
-                                        <input type="text" id="pay-ref-adv-${t.id}" placeholder="UTR / Cheque No." style="width:160px;">
-                                    </div>
-                                    <button class="admin-btn admin-btn--sm admin-btn--success" onclick="confirmAdvancePayment('${t.id}','${t.advance_id}')">Confirm</button>
-                                    <button class="admin-btn admin-btn--sm admin-btn--secondary" onclick="document.getElementById('pay-form-${t.id}').style.display='none'">Cancel</button>
-                                </div>
-                            </div>
-                        </div>`;
+                            </td>
+                        </tr>`;
                     }).join('');
+                    pendingEl.innerHTML = `<div class="admin-table-wrap"><table class="admin-table"><thead><tr>
+                        <th>Employee</th><th>ID</th><th>Project</th><th>Amount</th><th>Bank Details</th><th>Date</th><th>Actions</th>
+                    </tr></thead><tbody>${pendingRows}</tbody></table></div>`;
                 }
 
                 // Payment history
