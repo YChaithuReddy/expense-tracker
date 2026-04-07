@@ -356,7 +356,7 @@
 .approvals-panel-overlay {
     position: fixed;
     inset: 0;
-    z-index: 9000;
+    z-index: 100001;
     display: none;
     flex-direction: column;
     background: #ffffff;
