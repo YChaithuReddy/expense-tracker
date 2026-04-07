@@ -1775,10 +1775,11 @@ h3.admin-section-label {
 }
 .adv-tbl-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
 
-/* History filters row — admin style inline */
+/* History filters row — admin style inline, single row */
 .hist-filters-row {
     display: flex;
-    gap: 10px;
+    gap: 6px;
+    flex-wrap: nowrap;
     margin-bottom: 16px;
     flex-wrap: wrap;
     align-items: center;
@@ -1794,15 +1795,15 @@ h3.admin-section-label {
     pointer-events: none;
 }
 .hist-search-input {
-    padding: 8px 12px 8px 34px;
+    padding: 7px 10px 7px 32px;
     border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    font-size: 0.84rem;
+    border-radius: 8px;
+    font-size: 0.8rem;
     background: #ffffff;
     color: #0f172a;
     outline: none;
     font-family: inherit;
-    width: 200px;
+    width: 160px;
     transition: border-color 0.2s, box-shadow 0.2s;
 }
 .hist-search-input:focus {
@@ -1810,25 +1811,27 @@ h3.admin-section-label {
     box-shadow: 0 0 0 3px rgba(17,24,39,0.08);
 }
 .hist-filter-select {
-    padding: 8px 12px;
+    padding: 7px 8px;
     border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    font-size: 0.84rem;
+    border-radius: 8px;
+    font-size: 0.78rem;
     background: #ffffff;
     color: #0f172a;
     outline: none;
     font-family: inherit;
     cursor: pointer;
+    max-width: 130px;
 }
 .hist-filter-date {
-    padding: 7px 12px;
+    padding: 6px 8px;
     border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    font-size: 0.84rem;
+    border-radius: 8px;
+    font-size: 0.78rem;
     background: #ffffff;
     color: #0f172a;
     outline: none;
     font-family: inherit;
+    width: 120px;
 }
 .hist-filters-row .search-results-info {
     width: 100%;
