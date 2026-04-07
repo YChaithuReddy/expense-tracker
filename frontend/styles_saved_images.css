@@ -229,7 +229,7 @@
 
 .saved-stat-label {
     font-size: 0.7rem;
-    color: #e5e7eb;
+    color: #64748b;
     text-transform: uppercase;
     letter-spacing: 1px;
     font-weight: 600;
@@ -239,7 +239,7 @@
 .saved-stat-value {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--text-primary);
+    color: #0f172a;
     display: flex;
     align-items: baseline;
     gap: 4px;
@@ -252,7 +252,7 @@
 .saved-stat-unit {
     font-size: 0.85rem;
     font-weight: 400;
-    color: #e5e7eb;
+    color: #64748b;
 }
 
 /* Images Grid */
