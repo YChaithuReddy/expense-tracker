@@ -1023,52 +1023,130 @@
         /* ============================================================
            MARK PAID FORM — FLOATING CARD
            ============================================================ */
-        .mark-paid-form {
-            display: flex;
-            align-items: flex-end;
-            gap: 10px;
-            flex-wrap: wrap;
-            padding: 16px 18px;
-            background: rgba(255,255,255,0.9);
-            border: 1px solid var(--gray-200);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-md);
-            margin-top: 10px;
+        /* Mark Paid Modal Overlay */
+        .mark-paid-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            animation: fadeIn 0.18s ease;
         }
-        .mark-paid-form label {
-            font-size: 0.67rem;
+        .mark-paid-overlay.active { display: flex; }
+        .mark-paid-modal {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-xl);
+            padding: 28px 32px 24px;
+            width: 90%;
+            max-width: 440px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.18), 0 2px 12px rgba(0,0,0,0.08);
+            animation: slideUp 0.22s ease;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .mark-paid-modal h3 {
+            margin: 0 0 6px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+        .mark-paid-modal .mp-subtitle {
+            font-size: 0.8rem;
+            color: var(--gray-400);
+            margin-bottom: 20px;
+        }
+        .mark-paid-modal .mp-voucher-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: var(--radius-md);
+            margin-bottom: 20px;
+        }
+        .mark-paid-modal .mp-voucher-info .mp-vch-num {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--gray-700);
+        }
+        .mark-paid-modal .mp-voucher-info .mp-vch-amt {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #059669;
+        }
+        .mark-paid-modal .mp-field {
+            margin-bottom: 16px;
+        }
+        .mark-paid-modal .mp-field label {
+            display: block;
+            font-size: 0.72rem;
             font-weight: 700;
             color: var(--gray-400);
             text-transform: uppercase;
-            letter-spacing: 0.07em;
-            display: block;
-            margin-bottom: 4px;
+            letter-spacing: 0.06em;
+            margin-bottom: 6px;
         }
-        .mark-paid-form select,
-        .mark-paid-form input[type="text"] {
-            padding: 8px 12px;
-            border: 1px solid var(--gray-200);
+        .mark-paid-modal .mp-field select,
+        .mark-paid-modal .mp-field input[type="text"] {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1.5px solid var(--gray-200);
             border-radius: var(--radius-md);
-            font-size: 0.8rem;
+            font-size: 0.84rem;
             color: var(--gray-700);
             background: var(--white);
             outline: none;
             font-family: var(--font);
             transition: border-color 0.18s, box-shadow 0.18s;
         }
-        .mark-paid-form select:focus,
-        .mark-paid-form input[type="text"]:focus {
+        .mark-paid-modal .mp-field select:focus,
+        .mark-paid-modal .mp-field input[type="text"]:focus {
             border-color: var(--accent);
             box-shadow: 0 0 0 3px var(--accent-glow);
         }
-        .mark-paid-form .mark-paid-field {
+        .mark-paid-modal .mp-actions {
             display: flex;
-            flex-direction: column;
-            gap: 0;
+            gap: 10px;
+            margin-top: 22px;
         }
-        /* Submit button in mark-paid form */
-        .mark-paid-form .admin-btn--success {
-            align-self: flex-end;
+        .mark-paid-modal .mp-actions button {
+            flex: 1;
+            padding: 11px 16px;
+            border-radius: var(--radius-md);
+            font-size: 0.84rem;
+            font-weight: 600;
+            font-family: var(--font);
+            cursor: pointer;
+            transition: all 0.18s;
+        }
+        .mark-paid-modal .mp-btn-cancel {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            color: var(--gray-500);
+        }
+        .mark-paid-modal .mp-btn-cancel:hover { background: var(--gray-50); }
+        .mark-paid-modal .mp-btn-confirm {
+            background: #059669;
+            border: none;
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(5,150,105,0.25);
+        }
+        .mark-paid-modal .mp-btn-confirm:hover { background: #047857; }
+        .mark-paid-modal .mp-btn-confirm:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         /* ============================================================
@@ -1317,10 +1395,8 @@
             .acct-payment-info { overflow-x: auto; }
             .acct-payment-info .payment-detail-row { flex-direction: column; gap: 6px; }
 
-            /* Mark paid */
-            .mark-paid-form { flex-direction: column; align-items: stretch; }
-            .mark-paid-field { width: 100%; }
-            .mark-paid-form .admin-btn--success { width: 100%; justify-content: center; }
+            /* Mark paid modal - responsive */
+            .mark-paid-modal { padding: 20px; }
 
             /* Analytics + Advances grids */
             #section-analytics [style*="grid-template-columns"],
@@ -1686,6 +1762,35 @@
         </main>
     </div>
 
+    <!-- Mark Paid Modal -->
+    <div class="mark-paid-overlay" id="markPaidOverlay" onclick="if(event.target===this)closeMarkPaidModal()">
+        <div class="mark-paid-modal">
+            <h3>Mark as Reimbursed</h3>
+            <p class="mp-subtitle">Confirm payment details for this voucher</p>
+            <div class="mp-voucher-info">
+                <span class="mp-vch-num" id="mpVoucherNum">-</span>
+                <span class="mp-vch-amt" id="mpVoucherAmt">-</span>
+            </div>
+            <div class="mp-field">
+                <label>Payment Method</label>
+                <select id="mpPayMethod">
+                    <option value="Cash">Cash</option>
+                    <option value="Bank Transfer" selected>Bank Transfer</option>
+                    <option value="UPI">UPI</option>
+                    <option value="Cheque">Cheque</option>
+                </select>
+            </div>
+            <div class="mp-field">
+                <label>Reference / UTR (Optional)</label>
+                <input type="text" id="mpPayRef" placeholder="e.g. UTR123456789">
+            </div>
+            <div class="mp-actions">
+                <button class="mp-btn-cancel" onclick="closeMarkPaidModal()">Cancel</button>
+                <button class="mp-btn-confirm" id="mpConfirmBtn" onclick="handleMarkPaid()">Confirm Payment</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ==================== Auth Guard ====================
         let _currentUser = null;
@@ -1841,8 +1946,7 @@
         }
 
         // ==================== Payments ====================
-        let _markPaidTxnId = null;
-        let _markPaidAdvanceId = null;
+        // (mark-paid modal state is in _mpVoucherId and _advPayTxnId/_advPayAdvId)
 
         async function loadPayments() {
             const orgId = _currentUser?.organization_id;
@@ -1924,26 +2028,7 @@
                             <td>${bankCol}</td>
                             <td style="font-size:0.78rem;color:var(--gray-500);">${t.created_at ? new Date(t.created_at).toLocaleDateString('en-IN') : '-'}</td>
                             <td>
-                                <button class="admin-btn admin-btn--sm admin-btn--success" onclick="togglePayForm('${t.id}')">Mark Paid</button>
-                                <div id="pay-form-${t.id}" style="display:none;margin-top:8px;">
-                                    <div class="mark-paid-form">
-                                        <div class="mark-paid-field">
-                                            <label>Payment Method</label>
-                                            <select id="pay-method-adv-${t.id}">
-                                                <option value="neft">NEFT</option>
-                                                <option value="imps">IMPS</option>
-                                                <option value="upi">UPI</option>
-                                                <option value="bank_transfer" selected>Bank Transfer</option>
-                                            </select>
-                                        </div>
-                                        <div class="mark-paid-field">
-                                            <label>Reference (Optional)</label>
-                                            <input type="text" id="pay-ref-adv-${t.id}" placeholder="UTR / Cheque No." style="width:160px;">
-                                        </div>
-                                        <button class="admin-btn admin-btn--sm admin-btn--success" onclick="confirmAdvancePayment('${t.id}','${t.advance_id}')">Confirm</button>
-                                        <button class="admin-btn admin-btn--sm admin-btn--secondary" onclick="document.getElementById('pay-form-${t.id}').style.display='none'">Cancel</button>
-                                    </div>
-                                </div>
+                                <button class="admin-btn admin-btn--sm admin-btn--success" onclick="showAdvancePayModal('${t.id}','${t.advance_id}','${esc(user.name||'')}',${t.amount})">Mark Paid</button>
                             </td>
                         </tr>`;
                     }).join('');
@@ -1981,26 +2066,48 @@
             }
         }
 
-        function togglePayForm(txnId, advanceId) {
-            // Close all other open forms
-            document.querySelectorAll('[id^="pay-form-"]').forEach(el => {
-                if (el.id !== `pay-form-${txnId}`) el.style.display = 'none';
-            });
-            const form = document.getElementById(`pay-form-${txnId}`);
-            if (!form) return;
-            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        // Advance payment modal state
+        let _advPayTxnId = null, _advPayAdvId = null;
+
+        function showAdvancePayModal(txnId, advanceId, empName, amount) {
+            _advPayTxnId = txnId;
+            _advPayAdvId = advanceId;
+            document.getElementById('mpVoucherNum').textContent = empName || 'Employee';
+            document.getElementById('mpVoucherAmt').textContent = formatCurrency(parseFloat(amount) || 0);
+            document.getElementById('mpPayMethod').innerHTML = `
+                <option value="neft">NEFT</option>
+                <option value="imps">IMPS</option>
+                <option value="upi">UPI</option>
+                <option value="bank_transfer" selected>Bank Transfer</option>`;
+            document.getElementById('mpPayRef').value = '';
+            document.getElementById('mpConfirmBtn').disabled = false;
+            document.getElementById('mpConfirmBtn').textContent = 'Confirm Payment';
+            document.getElementById('mpConfirmBtn').onclick = handleAdvancePayment;
+            document.getElementById('markPaidOverlay').classList.add('active');
         }
 
-        async function confirmAdvancePayment(txnId, advanceId) {
-            const method = document.getElementById(`pay-method-adv-${txnId}`)?.value || 'bank_transfer';
-            const reference = document.getElementById(`pay-ref-adv-${txnId}`)?.value?.trim() || '';
+        async function handleAdvancePayment() {
+            if (!_advPayTxnId) return;
+            const method = document.getElementById('mpPayMethod').value;
+            const reference = document.getElementById('mpPayRef').value.trim();
+            const btn = document.getElementById('mpConfirmBtn');
+            btn.disabled = true;
+            btn.textContent = 'Processing...';
 
             try {
-                await api.recordPayment(txnId, advanceId, reference || 'Manual', method, '');
-                alert('Payment recorded successfully!');
+                await api.recordPayment(_advPayTxnId, _advPayAdvId, reference || 'Manual', method, '');
+                closeMarkPaidModal();
+                if (window.showToast) showToast('Payment recorded successfully!', 'success');
                 loadPayments();
             } catch (e) {
-                alert('Failed: ' + (e.message || 'Unknown error'));
+                if (window.showToast) showToast('Failed: ' + (e.message || 'Unknown error'), 'error');
+                btn.disabled = false;
+                btn.textContent = 'Confirm Payment';
+            } finally {
+                _advPayTxnId = null;
+                _advPayAdvId = null;
+                // Restore default onclick for voucher mark-paid
+                document.getElementById('mpConfirmBtn').onclick = handleMarkPaid;
             }
         }
 
@@ -2650,9 +2757,8 @@
                         <td>
                             <div style="display:flex;gap:6px;align-items:center;">
                                 <button class="admin-btn admin-btn--sm admin-btn--secondary" onclick="toggleVoucherDetail('${v.id}', 'allv')">View</button>
-                                ${v.status === 'approved' ? `<button class="admin-btn admin-btn--sm admin-btn--success" onclick="showMarkPaidForm('${v.id}')">Mark Paid</button>` : ''}
+                                ${v.status === 'approved' ? `<button class="admin-btn admin-btn--sm admin-btn--success" onclick="showMarkPaidForm('${v.id}', '${esc(v.voucher_number)}', ${v.total_amount || 0})">Mark Paid</button>` : ''}
                             </div>
-                            <div id="mark-paid-form-${v.id}" style="display:none;"></div>
                         </td>
                     </tr>
                     <tr id="detail-allv-${v.id}" style="display:none;"><td colspan="9"></td></tr>
@@ -2674,54 +2780,33 @@
         }
 
         // ==================== Mark as Paid / Reimbursement ====================
-        function showMarkPaidForm(voucherId) {
-            // Close any other open mark-paid forms
-            document.querySelectorAll('[id^="mark-paid-form-"]').forEach(el => {
-                if (el.id !== `mark-paid-form-${voucherId}`) el.style.display = 'none';
-            });
+        let _mpVoucherId = null;
 
-            const container = document.getElementById(`mark-paid-form-${voucherId}`);
-            if (!container) return;
-
-            // Toggle: if already visible, hide it
-            if (container.style.display !== 'none') {
-                container.style.display = 'none';
-                return;
-            }
-
-            container.style.display = 'block';
-            container.innerHTML = `
-                <div class="mark-paid-form">
-                    <div class="mark-paid-field">
-                        <label>Payment Method</label>
-                        <select id="pay-method-${voucherId}">
-                            <option value="Cash">Cash</option>
-                            <option value="Bank Transfer" selected>Bank Transfer</option>
-                            <option value="UPI">UPI</option>
-                            <option value="Cheque">Cheque</option>
-                        </select>
-                    </div>
-                    <div class="mark-paid-field">
-                        <label>Reference (optional)</label>
-                        <input type="text" id="pay-ref-${voucherId}" placeholder="UTR / Cheque No." style="width:160px;">
-                    </div>
-                    <button class="admin-btn admin-btn--sm admin-btn--success" onclick="handleMarkPaid('${voucherId}')">Confirm</button>
-                    <button class="admin-btn admin-btn--sm admin-btn--secondary" onclick="document.getElementById('mark-paid-form-${voucherId}').style.display='none'">Cancel</button>
-                </div>`;
+        function showMarkPaidForm(voucherId, voucherNumber, amount) {
+            _mpVoucherId = voucherId;
+            document.getElementById('mpVoucherNum').textContent = voucherNumber || '-';
+            document.getElementById('mpVoucherAmt').textContent = formatCurrency(parseFloat(amount) || 0);
+            document.getElementById('mpPayMethod').value = 'Bank Transfer';
+            document.getElementById('mpPayRef').value = '';
+            document.getElementById('mpConfirmBtn').disabled = false;
+            document.getElementById('mpConfirmBtn').textContent = 'Confirm Payment';
+            document.getElementById('markPaidOverlay').classList.add('active');
         }
 
-        async function handleMarkPaid(voucherId) {
-            const methodEl = document.getElementById(`pay-method-${voucherId}`);
-            const refEl = document.getElementById(`pay-ref-${voucherId}`);
-            if (!methodEl) return;
+        function closeMarkPaidModal() {
+            document.getElementById('markPaidOverlay').classList.remove('active');
+            _mpVoucherId = null;
+        }
 
-            const paymentMethod = methodEl.value;
-            const paymentReference = refEl?.value?.trim() || '';
+        async function handleMarkPaid() {
+            if (!_mpVoucherId) return;
+            const voucherId = _mpVoucherId;
+            const paymentMethod = document.getElementById('mpPayMethod').value;
+            const paymentReference = document.getElementById('mpPayRef').value.trim();
 
-            // Disable form buttons while processing
-            const formContainer = document.getElementById(`mark-paid-form-${voucherId}`);
-            const buttons = formContainer?.querySelectorAll('button');
-            buttons?.forEach(b => b.disabled = true);
+            const btn = document.getElementById('mpConfirmBtn');
+            btn.disabled = true;
+            btn.textContent = 'Processing...';
 
             try {
                 // Get voucher detail for email
@@ -2730,9 +2815,9 @@
                 // Call API to mark as paid
                 await api.markVoucherPaid(voucherId, paymentMethod, paymentReference);
 
+                closeMarkPaidModal();
                 if (window.showToast) showToast('Voucher marked as reimbursed', 'success');
                 api.logActivity?.('voucher_reimbursed', `Marked ${detail.voucher_number} as paid via ${paymentMethod}${paymentReference ? ' (Ref: ' + paymentReference + ')' : ''}`);
-
 
                 // Send email to employee
                 if (detail.submitter?.email) {
@@ -2752,7 +2837,8 @@
             } catch (e) {
                 console.error('Mark paid error:', e);
                 if (window.showToast) showToast('Failed to mark as paid: ' + e.message, 'error');
-                buttons?.forEach(b => b.disabled = false);
+                btn.disabled = false;
+                btn.textContent = 'Confirm Payment';
             }
         }
 
