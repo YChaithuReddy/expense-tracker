@@ -204,7 +204,7 @@
         /* Left panel staggered entrance */
         .left-eyebrow       { opacity: 0; animation: fadeSlideUp 0.6s 0.1s cubic-bezier(0.22,1,0.36,1) forwards; }
         .left-headline       { opacity: 0; animation: fadeSlideUp 0.6s 0.25s cubic-bezier(0.22,1,0.36,1) forwards; }
-        .brand-logo-pill     { opacity: 0; animation: scaleIn 0.5s 0.4s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .water-drop-wrap     { opacity: 0; animation: scaleIn 0.5s 0.4s cubic-bezier(0.22,1,0.36,1) forwards; }
         .left-subtext        { opacity: 0; animation: fadeSlideUp 0.5s 0.5s cubic-bezier(0.22,1,0.36,1) forwards; }
         .left-feature:nth-child(1) { opacity: 0; animation: fadeSlideRight 0.4s 0.6s cubic-bezier(0.22,1,0.36,1) forwards; }
         .left-feature:nth-child(2) { opacity: 0; animation: fadeSlideRight 0.4s 0.72s cubic-bezier(0.22,1,0.36,1) forwards; }
@@ -219,13 +219,36 @@
         .auth-divider        { opacity: 0; animation: fadeSlideUp 0.3s 0.7s cubic-bezier(0.22,1,0.36,1) forwards; }
         .btn-flux--outline   { opacity: 0; animation: fadeSlideUp 0.4s 0.8s cubic-bezier(0.22,1,0.36,1) forwards; }
 
-        .brand-logo-pill {
-            background: rgba(255, 255, 255, 0.06); border-radius: 16px; padding: 12px 24px;
-            display: inline-flex; align-items: center;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+        /* Animated water drop */
+        .water-drop-wrap {
+            position: relative;
+            width: 80px; height: 80px;
+            display: flex; align-items: center; justify-content: center;
         }
-        .brand-logo-pill img { height: 48px; width: auto; object-fit: contain; display: block; filter: brightness(1.8) contrast(0.9); }
+        .water-drop-svg {
+            width: 56px; height: 56px;
+            filter: drop-shadow(0 0 18px rgba(56, 189, 248, 0.6)) drop-shadow(0 0 40px rgba(3, 105, 161, 0.3));
+            animation: dropFloat 4s ease-in-out infinite;
+        }
+        @keyframes dropFloat {
+            0%, 100% { transform: translateY(0); }
+            50%      { transform: translateY(-6px); }
+        }
+        /* Ripple rings */
+        .water-ripple {
+            position: absolute;
+            bottom: 2px; left: 50%; transform: translateX(-50%);
+            width: 40px; height: 10px;
+            border: 1.5px solid rgba(56, 189, 248, 0.45);
+            border-radius: 50%;
+            animation: rippleExpand 3s ease-out infinite;
+        }
+        .water-ripple:nth-child(2) { animation-delay: 1s; }
+        .water-ripple:nth-child(3) { animation-delay: 2s; }
+        @keyframes rippleExpand {
+            0%   { width: 20px; height: 6px; opacity: 0.6; }
+            100% { width: 70px; height: 16px; opacity: 0; }
+        }
 
         .left-hero { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 20px 0; }
 
@@ -439,8 +462,20 @@
                     </h2>
                 </div>
                 <div class="brand-logo-wrap">
-                    <div class="brand-logo-pill">
-                        <img src="fluxgen-logo.jpg" alt="FluxGen Technologies">
+                    <div class="water-drop-wrap">
+                        <svg class="water-drop-svg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="dropGrad" x1="32" y1="4" x2="32" y2="60" gradientUnits="userSpaceOnUse">
+                                    <stop offset="0%" stop-color="#38bdf8"/>
+                                    <stop offset="100%" stop-color="#0369a1"/>
+                                </linearGradient>
+                            </defs>
+                            <path d="M32 4 C32 4 12 30 12 42 C12 53 21 60 32 60 C43 60 52 53 52 42 C52 30 32 4 32 4Z" fill="url(#dropGrad)"/>
+                            <path d="M24 38 C24 38 22 44 28 48" stroke="rgba(255,255,255,0.4)" stroke-width="2" stroke-linecap="round" fill="none"/>
+                        </svg>
+                        <div class="water-ripple"></div>
+                        <div class="water-ripple"></div>
+                        <div class="water-ripple"></div>
                     </div>
                 </div>
             </div>
@@ -613,44 +648,67 @@
 <script src="supabase-auth.js"></script>
 <script src="deep-link-handler.js"></script>
 <script>
-    // === Typing effect for headline ===
+    // === Continuous typing effect for headline ===
     (function() {
         const headline = document.querySelector('.left-headline');
         if (!headline) return;
-        const line1 = 'Track every rupee.';
-        const line2 = 'Approve in seconds.';
-        headline.innerHTML = '';
-        headline.style.opacity = '1';
-        headline.style.animation = 'none';
-        let i = 0, phase = 1;
+
+        const phrases = [
+            ['Track every rupee.', 'Approve in seconds.'],
+            ['Scan. Submit.', 'Get reimbursed.'],
+            ['From receipt', 'to report — automated.'],
+        ];
+        let phraseIdx = 0;
         const cursor = document.createElement('span');
         cursor.className = 'typing-cursor';
+        headline.style.opacity = '1';
+        headline.style.animation = 'none';
 
-        function type() {
-            if (phase === 1) {
-                if (i <= line1.length) {
-                    headline.innerHTML = line1.substring(0, i) + '<br>';
-                    headline.appendChild(cursor);
-                    i++;
-                    setTimeout(type, 50 + Math.random() * 30);
+        function typePhrase() {
+            const [line1, line2] = phrases[phraseIdx];
+            let i = 0, phase = 1;
+
+            function type() {
+                if (phase === 1) {
+                    if (i <= line1.length) {
+                        headline.innerHTML = line1.substring(0, i) + '<br>';
+                        headline.appendChild(cursor);
+                        i++; setTimeout(type, 55 + Math.random() * 25);
+                    } else { i = 0; phase = 2; setTimeout(type, 250); }
                 } else {
-                    i = 0; phase = 2;
-                    setTimeout(type, 300);
-                }
-            } else {
-                if (i <= line2.length) {
-                    headline.innerHTML = line1 + '<br><em>' + line2.substring(0, i) + '</em>';
-                    headline.appendChild(cursor);
-                    i++;
-                    setTimeout(type, 50 + Math.random() * 30);
-                } else {
-                    // Done — remove cursor after a pause
-                    setTimeout(() => { cursor.remove(); }, 1500);
+                    if (i <= line2.length) {
+                        headline.innerHTML = line1 + '<br><em>' + line2.substring(0, i) + '</em>';
+                        headline.appendChild(cursor);
+                        i++; setTimeout(type, 55 + Math.random() * 25);
+                    } else {
+                        // Pause, then erase
+                        setTimeout(erase, 2500);
+                    }
                 }
             }
+
+            function erase() {
+                const full = line1 + line2;
+                let len = full.length;
+                function del() {
+                    if (len > 0) {
+                        const t = len > line2.length ? line1.substring(0, len - line2.length) : '';
+                        const t2 = len > line2.length ? line2 : line2.substring(0, len);
+                        headline.innerHTML = t + '<br><em>' + t2 + '</em>';
+                        headline.appendChild(cursor);
+                        len--; setTimeout(del, 25);
+                    } else {
+                        headline.innerHTML = '<br>';
+                        headline.appendChild(cursor);
+                        phraseIdx = (phraseIdx + 1) % phrases.length;
+                        setTimeout(typePhrase, 400);
+                    }
+                }
+                del();
+            }
+            type();
         }
-        // Start typing after entrance animations settle
-        setTimeout(type, 400);
+        setTimeout(typePhrase, 400);
     })();
 
     function togglePasswordVisibility(inputId, iconElement) {
