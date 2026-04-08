@@ -111,13 +111,16 @@
 .btn-flux__text {
     position: relative;
     z-index: 1;
-    height: var(--btn-h);
+    display: block !important;
+    height: var(--btn-h) !important;
+    max-height: var(--btn-h) !important;
     line-height: var(--btn-h);
     overflow: hidden !important;
     clip-path: inset(0 0 0 0);
     -webkit-clip-path: inset(0 0 0 0);
 }
 .btn-flux__text-inner {
+    display: block !important;
     transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
     will-change: transform;
 }
@@ -139,8 +142,10 @@
 .btn-flux__arrow {
     position: relative;
     z-index: 1;
-    width: 16px;
-    height: 16px;
+    display: block !important;
+    width: 16px !important;
+    height: 16px !important;
+    min-width: 16px;
     overflow: hidden !important;
     clip-path: inset(0 0 0 0);
     -webkit-clip-path: inset(0 0 0 0);
