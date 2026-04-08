@@ -317,6 +317,25 @@
     border-radius: 999px !important;
 }
 
+/* Cancel/Close button overrides — force outline pill style */
+.btn-flux.kodo-confirm-modal__btn--cancel,
+.btn-flux.email-modal__btn--cancel,
+.btn-flux.pdfs-modal__btn--secondary,
+.btn-flux.clear-data-confirm-btn-cancel,
+.btn-flux.quick-add-btn-cancel {
+    background: #fff !important;
+    color: #1e293b !important;
+    border: 1.5px solid #e2e8f0 !important;
+    border-radius: 999px !important;
+}
+.btn-flux.kodo-confirm-modal__btn--cancel:hover,
+.btn-flux.email-modal__btn--cancel:hover,
+.btn-flux.pdfs-modal__btn--secondary:hover,
+.btn-flux.clear-data-confirm-btn-cancel:hover,
+.btn-flux.quick-add-btn-cancel:hover {
+    border-color: transparent !important;
+}
+
 .btn-flux.email-modal__btn--send {
     background: #0369a1 !important;
     border-radius: 999px !important;
