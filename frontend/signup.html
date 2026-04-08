@@ -96,67 +96,140 @@
             justify-content: space-between;
         }
 
-        .brand-logo-pill {
-            background: var(--white);
-            border-radius: 20px;
-            padding: 18px 36px;
-            display: inline-flex;
-            align-items: center;
-            box-shadow: 0 0 0 1px rgba(255,255,255,0.12), 0 12px 40px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.25);
+        /* Animated water drop */
+        .water-drop-wrap {
+            position: relative;
+            width: 80px; height: 80px;
+            display: flex; align-items: center; justify-content: center;
         }
-        .brand-logo-pill img { height: 80px; width: auto; object-fit: contain; }
+        .water-drop-svg {
+            width: 56px; height: 56px;
+            filter: drop-shadow(0 0 18px rgba(56, 189, 248, 0.6)) drop-shadow(0 0 40px rgba(3, 105, 161, 0.3));
+            animation: dropFloat 4s ease-in-out infinite;
+        }
+        @keyframes dropFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+        .water-ripple {
+            position: absolute;
+            bottom: 2px; left: 50%; transform: translateX(-50%);
+            width: 40px; height: 10px;
+            border: 1.5px solid rgba(56, 189, 248, 0.45);
+            border-radius: 50%;
+            animation: rippleExpand 3s ease-out infinite;
+        }
+        .water-ripple:nth-child(2) { animation-delay: 1s; }
+        .water-ripple:nth-child(3) { animation-delay: 2s; }
+        @keyframes rippleExpand { 0% { width: 20px; height: 6px; opacity: 0.6; } 100% { width: 70px; height: 16px; opacity: 0; } }
+
+        .brand-top-row { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+        .brand-top-text { flex: 1; min-width: 0; }
+
+        .left-eyebrow {
+            display: inline-flex; align-items: center; gap: 8px;
+            font-size: 11px; font-weight: 600; letter-spacing: 0.12em;
+            text-transform: uppercase; color: var(--gray-400); margin-bottom: 16px;
+        }
+        .left-eyebrow-dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: #0369a1; box-shadow: 0 0 6px rgba(3,105,161,0.6);
+            animation: dotPulse 2s ease-in-out infinite;
+        }
+        @keyframes dotPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
         .left-headline {
-            margin-top: 40px;
+            font-size: clamp(26px, 3vw, 38px); font-weight: 800;
+            line-height: 1.15; color: var(--white);
+            letter-spacing: -0.03em; margin-bottom: 18px;
         }
-        .left-headline h1 {
-            font-size: clamp(1.8rem, 3vw, 2.6rem);
-            font-weight: 800;
-            line-height: 1.15;
-            color: var(--white);
-            letter-spacing: -0.02em;
+        .left-headline em {
+            font-style: normal;
+            background: linear-gradient(135deg, #e2e8f0, #ffffff);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
         }
-        .left-headline .accent {
-            color: var(--white);
-            font-style: italic;
-            opacity: 0.7;
+        .typing-cursor {
+            display: inline-block; width: 2px; height: 1em;
+            background: rgba(56, 189, 248, 0.8); margin-left: 2px;
+            animation: blink 0.8s step-end infinite; vertical-align: text-bottom;
         }
-        .left-headline p {
-            margin-top: 16px;
-            font-size: 0.95rem;
-            line-height: 1.6;
-            color: var(--gray-400);
-            max-width: 380px;
-        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-        .left-features {
-            margin-top: 28px;
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-        .left-feature {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 0.88rem;
-            color: rgba(255,255,255,0.7);
-        }
+        .left-subtext { font-size: 14px; line-height: 1.7; color: var(--gray-400); max-width: 360px; }
+        .left-features { display: flex; flex-direction: column; gap: 14px; margin-top: 28px; list-style: none; }
+        .left-feature { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--gray-400); font-weight: 450; }
         .left-feature-icon {
-            width: 28px;
-            height: 28px;
-            border-radius: 8px;
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.1);
-            display: grid;
-            place-items: center;
-            flex-shrink: 0;
+            width: 28px; height: 28px; border-radius: 8px;
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+            animation: iconGlow 3s ease-in-out infinite;
         }
-        .left-feature-icon svg { width: 14px; height: 14px; color: rgba(255,255,255,0.6); }
+        @keyframes iconGlow {
+            0%, 100% { box-shadow: 0 0 4px rgba(56, 189, 248, 0.1); border-color: rgba(255,255,255,0.08); }
+            50%      { box-shadow: 0 0 12px rgba(56, 189, 248, 0.3), 0 0 24px rgba(56, 189, 248, 0.1); border-color: rgba(56, 189, 248, 0.25); }
+        }
+        .left-feature:nth-child(1) .left-feature-icon { animation-delay: 0s; }
+        .left-feature:nth-child(2) .left-feature-icon { animation-delay: 0.8s; }
+        .left-feature:nth-child(3) .left-feature-icon { animation-delay: 1.6s; }
+        .left-feature:nth-child(4) .left-feature-icon { animation-delay: 2.4s; }
+        .left-feature-icon svg { width: 14px; height: 14px; stroke: var(--gray-400); }
 
-        .left-footer {
-            font-size: 0.72rem;
-            color: rgba(255,255,255,0.3);
+        .left-footer { font-size: 12px; color: rgba(255,255,255,0.3); }
+
+        /* Floating bubbles */
+        .bubbles-container { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+        .bubble {
+            position: absolute; bottom: -20px; border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(56, 189, 248, 0.3), rgba(14, 116, 144, 0.12));
+            border: 1px solid rgba(56, 189, 248, 0.15);
+            animation: bubbleRise linear infinite;
+        }
+        @keyframes bubbleRise { 0% { transform: translateY(0) scale(1); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 0.6; } 100% { transform: translateY(-110vh) scale(0.4); opacity: 0; } }
+        .bubble:nth-child(1)  { left: 5%;  width: 10px; height: 10px; animation-duration: 11s; animation-delay: 0s; }
+        .bubble:nth-child(2)  { left: 18%; width: 18px; height: 18px; animation-duration: 14s; animation-delay: 1.5s; }
+        .bubble:nth-child(3)  { left: 32%; width: 8px;  height: 8px;  animation-duration: 10s; animation-delay: 3s; }
+        .bubble:nth-child(4)  { left: 48%; width: 14px; height: 14px; animation-duration: 16s; animation-delay: 0.5s; }
+        .bubble:nth-child(5)  { left: 60%; width: 22px; height: 22px; animation-duration: 18s; animation-delay: 2s; }
+        .bubble:nth-child(6)  { left: 75%; width: 12px; height: 12px; animation-duration: 12s; animation-delay: 4s; }
+        .bubble:nth-child(7)  { left: 88%; width: 16px; height: 16px; animation-duration: 15s; animation-delay: 0.8s; }
+        .bubble:nth-child(8)  { left: 12%; width: 20px; height: 20px; animation-duration: 17s; animation-delay: 5s; }
+        .bubble:nth-child(9)  { left: 42%; width: 10px; height: 10px; animation-duration: 11s; animation-delay: 7s; }
+        .bubble:nth-child(10) { left: 68%; width: 24px; height: 24px; animation-duration: 20s; animation-delay: 3s; }
+        .bubble:nth-child(11) { left: 25%; width: 6px;  height: 6px;  animation-duration: 9s;  animation-delay: 6s; }
+        .bubble:nth-child(12) { left: 55%; width: 16px; height: 16px; animation-duration: 13s; animation-delay: 8s; }
+
+        /* Gradient wave */
+        .gradient-wave {
+            position: absolute; inset: 0; pointer-events: none; z-index: 0;
+            background:
+                radial-gradient(ellipse 50% 40% at 20% 50%, rgba(14, 116, 144, 0.15) 0%, transparent 70%),
+                radial-gradient(ellipse 40% 50% at 80% 30%, rgba(56, 189, 248, 0.08) 0%, transparent 70%);
+            animation: gradientShift 8s ease-in-out infinite alternate;
+        }
+        @keyframes gradientShift {
+            0%   { opacity: 0.4; transform: scale(1) translateX(0); }
+            33%  { opacity: 1; transform: scale(1.1) translateX(5%); }
+            66%  { opacity: 0.7; transform: scale(0.95) translateX(-3%); }
+            100% { opacity: 0.4; transform: scale(1) translateX(0); }
+        }
+
+        /* Entrance animations */
+        .left-eyebrow       { opacity: 0; animation: fadeSlideUp 0.6s 0.1s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .left-headline       { opacity: 0; animation: fadeSlideUp 0.6s 0.25s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .water-drop-wrap     { opacity: 0; animation: scaleIn 0.5s 0.4s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .left-subtext        { opacity: 0; animation: fadeSlideUp 0.5s 0.5s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .left-feature:nth-child(1) { opacity: 0; animation: fadeSlideRight 0.4s 0.6s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .left-feature:nth-child(2) { opacity: 0; animation: fadeSlideRight 0.4s 0.72s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .left-feature:nth-child(3) { opacity: 0; animation: fadeSlideRight 0.4s 0.84s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .left-feature:nth-child(4) { opacity: 0; animation: fadeSlideRight 0.4s 0.96s cubic-bezier(0.22,1,0.36,1) forwards; }
+        @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeSlideRight { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes scaleIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
+
+        /* Override labels from styles.css */
+        .signup-panel-right label {
+            text-transform: none !important;
+            font-size: 0.84rem !important;
+            font-weight: 500 !important;
+            letter-spacing: normal !important;
+            color: var(--gray-700) !important;
         }
 
         /* ─── Right Panel ─── */
@@ -321,31 +394,64 @@
 <div class="signup-shell">
     <!-- Left Panel — Branding -->
     <aside class="signup-panel-left">
+        <div class="gradient-wave"></div>
+        <div class="bubbles-container">
+            <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
+            <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
+            <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
+            <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
+        </div>
         <div class="left-content">
-            <div>
-                <div class="brand-logo-pill">
-                    <img src="fluxgen-logo.jpg" alt="FluxGen Technologies">
+            <div class="brand-top-row">
+                <div class="brand-top-text">
+                    <span class="left-eyebrow">
+                        <span class="left-eyebrow-dot"></span>
+                        FluxGen Technologies Pvt Ltd
+                    </span>
+                    <h2 class="left-headline">
+                        Join your team.<br>
+                        <em>Start tracking today.</em>
+                    </h2>
                 </div>
-                <div class="left-headline">
-                    <h1>Join your team on<br><span class="accent">FluxGen Expenses.</span></h1>
-                    <p>Create your account to start tracking, submitting, and managing expenses with your team.</p>
-                </div>
-                <div class="left-features">
-                    <div class="left-feature">
-                        <div class="left-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
-                        Scan bills with OCR — instant data extraction
-                    </div>
-                    <div class="left-feature">
-                        <div class="left-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
-                        Request advances with multi-level approval
-                    </div>
-                    <div class="left-feature">
-                        <div class="left-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-                        Export to Google Sheets and Tally XML
+                <div class="brand-logo-wrap">
+                    <div class="water-drop-wrap">
+                        <svg class="water-drop-svg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs><linearGradient id="dropGrad" x1="32" y1="4" x2="32" y2="60" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0369a1"/></linearGradient></defs>
+                            <path d="M32 4 C32 4 12 30 12 42 C12 53 21 60 32 60 C43 60 52 53 52 42 C52 30 32 4 32 4Z" fill="url(#dropGrad)"/>
+                            <path d="M24 38 C24 38 22 44 28 48" stroke="rgba(255,255,255,0.4)" stroke-width="2" stroke-linecap="round" fill="none"/>
+                        </svg>
+                        <div class="water-ripple"></div>
+                        <div class="water-ripple"></div>
+                        <div class="water-ripple"></div>
                     </div>
                 </div>
             </div>
-            <div class="left-footer">&copy; 2025 FluxGen Technologies Pvt Ltd. All rights reserved.</div>
+
+            <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:20px 0;">
+                <p class="left-subtext">
+                    Create your account and join innovative teams transforming their expense workflows — from receipt to reimbursement in minutes.
+                </p>
+                <ul class="left-features">
+                    <li class="left-feature">
+                        <span class="left-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg></span>
+                        Scan bills instantly with AI-powered OCR
+                    </li>
+                    <li class="left-feature">
+                        <span class="left-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+                        Multi-level approvals with real-time tracking
+                    </li>
+                    <li class="left-feature">
+                        <span class="left-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></span>
+                        UPI payments — Google Pay, PhonePe, Paytm
+                    </li>
+                    <li class="left-feature">
+                        <span class="left-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
+                        Export to Tally, Google Sheets &amp; PDF reports
+                    </li>
+                </ul>
+            </div>
+
+            <footer class="left-footer">&copy; 2025 FluxGen Technologies Pvt Ltd. All rights reserved.</footer>
         </div>
     </aside>
 
@@ -413,6 +519,45 @@
 <script src="supabase-api.js"></script>
 <script src="supabase-auth.js"></script>
 <script>
+    // === Continuous typing effect for headline ===
+    (function() {
+        const headline = document.querySelector('.left-headline');
+        if (!headline) return;
+        const phrases = [
+            ['Join your team.', 'Start tracking today.'],
+            ['One platform.', 'Every expense covered.'],
+            ['Scan. Submit.', 'Get reimbursed fast.'],
+        ];
+        let phraseIdx = 0;
+        const cursor = document.createElement('span');
+        cursor.className = 'typing-cursor';
+        headline.style.opacity = '1';
+        headline.style.animation = 'none';
+        function typePhrase() {
+            const [line1, line2] = phrases[phraseIdx];
+            let i = 0, phase = 1;
+            function type() {
+                if (phase === 1) {
+                    if (i <= line1.length) { headline.innerHTML = line1.substring(0, i) + '<br>'; headline.appendChild(cursor); i++; setTimeout(type, 55 + Math.random() * 25); }
+                    else { i = 0; phase = 2; setTimeout(type, 250); }
+                } else {
+                    if (i <= line2.length) { headline.innerHTML = line1 + '<br><em>' + line2.substring(0, i) + '</em>'; headline.appendChild(cursor); i++; setTimeout(type, 55 + Math.random() * 25); }
+                    else { setTimeout(erase, 2500); }
+                }
+            }
+            function erase() {
+                const full = line1 + line2; let len = full.length;
+                function del() {
+                    if (len > 0) { const t = len > line2.length ? line1.substring(0, len - line2.length) : ''; const t2 = len > line2.length ? line2 : line2.substring(0, len); headline.innerHTML = t + '<br><em>' + t2 + '</em>'; headline.appendChild(cursor); len--; setTimeout(del, 25); }
+                    else { headline.innerHTML = '<br>'; headline.appendChild(cursor); phraseIdx = (phraseIdx + 1) % phrases.length; setTimeout(typePhrase, 400); }
+                }
+                del();
+            }
+            type();
+        }
+        setTimeout(typePhrase, 400);
+    })();
+
     function togglePasswordVisibility(inputId, iconElement) {
         const input = document.getElementById(inputId);
         if (input.type === 'password') {
