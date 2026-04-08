@@ -1524,12 +1524,13 @@ const api = {
         const { data: approverProfile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
         const role = approverProfile?.role || 'employee';
         const isAdmin = role === 'admin';
+        const isAccountant = role === 'accountant';
 
         let newStatus, action;
         if (advance.status === 'pending_manager' && (advance.manager_id === user.id || isAdmin)) {
             newStatus = 'pending_accountant';
             action = 'manager_approved';
-        } else if (advance.status === 'pending_accountant' && (advance.accountant_id === user.id || isAdmin)) {
+        } else if (advance.status === 'pending_accountant' && (advance.accountant_id === user.id || isAdmin || isAccountant)) {
             newStatus = 'active';
             action = 'accountant_approved';
         } else {
