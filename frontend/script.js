@@ -98,12 +98,12 @@ class ExpenseTracker {
     // Hide/show the expense dashboard rows (top row, submit bar, action cards)
     _hideExpDashboard() {
         document.querySelector('.exp-top-row')?.style.setProperty('display', 'none');
-        document.querySelector('.exp-submit-bar')?.style.setProperty('display', 'none');
+        document.getElementById('downloadReimbursementPackage')?.style.setProperty('display', 'none');
         document.querySelector('.exp-actions-row')?.style.setProperty('display', 'none');
     }
     _showExpDashboard() {
         document.querySelector('.exp-top-row')?.style.removeProperty('display');
-        document.querySelector('.exp-submit-bar')?.style.removeProperty('display');
+        document.getElementById('downloadReimbursementPackage')?.style.removeProperty('display');
         document.querySelector('.exp-actions-row')?.style.removeProperty('display');
     }
 

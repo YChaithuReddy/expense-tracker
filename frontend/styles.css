@@ -106,6 +106,10 @@
     transform: scale(0.98);
     transition-duration: 0.1s;
 }
+.btn-flux:focus-visible {
+    outline: 3px solid #059669;
+    outline-offset: 3px;
+}
 
 /* === 2. TEXT ROLL-UP === */
 .btn-flux__text {
