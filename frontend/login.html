@@ -208,7 +208,7 @@
             font-size: 1.4rem; font-weight: 800; color: var(--gray-900);
             letter-spacing: -0.03em; margin-bottom: 4px;
         }
-        .form-header-sub { font-size: 0.82rem; color: var(--gray-500); }
+        .form-header-sub { font-size: 0.82rem; color: var(--gray-600); }
 
         /* Override styles.css label uppercase for login form */
         .login-panel-right label {
@@ -256,8 +256,10 @@
             position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
             cursor: pointer; font-size: 16px; user-select: none; opacity: 0.5;
             transition: opacity 0.15s;
+            background: none; border: none; padding: 2px; line-height: 1;
         }
         .password-toggle-icon:hover { opacity: 0.8; }
+        .password-toggle-icon:focus-visible { outline: 2px solid #059669; outline-offset: 2px; border-radius: 4px; }
 
         .forgot-row { display: flex; justify-content: flex-end; margin-top: -8px; }
         .auth-link {
@@ -425,7 +427,7 @@
                     <label for="password">Password</label>
                     <div class="password-input-wrapper">
                         <input type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password" minlength="6">
-                        <span class="password-toggle-icon" onclick="togglePasswordVisibility('password', this)">&#128065;</span>
+                        <button type="button" class="password-toggle-icon" onclick="togglePasswordVisibility('password', this)" aria-label="Toggle password visibility" tabindex="0">&#128065;</button>
                     </div>
                 </div>
                 <div class="forgot-row">
@@ -446,7 +448,7 @@
                 </button>
             </form>
 
-            <form id="forgotPasswordForm" class="auth-form" style="display: none;">
+            <form id="forgotPasswordForm" class="auth-form" style="display: none;" inert>
                 <p style="font-size: 0.84rem; color: var(--gray-500); margin-bottom: 16px; line-height: 1.6;">
                     Enter your email address and we'll send you a secure link to reset your password.
                 </p>
@@ -488,7 +490,7 @@
                 <span class="btn-flux__text">
                     <span class="btn-flux__text-inner">
                         <span>Continue with Google</span>
-                        <span>Continue with Google</span>
+                        <span>Let's go with Google</span>
                     </span>
                 </span>
                 <span class="btn-flux__arrow">
@@ -624,7 +626,7 @@
 
     forgotPasswordLink.addEventListener('click', (e) => {
         e.preventDefault();
-        loginForm.style.display = 'none'; forgotPasswordForm.style.display = 'block';
+        loginForm.style.display = 'none'; forgotPasswordForm.style.display = 'block'; forgotPasswordForm.removeAttribute('inert');
         googleDivider.style.display = 'none'; googleBtn.style.display = 'none';
         loginHeading.textContent = 'Reset password';
         loginSubtext.textContent = "We'll email you a secure reset link";
@@ -633,7 +635,7 @@
 
     backToLoginLink.addEventListener('click', (e) => {
         e.preventDefault();
-        loginForm.style.display = 'block'; forgotPasswordForm.style.display = 'none';
+        loginForm.style.display = 'block'; forgotPasswordForm.style.display = 'none'; forgotPasswordForm.setAttribute('inert', '');
         googleDivider.style.display = ''; googleBtn.style.display = '';
         loginHeading.textContent = 'Welcome back';
         loginSubtext.textContent = 'Sign in to your FluxGen account';
@@ -681,14 +683,14 @@
             <div class="form-group"><label for="newPassword">New password</label>
                 <div class="password-input-wrapper">
                     <input type="password" id="newPassword" placeholder="Enter new password" required minlength="6" autocomplete="new-password">
-                    <span class="password-toggle-icon" onclick="togglePasswordVisibility('newPassword', this)">&#128065;</span>
+                    <button type="button" class="password-toggle-icon" onclick="togglePasswordVisibility('newPassword', this)" aria-label="Toggle password visibility" tabindex="0">&#128065;</button>
                 </div>
                 <small id="passwordStrength">Min 6 characters: uppercase, lowercase, and number required</small>
             </div>
             <div class="form-group"><label for="confirmNewPassword">Confirm password</label>
                 <div class="password-input-wrapper">
                     <input type="password" id="confirmNewPassword" placeholder="Confirm new password" required minlength="6" autocomplete="new-password">
-                    <span class="password-toggle-icon" onclick="togglePasswordVisibility('confirmNewPassword', this)">&#128065;</span>
+                    <button type="button" class="password-toggle-icon" onclick="togglePasswordVisibility('confirmNewPassword', this)" aria-label="Toggle password visibility" tabindex="0">&#128065;</button>
                 </div>
             </div>
             <button type="submit" class="btn-flux" id="setPasswordBtn" style="width:100%;">
