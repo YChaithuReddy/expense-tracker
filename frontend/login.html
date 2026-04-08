@@ -160,12 +160,33 @@
         }
         .mobile-brand-pill img { height: 40px; width: auto; }
 
-        .form-header { margin-bottom: 32px; }
+        .form-header { margin-bottom: 32px; text-align: center; }
+        .form-header-brand {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 6px 16px; border-radius: 999px;
+            background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%);
+            border: 1px solid #bbf7d0;
+            margin-bottom: 16px;
+        }
+        .form-header-brand img { height: 22px; width: auto; }
+        .form-header-brand span {
+            font-size: 0.75rem; font-weight: 600; color: #059669;
+            letter-spacing: 0.03em; text-transform: none;
+        }
         .form-header-title {
-            font-size: 1.5rem; font-weight: 800; color: var(--gray-900);
+            font-size: 1.6rem; font-weight: 800; color: var(--gray-900);
             letter-spacing: -0.03em; margin-bottom: 6px;
         }
         .form-header-sub { font-size: 0.88rem; color: var(--gray-500); }
+
+        /* Override styles.css label uppercase for login form */
+        .login-panel-right label {
+            text-transform: none !important;
+            font-size: 0.84rem !important;
+            font-weight: 500 !important;
+            letter-spacing: normal !important;
+            color: var(--gray-700) !important;
+        }
 
         /* Messages */
         .message {
@@ -353,6 +374,10 @@
             </div>
 
             <div class="form-header">
+                <div class="form-header-brand">
+                    <img src="fluxgen-logo.jpg" alt="FluxGen">
+                    <span>FluxGen Expense Tracker</span>
+                </div>
                 <h1 class="form-header-title auth-section-title">Welcome back</h1>
                 <p class="form-header-sub auth-section-sub">Sign in to your FluxGen account</p>
             </div>
