@@ -111,17 +111,18 @@
 .btn-flux__text {
     position: relative;
     z-index: 1;
-    display: block;
-    overflow: hidden;
     height: var(--btn-h);
     line-height: var(--btn-h);
+    overflow: hidden !important;
+    clip-path: inset(0 0 0 0);
+    -webkit-clip-path: inset(0 0 0 0);
 }
 .btn-flux__text-inner {
-    display: block;
     transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
 }
 .btn-flux__text-inner span {
-    display: block;
+    display: block !important;
     height: var(--btn-h);
     line-height: var(--btn-h);
     white-space: nowrap;
@@ -138,20 +139,21 @@
 .btn-flux__arrow {
     position: relative;
     z-index: 1;
-    display: block;
     width: 16px;
     height: 16px;
-    overflow: hidden;
+    overflow: hidden !important;
+    clip-path: inset(0 0 0 0);
+    -webkit-clip-path: inset(0 0 0 0);
     flex-shrink: 0;
 }
 .btn-flux__arrow svg {
     position: absolute;
     top: 0;
     left: 0;
-    display: block;
-    width: 16px;
-    height: 16px;
+    width: 16px !important;
+    height: 16px !important;
     transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
 }
 /* First arrow: hidden to the left, slides in on hover */
 .btn-flux__arrow svg:first-child {
