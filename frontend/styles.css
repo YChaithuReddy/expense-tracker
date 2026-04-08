@@ -70,7 +70,7 @@
     height: 52px;
     border: none;
     border-radius: 999px;
-    background: #059669;
+    background: #0369a1;
     color: #fff;
     font-family: inherit;
     font-size: 0.9rem;
@@ -88,7 +88,7 @@
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+    background: linear-gradient(135deg, #075985 0%, #0c4a6e 100%);
     transform: scaleX(0);
     transform-origin: left center;
     transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
@@ -100,14 +100,14 @@
 }
 .btn-flux:hover {
     transform: scale(1.03);
-    box-shadow: 0 8px 25px rgba(5, 150, 105, 0.3);
+    box-shadow: 0 8px 25px rgba(3, 105, 161, 0.35);
 }
 .btn-flux:active {
     transform: scale(0.98);
     transition-duration: 0.1s;
 }
 .btn-flux:focus-visible {
-    outline: 3px solid #059669;
+    outline: 3px solid #0369a1;
     outline-offset: 3px;
 }
 
@@ -179,18 +179,18 @@
     transform: translateX(20px);
 }
 
-/* === OUTLINE VARIANT (white bg, green sweep on hover) === */
+/* === OUTLINE VARIANT (white bg, blue sweep on hover) === */
 .btn-flux--outline {
     background: #fff;
     color: #1e293b;
     border: 1.5px solid #e2e8f0;
 }
 .btn-flux--outline::before {
-    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
 }
 .btn-flux--outline:hover {
     border-color: transparent;
-    box-shadow: 0 8px 25px rgba(5, 150, 105, 0.25);
+    box-shadow: 0 8px 25px rgba(3, 105, 161, 0.3);
 }
 /* First span dark, second span white for outline */
 .btn-flux--outline .btn-flux__text-inner span:first-child {
