@@ -252,8 +252,17 @@
                         </div>
                     </div>
 
-                    <button type="button" id="scanBills" class="btn-primary" style="display:none;width:100%;">
-                        <span id="scanText">Scan Bills</span>
+                    <button type="button" id="scanBills" class="btn-flux" style="display:none;width:100%;">
+                        <span class="btn-flux__text">
+                            <span class="btn-flux__text-inner">
+                                <span id="scanText">Scan Bills</span>
+                                <span>Scan Bills</span>
+                            </span>
+                        </span>
+                        <span class="btn-flux__arrow">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        </span>
                         <span id="scanProgress" style="display:none;">Processing... <span id="progressText">0%</span></span>
                     </button>
 
@@ -533,9 +542,17 @@
                         <h2>Advance Tracker</h2>
                         <p>Request and track advance payments for projects</p>
                     </div>
-                    <button class="admin-btn admin-btn--primary" id="openAdvanceModal" title="Add New Advance">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                        New Advance
+                    <button class="btn-flux btn-flux--sm admin-btn admin-btn--primary" id="openAdvanceModal" title="Add New Advance">
+                        <span class="btn-flux__text">
+                            <span class="btn-flux__text-inner">
+                                <span>Add New Advance</span>
+                                <span>Add New Advance</span>
+                            </span>
+                        </span>
+                        <span class="btn-flux__arrow">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        </span>
                     </button>
                 </div>
 
@@ -1098,29 +1115,53 @@
 
                         <!-- Action buttons -->
                         <div class="kodo-confirm-modal__actions reimb-actions">
-                            <button type="submit" class="kodo-confirm-modal__btn reimb-act reimb-act--download" data-action="download">
-                                <svg class="kodo-confirm-modal__btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-                                </svg>
-                                Download PDF
+                            <button type="submit" class="btn-flux btn-flux--sm kodo-confirm-modal__btn reimb-act reimb-act--download" data-action="download">
+                                <span class="btn-flux__text">
+                                    <span class="btn-flux__text-inner">
+                                        <span>Download PDF</span>
+                                        <span>Download PDF</span>
+                                    </span>
+                                </span>
+                                <span class="btn-flux__arrow">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                </span>
                             </button>
-                            <button type="button" class="kodo-confirm-modal__btn reimb-act reimb-act--kodo" id="submitToKodoBtn" data-action="kodo" style="display:none;">
-                                <svg class="kodo-confirm-modal__btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 00-8 0v2"/><circle cx="12" cy="14" r="1.5"/>
-                                </svg>
-                                Submit to Kodo
+                            <button type="button" class="btn-flux btn-flux--sm kodo-confirm-modal__btn reimb-act reimb-act--kodo" id="submitToKodoBtn" data-action="kodo" style="display:none;">
+                                <span class="btn-flux__text">
+                                    <span class="btn-flux__text-inner">
+                                        <span>Submit to Kodo</span>
+                                        <span>Submit to Kodo</span>
+                                    </span>
+                                </span>
+                                <span class="btn-flux__arrow">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                </span>
                             </button>
-                            <button type="button" class="kodo-confirm-modal__btn reimb-act reimb-act--email" id="emailToAccountsBtn" data-action="email">
-                                <svg class="kodo-confirm-modal__btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
-                                </svg>
-                                Email to Accounts
+                            <button type="button" class="btn-flux btn-flux--sm kodo-confirm-modal__btn reimb-act reimb-act--email" id="emailToAccountsBtn" data-action="email">
+                                <span class="btn-flux__text">
+                                    <span class="btn-flux__text-inner">
+                                        <span>Email to Accounts</span>
+                                        <span>Email to Accounts</span>
+                                    </span>
+                                </span>
+                                <span class="btn-flux__arrow">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                </span>
                             </button>
-                            <button type="button" class="kodo-confirm-modal__btn reimb-act reimb-act--approval" id="submitForApprovalReimbBtn" data-action="approval" style="display:none;">
-                                <svg class="kodo-confirm-modal__btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
-                                </svg>
-                                Submit for Approval
+                            <button type="button" class="btn-flux btn-flux--sm kodo-confirm-modal__btn reimb-act reimb-act--approval" id="submitForApprovalReimbBtn" data-action="approval" style="display:none;">
+                                <span class="btn-flux__text">
+                                    <span class="btn-flux__text-inner">
+                                        <span>Submit for Approval</span>
+                                        <span>Submit for Approval</span>
+                                    </span>
+                                </span>
+                                <span class="btn-flux__arrow">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                </span>
                             </button>
                             <button type="button" class="kodo-confirm-modal__btn kodo-confirm-modal__btn--cancel" onclick="expenseTracker.closeEmployeeInfoModal()">
                                 Cancel
@@ -1324,7 +1365,18 @@
                 </div>
                 <div class="kodo-form-actions">
                     <button id="kodoTestConnection" class="kodo-btn kodo-btn-secondary">Test Connection</button>
-                    <button id="kodoSaveSettings" class="kodo-btn kodo-btn-primary">Save Settings</button>
+                    <button id="kodoSaveSettings" class="btn-flux btn-flux--sm kodo-btn kodo-btn-primary">
+                        <span class="btn-flux__text">
+                            <span class="btn-flux__text-inner">
+                                <span>Save Settings</span>
+                                <span>Save Settings</span>
+                            </span>
+                        </span>
+                        <span class="btn-flux__arrow">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        </span>
+                    </button>
                 </div>
                 <div id="kodoSettingsStatus" class="kodo-status" style="display: none;"></div>
             </div>
@@ -1410,12 +1462,17 @@
                 <!-- Action buttons -->
                 <div class="kodo-confirm-modal__actions">
                     <button id="kodoCancelSubmit" class="kodo-confirm-modal__btn kodo-confirm-modal__btn--cancel">Cancel</button>
-                    <button id="kodoConfirmSubmit" class="kodo-confirm-modal__btn kodo-confirm-modal__btn--submit">
-                        <svg class="kodo-confirm-modal__btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="9 11 12 14 22 4"/>
-                            <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
-                        </svg>
-                        Confirm &amp; Submit
+                    <button id="kodoConfirmSubmit" class="btn-flux btn-flux--sm kodo-confirm-modal__btn kodo-confirm-modal__btn--submit">
+                        <span class="btn-flux__text">
+                            <span class="btn-flux__text-inner">
+                                <span>Confirm &amp; Submit</span>
+                                <span>Confirm &amp; Submit</span>
+                            </span>
+                        </span>
+                        <span class="btn-flux__arrow">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        </span>
                     </button>
                 </div>
             </div>
@@ -1601,12 +1658,17 @@
                     <button id="emailAccountsCancel" class="email-modal__btn email-modal__btn--cancel">
                         Cancel
                     </button>
-                    <button id="emailAccountsSend" class="email-modal__btn email-modal__btn--send">
-                        <svg class="email-modal__btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="22" y1="2" x2="11" y2="13"/>
-                            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-                        </svg>
-                        Send Email
+                    <button id="emailAccountsSend" class="btn-flux btn-flux--sm email-modal__btn email-modal__btn--send">
+                        <span class="btn-flux__text">
+                            <span class="btn-flux__text-inner">
+                                <span>Send</span>
+                                <span>Send</span>
+                            </span>
+                        </span>
+                        <span class="btn-flux__arrow">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        </span>
                     </button>
                 </div>
 
@@ -1699,7 +1761,18 @@
                 <div class="pdfs-modal__field" id="metaFileInfo" style="font-size:0.8rem;color:#8892b0;" aria-live="polite"></div>
                 <div class="pdfs-modal__actions">
                     <button class="pdfs-modal__btn pdfs-modal__btn--secondary" onclick="pdfLibrary.cancelUpload()">Cancel</button>
-                    <button class="pdfs-modal__btn pdfs-modal__btn--primary" id="uploadConfirmBtn" onclick="pdfLibrary.confirmUpload()">Upload PDF</button>
+                    <button class="btn-flux btn-flux--sm pdfs-modal__btn pdfs-modal__btn--primary" id="uploadConfirmBtn" onclick="pdfLibrary.confirmUpload()">
+                        <span class="btn-flux__text">
+                            <span class="btn-flux__text-inner">
+                                <span>Upload PDF</span>
+                                <span>Upload PDF</span>
+                            </span>
+                        </span>
+                        <span class="btn-flux__arrow">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        </span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -1725,7 +1798,18 @@
                 </div>
                 <div class="pdfs-modal__actions">
                     <button class="pdfs-modal__btn pdfs-modal__btn--secondary" onclick="pdfLibrary.closeEmailModal()">Cancel</button>
-                    <button class="pdfs-modal__btn pdfs-modal__btn--email" id="emailSendBtn" onclick="pdfLibrary.sendEmail()">Send Email</button>
+                    <button class="btn-flux btn-flux--sm pdfs-modal__btn pdfs-modal__btn--email" id="emailSendBtn" onclick="pdfLibrary.sendEmail()">
+                        <span class="btn-flux__text">
+                            <span class="btn-flux__text-inner">
+                                <span>Send Email</span>
+                                <span>Send Email</span>
+                            </span>
+                        </span>
+                        <span class="btn-flux__arrow">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        </span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -1815,7 +1899,18 @@
                     <label class="profile-label">Name</label>
                     <div style="display:flex;gap:8px;align-items:center;">
                         <input type="text" id="profileNameInput" class="profile-input" placeholder="Your name">
-                        <button class="profile-save-btn" onclick="saveProfileName()">Save</button>
+                        <button class="btn-flux btn-flux--sm profile-save-btn" onclick="saveProfileName()">
+                            <span class="btn-flux__text">
+                                <span class="btn-flux__text-inner">
+                                    <span>Save</span>
+                                    <span>Save</span>
+                                </span>
+                            </span>
+                            <span class="btn-flux__arrow">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            </span>
+                        </button>
                     </div>
                 </div>
                 <div class="profile-field-group">
@@ -1859,7 +1954,18 @@
                     <input type="password" id="profileConfirmPassword" class="profile-input" placeholder="Re-enter new password">
                 </div>
                 <div id="profilePasswordError" style="color:#ef4444;font-size:13px;margin-top:4px;display:none;"></div>
-                <button class="profile-save-btn" onclick="changePassword()" style="margin-top:8px;">Update Password</button>
+                <button class="btn-flux btn-flux--sm profile-save-btn" onclick="changePassword()" style="margin-top:8px;">
+                    <span class="btn-flux__text">
+                        <span class="btn-flux__text-inner">
+                            <span>Update Password</span>
+                            <span>Update Password</span>
+                        </span>
+                    </span>
+                    <span class="btn-flux__arrow">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                    </span>
+                </button>
             </div>
 
             <!-- Bank Details Section (Company mode only) -->
@@ -1908,7 +2014,18 @@
                 </div>
                 <div id="bankSaveError" style="color:#dc2626;font-size:13px;margin-top:4px;display:none;"></div>
                 <div id="bankSaveSuccess" style="color:#059669;font-size:13px;margin-top:4px;display:none;"></div>
-                <button class="profile-save-btn" onclick="saveBankDetails()" style="margin-top:8px;" id="bankSaveBtn">Save Bank Details</button>
+                <button class="btn-flux btn-flux--sm profile-save-btn" onclick="saveBankDetails()" style="margin-top:8px;" id="bankSaveBtn">
+                    <span class="btn-flux__text">
+                        <span class="btn-flux__text-inner">
+                            <span>Save Bank Details</span>
+                            <span>Save Bank Details</span>
+                        </span>
+                    </span>
+                    <span class="btn-flux__arrow">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                    </span>
+                </button>
             </div>
 
             <!-- Voucher Summary Section -->
@@ -2501,9 +2618,17 @@
                 </div>
                 <div class="quick-add-footer">
                     <button class="quick-add-btn-cancel" onclick="expenseTracker.closeQuickAdd()">Cancel</button>
-                    <button id="qaScanBtn" class="quick-add-btn-next" disabled onclick="expenseTracker.quickAddScan()">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                        Scan
+                    <button id="qaScanBtn" class="btn-flux btn-flux--sm quick-add-btn-next" disabled onclick="expenseTracker.quickAddScan()">
+                        <span class="btn-flux__text">
+                            <span class="btn-flux__text-inner">
+                                <span>Scan</span>
+                                <span>Scan</span>
+                            </span>
+                        </span>
+                        <span class="btn-flux__arrow">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        </span>
                     </button>
                 </div>
             </div>
@@ -2561,9 +2686,17 @@
                 </div>
                 <div class="quick-add-footer">
                     <button class="quick-add-btn-cancel" onclick="expenseTracker.quickAddBack()">Back</button>
-                    <button id="qaSaveBtn" class="quick-add-btn-save" onclick="expenseTracker.quickAddSave()">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                        Save
+                    <button id="qaSaveBtn" class="btn-flux btn-flux--sm quick-add-btn-save" onclick="expenseTracker.quickAddSave()">
+                        <span class="btn-flux__text">
+                            <span class="btn-flux__text-inner">
+                                <span>Save</span>
+                                <span>Save</span>
+                            </span>
+                        </span>
+                        <span class="btn-flux__arrow">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        </span>
                     </button>
                 </div>
             </div>
@@ -2657,9 +2790,17 @@
                     </div>
                     <div class="kodo-confirm-modal__actions" style="margin-top:18px;">
                         <button type="button" class="kodo-confirm-modal__btn kodo-confirm-modal__btn--cancel" id="cancelAdvanceModal">Cancel</button>
-                        <button type="submit" class="kodo-confirm-modal__btn kodo-confirm-modal__btn--submit" id="advanceSaveBtn">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                            Submit Request
+                        <button type="submit" class="btn-flux btn-flux--sm kodo-confirm-modal__btn kodo-confirm-modal__btn--submit" id="advanceSaveBtn">
+                            <span class="btn-flux__text">
+                                <span class="btn-flux__text-inner">
+                                    <span>Save Advance</span>
+                                    <span>Save Advance</span>
+                                </span>
+                            </span>
+                            <span class="btn-flux__arrow">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            </span>
                         </button>
                     </div>
                 </form>
