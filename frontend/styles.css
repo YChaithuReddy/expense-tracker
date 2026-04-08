@@ -243,6 +243,63 @@
     to   { left: 120%; }
 }
 
+/* === CONFLICT OVERRIDES ===
+   When .btn-flux is combined with legacy button classes,
+   neutralize the old styles so btn-flux takes full control. */
+.btn-flux.reimb-act,
+.btn-flux.reimb-act--download,
+.btn-flux.reimb-act--kodo,
+.btn-flux.reimb-act--email,
+.btn-flux.reimb-act--approval {
+    background: #0369a1 !important;
+    transform: none;
+    box-shadow: none;
+}
+.btn-flux.reimb-act::before {
+    background: linear-gradient(135deg, #075985 0%, #0c4a6e 100%) !important;
+    left: 0 !important;
+    width: 100% !important;
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+.btn-flux.reimb-act:hover::before {
+    transform: scaleX(1) !important;
+    left: 0 !important;
+}
+.btn-flux.reimb-act:hover:not(:disabled) {
+    transform: scale(1.03) !important;
+    box-shadow: 0 8px 25px rgba(3, 105, 161, 0.35) !important;
+}
+.btn-flux.reimb-act--email { color: #fff !important; }
+.btn-flux.reimb-act--email svg { stroke: currentColor !important; }
+
+.btn-flux.quick-add-btn-next,
+.btn-flux.quick-add-btn-save {
+    background: #0369a1 !important;
+    border-radius: 999px !important;
+    padding: 8px 20px !important;
+}
+.btn-flux.quick-add-btn-save {
+    background: #0369a1 !important;
+}
+
+.btn-flux.kodo-confirm-modal__btn--submit,
+.btn-flux.kodo-btn-primary {
+    background: #0369a1 !important;
+    border-radius: 999px !important;
+}
+
+.btn-flux.admin-btn--primary {
+    background: #0369a1 !important;
+    border-radius: 999px !important;
+}
+
+.btn-flux.profile-save-btn {
+    background: #0369a1 !important;
+    border-radius: 999px !important;
+}
+
 /* Light theme body and element overrides */
 body {
     background: #f3f4f6;
