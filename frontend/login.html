@@ -112,6 +112,37 @@
         }
         @keyframes dotPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
+        /* === FluxGen-style entrance animations === */
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeSlideRight {
+            from { opacity: 0; transform: translateX(-20px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.92); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+
+        /* Left panel staggered entrance */
+        .left-eyebrow       { opacity: 0; animation: fadeSlideUp 0.6s 0.1s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .left-headline       { opacity: 0; animation: fadeSlideUp 0.6s 0.25s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .brand-logo-pill     { opacity: 0; animation: scaleIn 0.5s 0.4s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .left-subtext        { opacity: 0; animation: fadeSlideUp 0.5s 0.5s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .left-feature:nth-child(1) { opacity: 0; animation: fadeSlideRight 0.4s 0.6s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .left-feature:nth-child(2) { opacity: 0; animation: fadeSlideRight 0.4s 0.72s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .left-feature:nth-child(3) { opacity: 0; animation: fadeSlideRight 0.4s 0.84s cubic-bezier(0.22,1,0.36,1) forwards; }
+
+        /* Right panel form entrance */
+        .form-header-brand   { opacity: 0; animation: scaleIn 0.4s 0.3s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .form-header-title   { opacity: 0; animation: fadeSlideUp 0.5s 0.4s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .form-header-sub     { opacity: 0; animation: fadeSlideUp 0.4s 0.5s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .auth-form           { opacity: 0; animation: fadeSlideUp 0.5s 0.55s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .auth-divider        { opacity: 0; animation: fadeSlideUp 0.3s 0.7s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .btn-flux--outline   { opacity: 0; animation: fadeSlideUp 0.4s 0.8s cubic-bezier(0.22,1,0.36,1) forwards; }
+
         .brand-logo-pill {
             background: var(--white); border-radius: 16px; padding: 14px 28px;
             display: inline-flex; align-items: center;
