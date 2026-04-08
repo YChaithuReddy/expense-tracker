@@ -286,15 +286,17 @@
             </div>
 
             <!-- ROW 2: Submit Reimbursement (full width) -->
-            <button id="downloadReimbursementPackage" class="exp-submit-bar">
-                <span class="exp-submit-bar__icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            <button id="downloadReimbursementPackage" class="exp-submit-bar btn-flux btn-flux--lg" style="width:100%;">
+                <span class="btn-flux__text">
+                    <span class="btn-flux__text-inner">
+                        <span>Submit Reimbursement</span>
+                        <span>Package &amp; Send</span>
+                    </span>
                 </span>
-                <span class="exp-submit-bar__text">
-                    <strong>Submit Reimbursement</strong>
-                    <small>Package &amp; send for approval</small>
+                <span class="btn-flux__arrow">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                 </span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="exp-submit-bar__arrow"><polyline points="9 18 15 12 9 6"/></svg>
             </button>
 
             <!-- ROW 3: Action cards (4 columns) -->
@@ -417,7 +419,18 @@
                     </div>
                     <div class="form-actions">
                         <button type="button" id="backToScan" class="btn-secondary">← Back to Scan</button>
-                        <button type="submit" class="btn-primary">Confirm &amp; Add Expense</button>
+                        <button type="submit" class="btn-flux">
+                            <span class="btn-flux__text">
+                                <span class="btn-flux__text-inner">
+                                    <span>Confirm &amp; Add Expense</span>
+                                    <span>Add Expense</span>
+                                </span>
+                            </span>
+                            <span class="btn-flux__arrow">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            </span>
+                        </button>
                     </div>
                 </form>
             </section>
