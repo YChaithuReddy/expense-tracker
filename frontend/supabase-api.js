@@ -1463,14 +1463,14 @@ const api = {
         const { data: profile } = await supabase.from('profiles').select('role, organization_id').eq('id', user.id).single();
         const role = profile?.role || 'employee';
 
-        let query = supabase.from('advances').select('*');
+        let query = supabase.from('advances').select('*, submitter:user_id(id, name, employee_id, email)');
 
         if (role === 'manager') {
             query = query.eq('manager_id', user.id).in('status', ['pending_manager']);
         } else if (role === 'accountant') {
-            query = query.eq('accountant_id', user.id).in('status', ['pending_accountant']);
+            const orgId = profile?.organization_id;
+            if (orgId) query = query.eq('organization_id', orgId).in('status', ['pending_accountant']);
         } else if (role === 'admin') {
-            // Admin sees only pending items in their org (not already approved/closed)
             const orgId = profile?.organization_id;
             if (orgId) query = query.eq('organization_id', orgId).in('status', ['pending_manager', 'pending_accountant']);
         } else {
