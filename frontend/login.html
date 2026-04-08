@@ -112,6 +112,77 @@
         }
         @keyframes dotPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
+        /* === 1. FLOATING WATER BUBBLES === */
+        .bubbles-container {
+            position: absolute; inset: 0; overflow: hidden;
+            pointer-events: none; z-index: 0;
+        }
+        .bubble {
+            position: absolute;
+            bottom: -20px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(56, 189, 248, 0.2), rgba(14, 116, 144, 0.08));
+            border: 1px solid rgba(56, 189, 248, 0.1);
+            animation: bubbleRise linear infinite;
+        }
+        @keyframes bubbleRise {
+            0%   { transform: translateY(0) scale(1); opacity: 0; }
+            10%  { opacity: 1; }
+            90%  { opacity: 0.6; }
+            100% { transform: translateY(-110vh) scale(0.4); opacity: 0; }
+        }
+        .bubble:nth-child(1)  { left: 8%;  width: 6px;  height: 6px;  animation-duration: 12s; animation-delay: 0s; }
+        .bubble:nth-child(2)  { left: 22%; width: 10px; height: 10px; animation-duration: 14s; animation-delay: 2s; }
+        .bubble:nth-child(3)  { left: 38%; width: 4px;  height: 4px;  animation-duration: 10s; animation-delay: 4s; }
+        .bubble:nth-child(4)  { left: 52%; width: 8px;  height: 8px;  animation-duration: 16s; animation-delay: 1s; }
+        .bubble:nth-child(5)  { left: 65%; width: 5px;  height: 5px;  animation-duration: 11s; animation-delay: 3s; }
+        .bubble:nth-child(6)  { left: 78%; width: 12px; height: 12px; animation-duration: 18s; animation-delay: 5s; }
+        .bubble:nth-child(7)  { left: 90%; width: 7px;  height: 7px;  animation-duration: 13s; animation-delay: 0.5s; }
+        .bubble:nth-child(8)  { left: 15%; width: 9px;  height: 9px;  animation-duration: 15s; animation-delay: 6s; }
+        .bubble:nth-child(9)  { left: 45%; width: 5px;  height: 5px;  animation-duration: 11s; animation-delay: 8s; }
+        .bubble:nth-child(10) { left: 72%; width: 8px;  height: 8px;  animation-duration: 14s; animation-delay: 3.5s; }
+
+        /* === 2. GRADIENT WAVE BACKGROUND === */
+        .gradient-wave {
+            position: absolute; inset: 0;
+            pointer-events: none; z-index: 0;
+            background:
+                radial-gradient(ellipse 50% 40% at 20% 50%, rgba(14, 116, 144, 0.15) 0%, transparent 70%),
+                radial-gradient(ellipse 40% 50% at 80% 30%, rgba(56, 189, 248, 0.08) 0%, transparent 70%);
+            animation: gradientShift 8s ease-in-out infinite alternate;
+        }
+        @keyframes gradientShift {
+            0%   { background-position: 0% 0%, 100% 0%; opacity: 0.6; }
+            50%  { opacity: 1; }
+            100% { background-position: 100% 100%, 0% 100%; opacity: 0.6; }
+        }
+
+        /* === 3. TYPING EFFECT === */
+        .typing-cursor {
+            display: inline-block;
+            width: 2px; height: 1em;
+            background: rgba(56, 189, 248, 0.8);
+            margin-left: 2px;
+            animation: blink 0.8s step-end infinite;
+            vertical-align: text-bottom;
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        /* === 4. GLOW PULSE ON FEATURE ICONS === */
+        .left-feature-icon {
+            width: 28px; height: 28px; border-radius: 8px;
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+            animation: iconGlow 3s ease-in-out infinite;
+        }
+        @keyframes iconGlow {
+            0%, 100% { box-shadow: 0 0 4px rgba(56, 189, 248, 0.1), 0 0 0 rgba(56, 189, 248, 0); border-color: rgba(255,255,255,0.08); }
+            50%      { box-shadow: 0 0 12px rgba(56, 189, 248, 0.3), 0 0 24px rgba(56, 189, 248, 0.1); border-color: rgba(56, 189, 248, 0.25); }
+        }
+        .left-feature:nth-child(1) .left-feature-icon { animation-delay: 0s; }
+        .left-feature:nth-child(2) .left-feature-icon { animation-delay: 1s; }
+        .left-feature:nth-child(3) .left-feature-icon { animation-delay: 2s; }
+
         /* === FluxGen-style entrance animations === */
         @keyframes fadeSlideUp {
             from { opacity: 0; transform: translateY(20px); }
@@ -167,11 +238,6 @@
 
         .left-features { display: flex; flex-direction: column; gap: 14px; margin-top: 36px; list-style: none; }
         .left-feature { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--gray-400); font-weight: 450; }
-        .left-feature-icon {
-            width: 28px; height: 28px; border-radius: 8px;
-            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
-            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-        }
         .left-feature-icon svg { width: 14px; height: 14px; stroke: var(--gray-300); }
 
         .left-footer { font-size: 12px; color: var(--gray-500); letter-spacing: 0.01em; }
@@ -346,6 +412,14 @@
 
     <!-- LEFT PANEL — Branding -->
     <aside class="login-panel-left">
+        <!-- Animated background layers -->
+        <div class="gradient-wave"></div>
+        <div class="bubbles-container">
+            <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
+            <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
+            <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
+            <div class="bubble"></div>
+        </div>
         <div class="left-content">
             <div class="brand-top-row">
                 <div class="brand-top-text">
@@ -527,6 +601,46 @@
 <script src="supabase-auth.js"></script>
 <script src="deep-link-handler.js"></script>
 <script>
+    // === Typing effect for headline ===
+    (function() {
+        const headline = document.querySelector('.left-headline');
+        if (!headline) return;
+        const line1 = 'Simplify your';
+        const line2 = 'expense management.';
+        headline.innerHTML = '';
+        headline.style.opacity = '1';
+        headline.style.animation = 'none';
+        let i = 0, phase = 1;
+        const cursor = document.createElement('span');
+        cursor.className = 'typing-cursor';
+
+        function type() {
+            if (phase === 1) {
+                if (i <= line1.length) {
+                    headline.innerHTML = line1.substring(0, i) + '<br>';
+                    headline.appendChild(cursor);
+                    i++;
+                    setTimeout(type, 50 + Math.random() * 30);
+                } else {
+                    i = 0; phase = 2;
+                    setTimeout(type, 300);
+                }
+            } else {
+                if (i <= line2.length) {
+                    headline.innerHTML = line1 + '<br><em>' + line2.substring(0, i) + '</em>';
+                    headline.appendChild(cursor);
+                    i++;
+                    setTimeout(type, 50 + Math.random() * 30);
+                } else {
+                    // Done — remove cursor after a pause
+                    setTimeout(() => { cursor.remove(); }, 1500);
+                }
+            }
+        }
+        // Start typing after entrance animations settle
+        setTimeout(type, 400);
+    })();
+
     function togglePasswordVisibility(inputId, iconElement) {
         const input = document.getElementById(inputId);
         if (input.type === 'password') {
