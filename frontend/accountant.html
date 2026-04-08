@@ -1514,8 +1514,8 @@
             /* Timeline */
             .acct-timeline li { padding-left: 20px; font-size: 0.75rem; }
 
-            /* Search: shrink */
-            .admin-search input { width: 100px; }
+            /* Search: full width on small screens */
+            .admin-search input { width: 100%; }
         }
 
         /* ============================================================
@@ -1526,6 +1526,64 @@
                 animation-duration: 0.01ms !important;
                 transition-duration: 0.01ms !important;
             }
+        }
+        /* Mobile tab strip for accountant */
+        .mobile-tab-strip {
+            display: none;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            white-space: nowrap;
+            padding: 10px 16px;
+            gap: 6px;
+            background: #fff;
+            border-bottom: 1px solid #f1f5f9;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .mobile-tab-strip::-webkit-scrollbar { display: none; }
+        .mobile-tab-strip button {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 16px;
+            border-radius: 999px;
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            color: #64748b;
+            font-size: 0.75rem;
+            font-weight: 600;
+            font-family: inherit;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .mobile-tab-strip button.active {
+            background: #0369a1;
+            color: #fff;
+            border-color: #0369a1;
+        }
+        @media (max-width: 768px) {
+            .mobile-tab-strip { display: flex; }
+            .admin-sidebar { display: none !important; }
+            .admin-main { padding-bottom: 20px !important; }
+        }
+
+        /* Mobile logout button */
+        .mobile-logout-btn {
+            display: none;
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            border: 1px solid rgba(239,68,68,0.2);
+            background: rgba(239,68,68,0.08);
+            color: #f87171;
+            cursor: pointer;
+            font-size: 14px;
+            align-items: center; justify-content: center;
+        }
+        @media (max-width: 768px) {
+            .mobile-logout-btn { display: flex; }
         }
     </style>
     <link rel="preload" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js" as="script">
@@ -1629,6 +1687,19 @@
         <!-- Main Content -->
         <main class="admin-main" style="display:block !important;grid-template-columns:unset !important;">
 
+            <!-- Mobile tab strip navigation -->
+            <div class="mobile-tab-strip" id="mobileTabStrip">
+                <button class="active" onclick="mobileSwitchSection('overview', this)">Overview</button>
+                <button onclick="mobileSwitchSection('pending', this)">Pending</button>
+                <button onclick="mobileSwitchSection('all-vouchers', this)">Vouchers</button>
+                <button onclick="mobileSwitchSection('tally-export', this)">Tally</button>
+                <button onclick="mobileSwitchSection('advances', this)">Advances</button>
+                <button onclick="mobileSwitchSection('payments', this)">Payments</button>
+                <button onclick="mobileSwitchSection('pipeline', this)">Pipeline</button>
+                <button onclick="mobileSwitchSection('analytics', this)">Analytics</button>
+                <button onclick="mobileSwitchSection('settings', this)">Settings</button>
+            </div>
+
             <!-- Global Top Bar (search + greeting — sits above all sections) -->
             <div class="admin-topbar">
                 <div class="admin-topbar__greeting">
@@ -1640,6 +1711,9 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                         <input type="text" placeholder="Search vouchers..." id="globalSearch" oninput="handleGlobalSearch(this.value)">
                     </div>
+                    <button class="mobile-logout-btn" onclick="logout()" title="Logout">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    </button>
                 </div>
             </div>
             <script>
@@ -3760,6 +3834,14 @@
                 console.error('Save mappings error:', e);
                 if (window.showToast) showToast('Failed to save mappings: ' + e.message, 'error');
             }
+        }
+
+        function mobileSwitchSection(section, btn) {
+            document.querySelectorAll('.mobile-tab-strip button').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const navItem = document.querySelector(`.admin-nav-item[onclick*="${section}"]`);
+            if (navItem) navItem.click();
+            btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
         }
     </script>
 </body>

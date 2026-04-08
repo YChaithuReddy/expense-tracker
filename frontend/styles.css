@@ -2823,8 +2823,11 @@ main > * {
     .quick-add-fab { display: none !important; }
 
     /* Generous mobile spacing */
-    .admin-main { padding: 16px !important; }
+    .admin-main { padding: 16px !important; padding-bottom: 80px !important; }
     .admin-section { padding: 0 !important; }
+
+    /* "Start entry" link — tap-friendly */
+    .exp-link { padding: 12px 0 !important; min-height: 44px; display: inline-flex; align-items: center; }
 
     /* Card-style sections */
     .exp-card {
