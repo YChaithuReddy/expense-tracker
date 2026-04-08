@@ -2618,6 +2618,43 @@ h3.admin-section-label {
     .image-preview-container {
         padding: 24px 12px !important;
     }
+
+    /* Advance cards — stronger contrast (mobile video review fixes) */
+    .adv-card, .adv-tbl-row {
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 12px !important;
+        padding: 14px !important;
+        margin-bottom: 8px !important;
+        background: #fff !important;
+    }
+    .adv-card__project, .adv-tbl-row .adv-tbl-cell:first-child {
+        font-weight: 700 !important;
+        color: #0f172a !important;
+        font-size: 0.85rem !important;
+    }
+    .adv-card__amount {
+        font-size: 1.1rem !important;
+        font-weight: 800 !important;
+        color: #0f172a !important;
+    }
+    .adv-card__meta, .adv-card__date {
+        color: #64748b !important;
+        font-size: 0.78rem !important;
+    }
+    .adv-card__progress {
+        color: #334155 !important;
+        font-weight: 600 !important;
+    }
+
+    /* Advance action icons — bigger touch targets */
+    .adv-card__actions button,
+    .adv-tbl-actions button,
+    .adv-tbl-btn {
+        min-width: 36px !important;
+        min-height: 36px !important;
+        padding: 6px !important;
+        border-radius: 8px !important;
+    }
 }
 
 /* ============================================================

@@ -2873,6 +2873,99 @@ main > * {
         gap: 8px !important;
         padding-bottom: 4px !important;
     }
+
+    /* === MOBILE FIXES FROM VIDEO REVIEW === */
+
+    /* 1. Header icons — hide non-essential, keep only key ones */
+    .user-header-actions .theme-toggle-btn {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 14px !important;
+        padding: 0 !important;
+    }
+
+    /* 2. Drop files zone — collapse on mobile (users use camera/gallery) */
+    .exp-dropzone {
+        display: none !important;
+    }
+
+    /* 3. Action cards text — prevent cut-off */
+    .exp-action-card__label {
+        font-size: 0.75rem !important;
+        line-height: 1.3 !important;
+    }
+    .exp-action-card__sub {
+        font-size: 0.65rem !important;
+        display: none !important;
+    }
+
+    /* 4. Advance cards — stronger contrast */
+    .adv-card, .adv-tbl-row {
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 12px !important;
+        padding: 14px !important;
+        margin-bottom: 8px !important;
+        background: #fff !important;
+    }
+    .adv-card__project, .adv-tbl-row .adv-tbl-cell:first-child {
+        font-weight: 700 !important;
+        color: #0f172a !important;
+        font-size: 0.85rem !important;
+    }
+    .adv-card__amount {
+        font-size: 1.1rem !important;
+        font-weight: 800 !important;
+        color: #0f172a !important;
+    }
+    .adv-card__meta, .adv-card__date {
+        color: #64748b !important;
+        font-size: 0.78rem !important;
+    }
+    .adv-card__progress {
+        color: #334155 !important;
+        font-weight: 600 !important;
+    }
+
+    /* 5. Advance action icons — bigger touch targets */
+    .adv-card__actions button,
+    .adv-tbl-actions button,
+    .adv-tbl-btn {
+        min-width: 36px !important;
+        min-height: 36px !important;
+        padding: 6px !important;
+        border-radius: 8px !important;
+    }
+
+    /* 6. Status pills — horizontal scroll */
+    .adv-stat-pills, .admin-stats-bar {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        flex-wrap: nowrap !important;
+        gap: 6px !important;
+        padding-bottom: 4px !important;
+    }
+    .adv-stat-pills::-webkit-scrollbar,
+    .admin-stats-bar::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    /* 7. Expense row cards — better mobile card style */
+    .expense-row {
+        border-radius: 12px !important;
+        padding: 14px 16px !important;
+        margin-bottom: 8px !important;
+        background: #fff !important;
+        border: 1px solid #f1f5f9 !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
+    }
+
+    /* 8. "Start entry" link — bigger */
+    .exp-link {
+        font-size: 0.85rem !important;
+        font-weight: 600 !important;
+        padding: 12px 0 !important;
+        min-height: 44px !important;
+    }
 }
 
 @media (max-width: 480px) {
