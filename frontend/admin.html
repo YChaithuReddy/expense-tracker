@@ -756,6 +756,30 @@
             .admin-csv-zone { padding: 20px 12px; }
             .admin-csv-template__code { font-size: 0.65rem; }
         }
+
+        /* ---- btn-flux sidebar overrides ---- */
+        .admin-sidebar__links .btn-flux {
+            --btn-h: 14px;
+            height: 32px;
+            min-width: unset;
+            padding: 5px 14px;
+            font-size: 0.72rem;
+            border-radius: var(--radius-sm);
+        }
+        .admin-sidebar__links .btn-flux--outline {
+            background: rgba(255,255,255,0.07);
+            color: rgba(209, 213, 219, 0.8);
+            border-color: rgba(255,255,255,0.12);
+        }
+        .admin-sidebar__links .btn-flux--outline::before {
+            background: rgba(255,255,255,0.12);
+        }
+        .admin-sidebar__links .btn-flux--outline:hover {
+            color: #fff;
+            border-color: transparent;
+            box-shadow: none;
+            transform: none;
+        }
     </style>
     <link rel="preload" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js" as="script">
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js"></script>
@@ -824,7 +848,18 @@
                     </div>
                 </div>
                 <div class="admin-sidebar__links">
-                    <button class="admin-sidebar__link" onclick="window.location.href='index.html'">App</button>
+                    <button class="btn-flux btn-flux--outline btn-flux--sm admin-sidebar__link" onclick="window.location.href='index.html'">
+                        <span class="btn-flux__text">
+                            <span class="btn-flux__text-inner">
+                                <span>App</span>
+                                <span>App</span>
+                            </span>
+                        </span>
+                        <span class="btn-flux__arrow">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        </span>
+                    </button>
                     <button class="admin-sidebar__link admin-sidebar__link--danger" onclick="logout()">Logout</button>
                 </div>
             </div>
@@ -881,9 +916,42 @@
                 </div>
                 <h3 class="admin-section-label">Quick Actions</h3>
                 <div class="admin-quick-actions">
-                    <button class="admin-btn admin-btn--primary" onclick="switchSection('import', document.querySelector('[data-section=import]'))">Import Employees</button>
-                    <button class="admin-btn admin-btn--primary" onclick="switchSection('projects', document.querySelector('[data-section=projects]'))">Manage Projects</button>
-                    <button class="admin-btn admin-btn--secondary" onclick="switchSection('vouchers', document.querySelector('[data-section=vouchers]'))">View All Vouchers</button>
+                    <button class="btn-flux btn-flux--sm admin-btn admin-btn--primary" onclick="switchSection('import', document.querySelector('[data-section=import]'))">
+                        <span class="btn-flux__text">
+                            <span class="btn-flux__text-inner">
+                                <span>Import Employees</span>
+                                <span>Import Employees</span>
+                            </span>
+                        </span>
+                        <span class="btn-flux__arrow">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        </span>
+                    </button>
+                    <button class="btn-flux btn-flux--sm admin-btn admin-btn--primary" onclick="switchSection('projects', document.querySelector('[data-section=projects]'))">
+                        <span class="btn-flux__text">
+                            <span class="btn-flux__text-inner">
+                                <span>Manage Projects</span>
+                                <span>Manage Projects</span>
+                            </span>
+                        </span>
+                        <span class="btn-flux__arrow">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        </span>
+                    </button>
+                    <button class="btn-flux btn-flux--outline btn-flux--sm admin-btn admin-btn--secondary" onclick="switchSection('vouchers', document.querySelector('[data-section=vouchers]'))">
+                        <span class="btn-flux__text">
+                            <span class="btn-flux__text-inner">
+                                <span>View All Vouchers</span>
+                                <span>View All Vouchers</span>
+                            </span>
+                        </span>
+                        <span class="btn-flux__arrow">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        </span>
+                    </button>
                 </div>
             </div>
 
@@ -906,7 +974,18 @@
                         <div class="admin-breadcrumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>Workspace</div>
                         <h2>Projects</h2><p>Manage project database with codes</p>
                     </div>
-                    <button class="admin-btn admin-btn--primary" onclick="openCreateProject()">+ New Project</button>
+                    <button class="btn-flux btn-flux--sm admin-btn admin-btn--primary" onclick="openCreateProject()">
+                        <span class="btn-flux__text">
+                            <span class="btn-flux__text-inner">
+                                <span>+ New Project</span>
+                                <span>+ New Project</span>
+                            </span>
+                        </span>
+                        <span class="btn-flux__arrow">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        </span>
+                    </button>
                 </div>
                 <!-- Search Bar -->
                 <div style="margin-bottom:16px;position:relative;">
@@ -979,7 +1058,18 @@
                     <input type="date" id="analyticsDateFrom" style="padding:7px 12px;border:1px solid var(--gray-200);border-radius:var(--radius-md);font-size:0.84rem;background:var(--white);color:var(--gray-900);outline:none;" onchange="loadAnalytics()">
                     <label style="font-size:0.8rem;font-weight:600;color:var(--gray-500);">To</label>
                     <input type="date" id="analyticsDateTo" style="padding:7px 12px;border:1px solid var(--gray-200);border-radius:var(--radius-md);font-size:0.84rem;background:var(--white);color:var(--gray-900);outline:none;" onchange="loadAnalytics()">
-                    <button class="admin-btn admin-btn--secondary" onclick="document.getElementById('analyticsDateFrom').value='';document.getElementById('analyticsDateTo').value='';loadAnalytics();" style="font-size:0.78rem;padding:7px 14px;">Clear</button>
+                    <button class="btn-flux btn-flux--outline btn-flux--sm admin-btn admin-btn--secondary" onclick="document.getElementById('analyticsDateFrom').value='';document.getElementById('analyticsDateTo').value='';loadAnalytics();" style="font-size:0.78rem;padding:7px 14px;">
+                        <span class="btn-flux__text">
+                            <span class="btn-flux__text-inner">
+                                <span>Clear</span>
+                                <span>Clear</span>
+                            </span>
+                        </span>
+                        <span class="btn-flux__arrow">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        </span>
+                    </button>
                 </div>
 
                 <!-- Analytics Grid -->
@@ -1103,7 +1193,18 @@ WDL1,WONDERLA,Amusement Park,Amusement Park</code>
                         <label>Email Domain</label>
                         <input type="text" id="settOrgDomain" placeholder="e.g., fluxgentech.com">
                     </div>
-                    <button class="admin-btn admin-btn--primary" onclick="saveSettings()" style="margin-top:12px;">Save Settings</button>
+                    <button class="btn-flux btn-flux--sm admin-btn admin-btn--primary" onclick="saveSettings()" style="margin-top:12px;">
+                        <span class="btn-flux__text">
+                            <span class="btn-flux__text-inner">
+                                <span>Save Settings</span>
+                                <span>Save Settings</span>
+                            </span>
+                        </span>
+                        <span class="btn-flux__arrow">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        </span>
+                    </button>
                 </div>
             </div>
 
@@ -1412,8 +1513,30 @@ WDL1,WONDERLA,Amusement Park,Amusement Park</code>
                     <div class="admin-table-wrap"><table class="admin-table admin-table--compact"><thead><tr><th>Code</th><th>Name</th><th>Client</th><th>Sector</th></tr></thead><tbody>${rows}</tbody></table></div>
                     ${data.length > 15 ? `<p style="color:var(--gray-500);font-size:0.8rem;text-align:center;margin:8px 0;">...and ${data.length - 15} more</p>` : ''}
                     <div class="admin-csv-preview__actions">
-                        <button class="admin-btn admin-btn--secondary" onclick="document.getElementById('projectCsvPreview').style.display='none'">Cancel</button>
-                        <button class="admin-btn admin-btn--primary" onclick="doProjectImport()">Import ${data.length} Projects</button>
+                        <button class="btn-flux btn-flux--outline btn-flux--sm admin-btn admin-btn--secondary" onclick="document.getElementById('projectCsvPreview').style.display='none'">
+                            <span class="btn-flux__text">
+                                <span class="btn-flux__text-inner">
+                                    <span>Cancel</span>
+                                    <span>Cancel</span>
+                                </span>
+                            </span>
+                            <span class="btn-flux__arrow">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            </span>
+                        </button>
+                        <button class="btn-flux btn-flux--sm admin-btn admin-btn--primary" onclick="doProjectImport()">
+                            <span class="btn-flux__text">
+                                <span class="btn-flux__text-inner">
+                                    <span>Import ${data.length} Projects</span>
+                                    <span>Import ${data.length} Projects</span>
+                                </span>
+                            </span>
+                            <span class="btn-flux__arrow">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            </span>
+                        </button>
                     </div>
                 </div>`;
         }
@@ -1516,8 +1639,30 @@ WDL1,WONDERLA,Amusement Park,Amusement Park</code>
                     <div class="admin-csv-preview__header"><h4>Preview (${data.length} employees)</h4></div>
                     <div class="admin-table-wrap"><table class="admin-table admin-table--compact"><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Dept</th><th>Role</th></tr></thead><tbody>${rows}</tbody></table></div>
                     <div class="admin-csv-preview__actions">
-                        <button class="admin-btn admin-btn--secondary" onclick="document.getElementById('csvPreview').style.display='none'">Cancel</button>
-                        <button class="admin-btn admin-btn--primary" onclick="doImport()">Import ${data.length} Employees</button>
+                        <button class="btn-flux btn-flux--outline btn-flux--sm admin-btn admin-btn--secondary" onclick="document.getElementById('csvPreview').style.display='none'">
+                            <span class="btn-flux__text">
+                                <span class="btn-flux__text-inner">
+                                    <span>Cancel</span>
+                                    <span>Cancel</span>
+                                </span>
+                            </span>
+                            <span class="btn-flux__arrow">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            </span>
+                        </button>
+                        <button class="btn-flux btn-flux--sm admin-btn admin-btn--primary" onclick="doImport()">
+                            <span class="btn-flux__text">
+                                <span class="btn-flux__text-inner">
+                                    <span>Import ${data.length} Employees</span>
+                                    <span>Import ${data.length} Employees</span>
+                                </span>
+                            </span>
+                            <span class="btn-flux__arrow">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            </span>
+                        </button>
                     </div>
                 </div>`;
         }
