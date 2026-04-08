@@ -124,20 +124,24 @@
 .btn-flux__arrow {
     position: relative;
     z-index: 1;
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     overflow: hidden;
     flex-shrink: 0;
+    display: inline-block;
 }
 .btn-flux__arrow svg {
     position: absolute;
     top: 50%;
-    width: 18px;
-    height: 18px;
+    width: 16px !important;
+    height: 16px !important;
+    max-width: 16px;
+    max-height: 16px;
+    flex-shrink: 0;
     transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .btn-flux__arrow svg:first-child {
-    transform: translate(-24px, -50%);
+    transform: translate(-22px, -50%);
 }
 .btn-flux__arrow svg:last-child {
     transform: translate(0, -50%);
@@ -146,7 +150,7 @@
     transform: translate(0, -50%);
 }
 .btn-flux:hover .btn-flux__arrow svg:last-child {
-    transform: translate(24px, -50%);
+    transform: translate(22px, -50%);
 }
 
 /* Outline variant */
