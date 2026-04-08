@@ -378,7 +378,7 @@
 
         /* ─── Mobile ─── */
         @media (max-width: 767px) {
-            .signup-shell { grid-template-columns: 1fr; height: 100vh; }
+            .signup-shell { grid-template-columns: 1fr; min-height: 100vh; height: auto; overflow-y: auto; }
             .signup-panel-left { display: none; }
             .signup-panel-right { align-items: flex-start; padding: 24px 20px; }
             .mobile-brand { display: block; }
