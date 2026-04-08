@@ -2631,6 +2631,16 @@
                     });
                     if (target === 'adminProjectSection') projectDropdown.renderProjectManagement('adminProjectList');
                 });
+
+                // Mobile bottom nav section switching
+                function mobileNavSwitch(section, btn) {
+                    // Update active state
+                    document.querySelectorAll('.mobile-bottom-nav__item').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    // Use existing switchSection function
+                    const navItem = document.querySelector(`.admin-nav-item[onclick*="${section}"]`);
+                    if (navItem) navItem.click();
+                }
             </script>
 
             <div id="adminEmployeeSection">
@@ -2958,5 +2968,30 @@
     <button id="quickAddFAB" class="quick-add-fab" onclick="expenseTracker.openQuickAdd()" aria-label="Quick Add Expense" title="Quick Add (or shake phone)">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     </button>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-bottom-nav" id="mobileBottomNav">
+        <div class="mobile-bottom-nav__inner">
+            <button class="mobile-bottom-nav__item active" data-section="expenses" onclick="mobileNavSwitch('expenses', this)">
+                <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                Home
+            </button>
+            <button class="mobile-bottom-nav__item" data-section="advance" onclick="mobileNavSwitch('advance', this)">
+                <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+                Advance
+            </button>
+            <button class="mobile-bottom-nav__item mobile-bottom-nav__scan" onclick="document.getElementById('cameraBtn')?.click()">
+                <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            </button>
+            <button class="mobile-bottom-nav__item" data-section="history" onclick="mobileNavSwitch('history', this)">
+                <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                History
+            </button>
+            <button class="mobile-bottom-nav__item" onclick="openProfileModal()">
+                <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                Profile
+            </button>
+        </div>
+    </nav>
 
 </body>

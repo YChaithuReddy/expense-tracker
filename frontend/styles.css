@@ -2715,6 +2715,92 @@ main > * {
     .expense-form-section p {
         margin-bottom: 15px;
     }
+
+    /* ================================================
+       MOBILE REDESIGN — Clean expense tracker mobile UX
+       ================================================ */
+
+    /* Mobile greeting header */
+    .app-header-bar {
+        padding: 16px 20px !important;
+        background: #fff !important;
+        border-bottom: 1px solid #f1f5f9 !important;
+    }
+    .app-header-bar h1 {
+        font-size: 1.3rem !important;
+        font-weight: 700 !important;
+    }
+    .app-header-bar .greeting-sub {
+        font-size: 0.78rem !important;
+        color: #94a3b8 !important;
+    }
+
+    /* Mobile expense cards — replace table rows with clean cards */
+    .expense-row, .adv-tbl-row {
+        background: #fff !important;
+        border: 1px solid #f1f5f9 !important;
+        border-radius: 14px !important;
+        padding: 16px !important;
+        margin-bottom: 10px !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
+    }
+
+    /* Show bottom navigation on mobile */
+    .mobile-bottom-nav { display: block; }
+    body { padding-bottom: 64px; }
+    /* Hide desktop sidebar on mobile for main app */
+    .admin-sidebar { display: none !important; }
+    /* Hide desktop FAB when bottom nav is visible */
+    .quick-add-fab { display: none !important; }
+
+    /* Generous mobile spacing */
+    .admin-main { padding: 16px !important; }
+    .admin-section { padding: 0 !important; }
+
+    /* Card-style sections */
+    .exp-card {
+        border-radius: 16px !important;
+        padding: 20px !important;
+        margin-bottom: 12px !important;
+    }
+
+    /* Action cards grid — 2 columns, more spacing */
+    .exp-actions-row {
+        gap: 10px !important;
+    }
+    .exp-action-card {
+        border-radius: 14px !important;
+        padding: 16px 12px !important;
+        min-height: 80px !important;
+    }
+
+    /* btn-flux on mobile — full width, proper height */
+    .btn-flux {
+        height: 48px !important;
+        border-radius: 12px !important;
+        font-size: 0.84rem !important;
+    }
+    .btn-flux--sm {
+        height: 40px !important;
+    }
+    .btn-flux--lg {
+        height: 52px !important;
+        font-size: 0.9rem !important;
+    }
+
+    /* Compact search bar */
+    .adv-tbl-search {
+        border-radius: 12px !important;
+        padding: 10px 14px !important;
+    }
+    /* Filter buttons scroll horizontally */
+    .adv-tbl-filters {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        flex-wrap: nowrap !important;
+        gap: 8px !important;
+        padding-bottom: 4px !important;
+    }
 }
 
 @media (max-width: 480px) {
@@ -13927,4 +14013,83 @@ a svg {
 }
 .progress-fill {
     background: #111827 !important;
+}
+
+/* ================================================
+   BOTTOM NAVIGATION BAR — mobile only
+   Base styles (always available, hidden by default)
+   Shown via display:block in @media (max-width: 768px)
+   ================================================ */
+.mobile-bottom-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background: #fff;
+    border-top: 1px solid #f1f5f9;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+    z-index: 9999;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+}
+.mobile-bottom-nav__inner {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+}
+.mobile-bottom-nav__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 6px 12px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: #94a3b8;
+    font-size: 0.65rem;
+    font-weight: 500;
+    font-family: inherit;
+    transition: color 0.2s;
+    -webkit-tap-highlight-color: transparent;
+}
+.mobile-bottom-nav__item.active {
+    color: #0369a1;
+}
+.mobile-bottom-nav__item svg {
+    width: 22px;
+    height: 22px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.8;
+}
+.mobile-bottom-nav__item.active svg {
+    stroke-width: 2.2;
+}
+/* Center scan button — special styling */
+.mobile-bottom-nav__scan {
+    position: relative;
+    top: -18px;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: #0369a1;
+    color: #fff !important;
+    box-shadow: 0 4px 14px rgba(3, 105, 161, 0.35);
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    font-size: 0;
+}
+.mobile-bottom-nav__scan svg {
+    width: 24px;
+    height: 24px;
+    stroke: #fff;
+    stroke-width: 2;
 }
