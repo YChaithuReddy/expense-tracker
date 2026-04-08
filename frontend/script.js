@@ -7458,135 +7458,59 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
     // ===== Reports & Analytics =====
 
     renderReports() {
-        const period = document.getElementById('reportPeriod')?.value || 'this-month';
-        const now = new Date();
+        const fromVal = document.getElementById('rptDateFrom')?.value;
+        const toVal = document.getElementById('rptDateTo')?.value;
         let filtered = [...this.expenses];
 
-        // Filter by period
-        if (period === 'this-month') {
-            filtered = filtered.filter(e => { const d = new Date(e.date); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear(); });
-        } else if (period === 'last-month') {
-            const lm = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-            filtered = filtered.filter(e => { const d = new Date(e.date); return d.getMonth() === lm.getMonth() && d.getFullYear() === lm.getFullYear(); });
-        } else if (period === 'last-3') {
-            const cutoff = new Date(now.getFullYear(), now.getMonth() - 3, 1);
-            filtered = filtered.filter(e => new Date(e.date) >= cutoff);
-        } else if (period === 'last-6') {
-            const cutoff = new Date(now.getFullYear(), now.getMonth() - 6, 1);
-            filtered = filtered.filter(e => new Date(e.date) >= cutoff);
-        } else if (period === 'this-year') {
-            filtered = filtered.filter(e => new Date(e.date).getFullYear() === now.getFullYear());
-        }
+        // Filter by date range
+        if (fromVal) filtered = filtered.filter(e => e.date >= fromVal);
+        if (toVal) filtered = filtered.filter(e => e.date <= toVal);
 
         const total = filtered.reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
-        const count = filtered.length;
-        const avg = count > 0 ? total / count : 0;
 
-        // Summary cards
-        document.getElementById('rptTotalAmount').textContent = '₹' + total.toLocaleString('en-IN', { maximumFractionDigits: 0 });
-        document.getElementById('rptTotalCount').textContent = count;
-        document.getElementById('rptAvgExpense').textContent = '₹' + Math.round(avg).toLocaleString('en-IN');
-
-        // Category breakdown
+        // Category breakdown (table)
         const catMap = {};
-        filtered.forEach(e => { const c = e.category || 'Other'; catMap[c] = (catMap[c] || 0) + (parseFloat(e.amount) || 0); });
-        const catSorted = Object.entries(catMap).sort((a, b) => b[1] - a[1]);
-        document.getElementById('rptTopCategory').textContent = catSorted[0]?.[0] || '-';
-
-        // Category chart (horizontal bars)
-        const catColors = ['#0ea5e9', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899', '#6366f1'];
-        const catMax = catSorted[0]?.[1] || 1;
+        filtered.forEach(e => { const c = e.category || 'Other'; catMap[c] = { amount: (catMap[c]?.amount || 0) + (parseFloat(e.amount) || 0), count: (catMap[c]?.count || 0) + 1 }; });
+        const catSorted = Object.entries(catMap).sort((a, b) => b[1].amount - a[1].amount);
         document.getElementById('rptCategoryChart').innerHTML = catSorted.length === 0
-            ? '<p style="color:#9ca3af;font-size:0.85rem;">No data</p>'
-            : catSorted.slice(0, 8).map(([ cat, amt], i) => `
-                <div style="margin-bottom:10px;">
-                    <div style="display:flex;justify-content:space-between;font-size:0.78rem;margin-bottom:4px;">
-                        <span style="color:#374151;font-weight:500;">${this.sanitizeHTML(cat)}</span>
-                        <span style="color:#6b7280;font-weight:600;">₹${Math.round(amt).toLocaleString('en-IN')}</span>
-                    </div>
-                    <div style="height:8px;background:#f3f4f6;border-radius:4px;overflow:hidden;">
-                        <div style="height:100%;width:${(amt/catMax*100).toFixed(1)}%;background:${catColors[i % catColors.length]};border-radius:4px;transition:width 0.5s;"></div>
-                    </div>
-                </div>
-            `).join('');
+            ? '<div class="admin-empty" style="padding:32px;"><p>No expenses yet.</p></div>'
+            : `<table class="admin-table"><thead><tr><th>Category</th><th>Amount</th><th>Count</th><th>% of Total</th></tr></thead><tbody>${catSorted.map(([cat, d]) => `<tr><td style="font-size:0.82rem;font-weight:500;">${this.sanitizeHTML(cat)}</td><td style="font-size:0.82rem;font-weight:600;">₹${Math.round(d.amount).toLocaleString('en-IN')}</td><td style="font-size:0.82rem;">${d.count}</td><td style="font-size:0.82rem;">${(d.amount / total * 100).toFixed(1)}%</td></tr>`).join('')}</tbody></table>`;
 
-        // Monthly trend (bar chart)
+        // Top vendors (table)
+        const vendorMap = {};
+        filtered.forEach(e => { const v = e.vendor || 'N/A'; vendorMap[v] = { amount: (vendorMap[v]?.amount || 0) + (parseFloat(e.amount) || 0), count: (vendorMap[v]?.count || 0) + 1 }; });
+        const vendorSorted = Object.entries(vendorMap).sort((a, b) => b[1].amount - a[1].amount).slice(0, 8);
+        document.getElementById('rptVendorList').innerHTML = vendorSorted.length === 0
+            ? '<div class="admin-empty" style="padding:32px;"><p>No vendors yet.</p></div>'
+            : `<table class="admin-table"><thead><tr><th>Vendor</th><th>Amount</th><th>Count</th></tr></thead><tbody>${vendorSorted.map(([v, d]) => `<tr><td style="font-size:0.82rem;font-weight:500;">${this.sanitizeHTML(v)}</td><td style="font-size:0.82rem;font-weight:600;">₹${Math.round(d.amount).toLocaleString('en-IN')}</td><td style="font-size:0.82rem;">${d.count}</td></tr>`).join('')}</tbody></table>`;
+
+        // Monthly trend (table with bar)
         const monthMap = {};
-        this.expenses.forEach(e => {
+        filtered.forEach(e => {
             const d = new Date(e.date);
             const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
-            monthMap[key] = (monthMap[key] || 0) + (parseFloat(e.amount) || 0);
+            monthMap[key] = { amount: (monthMap[key]?.amount || 0) + (parseFloat(e.amount) || 0), count: (monthMap[key]?.count || 0) + 1 };
         });
         const monthKeys = Object.keys(monthMap).sort().slice(-12);
-        const monthMax = Math.max(...monthKeys.map(k => monthMap[k]), 1);
+        const monthMax = Math.max(...monthKeys.map(k => monthMap[k].amount), 1);
         const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
         document.getElementById('rptMonthlyChart').innerHTML = monthKeys.length === 0
-            ? '<p style="color:#9ca3af;font-size:0.85rem;">No data</p>'
-            : monthKeys.map(k => {
+            ? '<div class="admin-empty" style="padding:32px;"><p>No data yet.</p></div>'
+            : `<table class="admin-table"><thead><tr><th>Month</th><th>Amount</th><th>Count</th><th></th></tr></thead><tbody>${monthKeys.map(k => {
                 const [y, m] = k.split('-');
-                const pct = (monthMap[k] / monthMax * 100).toFixed(1);
-                const label = monthNames[parseInt(m) - 1] + ' ' + y.slice(2);
-                const isCurrentMonth = parseInt(m) === now.getMonth() + 1 && parseInt(y) === now.getFullYear();
-                return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;min-width:0;">
-                    <div style="font-size:0.6rem;color:#6b7280;margin-bottom:4px;white-space:nowrap;">₹${(monthMap[k]/1000).toFixed(1)}k</div>
-                    <div style="width:100%;max-width:36px;height:${pct}%;min-height:4px;background:${isCurrentMonth ? '#0ea5e9' : '#e0e7ff'};border-radius:4px 4px 0 0;transition:height 0.5s;"></div>
-                    <div style="font-size:0.58rem;color:#9ca3af;margin-top:4px;white-space:nowrap;">${label}</div>
-                </div>`;
-            }).join('');
+                const label = monthNames[parseInt(m) - 1] + ' ' + y;
+                const pct = (monthMap[k].amount / monthMax * 100).toFixed(1);
+                return `<tr><td style="font-size:0.82rem;font-weight:500;">${label}</td><td style="font-size:0.82rem;font-weight:600;">₹${Math.round(monthMap[k].amount).toLocaleString('en-IN')}</td><td style="font-size:0.82rem;">${monthMap[k].count}</td><td style="width:120px;"><div style="height:10px;background:#e0e7ff;border-radius:4px;overflow:hidden;"><div style="height:100%;width:${pct}%;background:#6366f1;border-radius:4px;"></div></div></td></tr>`;
+            }).join('')}</tbody></table>`;
 
-        // Top vendors
-        const vendorMap = {};
-        filtered.forEach(e => { const v = e.vendor || 'N/A'; vendorMap[v] = (vendorMap[v] || 0) + (parseFloat(e.amount) || 0); });
-        const vendorSorted = Object.entries(vendorMap).sort((a, b) => b[1] - a[1]).slice(0, 6);
-        document.getElementById('rptVendorList').innerHTML = vendorSorted.length === 0
-            ? '<p style="color:#9ca3af;font-size:0.85rem;">No data</p>'
-            : vendorSorted.map(([v, amt], i) => `
-                <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;${i < vendorSorted.length - 1 ? 'border-bottom:1px solid #f3f4f6;' : ''}">
-                    <div style="display:flex;align-items:center;gap:10px;">
-                        <span style="width:24px;height:24px;border-radius:6px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;color:#6b7280;">${i + 1}</span>
-                        <span style="font-size:0.84rem;font-weight:500;color:#111827;">${this.sanitizeHTML(v)}</span>
-                    </div>
-                    <span style="font-size:0.84rem;font-weight:600;color:#374151;">₹${Math.round(amt).toLocaleString('en-IN')}</span>
-                </div>
-            `).join('');
-
-        // Payment mode breakdown
+        // Payment mode (table)
         const payMap = {};
-        filtered.forEach(e => { const p = e.paymentMode === 'bank_transfer' ? 'Bank' : e.paymentMode === 'upi' ? 'UPI' : 'Cash'; payMap[p] = (payMap[p] || 0) + (parseFloat(e.amount) || 0); });
-        const paySorted = Object.entries(payMap).sort((a, b) => b[1] - a[1]);
-        const payColors = { Cash: '#10b981', Bank: '#0ea5e9', UPI: '#8b5cf6' };
-        const payTotal = paySorted.reduce((s, [, a]) => s + a, 0) || 1;
+        filtered.forEach(e => { const p = e.paymentMode === 'bank_transfer' ? 'Bank' : e.paymentMode === 'upi' ? 'UPI' : 'Cash'; payMap[p] = { amount: (payMap[p]?.amount || 0) + (parseFloat(e.amount) || 0), count: (payMap[p]?.count || 0) + 1 }; });
+        const paySorted = Object.entries(payMap).sort((a, b) => b[1].amount - a[1].amount);
+        const payTotal = paySorted.reduce((s, [, d]) => s + d.amount, 0) || 1;
         document.getElementById('rptPaymentChart').innerHTML = paySorted.length === 0
-            ? '<p style="color:#9ca3af;font-size:0.85rem;">No data</p>'
-            : `<div style="display:flex;height:12px;border-radius:6px;overflow:hidden;margin-bottom:14px;">${paySorted.map(([p, a]) => `<div style="width:${(a/payTotal*100).toFixed(1)}%;background:${payColors[p] || '#9ca3af'};transition:width 0.5s;" title="${p}: ₹${Math.round(a).toLocaleString('en-IN')}"></div>`).join('')}</div>
-                ${paySorted.map(([p, a]) => `
-                    <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;">
-                        <div style="display:flex;align-items:center;gap:8px;">
-                            <span style="width:10px;height:10px;border-radius:3px;background:${payColors[p] || '#9ca3af'};"></span>
-                            <span style="font-size:0.82rem;color:#374151;">${p}</span>
-                        </div>
-                        <div style="text-align:right;">
-                            <span style="font-size:0.82rem;font-weight:600;color:#111827;">₹${Math.round(a).toLocaleString('en-IN')}</span>
-                            <span style="font-size:0.7rem;color:#9ca3af;margin-left:6px;">${(a/payTotal*100).toFixed(0)}%</span>
-                        </div>
-                    </div>
-                `).join('')}`;
-
-        // Daily spending (current month)
-        const dailyMap = {};
-        const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-        for (let d = 1; d <= daysInMonth; d++) dailyMap[d] = 0;
-        const thisMonthExpenses = this.expenses.filter(e => { const d = new Date(e.date); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear(); });
-        thisMonthExpenses.forEach(e => { const d = new Date(e.date).getDate(); dailyMap[d] += parseFloat(e.amount) || 0; });
-        const dailyMax = Math.max(...Object.values(dailyMap), 1);
-        document.getElementById('rptDailyChart').innerHTML = Object.entries(dailyMap).map(([day, amt]) => {
-            const isToday = parseInt(day) === now.getDate();
-            const pct = (amt / dailyMax * 100).toFixed(1);
-            return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;min-width:0;" title="Day ${day}: ₹${Math.round(amt).toLocaleString('en-IN')}">
-                <div style="width:100%;max-width:14px;height:${amt > 0 ? pct + '%' : '2px'};min-height:2px;background:${isToday ? '#0ea5e9' : amt > 0 ? '#c7d2fe' : '#f3f4f6'};border-radius:2px 2px 0 0;transition:height 0.3s;"></div>
-                ${parseInt(day) % 5 === 0 || isToday ? `<div style="font-size:0.5rem;color:${isToday ? '#0ea5e9' : '#9ca3af'};margin-top:2px;">${day}</div>` : ''}
-            </div>`;
-        }).join('');
+            ? '<div class="admin-empty" style="padding:32px;"><p>No data yet.</p></div>'
+            : `<table class="admin-table"><thead><tr><th>Method</th><th>Amount</th><th>Count</th><th>% of Total</th></tr></thead><tbody>${paySorted.map(([p, d]) => `<tr><td style="font-size:0.82rem;font-weight:500;">${p}</td><td style="font-size:0.82rem;font-weight:600;">₹${Math.round(d.amount).toLocaleString('en-IN')}</td><td style="font-size:0.82rem;">${d.count}</td><td style="font-size:0.82rem;">${(d.amount / payTotal * 100).toFixed(1)}%</td></tr>`).join('')}</tbody></table>`;
     }
 
     // ===== Kodo Reimbursement Integration =====
