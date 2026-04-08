@@ -355,6 +355,25 @@
             color: #fca5a5;
         }
 
+        /* btn-flux overrides for sidebar context */
+        .admin-sidebar__links .btn-flux {
+            --btn-h: 14px;
+            height: 32px;
+            min-width: unset;
+            padding: 5px 14px;
+            font-size: 0.72rem;
+            border-radius: var(--radius-sm);
+        }
+        .admin-sidebar__links .btn-flux--outline {
+            background: rgba(255,255,255,0.07);
+            color: rgba(209, 213, 219, 0.8);
+            border-color: rgba(255,255,255,0.12);
+        }
+        .admin-sidebar__links .btn-flux--outline:hover {
+            color: #fff;
+            border-color: transparent;
+        }
+
         /* ============================================================
            MAIN CONTENT
            ============================================================ */
@@ -1539,7 +1558,18 @@
                     </div>
                 </div>
                 <div class="admin-sidebar__links">
-                    <button class="admin-sidebar__link" onclick="window.location.href='index.html'">App</button>
+                    <button class="btn-flux btn-flux--outline btn-flux--sm" onclick="window.location.href='index.html'" style="flex:1;">
+                        <span class="btn-flux__text">
+                            <span class="btn-flux__text-inner">
+                                <span>App</span>
+                                <span>Go to App</span>
+                            </span>
+                        </span>
+                        <span class="btn-flux__arrow">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        </span>
+                    </button>
                     <button class="admin-sidebar__link admin-sidebar__link--danger" onclick="logout()">Logout</button>
                 </div>
             </div>
@@ -1591,7 +1621,18 @@
                 </div>
                 <h3 class="admin-section-label">Quick Actions</h3>
                 <div class="admin-quick-actions">
-                    <button class="admin-btn admin-btn--primary" onclick="switchSection('pending', document.querySelector('[data-section=pending]'))">Review Pending</button>
+                    <button class="btn-flux btn-flux--sm" onclick="switchSection('pending', document.querySelector('[data-section=pending]'))">
+                        <span class="btn-flux__text">
+                            <span class="btn-flux__text-inner">
+                                <span>Review Pending</span>
+                                <span>Review Now</span>
+                            </span>
+                        </span>
+                        <span class="btn-flux__arrow">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        </span>
+                    </button>
                     <button class="admin-btn admin-btn--secondary" onclick="switchSection('all-vouchers', document.querySelector('[data-section=all-vouchers]'))">All Vouchers</button>
                     <button class="admin-btn admin-btn--secondary" onclick="switchSection('tally-export', document.querySelector('[data-section=tally-export]'))">Export to Tally</button>
                 </div>
