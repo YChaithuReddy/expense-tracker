@@ -300,6 +300,34 @@
     border-radius: 999px !important;
 }
 
+.btn-flux.email-modal__btn--send {
+    background: #0369a1 !important;
+    border-radius: 999px !important;
+    box-shadow: none !important;
+}
+.btn-flux.email-modal__btn--send::before {
+    background: linear-gradient(135deg, #075985 0%, #0c4a6e 100%) !important;
+    left: 0 !important;
+    width: 100% !important;
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+.btn-flux.email-modal__btn--send:hover:not(:disabled)::before {
+    transform: scaleX(1) !important;
+    left: 0 !important;
+}
+
+.btn-flux.pdfs-modal__btn--primary,
+.btn-flux.pdfs-modal__btn--email {
+    background: #0369a1 !important;
+    border-radius: 999px !important;
+}
+
+.btn-flux.kodo-btn-primary {
+    border-radius: 999px !important;
+}
+
 /* Light theme body and element overrides */
 body {
     background: #f3f4f6;
