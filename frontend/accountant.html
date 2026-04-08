@@ -1182,15 +1182,44 @@
         }
         .mark-paid-modal .mp-btn-cancel:hover { background: var(--gray-50); }
         .mark-paid-modal .mp-btn-confirm {
-            background: #059669;
+            background: #0369a1;
             border: none;
             color: #fff;
-            box-shadow: 0 2px 8px rgba(5,150,105,0.25);
+            box-shadow: 0 2px 8px rgba(3,105,161,0.25);
         }
-        .mark-paid-modal .mp-btn-confirm:hover { background: #047857; }
+        .mark-paid-modal .mp-btn-confirm:hover { background: #075985; }
         .mark-paid-modal .mp-btn-confirm:disabled {
             opacity: 0.6;
             cursor: not-allowed;
+        }
+
+        /* btn-flux overrides for mark-paid modal */
+        .mark-paid-modal .btn-flux.mp-btn-confirm {
+            background: #0369a1 !important;
+            border-radius: 999px !important;
+        }
+        .mark-paid-modal .btn-flux.mp-btn-cancel {
+            background: #fff !important;
+            border: 1.5px solid #e2e8f0 !important;
+            border-radius: 999px !important;
+            color: #1e293b !important;
+        }
+        .mark-paid-modal .btn-flux.mp-btn-cancel:hover {
+            border-color: transparent !important;
+        }
+
+        /* Logout btn-flux: keep danger red color */
+        .admin-sidebar__links .btn-flux.admin-sidebar__link--danger {
+            background: rgba(239,68,68,0.12) !important;
+            color: #fca5a5 !important;
+            border-color: rgba(239,68,68,0.2) !important;
+        }
+        .admin-sidebar__links .btn-flux.admin-sidebar__link--danger::before {
+            background: rgba(239,68,68,0.25) !important;
+        }
+        .admin-sidebar__links .btn-flux.admin-sidebar__link--danger:hover {
+            color: #fff !important;
+            border-color: transparent !important;
         }
 
         /* ============================================================
@@ -1581,7 +1610,18 @@
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                         </span>
                     </button>
-                    <button class="admin-sidebar__link admin-sidebar__link--danger" onclick="logout()">Logout</button>
+                    <button class="btn-flux btn-flux--outline btn-flux--sm admin-sidebar__link admin-sidebar__link--danger" onclick="logout()">
+                        <span class="btn-flux__text">
+                            <span class="btn-flux__text-inner">
+                                <span>Logout</span>
+                                <span>Logout</span>
+                            </span>
+                        </span>
+                        <span class="btn-flux__arrow">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        </span>
+                    </button>
                 </div>
             </div>
         </aside>
@@ -1644,8 +1684,30 @@
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                         </span>
                     </button>
-                    <button class="admin-btn admin-btn--secondary" onclick="switchSection('all-vouchers', document.querySelector('[data-section=all-vouchers]'))">All Vouchers</button>
-                    <button class="admin-btn admin-btn--secondary" onclick="switchSection('tally-export', document.querySelector('[data-section=tally-export]'))">Export to Tally</button>
+                    <button class="btn-flux btn-flux--outline btn-flux--sm admin-btn admin-btn--secondary" onclick="switchSection('all-vouchers', document.querySelector('[data-section=all-vouchers]'))">
+                        <span class="btn-flux__text">
+                            <span class="btn-flux__text-inner">
+                                <span>All Vouchers</span>
+                                <span>All Vouchers</span>
+                            </span>
+                        </span>
+                        <span class="btn-flux__arrow">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        </span>
+                    </button>
+                    <button class="btn-flux btn-flux--outline btn-flux--sm admin-btn admin-btn--secondary" onclick="switchSection('tally-export', document.querySelector('[data-section=tally-export]'))">
+                        <span class="btn-flux__text">
+                            <span class="btn-flux__text-inner">
+                                <span>Export to Tally</span>
+                                <span>Export to Tally</span>
+                            </span>
+                        </span>
+                        <span class="btn-flux__arrow">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        </span>
+                    </button>
                 </div>
             </div>
 
@@ -1790,7 +1852,18 @@
                     <input type="date" id="analyticsDateFrom" style="padding:7px 12px;border:1px solid var(--gray-200);border-radius:var(--radius-md);font-size:0.84rem;background:var(--white);color:var(--gray-900);outline:none;" onchange="loadAnalytics()">
                     <label style="font-size:0.8rem;font-weight:600;color:var(--gray-500);">To</label>
                     <input type="date" id="analyticsDateTo" style="padding:7px 12px;border:1px solid var(--gray-200);border-radius:var(--radius-md);font-size:0.84rem;background:var(--white);color:var(--gray-900);outline:none;" onchange="loadAnalytics()">
-                    <button class="admin-btn admin-btn--secondary" onclick="document.getElementById('analyticsDateFrom').value='';document.getElementById('analyticsDateTo').value='';loadAnalytics();" style="font-size:0.78rem;padding:7px 14px;">Clear</button>
+                    <button class="btn-flux btn-flux--outline btn-flux--sm admin-btn admin-btn--secondary" onclick="document.getElementById('analyticsDateFrom').value='';document.getElementById('analyticsDateTo').value='';loadAnalytics();" style="font-size:0.78rem;padding:7px 14px;">
+                        <span class="btn-flux__text">
+                            <span class="btn-flux__text-inner">
+                                <span>Clear</span>
+                                <span>Clear</span>
+                            </span>
+                        </span>
+                        <span class="btn-flux__arrow">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        </span>
+                    </button>
                 </div>
 
                 <!-- Analytics Grid -->
@@ -1851,8 +1924,30 @@
                 <input type="text" id="mpPayRef" placeholder="e.g. UTR123456789">
             </div>
             <div class="mp-actions">
-                <button class="mp-btn-cancel" onclick="closeMarkPaidModal()">Cancel</button>
-                <button class="mp-btn-confirm" id="mpConfirmBtn" onclick="handleMarkPaid()">Confirm Payment</button>
+                <button class="btn-flux btn-flux--outline btn-flux--sm mp-btn-cancel" onclick="closeMarkPaidModal()">
+                    <span class="btn-flux__text">
+                        <span class="btn-flux__text-inner">
+                            <span>Cancel</span>
+                            <span>Cancel</span>
+                        </span>
+                    </span>
+                    <span class="btn-flux__arrow">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                    </span>
+                </button>
+                <button class="btn-flux btn-flux--sm mp-btn-confirm" id="mpConfirmBtn" onclick="handleMarkPaid()">
+                    <span class="btn-flux__text">
+                        <span class="btn-flux__text-inner">
+                            <span>Confirm Payment</span>
+                            <span>Confirm Payment</span>
+                        </span>
+                    </span>
+                    <span class="btn-flux__arrow">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                    </span>
+                </button>
             </div>
         </div>
     </div>
@@ -2955,8 +3050,30 @@
             bar.innerHTML = `
                 <span>${selectedIds.size} voucher${selectedIds.size > 1 ? 's' : ''} selected (${formatCurrency(selectedTotal)})</span>
                 <div class="acct-selection-actions">
-                    <button class="admin-btn admin-btn--sm admin-btn--secondary" onclick="selectedIds.clear(); renderAllVouchers();">Clear</button>
-                    <button class="admin-btn admin-btn--sm admin-btn--primary" onclick="switchSection('tally-export', document.querySelector('[data-section=tally-export]'))">Export to Tally</button>
+                    <button class="btn-flux btn-flux--outline btn-flux--sm admin-btn admin-btn--sm admin-btn--secondary" onclick="selectedIds.clear(); renderAllVouchers();">
+                        <span class="btn-flux__text">
+                            <span class="btn-flux__text-inner">
+                                <span>Clear</span>
+                                <span>Clear</span>
+                            </span>
+                        </span>
+                        <span class="btn-flux__arrow">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        </span>
+                    </button>
+                    <button class="btn-flux btn-flux--sm admin-btn admin-btn--sm admin-btn--primary" onclick="switchSection('tally-export', document.querySelector('[data-section=tally-export]'))">
+                        <span class="btn-flux__text">
+                            <span class="btn-flux__text-inner">
+                                <span>Export to Tally</span>
+                                <span>Export to Tally</span>
+                            </span>
+                        </span>
+                        <span class="btn-flux__arrow">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        </span>
+                    </button>
                 </div>`;
         }
 
@@ -3026,8 +3143,30 @@
                     </div>
                     <div style="display:flex;gap:10px;align-items:center;margin-bottom:24px;">
                         <span id="tallySelectionInfo" style="font-size:0.85rem;color:var(--gray-500,#6b7280);">0 selected</span>
-                        <button class="admin-btn admin-btn--secondary" id="tallyPreviewBtn" onclick="previewTallyFromQuick()" disabled>Preview XML</button>
-                        <button class="admin-btn admin-btn--primary" id="tallyDownloadBtn" onclick="downloadTallyFromQuick()" disabled>Download XML</button>
+                        <button class="btn-flux btn-flux--outline btn-flux--sm admin-btn admin-btn--secondary" id="tallyPreviewBtn" onclick="previewTallyFromQuick()" disabled>
+                            <span class="btn-flux__text">
+                                <span class="btn-flux__text-inner">
+                                    <span>Preview XML</span>
+                                    <span>Preview XML</span>
+                                </span>
+                            </span>
+                            <span class="btn-flux__arrow">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            </span>
+                        </button>
+                        <button class="btn-flux btn-flux--sm admin-btn admin-btn--primary" id="tallyDownloadBtn" onclick="downloadTallyFromQuick()" disabled>
+                            <span class="btn-flux__text">
+                                <span class="btn-flux__text-inner">
+                                    <span>Download XML</span>
+                                    <span>Download XML</span>
+                                </span>
+                            </span>
+                            <span class="btn-flux__arrow">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            </span>
+                        </button>
                     </div>
                     ` : '<div class="admin-empty"><p>No approved vouchers pending export.</p></div>'}
 
@@ -3083,13 +3222,29 @@
                     </div>` : ''}
                 </div>
                 <div style="display:flex;gap:10px;margin-bottom:24px;">
-                    <button class="admin-btn admin-btn--secondary" onclick="previewTallyExport()" id="btnPreview">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                        Preview &amp; Verify
+                    <button class="btn-flux btn-flux--outline btn-flux--sm admin-btn admin-btn--secondary" onclick="previewTallyExport()" id="btnPreview">
+                        <span class="btn-flux__text">
+                            <span class="btn-flux__text-inner">
+                                <span>Preview &amp; Verify</span>
+                                <span>Preview &amp; Verify</span>
+                            </span>
+                        </span>
+                        <span class="btn-flux__arrow">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        </span>
                     </button>
-                    <button class="admin-btn admin-btn--primary" onclick="exportSelectedToTally()" id="btnDownload" disabled title="Preview first to enable download">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                        Download XML
+                    <button class="btn-flux btn-flux--sm admin-btn admin-btn--primary" onclick="exportSelectedToTally()" id="btnDownload" disabled title="Preview first to enable download">
+                        <span class="btn-flux__text">
+                            <span class="btn-flux__text-inner">
+                                <span>Download XML</span>
+                                <span>Download XML</span>
+                            </span>
+                        </span>
+                        <span class="btn-flux__arrow">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        </span>
                     </button>
                 </div>
                 <div id="tallyPreviewContainer" style="display:none;"></div>
@@ -3272,11 +3427,41 @@
                         </div>
                         ${voucherCards}
                         <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;padding-top:16px;border-top:1px solid var(--gray-200);">
-                            <button class="admin-btn admin-btn--secondary" onclick="document.getElementById('tallyPreviewContainer').style.display='none'">Close Preview</button>
-                            <button class="admin-btn admin-btn--secondary" onclick="viewRawXML()">View Raw XML</button>
-                            <button class="admin-btn admin-btn--primary" onclick="exportSelectedToTally()">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                                Confirm &amp; Download XML
+                            <button class="btn-flux btn-flux--outline btn-flux--sm admin-btn admin-btn--secondary" onclick="document.getElementById('tallyPreviewContainer').style.display='none'">
+                                <span class="btn-flux__text">
+                                    <span class="btn-flux__text-inner">
+                                        <span>Close Preview</span>
+                                        <span>Close Preview</span>
+                                    </span>
+                                </span>
+                                <span class="btn-flux__arrow">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                </span>
+                            </button>
+                            <button class="btn-flux btn-flux--outline btn-flux--sm admin-btn admin-btn--secondary" onclick="viewRawXML()">
+                                <span class="btn-flux__text">
+                                    <span class="btn-flux__text-inner">
+                                        <span>View Raw XML</span>
+                                        <span>View Raw XML</span>
+                                    </span>
+                                </span>
+                                <span class="btn-flux__arrow">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                </span>
+                            </button>
+                            <button class="btn-flux btn-flux--sm admin-btn admin-btn--primary" onclick="exportSelectedToTally()">
+                                <span class="btn-flux__text">
+                                    <span class="btn-flux__text-inner">
+                                        <span>Confirm &amp; Download XML</span>
+                                        <span>Confirm &amp; Download XML</span>
+                                    </span>
+                                </span>
+                                <span class="btn-flux__arrow">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                </span>
                             </button>
                         </div>
                     </div>`;
@@ -3447,7 +3632,18 @@
                             <label>Payment Ledger</label>
                             <input type="text" id="settPaymentLedger" value="${esc(paymentLedger)}" placeholder="e.g., Cash, Bank">
                         </div>
-                        <button class="admin-btn admin-btn--primary" onclick="saveGeneralSettings()" style="margin-bottom:32px;">Save General Settings</button>
+                        <button class="btn-flux btn-flux--sm admin-btn admin-btn--primary" onclick="saveGeneralSettings()" style="margin-bottom:32px;">
+                            <span class="btn-flux__text">
+                                <span class="btn-flux__text-inner">
+                                    <span>Save General Settings</span>
+                                    <span>Save General Settings</span>
+                                </span>
+                            </span>
+                            <span class="btn-flux__arrow">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            </span>
+                        </button>
 
                         <h3 class="admin-section-label" style="margin-top:8px;">Ledger Mappings</h3>
                         <p style="font-size:0.8rem;color:var(--gray-500);margin:0 0 16px;">Map expense categories to Tally ledger names for accurate XML export.</p>
@@ -3455,8 +3651,30 @@
                         <div id="mappingRows">${mappingRows || '<p style="color:var(--gray-400);font-size:0.82rem;">No mappings configured yet.</p>'}</div>
 
                         <div style="display:flex;gap:10px;margin-top:16px;">
-                            <button class="admin-btn admin-btn--secondary" onclick="addMappingRow()">+ Add Mapping</button>
-                            <button class="admin-btn admin-btn--primary" onclick="saveLedgerMappings()">Save Mappings</button>
+                            <button class="btn-flux btn-flux--outline btn-flux--sm admin-btn admin-btn--secondary" onclick="addMappingRow()">
+                                <span class="btn-flux__text">
+                                    <span class="btn-flux__text-inner">
+                                        <span>+ Add Mapping</span>
+                                        <span>+ Add Mapping</span>
+                                    </span>
+                                </span>
+                                <span class="btn-flux__arrow">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                </span>
+                            </button>
+                            <button class="btn-flux btn-flux--sm admin-btn admin-btn--primary" onclick="saveLedgerMappings()">
+                                <span class="btn-flux__text">
+                                    <span class="btn-flux__text-inner">
+                                        <span>Save Mappings</span>
+                                        <span>Save Mappings</span>
+                                    </span>
+                                </span>
+                                <span class="btn-flux__arrow">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                </span>
+                            </button>
                         </div>
                     </div>`;
             } catch (e) {
