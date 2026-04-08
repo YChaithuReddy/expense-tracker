@@ -2157,6 +2157,7 @@ h3.admin-section-label {
     padding: 14px 16px !important;
     text-align: center;
     transition: border-color 0.2s, background 0.2s;
+    cursor: pointer;
 }
 .drag-drop-zone:hover,
 .image-preview-container:hover {

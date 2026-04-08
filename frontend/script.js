@@ -393,6 +393,17 @@ class ExpenseTracker {
             return;
         }
 
+        // Click on drop zone triggers file picker
+        const dropZone = document.getElementById('imagePreview');
+        if (dropZone && billImagesInput) {
+            dropZone.addEventListener('click', (e) => {
+                // Only trigger if clicking the hint area (not on already-added image thumbnails)
+                if (e.target.closest('.drag-drop-hint') || e.target.classList.contains('drag-drop-zone') || e.target.classList.contains('exp-dropzone')) {
+                    billImagesInput.click();
+                }
+            });
+        }
+
         // Prevent default drag behaviors on document
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
             document.addEventListener(eventName, (e) => {
