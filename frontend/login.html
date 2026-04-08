@@ -55,14 +55,15 @@
             background: var(--gray-50);
             color: var(--gray-900);
             -webkit-font-smoothing: antialiased;
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: auto;
         }
 
         /* ─── Layout ─── */
         .login-shell {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            height: 100vh;
+            min-height: 100vh;
         }
 
         /* ─── Left Panel ─── */
@@ -352,6 +353,8 @@
             cursor: pointer; font-size: 16px; user-select: none; opacity: 0.5;
             transition: opacity 0.15s;
             background: none; border: none; padding: 2px; line-height: 1;
+            min-width: 44px; min-height: 44px;
+            display: flex; align-items: center; justify-content: center;
         }
         .password-toggle-icon:hover { opacity: 0.8; }
         .password-toggle-icon:focus-visible { outline: 2px solid #0369a1; outline-offset: 2px; border-radius: 4px; }
@@ -360,6 +363,7 @@
         .auth-link {
             color: var(--accent); font-weight: 600; text-decoration: none;
             transition: opacity 0.15s; font-size: 0.82rem;
+            padding: 10px 0; display: inline-block;
         }
         .auth-link:hover { opacity: 0.7; text-decoration: underline; }
 
@@ -410,7 +414,7 @@
         .apk-banner-text { font-size: 0.78rem; color: var(--gray-500); margin-bottom: 8px; }
         .apk-btn {
             display: inline-flex; align-items: center; gap: 6px;
-            padding: 7px 16px; border-radius: 8px;
+            padding: 10px 16px; border-radius: 8px;
             background: var(--gray-100); border: 1px solid var(--gray-200);
             color: var(--gray-700); font-size: 0.78rem; font-weight: 600;
             text-decoration: none; transition: all 0.15s;
@@ -419,7 +423,7 @@
         .apk-btn svg { width: 14px; height: 14px; stroke: currentColor; }
 
         /* Footer */
-        .auth-footer { text-align: center; margin-top: 14px; font-size: 0.82rem; color: var(--gray-500); }
+        .auth-footer { text-align: center; margin-top: 14px; font-size: 0.82rem; color: var(--gray-500); padding: 12px 0; }
         .auth-footer a { color: var(--accent); font-weight: 600; text-decoration: none; }
         .auth-footer a:hover { text-decoration: underline; }
 
