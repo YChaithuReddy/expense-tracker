@@ -121,8 +121,8 @@
             position: absolute;
             bottom: -20px;
             border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, rgba(56, 189, 248, 0.2), rgba(14, 116, 144, 0.08));
-            border: 1px solid rgba(56, 189, 248, 0.1);
+            background: radial-gradient(circle at 30% 30%, rgba(56, 189, 248, 0.3), rgba(14, 116, 144, 0.12));
+            border: 1px solid rgba(56, 189, 248, 0.15);
             animation: bubbleRise linear infinite;
         }
         @keyframes bubbleRise {
@@ -131,16 +131,18 @@
             90%  { opacity: 0.6; }
             100% { transform: translateY(-110vh) scale(0.4); opacity: 0; }
         }
-        .bubble:nth-child(1)  { left: 8%;  width: 6px;  height: 6px;  animation-duration: 12s; animation-delay: 0s; }
-        .bubble:nth-child(2)  { left: 22%; width: 10px; height: 10px; animation-duration: 14s; animation-delay: 2s; }
-        .bubble:nth-child(3)  { left: 38%; width: 4px;  height: 4px;  animation-duration: 10s; animation-delay: 4s; }
-        .bubble:nth-child(4)  { left: 52%; width: 8px;  height: 8px;  animation-duration: 16s; animation-delay: 1s; }
-        .bubble:nth-child(5)  { left: 65%; width: 5px;  height: 5px;  animation-duration: 11s; animation-delay: 3s; }
-        .bubble:nth-child(6)  { left: 78%; width: 12px; height: 12px; animation-duration: 18s; animation-delay: 5s; }
-        .bubble:nth-child(7)  { left: 90%; width: 7px;  height: 7px;  animation-duration: 13s; animation-delay: 0.5s; }
-        .bubble:nth-child(8)  { left: 15%; width: 9px;  height: 9px;  animation-duration: 15s; animation-delay: 6s; }
-        .bubble:nth-child(9)  { left: 45%; width: 5px;  height: 5px;  animation-duration: 11s; animation-delay: 8s; }
-        .bubble:nth-child(10) { left: 72%; width: 8px;  height: 8px;  animation-duration: 14s; animation-delay: 3.5s; }
+        .bubble:nth-child(1)  { left: 5%;  width: 10px; height: 10px; animation-duration: 11s; animation-delay: 0s; }
+        .bubble:nth-child(2)  { left: 18%; width: 18px; height: 18px; animation-duration: 14s; animation-delay: 1.5s; }
+        .bubble:nth-child(3)  { left: 32%; width: 8px;  height: 8px;  animation-duration: 10s; animation-delay: 3s; }
+        .bubble:nth-child(4)  { left: 48%; width: 14px; height: 14px; animation-duration: 16s; animation-delay: 0.5s; }
+        .bubble:nth-child(5)  { left: 60%; width: 22px; height: 22px; animation-duration: 18s; animation-delay: 2s; }
+        .bubble:nth-child(6)  { left: 75%; width: 12px; height: 12px; animation-duration: 12s; animation-delay: 4s; }
+        .bubble:nth-child(7)  { left: 88%; width: 16px; height: 16px; animation-duration: 15s; animation-delay: 0.8s; }
+        .bubble:nth-child(8)  { left: 12%; width: 20px; height: 20px; animation-duration: 17s; animation-delay: 5s; }
+        .bubble:nth-child(9)  { left: 42%; width: 10px; height: 10px; animation-duration: 11s; animation-delay: 7s; }
+        .bubble:nth-child(10) { left: 68%; width: 24px; height: 24px; animation-duration: 20s; animation-delay: 3s; }
+        .bubble:nth-child(11) { left: 25%; width: 6px;  height: 6px;  animation-duration: 9s;  animation-delay: 6s; }
+        .bubble:nth-child(12) { left: 55%; width: 16px; height: 16px; animation-duration: 13s; animation-delay: 8s; }
 
         /* === 2. GRADIENT WAVE BACKGROUND === */
         .gradient-wave {
@@ -181,8 +183,9 @@
             50%      { box-shadow: 0 0 12px rgba(56, 189, 248, 0.3), 0 0 24px rgba(56, 189, 248, 0.1); border-color: rgba(56, 189, 248, 0.25); }
         }
         .left-feature:nth-child(1) .left-feature-icon { animation-delay: 0s; }
-        .left-feature:nth-child(2) .left-feature-icon { animation-delay: 1s; }
-        .left-feature:nth-child(3) .left-feature-icon { animation-delay: 2s; }
+        .left-feature:nth-child(2) .left-feature-icon { animation-delay: 0.8s; }
+        .left-feature:nth-child(3) .left-feature-icon { animation-delay: 1.6s; }
+        .left-feature:nth-child(4) .left-feature-icon { animation-delay: 2.4s; }
 
         /* === FluxGen-style entrance animations === */
         @keyframes fadeSlideUp {
@@ -206,6 +209,7 @@
         .left-feature:nth-child(1) { opacity: 0; animation: fadeSlideRight 0.4s 0.6s cubic-bezier(0.22,1,0.36,1) forwards; }
         .left-feature:nth-child(2) { opacity: 0; animation: fadeSlideRight 0.4s 0.72s cubic-bezier(0.22,1,0.36,1) forwards; }
         .left-feature:nth-child(3) { opacity: 0; animation: fadeSlideRight 0.4s 0.84s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .left-feature:nth-child(4) { opacity: 0; animation: fadeSlideRight 0.4s 0.96s cubic-bezier(0.22,1,0.36,1) forwards; }
 
         /* Right panel form entrance */
         .form-header-brand   { opacity: 0; animation: scaleIn 0.4s 0.3s cubic-bezier(0.22,1,0.36,1) forwards; }
@@ -216,11 +220,12 @@
         .btn-flux--outline   { opacity: 0; animation: fadeSlideUp 0.4s 0.8s cubic-bezier(0.22,1,0.36,1) forwards; }
 
         .brand-logo-pill {
-            background: var(--white); border-radius: 16px; padding: 14px 28px;
+            background: rgba(255, 255, 255, 0.06); border-radius: 16px; padding: 12px 24px;
             display: inline-flex; align-items: center;
-            box-shadow: var(--shadow-xl);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
         }
-        .brand-logo-pill img { height: 56px; width: auto; object-fit: contain; display: block; }
+        .brand-logo-pill img { height: 48px; width: auto; object-fit: contain; display: block; filter: brightness(1.8) contrast(0.9); }
 
         .left-hero { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 20px 0; }
 
@@ -419,7 +424,7 @@
             <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
             <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
             <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
-            <div class="bubble"></div>
+            <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
         </div>
         <div class="left-content">
             <div class="brand-top-row">
@@ -429,8 +434,8 @@
                         FluxGen Technologies Pvt Ltd
                     </span>
                     <h2 class="left-headline">
-                        Simplify your<br>
-                        <em>expense management.</em>
+                        Track every rupee.<br>
+                        <em>Approve in seconds.</em>
                     </h2>
                 </div>
                 <div class="brand-logo-wrap">
@@ -442,26 +447,32 @@
 
             <div class="left-hero">
                 <p class="left-subtext">
-                    One platform to track, approve, and report every rupee your team spends — with OCR scanning, UPI integration, and real-time insights.
+                    Join innovative teams who are transforming their expense workflows — from receipt to reimbursement in minutes, not days.
                 </p>
                 <ul class="left-features">
                     <li class="left-feature">
                         <span class="left-feature-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
                         </span>
-                        OCR bill scanning with instant data extraction
+                        Scan bills instantly with AI-powered OCR
+                    </li>
+                    <li class="left-feature">
+                        <span class="left-feature-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        </span>
+                        Multi-level approvals with real-time tracking
                     </li>
                     <li class="left-feature">
                         <span class="left-feature-icon">
                             <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
                         </span>
-                        UPI payment integration — Google Pay, PhonePe
+                        UPI payments — Google Pay, PhonePe, Paytm
                     </li>
                     <li class="left-feature">
                         <span class="left-feature-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                         </span>
-                        Real-time approvals and Google Sheets export
+                        Export to Tally, Google Sheets &amp; PDF reports
                     </li>
                 </ul>
             </div>
@@ -606,8 +617,8 @@
     (function() {
         const headline = document.querySelector('.left-headline');
         if (!headline) return;
-        const line1 = 'Simplify your';
-        const line2 = 'expense management.';
+        const line1 = 'Track every rupee.';
+        const line2 = 'Approve in seconds.';
         headline.innerHTML = '';
         headline.style.opacity = '1';
         headline.style.animation = 'none';
