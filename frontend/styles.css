@@ -300,6 +300,23 @@
     border-radius: 999px !important;
 }
 
+.btn-flux.exp-btn--dark {
+    background: #0369a1 !important;
+    border-radius: 999px !important;
+    padding: 12px 24px !important;
+}
+.btn-flux.exp-btn--outline {
+    border-radius: 999px !important;
+    padding: 12px 24px !important;
+}
+.btn-flux.exp-btn--outline:hover {
+    background: transparent !important;
+}
+
+.btn-flux.btn-secondary {
+    border-radius: 999px !important;
+}
+
 .btn-flux.email-modal__btn--send {
     background: #0369a1 !important;
     border-radius: 999px !important;
