@@ -1188,10 +1188,17 @@ main > * {
 
 .form-actions {
     display: flex;
-    gap: 20px;
+    gap: 12px;
     justify-content: space-between;
     align-items: center;
-    margin-top: 30px;
+    margin-top: 20px;
+    padding: 16px 20px;
+    background: #fff;
+    border-top: 1px solid #f1f5f9;
+    border-radius: 0 0 20px 20px;
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
 }
 
 .form-actions .btn-secondary {
