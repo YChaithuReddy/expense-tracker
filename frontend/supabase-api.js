@@ -1463,7 +1463,7 @@ const api = {
         const { data: profile } = await supabase.from('profiles').select('role, organization_id').eq('id', user.id).single();
         const role = profile?.role || 'employee';
 
-        let query = supabase.from('advances').select('*, submitter:profiles!user_id(id, name, employee_id, email)');
+        let query = supabase.from('advances').select('*');
 
         if (role === 'manager') {
             query = query.eq('manager_id', user.id).in('status', ['pending_manager']);
@@ -1479,7 +1479,19 @@ const api = {
 
         const { data, error } = await query.order('created_at', { ascending: false });
         if (error) handleError(error, 'Get advances for approval');
-        return data || [];
+
+        // Fetch submitter profiles separately (no FK between advances and profiles)
+        const advances = data || [];
+        if (advances.length > 0) {
+            const userIds = [...new Set(advances.map(a => a.user_id).filter(Boolean))];
+            if (userIds.length > 0) {
+                const { data: profiles } = await supabase.from('profiles').select('id, name, employee_id, email').in('id', userIds);
+                const profileMap = {};
+                (profiles || []).forEach(p => { profileMap[p.id] = p; });
+                advances.forEach(a => { a.submitter = profileMap[a.user_id] || null; });
+            }
+        }
+        return advances;
     },
 
     async getAdvanceDetail(advanceId) {
