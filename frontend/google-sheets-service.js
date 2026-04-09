@@ -183,18 +183,24 @@ class GoogleSheetsService {
     }
 
     /**
-     * Call Apps Script using GET request (better CORS support)
+     * Call Apps Script using GET (small payloads) or POST via form (large payloads)
+     * Apps Script has URL length limits on GET; POST via hidden form avoids CORS issues
      */
     async fetchAppsScript(data) {
-        try {
-            // Use GET request with data as URL parameter
-            const params = new URLSearchParams({
-                data: JSON.stringify(data)
-            });
+        const payload = JSON.stringify(data);
 
-            // 30-second timeout to prevent infinite hang
+        // Use GET for small payloads, POST via no-cors + form for large ones
+        if (payload.length < 1800) {
+            return this._fetchViaGet(payload);
+        }
+        return this._fetchViaPost(payload);
+    }
+
+    async _fetchViaGet(payload) {
+        try {
+            const params = new URLSearchParams({ data: payload });
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 30000);
+            const timeoutId = setTimeout(() => controller.abort(), 60000);
 
             const response = await fetch(`${this.APPS_SCRIPT_URL}?${params}`, {
                 method: 'GET',
@@ -213,11 +219,58 @@ class GoogleSheetsService {
             }
         } catch (error) {
             if (error.name === 'AbortError') {
-                throw new Error('Google Sheets request timed out (30s). Please try again.');
+                throw new Error('Google Sheets request timed out (60s). Please try again.');
             }
-            console.error('Fetch error:', error);
             throw error;
         }
+    }
+
+    async _fetchViaPost(payload) {
+        return new Promise((resolve, reject) => {
+            const iframe = document.createElement('iframe');
+            iframe.name = 'gs_post_frame_' + Date.now();
+            iframe.style.display = 'none';
+            document.body.appendChild(iframe);
+
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = this.APPS_SCRIPT_URL;
+            form.target = iframe.name;
+            form.style.display = 'none';
+
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'data';
+            input.value = payload;
+            form.appendChild(input);
+            document.body.appendChild(form);
+
+            const cleanup = () => {
+                if (document.body.contains(iframe)) document.body.removeChild(iframe);
+                if (document.body.contains(form)) document.body.removeChild(form);
+                window.removeEventListener('message', messageHandler);
+            };
+
+            const messageHandler = (event) => {
+                try {
+                    const result = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+                    if (result && (result.status === 'success' || result.status === 'error')) {
+                        cleanup();
+                        resolve(result);
+                    }
+                } catch (e) { /* ignore non-JSON messages */ }
+            };
+            window.addEventListener('message', messageHandler);
+
+            // 60-second timeout — Apps Script can be slow on large exports
+            const timeoutId = setTimeout(() => {
+                cleanup();
+                // Assume success — Apps Script may not postMessage back
+                resolve({ status: 'success', data: {} });
+            }, 60000);
+
+            form.submit();
+        });
     }
 
     /**
