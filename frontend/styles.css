@@ -1201,13 +1201,16 @@ main > * {
     z-index: 10;
 }
 
-.form-actions .btn-secondary {
-    width: auto;
+.form-actions .btn-secondary,
+.form-actions .btn-flux--outline {
     flex: 0 0 auto;
+    min-width: unset;
 }
 
-.form-actions .btn-primary {
+.form-actions .btn-primary,
+.form-actions .btn-flux:not(.btn-flux--outline) {
     flex: 1;
+    min-width: unset;
 }
 
 #expenseForm {
