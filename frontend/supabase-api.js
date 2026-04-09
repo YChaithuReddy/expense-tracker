@@ -1463,7 +1463,7 @@ const api = {
         const { data: profile } = await supabase.from('profiles').select('role, organization_id').eq('id', user.id).single();
         const role = profile?.role || 'employee';
 
-        let query = supabase.from('advances').select('*, submitter:user_id(id, name, employee_id, email)');
+        let query = supabase.from('advances').select('*, submitter:profiles!user_id(id, name, employee_id, email)');
 
         if (role === 'manager') {
             query = query.eq('manager_id', user.id).in('status', ['pending_manager']);
