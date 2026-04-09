@@ -316,7 +316,25 @@
                             <p class="exp-card__desc">Add expense details without a receipt — perfect for cash payments</p>
                         </div>
                     </div>
-                    <button type="button" id="skipToManualEntry" class="exp-link">Start entry <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
+                    <!-- Recent entries mini-list -->
+                    <div class="recent-entries" id="recentEntriesList">
+                        <p class="recent-entries__label">Recent entries</p>
+                        <div class="recent-entries__items" id="recentEntriesItems">
+                            <div class="recent-entries__empty">No expenses yet</div>
+                        </div>
+                    </div>
+                    <button type="button" id="skipToManualEntry" class="btn-flux btn-flux--outline btn-flux--sm" style="align-self:flex-start;">
+                        <span class="btn-flux__text">
+                            <span class="btn-flux__text-inner">
+                                <span>Start entry</span>
+                                <span>Start entry</span>
+                            </span>
+                        </span>
+                        <span class="btn-flux__arrow">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        </span>
+                    </button>
                 </div>
             </div>
 

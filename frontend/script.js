@@ -4160,6 +4160,38 @@ class ExpenseTracker {
     updateTotal() {
         const total = this.expenses.reduce((sum, expense) => sum + expense.amount, 0);
         document.getElementById('totalAmount').innerHTML = `<strong>Total Amount: ₹${this.formatAmount(total)}</strong>`;
+        this.updateRecentEntries();
+    }
+
+    updateRecentEntries() {
+        const container = document.getElementById('recentEntriesItems');
+        if (!container) return;
+        const recent = (this.expenses || []).slice(0, 3);
+        if (recent.length === 0) {
+            container.innerHTML = '<div class="recent-entries__empty">No expenses yet</div>';
+            return;
+        }
+        const categoryIcons = { 'Food': '🍽️', 'Transportation': '🚗', 'Hotel': '🏨', 'Office Supplies': '📎', 'Fuel': '⛽', 'Medical': '💊', 'Miscellaneous': '📦' };
+        container.innerHTML = recent.map(e => {
+            const icon = categoryIcons[e.category] || '📝';
+            const name = e.vendor || e.description || e.category || 'Expense';
+            const amt = '₹' + Number(e.amount || 0).toLocaleString('en-IN');
+            const d = e.date ? new Date(e.date) : new Date();
+            const today = new Date();
+            let dateStr = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+            if (d.toDateString() === today.toDateString()) dateStr = 'Today';
+            else if (d.toDateString() === new Date(today - 86400000).toDateString()) dateStr = 'Yesterday';
+            return `<div class="recent-entries__item">
+                <div class="recent-entries__item-left">
+                    <div class="recent-entries__item-icon">${icon}</div>
+                    <div>
+                        <div class="recent-entries__item-text">${name}</div>
+                        <div class="recent-entries__item-meta">${e.category || ''} · ${dateStr}</div>
+                    </div>
+                </div>
+                <div class="recent-entries__item-amount">${amt}</div>
+            </div>`;
+        }).join('');
     }
 
     resetForm() {
