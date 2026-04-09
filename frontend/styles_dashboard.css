@@ -1261,6 +1261,14 @@ h3.admin-section-label {
 }
 .exp-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
 
+/* Card header row — icon beside title */
+.exp-card__header-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
 /* Card icon badge */
 .exp-card__icon {
     width: 38px;
@@ -1269,7 +1277,7 @@ h3.admin-section-label {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 12px;
+    margin-bottom: 0;
     flex-shrink: 0;
 }
 .exp-card__icon--blue  { background: #eff6ff; color: #2563eb; }
