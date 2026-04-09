@@ -3535,22 +3535,21 @@ class ExpenseTracker {
     }
 
     sortExpensesByDate() {
-        // Sort expenses by date and time in ascending order (oldest first)
+        // Sort expenses by date and time in descending order (newest first)
         this.expenses.sort((a, b) => {
             const dateA = new Date(a.date);
             const dateB = new Date(b.date);
 
-            // First sort by date
-            const dateDiff = dateA - dateB;
+            // First sort by date (newest first)
+            const dateDiff = dateB - dateA;
 
-            // If dates are the same, sort by time
+            // If dates are the same, sort by time (newest first)
             if (dateDiff === 0) {
-                const timeA = a.time || '00:00'; // Default to midnight if no time
+                const timeA = a.time || '00:00';
                 const timeB = b.time || '00:00';
 
-                // Compare times as strings (HH:MM format works for string comparison)
-                if (timeA < timeB) return -1;
-                if (timeA > timeB) return 1;
+                if (timeA > timeB) return -1;
+                if (timeA < timeB) return 1;
                 return 0;
             }
 
