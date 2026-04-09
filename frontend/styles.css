@@ -10152,11 +10152,16 @@ select.inline-input option {
 /* ===== Activity Log Overlay ===== */
 .activity-log-overlay {
     position: fixed;
-    inset: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 100vh;
     z-index: 100001;
     display: none;
     flex-direction: column;
-    background: #f9fafb;
+    background: #ffffff;
 }
 .activity-log-overlay.active { display: flex; }
 
@@ -10165,15 +10170,15 @@ select.inline-input option {
     align-items: center;
     justify-content: space-between;
     padding: 14px 20px;
-    border-bottom: 1px solid rgba(139, 92, 246, 0.15);
-    background: linear-gradient(135deg, rgba(26,26,46,0.98), rgba(15,15,35,0.98));
+    border-bottom: 1px solid #e5e7eb;
+    background: #ffffff;
     flex-shrink: 0;
 }
 
 .activity-log-title {
     font-size: 1.1rem;
     font-weight: 700;
-    color: #a78bfa;
+    color: #111827;
     margin: 0;
     display: flex;
     align-items: center;
