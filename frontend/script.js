@@ -3097,6 +3097,7 @@ class ExpenseTracker {
         }
 
         document.getElementById('scanBills').style.display = 'none';
+        this.updateRecentEntries();
     }
 
     // ==================== Real-time Form Validation ====================
@@ -3676,7 +3677,10 @@ class ExpenseTracker {
     displayExpenses() {
         // Coalesce rapid calls (search debounce, filter changes) into a single render frame
         if (this._displayRAF) cancelAnimationFrame(this._displayRAF);
-        this._displayRAF = requestAnimationFrame(() => this._renderExpenses());
+        this._displayRAF = requestAnimationFrame(() => {
+            this._renderExpenses();
+            this.updateRecentEntries();
+        });
     }
 
     _renderExpenses() {
