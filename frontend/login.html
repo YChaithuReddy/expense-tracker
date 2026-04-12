@@ -503,7 +503,11 @@
             margin: 4px 0;
         }
         .auth-divider-line { flex: 1; height: 1px; background: rgba(255,255,255,0.15) !important; }
-        .auth-divider-text { font-size: 0.78rem; color: rgba(255,255,255,0.6) !important; font-weight: 500; }
+        .auth-divider-text {
+            font-size: 0.78rem; color: rgba(255,255,255,0.6) !important; font-weight: 500;
+            background: transparent !important;
+            padding: 0 4px;
+        }
 
         /* Google button */
         .btn-google {
@@ -516,6 +520,13 @@
         }
         .btn-google:hover {
             background: rgba(255,255,255,0.14) !important; border-color: rgba(255,255,255,0.3) !important;
+        }
+        /* Force white text on Google button (overrides btn-flux--outline dark text rule) */
+        .btn-google .btn-flux__text-inner span {
+            color: #ffffff !important;
+        }
+        .btn-google .btn-flux__arrow svg {
+            stroke: #ffffff !important;
         }
 
         /* APK banner */
@@ -805,7 +816,7 @@ if (canvas) {
            try {
                const cam = app.findObjectByName('Camera') || app.findObjectByName('Camera 1') || app.findObjectByName('Camera 2');
                if (cam) {
-                   cam.position.z += 500;
+                   cam.position.z += 800;
                    cam.position.y += 50;
                }
            } catch(e) { console.warn('Camera adjust:', e); }
