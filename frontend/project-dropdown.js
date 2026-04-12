@@ -175,11 +175,10 @@ const projectDropdown = (() => {
         if (!list) return;
 
         if (filteredProjects.length === 0) {
-            const canCreate = hasApprovalAccess();
             list.innerHTML = `
                 <div class="project-dd__empty">
                     <p>No projects found</p>
-                    ${canCreate ? '<button type="button" class="project-dd__create-btn" onclick="projectDropdown.openCreateForm()">+ Create New Project</button>' : ''}
+                    <button type="button" class="project-dd__create-btn" onclick="projectDropdown.openCreateForm()">+ Create New Project</button>
                 </div>
             `;
             return;
@@ -209,14 +208,12 @@ const projectDropdown = (() => {
             `;
         }).join('');
 
-        // Add "Create New" button at bottom for privileged users
-        if (hasApprovalAccess()) {
-            list.innerHTML += `
-                <div class="project-dd__footer">
-                    <button type="button" class="project-dd__create-btn" onclick="projectDropdown.openCreateForm()">+ Create New Project</button>
-                </div>
-            `;
-        }
+        // Add "Create New" button at bottom for all users
+        list.innerHTML += `
+            <div class="project-dd__footer">
+                <button type="button" class="project-dd__create-btn" onclick="projectDropdown.openCreateForm()">+ Create New Project</button>
+            </div>
+        `;
     }
 
     function sanitize(str) {
