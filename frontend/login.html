@@ -270,6 +270,79 @@
         .left-feature { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--gray-400); font-weight: 450; }
         .left-feature-icon svg { width: 14px; height: 14px; stroke: var(--gray-300); }
 
+        /* === ANIMATED STATS === */
+        .left-stats {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            margin-top: 32px;
+            padding: 18px 20px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            backdrop-filter: blur(8px);
+            opacity: 0;
+            animation: fadeSlideUp 0.5s 1.1s cubic-bezier(0.22,1,0.36,1) forwards;
+        }
+        .left-stat {
+            flex: 1;
+            text-align: center;
+        }
+        .left-stat-number {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.03em;
+            font-variant-numeric: tabular-nums;
+        }
+        .left-stat-label {
+            display: block;
+            font-size: 0.68rem;
+            color: var(--gray-400);
+            margin-top: 4px;
+            letter-spacing: 0.02em;
+        }
+        .left-stat-divider {
+            width: 1px;
+            height: 36px;
+            background: rgba(255,255,255,0.1);
+            flex-shrink: 0;
+        }
+
+        /* === TRUST BADGES === */
+        .left-trust-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            opacity: 0;
+            animation: fadeSlideUp 0.5s 1.3s cubic-bezier(0.22,1,0.36,1) forwards;
+        }
+        .trust-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            font-size: 0.7rem;
+            color: var(--gray-400);
+            font-weight: 500;
+            animation: badgePulse 4s ease-in-out infinite;
+        }
+        .trust-badge:nth-child(2) { animation-delay: 2s; }
+        .trust-badge svg {
+            width: 14px;
+            height: 14px;
+            stroke: #38bdf8;
+            flex-shrink: 0;
+        }
+        @keyframes badgePulse {
+            0%, 100% { border-color: rgba(255,255,255,0.08); }
+            50% { border-color: rgba(56, 189, 248, 0.25); }
+        }
+
         .left-footer { font-size: 12px; color: var(--gray-500); letter-spacing: 0.01em; }
 
         /* ─── Right Panel ─── */
@@ -517,6 +590,36 @@
                 </ul>
             </div>
 
+            <!-- Animated Stats Ticker -->
+            <div class="left-stats">
+                <div class="left-stat">
+                    <span class="left-stat-number" data-target="12500">0</span>
+                    <span class="left-stat-label">Receipts scanned</span>
+                </div>
+                <div class="left-stat-divider"></div>
+                <div class="left-stat">
+                    <span class="left-stat-number" data-target="340">0</span>
+                    <span class="left-stat-label">Teams onboarded</span>
+                </div>
+                <div class="left-stat-divider"></div>
+                <div class="left-stat">
+                    <span class="left-stat-number" data-target="98" data-suffix="%">0</span>
+                    <span class="left-stat-label">Accuracy rate</span>
+                </div>
+            </div>
+
+            <!-- Floating trust badges -->
+            <div class="left-trust-row">
+                <div class="trust-badge">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    <span>Bank-grade encryption</span>
+                </div>
+                <div class="trust-badge">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    <span>SOC 2 compliant</span>
+                </div>
+            </div>
+
             <footer class="left-footer">
                 &copy; 2025 FluxGen Technologies Pvt Ltd. All rights reserved.
             </footer>
@@ -714,6 +817,34 @@
             type();
         }
         setTimeout(typePhrase, 400);
+    })();
+
+    // === Animated stat counters ===
+    (function() {
+        const counters = document.querySelectorAll('.left-stat-number');
+        if (!counters.length) return;
+
+        function animateCounter(el) {
+            const target = parseInt(el.dataset.target, 10);
+            const suffix = el.dataset.suffix || '';
+            const duration = 2000;
+            const start = performance.now();
+
+            function tick(now) {
+                const elapsed = now - start;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                const current = Math.floor(eased * target);
+                el.textContent = current.toLocaleString() + suffix;
+                if (progress < 1) requestAnimationFrame(tick);
+            }
+            requestAnimationFrame(tick);
+        }
+
+        // Start counters after entrance animation completes (~1.3s)
+        setTimeout(() => {
+            counters.forEach(c => animateCounter(c));
+        }, 1400);
     })();
 
     function togglePasswordVisibility(inputId, iconElement) {

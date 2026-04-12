@@ -59,3 +59,13 @@ frontend/ios/App/Pods/
 
 # Package lock files (optional - remove if you want to track)
 frontend/package-lock.json
+
+# Drawbridge
+drawbridge/
+.moat/
+moat-tasks.md
+moat-tasks-detail.json
+drawbridge-workflow.md
+
+# Claude Code configuration
+.claude/
