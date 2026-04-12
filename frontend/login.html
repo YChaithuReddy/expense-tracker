@@ -521,11 +521,13 @@
         .btn-google:hover {
             background: rgba(255,255,255,0.14) !important; border-color: rgba(255,255,255,0.3) !important;
         }
-        /* Force white text on Google button (overrides btn-flux--outline dark text rule) */
-        .btn-google .btn-flux__text-inner span {
+        /* Force white text on Google button (must beat .btn-flux--outline specificity) */
+        .btn-flux.btn-flux--outline.btn-google .btn-flux__text-inner span:first-child,
+        .btn-flux.btn-flux--outline.btn-google .btn-flux__text-inner span:last-child,
+        .btn-flux.btn-flux--outline.btn-google .btn-flux__text-inner span {
             color: #ffffff !important;
         }
-        .btn-google .btn-flux__arrow svg {
+        .btn-flux.btn-flux--outline.btn-google .btn-flux__arrow svg {
             stroke: #ffffff !important;
         }
 
@@ -812,14 +814,19 @@ if (canvas) {
        .then(() => {
            canvas.style.opacity = '1';
 
-           // Pull camera back to show full robot body
+           // Show more robot body — zoom out slightly
            try {
                const cam = app.findObjectByName('Camera 2');
                if (cam) {
-                   cam.position.z += 800;
-                   cam.position.y += 100;
+                   cam.position.z = cam.position.z + 800;
+                   cam.position.y = cam.position.y + 100;
+               } else {
+                   // Fallback: zoom out via API
+                   app.setZoom(0.75);
                }
-           } catch(e) {}
+           } catch(e) {
+               try { app.setZoom(0.75); } catch(e2) {}
+           }
 
            // Track mouse across entire page, not just canvas
            let forwarding = false;
