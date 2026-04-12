@@ -1411,10 +1411,10 @@ h3.admin-section-label {
     font-family: var(--font);
 }
 .exp-btn--dark {
-    background: #111827;
+    background: #0369a1;
     color: #ffffff;
 }
-.exp-btn--dark:hover { background: #1f2937; }
+.exp-btn--dark:hover { background: #075985; }
 .exp-btn--outline {
     background: #ffffff;
     color: #374151;
