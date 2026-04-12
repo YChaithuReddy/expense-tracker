@@ -555,22 +555,23 @@ if (canvas) {
        .then(() => {
            canvas.style.opacity = '1';
 
-           // Pull camera back to show full robot body
+           // Debug: list all objects in scene
            try {
-               const cam = app.findObjectByName('Camera') || app.findObjectByName('Camera 1') || app.findObjectByName('Camera 2');
-               if (cam) {
-                   cam.position.z += 800;
-                   cam.position.y += 50;
-               }
-           } catch(e) { console.warn('Camera adjust:', e); }
+               const allObjects = app.getAllObjects();
+               console.log('Spline scene objects:', allObjects.map(o => o.name + ' (' + o.type + ')'));
+           } catch(e) { console.warn('Debug:', e); }
 
+           // Track mouse across entire page
+           let forwarding = false;
            document.addEventListener('mousemove', (e) => {
-               const fakeEvent = new MouseEvent('mousemove', {
+               if (forwarding || e.target === canvas) return;
+               forwarding = true;
+               canvas.dispatchEvent(new MouseEvent('mousemove', {
                    clientX: e.clientX,
                    clientY: e.clientY,
-                   bubbles: true
-               });
-               canvas.dispatchEvent(fakeEvent);
+                   bubbles: false
+               }));
+               forwarding = false;
            });
        });
     canvas.style.opacity = '0';

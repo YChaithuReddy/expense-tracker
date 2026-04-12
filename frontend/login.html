@@ -819,13 +819,16 @@ if (canvas) {
            } catch(e) { console.warn('Debug:', e); }
 
            // Track mouse across entire page, not just canvas
+           let forwarding = false;
            document.addEventListener('mousemove', (e) => {
-               const fakeEvent = new MouseEvent('mousemove', {
+               if (forwarding || e.target === canvas) return;
+               forwarding = true;
+               canvas.dispatchEvent(new MouseEvent('mousemove', {
                    clientX: e.clientX,
                    clientY: e.clientY,
-                   bubbles: true
-               });
-               canvas.dispatchEvent(fakeEvent);
+                   bubbles: false
+               }));
+               forwarding = false;
            });
        });
     canvas.style.opacity = '0';
