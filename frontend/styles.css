@@ -10212,7 +10212,8 @@ select.inline-input option {
     padding: 12px 20px;
     flex-wrap: wrap;
     flex-shrink: 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
 }
 
 .activity-stats-pills {
