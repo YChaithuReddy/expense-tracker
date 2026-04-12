@@ -780,6 +780,12 @@
             box-shadow: none;
             transform: none;
         }
+        /* Force white text + arrow on dark sidebar */
+        .admin-sidebar__links .btn-flux .btn-flux__text-inner span,
+        .admin-sidebar__links .btn-flux .btn-flux__arrow svg {
+            color: #fff !important;
+            stroke: #fff !important;
+        }
     </style>
     <link rel="preload" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js" as="script">
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js"></script>
