@@ -189,12 +189,37 @@
     border-color: transparent;
     box-shadow: 0 8px 25px rgba(3, 105, 161, 0.3);
 }
-/* First span dark, second span white for outline */
-.btn-flux--outline .btn-flux__text-inner span:first-child {
-    color: #1e293b;
+.btn-flux--outline .btn-flux__arrow svg,
+.btn-flux.exp-btn--outline .btn-flux__arrow svg,
+.btn-flux.btn-secondary .btn-flux__arrow svg,
+.btn-flux.kodo-confirm-modal__btn--cancel .btn-flux__arrow svg,
+.btn-flux.quick-add-btn-cancel .btn-flux__arrow svg {
+    stroke: #1e293b;
 }
-.btn-flux--outline .btn-flux__text-inner span:last-child {
-    color: #fff;
+.btn-flux--outline:hover .btn-flux__arrow svg,
+.btn-flux.exp-btn--outline:hover .btn-flux__arrow svg {
+    stroke: #fff;
+}
+/* White-bg variants: first span dark (readable on white), second span white (readable on blue hover) */
+.btn-flux--outline .btn-flux__text-inner span:first-child,
+.btn-flux.exp-btn--outline .btn-flux__text-inner span:first-child,
+.btn-flux.btn-secondary .btn-flux__text-inner span:first-child,
+.btn-flux.kodo-confirm-modal__btn--cancel .btn-flux__text-inner span:first-child,
+.btn-flux.email-modal__btn--cancel .btn-flux__text-inner span:first-child,
+.btn-flux.pdfs-modal__btn--secondary .btn-flux__text-inner span:first-child,
+.btn-flux.clear-data-confirm-btn-cancel .btn-flux__text-inner span:first-child,
+.btn-flux.quick-add-btn-cancel .btn-flux__text-inner span:first-child {
+    color: #1e293b !important;
+}
+.btn-flux--outline .btn-flux__text-inner span:last-child,
+.btn-flux.exp-btn--outline .btn-flux__text-inner span:last-child,
+.btn-flux.btn-secondary .btn-flux__text-inner span:last-child,
+.btn-flux.kodo-confirm-modal__btn--cancel .btn-flux__text-inner span:last-child,
+.btn-flux.email-modal__btn--cancel .btn-flux__text-inner span:last-child,
+.btn-flux.pdfs-modal__btn--secondary .btn-flux__text-inner span:last-child,
+.btn-flux.clear-data-confirm-btn-cancel .btn-flux__text-inner span:last-child,
+.btn-flux.quick-add-btn-cancel .btn-flux__text-inner span:last-child {
+    color: #fff !important;
 }
 
 /* === SIZE VARIANTS === */
