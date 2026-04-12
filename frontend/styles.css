@@ -68,10 +68,10 @@
     padding: 14px 32px;
     min-width: 140px;
     height: 52px;
-    border: 1.5px solid #e2e8f0;
+    border: none;
     border-radius: 999px;
-    background: #ffffff;
-    color: #1e293b;
+    background: #0369a1;
+    color: #fff;
     font-family: inherit;
     font-size: 0.9rem;
     font-weight: 600;
@@ -101,8 +101,6 @@
 .btn-flux:hover {
     transform: scale(1.03);
     box-shadow: 0 8px 25px rgba(3, 105, 161, 0.35);
-    color: #fff;
-    border-color: transparent;
 }
 .btn-flux:active {
     transform: scale(0.98);
@@ -135,9 +133,6 @@
     height: var(--btn-h);
     line-height: var(--btn-h);
     white-space: nowrap;
-}
-/* Second span (hover text) is white for filled buttons */
-.btn-flux__text-inner span:last-child {
     color: #fff;
 }
 .btn-flux:hover .btn-flux__text-inner {
@@ -253,9 +248,8 @@
 .btn-flux.reimb-act--kodo,
 .btn-flux.reimb-act--email,
 .btn-flux.reimb-act--approval {
-    background: #ffffff !important;
-    color: #1e293b !important;
-    border: 1.5px solid #e2e8f0 !important;
+    background: #0369a1 !important;
+    color: #fff !important;
     transform: none;
     box-shadow: none;
 }
@@ -275,47 +269,37 @@
     transform: scale(1.03) !important;
     box-shadow: 0 8px 25px rgba(3, 105, 161, 0.35) !important;
 }
-.btn-flux.reimb-act--email { color: #1e293b !important; }
+.btn-flux.reimb-act--email { color: #fff !important; }
 .btn-flux.reimb-act--email svg { stroke: currentColor !important; }
-.btn-flux.reimb-act:hover { color: #fff !important; border-color: transparent !important; }
 
 .btn-flux.quick-add-btn-next,
 .btn-flux.quick-add-btn-save {
-    background: #ffffff !important;
-    color: #1e293b !important;
-    border: 1.5px solid #e2e8f0 !important;
+    background: #0369a1 !important;
     border-radius: 999px !important;
     padding: 8px 20px !important;
 }
-.btn-flux.quick-add-btn-next:hover,
-.btn-flux.quick-add-btn-save:hover { color: #fff !important; border-color: transparent !important; }
+.btn-flux.quick-add-btn-save {
+    background: #0369a1 !important;
+}
 
 .btn-flux.kodo-confirm-modal__btn--submit,
 .btn-flux.kodo-btn-primary {
-    background: #ffffff !important;
-    color: #1e293b !important;
-    border: 1.5px solid #e2e8f0 !important;
+    background: #0369a1 !important;
     border-radius: 999px !important;
 }
 
 .btn-flux.admin-btn--primary {
-    background: #ffffff !important;
-    color: #1e293b !important;
-    border: 1.5px solid #e2e8f0 !important;
+    background: #0369a1 !important;
     border-radius: 999px !important;
 }
 
 .btn-flux.profile-save-btn {
-    background: #ffffff !important;
-    color: #1e293b !important;
-    border: 1.5px solid #e2e8f0 !important;
+    background: #0369a1 !important;
     border-radius: 999px !important;
 }
 
 .btn-flux.exp-btn--dark {
-    background: #ffffff !important;
-    color: #1e293b !important;
-    border: 1.5px solid #e2e8f0 !important;
+    background: #0369a1 !important;
     border-radius: 999px !important;
     padding: 12px 24px !important;
 }
