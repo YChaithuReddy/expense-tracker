@@ -555,14 +555,18 @@ if (canvas) {
        .then(() => {
            canvas.style.opacity = '1';
 
-           // Pull camera back to show full robot body
+           // Show more robot body — zoom out slightly
            try {
                const cam = app.findObjectByName('Camera 2');
                if (cam) {
-                   cam.position.z += 800;
-                   cam.position.y += 100;
+                   cam.position.z = cam.position.z + 800;
+                   cam.position.y = cam.position.y + 100;
+               } else {
+                   app.setZoom(0.75);
                }
-           } catch(e) {}
+           } catch(e) {
+               try { app.setZoom(0.75); } catch(e2) {}
+           }
 
            // Track mouse across entire page
            let forwarding = false;
