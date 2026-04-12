@@ -1607,6 +1607,33 @@ const api = {
         return { success: true, newStatus };
     },
 
+    /**
+     * Get active advances for a specific employee that are pending voucher submission.
+     * Used by accountants/managers before approving new advances.
+     * @param {string} employeeUserId - The employee's user ID
+     * @returns {Array} Active advances with days elapsed info
+     */
+    async getEmployeePendingVoucherAdvances(employeeUserId) {
+        const supabase = getSupabase();
+
+        const { data: advances, error } = await supabase
+            .from('advances')
+            .select('id, project_name, amount, status, created_at, accountant_action_at')
+            .eq('user_id', employeeUserId)
+            .eq('status', 'active')
+            .order('created_at', { ascending: false });
+
+        if (error) handleError(error, 'Get employee pending advances');
+        if (!advances || advances.length === 0) return [];
+
+        const now = new Date();
+        return advances.map(adv => {
+            const startDate = new Date(adv.accountant_action_at || adv.created_at);
+            const daysPassed = Math.floor((now - startDate) / (1000 * 60 * 60 * 24));
+            return { ...adv, daysPassed, daysRemaining: Math.max(10 - daysPassed, 0), startDate };
+        });
+    },
+
     async rejectAdvance(advanceId, reason = '') {
         const supabase = getSupabase();
         const user = await getCachedUser();
