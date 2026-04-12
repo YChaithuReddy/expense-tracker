@@ -15,7 +15,7 @@
     <link rel="manifest" href="manifest.json">
     <!-- Preload Spline 3D scene for faster render -->
     <link rel="preload" href="https://prod.spline.design/wLHamc0WWj5tZcPW/scene.splinecode" as="fetch" crossorigin="anonymous">
-    <link rel="preload" href="https://unpkg.com/@splinetool/viewer@1.9.82/build/spline-viewer.js" as="script" crossorigin="anonymous">
+    <link rel="preload" href="https://unpkg.com/@splinetool/runtime@1.9.82/build/runtime.js" as="script" crossorigin="anonymous">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -812,11 +812,14 @@ if (canvas) {
        .then(() => {
            canvas.style.opacity = '1';
 
-           // Debug: list all objects in scene to find camera name
+           // Pull camera back to show full robot body
            try {
-               const allObjects = app.getAllObjects();
-               console.log('Spline scene objects:', allObjects.map(o => o.name + ' (' + o.type + ')'));
-           } catch(e) { console.warn('Debug:', e); }
+               const cam = app.findObjectByName('Camera 2');
+               if (cam) {
+                   cam.position.z += 800;
+                   cam.position.y += 100;
+               }
+           } catch(e) {}
 
            // Track mouse across entire page, not just canvas
            let forwarding = false;

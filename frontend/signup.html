@@ -555,11 +555,14 @@ if (canvas) {
        .then(() => {
            canvas.style.opacity = '1';
 
-           // Debug: list all objects in scene
+           // Pull camera back to show full robot body
            try {
-               const allObjects = app.getAllObjects();
-               console.log('Spline scene objects:', allObjects.map(o => o.name + ' (' + o.type + ')'));
-           } catch(e) { console.warn('Debug:', e); }
+               const cam = app.findObjectByName('Camera 2');
+               if (cam) {
+                   cam.position.z += 800;
+                   cam.position.y += 100;
+               }
+           } catch(e) {}
 
            // Track mouse across entire page
            let forwarding = false;
