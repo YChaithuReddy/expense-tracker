@@ -1520,6 +1520,10 @@ h3.admin-section-label {
     font-size: 0.88rem;
     font-weight: 600;
     cursor: pointer;
+    overflow: hidden;
+}
+.exp-card--scan #scanBills .btn-flux__arrow {
+    display: none !important;
 }
 .exp-card--scan #scanBills:hover {
     box-shadow: 0 4px 14px rgba(14, 165, 233, 0.3);
