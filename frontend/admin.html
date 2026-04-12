@@ -1443,20 +1443,82 @@ WDL1,WONDERLA,Amusement Park,Amusement Park</code>
             container.innerHTML = `<div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Code</th><th>Name</th><th>Client</th><th>Budget</th><th>Status</th><th>Created</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
         }
 
-        async function openCreateProject() {
-            const name = prompt('Project Name:');
-            if (!name) return;
-            const code = prompt('Project Code (e.g., ITJ1):') || '';
-            const client = prompt('Client Name (optional):') || '';
-            const budget = prompt('Budget in ₹ (optional):') || '';
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
-            try {
-                const projectData = { project_name: name, client_name: client, budget: budget };
-                if (code) projectData.project_code = code;
-                const result = await api.createProject(user.organization_id, projectData);
-                alert('Project created: ' + result.data.project_code);
-                loadProjects();
-            } catch (e) { alert('Failed: ' + e.message); }
+        function openCreateProject() {
+            document.getElementById('createProjectOverlay')?.remove();
+
+            const overlay = document.createElement('div');
+            overlay.id = 'createProjectOverlay';
+            overlay.style.cssText = 'position:fixed;inset:0;z-index:10001;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);';
+
+            overlay.innerHTML = `
+                <div class="project-create-modal" style="background:#fff;border-radius:16px;padding:28px 32px;width:90%;max-width:480px;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+                    <h3 style="margin:0 0 4px;font-size:1.05rem;font-weight:700;color:#0f172a;">Create New Project</h3>
+                    <p style="color:#64748b;font-size:0.82rem;margin:0 0 20px;">Project code will be auto-generated if left empty</p>
+                    <form id="adminCreateProjectForm">
+                        <div class="admin-form-group">
+                            <label>Project Name *</label>
+                            <input type="text" id="acpName" placeholder="e.g., Highway Bridge Construction" required>
+                        </div>
+                        <div class="admin-form-group">
+                            <label>Project Code (optional)</label>
+                            <input type="text" id="acpCode" placeholder="e.g., ITJ1 — auto-generated if blank">
+                        </div>
+                        <div class="admin-form-group">
+                            <label>Client Name</label>
+                            <input type="text" id="acpClient" placeholder="e.g., NHAI">
+                        </div>
+                        <div style="display:flex;gap:12px;">
+                            <div class="admin-form-group" style="flex:1;">
+                                <label>Budget (\u20B9)</label>
+                                <input type="number" id="acpBudget" placeholder="0.00" step="0.01">
+                            </div>
+                            <div class="admin-form-group" style="flex:1;">
+                                <label>Status</label>
+                                <select id="acpStatus" class="admin-role-select" style="width:100%;padding:10px;">
+                                    <option value="active">Active</option>
+                                    <option value="on_hold">On Hold</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px;">
+                            <button type="button" class="admin-btn admin-btn--secondary" onclick="document.getElementById('createProjectOverlay').remove()">Cancel</button>
+                            <button type="submit" class="admin-btn admin-btn--primary" id="acpSubmitBtn">Create Project</button>
+                        </div>
+                    </form>
+                </div>
+            `;
+
+            document.body.appendChild(overlay);
+            overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+            document.getElementById('acpName').focus();
+
+            document.getElementById('adminCreateProjectForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btn = document.getElementById('acpSubmitBtn');
+                btn.disabled = true;
+                btn.textContent = 'Creating...';
+
+                try {
+                    const user = JSON.parse(localStorage.getItem('user') || '{}');
+                    const projectData = {
+                        project_name: document.getElementById('acpName').value.trim(),
+                        client_name: document.getElementById('acpClient').value.trim() || null,
+                        budget: document.getElementById('acpBudget').value || null,
+                        status: document.getElementById('acpStatus').value
+                    };
+                    const code = document.getElementById('acpCode').value.trim();
+                    if (code) projectData.project_code = code;
+
+                    const result = await api.createProject(user.organization_id, projectData);
+                    overlay.remove();
+                    if (window.showToast) showToast('Project created: ' + result.data.project_code, 'success');
+                    loadProjects();
+                } catch (err) {
+                    if (window.showToast) showToast('Failed: ' + err.message, 'error');
+                    btn.disabled = false;
+                    btn.textContent = 'Create Project';
+                }
+            });
         }
 
         async function updateProjectStatus(id, status) {
