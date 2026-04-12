@@ -231,14 +231,22 @@
         @keyframes fadeSlideRight { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
         @keyframes scaleIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
 
-        /* Override labels from styles.css */
+        /* Override labels for dark form */
         .signup-panel-right label {
             text-transform: none !important;
             font-size: 0.84rem !important;
             font-weight: 500 !important;
             letter-spacing: normal !important;
-            color: var(--gray-700) !important;
+            color: rgba(255,255,255,0.6) !important;
         }
+        .signup-panel-right {
+            pointer-events: none;
+        }
+        .signup-panel-right a,
+        .signup-panel-right button,
+        .signup-panel-right input,
+        .signup-panel-right select,
+        .signup-panel-right .signup-form-card { pointer-events: auto; }
 
         /* ─── Right Panel — Glass card on dark bg ─── */
         .signup-panel-right {
@@ -259,12 +267,14 @@
             max-width: 440px;
             position: relative;
             z-index: 1;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border-radius: 24px;
             padding: 36px 32px;
-            box-shadow: 0 24px 80px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 24px 80px rgba(0,0,0,0.3);
+            pointer-events: auto;
             opacity: 0;
             animation: formCardIn 0.6s 0.3s cubic-bezier(0.22,1,0.36,1) forwards;
         }
@@ -273,28 +283,27 @@
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
-        /* Mobile logo */
         .mobile-brand { display: none; margin-bottom: 20px; }
         .mobile-brand-pill {
-            background: var(--white);
+            background: rgba(255,255,255,0.06);
             border-radius: 12px;
             padding: 10px 20px;
             display: inline-flex;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+            border: 1px solid rgba(255,255,255,0.1);
         }
-        .mobile-brand-pill img { height: 44px; width: auto; object-fit: contain; }
+        .mobile-brand-pill img { height: 44px; width: auto; object-fit: contain; filter: brightness(1.5); }
 
         .form-header { margin-bottom: 20px; }
         .form-header-title {
             font-size: 1.6rem;
             font-weight: 800;
-            color: var(--gray-900);
+            color: #ffffff;
             letter-spacing: -0.02em;
         }
         .form-header-sub {
             margin-top: 6px;
             font-size: 0.88rem;
-            color: var(--gray-500);
+            color: rgba(255,255,255,0.55);
         }
 
         /* Message */
@@ -314,7 +323,7 @@
             display: block;
             font-size: 12px;
             font-weight: 600;
-            color: var(--gray-500);
+            color: rgba(255,255,255,0.6);
             letter-spacing: 0.04em;
             text-transform: uppercase;
             margin-bottom: 6px;
@@ -322,30 +331,30 @@
         .form-group input {
             width: 100%;
             padding: 11px 16px;
-            background: var(--gray-50);
-            border: 1.5px solid var(--gray-200);
+            background: rgba(255,255,255,0.06);
+            border: 1.5px solid rgba(255,255,255,0.15);
             border-radius: 10px;
-            color: var(--gray-900);
+            color: #ffffff;
             font-size: 0.92rem;
             font-family: var(--font);
             transition: border-color 0.2s, box-shadow 0.2s;
             outline: none;
             min-height: 48px;
         }
-        .form-group input::placeholder { color: var(--gray-400); }
+        .form-group input::placeholder { color: rgba(255,255,255,0.35); }
         .form-group input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(17,24,39,0.08);
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 3px rgba(56,189,248,0.15);
         }
         .form-group input:-webkit-autofill {
-            -webkit-box-shadow: 0 0 0 30px var(--white) inset !important;
-            -webkit-text-fill-color: var(--gray-900) !important;
+            -webkit-box-shadow: 0 0 0 30px #0a0a0f inset !important;
+            -webkit-text-fill-color: #ffffff !important;
         }
         .form-group small {
             display: block;
             margin-top: 4px;
             font-size: 0.72rem;
-            color: var(--gray-500);
+            color: rgba(255,255,255,0.4);
         }
 
         .password-input-wrapper { position: relative; width: 100%; }
@@ -356,7 +365,7 @@
             top: 50%;
             transform: translateY(-50%);
             cursor: pointer;
-            color: var(--gray-400);
+            color: rgba(255,255,255,0.5);
             font-size: 16px;
             user-select: none;
             transition: color 0.2s;
@@ -364,34 +373,34 @@
             display: flex; align-items: center; justify-content: center;
             background: none; border: none; padding: 2px;
         }
-        .password-toggle-icon:hover { color: var(--gray-700); }
+        .password-toggle-icon:hover { color: rgba(255,255,255,0.8); }
 
         .btn-signup {
             width: 100%;
             padding: 13px;
             border: none;
             border-radius: 10px;
-            background: var(--accent);
-            color: var(--white);
+            background: linear-gradient(135deg, #0ea5e9, #0369a1);
+            color: #fff;
             font-size: 0.95rem;
             font-weight: 700;
             font-family: var(--font);
             cursor: pointer;
-            transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
-            box-shadow: 0 4px 14px rgba(17,24,39,0.2);
+            transition: transform 0.15s, box-shadow 0.15s;
+            box-shadow: 0 4px 14px rgba(14,165,233,0.3);
             margin-top: 6px;
         }
-        .btn-signup:hover:not(:disabled) { transform: translateY(-1px); background: var(--gray-700); box-shadow: 0 6px 20px rgba(17,24,39,0.25); }
+        .btn-signup:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(14,165,233,0.45); }
         .btn-signup:disabled { opacity: 0.6; cursor: not-allowed; }
 
         .auth-footer {
             text-align: center;
             margin-top: 20px;
             font-size: 0.84rem;
-            color: var(--gray-500);
+            color: rgba(255,255,255,0.4);
         }
         .auth-footer a {
-            color: var(--accent);
+            color: #38bdf8;
             text-decoration: none;
             font-weight: 600;
         }
