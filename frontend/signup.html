@@ -13,6 +13,8 @@
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="apple-touch-icon" href="icons/icon-192x192.svg">
     <link rel="manifest" href="manifest.json">
+    <link rel="preload" href="https://prod.spline.design/DVtn-yVvr-j200zD/scene.splinecode" as="fetch" crossorigin="anonymous">
+    <link rel="preload" href="https://unpkg.com/@splinetool/runtime@1.9.82/build/runtime.js" as="script" crossorigin="anonymous">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -89,16 +91,10 @@
             z-index: 0;
             overflow: hidden;
         }
-        .spline-bg spline-viewer {
+        .spline-bg canvas {
             width: 100% !important;
             height: 100% !important;
             display: block;
-        }
-        .spline-bg #logo,
-        .spline-bg [id*="logo"] {
-            display: none !important;
-            opacity: 0 !important;
-            pointer-events: none !important;
         }
 
         .brand-top-row { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
@@ -380,9 +376,9 @@
 <div class="signup-shell">
     <!-- Left Panel — Branding + 3D Scene -->
     <aside class="signup-panel-left">
-        <!-- Spline 3D — full-panel background -->
+        <!-- Spline 3D — full-panel background (runtime for smooth mouse) -->
         <div class="spline-bg">
-            <spline-viewer url="https://prod.spline.design/DVtn-yVvr-j200zD/scene.splinecode" loading-anim-type="spinner-small-dark"></spline-viewer>
+            <canvas id="spline3d"></canvas>
         </div>
 
         <div class="gradient-wave"></div>
@@ -492,8 +488,18 @@
     </main>
 </div>
 
-<!-- Spline 3D Viewer -->
-<script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.82/build/spline-viewer.js"></script>
+<!-- Spline 3D Runtime — direct canvas for smooth mouse tracking -->
+<script type="module">
+import { Application } from 'https://unpkg.com/@splinetool/runtime@1.9.82/build/runtime.js';
+const canvas = document.getElementById('spline3d');
+if (canvas) {
+    const app = new Application(canvas);
+    app.load('https://prod.spline.design/DVtn-yVvr-j200zD/scene.splinecode')
+       .then(() => { canvas.style.opacity = '1'; });
+    canvas.style.opacity = '0';
+    canvas.style.transition = 'opacity 0.5s ease';
+}
+</script>
 
 <!-- Supabase SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
