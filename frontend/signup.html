@@ -13,7 +13,7 @@
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="apple-touch-icon" href="icons/icon-192x192.svg">
     <link rel="manifest" href="manifest.json">
-    <link rel="preload" href="https://prod.spline.design/DVtn-yVvr-j200zD/scene.splinecode" as="fetch" crossorigin="anonymous">
+    <link rel="preload" href="https://prod.spline.design/wLHamc0WWj5tZcPW/scene.splinecode" as="fetch" crossorigin="anonymous">
     <link rel="preload" href="https://unpkg.com/@splinetool/runtime@1.9.82/build/runtime.js" as="script" crossorigin="anonymous">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -551,10 +551,9 @@ import { Application } from 'https://unpkg.com/@splinetool/runtime@1.9.82/build/
 const canvas = document.getElementById('spline3d');
 if (canvas) {
     const app = new Application(canvas);
-    app.load('https://prod.spline.design/DVtn-yVvr-j200zD/scene.splinecode')
+    app.load('https://prod.spline.design/wLHamc0WWj5tZcPW/scene.splinecode')
        .then(() => {
            canvas.style.opacity = '1';
-           try { app.setZoom(1.3); } catch(e) {}
            document.addEventListener('mousemove', (e) => {
                const fakeEvent = new MouseEvent('mousemove', {
                    clientX: e.clientX,
