@@ -90,37 +90,40 @@
 
         .left-content {
             position: relative;
-            z-index: 1;
+            z-index: 2;
             display: flex;
             flex-direction: column;
             height: 100%;
             justify-content: space-between;
+            pointer-events: none;
         }
+        .left-content * { pointer-events: auto; }
 
-        /* Spline 3D Viewer */
-        .spline-viewer-wrap {
-            position: relative;
-            width: 100%;
-            flex: 1;
-            min-height: 220px;
-            max-height: 380px;
-            border-radius: 16px;
+        /* Spline 3D — full-panel background */
+        .spline-bg {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
             overflow: hidden;
-            margin: 12px 0;
-            opacity: 0;
-            animation: scaleIn 0.6s 0.4s cubic-bezier(0.22,1,0.36,1) forwards;
         }
-        .spline-viewer-wrap spline-viewer {
+        .spline-bg spline-viewer {
             width: 100% !important;
             height: 100% !important;
             display: block;
-            border-radius: 16px;
         }
-        .spline-viewer-wrap #logo,
-        .spline-viewer-wrap [id*="logo"] {
+        .spline-bg #logo,
+        .spline-bg [id*="logo"] {
             display: none !important;
             opacity: 0 !important;
             pointer-events: none !important;
+        }
+        .glass-card {
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 20px 24px;
         }
 
         .brand-top-row { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
@@ -216,7 +219,7 @@
         /* Entrance animations */
         .left-eyebrow       { opacity: 0; animation: fadeSlideUp 0.6s 0.1s cubic-bezier(0.22,1,0.36,1) forwards; }
         .left-headline       { opacity: 0; animation: fadeSlideUp 0.6s 0.25s cubic-bezier(0.22,1,0.36,1) forwards; }
-        .spline-viewer-wrap  { opacity: 0; animation: scaleIn 0.6s 0.4s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .spline-bg           { opacity: 0; animation: scaleIn 0.8s 0.2s cubic-bezier(0.22,1,0.36,1) forwards; }
         .left-subtext        { opacity: 0; animation: fadeSlideUp 0.5s 0.5s cubic-bezier(0.22,1,0.36,1) forwards; }
         .left-feature:nth-child(1) { opacity: 0; animation: fadeSlideRight 0.4s 0.6s cubic-bezier(0.22,1,0.36,1) forwards; }
         .left-feature:nth-child(2) { opacity: 0; animation: fadeSlideRight 0.4s 0.72s cubic-bezier(0.22,1,0.36,1) forwards; }
@@ -399,8 +402,13 @@
 <body>
 
 <div class="signup-shell">
-    <!-- Left Panel — Branding -->
+    <!-- Left Panel — Branding + 3D Scene -->
     <aside class="signup-panel-left">
+        <!-- Spline 3D — full-panel background -->
+        <div class="spline-bg">
+            <spline-viewer url="https://prod.spline.design/DVtn-yVvr-j200zD/scene.splinecode" loading-anim-type="spinner-small-dark"></spline-viewer>
+        </div>
+
         <div class="gradient-wave"></div>
         <div class="bubbles-container">
             <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
@@ -409,7 +417,7 @@
             <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
         </div>
         <div class="left-content">
-            <div class="brand-top-row">
+            <div class="glass-card brand-top-row">
                 <div class="brand-top-text">
                     <span class="left-eyebrow">
                         <span class="left-eyebrow-dot"></span>
@@ -422,12 +430,7 @@
                 </div>
             </div>
 
-            <!-- Spline 3D Interactive Scene -->
-            <div class="spline-viewer-wrap">
-                <spline-viewer url="https://prod.spline.design/DVtn-yVvr-j200zD/scene.splinecode" loading-anim-type="spinner-small-dark"></spline-viewer>
-            </div>
-
-            <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:20px 0;">
+            <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:20px 24px;background:rgba(0,0,0,0.3);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.06);border-radius:16px;margin:12px 0;">
                 <p class="left-subtext">
                     Create your account and join innovative teams transforming their expense workflows — from receipt to reimbursement in minutes.
                 </p>
