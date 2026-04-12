@@ -9057,12 +9057,23 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
     filterByAdvance(advanceId, projectName) {
         this.filterAdvanceId = advanceId;
         this.filterAdvanceName = projectName;
+
+        // Switch to History section where expense list is visible
+        const historyBtn = document.querySelector('[data-section="history"]');
+        if (historyBtn) {
+            switchSection('history', historyBtn);
+        }
+
         this.applyFilters();
         this.displayExpenses();
-        // Scroll to expense list
-        const expensesList = document.getElementById('expensesList');
-        if (expensesList) expensesList.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        this.showNotification(`Showing expenses for ${projectName}`);
+
+        // Scroll to expense list after section switch
+        setTimeout(() => {
+            const expensesList = document.getElementById('expensesList');
+            if (expensesList) expensesList.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+
+        this.showNotification(`Showing expenses linked to "${projectName}"`);
     }
 
     async closeAdvance(advanceId) {
