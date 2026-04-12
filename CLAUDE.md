@@ -182,6 +182,33 @@ The design review agent will:
 - **Debugging Specialist**: `.claude/agents/debugging-specialist.md`
 - **Slash Commands**: `.claude/commands/design-review.md`
 
+## Drawbridge (Visual Annotation Tool)
+
+Drawbridge is a Chrome extension that lets you make visual comments on the live app (like Figma commenting) and sends them to Claude Code for implementation.
+
+### Setup
+- Chrome extension is at `drawbridge/chrome-extension/` - load as unpacked extension
+- `/bridge` slash command processes annotation tasks
+
+### Workflow
+1. Open your app in the browser
+2. Click the Drawbridge extension icon, click "Connect", select this project folder
+3. Press `C` to comment on DOM elements, or `R` to draw rectangle annotations
+4. Tasks sync to `.moat/moat-tasks-detail.json` and `.moat/moat-tasks.md`
+5. Run `/bridge` in Claude Code to process tasks (step/batch/yolo modes)
+
+### Key Files
+- `.moat/moat-tasks-detail.json` - Primary task data (source of truth)
+- `.moat/moat-tasks.md` - Human-readable task checklist
+- `.moat/screenshots/` - Visual context screenshots
+- `drawbridge-workflow.md` - AI workflow rules (project root)
+- `.claude/commands/bridge.md` - `/bridge` slash command
+
+### Keyboard Shortcuts (in browser)
+- `C` - Comment mode (click DOM elements)
+- `R` - Rectangle mode (draw freeform areas)
+- `Esc` - Exit annotation mode
+
 ## Active Hooks (7 total - full lifecycle coverage)
 
 | Hook | Event | What It Does |
