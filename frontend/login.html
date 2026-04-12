@@ -107,11 +107,10 @@
         }
         @keyframes dotPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-        /* === 1. FLOATING WATER BUBBLES (hidden — replaced by Spline 3D) === */
+        /* === 1. FLOATING WATER BUBBLES === */
         .bubbles-container {
-            display: none;
             position: absolute; inset: 0; overflow: hidden;
-            pointer-events: none; z-index: 0;
+            pointer-events: none; z-index: 1;
         }
         .bubble {
             position: absolute;
@@ -140,11 +139,10 @@
         .bubble:nth-child(11) { left: 25%; width: 6px;  height: 6px;  animation-duration: 9s;  animation-delay: 6s; }
         .bubble:nth-child(12) { left: 55%; width: 16px; height: 16px; animation-duration: 13s; animation-delay: 8s; }
 
-        /* === 2. GRADIENT WAVE (hidden — replaced by Spline 3D) === */
+        /* === 2. GRADIENT WAVE BACKGROUND === */
         .gradient-wave {
-            display: none;
             position: absolute; inset: 0;
-            pointer-events: none; z-index: 0;
+            pointer-events: none; z-index: 1;
             background:
                 radial-gradient(ellipse 50% 40% at 20% 50%, rgba(14, 116, 144, 0.15) 0%, transparent 70%),
                 radial-gradient(ellipse 40% 50% at 80% 30%, rgba(56, 189, 248, 0.08) 0%, transparent 70%);
