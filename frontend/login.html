@@ -96,7 +96,8 @@
             pointer-events: none;
         }
 
-        .left-content { position: relative; z-index: 1; display: flex; flex-direction: column; height: 100%; justify-content: space-between; }
+        .left-content { position: relative; z-index: 2; display: flex; flex-direction: column; height: 100%; justify-content: space-between; pointer-events: none; }
+        .left-content * { pointer-events: auto; }
 
         .brand-top-row { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
         .brand-top-text { flex: 1; min-width: 0; }
@@ -205,7 +206,7 @@
         /* Left panel staggered entrance */
         .left-eyebrow       { opacity: 0; animation: fadeSlideUp 0.6s 0.1s cubic-bezier(0.22,1,0.36,1) forwards; }
         .left-headline       { opacity: 0; animation: fadeSlideUp 0.6s 0.25s cubic-bezier(0.22,1,0.36,1) forwards; }
-        .spline-viewer-wrap  { opacity: 0; animation: scaleIn 0.6s 0.4s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .spline-bg           { opacity: 0; animation: scaleIn 0.8s 0.2s cubic-bezier(0.22,1,0.36,1) forwards; }
         .left-subtext        { opacity: 0; animation: fadeSlideUp 0.5s 0.5s cubic-bezier(0.22,1,0.36,1) forwards; }
         .left-feature:nth-child(1) { opacity: 0; animation: fadeSlideRight 0.4s 0.6s cubic-bezier(0.22,1,0.36,1) forwards; }
         .left-feature:nth-child(2) { opacity: 0; animation: fadeSlideRight 0.4s 0.72s cubic-bezier(0.22,1,0.36,1) forwards; }
@@ -220,34 +221,46 @@
         .auth-divider        { opacity: 0; animation: fadeSlideUp 0.3s 0.7s cubic-bezier(0.22,1,0.36,1) forwards; }
         .btn-flux--outline   { opacity: 0; animation: fadeSlideUp 0.4s 0.8s cubic-bezier(0.22,1,0.36,1) forwards; }
 
-        /* Spline 3D Viewer */
-        .spline-viewer-wrap {
-            position: relative;
-            width: 100%;
-            flex: 1;
-            min-height: 220px;
-            max-height: 380px;
-            border-radius: 16px;
+        /* Spline 3D Viewer — full-panel background */
+        .spline-bg {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
             overflow: hidden;
-            margin: 12px 0;
-            opacity: 0;
-            animation: scaleIn 0.6s 0.4s cubic-bezier(0.22,1,0.36,1) forwards;
         }
-        .spline-viewer-wrap spline-viewer {
+        .spline-bg spline-viewer {
             width: 100% !important;
             height: 100% !important;
             display: block;
-            border-radius: 16px;
         }
         /* Hide Spline branding watermark */
-        .spline-viewer-wrap #logo,
-        .spline-viewer-wrap [id*="logo"] {
+        .spline-bg #logo,
+        .spline-bg [id*="logo"] {
             display: none !important;
             opacity: 0 !important;
             pointer-events: none !important;
         }
 
-        .left-hero { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 20px 0; }
+        /* Glass overlay for text readability on top of 3D scene */
+        .glass-card {
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 20px 24px;
+        }
+
+        .left-hero {
+            flex: 1; display: flex; flex-direction: column; justify-content: center;
+            padding: 20px 24px;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            margin: 12px 0;
+        }
 
         .left-headline {
             font-size: clamp(26px, 3vw, 38px); font-weight: 800;
@@ -273,10 +286,11 @@
             gap: 0;
             margin-top: 32px;
             padding: 18px 20px;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255,255,255,0.1);
             border-radius: 16px;
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             opacity: 0;
             animation: fadeSlideUp 0.5s 1.1s cubic-bezier(0.22,1,0.36,1) forwards;
         }
@@ -320,6 +334,8 @@
             gap: 8px;
             padding: 8px 14px;
             border-radius: 10px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             background: rgba(255,255,255,0.04);
             border: 1px solid rgba(255,255,255,0.08);
             font-size: 0.7rem;
@@ -513,8 +529,13 @@
 
 <div class="login-shell">
 
-    <!-- LEFT PANEL — Branding -->
+    <!-- LEFT PANEL — Branding + 3D Scene -->
     <aside class="login-panel-left">
+        <!-- Spline 3D — full-panel background layer -->
+        <div class="spline-bg">
+            <spline-viewer url="https://prod.spline.design/DVtn-yVvr-j200zD/scene.splinecode" loading-anim-type="spinner-small-dark"></spline-viewer>
+        </div>
+
         <!-- Animated background layers -->
         <div class="gradient-wave"></div>
         <div class="bubbles-container">
@@ -524,7 +545,7 @@
             <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
         </div>
         <div class="left-content">
-            <div class="brand-top-row">
+            <div class="glass-card brand-top-row">
                 <div class="brand-top-text">
                     <span class="left-eyebrow">
                         <span class="left-eyebrow-dot"></span>
@@ -535,11 +556,6 @@
                         <em>Approve in seconds.</em>
                     </h2>
                 </div>
-            </div>
-
-            <!-- Spline 3D Interactive Scene -->
-            <div class="spline-viewer-wrap">
-                <spline-viewer url="https://prod.spline.design/DVtn-yVvr-j200zD/scene.splinecode" loading-anim-type="spinner-small-dark"></spline-viewer>
             </div>
 
             <div class="left-hero">
