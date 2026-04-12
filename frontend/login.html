@@ -62,25 +62,26 @@
             overflow-y: auto;
         }
 
-        /* ─── Layout ─── */
+        /* ─── Layout — Full-page 3D background ─── */
         .login-shell {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+            position: relative;
+            display: flex;
+            align-items: stretch;
             min-height: 100vh;
+            background: #0a0a0f;
+            overflow: hidden;
         }
 
-        /* ─── Left Panel ─── */
+        /* Left branding area — takes left half */
         .login-panel-left {
             position: relative;
+            flex: 1;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             padding: 40px 48px;
-            background: #0a0a0f;
             overflow: hidden;
         }
-        .login-panel-left::before,
-        .login-panel-left::after { display: none; }
 
         .left-content {
             position: relative; z-index: 2;
@@ -107,9 +108,9 @@
         }
         @keyframes dotPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-        /* === 1. FLOATING WATER BUBBLES === */
+        /* === 1. FLOATING WATER BUBBLES (full page) === */
         .bubbles-container {
-            position: absolute; inset: 0; overflow: hidden;
+            position: fixed; inset: 0; overflow: hidden;
             pointer-events: none; z-index: 1;
         }
         .bubble {
@@ -171,9 +172,9 @@
             100% { width: 70px; height: 16px; opacity: 0; }
         }
 
-        /* === 2. GRADIENT WAVE BACKGROUND === */
+        /* === 2. GRADIENT WAVE (full page) === */
         .gradient-wave {
-            position: absolute; inset: 0;
+            position: fixed; inset: 0;
             pointer-events: none; z-index: 1;
             background:
                 radial-gradient(ellipse 50% 40% at 20% 50%, rgba(14, 116, 144, 0.15) 0%, transparent 70%),
@@ -246,9 +247,9 @@
         .auth-divider        { opacity: 0; animation: fadeSlideUp 0.3s 0.7s cubic-bezier(0.22,1,0.36,1) forwards; }
         .btn-flux--outline   { opacity: 0; animation: fadeSlideUp 0.4s 0.8s cubic-bezier(0.22,1,0.36,1) forwards; }
 
-        /* Spline 3D — seamless full-panel background */
+        /* Spline 3D — covers entire page */
         .spline-bg {
-            position: absolute;
+            position: fixed;
             inset: 0;
             z-index: 0;
             overflow: hidden;
@@ -357,13 +358,31 @@
 
         .left-footer { font-size: 12px; color: var(--gray-500); letter-spacing: 0.01em; }
 
-        /* ─── Right Panel ─── */
+        /* ─── Right Panel — Glass card on dark bg ─── */
         .login-panel-right {
             display: flex; align-items: center; justify-content: center;
-            padding: 24px 40px; background: var(--white);
+            padding: 24px 40px;
+            background: transparent;
             overflow-y: auto;
+            position: relative;
+            z-index: 2;
+            flex: 0 0 480px;
         }
-        .login-form-card { width: 100%; max-width: 400px; }
+        .login-form-card {
+            width: 100%; max-width: 420px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 36px 32px;
+            box-shadow: 0 24px 80px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.1);
+            opacity: 0;
+            animation: formCardIn 0.6s 0.3s cubic-bezier(0.22,1,0.36,1) forwards;
+        }
+        @keyframes formCardIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
 
         .mobile-brand { display: none; text-align: center; margin-bottom: 24px; }
         .mobile-brand-pill {
@@ -509,15 +528,15 @@
         .apk-btn svg { width: 14px; height: 14px; stroke: currentColor; }
 
         /* Footer */
-        .auth-footer { text-align: center; margin-top: 14px; font-size: 0.82rem; color: var(--gray-500); padding: 12px 0; }
-        .auth-footer a { color: var(--accent); font-weight: 600; text-decoration: none; }
+        .auth-footer { text-align: center; margin-top: 14px; font-size: 0.82rem; color: #64748b; padding: 12px 0; }
+        .auth-footer a { color: #0369a1; font-weight: 600; text-decoration: none; }
         .auth-footer a:hover { text-decoration: underline; }
 
         /* ─── Responsive ─── */
         @media (max-width: 900px) {
-            .login-shell { grid-template-columns: 1fr; }
+            .login-shell { flex-direction: column; }
             .login-panel-left { display: none; }
-            .login-panel-right { padding: 40px 24px; }
+            .login-panel-right { flex: 1; padding: 40px 24px; }
             .mobile-brand { display: block; }
         }
         @media (max-width: 480px) {
@@ -529,13 +548,13 @@
 
 <div class="login-shell">
 
-    <!-- LEFT PANEL — Branding + 3D Scene -->
-    <aside class="login-panel-left">
-        <!-- Spline 3D — full-panel background (runtime for smooth mouse) -->
-        <div class="spline-bg">
-            <canvas id="spline3d"></canvas>
-        </div>
+    <!-- Spline 3D — full-page background -->
+    <div class="spline-bg">
+        <canvas id="spline3d"></canvas>
+    </div>
 
+    <!-- LEFT — Branding text -->
+    <aside class="login-panel-left">
         <!-- Animated background layers -->
         <div class="gradient-wave"></div>
         <div class="bubbles-container">
