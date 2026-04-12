@@ -497,7 +497,17 @@ const canvas = document.getElementById('spline3d');
 if (canvas) {
     const app = new Application(canvas);
     app.load('https://prod.spline.design/DVtn-yVvr-j200zD/scene.splinecode')
-       .then(() => { canvas.style.opacity = '1'; });
+       .then(() => {
+           canvas.style.opacity = '1';
+           document.addEventListener('mousemove', (e) => {
+               const fakeEvent = new MouseEvent('mousemove', {
+                   clientX: e.clientX,
+                   clientY: e.clientY,
+                   bubbles: true
+               });
+               canvas.dispatchEvent(fakeEvent);
+           });
+       });
     canvas.style.opacity = '0';
     canvas.style.transition = 'opacity 0.5s ease';
 }
