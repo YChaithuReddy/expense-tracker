@@ -8815,9 +8815,111 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             this.advances = await api.getAdvancesWithBalances();
             this.renderAdvanceCards();
             this.updateAdvanceSectionVisibility();
+            this.checkAdvanceVoucherDeadlines();
         } catch (error) {
             console.error('Error loading advances:', error);
         }
+    }
+
+    /**
+     * Check active advances for voucher submission deadline (10-day policy).
+     * Shows a reminder popup when 7+ days have passed since the advance was activated.
+     * Only shows once per session per advance.
+     */
+    checkAdvanceVoucherDeadlines() {
+        if (!this.advances || this.advances.length === 0) return;
+
+        const DEADLINE_DAYS = 10;
+        const REMINDER_AFTER_DAYS = 7;
+        const now = new Date();
+        const shown = JSON.parse(sessionStorage.getItem('advanceDeadlineReminders') || '[]');
+
+        const dueSoon = this.advances.filter(adv => {
+            if (adv.status !== 'active') return false;
+            if (shown.includes(adv.id)) return false;
+
+            // Use accountant_action_at (company approval date) or created_at (personal mode)
+            const startDate = new Date(adv.accountant_action_at || adv.created_at);
+            const daysPassed = Math.floor((now - startDate) / (1000 * 60 * 60 * 24));
+
+            if (daysPassed >= REMINDER_AFTER_DAYS) {
+                adv._daysPassed = daysPassed;
+                adv._daysRemaining = Math.max(DEADLINE_DAYS - daysPassed, 0);
+                adv._startDate = startDate;
+                return true;
+            }
+            return false;
+        });
+
+        if (dueSoon.length === 0) return;
+
+        // Mark as shown for this session
+        const newShown = [...shown, ...dueSoon.map(a => a.id)];
+        sessionStorage.setItem('advanceDeadlineReminders', JSON.stringify(newShown));
+
+        // Build reminder popup
+        this.showAdvanceDeadlineReminder(dueSoon);
+    }
+
+    showAdvanceDeadlineReminder(advances) {
+        // Remove any existing reminder
+        document.getElementById('advanceDeadlineOverlay')?.remove();
+
+        const rows = advances.map(adv => {
+            const isOverdue = adv._daysRemaining <= 0;
+            const urgencyClass = isOverdue ? 'adv-remind--overdue' : adv._daysRemaining <= 2 ? 'adv-remind--critical' : 'adv-remind--warning';
+            const statusText = isOverdue
+                ? 'OVERDUE'
+                : `${adv._daysRemaining} day${adv._daysRemaining !== 1 ? 's' : ''} left`;
+
+            return `
+                <div class="adv-remind__row ${urgencyClass}">
+                    <div class="adv-remind__project">${adv.project_name || 'Untitled'}</div>
+                    <div class="adv-remind__amount">\u20B9${Number(adv.amount).toLocaleString('en-IN')}</div>
+                    <div class="adv-remind__days">
+                        <span class="adv-remind__badge">${statusText}</span>
+                    </div>
+                    <div class="adv-remind__date">Since ${adv._startDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</div>
+                </div>
+            `;
+        }).join('');
+
+        const overlay = document.createElement('div');
+        overlay.id = 'advanceDeadlineOverlay';
+        overlay.innerHTML = `
+            <div class="adv-remind__backdrop"></div>
+            <div class="adv-remind__modal">
+                <div class="adv-remind__header">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    <div>
+                        <h3 class="adv-remind__title">Voucher Submission Reminder</h3>
+                        <p class="adv-remind__subtitle">${advances.length} advance${advances.length > 1 ? 's' : ''} approaching the 10-day deadline</p>
+                    </div>
+                </div>
+                <div class="adv-remind__body">
+                    ${rows}
+                </div>
+                <div class="adv-remind__footer">
+                    <p class="adv-remind__policy">Please submit vouchers/receipts within 10 days of receiving an advance.</p>
+                    <div class="adv-remind__actions">
+                        <button type="button" class="adv-remind__btn adv-remind__btn--secondary" id="advRemindDismiss">Dismiss</button>
+                        <button type="button" class="adv-remind__btn adv-remind__btn--primary" id="advRemindGoToAdvances">Go to Advances</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(overlay);
+
+        // Event listeners
+        document.getElementById('advRemindDismiss').addEventListener('click', () => overlay.remove());
+        document.getElementById('advRemindGoToAdvances').addEventListener('click', () => {
+            overlay.remove();
+            // Switch to advance section
+            const advBtn = document.querySelector('[data-section="advance"]');
+            if (advBtn) advBtn.click();
+        });
+        overlay.querySelector('.adv-remind__backdrop').addEventListener('click', () => overlay.remove());
     }
 
     updateAdvanceSectionVisibility() {

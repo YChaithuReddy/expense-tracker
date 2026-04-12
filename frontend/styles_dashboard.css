@@ -2867,3 +2867,156 @@ h3.admin-section-label {
     .pagination-btn { padding: 8px 12px; font-size: 0.8rem; }
     .page-size-select { font-size: 0.8rem; }
 }
+
+/* ============================================================
+   ADVANCE VOUCHER DEADLINE REMINDER MODAL
+   ============================================================ */
+.adv-remind__backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    z-index: 10000;
+}
+.adv-remind__modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10001;
+    width: 90%;
+    max-width: 480px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    overflow: hidden;
+    animation: advRemindSlide 0.3s cubic-bezier(0.22,1,0.36,1);
+}
+@keyframes advRemindSlide {
+    from { opacity: 0; transform: translate(-50%, -48%); }
+    to { opacity: 1; transform: translate(-50%, -50%); }
+}
+.adv-remind__header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 20px 24px 14px;
+    border-bottom: 1px solid var(--gray-100);
+}
+.adv-remind__header svg { flex-shrink: 0; margin-top: 2px; }
+.adv-remind__title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--gray-900);
+}
+.adv-remind__subtitle {
+    margin: 2px 0 0;
+    font-size: 0.78rem;
+    color: var(--gray-500);
+}
+.adv-remind__body {
+    padding: 16px 24px;
+    max-height: 280px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.adv-remind__row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 4px 12px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border-left: 4px solid;
+}
+.adv-remind--warning {
+    background: #fffbeb;
+    border-color: #f59e0b;
+}
+.adv-remind--critical {
+    background: #fff7ed;
+    border-color: #ea580c;
+}
+.adv-remind--overdue {
+    background: #fef2f2;
+    border-color: #dc2626;
+}
+.adv-remind__project {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--gray-900);
+}
+.adv-remind__amount {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--gray-700);
+    text-align: right;
+}
+.adv-remind__days {
+    grid-column: 1;
+}
+.adv-remind__badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+.adv-remind--warning .adv-remind__badge {
+    background: #fef3c7;
+    color: #92400e;
+}
+.adv-remind--critical .adv-remind__badge {
+    background: #ffedd5;
+    color: #9a3412;
+}
+.adv-remind--overdue .adv-remind__badge {
+    background: #fee2e2;
+    color: #991b1b;
+}
+.adv-remind__date {
+    font-size: 0.72rem;
+    color: var(--gray-400);
+    text-align: right;
+    align-self: end;
+}
+.adv-remind__footer {
+    padding: 14px 24px 20px;
+    border-top: 1px solid var(--gray-100);
+}
+.adv-remind__policy {
+    margin: 0 0 14px;
+    font-size: 0.75rem;
+    color: var(--gray-500);
+    line-height: 1.5;
+}
+.adv-remind__actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+.adv-remind__btn {
+    padding: 9px 20px;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    transition: background 0.2s, transform 0.15s;
+}
+.adv-remind__btn:active { transform: scale(0.97); }
+.adv-remind__btn--secondary {
+    background: var(--gray-100);
+    color: var(--gray-600);
+}
+.adv-remind__btn--secondary:hover { background: var(--gray-200); }
+.adv-remind__btn--primary {
+    background: #0369a1;
+    color: #fff;
+}
+.adv-remind__btn--primary:hover { background: #075985; }
