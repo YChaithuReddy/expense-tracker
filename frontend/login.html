@@ -88,7 +88,9 @@
             pointer-events: none;
             text-shadow: 0 2px 12px rgba(0,0,0,0.6);
         }
-        .left-content * { pointer-events: auto; }
+        /* Only links/buttons are clickable — everything else passes mouse to 3D canvas */
+        .left-content a,
+        .left-content button { pointer-events: auto; }
 
         .brand-top-row { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
         .brand-top-text { flex: 1; min-width: 0; }
