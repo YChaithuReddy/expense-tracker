@@ -76,25 +76,8 @@
             background: #0a0a0f;
             overflow: hidden;
         }
-        /* Gradient overlays for text readability — top and bottom fade */
-        .login-panel-left::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 35%;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%);
-            pointer-events: none;
-            z-index: 1;
-        }
-        .login-panel-left::after {
-            content: '';
-            position: absolute;
-            bottom: 0; left: 0; right: 0;
-            height: 45%;
-            background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 100%);
-            pointer-events: none;
-            z-index: 1;
-        }
+        .login-panel-left::before,
+        .login-panel-left::after { display: none; }
 
         .left-content {
             position: relative; z-index: 2;
