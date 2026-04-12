@@ -7504,6 +7504,8 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
     // ===== Reports & Analytics =====
 
     renderReports() {
+        this.renderAdvanceMetrics();
+
         const fromVal = document.getElementById('rptDateFrom')?.value;
         const toVal = document.getElementById('rptDateTo')?.value;
         let filtered = [...this.expenses];
@@ -7557,6 +7559,94 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         document.getElementById('rptPaymentChart').innerHTML = paySorted.length === 0
             ? '<div class="admin-empty" style="padding:32px;"><p>No data yet.</p></div>'
             : `<table class="admin-table"><thead><tr><th>Method</th><th>Amount</th><th>Count</th><th>% of Total</th></tr></thead><tbody>${paySorted.map(([p, d]) => `<tr><td style="font-size:0.82rem;font-weight:500;">${p}</td><td style="font-size:0.82rem;font-weight:600;">₹${Math.round(d.amount).toLocaleString('en-IN')}</td><td style="font-size:0.82rem;">${d.count}</td><td style="font-size:0.82rem;">${(d.amount / payTotal * 100).toFixed(1)}%</td></tr>`).join('')}</tbody></table>`;
+    }
+
+    renderAdvanceMetrics() {
+        const summaryEl = document.getElementById('rptAdvanceSummary');
+        const listEl = document.getElementById('rptAdvanceList');
+        if (!summaryEl || !listEl) return;
+
+        const advances = this.advances || [];
+        if (advances.length === 0) {
+            summaryEl.innerHTML = '';
+            listEl.innerHTML = '<div class="admin-empty" style="padding:32px;"><p>No advances to show. Request an advance from the Advance section.</p></div>';
+            return;
+        }
+
+        const now = new Date();
+        const DEADLINE_DAYS = 10;
+        const active = advances.filter(a => a.status === 'active');
+        const pending = advances.filter(a => a.status === 'pending_manager' || a.status === 'pending_accountant');
+        const closed = advances.filter(a => a.status === 'closed');
+        const totalOutstanding = active.reduce((s, a) => s + (parseFloat(a.amount) || 0), 0);
+        const totalSpentOnActive = active.reduce((s, a) => s + (a.totalSpent || 0), 0);
+
+        // Overdue count
+        const overdue = active.filter(a => {
+            const start = new Date(a.accountant_action_at || a.created_at);
+            return Math.floor((now - start) / (1000 * 60 * 60 * 24)) >= DEADLINE_DAYS;
+        });
+
+        // Summary cards
+        summaryEl.innerHTML = `
+            <div class="rpt-adv-card">
+                <div class="rpt-adv-card__value">${active.length}</div>
+                <div class="rpt-adv-card__label">Active Advances</div>
+                <div class="rpt-adv-card__sub">\u20B9${totalOutstanding.toLocaleString('en-IN')} outstanding</div>
+            </div>
+            <div class="rpt-adv-card rpt-adv-card--spent">
+                <div class="rpt-adv-card__value">\u20B9${totalSpentOnActive.toLocaleString('en-IN')}</div>
+                <div class="rpt-adv-card__label">Spent from Advances</div>
+                <div class="rpt-adv-card__sub">${totalOutstanding > 0 ? Math.round(totalSpentOnActive / totalOutstanding * 100) : 0}% utilization</div>
+            </div>
+            <div class="rpt-adv-card ${overdue.length > 0 ? 'rpt-adv-card--danger' : ''}">
+                <div class="rpt-adv-card__value">${overdue.length}</div>
+                <div class="rpt-adv-card__label">Overdue Vouchers</div>
+                <div class="rpt-adv-card__sub">Past 10-day deadline</div>
+            </div>
+            <div class="rpt-adv-card rpt-adv-card--info">
+                <div class="rpt-adv-card__value">${pending.length}</div>
+                <div class="rpt-adv-card__label">Pending Approval</div>
+                <div class="rpt-adv-card__sub">${closed.length} closed total</div>
+            </div>
+        `;
+
+        // Advance detail table
+        if (active.length === 0) {
+            listEl.innerHTML = '<div class="admin-empty" style="padding:24px;"><p>No active advances. All caught up!</p></div>';
+            return;
+        }
+
+        const rows = active.map(a => {
+            const start = new Date(a.accountant_action_at || a.created_at);
+            const daysPassed = Math.floor((now - start) / (1000 * 60 * 60 * 24));
+            const daysLeft = Math.max(DEADLINE_DAYS - daysPassed, 0);
+            const isOverdue = daysLeft <= 0;
+            const isCritical = daysLeft <= 3 && !isOverdue;
+            const pct = a.amount > 0 ? Math.min(Math.round((a.totalSpent || 0) / a.amount * 100), 100) : 0;
+            const barColor = isOverdue ? '#dc2626' : isCritical ? '#ea580c' : '#0ea5e9';
+            const statusText = isOverdue ? '<span style="color:#dc2626;font-weight:700;">OVERDUE</span>' : `${daysLeft}d left`;
+
+            return `<tr>
+                <td style="font-size:0.82rem;font-weight:600;">${this.sanitizeHTML(a.project_name)}</td>
+                <td style="font-size:0.82rem;font-weight:600;">\u20B9${Number(a.amount).toLocaleString('en-IN')}</td>
+                <td style="font-size:0.82rem;">\u20B9${Number(a.totalSpent || 0).toLocaleString('en-IN')}</td>
+                <td style="width:100px;">
+                    <div style="display:flex;align-items:center;gap:6px;">
+                        <div style="flex:1;height:8px;background:#f1f5f9;border-radius:4px;overflow:hidden;">
+                            <div style="height:100%;width:${pct}%;background:${barColor};border-radius:4px;transition:width 0.3s;"></div>
+                        </div>
+                        <span style="font-size:0.7rem;font-weight:600;color:#64748b;">${pct}%</span>
+                    </div>
+                </td>
+                <td style="font-size:0.78rem;">${daysPassed}d ago</td>
+                <td style="font-size:0.78rem;">${statusText}</td>
+            </tr>`;
+        }).join('');
+
+        listEl.innerHTML = `<table class="admin-table"><thead><tr>
+            <th>Project</th><th>Amount</th><th>Spent</th><th>Usage</th><th>Disbursed</th><th>Deadline</th>
+        </tr></thead><tbody>${rows}</tbody></table>`;
     }
 
     // ===== Kodo Reimbursement Integration =====
@@ -8826,39 +8916,95 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
      * Shows a reminder popup when 7+ days have passed since the advance was activated.
      * Only shows once per session per advance.
      */
-    checkAdvanceVoucherDeadlines() {
+    /**
+     * Check active advances for voucher submission deadline (10-day policy).
+     * - Shows popup reminder at 7+ days
+     * - Creates persistent DB notification (once per advance per milestone)
+     * - Escalates to manager/accountant when overdue (10+ days)
+     * Uses localStorage milestones to avoid duplicate DB notifications.
+     */
+    async checkAdvanceVoucherDeadlines() {
         if (!this.advances || this.advances.length === 0) return;
 
         const DEADLINE_DAYS = 10;
         const REMINDER_AFTER_DAYS = 7;
         const now = new Date();
-        const shown = JSON.parse(sessionStorage.getItem('advanceDeadlineReminders') || '[]');
+        const sessionShown = JSON.parse(sessionStorage.getItem('advanceDeadlineReminders') || '[]');
+        const notified = JSON.parse(localStorage.getItem('advanceDeadlineNotified') || '{}');
+        // notified structure: { advanceId: { '7day': true, '10day': true } }
 
-        const dueSoon = this.advances.filter(adv => {
-            if (adv.status !== 'active') return false;
-            if (shown.includes(adv.id)) return false;
+        const dueSoon = [];
 
-            // Use accountant_action_at (company approval date) or created_at (personal mode)
+        for (const adv of this.advances) {
+            if (adv.status !== 'active') continue;
+
             const startDate = new Date(adv.accountant_action_at || adv.created_at);
             const daysPassed = Math.floor((now - startDate) / (1000 * 60 * 60 * 24));
 
-            if (daysPassed >= REMINDER_AFTER_DAYS) {
-                adv._daysPassed = daysPassed;
-                adv._daysRemaining = Math.max(DEADLINE_DAYS - daysPassed, 0);
-                adv._startDate = startDate;
-                return true;
+            if (daysPassed < REMINDER_AFTER_DAYS) continue;
+
+            const daysRemaining = Math.max(DEADLINE_DAYS - daysPassed, 0);
+            const isOverdue = daysRemaining <= 0;
+            const milestones = notified[adv.id] || {};
+
+            // Persistent notification: 7-day reminder (once)
+            if (daysPassed >= REMINDER_AFTER_DAYS && !milestones['7day']) {
+                try {
+                    const user = JSON.parse(localStorage.getItem('user') || '{}');
+                    const amt = `\u20B9${Number(adv.amount).toLocaleString('en-IN')}`;
+                    await api.createNotification?.(user.id, 'system', 'Voucher deadline approaching',
+                        `Your advance of ${amt} for ${adv.project_name} has ${daysRemaining} day${daysRemaining !== 1 ? 's' : ''} left for voucher submission.`, adv.id);
+                    milestones['7day'] = true;
+                } catch (e) { console.warn('Deadline notification failed:', e); }
             }
-            return false;
-        });
 
-        if (dueSoon.length === 0) return;
+            // Persistent notification: overdue escalation (once)
+            if (isOverdue && !milestones['10day']) {
+                try {
+                    const user = JSON.parse(localStorage.getItem('user') || '{}');
+                    const amt = `\u20B9${Number(adv.amount).toLocaleString('en-IN')}`;
+                    const overdueDays = Math.abs(daysRemaining) || (daysPassed - DEADLINE_DAYS);
 
-        // Mark as shown for this session
-        const newShown = [...shown, ...dueSoon.map(a => a.id)];
-        sessionStorage.setItem('advanceDeadlineReminders', JSON.stringify(newShown));
+                    // Notify the employee
+                    await api.createNotification?.(user.id, 'system', 'Voucher submission OVERDUE',
+                        `Your advance of ${amt} for ${adv.project_name} is ${overdueDays} day${overdueDays !== 1 ? 's' : ''} past the 10-day deadline. Please submit vouchers immediately.`, adv.id);
 
-        // Build reminder popup
-        this.showAdvanceDeadlineReminder(dueSoon);
+                    // Escalate to manager
+                    if (adv.manager_id) {
+                        await api.createNotification?.(adv.manager_id, 'system', 'Employee voucher overdue',
+                            `${user.name || 'An employee'}'s advance of ${amt} for ${adv.project_name} is overdue by ${overdueDays} day${overdueDays !== 1 ? 's' : ''}. Voucher not submitted within 10-day policy.`, adv.id);
+                    }
+
+                    // Escalate to accountant
+                    if (adv.accountant_id) {
+                        await api.createNotification?.(adv.accountant_id, 'system', 'Employee voucher overdue',
+                            `${user.name || 'An employee'}'s advance of ${amt} for ${adv.project_name} is overdue by ${overdueDays} day${overdueDays !== 1 ? 's' : ''}. Voucher not submitted within 10-day policy.`, adv.id);
+                    }
+
+                    milestones['10day'] = true;
+                } catch (e) { console.warn('Overdue escalation failed:', e); }
+            }
+
+            notified[adv.id] = milestones;
+
+            // Popup: show once per session
+            if (!sessionShown.includes(adv.id)) {
+                adv._daysPassed = daysPassed;
+                adv._daysRemaining = daysRemaining;
+                adv._startDate = startDate;
+                dueSoon.push(adv);
+            }
+        }
+
+        // Save milestone tracking
+        localStorage.setItem('advanceDeadlineNotified', JSON.stringify(notified));
+
+        // Show popup for this session
+        if (dueSoon.length > 0) {
+            const newShown = [...sessionShown, ...dueSoon.map(a => a.id)];
+            sessionStorage.setItem('advanceDeadlineReminders', JSON.stringify(newShown));
+            this.showAdvanceDeadlineReminder(dueSoon);
+        }
     }
 
     showAdvanceDeadlineReminder(advances) {

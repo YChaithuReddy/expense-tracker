@@ -3020,3 +3020,45 @@ h3.admin-section-label {
     color: #fff;
 }
 .adv-remind__btn--primary:hover { background: #075985; }
+
+/* ============================================================
+   ADVANCE REPORT SUMMARY CARDS
+   ============================================================ */
+.rpt-adv-card {
+    padding: 16px 18px;
+    border-radius: 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+}
+.rpt-adv-card__value {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.03em;
+}
+.rpt-adv-card__label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #475569;
+    margin-top: 2px;
+}
+.rpt-adv-card__sub {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    margin-top: 4px;
+}
+.rpt-adv-card--spent {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+}
+.rpt-adv-card--spent .rpt-adv-card__value { color: #059669; }
+.rpt-adv-card--danger {
+    background: #fef2f2;
+    border-color: #fecaca;
+}
+.rpt-adv-card--danger .rpt-adv-card__value { color: #dc2626; }
+.rpt-adv-card--info {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+}
+.rpt-adv-card--info .rpt-adv-card__value { color: #2563eb; }
