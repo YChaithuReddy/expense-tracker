@@ -2500,6 +2500,45 @@ h3.admin-section-label {
     #appHeaderBar { display: none !important; }
     .admin-quick-actions { width: 100%; flex-wrap: wrap; }
 
+    /* Mobile header: stack userInfo into rows instead of one long line */
+    #userInfo {
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+        width: 100%;
+    }
+    #userInfo .user-info-name-row {
+        display: flex !important;
+        width: 100%;
+        align-items: center;
+        gap: 8px;
+    }
+    #userInfo .user-info-name-row .user-details {
+        display: flex !important;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+    }
+    #userInfo .user-info-name-row .user-email {
+        font-size: 0.73rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-width: 0;
+        flex: 1;
+    }
+    #userInfo .user-info-content {
+        display: flex !important;
+        align-items: center;
+        gap: 6px;
+        width: 100%;
+        flex-wrap: wrap;
+    }
+    .header-icon-btn {
+        width: 38px !important;
+        height: 38px !important;
+        min-width: 38px;
+        flex-shrink: 0;
+    }
+
     /* Stat cards */
     .admin-stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
 
