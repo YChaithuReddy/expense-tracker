@@ -139,6 +139,32 @@
         .bubble:nth-child(11) { left: 25%; width: 6px;  height: 6px;  animation-duration: 9s;  animation-delay: 6s; }
         .bubble:nth-child(12) { left: 55%; width: 16px; height: 16px; animation-duration: 13s; animation-delay: 8s; }
 
+        /* === BIG WATER DROPLETS === */
+        .droplets-container {
+            position: absolute; inset: 0; overflow: hidden;
+            pointer-events: none; z-index: 1;
+        }
+        .droplet {
+            position: absolute;
+            top: -120px;
+            animation: dropletFall linear infinite;
+        }
+        .droplet svg {
+            filter: drop-shadow(0 4px 20px rgba(56, 189, 248, 0.4));
+        }
+        @keyframes dropletFall {
+            0%   { transform: translateY(0) rotate(0deg); opacity: 0; }
+            5%   { opacity: 0.7; }
+            50%  { opacity: 0.5; transform: translateY(50vh) rotate(8deg); }
+            95%  { opacity: 0.3; }
+            100% { transform: translateY(110vh) rotate(-5deg); opacity: 0; }
+        }
+        .droplet:nth-child(1) { left: 10%; animation-duration: 12s; animation-delay: 0s; }
+        .droplet:nth-child(2) { left: 35%; animation-duration: 16s; animation-delay: 3s; }
+        .droplet:nth-child(3) { left: 65%; animation-duration: 14s; animation-delay: 6s; }
+        .droplet:nth-child(4) { left: 85%; animation-duration: 18s; animation-delay: 2s; }
+        .droplet:nth-child(5) { left: 50%; animation-duration: 15s; animation-delay: 8s; }
+
         /* === 2. GRADIENT WAVE BACKGROUND === */
         .gradient-wave {
             position: absolute; inset: 0;
@@ -511,6 +537,14 @@
             <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
             <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
             <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
+        </div>
+        <!-- Big water droplets -->
+        <div class="droplets-container">
+            <div class="droplet"><svg width="60" height="80" viewBox="0 0 64 84" fill="none"><path d="M32 4C32 4 8 36 8 54C8 68 19 78 32 78C45 78 56 68 56 54C56 36 32 4 32 4Z" fill="rgba(56,189,248,0.15)" stroke="rgba(56,189,248,0.3)" stroke-width="1.5"/><path d="M22 48C22 48 20 56 28 62" stroke="rgba(255,255,255,0.2)" stroke-width="2" stroke-linecap="round" fill="none"/></svg></div>
+            <div class="droplet"><svg width="45" height="60" viewBox="0 0 64 84" fill="none"><path d="M32 4C32 4 8 36 8 54C8 68 19 78 32 78C45 78 56 68 56 54C56 36 32 4 32 4Z" fill="rgba(14,165,233,0.12)" stroke="rgba(14,165,233,0.25)" stroke-width="1.5"/><path d="M22 48C22 48 20 56 28 62" stroke="rgba(255,255,255,0.15)" stroke-width="2" stroke-linecap="round" fill="none"/></svg></div>
+            <div class="droplet"><svg width="70" height="92" viewBox="0 0 64 84" fill="none"><path d="M32 4C32 4 8 36 8 54C8 68 19 78 32 78C45 78 56 68 56 54C56 36 32 4 32 4Z" fill="rgba(56,189,248,0.1)" stroke="rgba(56,189,248,0.2)" stroke-width="1.5"/><path d="M22 48C22 48 20 56 28 62" stroke="rgba(255,255,255,0.15)" stroke-width="2" stroke-linecap="round" fill="none"/></svg></div>
+            <div class="droplet"><svg width="40" height="52" viewBox="0 0 64 84" fill="none"><path d="M32 4C32 4 8 36 8 54C8 68 19 78 32 78C45 78 56 68 56 54C56 36 32 4 32 4Z" fill="rgba(3,105,161,0.12)" stroke="rgba(3,105,161,0.25)" stroke-width="1.5"/><path d="M22 48C22 48 20 56 28 62" stroke="rgba(255,255,255,0.15)" stroke-width="2" stroke-linecap="round" fill="none"/></svg></div>
+            <div class="droplet"><svg width="55" height="72" viewBox="0 0 64 84" fill="none"><path d="M32 4C32 4 8 36 8 54C8 68 19 78 32 78C45 78 56 68 56 54C56 36 32 4 32 4Z" fill="rgba(56,189,248,0.08)" stroke="rgba(56,189,248,0.18)" stroke-width="1.5"/><path d="M22 48C22 48 20 56 28 62" stroke="rgba(255,255,255,0.12)" stroke-width="2" stroke-linecap="round" fill="none"/></svg></div>
         </div>
         <div class="left-content">
             <div class="brand-top-row">
