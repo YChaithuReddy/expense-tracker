@@ -1216,6 +1216,14 @@ const approvalWorkflow = (() => {
     async function approveAdvance(advanceId) {
         try {
             const detail = await api.getAdvanceDetail(advanceId);
+
+            // Check if employee has pending voucher submissions before approving
+            const pendingAdvances = await api.getEmployeePendingVoucherAdvances(detail.user_id);
+            if (pendingAdvances.length > 0) {
+                const shouldProceed = await showPendingVoucherWarning(detail, pendingAdvances);
+                if (!shouldProceed) return; // Accountant chose not to approve
+            }
+
             const result = await api.approveAdvance(advanceId);
             window.expenseTracker?.showNotification('Advance approved!');
 
@@ -1254,6 +1262,91 @@ const approvalWorkflow = (() => {
         } catch (e) {
             window.expenseTracker?.showNotification('Failed: ' + e.message);
         }
+    }
+
+    /**
+     * Show warning popup when employee has pending voucher submissions.
+     * Returns a Promise that resolves to true (proceed) or false (cancel).
+     */
+    function showPendingVoucherWarning(currentAdvance, pendingAdvances) {
+        return new Promise((resolve) => {
+            document.getElementById('pendingVoucherWarningOverlay')?.remove();
+
+            const empName = currentAdvance.submitter?.name || 'This employee';
+            const totalPending = pendingAdvances.reduce((sum, a) => sum + (parseFloat(a.amount) || 0), 0);
+
+            const rows = pendingAdvances.map(adv => {
+                const isOverdue = adv.daysRemaining <= 0;
+                const isCritical = adv.daysRemaining <= 3 && !isOverdue;
+                const urgencyClass = isOverdue ? 'pvw--overdue' : isCritical ? 'pvw--critical' : 'pvw--warning';
+                const statusText = isOverdue
+                    ? `OVERDUE by ${Math.abs(adv.daysRemaining)} day${Math.abs(adv.daysRemaining) !== 1 ? 's' : ''}`
+                    : `${adv.daysRemaining} day${adv.daysRemaining !== 1 ? 's' : ''} remaining`;
+
+                return `
+                    <div class="pvw__row ${urgencyClass}">
+                        <div class="pvw__project">${adv.project_name || 'Untitled'}</div>
+                        <div class="pvw__amount">\u20B9${Number(adv.amount).toLocaleString('en-IN')}</div>
+                        <div class="pvw__status">${statusText}</div>
+                        <div class="pvw__elapsed">${adv.daysPassed} day${adv.daysPassed !== 1 ? 's' : ''} since disbursement</div>
+                    </div>
+                `;
+            }).join('');
+
+            const overlay = document.createElement('div');
+            overlay.id = 'pendingVoucherWarningOverlay';
+            overlay.innerHTML = `
+                <div class="pvw__backdrop"></div>
+                <div class="pvw__modal">
+                    <div class="pvw__header">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <div>
+                            <h3 class="pvw__title">Pending Voucher Submissions</h3>
+                            <p class="pvw__subtitle">${empName} has ${pendingAdvances.length} active advance${pendingAdvances.length > 1 ? 's' : ''} with pending voucher submissions</p>
+                        </div>
+                    </div>
+                    <div class="pvw__body">
+                        <div class="pvw__summary">
+                            <div class="pvw__summary-item">
+                                <span class="pvw__summary-label">Active Advances</span>
+                                <span class="pvw__summary-value">${pendingAdvances.length}</span>
+                            </div>
+                            <div class="pvw__summary-item">
+                                <span class="pvw__summary-label">Total Outstanding</span>
+                                <span class="pvw__summary-value">\u20B9${totalPending.toLocaleString('en-IN')}</span>
+                            </div>
+                            <div class="pvw__summary-item">
+                                <span class="pvw__summary-label">New Request</span>
+                                <span class="pvw__summary-value">\u20B9${Number(currentAdvance.amount).toLocaleString('en-IN')}</span>
+                            </div>
+                        </div>
+                        <div class="pvw__list">${rows}</div>
+                    </div>
+                    <div class="pvw__footer">
+                        <p class="pvw__notice">Approving this advance while previous vouchers are pending may increase financial risk.</p>
+                        <div class="pvw__actions">
+                            <button type="button" class="pvw__btn pvw__btn--cancel" id="pvwCancel">Hold Approval</button>
+                            <button type="button" class="pvw__btn pvw__btn--approve" id="pvwProceed">Approve Anyway</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(overlay);
+
+            document.getElementById('pvwCancel').addEventListener('click', () => {
+                overlay.remove();
+                resolve(false);
+            });
+            document.getElementById('pvwProceed').addEventListener('click', () => {
+                overlay.remove();
+                resolve(true);
+            });
+            overlay.querySelector('.pvw__backdrop').addEventListener('click', () => {
+                overlay.remove();
+                resolve(false);
+            });
+        });
     }
 
     async function rejectAdvance(advanceId) {
