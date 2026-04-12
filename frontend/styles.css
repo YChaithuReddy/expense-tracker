@@ -133,7 +133,7 @@
     height: var(--btn-h);
     line-height: var(--btn-h);
     white-space: nowrap;
-    color: #fff;
+    color: #ffffff !important;
 }
 .btn-flux:hover .btn-flux__text-inner {
     transform: translateY(calc(-1 * var(--btn-h)));
