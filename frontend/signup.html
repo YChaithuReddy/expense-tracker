@@ -52,16 +52,19 @@
         }
 
         .signup-shell {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+            position: relative;
+            display: flex;
+            align-items: stretch;
             min-height: 100vh;
             width: 100%;
+            background: #0a0a0f;
             overflow: hidden;
         }
 
         /* ─── Left Panel ─── */
         .signup-panel-left {
             position: relative;
+            flex: 1;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -69,8 +72,9 @@
             background: #0a0a0f;
             overflow: hidden;
         }
-        .signup-panel-left::before,
-        .signup-panel-left::after { display: none; }
+        /* Spline 3D — covers entire page */
+        .spline-bg { position: fixed; inset: 0; z-index: 0; overflow: hidden; }
+        .spline-bg canvas { width: 100% !important; height: 100% !important; display: block; }
 
         .left-content {
             position: relative;
@@ -152,8 +156,8 @@
 
         .left-footer { font-size: 12px; color: rgba(255,255,255,0.3); }
 
-        /* Floating bubbles */
-        .bubbles-container { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 1; }
+        /* Floating bubbles (full page) */
+        .bubbles-container { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 1; }
         .bubble {
             position: absolute; bottom: -20px; border-radius: 50%;
             background: radial-gradient(circle at 30% 30%, rgba(56, 189, 248, 0.3), rgba(14, 116, 144, 0.12));
@@ -199,9 +203,9 @@
         .water-ripple:nth-child(4) { animation-delay: 2s; }
         @keyframes rippleExpand { 0% { width: 20px; height: 6px; opacity: 0.6; } 100% { width: 70px; height: 16px; opacity: 0; } }
 
-        /* Gradient wave */
+        /* Gradient wave (full page) */
         .gradient-wave {
-            position: absolute; inset: 0; pointer-events: none; z-index: 1;
+            position: fixed; inset: 0; pointer-events: none; z-index: 1;
             background:
                 radial-gradient(ellipse 50% 40% at 20% 50%, rgba(14, 116, 144, 0.15) 0%, transparent 70%),
                 radial-gradient(ellipse 40% 50% at 80% 30%, rgba(56, 189, 248, 0.08) 0%, transparent 70%);
@@ -236,14 +240,16 @@
             color: var(--gray-700) !important;
         }
 
-        /* ─── Right Panel ─── */
+        /* ─── Right Panel — Glass card on dark bg ─── */
         .signup-panel-right {
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 24px 40px;
-            background: var(--white);
+            background: transparent;
             position: relative;
+            z-index: 2;
+            flex: 0 0 480px;
             overflow-y: auto;
             overflow-x: hidden;
         }
@@ -253,6 +259,18 @@
             max-width: 440px;
             position: relative;
             z-index: 1;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 36px 32px;
+            box-shadow: 0 24px 80px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.1);
+            opacity: 0;
+            animation: formCardIn 0.6s 0.3s cubic-bezier(0.22,1,0.36,1) forwards;
+        }
+        @keyframes formCardIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         /* Mobile logo */
@@ -381,7 +399,7 @@
 
         /* ─── Mobile ─── */
         @media (max-width: 767px) {
-            .signup-shell { grid-template-columns: 1fr; min-height: 100vh; height: auto; overflow-y: auto; }
+            .signup-shell { flex-direction: column; min-height: 100vh; height: auto; overflow-y: auto; }
             .signup-panel-left { display: none; }
             .signup-panel-right { align-items: flex-start; padding: 24px 20px; }
             .mobile-brand { display: block; }
@@ -400,13 +418,13 @@
 <body>
 
 <div class="signup-shell">
-    <!-- Left Panel — Branding + 3D Scene -->
-    <aside class="signup-panel-left">
-        <!-- Spline 3D — full-panel background (runtime for smooth mouse) -->
-        <div class="spline-bg">
-            <canvas id="spline3d"></canvas>
-        </div>
+    <!-- Spline 3D — full-page background -->
+    <div class="spline-bg">
+        <canvas id="spline3d"></canvas>
+    </div>
 
+    <!-- Left Panel — Branding text -->
+    <aside class="signup-panel-left">
         <div class="gradient-wave"></div>
         <div class="bubbles-container">
             <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
