@@ -555,20 +555,14 @@ if (canvas) {
        .then(() => {
            canvas.style.opacity = '1';
 
-           // Track mouse — translate coords to match CSS-scaled canvas
-           const SCALE = 1.25;
+           // Track mouse across entire screen — forward raw coords
            let forwarding = false;
            document.addEventListener('mousemove', (e) => {
                if (forwarding || e.target === canvas) return;
-               const rect = canvas.getBoundingClientRect();
-               const cx = rect.left + rect.width / 2;
-               const cy = rect.top + rect.height / 2;
-               const adjX = cx + (e.clientX - cx) / SCALE;
-               const adjY = cy + (e.clientY - cy) / SCALE;
                forwarding = true;
                canvas.dispatchEvent(new MouseEvent('mousemove', {
-                   clientX: adjX,
-                   clientY: adjY,
+                   clientX: e.clientX,
+                   clientY: e.clientY,
                    bubbles: false
                }));
                forwarding = false;
