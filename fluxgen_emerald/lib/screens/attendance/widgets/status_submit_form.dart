@@ -123,11 +123,13 @@ class _StatusSubmitFormState extends State<StatusSubmitForm> {
         const SizedBox(height: 8),
         GridView.count(
           crossAxisCount: 3,
-          mainAxisSpacing: 6,
-          crossAxisSpacing: 6,
+          mainAxisSpacing: 10,
+          crossAxisSpacing: 10,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          childAspectRatio: 2.2,
+          // Cards are ~1.15x wider than tall — enough vertical room for
+          // icon + label without overflow, still feels like a square tile.
+          childAspectRatio: 1.15,
           children: [
             for (final (status, icon, label) in statuses)
               _StatusCard(

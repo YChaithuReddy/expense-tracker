@@ -35,7 +35,9 @@ class TeamStatsRow extends StatelessWidget {
       crossAxisSpacing: 10,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      childAspectRatio: 2.4,
+      // 2.0 gives ~119px card height — fits the 22pt number + 11pt label
+      // without the 8.8px overflow we saw at 2.4.
+      childAspectRatio: 2.0,
       children: [
         _card(context, AttendanceStatus.onSite,       'On Site',    onSiteCount),
         _card(context, AttendanceStatus.inOffice,     'In Office',  inOfficeCount),
