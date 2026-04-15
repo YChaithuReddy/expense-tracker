@@ -138,20 +138,25 @@ Cache strategy: FutureProviders have Riverpod's default caching; `employeesProvi
 
 ## 7. Phased rollout
 
-**Phase 1 (MVP — first PR):**
+**Principle:** Phase 1 must match the *daily flow* of the website exactly — anything an employee or admin does on the website `mobile.html` Home/Update/Team tabs or the desktop Update Status / Weekly Overview / Team Overview tabs must work identically in the APK.
+
+**Phase 1 (MVP — first PR) — matches website daily flow 1:1:**
 - Models, service, providers
 - Attendance pill on Home + Overview
-- AttendanceShell with conditional SegmentedButton
-- EmployeeStatusScreen: 6-card status picker, conditional Site/Work reveal, submit, my week (horizontal scroll)
-- AdminStatusScreen: team today (stat cards + filterable list), team week (matrix)
 - EmpID setup dialog
+- AttendanceShell with internal tabbed nav: **Update Status · Weekly · Team** (mirrors website mobile bottom-nav exactly) — visible to everyone
+- Additional **Employee↔Admin SegmentedButton** at top — visible only to admins (flips what's shown *inside* each tab)
+- **Update Status tab** (everyone): 6-card status picker, conditional Site/Work reveal, submit. For admins in Admin mode: employee picker dropdown appears above (pick whose status to submit).
+- **Weekly tab** (everyone): In Employee mode — your own week as horizontal chip scroll. In Admin mode — full team-vs-days grid matrix.
+- **Team tab** (everyone): 4 stat cards (On Site / In Office / On Leave / Available — counts live). Tap stat → filters list below. Admin mode adds edit pencil per row (opens edit sheet for that person's status).
 - Light + dark mode parity
+- Pull-to-refresh on Weekly + Team tabs
 
-**Phase 2:** work-done + completion % tracking, efficiency scoring, employee CSV export (using existing `excel` package).
+**Phase 2:** work-done + completion % tracking (post-status entry modal), efficiency scoring, employee CSV export (using existing `excel` package). Matches website's "Work Done" and "Download Report" sections for employees.
 
-**Phase 3:** Manage Employees CRUD, Manage Users CRUD, 3 additional CSV exports (site / work-type / efficiency).
+**Phase 3:** Manage Employees CRUD, Manage Users CRUD, 3 additional CSV exports (site / work-type / efficiency). Admin-only. Matches website admin-only tabs.
 
-**Phase 4:** CSR reports with signature pad (Flutter `signature` package), seal image upload, PDF generation (existing `pdf` + `printing` packages).
+**Phase 4:** CSR reports with signature pad (Flutter `signature` package), seal image upload, PDF generation (existing `pdf` + `printing` packages). Matches website's Service Report feature.
 
 ## 8. Error handling
 
@@ -173,6 +178,49 @@ Cache strategy: FutureProviders have Riverpod's default caching; `employeesProvi
 - **Manual pass:** Android emulator screenshots at 360/375/414 widths, light + dark mode
 - **Code review agent** before shipping each phase
 - **Final gate:** run existing `flutter analyze` + `flutter test`, fix all lints
+
+## 9a. Website flow parity (Phase 1 MUST match these)
+
+The APK's Attendance feature must replicate the website's daily flows exactly. For every flow below: if the website behaves one way, the APK must behave the same way.
+
+### Flow 1 — Submit today's status (website `mobile.html` Update tab)
+1. User opens Update Status tab → today's date pre-filled.
+2. User picks status (website uses dropdown, APK uses icon cards — same result).
+3. If status = "On Site", Site Name + Work Type + Scope of Work fields appear (animated reveal in APK, instant in website).
+4. Submit → POST to Apps Script with `submitStatus` action.
+5. Server updates existing row if `empId+date` match, else appends new row.
+6. Toast confirms success. User returns to Home.
+
+Admin variant: before step 1, user sees a "Submit status for" employee picker dropdown (default = self).
+
+### Flow 2 — Weekly overview (website "Weekly Overview" tab)
+1. Loads current week by default (Mon–Sun).
+2. Employee mode: shows only that user's 7 days.
+3. Admin mode: shows all employees × 7 days as a grid.
+4. Cells colored by status; empty cells = no submission.
+5. Tap a past cell (both modes) → opens status edit sheet for that employee+date.
+6. Pull-to-refresh re-fetches.
+
+### Flow 3 — Team overview (website `mobile.html` Team tab + desktop "Team Overview")
+1. Fetches today's status for all employees.
+2. Top: 4 stat cards — On Site count, In Office count, On Leave count, Available count (= employees with no submission).
+3. Tap a stat card → filters list below to that category.
+4. List shows each employee with status badge, site name (if on site), work type.
+5. Admin mode only: edit pencil on each row (opens edit sheet).
+6. Pull-to-refresh re-fetches.
+
+### Flow 4 — First-time EmpID mapping
+1. User taps Attendance pill for the first time → blocking dialog.
+2. Dialog fetches employees list (`action=getEmployees`).
+3. User picks their name from the list.
+4. `empId` stored in SharedPreferences as `fluxgen_emp_id`.
+5. Admin-role users can skip (they can pick employees per-submission anyway).
+
+### Flow 5 — Admin toggle Employee↔Admin
+1. SegmentedButton at top of AttendanceShell (admin role only).
+2. Default = Employee mode (so admin sees what employee sees by default).
+3. Flip to Admin → tab contents change as described in Flows 1-3.
+4. State persists only within session (not saved).
 
 ## 10. Out of scope (explicit)
 
