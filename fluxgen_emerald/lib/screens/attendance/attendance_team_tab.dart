@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../models/fluxgen_status.dart';
@@ -32,20 +33,17 @@ class _AttendanceTeamTabState extends ConsumerState<AttendanceTeamTab> {
       await ref.read(todayStatusProvider(today).future);
     }
 
+    final parsed = DateTime.tryParse(today);
+    final niceDate =
+        parsed == null ? today : DateFormat('EEEE, d MMM').format(parsed);
+
     return RefreshIndicator(
       onRefresh: refresh,
       child: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
         children: [
-          Text(
-            'Team today — $today',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-          ),
-          const SizedBox(height: 12),
+          _TeamHeader(title: 'Team today', subtitle: niceDate),
+          const SizedBox(height: 14),
           _content(employeesAsync, statusAsync, isAdminMode),
         ],
       ),
@@ -60,7 +58,8 @@ class _AttendanceTeamTabState extends ConsumerState<AttendanceTeamTab> {
     if (employeesAsync.isLoading || statusAsync.isLoading) {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 48),
-        child: Center(child: CircularProgressIndicator(color: AppColors.primary)),
+        child: Center(
+            child: CircularProgressIndicator(color: AppColors.primary)),
       );
     }
     if (employeesAsync.hasError) {
@@ -83,7 +82,8 @@ class _AttendanceTeamTabState extends ConsumerState<AttendanceTeamTab> {
     final onLeave = countOf(AttendanceStatus.onLeave) +
         countOf(AttendanceStatus.holiday) +
         countOf(AttendanceStatus.weekend);
-    final available = (employees.length - statusByEmpId.length).clamp(0, 9999);
+    final available =
+        (employees.length - statusByEmpId.length).clamp(0, 9999);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -96,21 +96,38 @@ class _AttendanceTeamTabState extends ConsumerState<AttendanceTeamTab> {
           activeFilter: _filter,
           onFilter: (s) => setState(() => _filter = s),
         ),
-        const SizedBox(height: 16),
-        TeamList(
-          employees: employees,
-          statusByEmpId: statusByEmpId,
-          filter: _filter,
-          isAdminMode: isAdminMode,
-          onEdit: isAdminMode
-              ? (emp, entry) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
+        const SizedBox(height: 14),
+        Container(
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 14,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: TeamList(
+            employees: employees,
+            statusByEmpId: statusByEmpId,
+            filter: _filter,
+            isAdminMode: isAdminMode,
+            onEdit: isAdminMode
+                ? (emp, entry) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        behavior: SnackBarBehavior.floating,
                         content: Text(
-                            'Edit flow coming in Phase 2 — switch to Update tab for now')),
-                  );
-                }
-              : null,
+                          'Edit flow coming soon — switch to Update tab',
+                        ),
+                      ),
+                    );
+                  }
+                : null,
+          ),
         ),
       ],
     );
@@ -125,9 +142,59 @@ class _AttendanceTeamTabState extends ConsumerState<AttendanceTeamTab> {
           const SizedBox(height: 8),
           Text(msg,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant)),
+              style: TextStyle(
+                  fontSize: 12, color: AppColors.onSurfaceVariant)),
         ],
       ),
+    );
+  }
+}
+
+class _TeamHeader extends StatelessWidget {
+  const _TeamHeader({required this.title, required this.subtitle});
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 34,
+          height: 34,
+          decoration: BoxDecoration(
+            color: const Color(0xFF10B981).withValues(alpha: 0.14),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: const Icon(Icons.groups_rounded,
+              color: Color(0xFF10B981), size: 18),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.3,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppColors.onSurfaceVariant,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

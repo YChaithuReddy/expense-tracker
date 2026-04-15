@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:emerald/screens/admin/admin_shell.dart';
 import 'package:emerald/screens/employee/reports/reports_screen.dart';
@@ -8,6 +9,7 @@ import 'package:emerald/screens/admin/admin_advances_screen.dart';
 import 'package:emerald/screens/admin/csv_import_screen.dart';
 import 'package:emerald/screens/admin/admin_settings_screen.dart';
 import 'package:emerald/screens/attendance/widgets/attendance_pill.dart';
+import 'package:emerald/widgets/notification_bell.dart';
 
 /// Admin Overview/Dashboard screen.
 ///
@@ -347,6 +349,9 @@ class _OverviewScreenState extends State<OverviewScreen> {
                     ),
                 ],
               ),
+              actions: const [
+                NotificationBell(),
+              ],
             ),
 
             SliverPadding(
@@ -387,51 +392,56 @@ class _OverviewScreenState extends State<OverviewScreen> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  GridView.count(
-                    crossAxisCount: 3,
-                    childAspectRatio: 1.1,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    mainAxisSpacing: 10,
-                    crossAxisSpacing: 10,
-                    children: [
-                      _shortcutCard(
-                        icon: Icons.bar_chart,
-                        label: 'Analytics',
-                        color: const Color(0xFF8B5CF6),
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ReportsScreen())),
-                      ),
-                      _shortcutCard(
-                        icon: Icons.view_column,
-                        label: 'Pipeline',
-                        color: const Color(0xFF0EA5E9),
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PipelineScreen())),
-                      ),
-                      _shortcutCard(
-                        icon: Icons.file_download,
-                        label: 'Tally Export',
-                        color: const Color(0xFF059669),
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TallyExportScreen())),
-                      ),
-                      _shortcutCard(
-                        icon: Icons.account_balance_wallet,
-                        label: 'Advances',
-                        color: const Color(0xFFEA580C),
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminAdvancesScreen())),
-                      ),
-                      _shortcutCard(
-                        icon: Icons.upload_file,
-                        label: 'CSV Import',
-                        color: const Color(0xFFF59E0B),
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CsvImportScreen())),
-                      ),
-                      _shortcutCard(
-                        icon: Icons.settings,
-                        label: 'Settings',
-                        color: const Color(0xFF6366F1),
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminSettingsScreen())),
-                      ),
-                    ],
+                  SizedBox(
+                    height: 116,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      physics: const BouncingScrollPhysics(),
+                      children: [
+                        _shortcutCard(
+                          icon: Icons.bar_chart,
+                          label: 'Analytics',
+                          color: const Color(0xFF8B5CF6),
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ReportsScreen())),
+                        ),
+                        const SizedBox(width: 8),
+                        _shortcutCard(
+                          icon: Icons.view_column,
+                          label: 'Pipeline',
+                          color: const Color(0xFF0EA5E9),
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PipelineScreen())),
+                        ),
+                        const SizedBox(width: 8),
+                        _shortcutCard(
+                          icon: Icons.file_download,
+                          label: 'Tally\nExport',
+                          color: const Color(0xFF059669),
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TallyExportScreen())),
+                        ),
+                        const SizedBox(width: 8),
+                        _shortcutCard(
+                          icon: Icons.account_balance_wallet,
+                          label: 'Advances',
+                          color: const Color(0xFFEA580C),
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminAdvancesScreen())),
+                        ),
+                        const SizedBox(width: 8),
+                        _shortcutCard(
+                          icon: Icons.upload_file,
+                          label: 'CSV\nImport',
+                          color: const Color(0xFFF59E0B),
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CsvImportScreen())),
+                        ),
+                        const SizedBox(width: 8),
+                        _shortcutCard(
+                          icon: Icons.settings,
+                          label: 'Settings',
+                          color: const Color(0xFF6366F1),
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminSettingsScreen())),
+                        ),
+                      ],
+                    ),
                   ),
 
                   const SizedBox(height: 20),
@@ -641,7 +651,9 @@ class _OverviewScreenState extends State<OverviewScreen> {
                       ),
                     ),
 
-                  const SizedBox(height: 32),
+                  // Extra bottom padding so the floating Attendance pill
+                  // at the bottom-right doesn't obscure Recent Activity.
+                  const SizedBox(height: 96),
                 ]),
               ),
             ),
@@ -655,42 +667,38 @@ class _OverviewScreenState extends State<OverviewScreen> {
   }
 
   Widget _shortcutCard({required IconData icon, required String label, required Color color, required VoidCallback onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF191C1E).withValues(alpha: 0.04),
-              blurRadius: 20,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
+    return InkWell(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        onTap();
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: SizedBox(
+        width: 72,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 42,
-              height: 42,
+              width: 52,
+              height: 52,
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(10),
+                color: color.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: color, size: 22),
+              child: Icon(icon, color: color, size: 24),
             ),
             const SizedBox(height: 8),
             Text(
               label,
               style: const TextStyle(
                 fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF191C1E),
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF374151),
+                height: 1.2,
               ),
               textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),

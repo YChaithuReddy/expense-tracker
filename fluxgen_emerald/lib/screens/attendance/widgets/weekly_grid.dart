@@ -41,14 +41,12 @@ class WeeklyGrid extends StatelessWidget {
 
   Widget _buildSingleEmployeeChips(
       BuildContext context, FluxgenEmployee emp) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: Row(
-        children: [
-          for (final date in dates) _dayChip(context, emp.id, date),
-        ],
-      ),
+    // Responsive: all 7 days fit on one row. Each chip flexes to fill.
+    return Row(
+      children: [
+        for (final date in dates)
+          Expanded(child: _dayChip(context, emp.id, date)),
+      ],
     );
   }
 
@@ -62,25 +60,48 @@ class WeeklyGrid extends StatelessWidget {
     return GestureDetector(
       onTap: onCellTap == null ? null : () => onCellTap!(empId, date, entry),
       child: Container(
-        width: 72,
-        margin: const EdgeInsets.symmetric(horizontal: 4),
-        padding: const EdgeInsets.all(10),
+        margin: const EdgeInsets.symmetric(horizontal: 3),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: entry == null ? 0.06 : 0.14),
+          gradient: isToday
+              ? LinearGradient(
+                  colors: [
+                    color.withValues(alpha: 0.25),
+                    color.withValues(alpha: 0.10),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                )
+              : null,
+          color: isToday
+              ? null
+              : color.withValues(alpha: entry == null ? 0.05 : 0.12),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isToday ? color : Colors.transparent,
-            width: 2,
+            width: 1.8,
           ),
+          boxShadow: isToday
+              ? [
+                  BoxShadow(
+                    color: color.withValues(alpha: 0.25),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
+                  ),
+                ]
+              : null,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              parsed == null ? date : DateFormat('EEE').format(parsed),
+              parsed == null
+                  ? date
+                  : DateFormat('E').format(parsed).substring(0, 1),
               style: TextStyle(
                 fontSize: 10,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.5,
                 color: AppColors.onSurfaceVariant,
               ),
             ),
@@ -88,26 +109,16 @@ class WeeklyGrid extends StatelessWidget {
             Text(
               parsed == null ? '' : DateFormat('d').format(parsed),
               style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
                 color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 6),
             Container(
-              width: 10,
-              height: 10,
+              width: 8,
+              height: 8,
               decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              status.label,
-              style: TextStyle(
-                fontSize: 10,
-                color: color,
-                fontWeight: FontWeight.w600,
-              ),
-              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),

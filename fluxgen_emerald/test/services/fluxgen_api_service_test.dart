@@ -113,5 +113,44 @@ void main() {
       expect(capturedBody, contains('siteName=Bangalore'));
       expect(capturedBody, contains('action=submitStatus'));
     });
+
+    test('treats 302 redirect as success (GAS already executed)', () async {
+      // Google Apps Script web apps always 302-redirect POST responses.
+      // Our client should NOT treat this as an error.
+      final client = MockClient((req) async => http.Response(
+            '<HTML><HEAD><TITLE>Moved Temporarily</TITLE></HEAD>'
+            '<BODY>The document has moved</BODY></HTML>',
+            302,
+            headers: {
+              'location':
+                  'https://script.googleusercontent.com/macros/echo?user_content_key=foo'
+            },
+          ));
+      final svc = FluxgenApiService(client: client);
+      // Should NOT throw.
+      await svc.submitStatus(
+        empId: 'E1',
+        empName: 'Alice',
+        role: 'Engineer',
+        status: AttendanceStatus.inOffice,
+        date: '2026-04-15',
+      );
+    });
+
+    test('4xx/5xx still treated as errors', () async {
+      final client = MockClient(
+          (_) async => http.Response('server error', 500));
+      final svc = FluxgenApiService(client: client);
+      expect(
+        () => svc.submitStatus(
+          empId: 'E1',
+          empName: 'Alice',
+          role: 'Engineer',
+          status: AttendanceStatus.inOffice,
+          date: '2026-04-15',
+        ),
+        throwsA(isA<Exception>()),
+      );
+    });
   });
 }

@@ -72,6 +72,10 @@ void main() {
     await tester.tap(find.text('Project').last);
     await tester.pumpAndSettle();
     await tester.enterText(find.byKey(const Key('scope_field')), 'HVAC');
+    // After the form expands with conditional fields, submit may be below
+    // the default test viewport — scroll it into view first.
+    await tester.ensureVisible(find.byKey(const Key('submit_btn')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('submit_btn')));
     await tester.pumpAndSettle();
 
