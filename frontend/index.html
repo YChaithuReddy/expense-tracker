@@ -442,6 +442,25 @@
                         <label for="vendor">Project Name:</label>
                         <input type="text" id="vendor" name="vendor" placeholder="Enter project name">
                     </div>
+                    <!-- Travel fields — only shown when Travel category selected -->
+                    <div id="travelFieldsGroup" style="display:none;">
+                        <div class="form-group">
+                            <label for="modeOfExpense">Mode of Transport:</label>
+                            <input type="text" id="modeOfExpense" name="modeOfExpense" placeholder="e.g. Rapido, Personal Car, Auto">
+                        </div>
+                        <div class="form-group">
+                            <label for="fromLocation">From Location:</label>
+                            <input type="text" id="fromLocation" name="fromLocation" placeholder="e.g. Office, Home">
+                        </div>
+                        <div class="form-group">
+                            <label for="toLocation">To Location:</label>
+                            <input type="text" id="toLocation" name="toLocation" placeholder="e.g. Client site, Event venue">
+                        </div>
+                        <div class="form-group">
+                            <label for="kilometers">Kilometers:</label>
+                            <input type="number" id="kilometers" name="kilometers" step="0.1" min="0" placeholder="Distance in KM">
+                        </div>
+                    </div>
                     <div class="form-group" id="expenseVisitTypeGroup">
                         <label>Visit Type:</label>
                         <div class="visit-type-toggle" id="expenseVisitType">
