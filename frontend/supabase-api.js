@@ -358,6 +358,11 @@ const api = {
         };
         // Add project_id if provided (company mode)
         if (expenseData.project_id) insertData.project_id = expenseData.project_id;
+        // New travel fields (Fluxgen sheet format)
+        if (expenseData.modeOfExpense) insertData.mode_of_expense = expenseData.modeOfExpense;
+        if (expenseData.fromLocation) insertData.from_location = expenseData.fromLocation;
+        if (expenseData.toLocation) insertData.to_location = expenseData.toLocation;
+        if (expenseData.kilometers != null) insertData.kilometers = expenseData.kilometers;
 
         const { data: expense, error: expenseError } = await supabase
             .from('expenses')
@@ -431,6 +436,11 @@ const api = {
         if (expenseData.paymentMode !== undefined) updateObj.payment_mode = expenseData.paymentMode;
         if (expenseData.billAttached !== undefined) updateObj.bill_attached = expenseData.billAttached;
         if (expenseData.project_id !== undefined) updateObj.project_id = expenseData.project_id || null;
+        // New travel fields
+        if (expenseData.modeOfExpense !== undefined) updateObj.mode_of_expense = expenseData.modeOfExpense;
+        if (expenseData.fromLocation !== undefined) updateObj.from_location = expenseData.fromLocation;
+        if (expenseData.toLocation !== undefined) updateObj.to_location = expenseData.toLocation;
+        if (expenseData.kilometers !== undefined) updateObj.kilometers = expenseData.kilometers;
         updateObj.updated_at = new Date().toISOString();
 
         const { data: expense, error } = await supabase

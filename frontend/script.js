@@ -3271,6 +3271,10 @@ class ExpenseTracker {
                     visitType: this.getSelectedVisitType('expenseVisitType'),
                     paymentMode: this.getSelectedToggleValue('paymentModeToggle'),
                     billAttached: this.getSelectedToggleValue('billAttachedToggle'),
+                    modeOfExpense: formData.get('modeOfExpense') || null,
+                    fromLocation: formData.get('fromLocation') || null,
+                    toLocation: formData.get('toLocation') || null,
+                    kilometers: formData.get('kilometers') ? parseFloat(formData.get('kilometers')) : null,
                     time: this.extractedData.time || existingTime,
                     images: files.length > 0 ? [] : existingImages,
                     project_id: projectId || undefined
@@ -3296,6 +3300,10 @@ class ExpenseTracker {
                 visitType: this.getSelectedVisitType('expenseVisitType'),
                 paymentMode: this.getSelectedToggleValue('paymentModeToggle'),
                 billAttached: this.getSelectedToggleValue('billAttachedToggle'),
+                modeOfExpense: formData.get('modeOfExpense') || null,
+                fromLocation: formData.get('fromLocation') || null,
+                toLocation: formData.get('toLocation') || null,
+                kilometers: formData.get('kilometers') ? parseFloat(formData.get('kilometers')) : null,
                 time: this.extractedData.time || '',
                 project_id: projectId || undefined,
                 images: []
@@ -6715,6 +6723,12 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         const customCategoryGroup = document.getElementById('customCategoryGroup');
         const customCategoryInput = document.getElementById('customCategory');
         const hiddenCategory = document.getElementById('category');
+
+        // Toggle travel fields visibility (Mode/From/To/KM)
+        const travelFields = document.getElementById('travelFieldsGroup');
+        if (travelFields) {
+            travelFields.style.display = (mainCategory === 'Travel' || mainCategory === 'Transportation') ? 'block' : 'none';
+        }
 
         // Hide both subcategory dropdown and custom input by default
         subcategoryGroup.style.display = 'none';
