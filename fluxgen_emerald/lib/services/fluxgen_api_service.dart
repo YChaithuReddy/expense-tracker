@@ -94,7 +94,11 @@ class FluxgenApiService {
           body: body,
         )
         .timeout(const Duration(seconds: 20));
-    if (resp.statusCode < 200 || resp.statusCode >= 300) {
+    // Google Apps Script web apps always 302-redirect POST responses to
+    // script.googleusercontent.com after executing the script. The script
+    // has already run on the server by the time we see the 302, so we
+    // treat any 2xx or 3xx as success. Only 4xx/5xx are real failures.
+    if (resp.statusCode < 200 || resp.statusCode >= 400) {
       throw Exception(
           'submitStatus failed with HTTP ${resp.statusCode}: ${resp.body}');
     }

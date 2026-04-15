@@ -112,22 +112,32 @@ class _StatusSubmitFormState extends State<StatusSubmitForm> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          'Submitting as ${widget.empName}',
-          style: TextStyle(
-            fontSize: 13,
-            color: AppColors.onSurfaceVariant,
-            fontWeight: FontWeight.w500,
+        Row(children: [
+          const Icon(Icons.how_to_reg_rounded,
+              size: 16, color: AppColors.primary),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              'Pick today\'s status for ${widget.empName}',
+              style: TextStyle(
+                fontSize: 12,
+                color: AppColors.onSurfaceVariant,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.2,
+              ),
+            ),
           ),
-        ),
-        const SizedBox(height: 8),
+        ]),
+        const SizedBox(height: 12),
         GridView.count(
           crossAxisCount: 3,
-          mainAxisSpacing: 6,
-          crossAxisSpacing: 6,
+          mainAxisSpacing: 10,
+          crossAxisSpacing: 10,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          childAspectRatio: 2.2,
+          // Cards are ~1.15x wider than tall — enough vertical room for
+          // icon + label without overflow, still feels like a square tile.
+          childAspectRatio: 1.15,
           children: [
             for (final (status, icon, label) in statuses)
               _StatusCard(
@@ -190,21 +200,46 @@ class _StatusSubmitFormState extends State<StatusSubmitForm> {
               style: TextStyle(color: AppColors.error, fontSize: 12)),
           const SizedBox(height: 8),
         ],
-        const SizedBox(height: 4),
-        FilledButton.icon(
-          key: const Key('submit_btn'),
-          onPressed: widget.isSubmitting ? null : _onTapSubmit,
-          icon: widget.isSubmitting
-              ? const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(
-                      strokeWidth: 2, color: Colors.white))
-              : const Icon(Icons.check),
-          label: Text(widget.isSubmitting ? 'Submitting…' : 'Submit Status'),
-          style: FilledButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 14),
-            backgroundColor: AppColors.primary,
+        const SizedBox(height: 6),
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            gradient: const LinearGradient(
+              colors: [AppColors.primary, Color(0xFF00456B)],
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primary.withValues(alpha: 0.35),
+                blurRadius: 14,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: FilledButton.icon(
+            key: const Key('submit_btn'),
+            onPressed: widget.isSubmitting ? null : _onTapSubmit,
+            icon: widget.isSubmitting
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2, color: Colors.white),
+                  )
+                : const Icon(Icons.check_rounded, size: 20),
+            label: Text(
+              widget.isSubmitting ? 'Saving…' : 'Submit status',
+              style: const TextStyle(
+                  fontSize: 14, fontWeight: FontWeight.w700),
+            ),
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.transparent,
+              foregroundColor: Colors.white,
+              shadowColor: Colors.transparent,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
           ),
         ),
       ],
@@ -230,37 +265,74 @@ class _StatusCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = AppColors.forAttendanceStatus(status);
-    return Material(
-      color: selected
-          ? color.withValues(alpha: 0.16)
-          : Theme.of(context).colorScheme.surfaceContainerLow,
-      borderRadius: BorderRadius.circular(14),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
-        child: Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: selected ? color : Colors.transparent,
-              width: 2,
-            ),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, color: color, size: 28),
-              const SizedBox(height: 6),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                  color: Theme.of(context).colorScheme.onSurface,
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOut,
+      decoration: BoxDecoration(
+        gradient: selected
+            ? LinearGradient(
+                colors: [
+                  color.withValues(alpha: 0.22),
+                  color.withValues(alpha: 0.08),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              )
+            : null,
+        color: selected ? null : const Color(0xFFF3F5F8),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: selected ? color : Colors.transparent,
+          width: 1.8,
+        ),
+        boxShadow: selected
+            ? [
+                BoxShadow(
+                  color: color.withValues(alpha: 0.30),
+                  blurRadius: 12,
+                  offset: const Offset(0, 6),
                 ),
-              ),
-            ],
+              ]
+            : null,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: selected ? color : color.withValues(alpha: 0.14),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: selected ? Colors.white : color,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 11.5,
+                    fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+                    letterSpacing: -0.1,
+                    color: selected
+                        ? color
+                        : Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
