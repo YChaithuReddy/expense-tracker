@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -12,8 +13,10 @@ import 'package:emerald/screens/employee/voucher/submit_voucher_screen.dart';
 import 'package:emerald/screens/employee/export/export_screen.dart';
 import 'package:emerald/screens/employee/whatsapp/whatsapp_screen.dart';
 import 'package:emerald/screens/employee/settings/bank_details_screen.dart';
+import 'package:emerald/screens/employee/pdfs/pdf_library_screen.dart';
 import 'package:emerald/screens/admin/admin_shell.dart';
 import 'package:emerald/screens/attendance/widgets/attendance_pill.dart';
+import 'package:emerald/widgets/notification_bell.dart';
 
 class ExpensesScreen extends StatefulWidget {
   const ExpensesScreen({super.key});
@@ -29,7 +32,11 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
   String _userRole = '';
   String? _organizationId;
   bool _loading = true;
-  int _unreadCount = 0;
+
+  // Quick Stats
+  double _thisMonthTotal = 0;
+  int _pendingVouchers = 0;
+  int _activeAdvances = 0;
 
   @override
   void initState() {
@@ -57,17 +64,45 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
           .order('created_at', ascending: false)
           .limit(5);
 
-      // Load unread notification count
-      int unread = 0;
+      // Load Quick Stats in parallel
+      double monthTotal = 0;
+      int pendingVouchers = 0;
+      int activeAdvances = 0;
+
       try {
-        final count = await Supabase.instance.client
-            .from('notifications')
-            .select()
-            .eq('user_id', user.id)
-            .eq('is_read', false)
-            .count(CountOption.exact);
-        unread = count.count;
-      } catch (_) {}
+        final now = DateTime.now();
+        final monthStart = DateTime(now.year, now.month, 1).toIso8601String().substring(0, 10);
+
+        final results = await Future.wait([
+          // This Month Total
+          Supabase.instance.client
+              .from('expenses')
+              .select('amount')
+              .eq('user_id', user.id)
+              .gte('date', monthStart),
+          // Pending Vouchers (not in terminal statuses)
+          Supabase.instance.client
+              .from('vouchers')
+              .select('id')
+              .eq('submitted_by', user.id)
+              .not('status', 'in', '("approved","reimbursed","rejected")'),
+          // Active Advances
+          Supabase.instance.client
+              .from('advances')
+              .select('id')
+              .eq('user_id', user.id)
+              .eq('status', 'active'),
+        ]);
+
+        // Sum this month expenses
+        for (final row in (results[0] as List)) {
+          monthTotal += ((row as Map)['amount'] as num?)?.toDouble() ?? 0;
+        }
+        pendingVouchers = (results[1] as List).length;
+        activeAdvances = (results[2] as List).length;
+      } catch (_) {
+        // Non-critical -- stats can fail silently
+      }
 
       if (mounted) {
         setState(() {
@@ -76,7 +111,9 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
           _userRole = (profile?['role'] ?? 'employee').toString().toUpperCase();
           _organizationId = profile?['organization_id'] as String?;
           _recentExpenses = List<Map<String, dynamic>>.from(expenses);
-          _unreadCount = unread;
+          _thisMonthTotal = monthTotal;
+          _pendingVouchers = pendingVouchers;
+          _activeAdvances = activeAdvances;
           _loading = false;
         });
       }
@@ -112,36 +149,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                 const Text('FluxGen', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Color(0xFF191C1E), letterSpacing: -0.02)),
               ]),
               actions: [
-                Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.notifications_outlined, color: Color(0xFF9CA3AF)),
-                      onPressed: () async {
-                        await Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationScreen()));
-                        _loadData();
-                      },
-                    ),
-                    if (_unreadCount > 0)
-                      Positioned(
-                        top: 8,
-                        right: 6,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFEF4444),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-                          child: Text(
-                            _unreadCount > 99 ? '99+' : '$_unreadCount',
-                            style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w700),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
+                const NotificationBell(),
                 PopupMenuButton<String>(
                   icon: const Icon(Icons.more_vert, color: Color(0xFF9CA3AF)),
                   onSelected: (value) {},
@@ -217,6 +225,49 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                 ),
                 const SizedBox(height: 16),
 
+                // Quick Stats
+                const Text(
+                  'QUICK STATS',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.08,
+                    color: Color(0xFF6B7280),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  height: 100,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 2),
+                    physics: const BouncingScrollPhysics(),
+                    children: [
+                      _QuickStatCard(
+                        icon: Icons.calendar_month,
+                        iconColor: const Color(0xFF006699),
+                        label: 'THIS MONTH',
+                        value: _loading ? '...' : _formatINR(_thisMonthTotal),
+                      ),
+                      const SizedBox(width: 10),
+                      _QuickStatCard(
+                        icon: Icons.receipt_long,
+                        iconColor: const Color(0xFFF59E0B),
+                        label: 'PENDING VOUCHERS',
+                        value: _loading ? '...' : '$_pendingVouchers',
+                      ),
+                      const SizedBox(width: 10),
+                      _QuickStatCard(
+                        icon: Icons.account_balance_wallet,
+                        iconColor: const Color(0xFF059669),
+                        label: 'ACTIVE ADVANCES',
+                        value: _loading ? '...' : '$_activeAdvances',
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+
                 // Scan Receipt
                 _ActionCard(
                   icon: Icons.document_scanner_outlined,
@@ -278,51 +329,63 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                GridView.count(
-                  crossAxisCount: 3,
-                  childAspectRatio: 1.1,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  mainAxisSpacing: 10,
-                  crossAxisSpacing: 10,
-                  children: [
-                    _shortcutCard(
-                      icon: Icons.account_balance,
-                      label: 'Bank Details',
-                      color: const Color(0xFF006699),
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BankDetailsScreen())),
-                    ),
-                    _shortcutCard(
-                      icon: Icons.history,
-                      label: 'Activity Log',
-                      color: const Color(0xFF6366F1),
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ActivityLogScreen())),
-                    ),
-                    _shortcutCard(
-                      icon: Icons.photo_library,
-                      label: 'Saved Images',
-                      color: const Color(0xFF0EA5E9),
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SavedImagesScreen())),
-                    ),
-                    _shortcutCard(
-                      icon: Icons.chat,
-                      label: 'WhatsApp Share',
-                      color: const Color(0xFF25D366),
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const WhatsAppScreen())),
-                    ),
-                    _shortcutCard(
-                      icon: Icons.download,
-                      label: 'Export & Share',
-                      color: const Color(0xFF8B5CF6),
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ExportScreen())),
-                    ),
-                    _shortcutCard(
-                      icon: Icons.notifications,
-                      label: 'Notifications',
-                      color: const Color(0xFFF59E0B),
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationScreen())),
-                    ),
-                  ],
+                SizedBox(
+                  height: 100,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    physics: const BouncingScrollPhysics(),
+                    children: [
+                      _shortcutCard(
+                        icon: Icons.account_balance,
+                        label: 'Bank\nDetails',
+                        color: const Color(0xFF006699),
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BankDetailsScreen())),
+                      ),
+                      const SizedBox(width: 8),
+                      _shortcutCard(
+                        icon: Icons.history,
+                        label: 'Activity\nLog',
+                        color: const Color(0xFF6366F1),
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ActivityLogScreen())),
+                      ),
+                      const SizedBox(width: 8),
+                      _shortcutCard(
+                        icon: Icons.photo_library,
+                        label: 'Saved\nImages',
+                        color: const Color(0xFF0EA5E9),
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SavedImagesScreen())),
+                      ),
+                      const SizedBox(width: 8),
+                      _shortcutCard(
+                        icon: Icons.chat,
+                        label: 'WhatsApp\nShare',
+                        color: const Color(0xFF25D366),
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const WhatsAppScreen())),
+                      ),
+                      const SizedBox(width: 8),
+                      _shortcutCard(
+                        icon: Icons.picture_as_pdf,
+                        label: 'PDF\nLibrary',
+                        color: const Color(0xFFEF4444),
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PdfLibraryScreen())),
+                      ),
+                      const SizedBox(width: 8),
+                      _shortcutCard(
+                        icon: Icons.download,
+                        label: 'Export &\nShare',
+                        color: const Color(0xFF8B5CF6),
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ExportScreen())),
+                      ),
+                      const SizedBox(width: 8),
+                      _shortcutCard(
+                        icon: Icons.notifications,
+                        label: 'Notifications',
+                        color: const Color(0xFFF59E0B),
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationScreen())),
+                      ),
+                    ],
+                  ),
                 ),
 
                 // Submit for Approval — only in company mode
@@ -413,6 +476,9 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                   }),
               ])),
             ),
+            // Extra bottom padding so the floating Attendance pill
+            // doesn't obscure the last row of recent expenses.
+            const SliverToBoxAdapter(child: SizedBox(height: 96)),
           ],
         ),
       ),
@@ -423,47 +489,53 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
   }
 
   Widget _shortcutCard({required IconData icon, required String label, required Color color, required VoidCallback onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF191C1E).withValues(alpha: 0.04),
-              blurRadius: 20,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
+    return InkWell(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        onTap();
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: SizedBox(
+        width: 72,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 42,
-              height: 42,
+              width: 52,
+              height: 52,
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(10),
+                color: color.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: color, size: 22),
+              child: Icon(icon, color: color, size: 24),
             ),
             const SizedBox(height: 8),
             Text(
               label,
               style: const TextStyle(
                 fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF191C1E),
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF374151),
+                height: 1.2,
               ),
               textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
       ),
     );
+  }
+
+  String _formatINR(double amount) {
+    if (amount >= 100000) {
+      return '\u20B9${(amount / 100000).toStringAsFixed(1)}L';
+    }
+    if (amount >= 1000) {
+      return '\u20B9${(amount / 1000).toStringAsFixed(1)}k';
+    }
+    return '\u20B9${amount.toStringAsFixed(0)}';
   }
 
   Color _catColor(String cat) {
@@ -502,6 +574,73 @@ class _QuickAction extends StatelessWidget {
             child: Text(badge!, style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w700)),
           )),
       ]),
+    );
+  }
+}
+
+class _QuickStatCard extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final String label;
+  final String value;
+
+  const _QuickStatCard({
+    required this.icon,
+    required this.iconColor,
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 140,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF191C1E).withValues(alpha: 0.04),
+            blurRadius: 20,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: iconColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, size: 18, color: iconColor),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 9,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.5,
+              color: Color(0xFF9CA3AF),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              color: iconColor,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
