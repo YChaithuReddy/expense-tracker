@@ -6,6 +6,7 @@ import '../../core/theme/app_colors.dart';
 import '../../models/fluxgen_status.dart';
 import '../../providers/fluxgen_provider.dart';
 import 'widgets/efficiency_section.dart';
+import 'widgets/export_sheet.dart';
 import 'widgets/team_list.dart';
 import 'widgets/team_stats_row.dart';
 import 'widgets/work_done_sheet.dart';
@@ -39,15 +40,29 @@ class _AttendanceTeamTabState extends ConsumerState<AttendanceTeamTab> {
     final niceDate =
         parsed == null ? today : DateFormat('EEEE, d MMM').format(parsed);
 
-    return RefreshIndicator(
-      onRefresh: refresh,
-      child: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
-        children: [
-          _TeamHeader(title: 'Team today', subtitle: niceDate),
-          const SizedBox(height: 14),
-          _content(employeesAsync, statusAsync, isAdminMode),
-        ],
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      floatingActionButton: isAdminMode
+          ? FloatingActionButton.small(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              onPressed: () {
+                final entries = statusAsync.valueOrNull ?? [];
+                ExportSheet.show(context, entries: entries);
+              },
+              child: const Icon(Icons.share_rounded, size: 20),
+            )
+          : null,
+      body: RefreshIndicator(
+        onRefresh: refresh,
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
+          children: [
+            _TeamHeader(title: 'Team today', subtitle: niceDate),
+            const SizedBox(height: 14),
+            _content(employeesAsync, statusAsync, isAdminMode),
+          ],
+        ),
       ),
     );
   }
