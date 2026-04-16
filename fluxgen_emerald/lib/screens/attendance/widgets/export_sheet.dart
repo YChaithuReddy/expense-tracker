@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../../core/constants/fluxgen_api.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../models/fluxgen_status.dart';
 import '../../../services/attendance_csv_service.dart';
@@ -35,6 +36,39 @@ class ExportSheet extends StatelessWidget {
         );
       }
     }
+  }
+
+  Future<String?> _showFilterDialog(
+      BuildContext context, String title, List<String> options) async {
+    String? selected;
+    return showDialog<String>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setState) => AlertDialog(
+          title: Text(title),
+          content: DropdownButtonFormField<String>(
+            value: selected,
+            hint: const Text('Select'),
+            isExpanded: true,
+            items: [
+              for (final o in options)
+                DropdownMenuItem(value: o, child: Text(o))
+            ],
+            onChanged: (v) => setState(() => selected = v),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: selected == null ? null : () => Navigator.pop(ctx, selected),
+              child: const Text('Export'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -70,28 +104,50 @@ class ExportSheet extends StatelessWidget {
             icon: Icons.location_on,
             label: 'Site-Wise Report',
             color: const Color(0xFF10B981),
-            onTap: () {
-              final sites = entries.map((e) => e.siteName)
-                  .where((s) => s.isNotEmpty).toSet();
+            onTap: () async {
+              final sites = entries
+                  .map((e) => e.siteName)
+                  .where((s) => s.isNotEmpty)
+                  .toSet()
+                  .toList()
+                ..sort();
               if (sites.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('No site data to export')));
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('No site data to export')),
+                  );
+                }
                 return;
               }
-              // Export all sites in one CSV
-              _export(context,
-                  AttendanceCsvService.employeeDailyCsv(
-                      entries.where((e) => e.siteName.isNotEmpty).toList()),
-                  'site_report.csv');
+              final picked =
+                  await _showFilterDialog(context, 'Select Site', sites);
+              if (picked != null && context.mounted) {
+                _export(
+                  context,
+                  AttendanceCsvService.siteCsv(entries, picked),
+                  'site_${picked.replaceAll(' ', '_')}_report.csv',
+                );
+              }
             },
           ),
           _ExportTile(
             icon: Icons.work,
             label: 'Work Type Report',
             color: const Color(0xFF8B5CF6),
-            onTap: () => _export(context,
-                AttendanceCsvService.employeeDailyCsv(entries),
-                'worktype_report.csv'),
+            onTap: () async {
+              final picked = await _showFilterDialog(
+                context,
+                'Select Work Type',
+                FluxgenApi.workTypes,
+              );
+              if (picked != null && context.mounted) {
+                _export(
+                  context,
+                  AttendanceCsvService.workTypeCsv(entries, picked),
+                  'worktype_${picked.replaceAll(' ', '_')}_report.csv',
+                );
+              }
+            },
           ),
           _ExportTile(
             icon: Icons.insights,

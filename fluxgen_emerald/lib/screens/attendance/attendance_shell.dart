@@ -8,6 +8,8 @@ import '../../providers/fluxgen_provider.dart';
 import 'attendance_team_tab.dart';
 import 'attendance_update_tab.dart';
 import 'attendance_weekly_tab.dart';
+import 'manage_employees_screen.dart';
+import 'manage_users_screen.dart';
 
 class AttendanceShell extends ConsumerStatefulWidget {
   const AttendanceShell({super.key});
@@ -71,6 +73,138 @@ class _HeroHeader extends ConsumerWidget {
   const _HeroHeader({required this.isAdmin, required this.mode});
   final bool isAdmin;
   final ViewMode mode;
+
+  static void _showAdminMenu(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.10),
+              blurRadius: 24,
+              offset: const Offset(0, -4),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Handle bar
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFE0E0E0),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            // Title
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
+              child: Row(
+                children: [
+                  Icon(Icons.admin_panel_settings_outlined,
+                      color: AppColors.primary, size: 18),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'Admin Management',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF1A1A2E),
+                      letterSpacing: -0.3,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1, indent: 20, endIndent: 20),
+            // Manage Employees tile
+            ListTile(
+              contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 20, vertical: 2),
+              leading: Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(Icons.groups_2_outlined,
+                    color: AppColors.primary, size: 20),
+              ),
+              title: const Text(
+                'Manage Employees',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF1A1A2E),
+                ),
+              ),
+              subtitle: const Text(
+                'Add, edit or remove employees',
+                style: TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+              ),
+              trailing: const Icon(Icons.chevron_right,
+                  color: Color(0xFFB0B0B0), size: 20),
+              onTap: () {
+                Navigator.pop(ctx);
+                Navigator.push<void>(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const ManageEmployeesScreen()),
+                );
+              },
+            ),
+            // Manage Users tile
+            ListTile(
+              contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 20, vertical: 2),
+              leading: Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF7C3AED).withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.manage_accounts_outlined,
+                    color: Color(0xFF7C3AED), size: 20),
+              ),
+              title: const Text(
+                'Manage Users',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF1A1A2E),
+                ),
+              ),
+              subtitle: const Text(
+                'Assign roles and permissions',
+                style: TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+              ),
+              trailing: const Icon(Icons.chevron_right,
+                  color: Color(0xFFB0B0B0), size: 20),
+              onTap: () {
+                Navigator.pop(ctx);
+                Navigator.push<void>(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const ManageUsersScreen()),
+                );
+              },
+            ),
+            const SizedBox(height: 12),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -136,7 +270,18 @@ class _HeroHeader extends ConsumerWidget {
                   ),
                 ),
               ),
-              if (isAdmin) _AdminModePill(mode: mode),
+              if (isAdmin) ...[
+                IconButton(
+                  icon: const Icon(Icons.settings_outlined, color: Colors.white),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                  visualDensity: VisualDensity.compact,
+                  tooltip: 'Admin Settings',
+                  onPressed: () => _showAdminMenu(context),
+                ),
+                const SizedBox(width: 6),
+                _AdminModePill(mode: mode),
+              ],
             ],
           ),
           const SizedBox(height: 14),
