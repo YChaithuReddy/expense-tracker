@@ -153,4 +153,37 @@ void main() {
       );
     });
   });
+
+  group('FluxgenApiService.updateWorkDone', () {
+    test('sends all work-done fields as form-encoded POST', () async {
+      String? capturedBody;
+      final client = MockClient((req) async {
+        capturedBody = req.body;
+        return http.Response('{"status":"success"}', 200);
+      });
+      final svc = FluxgenApiService(client: client);
+      await svc.updateWorkDone(
+        empId: 'E1',
+        date: '2026-04-15',
+        workDone: 'Installed HVAC unit',
+        completionPct: 75,
+        workRemarks: 'Pending duct work',
+        nextVisitRequired: true,
+        nextVisitDate: '2026-04-20',
+      );
+      expect(capturedBody, contains('action=updateWorkDone'));
+      expect(capturedBody, contains('empId=E1'));
+      expect(capturedBody, contains('completionPct=75'));
+      expect(capturedBody, contains('nextVisitRequired=Yes'));
+      expect(capturedBody, contains('nextVisitDate=2026-04-20'));
+    });
+
+    test('accepts 302 as success', () async {
+      final client = MockClient((_) async =>
+          http.Response('Moved', 302, headers: {'location': 'https://x'}));
+      final svc = FluxgenApiService(client: client);
+      await svc.updateWorkDone(
+          empId: 'E1', date: '2026-04-15', workDone: 'test');
+    });
+  });
 }
