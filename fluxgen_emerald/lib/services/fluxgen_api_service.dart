@@ -104,6 +104,38 @@ class FluxgenApiService {
     }
   }
 
+  Future<void> updateWorkDone({
+    required String empId,
+    required String date,
+    required String workDone,
+    int completionPct = 0,
+    String workRemarks = '',
+    bool nextVisitRequired = false,
+    String nextVisitDate = '',
+  }) async {
+    final body = <String, String>{
+      'action':             'updateWorkDone',
+      'empId':              empId,
+      'date':               date,
+      'workDone':           workDone,
+      'completionPct':      completionPct.toString(),
+      'workRemarks':        workRemarks,
+      'nextVisitRequired':  nextVisitRequired ? 'Yes' : 'No',
+      'nextVisitDate':      nextVisitDate,
+    };
+    final resp = await _client
+        .post(
+          Uri.parse(FluxgenApi.scriptUrl),
+          headers: const {'Content-Type': 'application/x-www-form-urlencoded'},
+          body: body,
+        )
+        .timeout(const Duration(seconds: 20));
+    if (resp.statusCode < 200 || resp.statusCode >= 400) {
+      throw Exception(
+          'updateWorkDone failed with HTTP ${resp.statusCode}: ${resp.body}');
+    }
+  }
+
   // ── Helpers ─────────────────────────────────────────────────────────
 
   Map<String, dynamic> _decodeBody(String raw) {
