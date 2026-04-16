@@ -5,8 +5,11 @@ import 'package:intl/intl.dart';
 import '../../core/theme/app_colors.dart';
 import '../../models/fluxgen_status.dart';
 import '../../providers/fluxgen_provider.dart';
+import 'widgets/efficiency_section.dart';
+import 'widgets/export_sheet.dart';
 import 'widgets/team_list.dart';
 import 'widgets/team_stats_row.dart';
+import 'widgets/work_done_sheet.dart';
 
 class AttendanceTeamTab extends ConsumerStatefulWidget {
   const AttendanceTeamTab({super.key, required this.isAdmin});
@@ -37,15 +40,29 @@ class _AttendanceTeamTabState extends ConsumerState<AttendanceTeamTab> {
     final niceDate =
         parsed == null ? today : DateFormat('EEEE, d MMM').format(parsed);
 
-    return RefreshIndicator(
-      onRefresh: refresh,
-      child: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
-        children: [
-          _TeamHeader(title: 'Team today', subtitle: niceDate),
-          const SizedBox(height: 14),
-          _content(employeesAsync, statusAsync, isAdminMode),
-        ],
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      floatingActionButton: isAdminMode
+          ? FloatingActionButton.small(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              onPressed: () {
+                final entries = statusAsync.valueOrNull ?? [];
+                ExportSheet.show(context, entries: entries);
+              },
+              child: const Icon(Icons.share_rounded, size: 20),
+            )
+          : null,
+      body: RefreshIndicator(
+        onRefresh: refresh,
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
+          children: [
+            _TeamHeader(title: 'Team today', subtitle: niceDate),
+            const SizedBox(height: 14),
+            _content(employeesAsync, statusAsync, isAdminMode),
+          ],
+        ),
       ),
     );
   }
@@ -117,18 +134,19 @@ class _AttendanceTeamTabState extends ConsumerState<AttendanceTeamTab> {
             isAdminMode: isAdminMode,
             onEdit: isAdminMode
                 ? (emp, entry) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        behavior: SnackBarBehavior.floating,
-                        content: Text(
-                          'Edit flow coming soon — switch to Update tab',
-                        ),
-                      ),
+                    WorkDoneSheet.show(
+                      context,
+                      empId: emp.id,
+                      empName: emp.name,
+                      date: fluxgenTodayStr(),
+                      existing: entry,
                     );
                   }
                 : null,
           ),
         ),
+        if (isAdminMode)
+          EfficiencySection(entries: entries),
       ],
     );
   }

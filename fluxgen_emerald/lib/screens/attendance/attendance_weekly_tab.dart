@@ -6,6 +6,7 @@ import '../../core/theme/app_colors.dart';
 import '../../models/fluxgen_status.dart';
 import '../../providers/fluxgen_provider.dart';
 import 'widgets/weekly_grid.dart';
+import 'widgets/work_done_sheet.dart';
 
 class AttendanceWeeklyTab extends ConsumerWidget {
   const AttendanceWeeklyTab({super.key, required this.isAdmin});
@@ -65,6 +66,20 @@ class AttendanceWeeklyTab extends ConsumerWidget {
                         entries: entries,
                         employees: employees,
                         todayStr: fluxgenTodayStr(),
+                        onCellTap: (empId, date, existing) {
+                          final emps = employeesAsync.valueOrNull ?? [];
+                          FluxgenEmployee? emp;
+                          for (final e in emps) {
+                            if (e.id == empId) { emp = e; break; }
+                          }
+                          WorkDoneSheet.show(
+                            context,
+                            empId: empId,
+                            empName: emp?.name ?? empId,
+                            date: date,
+                            existing: existing,
+                          );
+                        },
                       ),
                     ),
                   ],
@@ -92,6 +107,20 @@ class AttendanceWeeklyTab extends ConsumerWidget {
                       entries: myEntries,
                       employees: [self],
                       todayStr: fluxgenTodayStr(),
+                      onCellTap: (empId, date, existing) {
+                        final emps = employeesAsync.valueOrNull ?? [];
+                        FluxgenEmployee? emp;
+                        for (final e in emps) {
+                          if (e.id == empId) { emp = e; break; }
+                        }
+                        WorkDoneSheet.show(
+                          context,
+                          empId: empId,
+                          empName: emp?.name ?? empId,
+                          date: date,
+                          existing: existing,
+                        );
+                      },
                     ),
                   ),
                 ],
