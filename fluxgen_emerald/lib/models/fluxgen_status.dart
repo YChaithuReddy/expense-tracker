@@ -78,10 +78,15 @@ class StatusEntry {
     required this.empName,
     required this.date,
     required this.status,
-    this.siteName    = '',
-    this.workType    = '',
-    this.scopeOfWork = '',
-    this.role        = '',
+    this.siteName          = '',
+    this.workType          = '',
+    this.scopeOfWork       = '',
+    this.role              = '',
+    this.workDone          = '',
+    this.completionPct     = '0',
+    this.workRemarks       = '',
+    this.nextVisitRequired = 'No',
+    this.nextVisitDate     = '',
   });
   final String empId;
   final String empName;
@@ -91,17 +96,27 @@ class StatusEntry {
   final String workType;
   final String scopeOfWork;
   final String role;
+  final String workDone;
+  final String completionPct;
+  final String workRemarks;
+  final String nextVisitRequired;
+  final String nextVisitDate;
 
   factory StatusEntry.fromJson(Map<String, dynamic> json) => StatusEntry(
-        empId:       (json['empId']       as String?) ?? '',
-        empName:     (json['empName']     as String?) ?? '',
-        date:        (json['date']        as String?) ?? '',
-        status:      AttendanceStatus.fromApiValue(
-                       (json['status'] as String?) ?? ''),
-        siteName:    (json['siteName']    as String?) ?? '',
-        workType:    (json['workType']    as String?) ?? '',
-        scopeOfWork: (json['scopeOfWork'] as String?) ?? '',
-        role:        (json['role']        as String?) ?? '',
+        empId:            (json['empId']            as String?) ?? '',
+        empName:          (json['empName']          as String?) ?? '',
+        date:             (json['date']             as String?) ?? '',
+        status:           AttendanceStatus.fromApiValue(
+                            (json['status'] as String?) ?? ''),
+        siteName:         (json['siteName']         as String?) ?? '',
+        workType:         (json['workType']         as String?) ?? '',
+        scopeOfWork:      (json['scopeOfWork']      as String?) ?? '',
+        role:             (json['role']             as String?) ?? '',
+        workDone:         (json['workDone']         as String?) ?? '',
+        completionPct:    (json['completionPct']    as String?) ?? '0',
+        workRemarks:      (json['workRemarks']      as String?) ?? '',
+        nextVisitRequired:(json['nextVisitRequired'] as String?) ?? 'No',
+        nextVisitDate:    (json['nextVisitDate']    as String?) ?? '',
       );
 
   @override
