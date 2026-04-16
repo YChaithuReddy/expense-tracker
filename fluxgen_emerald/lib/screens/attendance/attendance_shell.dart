@@ -8,6 +8,7 @@ import '../../providers/fluxgen_provider.dart';
 import 'attendance_team_tab.dart';
 import 'attendance_update_tab.dart';
 import 'attendance_weekly_tab.dart';
+import 'csr/csr_form_screen.dart';
 import 'manage_employees_screen.dart';
 import 'manage_users_screen.dart';
 
@@ -196,6 +197,36 @@ class _HeroHeader extends ConsumerWidget {
                   context,
                   MaterialPageRoute(
                       builder: (_) => const ManageUsersScreen()),
+                );
+              },
+            ),
+            const Divider(height: 1, indent: 20, endIndent: 20),
+            ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 2),
+              leading: Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF10B981).withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.description_outlined,
+                    color: Color(0xFF10B981), size: 20),
+              ),
+              title: const Text(
+                'Service Report (CSR)',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF1A1A2E)),
+              ),
+              subtitle: const Text(
+                'Generate customer service reports',
+                style: TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+              ),
+              trailing: const Icon(Icons.chevron_right, color: Color(0xFFB0B0B0), size: 20),
+              onTap: () {
+                Navigator.pop(ctx);
+                Navigator.push<void>(
+                  context,
+                  MaterialPageRoute(builder: (_) => const CsrFormScreen()),
                 );
               },
             ),

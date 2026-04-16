@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_colors.dart';
 import '../../models/fluxgen_status.dart';
 import '../../providers/fluxgen_provider.dart';
+import 'csr/csr_form_screen.dart';
 import 'emp_id_setup_dialog.dart';
 import 'widgets/status_submit_form.dart';
 
@@ -111,6 +112,21 @@ class _AttendanceUpdateTabState extends ConsumerState<AttendanceUpdateTab> {
             const SizedBox(height: 14),
           ],
           _formCard(employeesAsync, myEmpId, isAdminSubmit),
+          const SizedBox(height: 14),
+          OutlinedButton.icon(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const CsrFormScreen()),
+            ),
+            icon: const Icon(Icons.description_outlined, size: 18),
+            label: const Text('Generate Service Report'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.primary,
+              side: BorderSide(color: AppColors.primary.withValues(alpha: 0.3)),
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            ),
+          ),
         ],
       ),
     );
