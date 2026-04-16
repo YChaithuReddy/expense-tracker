@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../core/theme/app_colors.dart';
 import '../../models/fluxgen_status.dart';
 import '../../providers/fluxgen_provider.dart';
+import 'widgets/efficiency_section.dart';
 import 'widgets/team_list.dart';
 import 'widgets/team_stats_row.dart';
 import 'widgets/work_done_sheet.dart';
@@ -129,6 +130,8 @@ class _AttendanceTeamTabState extends ConsumerState<AttendanceTeamTab> {
                 : null,
           ),
         ),
+        if (isAdminMode)
+          EfficiencySection(entries: entries),
       ],
     );
   }
