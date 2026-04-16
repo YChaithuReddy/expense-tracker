@@ -812,10 +812,12 @@ class ExpenseTracker {
                 imagesWrapper.appendChild(imageDiv);
             });
 
-            // Show scan button
+            // Show scan button — MUST also clear disabled in case a previous
+            // scan left it disabled (user re-uploaded images mid-scan).
             const scanBtn = document.getElementById('scanBills');
             if (scanBtn) {
                 scanBtn.style.display = 'block';
+                scanBtn.disabled = false;
                 console.log('✅ All images processed, scan button shown');
             }
 
@@ -838,6 +840,7 @@ class ExpenseTracker {
     }
 
     async scanBills() {
+        console.log('🔍 scanBills() called, images:', this.scannedImages.length);
         if (this.scannedImages.length === 0) {
             this.showError('Please select at least one image to scan.\n\nUse the Camera or Gallery button to add images.', 'No Images Selected');
             return;
