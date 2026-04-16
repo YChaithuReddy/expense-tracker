@@ -61,6 +61,11 @@ final employeesProvider =
   return ref.watch(fluxgenApiProvider).getEmployees();
 });
 
+final usersProvider =
+    FutureProvider<List<Map<String, dynamic>>>((ref) async {
+  return ref.watch(fluxgenApiProvider).getUsers();
+});
+
 /// Today's status for all employees. Family key = YYYY-MM-DD.
 final todayStatusProvider =
     FutureProvider.family<List<StatusEntry>, String>((ref, date) async {
