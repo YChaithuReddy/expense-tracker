@@ -7,6 +7,7 @@ import '../../models/fluxgen_status.dart';
 import '../../providers/fluxgen_provider.dart';
 import 'widgets/team_list.dart';
 import 'widgets/team_stats_row.dart';
+import 'widgets/work_done_sheet.dart';
 
 class AttendanceTeamTab extends ConsumerStatefulWidget {
   const AttendanceTeamTab({super.key, required this.isAdmin});
@@ -117,13 +118,12 @@ class _AttendanceTeamTabState extends ConsumerState<AttendanceTeamTab> {
             isAdminMode: isAdminMode,
             onEdit: isAdminMode
                 ? (emp, entry) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        behavior: SnackBarBehavior.floating,
-                        content: Text(
-                          'Edit flow coming soon — switch to Update tab',
-                        ),
-                      ),
+                    WorkDoneSheet.show(
+                      context,
+                      empId: emp.id,
+                      empName: emp.name,
+                      date: fluxgenTodayStr(),
+                      existing: entry,
                     );
                   }
                 : null,
