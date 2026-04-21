@@ -7,8 +7,13 @@ import '../../providers/fluxgen_provider.dart';
 
 /// Admin-only screen pushed via Navigator to manage the Employees sheet.
 /// Supports add / edit / delete with optimistic UI feedback.
+///
+/// When [embedded] is true, renders without Scaffold/AppBar so it can live
+/// inside a TabBarView tab (the parent already owns the hero header).
 class ManageEmployeesScreen extends ConsumerStatefulWidget {
-  const ManageEmployeesScreen({super.key});
+  const ManageEmployeesScreen({super.key, this.embedded = false});
+
+  final bool embedded;
 
   @override
   ConsumerState<ManageEmployeesScreen> createState() =>
@@ -167,6 +172,45 @@ class _ManageEmployeesScreenState
   Widget build(BuildContext context) {
     final employeesAsync = ref.watch(employeesProvider);
 
+    final listArea = RefreshIndicator(
+      color: AppColors.primary,
+      onRefresh: () async => ref.invalidate(employeesProvider),
+      child: employeesAsync.when(
+        loading: () => const Center(
+          child: CircularProgressIndicator(color: AppColors.primary),
+        ),
+        error: (err, _) => _ErrorView(
+          message: err.toString(),
+          onRetry: () => ref.invalidate(employeesProvider),
+        ),
+        data: (employees) => employees.isEmpty
+            ? _EmptyView(onAdd: _showAddDialog)
+            : _EmployeeList(
+                employees: employees,
+                onEdit: _showEditDialog,
+                onDelete: _confirmDelete,
+              ),
+      ),
+    );
+
+    if (widget.embedded) {
+      // Rendered inside a TabBarView — no Scaffold/AppBar, keep FAB as overlay.
+      return Stack(
+        children: [
+          Positioned.fill(child: listArea),
+          Positioned(
+            right: 16,
+            bottom: 16,
+            child: _GradientFab(
+              tooltip: 'Add employee',
+              icon: Icons.person_add_outlined,
+              onPressed: _showAddDialog,
+            ),
+          ),
+        ],
+      );
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFFF6F8FB),
       body: SafeArea(
@@ -176,28 +220,7 @@ class _ManageEmployeesScreenState
               title: 'Manage Employees',
               onBack: () => Navigator.maybePop(context),
             ),
-            Expanded(
-              child: RefreshIndicator(
-                color: AppColors.primary,
-                onRefresh: () async => ref.invalidate(employeesProvider),
-                child: employeesAsync.when(
-                  loading: () => const Center(
-                    child: CircularProgressIndicator(color: AppColors.primary),
-                  ),
-                  error: (err, _) => _ErrorView(
-                    message: err.toString(),
-                    onRetry: () => ref.invalidate(employeesProvider),
-                  ),
-                  data: (employees) => employees.isEmpty
-                      ? _EmptyView(onAdd: _showAddDialog)
-                      : _EmployeeList(
-                          employees: employees,
-                          onEdit: _showEditDialog,
-                          onDelete: _confirmDelete,
-                        ),
-                ),
-              ),
-            ),
+            Expanded(child: listArea),
           ],
         ),
       ),

@@ -5,6 +5,7 @@ import '../../core/theme/app_colors.dart';
 import '../../models/fluxgen_status.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/fluxgen_provider.dart';
+import 'attendance_report_tab.dart';
 import 'attendance_team_tab.dart';
 import 'attendance_update_tab.dart';
 import 'attendance_weekly_tab.dart';
@@ -25,7 +26,7 @@ class _AttendanceShellState extends ConsumerState<AttendanceShell>
   @override
   void initState() {
     super.initState();
-    _tab = TabController(length: 3, vsync: this);
+    _tab = TabController(length: 5, vsync: this);
     // Force a fresh fetch of the user profile so the admin role check
     // reflects any recent Supabase changes (e.g. role upgraded to admin).
     // Without this, Riverpod's FutureProvider cache would keep serving
@@ -56,7 +57,8 @@ class _AttendanceShellState extends ConsumerState<AttendanceShell>
             _HeroHeader(isAdmin: isAdmin, mode: mode),
             _TabsBar(
               controller: _tab,
-              tabs: const ['Update', 'Weekly', 'Team'],
+              tabs: const ['Update', 'Weekly', 'Team', 'Report', 'Staff'],
+              isScrollable: true,
             ),
             Expanded(
               child: TabBarView(
@@ -65,6 +67,8 @@ class _AttendanceShellState extends ConsumerState<AttendanceShell>
                   AttendanceUpdateTab(isAdmin: isAdmin),
                   AttendanceWeeklyTab(isAdmin: isAdmin),
                   AttendanceTeamTab(isAdmin: isAdmin),
+                  const AttendanceReportTab(),
+                  const ManageEmployeesScreen(embedded: true),
                 ],
               ),
             ),
@@ -476,9 +480,14 @@ class _AdminModePill extends ConsumerWidget {
 // ─── Tabs bar with pill-style indicator ─────────────────────────────────────
 
 class _TabsBar extends StatelessWidget {
-  const _TabsBar({required this.controller, required this.tabs});
+  const _TabsBar({
+    required this.controller,
+    required this.tabs,
+    this.isScrollable = false,
+  });
   final TabController controller;
   final List<String> tabs;
+  final bool isScrollable;
 
   @override
   Widget build(BuildContext context) {
@@ -498,8 +507,13 @@ class _TabsBar extends StatelessWidget {
       ),
       child: TabBar(
         controller: controller,
+        isScrollable: isScrollable,
+        tabAlignment: isScrollable ? TabAlignment.start : null,
         labelColor: Colors.white,
         unselectedLabelColor: AppColors.onSurfaceVariant,
+        labelPadding: isScrollable
+            ? const EdgeInsets.symmetric(horizontal: 18)
+            : null,
         labelStyle: const TextStyle(
           fontSize: 13,
           fontWeight: FontWeight.w700,
