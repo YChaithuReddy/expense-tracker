@@ -5,7 +5,7 @@
 abstract final class AppConstants {
   // ─── App Identity ───────────────────────────────────────────────────
   static const String appName = 'FluxGen Expense Tracker';
-  static const String appVersion = '2.1.0';
+  static const String appVersion = '2.2.0';
 
   // ─── Supabase ───────────────────────────────────────────────────────
   static const String supabaseUrl =
