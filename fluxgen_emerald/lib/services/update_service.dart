@@ -9,7 +9,7 @@ import 'package:emerald/core/constants/app_constants.dart';
 
 class UpdateService {
   static const _currentVersion = AppConstants.appVersion;
-  static const _currentBuildNumber = 24;
+  static const _currentBuildNumber = 25;
 
   /// Check for updates on app start — shows once per day max, skips dismissed versions
   static Future<void> checkForUpdate(BuildContext context) async {
