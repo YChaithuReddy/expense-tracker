@@ -26,6 +26,13 @@ class _AttendanceShellState extends ConsumerState<AttendanceShell>
   void initState() {
     super.initState();
     _tab = TabController(length: 3, vsync: this);
+    // Force a fresh fetch of the user profile so the admin role check
+    // reflects any recent Supabase changes (e.g. role upgraded to admin).
+    // Without this, Riverpod's FutureProvider cache would keep serving
+    // the stale pre-role-change profile until full app process restart.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) ref.invalidate(userProfileProvider);
+    });
   }
 
   @override
