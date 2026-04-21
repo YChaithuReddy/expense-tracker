@@ -6523,24 +6523,55 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         if (button) button.disabled = true;
 
         try {
-            this.showLoading('Resetting Google Sheet...');
+            if (typeof this.showLoading === 'function') {
+                this.showLoading('Resetting Google Sheet...');
+            }
 
             if (!window.googleSheetsService) {
                 throw new Error('Google Sheets service not initialized');
             }
 
-            const result = await window.googleSheetsService.resetSheet();
-            this.hideLoading();
+            // Ensure service is initialized (loads sheetId from profile)
+            if (!window.googleSheetsService.sheetId) {
+                try {
+                    await window.googleSheetsService.initialize();
+                } catch (_) {}
+            }
 
-            if (result.success) {
-                this.showNotification('✅ Sheet reset to template successfully! You can now re-export your expenses.');
+            if (!window.googleSheetsService.sheetId) {
+                throw new Error('No Google Sheet linked. Please export expenses at least once first.');
+            }
+
+            const result = await window.googleSheetsService.resetSheet();
+
+            if (typeof this.hideLoading === 'function') {
+                this.hideLoading();
+            }
+
+            if (result && result.success) {
+                if (typeof this.showNotification === 'function') {
+                    this.showNotification('✅ Sheet reset to template successfully! You can now re-export your expenses.');
+                } else {
+                    alert('✅ Sheet reset successfully!');
+                }
             } else {
-                this.showNotification('❌ ' + (result.message || 'Reset failed'));
+                const msg = (result && result.message) || 'Reset failed';
+                if (typeof this.showNotification === 'function') {
+                    this.showNotification('❌ ' + msg);
+                } else {
+                    alert('❌ ' + msg);
+                }
             }
         } catch (error) {
             console.error('Reset error:', error);
-            this.hideLoading();
-            this.showNotification('❌ Reset failed: ' + error.message);
+            if (typeof this.hideLoading === 'function') {
+                this.hideLoading();
+            }
+            if (typeof this.showNotification === 'function') {
+                this.showNotification('❌ Reset failed: ' + error.message);
+            } else {
+                alert('❌ Reset failed: ' + error.message);
+            }
         } finally {
             if (btnText) btnText.textContent = 'Reset Sheet';
             if (button) button.disabled = false;
