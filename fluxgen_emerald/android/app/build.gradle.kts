@@ -46,9 +46,14 @@ android {
 
     buildTypes {
         release {
-            signingConfig = signingConfigs.getByName("release")
-            isMinifyEnabled = false
-            isShrinkResources = false
+            // Use debug signing so seamless in-app updates keep working
+            // for users who currently have debug-signed APKs installed.
+            // Switch back to getByName("release") when migrating to a
+            // proper production release (requires everyone to uninstall
+            // once to switch signatures).
+            signingConfig = signingConfigs.getByName("debug")
+            isMinifyEnabled = true
+            isShrinkResources = true
         }
     }
 }
