@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../models/fluxgen_status.dart';
@@ -68,6 +70,12 @@ class _AttendanceUpdateTabState extends ConsumerState<AttendanceUpdateTab> {
           backgroundColor: const Color(0xFF10B981),
         ),
       );
+      // After a successful employee-mode submit, offer to open Asanify
+      // for clock-in. Skipped for leave/holiday/weekend and for admins
+      // submitting on behalf of someone else.
+      if (!widget.isAdmin || ref.read(viewModeProvider) == ViewMode.employee) {
+        await _promptAsanifyClockIn(payload.status);
+      }
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -84,6 +92,74 @@ class _AttendanceUpdateTabState extends ConsumerState<AttendanceUpdateTab> {
       );
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
+  /// Asks the user if they want to open Asanify to clock in after submitting
+  /// a working status. Only prompts once per day — the answer is remembered
+  /// in SharedPreferences as `asanify_prompt_YYYY-MM-DD`.
+  Future<void> _promptAsanifyClockIn(AttendanceStatus status) async {
+    // Skip for non-working statuses
+    if (status == AttendanceStatus.onLeave ||
+        status == AttendanceStatus.holiday ||
+        status == AttendanceStatus.weekend ||
+        status == AttendanceStatus.unknown) {
+      return;
+    }
+
+    // Only prompt once per day
+    final prefs = await SharedPreferences.getInstance();
+    final key = 'asanify_prompt_${fluxgenTodayStr()}';
+    if (prefs.getBool(key) == true) return;
+
+    if (!mounted) return;
+    final shouldOpen = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(children: [
+          Container(
+            width: 36, height: 36,
+            decoration: BoxDecoration(
+              color: const Color(0xFF10B981).withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(Icons.schedule_rounded,
+                color: Color(0xFF10B981), size: 20),
+          ),
+          const SizedBox(width: 12),
+          const Expanded(child: Text('Clock in on Asanify?',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800))),
+        ]),
+        content: const Text(
+          "You've logged your status — open Asanify in your browser to clock in for today.",
+          style: TextStyle(fontSize: 13, height: 1.4),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Skip'),
+          ),
+          FilledButton.icon(
+            onPressed: () => Navigator.pop(ctx, true),
+            icon: const Icon(Icons.open_in_new_rounded, size: 16),
+            label: const Text('Open Asanify'),
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    // Remember the choice for today so we don't nag
+    await prefs.setBool(key, true);
+
+    if (shouldOpen == true) {
+      final uri = Uri.parse('https://secure.asanify.com/Home/Dashboard');
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
     }
   }
 
