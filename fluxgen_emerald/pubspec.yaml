@@ -1,0 +1,79 @@
+name: emerald
+description: "FluxGen Emerald - Corporate Expense Management"
+publish_to: 'none'
+version: 2.1.0+24
+
+environment:
+  sdk: ^3.7.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # UI
+  cupertino_icons: ^1.0.8
+  google_fonts: ^6.2.1
+  shimmer: ^3.0.0
+  flutter_animate: ^4.5.2
+  photo_view: ^0.15.0
+  cached_network_image: ^3.4.1
+
+  # State Management
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+
+  # Navigation
+  go_router: ^14.8.1
+
+  # Backend
+  supabase_flutter: ^2.8.4
+
+  # Auth
+  google_sign_in: ^6.2.2
+
+  # Camera & Files
+  image_picker: ^1.1.2
+  file_picker: ^8.1.7
+  path_provider: ^2.1.5
+
+  # OCR
+  google_mlkit_text_recognition: ^0.14.0
+
+  # Formatting & Utils
+  intl: ^0.19.0
+  share_plus: ^10.1.4
+  url_launcher: ^6.3.1
+
+  # Storage
+  shared_preferences: ^2.3.4
+  hive_flutter: ^1.1.0
+
+  # Connectivity
+  connectivity_plus: ^6.1.1
+
+  # Network
+  http: ^1.2.2
+
+  # PDF
+  pdf: ^3.11.2
+  printing: ^5.13.5
+
+  # Export
+  excel: ^4.0.6
+  xml: ^6.5.0
+  sentry_flutter: ^9.17.0
+  device_info_plus: ^12.4.0
+  package_info_plus: ^9.0.1
+  open_filex: ^4.7.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  riverpod_generator: ^2.6.3
+  build_runner: ^2.4.14
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
