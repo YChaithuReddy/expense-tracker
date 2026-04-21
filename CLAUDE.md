@@ -2,6 +2,28 @@
 
 A full-stack expense tracking application with OCR bill scanning, UPI payment integration, and Google Sheets export.
 
+## Second Brain (knowledge graph)
+
+Before answering architecture questions, codebase questions, or "why does X work this way" questions, **consult the knowledge graph first**:
+
+1. Read `SecondBrain/graphify-out/GRAPH_REPORT.md` — god nodes, communities, surprising connections
+2. For specific questions, use the graph CLI:
+   ```bash
+   cd SecondBrain
+   python -m graphify query "<question>" --graph graphify-out/graph.json
+   python -m graphify path  "<NodeA>" "<NodeB>" --graph graphify-out/graph.json
+   python -m graphify explain "<NodeName>" --graph graphify-out/graph.json
+   ```
+3. Curated architecture docs live in `SecondBrain/10-Code-Context/`
+4. Non-obvious trade-offs are documented in `SecondBrain/20-Decisions/` (ADR format)
+
+**After ANY significant code change**, update the graph:
+```bash
+cd SecondBrain && python -m graphify update .
+```
+
+The graph is the authoritative "why" layer — code shows WHAT, the graph shows WHY and HOW it connects.
+
 ## Quick Commands
 
 ```bash
