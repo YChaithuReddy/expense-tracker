@@ -1,0 +1,7 @@
+-keep class io.flutter.** { *; }
+-keep class com.google.mlkit.** { *; }
+-dontwarn com.google.mlkit.**
+-dontwarn com.google.android.play.**
+-keep class com.google.android.play.** { *; }
+-dontwarn com.google.errorprone.**
+-dontwarn javax.annotation.**

@@ -16,6 +16,8 @@ import 'package:emerald/screens/employee/settings/bank_details_screen.dart';
 import 'package:emerald/screens/employee/pdfs/pdf_library_screen.dart';
 import 'package:emerald/screens/admin/admin_shell.dart';
 import 'package:emerald/screens/attendance/widgets/attendance_pill.dart';
+import 'package:emerald/screens/employee/export/sheets_export_screen.dart';
+import 'package:emerald/services/google_sheets_service.dart';
 import 'package:emerald/widgets/notification_bell.dart';
 
 class ExpensesScreen extends StatefulWidget {
@@ -42,6 +44,48 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
   void initState() {
     super.initState();
     _loadData();
+  }
+
+  Future<void> _resetGoogleSheet() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(children: [
+          const Icon(Icons.warning_amber, color: Color(0xFFEA580C), size: 24),
+          const SizedBox(width: 8),
+          const Text('Reset Sheet?', style: TextStyle(fontWeight: FontWeight.w700)),
+        ]),
+        content: const Text('This will clear all data in your Google Sheet and restore the template format.\n\nYour expense data in the app is safe — only the sheet is reset.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFEA580C), foregroundColor: Colors.white),
+            child: const Text('Reset'),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+
+    try {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Resetting Google Sheet...'), backgroundColor: Color(0xFFEA580C), duration: Duration(seconds: 3)),
+      );
+      await GoogleSheetsService.resetSheet();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Sheet reset to template! You can now re-export.'), backgroundColor: Color(0xFF059669)),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Reset failed: $e'), backgroundColor: const Color(0xFFEF4444)),
+        );
+      }
+    }
   }
 
   Future<void> _loadData() async {
@@ -329,95 +373,81 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                SizedBox(
-                  height: 100,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    physics: const BouncingScrollPhysics(),
-                    children: [
+                GridView.count(
+                  crossAxisCount: 4,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  mainAxisSpacing: 8,
+                  crossAxisSpacing: 8,
+                  childAspectRatio: 0.85,
+                  children: [
+                    if (_organizationId != null)
                       _shortcutCard(
-                        icon: Icons.account_balance,
-                        label: 'Bank\nDetails',
-                        color: const Color(0xFF006699),
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BankDetailsScreen())),
-                      ),
-                      const SizedBox(width: 8),
-                      _shortcutCard(
-                        icon: Icons.history,
-                        label: 'Activity\nLog',
-                        color: const Color(0xFF6366F1),
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ActivityLogScreen())),
-                      ),
-                      const SizedBox(width: 8),
-                      _shortcutCard(
-                        icon: Icons.photo_library,
-                        label: 'Saved\nImages',
-                        color: const Color(0xFF0EA5E9),
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SavedImagesScreen())),
-                      ),
-                      const SizedBox(width: 8),
-                      _shortcutCard(
-                        icon: Icons.chat,
-                        label: 'WhatsApp\nShare',
-                        color: const Color(0xFF25D366),
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const WhatsAppScreen())),
-                      ),
-                      const SizedBox(width: 8),
-                      _shortcutCard(
-                        icon: Icons.picture_as_pdf,
-                        label: 'PDF\nLibrary',
-                        color: const Color(0xFFEF4444),
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PdfLibraryScreen())),
-                      ),
-                      const SizedBox(width: 8),
-                      _shortcutCard(
-                        icon: Icons.download,
-                        label: 'Export &\nShare',
+                        icon: Icons.send,
+                        label: 'Submit\nVoucher',
                         color: const Color(0xFF8B5CF6),
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ExportScreen())),
+                        onTap: () async {
+                          final result = await Navigator.push(context, MaterialPageRoute(builder: (_) => const SubmitVoucherScreen()));
+                          if (result == true) _loadData();
+                        },
                       ),
-                      const SizedBox(width: 8),
-                      _shortcutCard(
-                        icon: Icons.notifications,
-                        label: 'Notifications',
-                        color: const Color(0xFFF59E0B),
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationScreen())),
-                      ),
-                    ],
-                  ),
+                    _shortcutCard(
+                      icon: Icons.table_chart,
+                      label: 'Google\nSheets',
+                      color: const Color(0xFF059669),
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SheetsExportScreen())),
+                    ),
+                    _shortcutCard(
+                      icon: Icons.refresh,
+                      label: 'Reset\nSheet',
+                      color: const Color(0xFFEA580C),
+                      onTap: () => _resetGoogleSheet(),
+                    ),
+                    _shortcutCard(
+                      icon: Icons.download,
+                      label: 'Export &\nReport',
+                      color: const Color(0xFF0EA5E9),
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ExportScreen())),
+                    ),
+                    _shortcutCard(
+                      icon: Icons.picture_as_pdf,
+                      label: 'PDF\nLibrary',
+                      color: const Color(0xFFEF4444),
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PdfLibraryScreen())),
+                    ),
+                    _shortcutCard(
+                      icon: Icons.account_balance,
+                      label: 'Bank\nDetails',
+                      color: const Color(0xFF006699),
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BankDetailsScreen())),
+                    ),
+                    _shortcutCard(
+                      icon: Icons.history,
+                      label: 'Activity\nLog',
+                      color: const Color(0xFF6366F1),
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ActivityLogScreen())),
+                    ),
+                    _shortcutCard(
+                      icon: Icons.photo_library,
+                      label: 'Saved\nImages',
+                      color: const Color(0xFF0EA5E9),
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SavedImagesScreen())),
+                    ),
+                    _shortcutCard(
+                      icon: Icons.chat,
+                      label: 'WhatsApp',
+                      color: const Color(0xFF25D366),
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const WhatsAppScreen())),
+                    ),
+                    _shortcutCard(
+                      icon: Icons.notifications,
+                      label: 'Alerts',
+                      color: const Color(0xFFF59E0B),
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationScreen())),
+                    ),
+                  ],
                 ),
-
-                // Submit for Approval — only in company mode
-                if (_organizationId != null) ...[
-                  const SizedBox(height: 12),
-                  _ActionCard(
-                    icon: Icons.send, iconColor: const Color(0xFF8B5CF6),
-                    title: 'Submit for Approval',
-                    subtitle: 'Bundle expenses into a voucher for manager review',
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Color(0xFF9CA3AF)),
-                    onTap: () async {
-                      final result = await Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const SubmitVoucherScreen()),
-                      );
-                      if (result == true) _loadData();
-                    },
-                  ),
-                ],
-                const SizedBox(height: 12),
-
-                // Export & Reports
-                _ActionCard(
-                  icon: Icons.download, iconColor: const Color(0xFF0EA5E9),
-                  title: 'Export & Reports',
-                  subtitle: 'Excel, PDF, email your expense data',
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Color(0xFF9CA3AF)),
-                  onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const ExportScreen()));
-                  },
-                ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 20),
 
                 // Recent Entries Header
                 Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
