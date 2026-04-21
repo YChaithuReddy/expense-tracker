@@ -8,6 +8,9 @@ import 'package:emerald/screens/admin/tally_export_screen.dart';
 import 'package:emerald/screens/admin/admin_advances_screen.dart';
 import 'package:emerald/screens/admin/csv_import_screen.dart';
 import 'package:emerald/screens/admin/admin_settings_screen.dart';
+import 'package:emerald/screens/admin/admin_employees_screen.dart';
+import 'package:emerald/screens/admin/issue_reports_screen.dart';
+import 'package:emerald/screens/admin/all_vouchers_screen.dart';
 import 'package:emerald/screens/attendance/widgets/attendance_pill.dart';
 import 'package:emerald/widgets/notification_bell.dart';
 
@@ -392,97 +395,61 @@ class _OverviewScreenState extends State<OverviewScreen> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  SizedBox(
-                    height: 116,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      physics: const BouncingScrollPhysics(),
-                      children: [
-                        _shortcutCard(
-                          icon: Icons.bar_chart,
-                          label: 'Analytics',
-                          color: const Color(0xFF8B5CF6),
-                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ReportsScreen())),
-                        ),
-                        const SizedBox(width: 8),
-                        _shortcutCard(
-                          icon: Icons.view_column,
-                          label: 'Pipeline',
-                          color: const Color(0xFF0EA5E9),
-                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PipelineScreen())),
-                        ),
-                        const SizedBox(width: 8),
-                        _shortcutCard(
-                          icon: Icons.file_download,
-                          label: 'Tally\nExport',
-                          color: const Color(0xFF059669),
-                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TallyExportScreen())),
-                        ),
-                        const SizedBox(width: 8),
-                        _shortcutCard(
-                          icon: Icons.account_balance_wallet,
-                          label: 'Advances',
-                          color: const Color(0xFFEA580C),
-                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminAdvancesScreen())),
-                        ),
-                        const SizedBox(width: 8),
-                        _shortcutCard(
-                          icon: Icons.upload_file,
-                          label: 'CSV\nImport',
-                          color: const Color(0xFFF59E0B),
-                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CsvImportScreen())),
-                        ),
-                        const SizedBox(width: 8),
-                        _shortcutCard(
-                          icon: Icons.settings,
-                          label: 'Settings',
-                          color: const Color(0xFF6366F1),
-                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminSettingsScreen())),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // ── Quick Actions ──────────────────────────────
-                  const Text(
-                    'QUICK ACTIONS',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.08,
-                      color: Color(0xFF6B7280),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
+                  GridView.count(
+                    crossAxisCount: 4,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    mainAxisSpacing: 8,
+                    crossAxisSpacing: 8,
+                    childAspectRatio: 0.85,
                     children: [
-                      Expanded(
-                        child: _QuickActionButton(
-                          icon: Icons.pending_actions,
-                          label: 'Review Pending',
-                          color: const Color(0xFFF59E0B),
-                          onTap: () {
-                            final shell = context
-                                .findAncestorStateOfType<AdminShellState>();
-                            shell?.switchToTab(1);
-                          },
-                        ),
+                      _shortcutCard(
+                        icon: Icons.bar_chart,
+                        label: 'Analytics',
+                        color: const Color(0xFF8B5CF6),
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ReportsScreen())),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _QuickActionButton(
-                          icon: Icons.upload_file,
-                          label: 'Export to Tally',
-                          color: const Color(0xFF059669),
-                          onTap: () {
-                            final shell = context
-                                .findAncestorStateOfType<AdminShellState>();
-                            shell?.switchToTab(4);
-                          },
-                        ),
+                      _shortcutCard(
+                        icon: Icons.view_column,
+                        label: 'Pipeline',
+                        color: const Color(0xFF0EA5E9),
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PipelineScreen())),
+                      ),
+                      _shortcutCard(
+                        icon: Icons.file_download,
+                        label: 'Tally\nExport',
+                        color: const Color(0xFF059669),
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TallyExportScreen())),
+                      ),
+                      _shortcutCard(
+                        icon: Icons.account_balance_wallet,
+                        label: 'Advances',
+                        color: const Color(0xFFEA580C),
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminAdvancesScreen())),
+                      ),
+                      _shortcutCard(
+                        icon: Icons.upload_file,
+                        label: 'CSV\nImport',
+                        color: const Color(0xFFF59E0B),
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CsvImportScreen())),
+                      ),
+                      _shortcutCard(
+                        icon: Icons.people,
+                        label: 'Employees',
+                        color: const Color(0xFF0D9488),
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminEmployeesScreen())),
+                      ),
+                      _shortcutCard(
+                        icon: Icons.bug_report,
+                        label: 'Issue\nReports',
+                        color: const Color(0xFFEF4444),
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const IssueReportsScreen())),
+                      ),
+                      _shortcutCard(
+                        icon: Icons.settings,
+                        label: 'Settings',
+                        color: const Color(0xFF6366F1),
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminSettingsScreen())),
                       ),
                     ],
                   ),
@@ -783,6 +750,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
                 bgColor: const Color(0xFFFFFBEB),
                 icon: Icons.schedule,
                 formatINR: _formatINR,
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AllVouchersScreen(initialFilter: 'pending'))),
               ),
             ),
             const SizedBox(width: 12),
@@ -795,6 +763,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
                 bgColor: const Color(0xFFECFDF5),
                 icon: Icons.check_circle_outline,
                 formatINR: _formatINR,
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AllVouchersScreen(initialFilter: 'approved'))),
               ),
             ),
           ],
@@ -811,6 +780,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
                 bgColor: const Color(0xFFFEF2F2),
                 icon: Icons.cancel_outlined,
                 formatINR: _formatINR,
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AllVouchersScreen(initialFilter: 'rejected'))),
               ),
             ),
             const SizedBox(width: 12),
@@ -823,6 +793,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
                 bgColor: const Color(0xFFF0F9FF),
                 icon: Icons.payments_outlined,
                 formatINR: _formatINR,
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AllVouchersScreen(initialFilter: 'reimbursed'))),
               ),
             ),
           ],
@@ -842,6 +813,7 @@ class _StatCard extends StatelessWidget {
   final Color bgColor;
   final IconData icon;
   final String Function(double) formatINR;
+  final VoidCallback? onTap;
 
   const _StatCard({
     required this.label,
@@ -851,24 +823,32 @@ class _StatCard extends StatelessWidget {
     required this.bgColor,
     required this.icon,
     required this.formatINR,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Colors.white,
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      elevation: 0,
+      child: InkWell(
+        onTap: onTap,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF191C1E).withValues(alpha: 0.04),
-            blurRadius: 20,
-            offset: const Offset(0, 4),
+        child: Ink(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF191C1E).withValues(alpha: 0.04),
+                blurRadius: 20,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Column(
+          child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
@@ -922,6 +902,8 @@ class _StatCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+        ),
       ),
     );
   }
