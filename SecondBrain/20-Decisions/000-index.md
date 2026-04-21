@@ -11,3 +11,4 @@ tags: [decisions, index, adr]
 | [[003-Debug-Signing-For-Updates]] | APKs use debug keystore for seamless updates | Accepted |
 | [[004-Release-Optimizations]] | Enable R8 + shrink resources in release builds | Accepted |
 | [[005-Asanify-Auto-Prompt]] | Prompt for Asanify clock-in after status submit | Accepted |
+| [[006-Mandatory-7-Step-Workflow]] | Enforce 7-step workflow + task list for every request | Accepted |
