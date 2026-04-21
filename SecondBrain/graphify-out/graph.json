@@ -8,486 +8,684 @@
       "file_type": "document",
       "source_file": "README.md",
       "source_location": null,
-      "id": "readme_second_brain",
-      "community": 1,
-      "norm_label": "second brain readme"
+      "community": 4,
+      "norm_label": "second brain readme",
+      "id": "readme_second_brain"
     },
     {
       "label": "FluxGen v2.1.0 \u00e2\u20ac\u201d Attendance + Asanify release",
       "file_type": "document",
       "source_file": "02-Projects/FluxGen-v2.1.0.md",
       "source_location": null,
-      "id": "fluxgen_v210_project",
-      "community": 1,
-      "norm_label": "fluxgen v2.1.0 a\u20ac\u201d attendance + asanify release"
+      "community": 4,
+      "norm_label": "fluxgen v2.1.0 a\u20ac\u201d attendance + asanify release",
+      "id": "fluxgen_v210_project"
     },
     {
       "label": "Claude Code Setup Reference",
       "file_type": "document",
       "source_file": "04-Resources/Claude-Code-Setup.md",
       "source_location": null,
-      "id": "claude_code_setup",
-      "community": 1,
-      "norm_label": "claude code setup reference"
+      "community": 2,
+      "norm_label": "claude code setup reference",
+      "id": "claude_code_setup"
     },
     {
       "label": "Attendance Feature - 4-Phase Port",
       "file_type": "document",
       "source_file": "10-Code-Context/Attendance-Feature.md",
       "source_location": null,
-      "id": "attendance_feature",
-      "community": 3,
-      "norm_label": "attendance feature - 4-phase port"
+      "community": 1,
+      "norm_label": "attendance feature - 4-phase port",
+      "id": "attendance_feature"
     },
     {
       "label": "FluxGen Expense Tracker - Architecture",
       "file_type": "document",
       "source_file": "10-Code-Context/FluxGen-Architecture.md",
       "source_location": null,
-      "id": "fluxgen_architecture",
       "community": 2,
-      "norm_label": "fluxgen expense tracker - architecture"
+      "norm_label": "fluxgen expense tracker - architecture",
+      "id": "fluxgen_architecture"
     },
     {
       "label": "FluxGen Release Workflow",
       "file_type": "document",
       "source_file": "10-Code-Context/FluxGen-Release-Workflow.md",
       "source_location": null,
-      "id": "fluxgen_release_workflow",
-      "community": 0,
-      "norm_label": "fluxgen release workflow"
+      "community": 3,
+      "norm_label": "fluxgen release workflow",
+      "id": "fluxgen_release_workflow"
     },
     {
       "label": "Architecture Decisions Index",
       "file_type": "document",
       "source_file": "20-Decisions/000-index.md",
       "source_location": null,
-      "id": "adr_index",
-      "community": 1,
-      "norm_label": "architecture decisions index"
+      "community": 4,
+      "norm_label": "architecture decisions index",
+      "id": "adr_index"
     },
     {
       "label": "ADR-001: Reuse Google Apps Script backend",
       "file_type": "document",
       "source_file": "20-Decisions/001-Reuse-GAS-backend.md",
       "source_location": null,
-      "id": "adr_001_reuse_gas",
-      "community": 5,
-      "norm_label": "adr-001: reuse google apps script backend"
+      "community": 2,
+      "norm_label": "adr-001: reuse google apps script backend",
+      "id": "adr_001_reuse_gas"
     },
     {
       "label": "ADR-002: Three tabs + gear menu",
       "file_type": "document",
       "source_file": "20-Decisions/002-Three-Tabs-Plus-Gear-Menu.md",
       "source_location": null,
-      "id": "adr_002_three_tabs_gear",
-      "community": 6,
-      "norm_label": "adr-002: three tabs + gear menu"
+      "community": 1,
+      "norm_label": "adr-002: three tabs + gear menu",
+      "id": "adr_002_three_tabs_gear"
     },
     {
       "label": "ADR-003: Debug keystore for updates",
       "file_type": "document",
       "source_file": "20-Decisions/003-Debug-Signing-For-Updates.md",
       "source_location": null,
-      "id": "adr_003_debug_signing",
-      "community": 0,
-      "norm_label": "adr-003: debug keystore for updates"
+      "community": 3,
+      "norm_label": "adr-003: debug keystore for updates",
+      "id": "adr_003_debug_signing"
     },
     {
       "label": "ADR-004: R8 + shrink resources",
       "file_type": "document",
       "source_file": "20-Decisions/000-index.md",
       "source_location": null,
-      "id": "adr_004_release_optimizations",
-      "community": 0,
-      "norm_label": "adr-004: r8 + shrink resources"
+      "community": 3,
+      "norm_label": "adr-004: r8 + shrink resources",
+      "id": "adr_004_release_optimizations"
     },
     {
       "label": "ADR-005: Asanify clock-in prompt",
       "file_type": "document",
       "source_file": "20-Decisions/000-index.md",
       "source_location": null,
-      "id": "adr_005_asanify_auto_prompt",
-      "community": 4,
-      "norm_label": "adr-005: asanify clock-in prompt"
+      "community": 5,
+      "norm_label": "adr-005: asanify clock-in prompt",
+      "id": "adr_005_asanify_auto_prompt"
     },
     {
       "label": "Flutter",
       "file_type": "document",
       "source_file": "10-Code-Context/FluxGen-Architecture.md",
       "source_location": null,
-      "id": "tech_flutter",
-      "community": 7,
-      "norm_label": "flutter"
+      "community": 2,
+      "norm_label": "flutter",
+      "id": "tech_flutter"
     },
     {
       "label": "Supabase",
       "file_type": "document",
       "source_file": "10-Code-Context/FluxGen-Architecture.md",
       "source_location": null,
-      "id": "tech_supabase",
-      "community": 2,
-      "norm_label": "supabase"
+      "community": 0,
+      "norm_label": "supabase",
+      "id": "tech_supabase"
     },
     {
       "label": "Riverpod 2.6",
       "file_type": "document",
       "source_file": "10-Code-Context/FluxGen-Architecture.md",
       "source_location": null,
-      "id": "tech_riverpod",
       "community": 2,
-      "norm_label": "riverpod 2.6"
+      "norm_label": "riverpod 2.6",
+      "id": "tech_riverpod"
     },
     {
       "label": "Google Apps Script",
       "file_type": "document",
       "source_file": "10-Code-Context/FluxGen-Architecture.md",
       "source_location": null,
-      "id": "tech_google_apps_script",
-      "community": 5,
-      "norm_label": "google apps script"
+      "community": 2,
+      "norm_label": "google apps script",
+      "id": "tech_google_apps_script"
     },
     {
       "label": "Asanify",
       "file_type": "document",
       "source_file": "10-Code-Context/FluxGen-Architecture.md",
       "source_location": null,
-      "id": "tech_asanify",
-      "community": 10,
-      "norm_label": "asanify"
+      "community": 1,
+      "norm_label": "asanify",
+      "id": "tech_asanify"
     },
     {
       "label": "Sentry",
       "file_type": "document",
       "source_file": "10-Code-Context/FluxGen-Architecture.md",
       "source_location": null,
-      "id": "tech_sentry",
       "community": 2,
-      "norm_label": "sentry"
+      "norm_label": "sentry",
+      "id": "tech_sentry"
     },
     {
       "label": "OCR.space",
       "file_type": "document",
       "source_file": "10-Code-Context/FluxGen-Architecture.md",
       "source_location": null,
-      "id": "tech_ocr_space",
       "community": 2,
-      "norm_label": "ocr.space"
+      "norm_label": "ocr.space",
+      "id": "tech_ocr_space"
     },
     {
       "label": "Capacitor",
       "file_type": "document",
       "source_file": "10-Code-Context/FluxGen-Architecture.md",
       "source_location": null,
-      "id": "tech_capacitor",
-      "community": 7,
-      "norm_label": "capacitor"
+      "community": 2,
+      "norm_label": "capacitor",
+      "id": "tech_capacitor"
     },
     {
       "label": "Vercel",
       "file_type": "document",
       "source_file": "10-Code-Context/FluxGen-Architecture.md",
       "source_location": null,
-      "id": "tech_vercel",
       "community": 2,
-      "norm_label": "vercel"
+      "norm_label": "vercel",
+      "id": "tech_vercel"
     },
     {
       "label": "FluxgenApiService",
       "file_type": "document",
       "source_file": "10-Code-Context/FluxGen-Architecture.md",
       "source_location": null,
-      "id": "module_fluxgen_api_service",
-      "community": 5,
-      "norm_label": "fluxgenapiservice"
+      "community": 2,
+      "norm_label": "fluxgenapiservice",
+      "id": "module_fluxgen_api_service"
     },
     {
       "label": "AttendanceShell",
       "file_type": "document",
       "source_file": "10-Code-Context/Attendance-Feature.md",
       "source_location": null,
-      "id": "module_attendance_shell",
-      "community": 6,
-      "norm_label": "attendanceshell"
+      "community": 1,
+      "norm_label": "attendanceshell",
+      "id": "module_attendance_shell"
     },
     {
       "label": "attendance_update_tab.dart",
       "file_type": "document",
       "source_file": "10-Code-Context/Attendance-Feature.md",
       "source_location": null,
-      "id": "module_attendance_update_tab",
-      "community": 10,
-      "norm_label": "attendance_update_tab.dart"
+      "community": 1,
+      "norm_label": "attendance_update_tab.dart",
+      "id": "module_attendance_update_tab"
     },
     {
       "label": "attendance_weekly_tab.dart",
       "file_type": "document",
       "source_file": "10-Code-Context/Attendance-Feature.md",
       "source_location": null,
-      "id": "module_attendance_weekly_tab",
-      "community": 3,
-      "norm_label": "attendance_weekly_tab.dart"
+      "community": 1,
+      "norm_label": "attendance_weekly_tab.dart",
+      "id": "module_attendance_weekly_tab"
     },
     {
       "label": "attendance_team_tab.dart",
       "file_type": "document",
       "source_file": "10-Code-Context/Attendance-Feature.md",
       "source_location": null,
-      "id": "module_attendance_team_tab",
-      "community": 3,
-      "norm_label": "attendance_team_tab.dart"
+      "community": 1,
+      "norm_label": "attendance_team_tab.dart",
+      "id": "module_attendance_team_tab"
     },
     {
       "label": "manage_employees_screen.dart",
       "file_type": "document",
       "source_file": "10-Code-Context/Attendance-Feature.md",
       "source_location": null,
-      "id": "module_manage_employees_screen",
-      "community": 9,
-      "norm_label": "manage_employees_screen.dart"
+      "community": 1,
+      "norm_label": "manage_employees_screen.dart",
+      "id": "module_manage_employees_screen"
     },
     {
       "label": "manage_users_screen.dart",
       "file_type": "document",
       "source_file": "10-Code-Context/Attendance-Feature.md",
       "source_location": null,
-      "id": "module_manage_users_screen",
-      "community": 9,
-      "norm_label": "manage_users_screen.dart"
+      "community": 1,
+      "norm_label": "manage_users_screen.dart",
+      "id": "module_manage_users_screen"
     },
     {
       "label": "emp_id_setup_dialog.dart",
       "file_type": "document",
       "source_file": "10-Code-Context/Attendance-Feature.md",
       "source_location": null,
-      "id": "module_emp_id_setup_dialog",
-      "community": 11,
-      "norm_label": "emp_id_setup_dialog.dart"
+      "community": 6,
+      "norm_label": "emp_id_setup_dialog.dart",
+      "id": "module_emp_id_setup_dialog"
     },
     {
       "label": "csr_form_screen.dart",
       "file_type": "document",
       "source_file": "10-Code-Context/Attendance-Feature.md",
       "source_location": null,
-      "id": "module_csr_form_screen",
-      "community": 8,
-      "norm_label": "csr_form_screen.dart"
+      "community": 1,
+      "norm_label": "csr_form_screen.dart",
+      "id": "module_csr_form_screen"
     },
     {
       "label": "signature_pad.dart",
       "file_type": "document",
       "source_file": "10-Code-Context/Attendance-Feature.md",
       "source_location": null,
-      "id": "module_signature_pad",
-      "community": 3,
-      "norm_label": "signature_pad.dart"
+      "community": 1,
+      "norm_label": "signature_pad.dart",
+      "id": "module_signature_pad"
     },
     {
       "label": "attendance_pill.dart",
       "file_type": "document",
       "source_file": "10-Code-Context/Attendance-Feature.md",
       "source_location": null,
-      "id": "module_attendance_pill",
-      "community": 3,
-      "norm_label": "attendance_pill.dart"
+      "community": 1,
+      "norm_label": "attendance_pill.dart",
+      "id": "module_attendance_pill"
     },
     {
       "label": "UpdateService",
       "file_type": "document",
       "source_file": "10-Code-Context/FluxGen-Release-Workflow.md",
       "source_location": null,
-      "id": "module_update_service",
-      "community": 0,
-      "norm_label": "updateservice"
+      "community": 3,
+      "norm_label": "updateservice",
+      "id": "module_update_service"
     },
     {
       "label": "CsrPdfService",
       "file_type": "document",
       "source_file": "10-Code-Context/FluxGen-Architecture.md",
       "source_location": null,
-      "id": "module_csr_pdf_service",
-      "community": 8,
-      "norm_label": "csrpdfservice"
+      "community": 1,
+      "norm_label": "csrpdfservice",
+      "id": "module_csr_pdf_service"
     },
     {
       "label": "Phase 1 - Core attendance",
       "file_type": "document",
       "source_file": "10-Code-Context/Attendance-Feature.md",
       "source_location": null,
-      "id": "concept_phase_1",
-      "community": 1,
-      "norm_label": "phase 1 - core attendance"
+      "community": 4,
+      "norm_label": "phase 1 - core attendance",
+      "id": "concept_phase_1"
     },
     {
       "label": "Phase 2 - Work-done + efficiency + CSV",
       "file_type": "document",
       "source_file": "10-Code-Context/Attendance-Feature.md",
       "source_location": null,
-      "id": "concept_phase_2",
-      "community": 1,
-      "norm_label": "phase 2 - work-done + efficiency + csv"
+      "community": 4,
+      "norm_label": "phase 2 - work-done + efficiency + csv",
+      "id": "concept_phase_2"
     },
     {
       "label": "Phase 3 - CRUD + CSV filters",
       "file_type": "document",
       "source_file": "10-Code-Context/Attendance-Feature.md",
       "source_location": null,
-      "id": "concept_phase_3",
-      "community": 1,
-      "norm_label": "phase 3 - crud + csv filters"
+      "community": 4,
+      "norm_label": "phase 3 - crud + csv filters",
+      "id": "concept_phase_3"
     },
     {
       "label": "Phase 4 - CSR + signature + PDF",
       "file_type": "document",
       "source_file": "10-Code-Context/Attendance-Feature.md",
       "source_location": null,
-      "id": "concept_phase_4",
-      "community": 1,
-      "norm_label": "phase 4 - csr + signature + pdf"
+      "community": 4,
+      "norm_label": "phase 4 - csr + signature + pdf",
+      "id": "concept_phase_4"
     },
     {
       "label": "Debug keystore signing",
       "file_type": "document",
       "source_file": "20-Decisions/003-Debug-Signing-For-Updates.md",
       "source_location": null,
-      "id": "concept_debug_signing",
-      "community": 0,
-      "norm_label": "debug keystore signing"
+      "community": 3,
+      "norm_label": "debug keystore signing",
+      "id": "concept_debug_signing"
     },
     {
       "label": "In-app update mechanism",
       "file_type": "document",
       "source_file": "10-Code-Context/FluxGen-Release-Workflow.md",
       "source_location": null,
-      "id": "concept_in_app_update",
-      "community": 0,
-      "norm_label": "in-app update mechanism"
+      "community": 3,
+      "norm_label": "in-app update mechanism",
+      "id": "concept_in_app_update"
     },
     {
       "label": "Admin role detection",
       "file_type": "document",
       "source_file": "10-Code-Context/Attendance-Feature.md",
       "source_location": null,
-      "id": "concept_role_detection",
-      "community": 6,
-      "norm_label": "admin role detection"
+      "community": 1,
+      "norm_label": "admin role detection",
+      "id": "concept_role_detection"
     },
     {
       "label": "GAS 302 response handling",
       "file_type": "document",
       "source_file": "10-Code-Context/Attendance-Feature.md",
       "source_location": null,
-      "id": "concept_gas_302_handling",
-      "community": 3,
-      "norm_label": "gas 302 response handling"
+      "community": 1,
+      "norm_label": "gas 302 response handling",
+      "id": "concept_gas_302_handling"
     },
     {
       "label": "EmpID mapping via SharedPreferences",
       "file_type": "document",
       "source_file": "10-Code-Context/Attendance-Feature.md",
       "source_location": null,
-      "id": "concept_empid_mapping",
-      "community": 3,
-      "norm_label": "empid mapping via sharedpreferences"
+      "community": 1,
+      "norm_label": "empid mapping via sharedpreferences",
+      "id": "concept_empid_mapping"
     },
     {
       "label": "Fluxgen",
       "file_type": "document",
       "source_file": "10-Code-Context/Attendance-Feature.md",
       "source_location": null,
-      "id": "org_fluxgen",
-      "community": 12,
-      "norm_label": "fluxgen"
+      "community": 7,
+      "norm_label": "fluxgen",
+      "id": "org_fluxgen"
     },
     {
       "label": "YChaithuReddy/expense-tracker",
       "file_type": "document",
       "source_file": "10-Code-Context/FluxGen-Architecture.md",
       "source_location": null,
-      "id": "repo_expense_tracker",
       "community": 2,
-      "norm_label": "ychaithureddy/expense-tracker"
+      "norm_label": "ychaithureddy/expense-tracker",
+      "id": "repo_expense_tracker"
     },
     {
       "label": "R8 code shrinking",
       "file_type": "document",
       "source_file": "20-Decisions/000-index.md",
       "source_location": null,
-      "id": "concept_r8_shrink",
-      "community": 0,
-      "norm_label": "r8 code shrinking"
+      "community": 3,
+      "norm_label": "r8 code shrinking",
+      "id": "concept_r8_shrink"
     },
     {
       "label": "Android resource shrinking",
       "file_type": "document",
       "source_file": "20-Decisions/000-index.md",
       "source_location": null,
-      "id": "concept_resource_shrink",
-      "community": 0,
-      "norm_label": "android resource shrinking"
+      "community": 3,
+      "norm_label": "android resource shrinking",
+      "id": "concept_resource_shrink"
     },
     {
       "label": "Flutter url_launcher package",
       "file_type": "document",
       "source_file": "20-Decisions/000-index.md",
       "source_location": null,
-      "id": "concept_url_launcher",
-      "community": 4,
-      "norm_label": "flutter url_launcher package"
+      "community": 5,
+      "norm_label": "flutter url_launcher package",
+      "id": "concept_url_launcher"
     },
     {
       "label": "Once-per-day prompt dedupe pattern",
       "file_type": "document",
       "source_file": "20-Decisions/000-index.md",
       "source_location": null,
-      "id": "concept_once_per_day_prompt",
-      "community": 4,
-      "norm_label": "once-per-day prompt dedupe pattern"
+      "community": 5,
+      "norm_label": "once-per-day prompt dedupe pattern",
+      "id": "concept_once_per_day_prompt"
     },
     {
       "label": "Flutter build modes (debug/profile/release)",
       "file_type": "document",
       "source_file": "20-Decisions/000-index.md",
       "source_location": null,
-      "id": "concept_flutter_build_modes",
-      "community": 0,
-      "norm_label": "flutter build modes (debug/profile/release)"
+      "community": 3,
+      "norm_label": "flutter build modes (debug/profile/release)",
+      "id": "concept_flutter_build_modes"
     },
     {
       "label": "Per-ABI split APK",
       "file_type": "document",
       "source_file": "20-Decisions/000-index.md",
       "source_location": null,
-      "id": "concept_per_abi_apk",
-      "community": 0,
-      "norm_label": "per-abi split apk"
+      "community": 3,
+      "norm_label": "per-abi split apk",
+      "id": "concept_per_abi_apk"
     },
     {
       "label": "mapping.txt deobfuscation",
       "file_type": "document",
       "source_file": "20-Decisions/000-index.md",
       "source_location": null,
-      "id": "concept_mapping_txt_deobfuscation",
-      "community": 0,
-      "norm_label": "mapping.txt deobfuscation"
+      "community": 3,
+      "norm_label": "mapping.txt deobfuscation",
+      "id": "concept_mapping_txt_deobfuscation"
     },
     {
       "label": "Asanify has no public API",
       "file_type": "document",
       "source_file": "20-Decisions/000-index.md",
       "source_location": null,
-      "id": "concept_asanify_no_api",
-      "community": 4,
-      "norm_label": "asanify has no public api"
+      "community": 5,
+      "norm_label": "asanify has no public api",
+      "id": "concept_asanify_no_api"
     },
     {
       "label": "Status-submit prompt trigger",
       "file_type": "document",
       "source_file": "20-Decisions/000-index.md",
       "source_location": null,
-      "id": "concept_status_submit_trigger",
+      "community": 5,
+      "norm_label": "status-submit prompt trigger",
+      "id": "concept_status_submit_trigger"
+    },
+    {
+      "label": "Anti-Pattern Library",
+      "file_type": "document",
+      "source_file": "04-Resources/Anti-Patterns.md",
+      "source_location": null,
+      "id": "notes_anti_patterns",
+      "community": 0,
+      "norm_label": "anti-pattern library"
+    },
+    {
+      "label": "Debugging Log",
+      "file_type": "document",
+      "source_file": "04-Resources/Debugging-Log.md",
+      "source_location": null,
+      "id": "notes_debugging_log",
+      "community": 0,
+      "norm_label": "debugging log"
+    },
+    {
+      "label": "File Dependency Map",
+      "file_type": "document",
+      "source_file": "04-Resources/File-Map.md",
+      "source_location": null,
+      "id": "notes_file_map",
+      "community": 0,
+      "norm_label": "file dependency map"
+    },
+    {
+      "label": "Mandatory 7-Step Workflow",
+      "file_type": "document",
+      "source_file": "04-Resources/Workflow.md",
+      "source_location": null,
+      "id": "notes_workflow",
+      "community": 0,
+      "norm_label": "mandatory 7-step workflow"
+    },
+    {
+      "label": "Regression Checklist",
+      "file_type": "document",
+      "source_file": "04-Resources/Regression-Checklist.md",
+      "source_location": null,
+      "id": "notes_regression_checklist",
+      "community": 0,
+      "norm_label": "regression checklist"
+    },
+    {
+      "label": "User Preferences \u00e2\u20ac\u201d Working with Chaitanya",
+      "file_type": "document",
+      "source_file": "03-Areas/User-Preferences.md",
+      "source_location": null,
+      "id": "notes_user_preferences",
+      "community": 0,
+      "norm_label": "user preferences a\u20ac\u201d working with chaitanya"
+    },
+    {
+      "label": "Web Index Page Redesign \u00e2\u20ac\u201d Modern Fintech Theme",
+      "file_type": "document",
+      "source_file": "05-Archive/Web-Index-Redesign.md",
+      "source_location": null,
+      "id": "archive_web_redesign",
+      "community": 2,
+      "norm_label": "web index page redesign a\u20ac\u201d modern fintech theme"
+    },
+    {
+      "label": "Flutter Implementation Kickoff (2026-04-04)",
+      "file_type": "document",
+      "source_file": "05-Archive/Flutter-Implementation-Kickoff.md",
+      "source_location": null,
+      "id": "archive_flutter_kickoff",
+      "community": 2,
+      "norm_label": "flutter implementation kickoff (2026-04-04)"
+    },
+    {
+      "label": "Pending Fixes (reported 2026-04-03)",
+      "file_type": "document",
+      "source_file": "02-Projects/Pending-Fixes.md",
+      "source_location": null,
+      "id": "project_pending_fixes",
+      "community": 0,
+      "norm_label": "pending fixes (reported 2026-04-03)"
+    },
+    {
+      "label": "ADR-006: Mandatory 7-Step Workflow for Every Request",
+      "file_type": "document",
+      "source_file": "20-Decisions/006-Mandatory-7-Step-Workflow.md",
+      "source_location": null,
+      "id": "adr_006_mandatory_workflow",
+      "community": 0,
+      "norm_label": "adr-006: mandatory 7-step workflow for every request"
+    },
+    {
+      "label": "7-Step Workflow (Understanding \u00e2\u2020\u2019 Learning)",
+      "file_type": "document",
+      "source_file": "04-Resources/Workflow.md",
+      "source_location": null,
+      "id": "concept_7_step_workflow",
+      "community": 0,
+      "norm_label": "7-step workflow (understanding a\u2020\u2019 learning)"
+    },
+    {
+      "label": "Multi-Class CSS Override Trap",
+      "file_type": "document",
+      "source_file": "04-Resources/Anti-Patterns.md",
+      "source_location": null,
+      "id": "concept_css_override_trap",
+      "community": 0,
+      "norm_label": "multi-class css override trap"
+    },
+    {
+      "label": "Async/Await Discipline (no fire-and-forget)",
+      "file_type": "document",
+      "source_file": "04-Resources/Anti-Patterns.md",
+      "source_location": null,
+      "id": "concept_async_await_discipline",
+      "community": 0,
+      "norm_label": "async/await discipline (no fire-and-forget)"
+    },
+    {
+      "label": "Scan Button Disabled After Re-Upload Bug",
+      "file_type": "document",
+      "source_file": "02-Projects/Pending-Fixes.md",
+      "source_location": null,
+      "id": "concept_scan_button_bug",
+      "community": 0,
+      "norm_label": "scan button disabled after re-upload bug"
+    },
+    {
+      "label": "snake_case \u00e2\u2020\u2019 camelCase Transform in supabase-api.js",
+      "file_type": "document",
+      "source_file": "04-Resources/Anti-Patterns.md",
+      "source_location": null,
+      "id": "concept_snake_camel_transform",
+      "community": 0,
+      "norm_label": "snake_case a\u2020\u2019 camelcase transform in supabase-api.js"
+    },
+    {
+      "label": "Service Worker CACHE_VERSION Bump",
+      "file_type": "document",
+      "source_file": "04-Resources/Anti-Patterns.md",
+      "source_location": null,
+      "id": "concept_sw_cache_bump",
+      "community": 3,
+      "norm_label": "service worker cache_version bump"
+    },
+    {
+      "label": "Mandatory TaskCreate/TaskUpdate Discipline",
+      "file_type": "document",
+      "source_file": "04-Resources/Workflow.md",
+      "source_location": null,
+      "id": "concept_task_list_mandate",
+      "community": 0,
+      "norm_label": "mandatory taskcreate/taskupdate discipline"
+    },
+    {
+      "label": "Ask Before Editing (always)",
+      "file_type": "document",
+      "source_file": "03-Areas/User-Preferences.md",
+      "source_location": null,
+      "id": "concept_ask_before_editing",
+      "community": 0,
+      "norm_label": "ask before editing (always)"
+    },
+    {
+      "label": "Full-Parity Port (no deferred features)",
+      "file_type": "document",
+      "source_file": "03-Areas/User-Preferences.md",
+      "source_location": null,
+      "id": "concept_full_parity_port",
+      "community": 0,
+      "norm_label": "full-parity port (no deferred features)"
+    },
+    {
+      "label": "Phased Delivery over Big-Bang",
+      "file_type": "document",
+      "source_file": "03-Areas/User-Preferences.md",
+      "source_location": null,
+      "id": "concept_phased_delivery",
       "community": 4,
-      "norm_label": "status-submit prompt trigger"
+      "norm_label": "phased delivery over big-bang"
+    },
+    {
+      "label": "Linear-meets-Notion Premium UI Style",
+      "file_type": "document",
+      "source_file": "03-Areas/User-Preferences.md",
+      "source_location": null,
+      "id": "concept_premium_ui_style",
+      "community": 0,
+      "norm_label": "linear-meets-notion premium ui style"
+    },
+    {
+      "label": "Fintech Teal Palette (#10B981)",
+      "file_type": "document",
+      "source_file": "05-Archive/Web-Index-Redesign.md",
+      "source_location": null,
+      "id": "concept_fintech_teal_palette",
+      "community": 2,
+      "norm_label": "fintech teal palette (#10b981)"
     }
   ],
   "links": [
@@ -576,8 +774,8 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "weight": 1.0,
-      "_src": "claude_code_setup",
-      "_tgt": "fluxgen_v210_project",
+      "_src": "fluxgen_v210_project",
+      "_tgt": "claude_code_setup",
       "source": "fluxgen_v210_project",
       "target": "claude_code_setup"
     },
@@ -636,6 +834,36 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "weight": 1.0,
+      "_src": "archive_web_redesign",
+      "_tgt": "fluxgen_v210_project",
+      "source": "fluxgen_v210_project",
+      "target": "archive_web_redesign"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "_src": "archive_flutter_kickoff",
+      "_tgt": "fluxgen_v210_project",
+      "source": "fluxgen_v210_project",
+      "target": "archive_flutter_kickoff"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "_src": "project_pending_fixes",
+      "_tgt": "fluxgen_v210_project",
+      "source": "fluxgen_v210_project",
+      "target": "project_pending_fixes"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
       "_src": "claude_code_setup",
       "_tgt": "fluxgen_architecture",
       "source": "claude_code_setup",
@@ -646,8 +874,8 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "weight": 1.0,
-      "_src": "fluxgen_architecture",
-      "_tgt": "attendance_feature",
+      "_src": "attendance_feature",
+      "_tgt": "fluxgen_architecture",
       "source": "attendance_feature",
       "target": "fluxgen_architecture"
     },
@@ -686,8 +914,8 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "weight": 1.0,
-      "_src": "adr_001_reuse_gas",
-      "_tgt": "attendance_feature",
+      "_src": "attendance_feature",
+      "_tgt": "adr_001_reuse_gas",
       "source": "attendance_feature",
       "target": "adr_001_reuse_gas"
     },
@@ -876,10 +1104,30 @@
       "confidence": "INFERRED",
       "confidence_score": 0.85,
       "weight": 1.0,
-      "_src": "adr_005_asanify_auto_prompt",
-      "_tgt": "attendance_feature",
+      "_src": "attendance_feature",
+      "_tgt": "adr_005_asanify_auto_prompt",
       "source": "attendance_feature",
       "target": "adr_005_asanify_auto_prompt"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "_src": "archive_flutter_kickoff",
+      "_tgt": "attendance_feature",
+      "source": "attendance_feature",
+      "target": "archive_flutter_kickoff"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "weight": 0.8,
+      "_src": "concept_full_parity_port",
+      "_tgt": "attendance_feature",
+      "source": "attendance_feature",
+      "target": "concept_full_parity_port"
     },
     {
       "relation": "references",
@@ -1026,10 +1274,40 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "weight": 1.0,
-      "_src": "adr_005_asanify_auto_prompt",
-      "_tgt": "fluxgen_architecture",
+      "_src": "fluxgen_architecture",
+      "_tgt": "adr_005_asanify_auto_prompt",
       "source": "fluxgen_architecture",
       "target": "adr_005_asanify_auto_prompt"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "_src": "notes_file_map",
+      "_tgt": "fluxgen_architecture",
+      "source": "fluxgen_architecture",
+      "target": "notes_file_map"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "_src": "archive_web_redesign",
+      "_tgt": "fluxgen_architecture",
+      "source": "fluxgen_architecture",
+      "target": "archive_web_redesign"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "_src": "archive_flutter_kickoff",
+      "_tgt": "fluxgen_architecture",
+      "source": "fluxgen_architecture",
+      "target": "archive_flutter_kickoff"
     },
     {
       "relation": "references",
@@ -1046,8 +1324,8 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "weight": 1.0,
-      "_src": "adr_004_release_optimizations",
-      "_tgt": "fluxgen_release_workflow",
+      "_src": "fluxgen_release_workflow",
+      "_tgt": "adr_004_release_optimizations",
       "source": "fluxgen_release_workflow",
       "target": "adr_004_release_optimizations"
     },
@@ -1080,6 +1358,56 @@
       "_tgt": "concept_debug_signing",
       "source": "fluxgen_release_workflow",
       "target": "concept_debug_signing"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "_src": "notes_anti_patterns",
+      "_tgt": "fluxgen_release_workflow",
+      "source": "fluxgen_release_workflow",
+      "target": "notes_anti_patterns"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "_src": "notes_file_map",
+      "_tgt": "fluxgen_release_workflow",
+      "source": "fluxgen_release_workflow",
+      "target": "notes_file_map"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "_src": "notes_regression_checklist",
+      "_tgt": "fluxgen_release_workflow",
+      "source": "fluxgen_release_workflow",
+      "target": "notes_regression_checklist"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "_src": "notes_user_preferences",
+      "_tgt": "fluxgen_release_workflow",
+      "source": "fluxgen_release_workflow",
+      "target": "notes_user_preferences"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "weight": 0.8,
+      "_src": "concept_sw_cache_bump",
+      "_tgt": "fluxgen_release_workflow",
+      "source": "fluxgen_release_workflow",
+      "target": "concept_sw_cache_bump"
     },
     {
       "relation": "references",
@@ -1132,6 +1460,26 @@
       "target": "adr_005_asanify_auto_prompt"
     },
     {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "_src": "notes_user_preferences",
+      "_tgt": "adr_index",
+      "source": "adr_index",
+      "target": "notes_user_preferences"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "weight": 0.85,
+      "_src": "adr_006_mandatory_workflow",
+      "_tgt": "adr_index",
+      "source": "adr_index",
+      "target": "adr_006_mandatory_workflow"
+    },
+    {
       "relation": "rationale_for",
       "confidence": "INFERRED",
       "confidence_score": 0.9,
@@ -1142,6 +1490,16 @@
       "target": "tech_google_apps_script"
     },
     {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "_src": "adr_006_mandatory_workflow",
+      "_tgt": "adr_001_reuse_gas",
+      "source": "adr_001_reuse_gas",
+      "target": "adr_006_mandatory_workflow"
+    },
+    {
       "relation": "rationale_for",
       "confidence": "INFERRED",
       "confidence_score": 0.9,
@@ -1150,6 +1508,16 @@
       "_tgt": "module_attendance_shell",
       "source": "adr_002_three_tabs_gear",
       "target": "module_attendance_shell"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "_src": "adr_006_mandatory_workflow",
+      "_tgt": "adr_002_three_tabs_gear",
+      "source": "adr_002_three_tabs_gear",
+      "target": "adr_006_mandatory_workflow"
     },
     {
       "relation": "rationale_for",
@@ -1176,10 +1544,20 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "weight": 1.0,
-      "_src": "adr_004_release_optimizations",
-      "_tgt": "adr_003_debug_signing",
+      "_src": "adr_003_debug_signing",
+      "_tgt": "adr_004_release_optimizations",
       "source": "adr_003_debug_signing",
       "target": "adr_004_release_optimizations"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "_src": "adr_006_mandatory_workflow",
+      "_tgt": "adr_003_debug_signing",
+      "source": "adr_003_debug_signing",
+      "target": "adr_006_mandatory_workflow"
     },
     {
       "relation": "rationale_for",
@@ -1262,6 +1640,16 @@
       "target": "concept_per_abi_apk"
     },
     {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "_src": "adr_006_mandatory_workflow",
+      "_tgt": "adr_004_release_optimizations",
+      "source": "adr_004_release_optimizations",
+      "target": "adr_006_mandatory_workflow"
+    },
+    {
       "relation": "rationale_for",
       "confidence": "INFERRED",
       "confidence_score": 0.9,
@@ -1312,32 +1700,102 @@
       "target": "concept_status_submit_trigger"
     },
     {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "_src": "adr_006_mandatory_workflow",
+      "_tgt": "adr_005_asanify_auto_prompt",
+      "source": "adr_005_asanify_auto_prompt",
+      "target": "adr_006_mandatory_workflow"
+    },
+    {
       "relation": "semantically_similar_to",
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "weight": 1.0,
-      "_src": "tech_capacitor",
-      "_tgt": "tech_flutter",
+      "_src": "tech_flutter",
+      "_tgt": "tech_capacitor",
       "source": "tech_flutter",
       "target": "tech_capacitor"
     },
     {
-      "relation": "calls",
+      "relation": "conceptually_related_to",
       "confidence": "INFERRED",
       "confidence_score": 0.9,
-      "weight": 1.0,
-      "_src": "module_update_service",
-      "_tgt": "tech_supabase",
-      "source": "tech_supabase",
-      "target": "module_update_service"
+      "weight": 0.9,
+      "_src": "archive_flutter_kickoff",
+      "_tgt": "tech_flutter",
+      "source": "tech_flutter",
+      "target": "archive_flutter_kickoff"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "weight": 0.75,
+      "_src": "concept_premium_ui_style",
+      "_tgt": "tech_flutter",
+      "source": "tech_flutter",
+      "target": "concept_premium_ui_style"
     },
     {
       "relation": "calls",
       "confidence": "INFERRED",
       "confidence_score": 0.9,
       "weight": 1.0,
-      "_src": "module_fluxgen_api_service",
-      "_tgt": "tech_google_apps_script",
+      "_src": "tech_supabase",
+      "_tgt": "module_update_service",
+      "source": "tech_supabase",
+      "target": "module_update_service"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "weight": 0.75,
+      "_src": "notes_debugging_log",
+      "_tgt": "tech_supabase",
+      "source": "tech_supabase",
+      "target": "notes_debugging_log"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "weight": 0.75,
+      "_src": "notes_file_map",
+      "_tgt": "tech_supabase",
+      "source": "tech_supabase",
+      "target": "notes_file_map"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "weight": 0.75,
+      "_src": "project_pending_fixes",
+      "_tgt": "tech_supabase",
+      "source": "tech_supabase",
+      "target": "project_pending_fixes"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "weight": 0.85,
+      "_src": "concept_snake_camel_transform",
+      "_tgt": "tech_supabase",
+      "source": "tech_supabase",
+      "target": "concept_snake_camel_transform"
+    },
+    {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "weight": 1.0,
+      "_src": "tech_google_apps_script",
+      "_tgt": "module_fluxgen_api_service",
       "source": "tech_google_apps_script",
       "target": "module_fluxgen_api_service"
     },
@@ -1346,10 +1804,30 @@
       "confidence": "INFERRED",
       "confidence_score": 0.7,
       "weight": 1.0,
-      "_src": "module_attendance_update_tab",
-      "_tgt": "tech_asanify",
+      "_src": "tech_asanify",
+      "_tgt": "module_attendance_update_tab",
       "source": "tech_asanify",
       "target": "module_attendance_update_tab"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.7,
+      "weight": 0.7,
+      "_src": "notes_debugging_log",
+      "_tgt": "tech_capacitor",
+      "source": "tech_capacitor",
+      "target": "notes_debugging_log"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "weight": 0.8,
+      "_src": "notes_file_map",
+      "_tgt": "tech_capacitor",
+      "source": "tech_capacitor",
+      "target": "notes_file_map"
     },
     {
       "relation": "implements",
@@ -1376,8 +1854,8 @@
       "confidence": "INFERRED",
       "confidence_score": 0.75,
       "weight": 1.0,
-      "_src": "module_csr_pdf_service",
-      "_tgt": "module_csr_form_screen",
+      "_src": "module_csr_form_screen",
+      "_tgt": "module_csr_pdf_service",
       "source": "module_csr_form_screen",
       "target": "module_csr_pdf_service"
     },
@@ -1395,11 +1873,31 @@
       "relation": "conceptually_related_to",
       "confidence": "INFERRED",
       "confidence_score": 0.8,
+      "weight": 0.8,
+      "_src": "concept_phased_delivery",
+      "_tgt": "concept_phase_1",
+      "source": "concept_phase_1",
+      "target": "concept_phased_delivery"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
       "weight": 1.0,
       "_src": "concept_phase_2",
       "_tgt": "concept_phase_3",
       "source": "concept_phase_2",
       "target": "concept_phase_3"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "weight": 0.75,
+      "_src": "concept_phased_delivery",
+      "_tgt": "concept_phase_2",
+      "source": "concept_phase_2",
+      "target": "concept_phased_delivery"
     },
     {
       "relation": "conceptually_related_to",
@@ -1414,12 +1912,462 @@
     {
       "relation": "conceptually_related_to",
       "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "weight": 0.75,
+      "_src": "concept_phased_delivery",
+      "_tgt": "concept_phase_3",
+      "source": "concept_phase_3",
+      "target": "concept_phased_delivery"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "weight": 0.75,
+      "_src": "concept_phased_delivery",
+      "_tgt": "concept_phase_4",
+      "source": "concept_phase_4",
+      "target": "concept_phased_delivery"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
       "confidence_score": 0.9,
       "weight": 1.0,
-      "_src": "concept_in_app_update",
-      "_tgt": "concept_debug_signing",
+      "_src": "concept_debug_signing",
+      "_tgt": "concept_in_app_update",
       "source": "concept_debug_signing",
       "target": "concept_in_app_update"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "_src": "notes_debugging_log",
+      "_tgt": "notes_anti_patterns",
+      "source": "notes_anti_patterns",
+      "target": "notes_debugging_log"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "_src": "notes_file_map",
+      "_tgt": "notes_anti_patterns",
+      "source": "notes_anti_patterns",
+      "target": "notes_file_map"
+    },
+    {
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.7,
+      "weight": 0.7,
+      "_src": "notes_anti_patterns",
+      "_tgt": "notes_regression_checklist",
+      "source": "notes_anti_patterns",
+      "target": "notes_regression_checklist"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "_src": "notes_workflow",
+      "_tgt": "notes_anti_patterns",
+      "source": "notes_anti_patterns",
+      "target": "notes_workflow"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "weight": 0.9,
+      "_src": "concept_css_override_trap",
+      "_tgt": "notes_anti_patterns",
+      "source": "notes_anti_patterns",
+      "target": "concept_css_override_trap"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "weight": 0.9,
+      "_src": "concept_async_await_discipline",
+      "_tgt": "notes_anti_patterns",
+      "source": "notes_anti_patterns",
+      "target": "concept_async_await_discipline"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "weight": 0.85,
+      "_src": "notes_anti_patterns",
+      "_tgt": "concept_snake_camel_transform",
+      "source": "notes_anti_patterns",
+      "target": "concept_snake_camel_transform"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "weight": 0.85,
+      "_src": "notes_anti_patterns",
+      "_tgt": "concept_sw_cache_bump",
+      "source": "notes_anti_patterns",
+      "target": "concept_sw_cache_bump"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "_src": "adr_006_mandatory_workflow",
+      "_tgt": "notes_anti_patterns",
+      "source": "notes_anti_patterns",
+      "target": "adr_006_mandatory_workflow"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "_src": "notes_regression_checklist",
+      "_tgt": "notes_debugging_log",
+      "source": "notes_debugging_log",
+      "target": "notes_regression_checklist"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "_src": "notes_debugging_log",
+      "_tgt": "notes_file_map",
+      "source": "notes_debugging_log",
+      "target": "notes_file_map"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "_src": "notes_workflow",
+      "_tgt": "notes_debugging_log",
+      "source": "notes_debugging_log",
+      "target": "notes_workflow"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "_src": "adr_006_mandatory_workflow",
+      "_tgt": "notes_debugging_log",
+      "source": "notes_debugging_log",
+      "target": "adr_006_mandatory_workflow"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "weight": 0.85,
+      "_src": "concept_css_override_trap",
+      "_tgt": "notes_debugging_log",
+      "source": "notes_debugging_log",
+      "target": "concept_css_override_trap"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.7,
+      "weight": 0.7,
+      "_src": "concept_scan_button_bug",
+      "_tgt": "notes_debugging_log",
+      "source": "notes_debugging_log",
+      "target": "concept_scan_button_bug"
+    },
+    {
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.65,
+      "weight": 0.65,
+      "_src": "project_pending_fixes",
+      "_tgt": "notes_debugging_log",
+      "source": "notes_debugging_log",
+      "target": "project_pending_fixes"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "_src": "notes_file_map",
+      "_tgt": "notes_user_preferences",
+      "source": "notes_file_map",
+      "target": "notes_user_preferences"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "_src": "notes_regression_checklist",
+      "_tgt": "notes_file_map",
+      "source": "notes_file_map",
+      "target": "notes_regression_checklist"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "_src": "project_pending_fixes",
+      "_tgt": "notes_file_map",
+      "source": "notes_file_map",
+      "target": "project_pending_fixes"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "_src": "adr_006_mandatory_workflow",
+      "_tgt": "notes_workflow",
+      "source": "notes_workflow",
+      "target": "adr_006_mandatory_workflow"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "_src": "notes_regression_checklist",
+      "_tgt": "notes_workflow",
+      "source": "notes_workflow",
+      "target": "notes_regression_checklist"
+    },
+    {
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.65,
+      "weight": 0.65,
+      "_src": "notes_workflow",
+      "_tgt": "notes_user_preferences",
+      "source": "notes_workflow",
+      "target": "notes_user_preferences"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "weight": 0.95,
+      "_src": "notes_workflow",
+      "_tgt": "concept_7_step_workflow",
+      "source": "notes_workflow",
+      "target": "concept_7_step_workflow"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "weight": 0.95,
+      "_src": "notes_workflow",
+      "_tgt": "concept_task_list_mandate",
+      "source": "notes_workflow",
+      "target": "concept_task_list_mandate"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "_src": "project_pending_fixes",
+      "_tgt": "notes_workflow",
+      "source": "notes_workflow",
+      "target": "project_pending_fixes"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "_src": "notes_user_preferences",
+      "_tgt": "notes_regression_checklist",
+      "source": "notes_regression_checklist",
+      "target": "notes_user_preferences"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "_src": "project_pending_fixes",
+      "_tgt": "notes_regression_checklist",
+      "source": "notes_regression_checklist",
+      "target": "project_pending_fixes"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "_src": "adr_006_mandatory_workflow",
+      "_tgt": "notes_regression_checklist",
+      "source": "notes_regression_checklist",
+      "target": "adr_006_mandatory_workflow"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "weight": 0.8,
+      "_src": "concept_async_await_discipline",
+      "_tgt": "notes_regression_checklist",
+      "source": "notes_regression_checklist",
+      "target": "concept_async_await_discipline"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "_src": "adr_006_mandatory_workflow",
+      "_tgt": "notes_user_preferences",
+      "source": "notes_user_preferences",
+      "target": "adr_006_mandatory_workflow"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "weight": 0.95,
+      "_src": "notes_user_preferences",
+      "_tgt": "concept_ask_before_editing",
+      "source": "notes_user_preferences",
+      "target": "concept_ask_before_editing"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "weight": 0.95,
+      "_src": "notes_user_preferences",
+      "_tgt": "concept_full_parity_port",
+      "source": "notes_user_preferences",
+      "target": "concept_full_parity_port"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "weight": 0.95,
+      "_src": "notes_user_preferences",
+      "_tgt": "concept_phased_delivery",
+      "source": "notes_user_preferences",
+      "target": "concept_phased_delivery"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "weight": 0.9,
+      "_src": "notes_user_preferences",
+      "_tgt": "concept_premium_ui_style",
+      "source": "notes_user_preferences",
+      "target": "concept_premium_ui_style"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "_src": "archive_web_redesign",
+      "_tgt": "notes_user_preferences",
+      "source": "notes_user_preferences",
+      "target": "archive_web_redesign"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "_src": "project_pending_fixes",
+      "_tgt": "notes_user_preferences",
+      "source": "notes_user_preferences",
+      "target": "project_pending_fixes"
+    },
+    {
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.7,
+      "weight": 0.7,
+      "_src": "archive_flutter_kickoff",
+      "_tgt": "archive_web_redesign",
+      "source": "archive_web_redesign",
+      "target": "archive_flutter_kickoff"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "weight": 0.9,
+      "_src": "concept_fintech_teal_palette",
+      "_tgt": "archive_web_redesign",
+      "source": "archive_web_redesign",
+      "target": "concept_fintech_teal_palette"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "weight": 0.8,
+      "_src": "concept_fintech_teal_palette",
+      "_tgt": "archive_flutter_kickoff",
+      "source": "archive_flutter_kickoff",
+      "target": "concept_fintech_teal_palette"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.7,
+      "weight": 0.7,
+      "_src": "project_pending_fixes",
+      "_tgt": "concept_scan_button_bug",
+      "source": "project_pending_fixes",
+      "target": "concept_scan_button_bug"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "weight": 0.9,
+      "_src": "concept_7_step_workflow",
+      "_tgt": "adr_006_mandatory_workflow",
+      "source": "adr_006_mandatory_workflow",
+      "target": "concept_7_step_workflow"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "weight": 0.85,
+      "_src": "concept_task_list_mandate",
+      "_tgt": "adr_006_mandatory_workflow",
+      "source": "adr_006_mandatory_workflow",
+      "target": "concept_task_list_mandate"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "weight": 0.8,
+      "_src": "concept_ask_before_editing",
+      "_tgt": "adr_006_mandatory_workflow",
+      "source": "adr_006_mandatory_workflow",
+      "target": "concept_ask_before_editing"
     }
   ],
   "hyperedges": []
