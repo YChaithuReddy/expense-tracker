@@ -6510,6 +6510,44 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
     }
 
     /**
+     * Reset Google Sheet to master template format
+     */
+    async resetGoogleSheet() {
+        if (!confirm('⚠️ This will clear all data in your Google Sheet and restore the template format.\n\nYour expense data in the app is safe — only the sheet is reset.\n\nContinue?')) {
+            return;
+        }
+
+        const button = document.getElementById('historyResetBtn');
+        const btnText = document.getElementById('historyResetBtnText');
+        if (btnText) btnText.textContent = 'Resetting...';
+        if (button) button.disabled = true;
+
+        try {
+            this.showLoading('Resetting Google Sheet...');
+
+            if (!window.googleSheetsService) {
+                throw new Error('Google Sheets service not initialized');
+            }
+
+            const result = await window.googleSheetsService.resetSheet();
+            this.hideLoading();
+
+            if (result.success) {
+                this.showNotification('✅ Sheet reset to template successfully! You can now re-export your expenses.');
+            } else {
+                this.showNotification('❌ ' + (result.message || 'Reset failed'));
+            }
+        } catch (error) {
+            console.error('Reset error:', error);
+            this.hideLoading();
+            this.showNotification('❌ Reset failed: ' + error.message);
+        } finally {
+            if (btnText) btnText.textContent = 'Reset Sheet';
+            if (button) button.disabled = false;
+        }
+    }
+
+    /**
      * Show confirmation dialog when re-exporting already exported expenses
      */
     showExportConfirmation(allSelected, alreadyExported, newOnly) {
