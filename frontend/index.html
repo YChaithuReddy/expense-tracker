@@ -528,10 +528,16 @@
                         <h2>Expense History</h2>
                         <p>View, search, and filter all your submitted expenses</p>
                     </div>
-                    <button id="historyExportBtn" style="display:inline-flex;align-items:center;gap:8px;padding:9px 20px;background:#059669;color:#ffffff;border:none;border-radius:10px;font-size:0.84rem;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(5,150,105,0.3);transition:all 0.18s;" onmouseover="this.style.background='#047857';this.style.boxShadow='0 6px 20px rgba(5,150,105,0.4)'" onmouseout="this.style.background='#059669';this.style.boxShadow='0 4px 14px rgba(5,150,105,0.3)'" onclick="expenseTracker.exportToGoogleSheets()">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>
-                        <span id="historyExportBtnText">Export to Google Sheets</span>
-                    </button>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                        <button id="historyExportBtn" style="display:inline-flex;align-items:center;gap:8px;padding:9px 20px;background:#059669;color:#ffffff;border:none;border-radius:10px;font-size:0.84rem;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(5,150,105,0.3);transition:all 0.18s;" onmouseover="this.style.background='#047857';this.style.boxShadow='0 6px 20px rgba(5,150,105,0.4)'" onmouseout="this.style.background='#059669';this.style.boxShadow='0 4px 14px rgba(5,150,105,0.3)'" onclick="expenseTracker.exportToGoogleSheets()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>
+                            <span id="historyExportBtnText">Export to Google Sheets</span>
+                        </button>
+                        <button id="historyResetBtn" style="display:inline-flex;align-items:center;gap:8px;padding:9px 20px;background:#EA580C;color:#ffffff;border:none;border-radius:10px;font-size:0.84rem;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(234,88,12,0.3);transition:all 0.18s;" onmouseover="this.style.background='#C2410C';this.style.boxShadow='0 6px 20px rgba(234,88,12,0.4)'" onmouseout="this.style.background='#EA580C';this.style.boxShadow='0 4px 14px rgba(234,88,12,0.3)'" onclick="expenseTracker.resetGoogleSheet()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                            <span id="historyResetBtnText">Reset Sheet</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Stats Pills -->
