@@ -1,7 +1,7 @@
 name: emerald
 description: "FluxGen Emerald - Corporate Expense Management"
 publish_to: 'none'
-version: 2.2.0+25
+version: 2.2.1+26
 
 environment:
   sdk: ^3.7.2

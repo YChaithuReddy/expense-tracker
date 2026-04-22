@@ -328,10 +328,11 @@ class _EmployeeRow extends StatelessWidget {
         ),
         subtitle: Padding(
           padding: const EdgeInsets.only(top: 4),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _RoleChip(role: employee.role, color: color),
-              const SizedBox(width: 8),
+              const SizedBox(height: 4),
               Text(
                 employee.id,
                 style: TextStyle(
@@ -374,12 +375,15 @@ class _RoleChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      constraints: const BoxConstraints(maxWidth: 200),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
         role.isEmpty ? 'No role' : role,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
         style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w700,
