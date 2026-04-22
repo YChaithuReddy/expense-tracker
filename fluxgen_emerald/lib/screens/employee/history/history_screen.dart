@@ -7,6 +7,7 @@ import 'package:emerald/models/project.dart';
 import 'package:emerald/core/constants/categories.dart';
 import 'package:emerald/screens/employee/expenses/expense_detail_screen.dart';
 import 'package:emerald/services/excel_export_service.dart';
+import 'package:emerald/services/google_sheets_service.dart';
 import 'package:emerald/widgets/notification_bell.dart';
 
 /// Expense History screen — matches the Stitch "History" design.
@@ -226,6 +227,59 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   bool _isExportingExcel = false;
+  bool _isExportingToSheets = false;
+
+  Future<void> _exportSelectedToSheets() async {
+    if (_selectedIds.isEmpty || _isExportingToSheets) return;
+    setState(() => _isExportingToSheets = true);
+
+    try {
+      final selected = _allExpenses
+          .where((e) => _selectedIds.contains(e.id))
+          .map((e) => e.toJson())
+          .toList();
+
+      if (selected.isEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No expenses selected')),
+          );
+        }
+        return;
+      }
+
+      await GoogleSheetsService.exportToSheet(selected);
+
+      // Best-effort project-sheet sync using the linked sheet URL
+      final sheetUrl = await GoogleSheetsService.getSheetUrl();
+      if (sheetUrl != null) {
+        final sheetId = sheetUrl.split('/d/').last.split('/').first;
+        GoogleSheetsService.syncProjectSheets(sheetId, selected)
+            .catchError((_) {});
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${selected.length} expenses synced to Google Sheets!'),
+            backgroundColor: const Color(0xFF059669),
+          ),
+        );
+        setState(() => _selectedIds.clear());
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Sheets export failed: ${e.toString()}'),
+            backgroundColor: const Color(0xFFEF4444),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isExportingToSheets = false);
+    }
+  }
 
   Future<void> _exportFilteredToExcel() async {
     if (_isExportingExcel) return;
@@ -916,6 +970,38 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             ),
                           ),
                           const Spacer(),
+                          _isExportingToSheets
+                              ? const Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 8),
+                                  child: SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Color(0xFF059669),
+                                    ),
+                                  ),
+                                )
+                              : TextButton.icon(
+                                  onPressed: _isDeleting
+                                      ? null
+                                      : _exportSelectedToSheets,
+                                  icon: const Icon(Icons.table_chart_outlined,
+                                      size: 18, color: Color(0xFF059669)),
+                                  label: const Text(
+                                    'Export',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF059669),
+                                    ),
+                                  ),
+                                  style: TextButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8),
+                                  ),
+                                ),
+                          const SizedBox(width: 4),
                           _isDeleting
                               ? const SizedBox(
                                   width: 20,
@@ -926,7 +1012,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                   ),
                                 )
                               : TextButton.icon(
-                                  onPressed: _deleteSelected,
+                                  onPressed: _isExportingToSheets
+                                      ? null
+                                      : _deleteSelected,
                                   icon: const Icon(Icons.delete_outline,
                                       size: 18, color: Color(0xFFEF4444)),
                                   label: const Text(

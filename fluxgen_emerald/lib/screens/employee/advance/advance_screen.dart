@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:emerald/screens/employee/advance/advance_form_sheet.dart';
+import 'package:emerald/screens/employee/advance/advance_detail_screen.dart';
 import 'package:emerald/widgets/notification_bell.dart';
 
 class AdvanceScreen extends StatefulWidget {
@@ -191,37 +192,55 @@ class _AdvanceScreenState extends State<AdvanceScreen> {
                       final amount = (a['amount'] as num?)?.toDouble() ?? 0;
                       return Padding(
                         padding: EdgeInsets.only(bottom: i < _advances.length - 1 ? 10 : 0),
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.white, borderRadius: BorderRadius.circular(16),
-                            boxShadow: [BoxShadow(color: const Color(0xFF191C1E).withValues(alpha: 0.04), blurRadius: 20, offset: const Offset(0, 4))],
-                          ),
-                          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                            Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                              Expanded(child: Text(a['project_name'] ?? 'Unknown', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF191C1E)))),
-                              Text('₹${amount.toStringAsFixed(0)}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF191C1E))),
-                            ]),
-                            const SizedBox(height: 10),
-                            Row(children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                decoration: BoxDecoration(color: _typeColor(type).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(6)),
-                                child: Text(type.toUpperCase(), style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 0.5, color: _typeColor(type))),
+                        child: Material(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          child: InkWell(
+                            onTap: () async {
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => AdvanceDetailScreen(advance: a),
+                                ),
+                              );
+                              _loadAdvances();
+                            },
+                            borderRadius: BorderRadius.circular(16),
+                            child: Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [BoxShadow(color: const Color(0xFF191C1E).withValues(alpha: 0.04), blurRadius: 20, offset: const Offset(0, 4))],
                               ),
-                              const SizedBox(width: 10),
-                              Expanded(child: Text(a['id']?.toString().substring(0, 8) ?? '', style: const TextStyle(fontSize: 11, color: Color(0xFF9CA3AF)))),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                decoration: BoxDecoration(color: _statusBg(status), borderRadius: BorderRadius.circular(6)),
-                                child: Row(mainAxisSize: MainAxisSize.min, children: [
-                                  Container(width: 6, height: 6, decoration: BoxDecoration(color: _statusColor(status), shape: BoxShape.circle)),
-                                  const SizedBox(width: 4),
-                                  Text(_statusLabel(status), style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 0.5, color: _statusColor(status))),
+                              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                  Expanded(child: Text(a['project_name'] ?? 'Unknown', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF191C1E)))),
+                                  Text('₹${amount.toStringAsFixed(0)}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF191C1E))),
                                 ]),
-                              ),
-                            ]),
-                          ]),
+                                const SizedBox(height: 10),
+                                Row(children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                    decoration: BoxDecoration(color: _typeColor(type).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(6)),
+                                    child: Text(type.toUpperCase(), style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 0.5, color: _typeColor(type))),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(child: Text(a['id']?.toString().substring(0, 8) ?? '', style: const TextStyle(fontSize: 11, color: Color(0xFF9CA3AF)))),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                    decoration: BoxDecoration(color: _statusBg(status), borderRadius: BorderRadius.circular(6)),
+                                    child: Row(mainAxisSize: MainAxisSize.min, children: [
+                                      Container(width: 6, height: 6, decoration: BoxDecoration(color: _statusColor(status), shape: BoxShape.circle)),
+                                      const SizedBox(width: 4),
+                                      Text(_statusLabel(status), style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 0.5, color: _statusColor(status))),
+                                    ]),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  const Icon(Icons.arrow_forward_ios, size: 12, color: Color(0xFF9CA3AF)),
+                                ]),
+                              ]),
+                            ),
+                          ),
                         ),
                       );
                     }),

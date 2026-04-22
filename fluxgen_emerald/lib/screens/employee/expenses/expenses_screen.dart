@@ -1,20 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:emerald/screens/shared/notification_screen.dart';
-import 'package:emerald/screens/shared/activity_log_screen.dart';
 import 'package:emerald/screens/employee/expenses/add_expense_screen.dart';
 import 'package:emerald/screens/employee/expenses/scan_receipt_screen.dart';
 import 'package:emerald/screens/employee/expenses/expense_detail_screen.dart';
 import 'package:emerald/screens/employee/expenses/saved_images_screen.dart';
 import 'package:emerald/screens/employee/voucher/submit_voucher_screen.dart';
 import 'package:emerald/screens/employee/export/export_screen.dart';
-import 'package:emerald/screens/employee/whatsapp/whatsapp_screen.dart';
 import 'package:emerald/screens/employee/settings/bank_details_screen.dart';
 import 'package:emerald/screens/employee/pdfs/pdf_library_screen.dart';
-import 'package:emerald/screens/admin/admin_shell.dart';
 import 'package:emerald/screens/attendance/widgets/attendance_pill.dart';
 import 'package:emerald/screens/employee/export/sheets_export_screen.dart';
 import 'package:emerald/services/google_sheets_service.dart';
@@ -40,10 +35,41 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
   int _pendingVouchers = 0;
   int _activeAdvances = 0;
 
+  RealtimeChannel? _expensesChannel;
+
   @override
   void initState() {
     super.initState();
     _loadData();
+  }
+
+  @override
+  void dispose() {
+    if (_expensesChannel != null) {
+      Supabase.instance.client.removeChannel(_expensesChannel!);
+      _expensesChannel = null;
+    }
+    super.dispose();
+  }
+
+  void _subscribeToExpenses(String userId) {
+    if (_expensesChannel != null) return;
+    _expensesChannel = Supabase.instance.client
+        .channel('expenses:$userId')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'expenses',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'user_id',
+            value: userId,
+          ),
+          callback: (_) {
+            if (mounted) _loadData();
+          },
+        )
+        .subscribe();
   }
 
   Future<void> _resetGoogleSheet() async {
@@ -92,6 +118,8 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
     try {
       final user = Supabase.instance.client.auth.currentUser;
       if (user == null) return;
+
+      _subscribeToExpenses(user.id);
 
       // Load profile
       final profile = await Supabase.instance.client
@@ -227,44 +255,6 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                       decoration: BoxDecoration(color: const Color(0xFFFEF2F2), borderRadius: BorderRadius.circular(6)),
                       child: Text(_userRole, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 1.5, color: Color(0xFFEF4444))),
                     ),
-                    const SizedBox(height: 16),
-                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                      _QuickAction(icon: Icons.settings_outlined, onTap: () {
-                        // Switch to Settings tab (index 4)
-                        final shell = context.findAncestorStateOfType<State>();
-                        if (shell != null && shell.mounted) {
-                          // Navigate via bottom nav - just show snackbar for now
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Tap Profile tab for settings'), duration: Duration(seconds: 1)));
-                        }
-                      }),
-                      const SizedBox(width: 10),
-                      _QuickAction(icon: Icons.notifications_outlined, badge: '${_recentExpenses.length}',
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationScreen()))),
-                      const SizedBox(width: 10),
-                      _QuickAction(icon: Icons.check_circle_outline, onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => const _MyVoucherStatusScreen()),
-                        );
-                      }),
-                      const SizedBox(width: 10),
-                      _QuickAction(icon: Icons.dashboard_outlined, onTap: () {
-                        final role = _userRole.toLowerCase();
-                        if (role == 'admin' || role == 'manager' || role == 'accountant') {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const AdminShell()),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Admin access required'),
-                              duration: Duration(seconds: 1),
-                            ),
-                          );
-                        }
-                      }),
-                    ]),
                   ]),
                 ),
                 const SizedBox(height: 16),
@@ -422,28 +412,10 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BankDetailsScreen())),
                     ),
                     _shortcutCard(
-                      icon: Icons.history,
-                      label: 'Activity\nLog',
-                      color: const Color(0xFF6366F1),
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ActivityLogScreen())),
-                    ),
-                    _shortcutCard(
                       icon: Icons.photo_library,
                       label: 'Saved\nImages',
                       color: const Color(0xFF0EA5E9),
                       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SavedImagesScreen())),
-                    ),
-                    _shortcutCard(
-                      icon: Icons.chat,
-                      label: 'WhatsApp',
-                      color: const Color(0xFF25D366),
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const WhatsAppScreen())),
-                    ),
-                    _shortcutCard(
-                      icon: Icons.notifications,
-                      label: 'Alerts',
-                      color: const Color(0xFFF59E0B),
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationScreen())),
                     ),
                   ],
                 ),
@@ -580,34 +552,6 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
   }
 }
 
-class _QuickAction extends StatelessWidget {
-  final IconData icon;
-  final String? badge;
-  final VoidCallback onTap;
-
-  const _QuickAction({required this.icon, this.badge, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Stack(clipBehavior: Clip.none, children: [
-        Container(
-          width: 48, height: 48,
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFFE5E7EB))),
-          child: Icon(icon, color: const Color(0xFF9CA3AF), size: 22),
-        ),
-        if (badge != null)
-          Positioned(top: -6, right: -6, child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-            decoration: BoxDecoration(color: const Color(0xFFEF4444), borderRadius: BorderRadius.circular(10), border: Border.all(color: Colors.white, width: 2)),
-            child: Text(badge!, style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w700)),
-          )),
-      ]),
-    );
-  }
-}
-
 class _QuickStatCard extends StatelessWidget {
   final IconData icon;
   final Color iconColor;
@@ -709,352 +653,6 @@ class _ActionCard extends StatelessWidget {
           ]),
           if (child != null) ...[const SizedBox(height: 16), child!],
         ]),
-      ),
-    );
-  }
-}
-
-// ════════════════════════════════════════════════════════════════════════════
-// My Voucher Status Screen
-// ════════════════════════════════════════════════════════════════════════════
-
-class _MyVoucherStatusScreen extends StatefulWidget {
-  const _MyVoucherStatusScreen();
-
-  @override
-  State<_MyVoucherStatusScreen> createState() => _MyVoucherStatusScreenState();
-}
-
-class _MyVoucherStatusScreenState extends State<_MyVoucherStatusScreen> {
-  bool _loading = true;
-  String? _error;
-  List<Map<String, dynamic>> _vouchers = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _loadVouchers();
-  }
-
-  Future<void> _loadVouchers() async {
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
-    try {
-      final user = Supabase.instance.client.auth.currentUser;
-      if (user == null) throw Exception('Not authenticated');
-
-      final data = await Supabase.instance.client
-          .from('vouchers')
-          .select('id, voucher_number, status, total_amount, expense_count, purpose, submitted_at, created_at')
-          .eq('submitted_by', user.id)
-          .order('created_at', ascending: false);
-
-      if (mounted) {
-        setState(() {
-          _vouchers = List<Map<String, dynamic>>.from(data);
-          _loading = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _error = e.toString();
-          _loading = false;
-        });
-      }
-    }
-  }
-
-  Color _statusColor(String status) {
-    switch (status) {
-      case 'pending_manager':
-      case 'pending_accountant':
-        return const Color(0xFFF59E0B);
-      case 'manager_approved':
-        return const Color(0xFF0EA5E9);
-      case 'approved':
-        return const Color(0xFF059669);
-      case 'rejected':
-        return const Color(0xFFEF4444);
-      case 'reimbursed':
-        return const Color(0xFF0EA5E9);
-      default:
-        return const Color(0xFF6B7280);
-    }
-  }
-
-  Color _statusBg(String status) {
-    switch (status) {
-      case 'pending_manager':
-      case 'pending_accountant':
-        return const Color(0xFFFFFBEB);
-      case 'manager_approved':
-        return const Color(0xFFF0F9FF);
-      case 'approved':
-        return const Color(0xFFECFDF5);
-      case 'rejected':
-        return const Color(0xFFFEF2F2);
-      case 'reimbursed':
-        return const Color(0xFFF0F9FF);
-      default:
-        return const Color(0xFFF3F4F6);
-    }
-  }
-
-  String _statusLabel(String status) {
-    switch (status) {
-      case 'pending_manager':
-        return 'Pending Manager';
-      case 'manager_approved':
-        return 'Manager Approved';
-      case 'pending_accountant':
-        return 'Pending Accountant';
-      case 'approved':
-        return 'Approved';
-      case 'rejected':
-        return 'Rejected';
-      case 'reimbursed':
-        return 'Reimbursed';
-      default:
-        return status.replaceAll('_', ' ').toUpperCase();
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF3F4F6),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        surfaceTintColor: Colors.transparent,
-        title: const Text(
-          'My Vouchers',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF191C1E),
-          ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF191C1E)),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: RefreshIndicator(
-        onRefresh: _loadVouchers,
-        child: _loading
-            ? const Center(
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Color(0xFF006699),
-                ),
-              )
-            : _error != null
-                ? Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(32),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.error_outline,
-                            size: 48,
-                            color: Color(0xFFEF4444),
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'Failed to load vouchers',
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF191C1E),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            _error!,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Color(0xFF9CA3AF),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          OutlinedButton(
-                            onPressed: _loadVouchers,
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: const Color(0xFF006699),
-                              side: const BorderSide(color: Color(0xFF006699)),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            child: const Text('Retry'),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                : _vouchers.isEmpty
-                    ? ListView(
-                        children: [
-                          const SizedBox(height: 100),
-                          Center(
-                            child: Column(
-                              children: [
-                                Icon(
-                                  Icons.receipt_long_outlined,
-                                  size: 48,
-                                  color: Colors.grey[300],
-                                ),
-                                const SizedBox(height: 12),
-                                const Text(
-                                  'No vouchers submitted yet',
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFF9CA3AF),
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                const Text(
-                                  'Submit expenses for approval to see them here',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Color(0xFFBBBBBB),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      )
-                    : ListView.builder(
-                        padding: const EdgeInsets.all(16),
-                        itemCount: _vouchers.length,
-                        itemBuilder: (context, index) {
-                          final v = _vouchers[index];
-                          final number = v['voucher_number'] as String? ?? 'N/A';
-                          final status = v['status'] as String? ?? '';
-                          final totalAmount = (v['total_amount'] is num)
-                              ? (v['total_amount'] as num).toDouble()
-                              : 0.0;
-                          final expenseCount = (v['expense_count'] is num)
-                              ? (v['expense_count'] as num).toInt()
-                              : 0;
-                          final dateStr = v['submitted_at'] as String? ??
-                              v['created_at'] as String?;
-                          String formattedDate = '';
-                          if (dateStr != null) {
-                            try {
-                              formattedDate = DateFormat('dd MMM yyyy')
-                                  .format(DateTime.parse(dateStr));
-                            } catch (_) {}
-                          }
-
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(16),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: const Color(0xFF191C1E)
-                                        .withValues(alpha: 0.04),
-                                    blurRadius: 20,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          number,
-                                          style: const TextStyle(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.w600,
-                                            color: Color(0xFF191C1E),
-                                          ),
-                                        ),
-                                      ),
-                                      Text(
-                                        '\u20B9${totalAmount.toStringAsFixed(0)}',
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w700,
-                                          color: Color(0xFF191C1E),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Row(
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 3,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: _statusBg(status),
-                                          borderRadius:
-                                              BorderRadius.circular(6),
-                                        ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Container(
-                                              width: 6,
-                                              height: 6,
-                                              decoration: BoxDecoration(
-                                                color: _statusColor(status),
-                                                shape: BoxShape.circle,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 4),
-                                            Text(
-                                              _statusLabel(status),
-                                              style: TextStyle(
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.w700,
-                                                color: _statusColor(status),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        '$expenseCount expense${expenseCount != 1 ? 's' : ''}',
-                                        style: const TextStyle(
-                                          fontSize: 11,
-                                          color: Color(0xFF9CA3AF),
-                                        ),
-                                      ),
-                                      const Spacer(),
-                                      Text(
-                                        formattedDate,
-                                        style: const TextStyle(
-                                          fontSize: 11,
-                                          color: Color(0xFF9CA3AF),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
       ),
     );
   }
