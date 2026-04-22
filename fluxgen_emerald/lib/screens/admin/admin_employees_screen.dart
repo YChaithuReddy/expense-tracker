@@ -83,10 +83,13 @@ class _AdminEmployeesScreenState extends State<AdminEmployeesScreen> {
   Future<void> _loadEmployees() async {
     if (_orgId == null) return;
 
+    // Source of truth = employee_whitelist (matches website /admin.html).
+    // profiles only contains signed-up users, so querying it drops every
+    // whitelisted employee who hasn't logged in yet.
     final data = await _supabase
-        .from('profiles')
-        .select(
-            'id, name, email, employee_id, role, department, designation')
+        .from('employee_whitelist')
+        .select('id, name, email, employee_id, role, department, '
+            'designation, is_active')
         .eq('organization_id', _orgId!)
         .order('name', ascending: true);
 
@@ -124,16 +127,28 @@ class _AdminEmployeesScreenState extends State<AdminEmployeesScreen> {
 
   // ── Actions ───────────────────────────────────────────────────────────
 
-  Future<void> _updateRole(String profileId, String oldRole, String newRole) async {
+  Future<void> _updateRole(
+      String whitelistId, String email, String oldRole, String newRole) async {
     try {
+      // Source of truth: employee_whitelist row for this employee.
       await _supabase
-          .from('profiles')
+          .from('employee_whitelist')
           .update({'role': newRole})
-          .eq('id', profileId);
+          .eq('id', whitelistId);
+
+      // Mirror to profiles (if the user has signed up) so their session role
+      // flips without waiting for re-login. No-op for unsigned-up members.
+      if (email.isNotEmpty && _orgId != null) {
+        await _supabase
+            .from('profiles')
+            .update({'role': newRole})
+            .eq('email', email)
+            .eq('organization_id', _orgId!);
+      }
 
       // Find employee name for the activity log
       final emp = _employees.firstWhere(
-        (e) => e['id'] == profileId,
+        (e) => e['id'] == whitelistId,
         orElse: () => <String, dynamic>{},
       );
       final empName = emp['name'] as String? ?? 'Unknown';
@@ -167,7 +182,8 @@ class _AdminEmployeesScreenState extends State<AdminEmployeesScreen> {
   }
 
   Future<void> _updateProfile(
-    String profileId, {
+    String whitelistId,
+    String email, {
     String? department,
     String? designation,
   }) async {
@@ -178,9 +194,17 @@ class _AdminEmployeesScreenState extends State<AdminEmployeesScreen> {
       if (updates.isEmpty) return;
 
       await _supabase
-          .from('profiles')
+          .from('employee_whitelist')
           .update(updates)
-          .eq('id', profileId);
+          .eq('id', whitelistId);
+
+      if (email.isNotEmpty && _orgId != null) {
+        await _supabase
+            .from('profiles')
+            .update(updates)
+            .eq('email', email)
+            .eq('organization_id', _orgId!);
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -205,7 +229,8 @@ class _AdminEmployeesScreenState extends State<AdminEmployeesScreen> {
     }
   }
 
-  Future<void> _removeFromOrganization(String profileId, String empName) async {
+  Future<void> _removeFromOrganization(
+      String whitelistId, String email, String empName) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -240,10 +265,20 @@ class _AdminEmployeesScreenState extends State<AdminEmployeesScreen> {
     if (confirm != true) return;
 
     try {
+      // Deactivate in whitelist (preserves CSV import history) + unlink any
+      // live profile so the user loses org access.
       await _supabase
-          .from('profiles')
-          .update({'organization_id': null})
-          .eq('id', profileId);
+          .from('employee_whitelist')
+          .update({'is_active': false})
+          .eq('id', whitelistId);
+
+      if (email.isNotEmpty && _orgId != null) {
+        await _supabase
+            .from('profiles')
+            .update({'organization_id': null})
+            .eq('email', email)
+            .eq('organization_id', _orgId!);
+      }
 
       await ActivityLogService.log(
         'employee_removed',
@@ -440,7 +475,7 @@ class _AdminEmployeesScreenState extends State<AdminEmployeesScreen> {
                           if (newRole != null && newRole != selectedRole) {
                             final oldRole = selectedRole;
                             setSheetState(() => selectedRole = newRole);
-                            _updateRole(profileId, oldRole, newRole);
+                            _updateRole(profileId, email, oldRole, newRole);
                           }
                         },
                       ),
@@ -492,6 +527,7 @@ class _AdminEmployeesScreenState extends State<AdminEmployeesScreen> {
                       onPressed: () {
                         _updateProfile(
                           profileId,
+                          email,
                           department: deptController.text.trim(),
                           designation: desigController.text.trim(),
                         );
@@ -523,7 +559,7 @@ class _AdminEmployeesScreenState extends State<AdminEmployeesScreen> {
                     width: double.infinity,
                     child: OutlinedButton.icon(
                       onPressed: () =>
-                          _removeFromOrganization(profileId, name),
+                          _removeFromOrganization(profileId, email, name),
                       icon: const Icon(Icons.person_remove_outlined, size: 18),
                       label: const Text('Remove from Organization'),
                       style: OutlinedButton.styleFrom(

@@ -1,3 +1,4 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -271,23 +272,228 @@ class _PipelineScreenState extends State<PipelineScreen>
       onRefresh: _loadPipeline,
       color: AppColors.primary,
       displacement: 20,
-      child: SingleChildScrollView(
+      child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            for (int i = 0; i < stages.length; i++) ...[
-              if (i > 0) const SizedBox(width: 12),
-              _KanbanColumn(
-                stage: stages[i],
-                isAdvance: isAdvance,
-                columnIndex: i,
+        padding: EdgeInsets.zero,
+        children: [
+          _FunnelSummary(stages: stages, isAdvance: isAdvance),
+          SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (int i = 0; i < stages.length; i++) ...[
+                  if (i > 0) const SizedBox(width: 12),
+                  _KanbanColumn(
+                    stage: stages[i],
+                    isAdvance: isAdvance,
+                    columnIndex: i,
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Funnel summary ──────────────────────────────────────────────────────────
+class _FunnelSummary extends StatelessWidget {
+  const _FunnelSummary({required this.stages, required this.isAdvance});
+  final List<_Stage> stages;
+  final bool isAdvance;
+
+  double _amountOf(Map<String, dynamic> item) {
+    final a = item['total_amount'] ?? item['amount'];
+    if (a is num) return a.toDouble();
+    return double.tryParse(a?.toString() ?? '0') ?? 0;
+  }
+
+  String _fmtINR(double v) {
+    if (v >= 100000) return '₹${(v / 100000).toStringAsFixed(1)}L';
+    if (v >= 1000) return '₹${(v / 1000).toStringAsFixed(1)}k';
+    return '₹${v.toStringAsFixed(0)}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final counts = stages.map((s) => s.items.length).toList();
+    final totals = stages
+        .map((s) => s.items.fold<double>(0, (sum, i) => sum + _amountOf(i)))
+        .toList();
+    final maxCount = counts.fold<int>(0, (m, c) => c > m ? c : m);
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 10),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            Container(
+              width: 30,
+              height: 30,
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(9),
               ),
+              child: const Icon(Icons.filter_alt_rounded,
+                  size: 16, color: AppColors.primary),
+            ),
+            const SizedBox(width: 10),
+            Text(
+              isAdvance ? 'Advance funnel' : 'Voucher funnel',
+              style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF191C1E)),
+            ),
+            const Spacer(),
+            Text(
+              '${counts.fold<int>(0, (s, c) => s + c)} items',
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF6B7280),
+              ),
+            ),
+          ]),
+          const SizedBox(height: 14),
+          SizedBox(
+            height: 140,
+            child: BarChart(
+              BarChartData(
+                alignment: BarChartAlignment.spaceAround,
+                maxY: (maxCount + 1).toDouble(),
+                minY: 0,
+                gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: false,
+                  horizontalInterval: maxCount > 0 ? maxCount / 3 : 1,
+                  getDrawingHorizontalLine: (_) => const FlLine(
+                    color: Color(0xFFF3F4F6),
+                    strokeWidth: 1,
+                  ),
+                ),
+                borderData: FlBorderData(show: false),
+                titlesData: FlTitlesData(
+                  topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false)),
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 22,
+                      interval: maxCount > 0 ? (maxCount / 3).ceilToDouble() : 1,
+                      getTitlesWidget: (v, _) => Text(
+                        v.toInt().toString(),
+                        style: const TextStyle(
+                            fontSize: 9, color: Color(0xFF9CA3AF)),
+                      ),
+                    ),
+                  ),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 28,
+                      getTitlesWidget: (v, meta) {
+                        final i = v.toInt();
+                        if (i < 0 || i >= stages.length) {
+                          return const SizedBox.shrink();
+                        }
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 6),
+                          child: Text(
+                            stages[i].title.split(' ').first,
+                            style: const TextStyle(
+                                fontSize: 9,
+                                color: Color(0xFF6B7280),
+                                fontWeight: FontWeight.w600),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                barGroups: [
+                  for (var i = 0; i < stages.length; i++)
+                    BarChartGroupData(
+                      x: i,
+                      barRods: [
+                        BarChartRodData(
+                          toY: counts[i].toDouble(),
+                          width: 22,
+                          borderRadius:
+                              const BorderRadius.vertical(top: Radius.circular(6)),
+                          gradient: LinearGradient(
+                            colors: [
+                              stages[i].color.withValues(alpha: 0.95),
+                              stages[i].color.withValues(alpha: 0.55),
+                            ],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                          ),
+                        ),
+                      ],
+                    ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              for (var i = 0; i < stages.length; i++) ...[
+                if (i > 0) const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        stages[i].title,
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.3,
+                          color: stages[i].color,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        _fmtINR(totals[i]),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF191C1E),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ],
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

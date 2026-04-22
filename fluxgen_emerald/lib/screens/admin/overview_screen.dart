@@ -1,15 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:emerald/screens/admin/admin_shell.dart';
 import 'package:emerald/screens/employee/reports/reports_screen.dart';
 import 'package:emerald/screens/admin/pipeline_screen.dart';
 import 'package:emerald/screens/admin/tally_export_screen.dart';
 import 'package:emerald/screens/admin/admin_advances_screen.dart';
 import 'package:emerald/screens/admin/csv_import_screen.dart';
-import 'package:emerald/screens/admin/admin_settings_screen.dart';
 import 'package:emerald/screens/admin/admin_employees_screen.dart';
-import 'package:emerald/screens/admin/issue_reports_screen.dart';
 import 'package:emerald/screens/admin/all_vouchers_screen.dart';
 import 'package:emerald/screens/attendance/widgets/attendance_pill.dart';
 import 'package:emerald/widgets/notification_bell.dart';
@@ -48,12 +47,73 @@ class _OverviewScreenState extends State<OverviewScreen> {
   // Recent activity
   List<Map<String, dynamic>> _recentActivity = [];
 
+  // Org context (cached so realtime callbacks can reuse it)
+  String? _orgId;
+  Set<String> _orgUserIds = const {};
+
+  // Realtime subscriptions — invalidated in dispose().
+  RealtimeChannel? _activityChannel;
+  RealtimeChannel? _voucherHistoryChannel;
+
   final _supabase = Supabase.instance.client;
 
   @override
   void initState() {
     super.initState();
     _loadAllData();
+  }
+
+  @override
+  void dispose() {
+    if (_activityChannel != null) {
+      _supabase.removeChannel(_activityChannel!);
+      _activityChannel = null;
+    }
+    if (_voucherHistoryChannel != null) {
+      _supabase.removeChannel(_voucherHistoryChannel!);
+      _voucherHistoryChannel = null;
+    }
+    super.dispose();
+  }
+
+  void _subscribeToActivity() {
+    // Re-subscription is a no-op if already set up.
+    if (_activityChannel == null) {
+      _activityChannel = _supabase
+          .channel('activity_log:overview')
+          .onPostgresChanges(
+            event: PostgresChangeEvent.insert,
+            schema: 'public',
+            table: 'activity_log',
+            callback: (payload) {
+              // Filter by org membership client-side; activity_log has no org
+              // column, so we can't push the filter into the subscription.
+              final uid = payload.newRecord['user_id'] as String?;
+              if (uid != null && _orgUserIds.contains(uid) && mounted) {
+                _loadRecentActivity();
+              }
+            },
+          )
+          .subscribe();
+    }
+    if (_voucherHistoryChannel == null && _orgId != null) {
+      _voucherHistoryChannel = _supabase
+          .channel('voucher_history:${_orgId!}')
+          .onPostgresChanges(
+            event: PostgresChangeEvent.insert,
+            schema: 'public',
+            table: 'voucher_history',
+            filter: PostgresChangeFilter(
+              type: PostgresChangeFilterType.eq,
+              column: 'organization_id',
+              value: _orgId!,
+            ),
+            callback: (_) {
+              if (mounted) _loadRecentActivity();
+            },
+          )
+          .subscribe();
+    }
   }
 
   Future<void> _loadAllData() async {
@@ -183,31 +243,86 @@ class _OverviewScreenState extends State<OverviewScreen> {
       final user = _supabase.auth.currentUser;
       if (user == null) return;
 
-      final profile = await _supabase
-          .from('profiles')
-          .select('organization_id')
-          .eq('id', user.id)
-          .maybeSingle();
+      // Cache org context for realtime callbacks + activity_log filtering.
+      if (_orgId == null) {
+        final profile = await _supabase
+            .from('profiles')
+            .select('organization_id')
+            .eq('id', user.id)
+            .maybeSingle();
+        _orgId = profile?['organization_id'] as String?;
+      }
+      if (_orgId == null || _orgId!.isEmpty) return;
 
-      final orgId = profile?['organization_id'] as String?;
-      if (orgId == null || orgId.isEmpty) return;
+      // Resolve org membership once — every user who has signed up against
+      // this org. activity_log rows are filtered against this set client-side.
+      if (_orgUserIds.isEmpty) {
+        final members = await _supabase
+            .from('profiles')
+            .select('id')
+            .eq('organization_id', _orgId!);
+        _orgUserIds = {
+          for (final r in (members as List)) (r as Map)['id'] as String,
+        };
+      }
 
-      // Fetch recent voucher history
-      // voucher_history may have: id, voucher_id, action, performed_by, description, created_at
-      final history = await _supabase
-          .from('voucher_history')
-          .select()
-          .eq('organization_id', orgId)
-          .order('created_at', ascending: false)
-          .limit(10);
+      // Fire both table reads in parallel.
+      final futures = <Future<dynamic>>[
+        _supabase
+            .from('voucher_history')
+            .select()
+            .eq('organization_id', _orgId!)
+            .order('created_at', ascending: false)
+            .limit(15),
+        if (_orgUserIds.isNotEmpty)
+          _supabase
+              .from('activity_log')
+              .select('id, user_id, action, details, created_at')
+              .inFilter('user_id', _orgUserIds.toList())
+              .order('created_at', ascending: false)
+              .limit(15),
+      ];
 
-      if (mounted) {
-        setState(() {
-          _recentActivity = List<Map<String, dynamic>>.from(history);
+      final results = await Future.wait(
+        futures.map((f) => f.then<List<dynamic>>((v) => v as List).catchError(
+            (_) => <dynamic>[])),
+      );
+
+      // Normalise both sources into one schema: action / description / created_at.
+      final merged = <Map<String, dynamic>>[];
+      for (final row in results[0]) {
+        merged.add({
+          'source': 'voucher_history',
+          'action': (row as Map)['action'],
+          'description':
+              row['description'] ?? row['action'] ?? 'Voucher update',
+          'created_at': row['created_at'],
         });
       }
+      if (results.length > 1) {
+        for (final row in results[1]) {
+          merged.add({
+            'source': 'activity_log',
+            'action': (row as Map)['action'],
+            'description': row['details'] ?? row['action'] ?? 'Activity',
+            'created_at': row['created_at'],
+          });
+        }
+      }
+
+      merged.sort((a, b) {
+        final ad = a['created_at'] as String? ?? '';
+        final bd = b['created_at'] as String? ?? '';
+        return bd.compareTo(ad);
+      });
+      final top = merged.take(10).toList();
+
+      if (mounted) {
+        setState(() => _recentActivity = top);
+        _subscribeToActivity(); // idempotent
+      }
     } catch (_) {
-      // voucher_history table might not exist yet -- gracefully degrade
+      // Either table may be missing in a fresh project — gracefully degrade.
     }
   }
 
@@ -438,18 +553,6 @@ class _OverviewScreenState extends State<OverviewScreen> {
                         label: 'Employees',
                         color: const Color(0xFF0D9488),
                         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminEmployeesScreen())),
-                      ),
-                      _shortcutCard(
-                        icon: Icons.bug_report,
-                        label: 'Issue\nReports',
-                        color: const Color(0xFFEF4444),
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const IssueReportsScreen())),
-                      ),
-                      _shortcutCard(
-                        icon: Icons.settings,
-                        label: 'Settings',
-                        color: const Color(0xFF6366F1),
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminSettingsScreen())),
                       ),
                     ],
                   ),
