@@ -45,7 +45,10 @@ class _AttendanceShellState extends ConsumerState<AttendanceShell>
   @override
   Widget build(BuildContext context) {
     final profileAsync = ref.watch(userProfileProvider);
-    final isAdmin = profileAsync.valueOrNull?.isAdmin ?? false;
+    final profile = profileAsync.valueOrNull;
+    // Admin-equivalent roles see admin features (matches web behaviour)
+    final isAdmin = profile != null &&
+        (profile.isAdmin || profile.isManager || profile.isAccountant);
     final mode = ref.watch(viewModeProvider);
 
     return Scaffold(
@@ -65,7 +68,7 @@ class _AttendanceShellState extends ConsumerState<AttendanceShell>
                 controller: _tab,
                 children: [
                   AttendanceUpdateTab(isAdmin: isAdmin),
-                  AttendanceWeeklyTab(isAdmin: isAdmin),
+                  const AttendanceWeeklyTab(),
                   AttendanceTeamTab(isAdmin: isAdmin),
                   const AttendanceReportTab(),
                   const ManageEmployeesScreen(embedded: true),

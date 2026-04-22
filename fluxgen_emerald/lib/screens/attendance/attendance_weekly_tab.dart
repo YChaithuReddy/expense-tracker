@@ -9,28 +9,23 @@ import 'widgets/weekly_grid.dart';
 import 'widgets/work_done_sheet.dart';
 
 class AttendanceWeeklyTab extends ConsumerWidget {
-  const AttendanceWeeklyTab({super.key, required this.isAdmin});
-  final bool isAdmin;
+  const AttendanceWeeklyTab({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final mode = ref.watch(viewModeProvider);
-    final isAdminMode = isAdmin && mode == ViewMode.admin;
     final dates = currentWeekDates();
     final from = dates.first;
     final to = dates.last;
 
-    final myEmpId = ref.watch(myEmpIdProvider);
     final employeesAsync = ref.watch(employeesProvider);
 
-    final params = isAdminMode
-        ? WeekRangeParams(from: from, to: to, empId: 'ALL')
-        : WeekRangeParams(from: from, to: to, empId: myEmpId ?? '');
+    // Always fetch ALL employees like the web view
+    final params = WeekRangeParams(from: from, to: to, empId: 'ALL');
     final weekAsync = ref.watch(weekStatusProvider(params));
 
     Future<void> refresh() async {
       ref.invalidate(weekStatusProvider(params));
-      if (isAdminMode) ref.invalidate(employeesProvider);
+      ref.invalidate(employeesProvider);
       await ref.read(weekStatusProvider(params).future);
     }
 
@@ -44,7 +39,7 @@ class AttendanceWeeklyTab extends ConsumerWidget {
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
         children: [
           _WeekHeader(
-            title: isAdminMode ? 'Team · this week' : 'My week',
+            title: 'Weekly Overview',
             range: '$fromLabel – $toLabel',
           ),
           const SizedBox(height: 14),
@@ -52,60 +47,18 @@ class AttendanceWeeklyTab extends ConsumerWidget {
             loading: () => _loadingBox(),
             error: (e, _) => _error(context, e.toString(), refresh),
             data: (entries) {
-              if (isAdminMode) {
-                final employees = employeesAsync.valueOrNull ?? const [];
-                if (employees.isEmpty) return _emptyBox('No employees found');
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _WeekSummaryCard(entries: entries),
-                    const SizedBox(height: 14),
-                    _CardContainer(
-                      child: WeeklyGrid(
-                        dates: dates,
-                        entries: entries,
-                        employees: employees,
-                        todayStr: fluxgenTodayStr(),
-                        onCellTap: (empId, date, existing) {
-                          final emps = employeesAsync.valueOrNull ?? [];
-                          FluxgenEmployee? emp;
-                          for (final e in emps) {
-                            if (e.id == empId) { emp = e; break; }
-                          }
-                          WorkDoneSheet.show(
-                            context,
-                            empId: empId,
-                            empName: emp?.name ?? empId,
-                            date: date,
-                            existing: existing,
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                );
-              }
-              // Employee mode — find self
               final employees = employeesAsync.valueOrNull ?? const [];
-              FluxgenEmployee? self;
-              for (final e in employees) {
-                if (e.id == myEmpId) { self = e; break; }
-              }
-              if (self == null) return _noSelf(context);
-
-              final myEntries = [
-                for (final e in entries) if (e.empId == self.id) e,
-              ];
+              if (employees.isEmpty) return _emptyBox('No employees found');
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _WeekSummaryCard(entries: myEntries),
+                  _WeekSummaryCard(entries: entries),
                   const SizedBox(height: 14),
                   _CardContainer(
                     child: WeeklyGrid(
                       dates: dates,
-                      entries: myEntries,
-                      employees: [self],
+                      entries: entries,
+                      employees: employees,
                       todayStr: fluxgenTodayStr(),
                       onCellTap: (empId, date, existing) {
                         final emps = employeesAsync.valueOrNull ?? [];
@@ -166,19 +119,6 @@ class AttendanceWeeklyTab extends ConsumerWidget {
     );
   }
 
-  Widget _noSelf(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 48),
-      child: Center(
-        child: Text(
-          'Link your employee record on the Update tab first.',
-          textAlign: TextAlign.center,
-          style:
-              TextStyle(color: AppColors.onSurfaceVariant, fontSize: 13),
-        ),
-      ),
-    );
-  }
 }
 
 class _WeekHeader extends StatelessWidget {
