@@ -248,6 +248,11 @@ function exportExpensesToSheet(data) {
     const vendors = [];
     const categories = [];
     const costs = [];
+    // Travel columns (G–J) — filled per expense, empty string for non-travel.
+    const modes = [];
+    const fromLocs = [];
+    const toLocs = [];
+    const kms = [];
 
     expenses.forEach((expense, index) => {
       // Column A: S.NO (1, 2, 3, ...)
@@ -266,13 +271,23 @@ function exportExpensesToSheet(data) {
 
       // Column F: COST
       costs.push([parseFloat(expense.amount) || 0]);
+
+      // Columns G–J: travel fields (only populated for Travel category in frontend,
+      // but we accept whatever the payload sent and fall back to '' / 0).
+      modes.push([expense.modeOfExpense || '']);
+      fromLocs.push([expense.fromLocation || '']);
+      toLocs.push([expense.toLocation || '']);
+      const kmVal = parseFloat(expense.kilometers);
+      kms.push([isNaN(kmVal) ? '' : kmVal]);
     });
 
     // Batch update all columns
     const numExpenses = expenses.length;
 
-    // Get reference formatting from row 14 (template row)
-    const templateRange = sheet.getRange('A14:F14');
+    // Get reference formatting from row 14 (template row).
+    // Range extended from A14:F14 to A14:J14 so the new Mode/From/To/KM columns
+    // pick up the same formatting as the original 6 columns.
+    const templateRange = sheet.getRange('A14:J14');
     const templateBackgrounds = templateRange.getBackgrounds();
     const templateFontColors = templateRange.getFontColors();
     const templateFontFamilies = templateRange.getFontFamilies();
@@ -283,8 +298,9 @@ function exportExpensesToSheet(data) {
     const templateNumberFormats = templateRange.getNumberFormats();
 
     // Apply formatting to all data rows being inserted
+    // Row width 10 covers A–J (original 6 + Mode/From/To/KM).
     for (let i = 0; i < numExpenses; i++) {
-      const targetRow = sheet.getRange(nextRow + i, 1, 1, 6);
+      const targetRow = sheet.getRange(nextRow + i, 1, 1, 10);
       targetRow.setBackgrounds(templateBackgrounds);
       targetRow.setFontColors(templateFontColors);
       targetRow.setFontFamilies(templateFontFamilies);
@@ -304,6 +320,11 @@ function exportExpensesToSheet(data) {
     sheet.getRange(nextRow, 3, numExpenses, 1).setValues(vendors);
     sheet.getRange(nextRow, 5, numExpenses, 1).setValues(categories);
     sheet.getRange(nextRow, 6, numExpenses, 1).setValues(costs);
+    // G = Mode, H = From, I = To, J = Kilometers (new travel columns)
+    sheet.getRange(nextRow, 7,  numExpenses, 1).setValues(modes);
+    sheet.getRange(nextRow, 8,  numExpenses, 1).setValues(fromLocs);
+    sheet.getRange(nextRow, 9,  numExpenses, 1).setValues(toLocs);
+    sheet.getRange(nextRow, 10, numExpenses, 1).setValues(kms);
 
     // Merge vendor cells (columns C and D) for each row
     for (let i = 0; i < numExpenses; i++) {
@@ -327,7 +348,9 @@ function exportExpensesToSheet(data) {
       // Find and clear everything from dataEndRow + 1 onwards
       const currentLastRow = sheet.getLastRow();
       if (currentLastRow > dataEndRow) {
-        const clearRange = sheet.getRange(dataEndRow + 1, 1, currentLastRow - dataEndRow, 6);
+        // Clear 10 cols so leftover travel values from a previous export don't
+        // bleed into where the summary is about to land.
+        const clearRange = sheet.getRange(dataEndRow + 1, 1, currentLastRow - dataEndRow, 10);
         clearRange.clear();
       }
 
