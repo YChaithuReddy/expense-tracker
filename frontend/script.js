@@ -6658,11 +6658,28 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             return;
         }
 
+        // Multiple buttons on the page trigger this action:
+        //   - #resetGoogleSheet  (legacy hidden compat button, empty)
+        //   - #historyResetBtn   (visible orange button with #historyResetBtnText span)
+        //   - any future card-style button uses .exp-action-card__label / .btn-text
+        // Update label+disabled on every one that exists; skip ones without a label.
+        const setResetState = (text, disabled) => {
+            const targets = [
+                document.getElementById('resetGoogleSheet'),
+                document.getElementById('historyResetBtn'),
+            ].filter(Boolean);
+            for (const btn of targets) {
+                const label =
+                    btn.querySelector('#historyResetBtnText') ||
+                    btn.querySelector('.exp-action-card__label') ||
+                    btn.querySelector('.btn-text');
+                if (label) label.textContent = text;
+                btn.disabled = disabled;
+            }
+        };
+
         try {
-            const button = document.getElementById('resetGoogleSheet');
-            const originalText = button.querySelector('.exp-action-card__label, .btn-text').textContent;
-            button.querySelector('.exp-action-card__label, .btn-text').textContent = 'Resetting...';
-            button.disabled = true;
+            setResetState('Resetting...', true);
 
             console.log('Resetting Google Sheet...');
 
@@ -6679,9 +6696,7 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             console.error('Reset error:', error);
             this.showNotification('❌ Failed to reset sheet: ' + error.message);
         } finally {
-            const button = document.getElementById('resetGoogleSheet');
-            button.querySelector('.exp-action-card__label, .btn-text').textContent = 'Reset Sheet';
-            button.disabled = false;
+            setResetState('Reset Sheet', false);
         }
     }
 
