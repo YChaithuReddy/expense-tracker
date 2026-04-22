@@ -484,14 +484,24 @@ function verifySheetAccess(data) {
 }
 
 /**
- * Reset user's sheet by copying from master template
- * Clears all data and restores original structure:
- * - Data section (rows 14-66) with borders
- * - Summary section (rows 67-83) without borders
+ * Reset user's sheet by copying from master template.
  *
- * NOTE: This does NOT clear the Project_Expenses_Log tab or any
- * project-specific tabs (e.g., "Ace", "Biocon"). Those are permanent
- * and must be manually deleted if needed.
+ * New Fluxgen Expense Reimbursement Form layout is 11 columns wide (A–K):
+ *   SL NO | DATE | VENDOR (C+D merged) | Mode | From | To | Kilo Mtr | Bills | CATEGORY | COST
+ *
+ * This function now:
+ *   - Clears data rows A14:K{lastRow} (was A14:F — left stale travel data behind)
+ *   - Copies the header row A13:K13 from master (was never copied — that's why
+ *     resetting a sheet created before the layout change left the old 6-col
+ *     headers in place and no Mode/From/To/KM/Bills headers at all)
+ *   - Restores data area formatting + borders across all 11 cols
+ *   - Restores summary section across all 11 cols
+ *
+ * Does NOT touch rows 1-12 (title / employee info / business purpose) so
+ * user-entered values there survive a reset.
+ *
+ * Does NOT clear the Project_Expenses_Log tab or any project-specific tabs
+ * — those are permanent and must be manually deleted if needed.
  */
 function resetSheetFromMaster(data) {
   try {
@@ -521,108 +531,104 @@ function resetSheetFromMaster(data) {
 
     Logger.log('Clearing all data and restoring master template formatting...');
 
-    // Step 1: Clear everything from row 14 onwards
+    // ── Step 1: Clear data rows (A14 onwards, all 11 cols A–K) ──────────────
     const lastRow = userSheet.getLastRow();
     if (lastRow >= 14) {
-      const clearRange = userSheet.getRange('A14:F' + lastRow);
-      clearRange.clear();
+      userSheet.getRange('A14:K' + lastRow).clear();
     }
 
-    // Step 2: Restore DATA section formatting from master (A14:F66) with borders
+    // ── Step 2: Restore HEADER ROW (row 13, A–K) from master ────────────────
+    // Break any existing merges first so the new merge pattern can apply.
+    try { userSheet.getRange('A13:K13').breakApart(); } catch (_) { /* no-op if nothing merged */ }
+
+    const masterHeaderRange = masterSheet.getRange('A13:K13');
+    const userHeaderRange   = userSheet.getRange('A13:K13');
+    userHeaderRange.setValues(masterHeaderRange.getValues());
+    userHeaderRange.setBackgrounds(masterHeaderRange.getBackgrounds());
+    userHeaderRange.setFontColors(masterHeaderRange.getFontColors());
+    userHeaderRange.setFontFamilies(masterHeaderRange.getFontFamilies());
+    userHeaderRange.setFontSizes(masterHeaderRange.getFontSizes());
+    userHeaderRange.setFontWeights(masterHeaderRange.getFontWeights());
+    userHeaderRange.setHorizontalAlignments(masterHeaderRange.getHorizontalAlignments());
+    userHeaderRange.setVerticalAlignments(masterHeaderRange.getVerticalAlignments());
+    userHeaderRange.setNumberFormats(masterHeaderRange.getNumberFormats());
+    userHeaderRange.setBorder(true, true, true, true, true, true);
+
+    // Copy header row merges (C+D vendor, any others)
+    const masterHeaderMerges = masterHeaderRange.getMergedRanges();
+    for (let i = 0; i < masterHeaderMerges.length; i++) {
+      const merged = masterHeaderMerges[i];
+      const col     = merged.getColumn();
+      const numCols = merged.getNumColumns();
+      userSheet.getRange(13, col, 1, numCols).merge();
+    }
+
+    // ── Step 3: Restore DATA section formatting (A14:K66) with borders ──────
     Logger.log('Restoring data section (rows 14-66) with borders...');
 
-    const masterDataRange = masterSheet.getRange('A14:F66');
-    const masterBackgrounds = masterDataRange.getBackgrounds();
-    const masterFontColors = masterDataRange.getFontColors();
-    const masterFontFamilies = masterDataRange.getFontFamilies();
-    const masterFontSizes = masterDataRange.getFontSizes();
-    const masterFontWeights = masterDataRange.getFontWeights();
-    const masterHorizontalAlignments = masterDataRange.getHorizontalAlignments();
-    const masterVerticalAlignments = masterDataRange.getVerticalAlignments();
-    const masterNumberFormats = masterDataRange.getNumberFormats();
-
-    // Apply all formatting to user sheet data section (rows 14-66)
-    const userDataRange = userSheet.getRange('A14:F66');
-    userDataRange.setBackgrounds(masterBackgrounds);
-    userDataRange.setFontColors(masterFontColors);
-    userDataRange.setFontFamilies(masterFontFamilies);
-    userDataRange.setFontSizes(masterFontSizes);
-    userDataRange.setFontWeights(masterFontWeights);
-    userDataRange.setHorizontalAlignments(masterHorizontalAlignments);
-    userDataRange.setVerticalAlignments(masterVerticalAlignments);
-    userDataRange.setNumberFormats(masterNumberFormats);
-
-    // Apply borders to data section ONLY
+    const masterDataRange = masterSheet.getRange('A14:K66');
+    const userDataRange   = userSheet.getRange('A14:K66');
+    userDataRange.setBackgrounds(masterDataRange.getBackgrounds());
+    userDataRange.setFontColors(masterDataRange.getFontColors());
+    userDataRange.setFontFamilies(masterDataRange.getFontFamilies());
+    userDataRange.setFontSizes(masterDataRange.getFontSizes());
+    userDataRange.setFontWeights(masterDataRange.getFontWeights());
+    userDataRange.setHorizontalAlignments(masterDataRange.getHorizontalAlignments());
+    userDataRange.setVerticalAlignments(masterDataRange.getVerticalAlignments());
+    userDataRange.setNumberFormats(masterDataRange.getNumberFormats());
     userDataRange.setBorder(true, true, true, true, true, true);
 
-    // Merge vendor cells (C14:D66) to match template
+    // Merge vendor cells (C:D) for each data row so vendor spans 2 cols
     for (let row = 14; row <= 66; row++) {
-      const vendorCellRange = userSheet.getRange(row, 3, 1, 2);
-      vendorCellRange.merge();
+      userSheet.getRange(row, 3, 1, 2).merge();
     }
 
-    // Step 3: Restore SUMMARY section from master (A67:F83) WITHOUT borders
+    // ── Step 4: Restore SUMMARY section (A67:K83) without borders ───────────
     Logger.log('Restoring summary section (rows 67-83) without borders...');
 
-    const masterSummaryRange = masterSheet.getRange('A67:F83');
+    const masterSummaryRange = masterSheet.getRange('A67:K83');
+    const summaryValues      = masterSummaryRange.getValues();
+    const summaryFormulas    = masterSummaryRange.getFormulas();
 
-    // Get all properties from master summary section
-    const summaryValues = masterSummaryRange.getValues();
-    const summaryFormulas = masterSummaryRange.getFormulas();
-    const summaryBackgrounds = masterSummaryRange.getBackgrounds();
-    const summaryFontColors = masterSummaryRange.getFontColors();
-    const summaryFontFamilies = masterSummaryRange.getFontFamilies();
-    const summaryFontSizes = masterSummaryRange.getFontSizes();
-    const summaryFontWeights = masterSummaryRange.getFontWeights();
-    const summaryHorizontalAlignments = masterSummaryRange.getHorizontalAlignments();
-    const summaryVerticalAlignments = masterSummaryRange.getVerticalAlignments();
-    const summaryNumberFormats = masterSummaryRange.getNumberFormats();
+    const userSummaryRange = userSheet.getRange('A67:K83');
 
-    // Get target range in user sheet (rows 67-83)
-    const userSummaryRange = userSheet.getRange('A67:F83');
-
-    // Apply formulas and values
+    // Apply formulas + values
     for (let i = 0; i < summaryFormulas.length; i++) {
       for (let j = 0; j < summaryFormulas[i].length; j++) {
         if (summaryFormulas[i][j]) {
-          // Has formula - copy it as is (will be updated during export)
           userSummaryRange.getCell(i + 1, j + 1).setFormula(summaryFormulas[i][j]);
         } else if (summaryValues[i][j]) {
-          // No formula, just value
           userSummaryRange.getCell(i + 1, j + 1).setValue(summaryValues[i][j]);
         }
       }
     }
 
-    // Apply all formatting to summary section (NO BORDERS)
-    userSummaryRange.setBackgrounds(summaryBackgrounds);
-    userSummaryRange.setFontColors(summaryFontColors);
-    userSummaryRange.setFontFamilies(summaryFontFamilies);
-    userSummaryRange.setFontSizes(summaryFontSizes);
-    userSummaryRange.setFontWeights(summaryFontWeights);
-    userSummaryRange.setHorizontalAlignments(summaryHorizontalAlignments);
-    userSummaryRange.setVerticalAlignments(summaryVerticalAlignments);
-    userSummaryRange.setNumberFormats(summaryNumberFormats);
+    userSummaryRange.setBackgrounds(masterSummaryRange.getBackgrounds());
+    userSummaryRange.setFontColors(masterSummaryRange.getFontColors());
+    userSummaryRange.setFontFamilies(masterSummaryRange.getFontFamilies());
+    userSummaryRange.setFontSizes(masterSummaryRange.getFontSizes());
+    userSummaryRange.setFontWeights(masterSummaryRange.getFontWeights());
+    userSummaryRange.setHorizontalAlignments(masterSummaryRange.getHorizontalAlignments());
+    userSummaryRange.setVerticalAlignments(masterSummaryRange.getVerticalAlignments());
+    userSummaryRange.setNumberFormats(masterSummaryRange.getNumberFormats());
 
-    // Copy merged cells from master summary section
-    const masterMergedRanges = masterSummaryRange.getMergedRanges();
-    for (let i = 0; i < masterMergedRanges.length; i++) {
-      const mergedRange = masterMergedRanges[i];
-      const rowOffset = mergedRange.getRow() - 67; // Offset from row 67
-      const numRows = mergedRange.getNumRows();
-      const numCols = mergedRange.getNumColumns();
-      const col = mergedRange.getColumn();
-
-      // Apply same merge pattern in user sheet
-      const userMergeRange = userSheet.getRange(67 + rowOffset, col, numRows, numCols);
-      userMergeRange.merge();
+    // Copy summary merged cells
+    const masterSummaryMerges = masterSummaryRange.getMergedRanges();
+    for (let i = 0; i < masterSummaryMerges.length; i++) {
+      const merged = masterSummaryMerges[i];
+      const rowOffset = merged.getRow() - 67;
+      const numRows   = merged.getNumRows();
+      const numCols   = merged.getNumColumns();
+      const col       = merged.getColumn();
+      userSheet.getRange(67 + rowOffset, col, numRows, numCols).merge();
     }
 
-    // DO NOT apply borders to summary section - leave it border-free
+    // No borders on the summary — leave it border-free (matches master)
 
     Logger.log('Sheet reset completed:');
-    Logger.log('- Data section (rows 14-66): Formatted with borders');
-    Logger.log('- Summary section (rows 67-83): Formatted without borders');
+    Logger.log('- Header row 13 (A–K): Copied from master');
+    Logger.log('- Data section (rows 14-66, A–K): Formatted with borders');
+    Logger.log('- Summary section (rows 67-83, A–K): Formatted without borders');
     Logger.log('- Project_Expenses_Log and project tabs: NOT cleared (permanent)');
 
     return createResponse(true, 'Sheet reset successfully - all data cleared, template restored', {
