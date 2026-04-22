@@ -19,7 +19,7 @@ class GoogleSheetsService {
   GoogleSheetsService._();
 
   static const String _appsScriptUrl =
-      'https://script.google.com/macros/s/AKfycbxKYFf8qGNKSBOcFlQ4yw2J_WBQ3SoLGFKJR_QNNJzND0NY4QD36-6ZsMtt0e-pMl0Pmw/exec';
+      'https://script.google.com/macros/s/AKfycbwwqK0sMKm6L4dYo7QQTXVyOHzhGLZEZLaMGVpbO3hjgJX9DDPexc-SFdEYn2JOg4UCfg/exec';
 
   /// Opens the user's Google Sheet in a browser.
   ///
