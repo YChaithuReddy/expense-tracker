@@ -126,77 +126,191 @@ class WeeklyGrid extends StatelessWidget {
     );
   }
 
+  // ─── Matrix view (admin / team) — mirrors the website's weekly table ─────
+  static const double _empColWidth  = 140;
+  static const double _dayColWidth  = 120;
+  static const double _rowHeight    = 68;
+  static const double _headerHeight = 56;
+
   Widget _buildMatrix(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: DataTable(
-        columnSpacing: 12,
-        headingRowHeight: 40,
-        dataRowMinHeight: 44,
-        dataRowMaxHeight: 44,
-        columns: [
-          const DataColumn(label: Text('Employee')),
-          for (final date in dates)
-            DataColumn(
-              label: Text(
-                DateFormat('E\nd').format(DateTime.parse(date)),
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
-              ),
-            ),
-        ],
-        rows: [
-          for (final emp in employees)
-            DataRow(cells: [
-              DataCell(
-                Text(
-                  emp.name,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(14),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _matrixHeader(),
+            for (int i = 0; i < employees.length; i++)
+              _matrixRow(context, employees[i], isAlt: i.isOdd),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _matrixHeader() {
+    return Container(
+      height: _headerHeight,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [AppColors.primary, Color(0xFF00456B)],
+        ),
+      ),
+      child: Row(
+        children: [
+          const SizedBox(
+            width: _empColWidth,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 14),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Employee',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.2,
+                  ),
                 ),
               ),
-              for (final date in dates) _matrixCell(context, emp.id, date),
-            ]),
+            ),
+          ),
+          for (final date in dates) _headerDateCell(date),
         ],
       ),
     );
   }
 
-  DataCell _matrixCell(BuildContext context, String empId, String date) {
-    final entry = _find(empId, date);
-    final status = entry?.status ?? AttendanceStatus.unknown;
-    final color = AppColors.forAttendanceStatus(status);
-    return DataCell(
-      GestureDetector(
-        onTap: onCellTap == null ? null : () => onCellTap!(empId, date, entry),
-        child: Container(
-          width: 36,
-          height: 28,
-          decoration: BoxDecoration(
-            color: entry == null
-                ? Colors.grey.withValues(alpha: 0.12)
-                : color.withValues(alpha: 0.2),
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(
-              color: entry == null ? Colors.transparent : color,
-              width: 1,
+  Widget _headerDateCell(String date) {
+    final parsed = DateTime.tryParse(date);
+    final dow = parsed == null ? '' : DateFormat('E').format(parsed);
+    final full = parsed == null ? date : DateFormat('d/M/yyyy').format(parsed);
+    return SizedBox(
+      width: _dayColWidth,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              dow,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.3,
+              ),
             ),
-          ),
-          alignment: Alignment.center,
-          child: entry == null
-              ? Text('–',
-                  style: TextStyle(color: AppColors.onSurfaceVariant, fontSize: 12))
-              : Text(
-                  status.label.substring(
-                      0, status.label.length > 3 ? 3 : status.label.length),
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                    color: color,
-                  ),
-                ),
+            const SizedBox(height: 2),
+            Text(
+              full,
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.90),
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  Widget _matrixRow(BuildContext context, FluxgenEmployee emp, {required bool isAlt}) {
+    return Container(
+      height: _rowHeight,
+      decoration: BoxDecoration(
+        color: isAlt ? const Color(0xFFFAFBFD) : Colors.white,
+        border: const Border(
+          top: BorderSide(color: Color(0xFFEEF1F5), width: 1),
+        ),
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: _empColWidth,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  emp.name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF1A1A2E),
+                    height: 1.2,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          for (final date in dates) _matrixCell(context, emp.id, date),
+        ],
+      ),
+    );
+  }
+
+  Widget _matrixCell(BuildContext context, String empId, String date) {
+    final entry = _find(empId, date);
+    final status = entry?.status ?? AttendanceStatus.unknown;
+    final color = AppColors.forAttendanceStatus(status);
+    final isToday = date == todayStr;
+
+    String? text;
+    if (entry != null) {
+      if (entry.siteName.isNotEmpty) {
+        text = entry.siteName;
+      } else {
+        text = status.label;
+      }
+    }
+
+    return SizedBox(
+      width: _dayColWidth,
+      height: _rowHeight,
+      child: Padding(
+        padding: const EdgeInsets.all(6),
+        child: GestureDetector(
+          onTap: onCellTap == null ? null : () => onCellTap!(empId, date, entry),
+          child: Container(
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+            decoration: BoxDecoration(
+              color: entry == null
+                  ? const Color(0xFFF3F5F8)
+                  : color.withValues(alpha: 0.16),
+              borderRadius: BorderRadius.circular(10),
+              border: isToday
+                  ? Border.all(color: color, width: 1.4)
+                  : null,
+            ),
+            child: Text(
+              text ?? '—',
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w700,
+                color: entry == null
+                    ? AppColors.onSurfaceVariant
+                    : _darker(color),
+                height: 1.2,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Color _darker(Color c) {
+    final hsl = HSLColor.fromColor(c);
+    return hsl.withLightness((hsl.lightness - 0.18).clamp(0.0, 1.0)).toColor();
   }
 }
