@@ -242,20 +242,32 @@ function exportExpensesToSheet(data) {
 
     Logger.log('Starting export at row: ' + nextRow);
 
-    // Prepare data arrays for batch update
+    // Prepare data arrays for batch update.
+    //
+    // Fluxgen Expense Reimbursement Form layout (row 13 headers):
+    //   A  SL NO
+    //   B  DATE
+    //   C+D (merged)  VENDOR NAME
+    //   E  Mode of Expense
+    //   F  From Location
+    //   G  To Location
+    //   H  Kilo Mtr
+    //   I  Bills        (Yes/No from billAttached)
+    //   J  CATEGORY
+    //   K  COST
     const serialNumbers = [];
     const dates = [];
     const vendors = [];
-    const categories = [];
-    const costs = [];
-    // Travel columns (G–J) — filled per expense, empty string for non-travel.
     const modes = [];
     const fromLocs = [];
     const toLocs = [];
     const kms = [];
+    const bills = [];
+    const categories = [];
+    const costs = [];
 
     expenses.forEach((expense, index) => {
-      // Column A: S.NO (1, 2, 3, ...)
+      // Column A: SL NO (1, 2, 3, ...)
       serialNumbers.push([nextRow + index - 13]);
 
       // Column B: DATE (format: dd-MMM-yyyy)
@@ -263,31 +275,38 @@ function exportExpensesToSheet(data) {
       const formattedDate = Utilities.formatDate(date, Session.getScriptTimeZone(), 'dd-MMM-yyyy');
       dates.push([formattedDate]);
 
-      // Column C: VENDOR NAME (will be merged with D)
+      // Columns C+D (merged): VENDOR NAME
       vendors.push([expense.vendor || 'Unknown Vendor']);
 
-      // Column E: CATEGORY
-      categories.push([expense.category || 'Miscellaneous']);
-
-      // Column F: COST
-      costs.push([parseFloat(expense.amount) || 0]);
-
-      // Columns G–J: travel fields (only populated for Travel category in frontend,
-      // but we accept whatever the payload sent and fall back to '' / 0).
+      // Columns E/F/G/H: travel fields (empty for non-travel expenses).
       modes.push([expense.modeOfExpense || '']);
       fromLocs.push([expense.fromLocation || '']);
       toLocs.push([expense.toLocation || '']);
       const kmVal = parseFloat(expense.kilometers);
-      kms.push([isNaN(kmVal) ? '' : kmVal]);
+      kms.push([isNaN(kmVal) || kmVal === 0 ? '' : kmVal]);
+
+      // Column I: Bills (Yes/No) — billAttached arrives already normalised
+      // to 'Yes'/'No' by the frontend, but handle raw truthy/falsy too.
+      const billRaw = expense.billAttached;
+      let billCell = '';
+      if (billRaw === 'Yes' || billRaw === 'yes' || billRaw === true) billCell = 'Yes';
+      else if (billRaw === 'No' || billRaw === 'no' || billRaw === false) billCell = 'No';
+      else if (billRaw) billCell = String(billRaw);
+      bills.push([billCell]);
+
+      // Column J: CATEGORY
+      categories.push([expense.category || 'Miscellaneous']);
+
+      // Column K: COST
+      costs.push([parseFloat(expense.amount) || 0]);
     });
 
     // Batch update all columns
     const numExpenses = expenses.length;
 
-    // Get reference formatting from row 14 (template row).
-    // Range extended from A14:F14 to A14:J14 so the new Mode/From/To/KM columns
-    // pick up the same formatting as the original 6 columns.
-    const templateRange = sheet.getRange('A14:J14');
+    // Template row A14:K14 — new layout is 11 columns (A–K) with vendor merged
+    // across C+D (still counts as 2 cells for width purposes).
+    const templateRange = sheet.getRange('A14:K14');
     const templateBackgrounds = templateRange.getBackgrounds();
     const templateFontColors = templateRange.getFontColors();
     const templateFontFamilies = templateRange.getFontFamilies();
@@ -297,10 +316,9 @@ function exportExpensesToSheet(data) {
     const templateVerticalAlignments = templateRange.getVerticalAlignments();
     const templateNumberFormats = templateRange.getNumberFormats();
 
-    // Apply formatting to all data rows being inserted
-    // Row width 10 covers A–J (original 6 + Mode/From/To/KM).
+    // Apply formatting to all data rows being inserted (A–K = 11 cols).
     for (let i = 0; i < numExpenses; i++) {
-      const targetRow = sheet.getRange(nextRow + i, 1, 1, 10);
+      const targetRow = sheet.getRange(nextRow + i, 1, 1, 11);
       targetRow.setBackgrounds(templateBackgrounds);
       targetRow.setFontColors(templateFontColors);
       targetRow.setFontFamilies(templateFontFamilies);
@@ -314,17 +332,17 @@ function exportExpensesToSheet(data) {
       targetRow.setBorder(true, true, true, true, true, true);
     }
 
-    // Set data values
-    sheet.getRange(nextRow, 1, numExpenses, 1).setValues(serialNumbers);
-    sheet.getRange(nextRow, 2, numExpenses, 1).setValues(dates);
-    sheet.getRange(nextRow, 3, numExpenses, 1).setValues(vendors);
-    sheet.getRange(nextRow, 5, numExpenses, 1).setValues(categories);
-    sheet.getRange(nextRow, 6, numExpenses, 1).setValues(costs);
-    // G = Mode, H = From, I = To, J = Kilometers (new travel columns)
-    sheet.getRange(nextRow, 7,  numExpenses, 1).setValues(modes);
-    sheet.getRange(nextRow, 8,  numExpenses, 1).setValues(fromLocs);
-    sheet.getRange(nextRow, 9,  numExpenses, 1).setValues(toLocs);
-    sheet.getRange(nextRow, 10, numExpenses, 1).setValues(kms);
+    // Set data values — columns per layout above.
+    sheet.getRange(nextRow, 1,  numExpenses, 1).setValues(serialNumbers);  // A  SL NO
+    sheet.getRange(nextRow, 2,  numExpenses, 1).setValues(dates);          // B  DATE
+    sheet.getRange(nextRow, 3,  numExpenses, 1).setValues(vendors);        // C  VENDOR (merged with D)
+    sheet.getRange(nextRow, 5,  numExpenses, 1).setValues(modes);          // E  Mode of Expense
+    sheet.getRange(nextRow, 6,  numExpenses, 1).setValues(fromLocs);       // F  From Location
+    sheet.getRange(nextRow, 7,  numExpenses, 1).setValues(toLocs);         // G  To Location
+    sheet.getRange(nextRow, 8,  numExpenses, 1).setValues(kms);            // H  Kilo Mtr
+    sheet.getRange(nextRow, 9,  numExpenses, 1).setValues(bills);          // I  Bills
+    sheet.getRange(nextRow, 10, numExpenses, 1).setValues(categories);     // J  CATEGORY
+    sheet.getRange(nextRow, 11, numExpenses, 1).setValues(costs);          // K  COST
 
     // Merge vendor cells (columns C and D) for each row
     for (let i = 0; i < numExpenses; i++) {
@@ -348,14 +366,14 @@ function exportExpensesToSheet(data) {
       // Find and clear everything from dataEndRow + 1 onwards
       const currentLastRow = sheet.getLastRow();
       if (currentLastRow > dataEndRow) {
-        // Clear 10 cols so leftover travel values from a previous export don't
-        // bleed into where the summary is about to land.
-        const clearRange = sheet.getRange(dataEndRow + 1, 1, currentLastRow - dataEndRow, 10);
+        // Clear all 11 cols (A–K) so leftover data from a previous export
+        // doesn't bleed into where the summary is about to land.
+        const clearRange = sheet.getRange(dataEndRow + 1, 1, currentLastRow - dataEndRow, 11);
         clearRange.clear();
       }
 
-      // Get the summary section from master (rows 67-83 = 17 rows)
-      const masterSummaryRange = masterSheet.getRange('A67:F83');
+      // Get the summary section from master (rows 67-83 = 17 rows, A–K = 11 cols)
+      const masterSummaryRange = masterSheet.getRange('A67:K83');
 
       // Get all properties from master summary section
       const summaryValues = masterSummaryRange.getValues();
@@ -369,8 +387,8 @@ function exportExpensesToSheet(data) {
       const summaryVerticalAlignments = masterSummaryRange.getVerticalAlignments();
       const summaryNumberFormats = masterSummaryRange.getNumberFormats();
 
-      // Get target range in user sheet
-      const userSummaryRange = sheet.getRange(summaryStartRow, 1, SUMMARY_ROW_COUNT, 6);
+      // Get target range in user sheet (11 cols A–K)
+      const userSummaryRange = sheet.getRange(summaryStartRow, 1, SUMMARY_ROW_COUNT, 11);
 
       // Apply formulas/values (formulas take priority)
       for (let i = 0; i < summaryFormulas.length; i++) {
@@ -379,8 +397,12 @@ function exportExpensesToSheet(data) {
             // Has formula - update row references for SUBTOTAL
             let formula = summaryFormulas[i][j];
 
-            // Update SUBTOTAL formula to reference actual data range (14 to dataEndRow)
-            if (formula.includes('=SUM(F14:F66)')) {
+            // Update SUBTOTAL formula to reference actual data range (14 to dataEndRow).
+            // Cost column moved from F to K in the new 11-col layout; keep the old
+            // F→F replacement for backwards compat with any stale masters.
+            if (formula.includes('=SUM(K14:K66)')) {
+              formula = '=SUM(K14:K' + dataEndRow + ')';
+            } else if (formula.includes('=SUM(F14:F66)')) {
               formula = '=SUM(F14:F' + dataEndRow + ')';
             }
 
