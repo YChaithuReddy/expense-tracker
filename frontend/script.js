@@ -6814,7 +6814,15 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         // Toggle travel fields visibility (Mode/From/To/KM)
         const travelFields = document.getElementById('travelFieldsGroup');
         if (travelFields) {
-            travelFields.style.display = (mainCategory === 'Travel' || mainCategory === 'Transportation') ? 'block' : 'none';
+            // Travel-related categories that capture Mode/From/To/KM
+            const travelCats = new Set([
+                'Travel',
+                'Transportation',
+                'Local Conveyance',
+                'Mileage',
+                'Fuel',
+            ]);
+            travelFields.style.display = travelCats.has(mainCategory) ? 'block' : 'none';
         }
 
         // Hide both subcategory dropdown and custom input by default

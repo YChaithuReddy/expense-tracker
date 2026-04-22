@@ -70,8 +70,10 @@
     height: 52px;
     border: none;
     border-radius: 999px;
-    background: #0369a1;
-    color: #fff;
+    /* !important guards against legacy button {} resets and late-loading stylesheets
+       leaving the Confirm/Submit button invisible (white-on-white) on first paint. */
+    background: #0369a1 !important;
+    color: #fff !important;
     font-family: inherit;
     font-size: 0.9rem;
     font-weight: 600;
@@ -81,6 +83,11 @@
     text-decoration: none;
     transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
                 box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+/* Outline variant must still win — re-assert after the !important above. */
+.btn-flux.btn-flux--outline {
+    background: #fff !important;
+    color: #1e293b !important;
 }
 
 /* === 1. BACKGROUND SWEEP === */
