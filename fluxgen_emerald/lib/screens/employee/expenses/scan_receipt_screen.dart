@@ -11,6 +11,7 @@ import '../../../core/constants/categories.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../services/ocr_service.dart';
 import '../../../services/activity_log_service.dart';
+import '../../../services/distance_service.dart';
 
 /// Receipt scanner screen that captures or selects an image, runs OCR,
 /// and lets the user review/edit the extracted fields before saving.
@@ -41,11 +42,18 @@ class _ScanReceiptScreenState extends State<ScanReceiptScreen> {
   final _descriptionController = TextEditingController();
   final _customCategoryController = TextEditingController();
 
+  // Travel-only (shown when category is "Travel")
+  final _modeOfExpenseController = TextEditingController();
+  final _fromLocationController = TextEditingController();
+  final _toLocationController = TextEditingController();
+  final _kilometersController = TextEditingController();
+
   // ── State ────────────────────────────────────────────────────────────
   File? _selectedImage;
   bool _isScanning = false;
   bool _isSaving = false;
   bool _scanComplete = false;
+  bool _calculatingDistance = false;
   String _rawText = '';
 
   String? _selectedCategory;
@@ -119,7 +127,38 @@ class _ScanReceiptScreenState extends State<ScanReceiptScreen> {
     _vendorController.dispose();
     _descriptionController.dispose();
     _customCategoryController.dispose();
+    _modeOfExpenseController.dispose();
+    _fromLocationController.dispose();
+    _toLocationController.dispose();
+    _kilometersController.dispose();
     super.dispose();
+  }
+
+  Future<void> _calculateDistance() async {
+    final from = _fromLocationController.text.trim();
+    final to = _toLocationController.text.trim();
+    if (from.isEmpty || to.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Enter both From and To locations first')),
+      );
+      return;
+    }
+    setState(() => _calculatingDistance = true);
+    try {
+      final km = await DistanceService.calculateDistance(from, to);
+      if (!mounted) return;
+      if (km != null) {
+        setState(() => _kilometersController.text = km.toString());
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Could not calculate distance. Please enter manually.'),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _calculatingDistance = false);
+    }
   }
 
   // ── Image picking ──────────────────────────────────────────────────
@@ -194,6 +233,23 @@ class _ScanReceiptScreenState extends State<ScanReceiptScreen> {
             setState(() => _selectedSubcategory = subcategory);
           }
         }
+      }
+
+      // Travel fields — only meaningful when the scan looks like a ride receipt.
+      final mode = result['modeOfExpense'] ?? '';
+      final fromLoc = result['fromLocation'] ?? '';
+      final toLoc = result['toLocation'] ?? '';
+      if (mode.isNotEmpty) _modeOfExpenseController.text = mode;
+      if (fromLoc.isNotEmpty) _fromLocationController.text = fromLoc;
+      if (toLoc.isNotEmpty) _toLocationController.text = toLoc;
+
+      // Auto-calc distance when we have Travel + both locations.
+      if (AppConstants.isTravelCategory(_selectedCategory) &&
+          fromLoc.isNotEmpty &&
+          toLoc.isNotEmpty &&
+          _kilometersController.text.isEmpty) {
+        // Non-blocking: run after OCR state commits so the spinner shows.
+        Future.microtask(_calculateDistance);
       }
     } catch (e) {
       if (!mounted) return;
@@ -324,6 +380,14 @@ class _ScanReceiptScreenState extends State<ScanReceiptScreen> {
         'visit_type': visitType,
         'payment_mode': paymentMode,
         'bill_attached': _selectedImage != null ? 'yes' : 'no',
+        if (_modeOfExpenseController.text.trim().isNotEmpty)
+          'mode_of_expense': _modeOfExpenseController.text.trim(),
+        if (_fromLocationController.text.trim().isNotEmpty)
+          'from_location': _fromLocationController.text.trim(),
+        if (_toLocationController.text.trim().isNotEmpty)
+          'to_location': _toLocationController.text.trim(),
+        if (_kilometersController.text.trim().isNotEmpty)
+          'kilometers': double.tryParse(_kilometersController.text.trim()),
       };
 
       final inserted = await _supabase.from('expenses').insert(data).select().single();
@@ -930,6 +994,83 @@ class _ScanReceiptScreenState extends State<ScanReceiptScreen> {
             ],
           ),
           const SizedBox(height: 12),
+
+          // ── Travel fields (only when category = Travel) ─────
+          if (AppConstants.isTravelCategory(_selectedCategory)) ...[
+            _SectionCard(
+              children: [
+                const _FieldLabel(
+                    icon: Icons.directions_car, label: 'Mode of Transport'),
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: _modeOfExpenseController,
+                  textCapitalization: TextCapitalization.words,
+                  decoration: const InputDecoration(
+                    hintText: 'e.g. Rapido, Personal Car, Auto',
+                  ),
+                ),
+                const SizedBox(height: 14),
+                const _FieldLabel(
+                    icon: Icons.my_location, label: 'From Location'),
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: _fromLocationController,
+                  textCapitalization: TextCapitalization.words,
+                  decoration: const InputDecoration(
+                    hintText: 'e.g. Office, Home',
+                  ),
+                ),
+                const SizedBox(height: 14),
+                const _FieldLabel(
+                    icon: Icons.location_on, label: 'To Location'),
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: _toLocationController,
+                  textCapitalization: TextCapitalization.words,
+                  decoration: const InputDecoration(
+                    hintText: 'e.g. Client site, Event venue',
+                  ),
+                ),
+                const SizedBox(height: 14),
+                const _FieldLabel(icon: Icons.straighten, label: 'Kilometers'),
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: _kilometersController,
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  decoration: const InputDecoration(
+                    hintText: 'Distance in KM',
+                    suffixText: 'km',
+                  ),
+                ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed:
+                        _calculatingDistance ? null : _calculateDistance,
+                    icon: _calculatingDistance
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child:
+                                CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.map_outlined, size: 18),
+                    label: Text(_calculatingDistance
+                        ? 'Calculating...'
+                        : 'Auto-calculate from Map'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.primary,
+                      side: BorderSide(color: AppColors.primary),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+          ],
 
           // ── Description ─────────────────────────────────────
           _SectionCard(

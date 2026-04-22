@@ -68,7 +68,7 @@ class _StatusSubmitFormState extends State<StatusSubmitForm> {
       context: context,
       initialDate: _selectedDate,
       firstDate: now.subtract(const Duration(days: 30)),
-      lastDate: now,
+      lastDate: now.add(const Duration(days: 30)),
       builder: (ctx, child) => Theme(
         data: Theme.of(ctx).copyWith(
           colorScheme: Theme.of(ctx).colorScheme.copyWith(
@@ -139,7 +139,19 @@ class _StatusSubmitFormState extends State<StatusSubmitForm> {
     ];
 
     final dateLabel = DateFormat('EEE, d MMM yyyy').format(_selectedDate);
-    final isToday = DateUtils.isSameDay(_selectedDate, DateTime.now());
+    final today = DateUtils.dateOnly(DateTime.now());
+    final target = DateUtils.dateOnly(_selectedDate);
+    final dayDelta = target.difference(today).inDays;
+    final String dateSuffix;
+    if (dayDelta == 0) {
+      dateSuffix = ' · Today';
+    } else if (dayDelta == 1) {
+      dateSuffix = ' · Tomorrow';
+    } else if (dayDelta > 1) {
+      dateSuffix = ' · In $dayDelta days';
+    } else {
+      dateSuffix = '';
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -161,7 +173,7 @@ class _StatusSubmitFormState extends State<StatusSubmitForm> {
           ),
         ]),
         const SizedBox(height: 10),
-        // Date picker row — lets the user submit for any day in the last 30 days.
+        // Date picker row — 30 days back (history) to 30 days forward (planning).
         Material(
           color: Colors.transparent,
           child: InkWell(
@@ -197,7 +209,7 @@ class _StatusSubmitFormState extends State<StatusSubmitForm> {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          '$dateLabel${isToday ? " · Today" : ""}',
+                          '$dateLabel$dateSuffix',
                           style: const TextStyle(
                             fontSize: 14,
                             color: Color(0xFF1A1A2E),
