@@ -1,3 +1,4 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -350,40 +351,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   ),
                   const SizedBox(height: 8),
 
-                  // Total spend summary
-                  if (!_loading && _error == null)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            AppColors.primary.withValues(alpha: 0.08),
-                            AppColors.primary.withValues(alpha: 0.03),
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text('Total Org Spend',
-                              style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFF6B7280))),
-                          Text(
-                            _fmtAmt(_totalSpend),
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.primary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  const SizedBox(height: 16),
+                  // Hero KPI strip — loads after data resolves
+                  if (!_loading && _error == null) ...[
+                    _heroKpiStrip(),
+                    const SizedBox(height: 16),
+                  ],
 
                   if (_loading)
                     const Center(
@@ -396,49 +368,58 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   else if (_error != null)
                     _buildError()
                   else ...[
-                    // 2-column grid
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: _analyticsCard(
-                            'Spend by Department',
-                            Icons.business,
-                            _departments,
-                            showPercent: true,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _analyticsCard(
-                            'Spend by Project',
-                            Icons.folder_outlined,
-                            _projects,
-                          ),
-                        ),
-                      ],
+                    // Department pie
+                    _chartCard(
+                      title: 'Spend by Department',
+                      icon: Icons.business_rounded,
+                      child: _departments.isEmpty
+                          ? _emptyChart()
+                          : SizedBox(
+                              height: 220,
+                              child: _departmentPie(),
+                            ),
                     ),
                     const SizedBox(height: 12),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: _analyticsCard(
-                            'Spend by Employee',
-                            Icons.people_outline,
-                            _employees,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _analyticsCard(
-                            'Monthly Trend',
-                            Icons.trending_up,
-                            _months,
-                            showBar: true,
-                          ),
-                        ),
-                      ],
+                    // Monthly trend line
+                    _chartCard(
+                      title: 'Monthly Trend',
+                      icon: Icons.trending_up_rounded,
+                      child: _months.isEmpty
+                          ? _emptyChart()
+                          : SizedBox(
+                              height: 180,
+                              child: _monthlyLine(),
+                            ),
+                    ),
+                    const SizedBox(height: 12),
+                    // Top projects
+                    _chartCard(
+                      title: 'Top Projects',
+                      icon: Icons.folder_rounded,
+                      child: _projects.isEmpty
+                          ? _emptyChart()
+                          : _topList(_projects, palette: const [
+                              Color(0xFF0EA5E9),
+                              Color(0xFF22D3EE),
+                              Color(0xFF06B6D4),
+                              Color(0xFF0891B2),
+                              Color(0xFF155E75),
+                            ]),
+                    ),
+                    const SizedBox(height: 12),
+                    // Top employees
+                    _chartCard(
+                      title: 'Top Employees',
+                      icon: Icons.emoji_events_rounded,
+                      child: _employees.isEmpty
+                          ? _emptyChart()
+                          : _topList(_employees, palette: const [
+                              Color(0xFFEA580C),
+                              Color(0xFFF59E0B),
+                              Color(0xFFFBBF24),
+                              Color(0xFFFDE68A),
+                              Color(0xFFFEF3C7),
+                            ]),
                     ),
                   ],
                   const SizedBox(height: 24),
@@ -451,130 +432,441 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     );
   }
 
-  Widget _analyticsCard(
-    String title,
-    IconData icon,
-    Map<String, _AnalyticsEntry> data, {
-    bool showPercent = false,
-    bool showBar = false,
-  }) {
-    final maxAmt =
-        data.values.fold<double>(0, (m, d) => d.amount > m ? d.amount : m);
+  // ── New premium layout helpers ──────────────────────────────────────
 
+  /// 4-tile hero KPI strip that sits above the chart cards.
+  Widget _heroKpiStrip() {
+    final totalTxns =
+        _employees.values.fold<int>(0, (s, e) => s + e.count);
+    final topDept = _departments.entries.isEmpty
+        ? '—'
+        : (_departments.entries.toList()
+              ..sort((a, b) => b.value.amount.compareTo(a.value.amount)))
+            .first
+            .key;
+    final avgPerEmp = _employees.isEmpty
+        ? 0.0
+        : _totalSpend / _employees.length;
+
+    return Row(
+      children: [
+        Expanded(
+          child: _kpiCard(
+            label: 'TOTAL SPEND',
+            value: _fmtAmt(_totalSpend),
+            icon: Icons.account_balance_wallet_rounded,
+            gradient: const [AppColors.primary, Color(0xFF00456B)],
+            textLight: true,
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _kpiCard(
+            label: 'TRANSACTIONS',
+            value: NumberFormat.decimalPattern('en_IN').format(totalTxns),
+            icon: Icons.receipt_long_rounded,
+            gradient: const [Color(0xFFF8FAFC), Color(0xFFEFF6FF)],
+            textLight: false,
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _kpiCard(
+            label: 'TOP DEPT',
+            value: topDept,
+            icon: Icons.business_rounded,
+            gradient: const [Color(0xFFF8FAFC), Color(0xFFFFF7ED)],
+            textLight: false,
+            valueFontSize: 12,
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _kpiCard(
+            label: 'AVG / EMP',
+            value: _fmtAmt(avgPerEmp),
+            icon: Icons.person_rounded,
+            gradient: const [Color(0xFFF8FAFC), Color(0xFFECFDF5)],
+            textLight: false,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _kpiCard({
+    required String label,
+    required String value,
+    required IconData icon,
+    required List<Color> gradient,
+    required bool textLight,
+    double valueFontSize = 15,
+  }) {
+    final labelColor =
+        textLight ? Colors.white.withValues(alpha: 0.72) : const Color(0xFF6B7280);
+    final valueColor = textLight ? Colors.white : const Color(0xFF191C1E);
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: gradient,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: textLight ? 0.14 : 0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon,
+              size: 16,
+              color:
+                  textLight ? Colors.white.withValues(alpha: 0.9) : AppColors.primary),
+          const SizedBox(height: 8),
+          Text(label,
+              style: TextStyle(
+                fontSize: 9,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.6,
+                color: labelColor,
+              )),
+          const SizedBox(height: 4),
+          Text(value,
+              style: TextStyle(
+                fontSize: valueFontSize,
+                fontWeight: FontWeight.w700,
+                color: valueColor,
+                letterSpacing: -0.3,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis),
+        ],
+      ),
+    );
+  }
+
+  Widget _chartCard({
+    required String title,
+    required IconData icon,
+    required Widget child,
+  }) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      clipBehavior: Clip.antiAlias,
+      padding: const EdgeInsets.all(14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
+          Row(children: [
+            Container(
+              width: 30,
+              height: 30,
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(9),
+              ),
+              child: Icon(icon, size: 16, color: AppColors.primary),
+            ),
+            const SizedBox(width: 10),
+            Text(title,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF191C1E),
+                )),
+          ]),
+          const SizedBox(height: 14),
+          child,
+        ],
+      ),
+    );
+  }
+
+  Widget _emptyChart() => const Padding(
+        padding: EdgeInsets.symmetric(vertical: 30),
+        child: Center(
+          child: Text('No data',
+              style: TextStyle(fontSize: 12, color: Color(0xFF9CA3AF))),
+        ),
+      );
+
+  Widget _departmentPie() {
+    final entries = _departments.entries.toList()
+      ..sort((a, b) => b.value.amount.compareTo(a.value.amount));
+    final top = entries.take(5).toList();
+    final palette = const [
+      Color(0xFF006699),
+      Color(0xFF0EA5E9),
+      Color(0xFF22C55E),
+      Color(0xFFF59E0B),
+      Color(0xFF8B5CF6),
+    ];
+    return Row(
+      children: [
+        SizedBox(
+          width: 150,
+          height: 150,
+          child: PieChart(
+            PieChartData(
+              sectionsSpace: 2,
+              centerSpaceRadius: 34,
+              sections: [
+                for (var i = 0; i < top.length; i++)
+                  PieChartSectionData(
+                    value: top[i].value.amount,
+                    color: palette[i % palette.length],
+                    title: '',
+                    radius: 36,
+                  ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (var i = 0; i < top.length; i++)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 3),
+                  child: Row(children: [
+                    Container(
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(
+                        color: palette[i % palette.length],
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        top[i].key,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF374151),
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Text(
+                      _totalSpend > 0
+                          ? '${(top[i].value.amount / _totalSpend * 100).toStringAsFixed(0)}%'
+                          : '—',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF191C1E),
+                      ),
+                    ),
+                  ]),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _monthlyLine() {
+    // Sort months chronologically (keys are like "Jan 2026" / "Feb 2026").
+    final entries = _months.entries.toList();
+    entries.sort((a, b) {
+      try {
+        return DateFormat('MMM yyyy')
+            .parse(a.key)
+            .compareTo(DateFormat('MMM yyyy').parse(b.key));
+      } catch (_) {
+        return a.key.compareTo(b.key);
+      }
+    });
+
+    final spots = [
+      for (var i = 0; i < entries.length; i++)
+        FlSpot(i.toDouble(), entries[i].value.amount),
+    ];
+    final maxY = entries.fold<double>(
+        0, (m, e) => e.value.amount > m ? e.value.amount : m);
+
+    return LineChart(
+      LineChartData(
+        minY: 0,
+        maxY: maxY * 1.15,
+        gridData: FlGridData(
+          drawVerticalLine: false,
+          horizontalInterval: maxY > 0 ? maxY / 3 : 1,
+          getDrawingHorizontalLine: (_) => const FlLine(
+              color: Color(0xFFF3F4F6), strokeWidth: 1),
+        ),
+        borderData: FlBorderData(show: false),
+        titlesData: FlTitlesData(
+          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 44,
+              interval: maxY > 0 ? maxY / 3 : 1,
+              getTitlesWidget: (v, _) => Text(
+                _fmtAmt(v),
+                style: const TextStyle(
+                    fontSize: 9, color: Color(0xFF9CA3AF)),
+              ),
+            ),
+          ),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 22,
+              interval: 1,
+              getTitlesWidget: (v, meta) {
+                final i = v.toInt();
+                if (i < 0 || i >= entries.length) {
+                  return const SizedBox.shrink();
+                }
+                // Show first, last, and every other label to avoid overlap.
+                final show = i == 0 ||
+                    i == entries.length - 1 ||
+                    entries.length <= 6 ||
+                    i % 2 == 0;
+                if (!show) return const SizedBox.shrink();
+                final label = entries[i].key.split(' ').first; // "Jan"
+                return Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(label,
+                      style: const TextStyle(
+                          fontSize: 9, color: Color(0xFF9CA3AF))),
+                );
+              },
+            ),
+          ),
+        ),
+        lineBarsData: [
+          LineChartBarData(
+            spots: spots,
+            isCurved: true,
+            curveSmoothness: 0.25,
+            color: AppColors.primary,
+            barWidth: 3,
+            isStrokeCapRound: true,
+            dotData: FlDotData(
+              show: true,
+              getDotPainter: (spot, _, __, ___) => FlDotCirclePainter(
+                radius: 3,
+                color: Colors.white,
+                strokeWidth: 2,
+                strokeColor: AppColors.primary,
+              ),
+            ),
+            belowBarData: BarAreaData(
+              show: true,
+              gradient: LinearGradient(
+                colors: [
+                  AppColors.primary.withValues(alpha: 0.24),
+                  AppColors.primary.withValues(alpha: 0.02),
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _topList(
+    Map<String, _AnalyticsEntry> data, {
+    required List<Color> palette,
+  }) {
+    final entries = data.entries.toList()
+      ..sort((a, b) => b.value.amount.compareTo(a.value.amount));
+    final top = entries.take(5).toList();
+    final maxAmt = top.isEmpty ? 0.0 : top.first.value.amount;
+
+    return Column(
+      children: [
+        for (var i = 0; i < top.length; i++)
           Padding(
-            padding: const EdgeInsets.fromLTRB(14, 14, 14, 10),
-            child: Row(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(icon, size: 14, color: AppColors.primary),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    title,
+                Row(children: [
+                  Container(
+                    width: 22,
+                    height: 22,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: palette[i % palette.length]
+                          .withValues(alpha: 0.18),
+                      borderRadius: BorderRadius.circular(7),
+                    ),
+                    child: Text('${i + 1}',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: palette[i % palette.length],
+                        )),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      top[i].key,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF374151),
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  Text(
+                    _fmtAmt(top[i].value.amount),
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                       color: Color(0xFF191C1E),
                     ),
                   ),
+                ]),
+                const SizedBox(height: 6),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: maxAmt > 0 ? top[i].value.amount / maxAmt : 0,
+                    minHeight: 6,
+                    backgroundColor:
+                        palette[i % palette.length].withValues(alpha: 0.12),
+                    valueColor: AlwaysStoppedAnimation(
+                        palette[i % palette.length]),
+                  ),
                 ),
               ],
             ),
           ),
-          Container(height: 1, color: const Color(0xFFF3F4F6)),
-
-          if (data.isEmpty)
-            const Padding(
-              padding: EdgeInsets.all(24),
-              child: Center(
-                child: Text('No data',
-                    style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 12)),
-              ),
-            )
-          else
-            ...data.entries.take(8).map((e) => Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            flex: 3,
-                            child: Text(
-                              e.key,
-                              style: const TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w500,
-                                color: Color(0xFF374151),
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          Expanded(
-                            flex: 2,
-                            child: Text(
-                              _fmtAmt(e.value.amount),
-                              style: const TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFF191C1E),
-                              ),
-                              textAlign: TextAlign.right,
-                            ),
-                          ),
-                          if (showPercent && _totalSpend > 0)
-                            SizedBox(
-                              width: 36,
-                              child: Text(
-                                '${(e.value.amount / _totalSpend * 100).toStringAsFixed(0)}%',
-                                style: const TextStyle(
-                                    fontSize: 10, color: Color(0xFF9CA3AF)),
-                                textAlign: TextAlign.right,
-                              ),
-                            ),
-                          if (!showPercent && !showBar)
-                            SizedBox(
-                              width: 24,
-                              child: Text(
-                                '${e.value.count}',
-                                style: const TextStyle(
-                                    fontSize: 10, color: Color(0xFF9CA3AF)),
-                                textAlign: TextAlign.right,
-                              ),
-                            ),
-                        ],
-                      ),
-                      if (showBar && maxAmt > 0)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 4),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(3),
-                            child: LinearProgressIndicator(
-                              value: e.value.amount / maxAmt,
-                              minHeight: 5,
-                              backgroundColor: const Color(0xFFE0E7FF),
-                              valueColor: const AlwaysStoppedAnimation(
-                                  AppColors.primary),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                )),
-          const SizedBox(height: 8),
-        ],
-      ),
+      ],
     );
   }
 

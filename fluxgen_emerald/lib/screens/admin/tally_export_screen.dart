@@ -1,6 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -26,7 +30,14 @@ class _TallyExportScreenState extends State<TallyExportScreen> {
   DateTime? _dateFrom;
   DateTime? _dateTo;
   bool _loading = false;
+
+  // ── Tally settings (persisted in SharedPreferences) ───────────────────
   String _paymentLedger = 'Cash in Hand';
+  String _companyName = 'FluxGen Technologies Pvt Ltd';
+  String _voucherType = 'Payment';
+  String _gstin = '';
+  String _narrationPrefix = '';
+  bool _includeReimbursed = true; // when false → only 'approved'
 
   List<_VoucherRow> _vouchers = [];
   final Set<String> _selectedIds = {};
@@ -44,9 +55,30 @@ class _TallyExportScreenState extends State<TallyExportScreen> {
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     final ledger = prefs.getString('tally_payment_ledger');
-    if (ledger != null && ledger.isNotEmpty && mounted) {
-      setState(() => _paymentLedger = ledger);
-    }
+    final company = prefs.getString('tally_company_name');
+    final vType = prefs.getString('tally_voucher_type');
+    final gst = prefs.getString('tally_gstin');
+    final narration = prefs.getString('tally_narration_prefix');
+    final incReim = prefs.getBool('tally_include_reimbursed');
+    if (!mounted) return;
+    setState(() {
+      if (ledger != null && ledger.isNotEmpty) _paymentLedger = ledger;
+      if (company != null && company.isNotEmpty) _companyName = company;
+      if (vType != null && vType.isNotEmpty) _voucherType = vType;
+      if (gst != null) _gstin = gst;
+      if (narration != null) _narrationPrefix = narration;
+      if (incReim != null) _includeReimbursed = incReim;
+    });
+  }
+
+  Future<void> _saveSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('tally_payment_ledger', _paymentLedger);
+    await prefs.setString('tally_company_name', _companyName);
+    await prefs.setString('tally_voucher_type', _voucherType);
+    await prefs.setString('tally_gstin', _gstin);
+    await prefs.setString('tally_narration_prefix', _narrationPrefix);
+    await prefs.setBool('tally_include_reimbursed', _includeReimbursed);
   }
 
   // ── Data ──────────────────────────────────────────────────────────────
@@ -77,12 +109,14 @@ class _TallyExportScreenState extends State<TallyExportScreen> {
       final toStr =
           DateFormat('yyyy-MM-dd').format(_dateTo!);
 
+      final statusFilter =
+          _includeReimbursed ? ['approved', 'reimbursed'] : ['approved'];
       final data = await Supabase.instance.client
           .from('vouchers')
           .select(
               'id, voucher_number, total_amount, submitted_at, purpose, status, submitter:submitted_by(name, email)')
           .eq('organization_id', orgId)
-          .inFilter('status', ['approved', 'reimbursed'])
+          .inFilter('status', statusFilter)
           .gte('submitted_at', '${fromStr}T00:00:00')
           .lte('submitted_at', '${toStr}T23:59:59')
           .order('submitted_at', ascending: false);
@@ -179,7 +213,7 @@ class _TallyExportScreenState extends State<TallyExportScreen> {
     if (selected.isEmpty) return '';
 
     final dateFmt = DateFormat('yyyyMMdd');
-    const company = 'FluxGen Technologies Pvt Ltd';
+    final company = _companyName;
     final buffer = StringBuffer();
 
     buffer.writeln('<?xml version="1.0" encoding="UTF-8"?>');
@@ -195,6 +229,10 @@ class _TallyExportScreenState extends State<TallyExportScreen> {
     buffer.writeln('            <STATICVARIABLES>');
     buffer.writeln(
         '                <SVCURRENTCOMPANY>${_xmlEscape(company)}</SVCURRENTCOMPANY>');
+    if (_gstin.trim().isNotEmpty) {
+      buffer.writeln(
+          '                <SVGSTIN>${_xmlEscape(_gstin.trim())}</SVGSTIN>');
+    }
     buffer.writeln('            </STATICVARIABLES>');
     buffer.writeln('        </DESC>');
     buffer.writeln('        <DATA>');
@@ -209,7 +247,10 @@ class _TallyExportScreenState extends State<TallyExportScreen> {
       final purpose = v.purpose.isNotEmpty
           ? _xmlEscape(v.purpose)
           : 'Expense Reimbursement';
-      final narration = '$voucherNum | $employeeName | $purpose';
+      final prefix = _narrationPrefix.trim().isNotEmpty
+          ? '${_xmlEscape(_narrationPrefix.trim())} | '
+          : '';
+      final narration = '$prefix$voucherNum | $employeeName | $purpose';
       final amountStr = v.amount.toStringAsFixed(2);
       final expenseLedger = '$employeeName - Expenses';
 
@@ -219,7 +260,7 @@ class _TallyExportScreenState extends State<TallyExportScreen> {
       buffer.writeln(
           '            <NARRATION>$narration</NARRATION>');
       buffer.writeln(
-          '            <VOUCHERTYPENAME>Payment</VOUCHERTYPENAME>');
+          '            <VOUCHERTYPENAME>${_xmlEscape(_voucherType)}</VOUCHERTYPENAME>');
       buffer.writeln(
           '            <VOUCHERNUMBER>$voucherNum</VOUCHERNUMBER>');
       buffer.writeln(
@@ -259,6 +300,18 @@ class _TallyExportScreenState extends State<TallyExportScreen> {
     return buffer.toString();
   }
 
+  /// Writes [xml] to a temp `.xml` file and returns the XFile handle.
+  /// Sharing a file instead of a string lets Tally import it directly — a
+  /// raw-text Share.share payload would arrive as a chat message body.
+  Future<XFile> _writeXmlFile(String xml) async {
+    final dir = await getTemporaryDirectory();
+    final ts = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
+    final path = '${dir.path}/tally_export_$ts.xml';
+    final file = File(path);
+    await file.writeAsString(xml);
+    return XFile(path, mimeType: 'application/xml', name: 'tally_export_$ts.xml');
+  }
+
   void _showPreview() {
     if (_selectedIds.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -271,11 +324,14 @@ class _TallyExportScreenState extends State<TallyExportScreen> {
     }
 
     final xml = _generateXml();
+    final size = MediaQuery.of(context).size;
 
     showDialog(
       context: context,
       builder: (ctx) => Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        insetPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -290,10 +346,11 @@ class _TallyExportScreenState extends State<TallyExportScreen> {
                 children: [
                   const Icon(Icons.code, color: Colors.white, size: 20),
                   const SizedBox(width: 8),
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'XML Preview',
-                      style: TextStyle(
+                      'XML Preview · ${_selectedIds.length} voucher'
+                      '${_selectedIds.length == 1 ? '' : 's'}',
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
@@ -302,16 +359,15 @@ class _TallyExportScreenState extends State<TallyExportScreen> {
                   ),
                   GestureDetector(
                     onTap: () => Navigator.pop(ctx),
-                    child: const Icon(Icons.close, color: Colors.white, size: 20),
+                    child: const Icon(Icons.close,
+                        color: Colors.white, size: 20),
                   ),
                 ],
               ),
             ),
             // Content
             ConstrainedBox(
-              constraints: BoxConstraints(
-                maxHeight: MediaQuery.of(context).size.height * 0.55,
-              ),
+              constraints: BoxConstraints(maxHeight: size.height * 0.55),
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(12),
                 child: SelectableText(
@@ -325,13 +381,64 @@ class _TallyExportScreenState extends State<TallyExportScreen> {
                 ),
               ),
             ),
+            // Actions
+            Container(
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 14),
+              decoration: const BoxDecoration(
+                border: Border(
+                  top: BorderSide(color: Color(0xFFE5E7EB), width: 1),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () async {
+                        await Clipboard.setData(ClipboardData(text: xml));
+                        if (!ctx.mounted) return;
+                        ScaffoldMessenger.of(ctx).showSnackBar(
+                          const SnackBar(
+                            content: Text('XML copied to clipboard'),
+                            backgroundColor: Color(0xFF059669),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.copy_rounded, size: 16),
+                      label: const Text('Copy'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF006699),
+                        side: const BorderSide(color: Color(0xFF006699)),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        _exportXml();
+                      },
+                      icon: const Icon(Icons.download_rounded, size: 16),
+                      label: const Text('Download .xml'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF006699),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  void _exportXml() {
+  Future<void> _exportXml() async {
     if (_selectedIds.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -342,8 +449,25 @@ class _TallyExportScreenState extends State<TallyExportScreen> {
       return;
     }
 
-    final xml = _generateXml();
-    Share.share(xml, subject: 'Tally Export - Vouchers');
+    try {
+      final xml = _generateXml();
+      final file = await _writeXmlFile(xml);
+      await Share.shareXFiles(
+        [file],
+        subject:
+            'Tally Export — ${_selectedIds.length} voucher(s) · $_companyName',
+        text:
+            'Tally voucher import XML. Open in Tally via Gateway → Import Data → Vouchers.',
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Export failed: $e'),
+          backgroundColor: const Color(0xFFEF4444),
+        ),
+      );
+    }
   }
 
   // ── Date Picker ───────────────────────────────────────────────────────
@@ -366,6 +490,224 @@ class _TallyExportScreenState extends State<TallyExportScreen> {
       });
       _fetchVouchers();
     }
+  }
+
+  // ── Settings sheet ────────────────────────────────────────────────────
+
+  Future<void> _openSettingsSheet() async {
+    final ledgerCtrl = TextEditingController(text: _paymentLedger);
+    final companyCtrl = TextEditingController(text: _companyName);
+    final voucherTypeCtrl = TextEditingController(text: _voucherType);
+    final gstCtrl = TextEditingController(text: _gstin);
+    final narrationCtrl = TextEditingController(text: _narrationPrefix);
+    bool includeReim = _includeReimbursed;
+
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetCtx) {
+        return StatefulBuilder(
+          builder: (innerCtx, setSheet) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(innerCtx).viewInsets.bottom,
+              ),
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                ),
+                padding: const EdgeInsets.fromLTRB(20, 10, 20, 24),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(
+                        child: Container(
+                          width: 40,
+                          height: 4,
+                          margin: const EdgeInsets.only(bottom: 14),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFE5E7EB),
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                      ),
+                      Row(children: [
+                        const Icon(Icons.tune_rounded,
+                            color: Color(0xFF006699)),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'Tally Export Settings',
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF191C1E),
+                          ),
+                        ),
+                      ]),
+                      const SizedBox(height: 16),
+                      _settingsField(
+                        icon: Icons.business_rounded,
+                        label: 'Company Name',
+                        controller: companyCtrl,
+                        hint: 'e.g. FluxGen Technologies Pvt Ltd',
+                      ),
+                      const SizedBox(height: 12),
+                      _settingsField(
+                        icon: Icons.receipt_long_rounded,
+                        label: 'Voucher Type',
+                        controller: voucherTypeCtrl,
+                        hint: 'Payment / Journal / Receipt',
+                      ),
+                      const SizedBox(height: 12),
+                      _settingsField(
+                        icon: Icons.account_balance_wallet_rounded,
+                        label: 'Payment Ledger',
+                        controller: ledgerCtrl,
+                        hint: 'e.g. Cash in Hand, HDFC Bank',
+                      ),
+                      const SizedBox(height: 12),
+                      _settingsField(
+                        icon: Icons.badge_rounded,
+                        label: 'GSTIN (optional)',
+                        controller: gstCtrl,
+                        hint: '29AAAAA0000A1Z5',
+                      ),
+                      const SizedBox(height: 12),
+                      _settingsField(
+                        icon: Icons.short_text_rounded,
+                        label: 'Narration Prefix (optional)',
+                        controller: narrationCtrl,
+                        hint: 'e.g. REIMB-2026',
+                      ),
+                      const SizedBox(height: 14),
+                      SwitchListTile.adaptive(
+                        contentPadding: EdgeInsets.zero,
+                        value: includeReim,
+                        onChanged: (v) => setSheet(() => includeReim = v),
+                        title: const Text(
+                          'Include reimbursed vouchers',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF191C1E),
+                          ),
+                        ),
+                        subtitle: const Text(
+                          'When off, only status = approved is exported.',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Color(0xFF6B7280),
+                          ),
+                        ),
+                        activeColor: const Color(0xFF006699),
+                      ),
+                      const SizedBox(height: 14),
+                      Row(children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () => Navigator.pop(sheetCtx),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: const Color(0xFF6B7280),
+                              side: const BorderSide(color: Color(0xFFE5E7EB)),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                            ),
+                            child: const Text('Cancel'),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              setState(() {
+                                _paymentLedger =
+                                    ledgerCtrl.text.trim().isEmpty
+                                        ? 'Cash in Hand'
+                                        : ledgerCtrl.text.trim();
+                                _companyName =
+                                    companyCtrl.text.trim().isEmpty
+                                        ? 'FluxGen Technologies Pvt Ltd'
+                                        : companyCtrl.text.trim();
+                                _voucherType =
+                                    voucherTypeCtrl.text.trim().isEmpty
+                                        ? 'Payment'
+                                        : voucherTypeCtrl.text.trim();
+                                _gstin = gstCtrl.text.trim();
+                                _narrationPrefix = narrationCtrl.text.trim();
+                                final refresh =
+                                    _includeReimbursed != includeReim;
+                                _includeReimbursed = includeReim;
+                                if (refresh) _fetchVouchers();
+                              });
+                              await _saveSettings();
+                              if (sheetCtx.mounted) Navigator.pop(sheetCtx);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF006699),
+                              foregroundColor: Colors.white,
+                              elevation: 0,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                            ),
+                            child: const Text(
+                              'Save',
+                              style: TextStyle(fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                        ),
+                      ]),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _settingsField({
+    required IconData icon,
+    required String label,
+    required TextEditingController controller,
+    required String hint,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(children: [
+          Icon(icon, size: 14, color: const Color(0xFF6B7280)),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.6,
+              color: Color(0xFF6B7280),
+            ),
+          ),
+        ]),
+        const SizedBox(height: 6),
+        TextField(
+          controller: controller,
+          decoration: InputDecoration(
+            hintText: hint,
+            filled: true,
+            fillColor: const Color(0xFFF3F4F6),
+            contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12, vertical: 12),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide.none,
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   // ── Build ─────────────────────────────────────────────────────────────
@@ -391,6 +733,15 @@ class _TallyExportScreenState extends State<TallyExportScreen> {
                 color: Color(0xFF191C1E),
               ),
             ),
+            actions: [
+              IconButton(
+                tooltip: 'Tally settings',
+                icon: const Icon(Icons.tune_rounded,
+                    color: Color(0xFF006699)),
+                onPressed: _openSettingsSheet,
+              ),
+              const SizedBox(width: 4),
+            ],
           ),
           SliverPadding(
             padding: const EdgeInsets.all(16),
