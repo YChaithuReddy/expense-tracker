@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -22,6 +24,7 @@ class AttendanceShell extends ConsumerStatefulWidget {
 class _AttendanceShellState extends ConsumerState<AttendanceShell>
     with SingleTickerProviderStateMixin {
   late final TabController _tab;
+  Timer? _pollTimer;
 
   @override
   void initState() {
@@ -34,10 +37,18 @@ class _AttendanceShellState extends ConsumerState<AttendanceShell>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) ref.invalidate(userProfileProvider);
     });
+    // Poll the Apps Script-backed sheet every 60s so changes made by
+    // teammates (or via the web UI) surface here without manual refresh.
+    _pollTimer = Timer.periodic(const Duration(seconds: 60), (_) {
+      if (!mounted) return;
+      ref.invalidate(todayStatusProvider);
+      ref.invalidate(weekStatusProvider);
+    });
   }
 
   @override
   void dispose() {
+    _pollTimer?.cancel();
     _tab.dispose();
     super.dispose();
   }
