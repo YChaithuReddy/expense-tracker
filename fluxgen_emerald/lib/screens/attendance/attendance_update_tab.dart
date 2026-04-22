@@ -57,7 +57,13 @@ class _AttendanceUpdateTabState extends ConsumerState<AttendanceUpdateTab> {
             workType: payload.workType,
             scopeOfWork: payload.scopeOfWork,
           );
-      ref.invalidate(todayStatusProvider(fluxgenTodayStr()));
+      // Refresh the cached status for whichever date we just submitted,
+      // plus today's (hero pill) and the current week table.
+      ref.invalidate(todayStatusProvider(payload.date));
+      if (payload.date != fluxgenTodayStr()) {
+        ref.invalidate(todayStatusProvider(fluxgenTodayStr()));
+      }
+      ref.invalidate(weekStatusProvider);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

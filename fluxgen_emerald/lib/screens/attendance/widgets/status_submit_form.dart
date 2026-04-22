@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 
 import '../../../core/constants/fluxgen_api.dart';
 import '../../../core/theme/app_colors.dart';
@@ -41,6 +42,13 @@ class _StatusSubmitFormState extends State<StatusSubmitForm> {
   final _scopeCtrl = TextEditingController();
   String? _workType;
   String? _validationMsg;
+  late DateTime _selectedDate;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDate = DateTime.now();
+  }
 
   @override
   void dispose() {
@@ -49,17 +57,38 @@ class _StatusSubmitFormState extends State<StatusSubmitForm> {
     super.dispose();
   }
 
+  String get _selectedDateApiStr =>
+      '${_selectedDate.year}-'
+      '${_selectedDate.month.toString().padLeft(2, '0')}-'
+      '${_selectedDate.day.toString().padLeft(2, '0')}';
+
+  Future<void> _pickDate() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: now.subtract(const Duration(days: 30)),
+      lastDate: now,
+      builder: (ctx, child) => Theme(
+        data: Theme.of(ctx).copyWith(
+          colorScheme: Theme.of(ctx).colorScheme.copyWith(
+                primary: AppColors.primary,
+              ),
+        ),
+        child: child!,
+      ),
+    );
+    if (picked != null && picked != _selectedDate) {
+      setState(() => _selectedDate = picked);
+    }
+  }
+
   bool get _needsSiteFields =>
       _status == AttendanceStatus.onSite;
   bool get _needsWorkFields =>
       _status == AttendanceStatus.onSite ||
       _status == AttendanceStatus.inOffice ||
       _status == AttendanceStatus.workFromHome;
-
-  String _today() {
-    final n = DateTime.now();
-    return '${n.year}-${n.month.toString().padLeft(2, '0')}-${n.day.toString().padLeft(2, '0')}';
-  }
 
   void _onSelectStatus(AttendanceStatus s) {
     HapticFeedback.lightImpact();
@@ -91,7 +120,7 @@ class _StatusSubmitFormState extends State<StatusSubmitForm> {
     setState(() => _validationMsg = null);
     await widget.onSubmit(StatusSubmitPayload(
       status: _status!,
-      date: _today(),
+      date: _selectedDateApiStr,
       siteName: _siteCtrl.text.trim(),
       workType: _workType ?? '',
       scopeOfWork: _scopeCtrl.text.trim(),
@@ -109,6 +138,9 @@ class _StatusSubmitFormState extends State<StatusSubmitForm> {
       (AttendanceStatus.weekend,      Icons.weekend_outlined,    'Weekend'),
     ];
 
+    final dateLabel = DateFormat('EEE, d MMM yyyy').format(_selectedDate);
+    final isToday = DateUtils.isSameDay(_selectedDate, DateTime.now());
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -118,7 +150,7 @@ class _StatusSubmitFormState extends State<StatusSubmitForm> {
           const SizedBox(width: 6),
           Expanded(
             child: Text(
-              'Pick today\'s status for ${widget.empName}',
+              'Pick status for ${widget.empName}',
               style: TextStyle(
                 fontSize: 12,
                 color: AppColors.onSurfaceVariant,
@@ -128,6 +160,61 @@ class _StatusSubmitFormState extends State<StatusSubmitForm> {
             ),
           ),
         ]),
+        const SizedBox(height: 10),
+        // Date picker row — lets the user submit for any day in the last 30 days.
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: _pickDate,
+            borderRadius: BorderRadius.circular(14),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: AppColors.primary.withValues(alpha: 0.18),
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.calendar_today_rounded,
+                      size: 16, color: AppColors.primary),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Status for',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: AppColors.onSurfaceVariant,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.3,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '$dateLabel${isToday ? " · Today" : ""}',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Color(0xFF1A1A2E),
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: -0.2,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.expand_more_rounded,
+                      size: 18, color: AppColors.primary),
+                ],
+              ),
+            ),
+          ),
+        ),
         const SizedBox(height: 12),
         GridView.count(
           crossAxisCount: 3,
