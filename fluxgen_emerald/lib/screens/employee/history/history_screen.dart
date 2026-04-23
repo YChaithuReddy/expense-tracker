@@ -28,6 +28,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   bool _selectAll = false;
   final Set<String> _selectedIds = {};
   bool _isDeleting = false;
+  RealtimeChannel? _expensesChannel;
 
   // Real data
   List<Expense> _allExpenses = [];
@@ -63,7 +64,31 @@ class _HistoryScreenState extends State<HistoryScreen> {
   void dispose() {
     _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
+    if (_expensesChannel != null) {
+      Supabase.instance.client.removeChannel(_expensesChannel!);
+      _expensesChannel = null;
+    }
     super.dispose();
+  }
+
+  void _subscribeToExpenses(String userId) {
+    if (_expensesChannel != null) return;
+    _expensesChannel = Supabase.instance.client
+        .channel('history_expenses:$userId')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'expenses',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'user_id',
+            value: userId,
+          ),
+          callback: (_) {
+            if (mounted) _loadExpenses();
+          },
+        )
+        .subscribe();
   }
 
   void _onSearchChanged() {
@@ -172,6 +197,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
     try {
       final userId = Supabase.instance.client.auth.currentUser!.id;
+      _subscribeToExpenses(userId);
 
       // Fetch expenses
       final data = await Supabase.instance.client

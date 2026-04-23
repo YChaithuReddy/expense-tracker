@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:emerald/providers/theme_provider.dart';
 import 'package:emerald/screens/employee/settings/profile_edit_screen.dart';
 import 'package:emerald/screens/employee/whatsapp/whatsapp_screen.dart';
 import 'package:emerald/screens/shared/report_issue_screen.dart';
@@ -98,24 +97,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
-  void _showGoogleSheetsInfo() {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(children: [
-          const Icon(Icons.table_chart, color: Color(0xFF059669), size: 24),
-          const SizedBox(width: 8),
-          const Text('Google Sheets', style: TextStyle(fontWeight: FontWeight.w700)),
-        ]),
-        content: const Text('Google Sheets export is configured via the web dashboard at expense-tracker-delta-ashy.vercel.app.\n\nSheets configuration syncs automatically.'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('OK')),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -176,24 +157,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Appearance
-              Builder(builder: (context) {
-                final themeMode = ref.watch(themeModeProvider);
-                final isDark = themeMode == ThemeMode.dark;
-                return _SettingsCard(icon: Icons.palette_outlined, iconColor: const Color(0xFF8B5CF6), title: 'Appearance', subtitle: isDark ? 'Dark mode enabled' : 'Light mode enabled',
-                  trailing: Switch(value: isDark, onChanged: (_) => ref.read(themeModeProvider.notifier).toggle(), activeColor: const Color(0xFF006699), materialTapTargetSize: MaterialTapTargetSize.shrinkWrap));
-              }),
-              const SizedBox(height: 10),
-
-
               // WhatsApp
               _SettingsCard(icon: Icons.chat, iconColor: const Color(0xFF25D366), title: 'WhatsApp', subtitle: 'Notifications & expense summary',
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const WhatsAppScreen()))),
-              const SizedBox(height: 10),
-
-              // Google Sheets
-              _SettingsCard(icon: Icons.table_chart_outlined, iconColor: const Color(0xFF059669), title: 'Google Sheets', subtitle: 'Export & sync configuration',
-                onTap: _showGoogleSheetsInfo),
               const SizedBox(height: 10),
 
               // Report Issue

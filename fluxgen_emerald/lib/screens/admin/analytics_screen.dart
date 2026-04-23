@@ -351,9 +351,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   ),
                   const SizedBox(height: 8),
 
-                  // Hero KPI strip — loads after data resolves
+                  // Premium hero — loads after data resolves
                   if (!_loading && _error == null) ...[
-                    _heroKpiStrip(),
+                    _heroBlock(),
+                    const SizedBox(height: 14),
+                    _miniKpiStrip(),
                     const SizedBox(height: 16),
                   ],
 
@@ -368,15 +370,15 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   else if (_error != null)
                     _buildError()
                   else ...[
-                    // Department pie
+                    // Department donut (center total)
                     _chartCard(
                       title: 'Spend by Department',
                       icon: Icons.business_rounded,
                       child: _departments.isEmpty
                           ? _emptyChart()
                           : SizedBox(
-                              height: 220,
-                              child: _departmentPie(),
+                              height: 230,
+                              child: _departmentDonut(),
                             ),
                     ),
                     const SizedBox(height: 12),
@@ -387,9 +389,18 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       child: _months.isEmpty
                           ? _emptyChart()
                           : SizedBox(
-                              height: 180,
+                              height: 200,
                               child: _monthlyLine(),
                             ),
+                    ),
+                    const SizedBox(height: 12),
+                    // Top Spenders — podium + list
+                    _chartCard(
+                      title: 'Top Spenders',
+                      icon: Icons.emoji_events_rounded,
+                      child: _employees.isEmpty
+                          ? _emptyChart()
+                          : _podiumPlusList(_employees),
                     ),
                     const SizedBox(height: 12),
                     // Top projects
@@ -406,21 +417,6 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                               Color(0xFF155E75),
                             ]),
                     ),
-                    const SizedBox(height: 12),
-                    // Top employees
-                    _chartCard(
-                      title: 'Top Employees',
-                      icon: Icons.emoji_events_rounded,
-                      child: _employees.isEmpty
-                          ? _emptyChart()
-                          : _topList(_employees, palette: const [
-                              Color(0xFFEA580C),
-                              Color(0xFFF59E0B),
-                              Color(0xFFFBBF24),
-                              Color(0xFFFDE68A),
-                              Color(0xFFFEF3C7),
-                            ]),
-                    ),
                   ],
                   const SizedBox(height: 24),
                 ]),
@@ -432,125 +428,292 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     );
   }
 
-  // ── New premium layout helpers ──────────────────────────────────────
+  // ── Premium hero + mini KPIs ────────────────────────────────────────
 
-  /// 4-tile hero KPI strip that sits above the chart cards.
-  Widget _heroKpiStrip() {
-    final totalTxns =
-        _employees.values.fold<int>(0, (s, e) => s + e.count);
+  /// Tall gradient hero card with giant total amount + period label +
+  /// a subtle sparkline ribbon at the bottom built from monthly totals.
+  Widget _heroBlock() {
+    final totalTxns = _employees.values.fold<int>(0, (s, e) => s + e.count);
+    final periodLabel = () {
+      if (_dateFrom != null && _dateTo != null) {
+        final fmt = DateFormat('dd MMM');
+        return '${fmt.format(_dateFrom!)} → ${fmt.format(_dateTo!)}';
+      }
+      return 'All-time total';
+    }();
+
+    // Sparkline spots from monthly data (chronological).
+    final monthEntries = _months.entries.toList();
+    monthEntries.sort((a, b) {
+      try {
+        return DateFormat('MMM yyyy')
+            .parse(a.key)
+            .compareTo(DateFormat('MMM yyyy').parse(b.key));
+      } catch (_) {
+        return a.key.compareTo(b.key);
+      }
+    });
+    final sparkSpots = [
+      for (var i = 0; i < monthEntries.length; i++)
+        FlSpot(i.toDouble(), monthEntries[i].value.amount),
+    ];
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 18, 20, 14),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [AppColors.primary, Color(0xFF003A5F), Color(0xFF001E33)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(22),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.32),
+            blurRadius: 26,
+            offset: const Offset(0, 12),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          // Soft accent circle in top-right for depth.
+          Positioned(
+            right: -40,
+            top: -40,
+            child: Container(
+              width: 140,
+              height: 140,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    Colors.white.withValues(alpha: 0.10),
+                    Colors.white.withValues(alpha: 0.0),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.16),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(mainAxisSize: MainAxisSize.min, children: [
+                    const Icon(Icons.event_note_rounded,
+                        size: 12, color: Colors.white),
+                    const SizedBox(width: 5),
+                    Text(
+                      periodLabel,
+                      style: const TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.3,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ]),
+                ),
+              ]),
+              const SizedBox(height: 14),
+              Text(
+                'Total org spend',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.1,
+                  color: Colors.white.withValues(alpha: 0.7),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                _fmtAmt(_totalSpend),
+                style: const TextStyle(
+                  fontSize: 34,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                  letterSpacing: -1.0,
+                  height: 1.0,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Row(children: [
+                _heroChip(
+                    Icons.receipt_long_rounded,
+                    '${NumberFormat.decimalPattern('en_IN').format(totalTxns)} txns'),
+                const SizedBox(width: 8),
+                _heroChip(Icons.people_rounded,
+                    '${_employees.length} ppl'),
+              ]),
+              const SizedBox(height: 12),
+              // Sparkline ribbon — only render when there is data.
+              SizedBox(
+                height: 42,
+                child: sparkSpots.length < 2
+                    ? const SizedBox.shrink()
+                    : LineChart(
+                        LineChartData(
+                          gridData: const FlGridData(show: false),
+                          borderData: FlBorderData(show: false),
+                          titlesData: const FlTitlesData(show: false),
+                          lineTouchData:
+                              const LineTouchData(enabled: false),
+                          minY: 0,
+                          lineBarsData: [
+                            LineChartBarData(
+                              spots: sparkSpots,
+                              isCurved: true,
+                              curveSmoothness: 0.3,
+                              color: Colors.white,
+                              barWidth: 2,
+                              isStrokeCapRound: true,
+                              dotData: const FlDotData(show: false),
+                              belowBarData: BarAreaData(
+                                show: true,
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Colors.white.withValues(alpha: 0.28),
+                                    Colors.white.withValues(alpha: 0.0),
+                                  ],
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _heroChip(IconData icon, String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        Icon(icon, size: 11, color: Colors.white.withValues(alpha: 0.9)),
+        const SizedBox(width: 5),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
+        ),
+      ]),
+    );
+  }
+
+  /// Secondary KPI strip shown below the hero — two compact tiles.
+  Widget _miniKpiStrip() {
     final topDept = _departments.entries.isEmpty
         ? '—'
         : (_departments.entries.toList()
               ..sort((a, b) => b.value.amount.compareTo(a.value.amount)))
             .first
             .key;
-    final avgPerEmp = _employees.isEmpty
-        ? 0.0
-        : _totalSpend / _employees.length;
+    final avgPerEmp =
+        _employees.isEmpty ? 0.0 : _totalSpend / _employees.length;
 
-    return Row(
-      children: [
-        Expanded(
-          child: _kpiCard(
-            label: 'TOTAL SPEND',
-            value: _fmtAmt(_totalSpend),
-            icon: Icons.account_balance_wallet_rounded,
-            gradient: const [AppColors.primary, Color(0xFF00456B)],
-            textLight: true,
-          ),
+    return Row(children: [
+      Expanded(
+        child: _miniKpiCard(
+          icon: Icons.business_rounded,
+          label: 'TOP DEPT',
+          value: topDept,
+          tint: const Color(0xFFEA580C),
+          tintBg: const Color(0xFFFFF7ED),
         ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _kpiCard(
-            label: 'TRANSACTIONS',
-            value: NumberFormat.decimalPattern('en_IN').format(totalTxns),
-            icon: Icons.receipt_long_rounded,
-            gradient: const [Color(0xFFF8FAFC), Color(0xFFEFF6FF)],
-            textLight: false,
-          ),
+      ),
+      const SizedBox(width: 10),
+      Expanded(
+        child: _miniKpiCard(
+          icon: Icons.person_rounded,
+          label: 'AVG / EMP',
+          value: _fmtAmt(avgPerEmp),
+          tint: const Color(0xFF059669),
+          tintBg: const Color(0xFFECFDF5),
         ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _kpiCard(
-            label: 'TOP DEPT',
-            value: topDept,
-            icon: Icons.business_rounded,
-            gradient: const [Color(0xFFF8FAFC), Color(0xFFFFF7ED)],
-            textLight: false,
-            valueFontSize: 12,
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _kpiCard(
-            label: 'AVG / EMP',
-            value: _fmtAmt(avgPerEmp),
-            icon: Icons.person_rounded,
-            gradient: const [Color(0xFFF8FAFC), Color(0xFFECFDF5)],
-            textLight: false,
-          ),
-        ),
-      ],
-    );
+      ),
+    ]);
   }
 
-  Widget _kpiCard({
+  Widget _miniKpiCard({
+    required IconData icon,
     required String label,
     required String value,
-    required IconData icon,
-    required List<Color> gradient,
-    required bool textLight,
-    double valueFontSize = 15,
+    required Color tint,
+    required Color tintBg,
   }) {
-    final labelColor =
-        textLight ? Colors.white.withValues(alpha: 0.72) : const Color(0xFF6B7280);
-    final valueColor = textLight ? Colors.white : const Color(0xFF191C1E);
-
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: gradient,
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: textLight ? 0.14 : 0.04),
-            blurRadius: 12,
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 14,
             offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon,
-              size: 16,
-              color:
-                  textLight ? Colors.white.withValues(alpha: 0.9) : AppColors.primary),
-          const SizedBox(height: 8),
-          Text(label,
-              style: TextStyle(
-                fontSize: 9,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 0.6,
-                color: labelColor,
-              )),
-          const SizedBox(height: 4),
-          Text(value,
-              style: TextStyle(
-                fontSize: valueFontSize,
-                fontWeight: FontWeight.w700,
-                color: valueColor,
-                letterSpacing: -0.3,
+      child: Row(children: [
+        Container(
+          width: 36,
+          height: 36,
+          decoration: BoxDecoration(
+            color: tintBg,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, size: 18, color: tint),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 9,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.7,
+                  color: Color(0xFF9CA3AF),
+                ),
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis),
-        ],
-      ),
+              const SizedBox(height: 3),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF191C1E),
+                  letterSpacing: -0.3,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+      ]),
     );
   }
 
@@ -608,7 +771,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         ),
       );
 
-  Widget _departmentPie() {
+  Widget _departmentDonut() {
     final entries = _departments.entries.toList()
       ..sort((a, b) => b.value.amount.compareTo(a.value.amount));
     final top = entries.take(5).toList();
@@ -622,32 +785,63 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     return Row(
       children: [
         SizedBox(
-          width: 150,
-          height: 150,
-          child: PieChart(
-            PieChartData(
-              sectionsSpace: 2,
-              centerSpaceRadius: 34,
-              sections: [
-                for (var i = 0; i < top.length; i++)
-                  PieChartSectionData(
-                    value: top[i].value.amount,
-                    color: palette[i % palette.length],
-                    title: '',
-                    radius: 36,
+          width: 160,
+          height: 160,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              PieChart(
+                PieChartData(
+                  sectionsSpace: 3,
+                  centerSpaceRadius: 48,
+                  startDegreeOffset: -90,
+                  sections: [
+                    for (var i = 0; i < top.length; i++)
+                      PieChartSectionData(
+                        value: top[i].value.amount,
+                        color: palette[i % palette.length],
+                        title: '',
+                        radius: 26,
+                      ),
+                  ],
+                ),
+              ),
+              // Centre label
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'TOTAL',
+                    style: TextStyle(
+                      fontSize: 9,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.8,
+                      color: Color(0xFF9CA3AF),
+                    ),
                   ),
-              ],
-            ),
+                  const SizedBox(height: 2),
+                  Text(
+                    _fmtAmt(_totalSpend),
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF191C1E),
+                      letterSpacing: -0.4,
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 14),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               for (var i = 0; i < top.length; i++)
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 3),
+                  padding: const EdgeInsets.symmetric(vertical: 4),
                   child: Row(children: [
                     Container(
                       width: 10,
@@ -662,7 +856,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       child: Text(
                         top[i].key,
                         style: const TextStyle(
-                          fontSize: 11,
+                          fontSize: 12,
                           fontWeight: FontWeight.w600,
                           color: Color(0xFF374151),
                         ),
@@ -674,7 +868,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           ? '${(top[i].value.amount / _totalSpend * 100).toStringAsFixed(0)}%'
                           : '—',
                       style: const TextStyle(
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: FontWeight.w700,
                         color: Color(0xFF191C1E),
                       ),
@@ -684,6 +878,122 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             ],
           ),
         ),
+      ],
+    );
+  }
+
+  /// Podium for top-3 + ranked list for the rest. Used for Top Spenders.
+  Widget _podiumPlusList(Map<String, _AnalyticsEntry> data) {
+    final entries = data.entries.toList()
+      ..sort((a, b) => b.value.amount.compareTo(a.value.amount));
+    final podium = entries.take(3).toList();
+    final rest = entries.skip(3).take(5).toList();
+    final maxAmt = entries.isEmpty ? 0.0 : entries.first.value.amount;
+
+    // Podium order visually: 2nd, 1st, 3rd (1st is tallest, centre).
+    final order = podium.length >= 3
+        ? [podium[1], podium[0], podium[2]]
+        : podium.length == 2
+            ? [podium[1], podium[0]]
+            : podium;
+    const medalColors = {
+      0: Color(0xFFFFD54F), // gold
+      1: Color(0xFFB0BEC5), // silver
+      2: Color(0xFFD7853B), // bronze
+    };
+    const heights = {0: 96.0, 1: 76.0, 2: 60.0};
+
+    int rankOf(MapEntry<String, _AnalyticsEntry> e) =>
+        podium.indexOf(e); // 0/1/2 gold/silver/bronze
+
+    return Column(
+      children: [
+        // Podium
+        if (podium.isNotEmpty)
+          SizedBox(
+            height: 160,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                for (final entry in order)
+                  Expanded(
+                    child: _PodiumPillar(
+                      rank: rankOf(entry),
+                      name: entry.key,
+                      amount: _fmtAmt(entry.value.amount),
+                      height: heights[rankOf(entry)] ?? 60,
+                      medalColor:
+                          medalColors[rankOf(entry)] ?? const Color(0xFFE5E7EB),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        if (rest.isNotEmpty) const SizedBox(height: 12),
+        if (rest.isNotEmpty)
+          Column(
+            children: [
+              for (var i = 0; i < rest.length; i++)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(children: [
+                    SizedBox(
+                      width: 22,
+                      child: Text(
+                        '#${i + 4}',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF9CA3AF),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(children: [
+                            Expanded(
+                              child: Text(
+                                rest[i].key,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF374151),
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            Text(
+                              _fmtAmt(rest[i].value.amount),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF191C1E),
+                              ),
+                            ),
+                          ]),
+                          const SizedBox(height: 4),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(3),
+                            child: LinearProgressIndicator(
+                              value: maxAmt > 0
+                                  ? rest[i].value.amount / maxAmt
+                                  : 0,
+                              minHeight: 4,
+                              backgroundColor: const Color(0xFFF3F4F6),
+                              valueColor: const AlwaysStoppedAnimation(
+                                  AppColors.primary),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ]),
+                ),
+            ],
+          ),
       ],
     );
   }
@@ -915,4 +1225,113 @@ class _AnalyticsEntry {
   final double amount;
   final int count;
   const _AnalyticsEntry(this.amount, this.count);
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// Podium pillar — one column of the Top Spenders podium.
+// ════════════════════════════════════════════════════════════════════════
+
+class _PodiumPillar extends StatelessWidget {
+  const _PodiumPillar({
+    required this.rank,
+    required this.name,
+    required this.amount,
+    required this.height,
+    required this.medalColor,
+  });
+  final int rank; // 0 = gold, 1 = silver, 2 = bronze
+  final String name;
+  final String amount;
+  final double height;
+  final Color medalColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 26,
+            height: 26,
+            decoration: BoxDecoration(
+              color: medalColor,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: medalColor.withValues(alpha: 0.45),
+                  blurRadius: 8,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            alignment: Alignment.center,
+            child: Icon(
+              Icons.emoji_events_rounded,
+              size: 16,
+              color: Colors.white.withValues(alpha: 0.95),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            name,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF191C1E),
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 2),
+          Text(
+            amount,
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF6B7280),
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 6),
+          Container(
+            height: height,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  medalColor.withValues(alpha: 0.85),
+                  medalColor.withValues(alpha: 0.45),
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(10),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: medalColor.withValues(alpha: 0.25),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            alignment: Alignment.topCenter,
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              '${rank + 1}',
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
