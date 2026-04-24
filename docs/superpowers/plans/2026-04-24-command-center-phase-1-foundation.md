@@ -6,7 +6,7 @@
 
 **Architecture:** Next.js 15 App Router, TypeScript strict mode, Tailwind v3 + shadcn/ui. File-based state (JSON validated by Zod, protected by per-file mutex via `proper-lockfile`). No backend service; API routes serve `data/*.json`. Follows the design spec at `docs/superpowers/specs/2026-04-24-command-center-design.md`.
 
-**Tech Stack:** Next.js 15, React 18, TypeScript 5, Tailwind CSS v3, shadcn/ui, Radix UI, Zod 3, `proper-lockfile`, `next-themes`, Vitest 1, `@testing-library/react`, `lucide-react`.
+**Tech Stack:** Next.js 15.5, React 19, TypeScript 5, Tailwind CSS v4 (CSS-first config via `@theme`), shadcn/ui, Radix UI, Zod 3, `proper-lockfile`, `next-themes`, Vitest 1, `@testing-library/react`, `lucide-react`.
 
 **Out of scope for Phase 1** (covered in later phases): Sprint/Backlog/Timeline/Pipeline/Activity views, Skill Tree graph, Crew & Inbox pages, `/api/spawn`, crew role-agents, other slash commands beyond `/register-project`, pixel avatars.
 
@@ -252,121 +252,89 @@ git commit -m "chore: wire Vitest + testing-library, smoke test passes"
 
 ---
 
-## Task 4: Configure Tailwind with design tokens
+## Task 4: Configure Tailwind v4 theme tokens (CSS-first)
 
 **Files:**
-- Modify: `C:\Users\chath\command-center\tailwind.config.ts`
-- Modify: `C:\Users\chath\command-center\app\globals.css`
+- Overwrite: `C:\Users\chath\command-center\app\globals.css`
+- (Tailwind v4 uses CSS-first config via `@theme` — no `tailwind.config.ts` required. The Next 15.5 scaffold may create a minimal one; leave it untouched if present.)
 
-- [ ] **Step 1: Replace `tailwind.config.ts` with theme-token-aware config**
+**Note on Tailwind v4:** The Next.js 15.5 scaffold uses Tailwind CSS v4 which moves config from `tailwind.config.ts` into a CSS `@theme` block. Color tokens declared as `--color-<name>` automatically become utility classes (`bg-<name>`, `text-<name>`, `border-<name>`). We keep shadcn's default `--radius` mechanism for border radius (so `rounded-md`, `rounded-lg`, etc. continue to work as shadcn expects). Spacing uses Tailwind's native numeric scale: `p-1`=4px, `p-2`=8px, `p-3`=12px, `p-4`=16px, `p-6`=24px, `p-8`=32px, `p-12`=48px.
 
-Overwrite `C:\Users\chath\command-center\tailwind.config.ts`:
-```ts
-import type { Config } from "tailwindcss";
+- [ ] **Step 1: Verify Tailwind v4 scaffold landed correctly**
 
-export default {
-  darkMode: ["class"],
-  content: [
-    "./app/**/*.{ts,tsx}",
-    "./components/**/*.{ts,tsx}",
-  ],
-  theme: {
-    container: {
-      center: true,
-      padding: "1rem",
-    },
-    extend: {
-      colors: {
-        bg: {
-          base: "hsl(var(--bg-base))",
-          elevated: "hsl(var(--bg-elevated))",
-          hover: "hsl(var(--bg-hover))",
-        },
-        border: {
-          DEFAULT: "hsl(var(--border))",
-          glow: "hsl(var(--border-glow))",
-        },
-        fg: {
-          primary: "hsl(var(--fg-primary))",
-          secondary: "hsl(var(--fg-secondary))",
-          muted: "hsl(var(--fg-muted))",
-        },
-        crew: {
-          fluxy: "#8b5cf6",
-          cass: "#ec4899",
-          supa: "#14b8a6",
-          bugsy: "#f59e0b",
-          shield: "#10b981",
-          scribe: "#60a5fa",
-        },
-        status: {
-          success: "#22c55e",
-          warn: "#eab308",
-          error: "#ef4444",
-          critical: "#dc2626",
-        },
-      },
-      borderRadius: {
-        sm: "6px",
-        md: "10px",
-        lg: "14px",
-        xl: "20px",
-      },
-      fontFamily: {
-        sans: ["Geist Sans", "ui-sans-serif", "system-ui", "sans-serif"],
-        mono: ["JetBrains Mono", "ui-monospace", "Menlo", "monospace"],
-      },
-      boxShadow: {
-        card: "inset 0 1px 0 rgba(255,255,255,0.04), 0 8px 24px rgba(0,0,0,0.45)",
-      },
-      transitionTimingFunction: {
-        brand: "cubic-bezier(0.16, 1, 0.3, 1)",
-      },
-    },
-  },
-  plugins: [],
-} satisfies Config;
+Run:
+```powershell
+cd C:\Users\chath\command-center
+Get-Content app/globals.css | Select-Object -First 3
 ```
+Expected: first line is `@import "tailwindcss";` (this is v4's entry point — NOT the v3 `@tailwind base; @tailwind components; @tailwind utilities;`).
 
-**Note on spacing + radius:** we do NOT override Tailwind's default spacing scale or borderRadius. Tailwind's native numeric scale already matches our design tokens: `p-1`=4px, `p-2`=8px, `p-3`=12px, `p-4`=16px, `p-6`=24px, `p-8`=32px, `p-12`=48px. For radii we use shadcn's `--radius` CSS variable (set in the generated globals.css during Task 5) plus Tailwind arbitrary values like `rounded-[14px]` for view-specific overrides. This keeps shadcn's internal classes (`p-4`, `px-3`, `rounded-md`) rendering correctly.
+Run:
+```powershell
+Get-Content postcss.config.mjs
+```
+Expected: `@tailwindcss/postcss` plugin listed.
 
-- [ ] **Step 2: Replace `app/globals.css` with token definitions**
+If the first line of globals.css is NOT `@import "tailwindcss";`, STOP and report a scaffold mismatch.
+
+- [ ] **Step 2: Replace `app/globals.css` with our theme tokens**
 
 Overwrite `C:\Users\chath\command-center\app\globals.css`:
 ```css
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-:root {
-  /* Light theme tokens */
-  --bg-base: 0 0% 98%;
-  --bg-elevated: 0 0% 100%;
-  --bg-hover: 240 4% 95%;
-  --border: 240 5% 90%;
-  --border-glow: 258 90% 66%;
-  --fg-primary: 240 10% 4%;
-  --fg-secondary: 240 6% 25%;
-  --fg-muted: 240 4% 46%;
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* Surface & foreground — light theme defaults */
+  --color-bg-base: #fafafa;
+  --color-bg-elevated: #ffffff;
+  --color-bg-hover: #f4f4f5;
+  --color-border: #e4e4e7;
+  --color-border-glow: #8b5cf6;
+  --color-fg-primary: #09090b;
+  --color-fg-secondary: #3f3f46;
+  --color-fg-muted: #71717a;
+
+  /* Crew accents (same in both themes) */
+  --color-crew-fluxy: #8b5cf6;
+  --color-crew-cass: #ec4899;
+  --color-crew-supa: #14b8a6;
+  --color-crew-bugsy: #f59e0b;
+  --color-crew-shield: #10b981;
+  --color-crew-scribe: #60a5fa;
+
+  /* Status */
+  --color-status-success: #22c55e;
+  --color-status-warn: #eab308;
+  --color-status-error: #ef4444;
+  --color-status-critical: #dc2626;
+
+  /* Typography */
+  --font-sans: "Geist Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+
+  /* Shadow */
+  --shadow-card: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 8px 24px rgba(0, 0, 0, 0.45);
 }
 
-.dark {
-  /* Dark theme tokens */
-  --bg-base: 240 6% 4%;
-  --bg-elevated: 240 6% 8%;
-  --bg-hover: 240 6% 12%;
-  --border: 240 4% 16%;
-  --border-glow: 258 90% 66%;
-  --fg-primary: 0 0% 96%;
-  --fg-secondary: 240 5% 65%;
-  --fg-muted: 240 4% 36%;
-}
+/* Dark theme overrides — activated by adding `class="dark"` to <html> */
+@layer base {
+  .dark {
+    --color-bg-base: #0a0a0b;
+    --color-bg-elevated: #121215;
+    --color-bg-hover: #1a1a1f;
+    --color-border: #27272a;
+    --color-fg-primary: #f4f4f5;
+    --color-fg-secondary: #a1a1aa;
+    --color-fg-muted: #52525b;
+  }
 
-html,
-body {
-  background-color: hsl(var(--bg-base));
-  color: hsl(var(--fg-primary));
-  font-family: "Geist Sans", ui-sans-serif, system-ui, sans-serif;
+  body {
+    background-color: var(--color-bg-base);
+    color: var(--color-fg-primary);
+    font-family: var(--font-sans);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -379,51 +347,68 @@ body {
 }
 ```
 
+**How class names resolve:** Because `@theme` variables are named `--color-<token>`, Tailwind v4 auto-generates utility classes:
+- `--color-bg-base` → `bg-bg-base`, `text-bg-base`, `border-bg-base`, etc.
+- `--color-fg-primary` → `bg-fg-primary`, `text-fg-primary`, etc.
+- `--color-crew-cass` → `bg-crew-cass`, `text-crew-cass`, etc.
+
+All Tailwind class names used in Tasks 12-16 (e.g., `bg-bg-elevated`, `text-fg-primary`, `border-border`) work without changes.
+
 - [ ] **Step 3: Verify dev server applies theme**
 
-Run:
 ```powershell
+cd C:\Users\chath\command-center
 pnpm dev
 ```
-Open http://localhost:3000. Expected: background is light gray (`#fafafa` region). Manually add `class="dark"` to `<html>` via DevTools. Expected: background flips to near-black. Ctrl+C to stop.
 
-- [ ] **Step 4: Commit theme config**
+Open http://localhost:3000 in browser. Expected: light gray background (`#fafafa`). Open DevTools → Elements → add `class="dark"` to the `<html>` tag. Expected: background flips to near-black (`#0a0a0b`). Ctrl+C to stop the dev server.
+
+- [ ] **Step 4: Commit**
 
 ```powershell
-git add tailwind.config.ts app/globals.css
-git commit -m "feat(theme): Tailwind tokens + dark/light CSS variables"
+git add app/globals.css
+git commit -m "feat(theme): Tailwind v4 @theme tokens + dark/light variables"
 ```
 
 ---
 
-## Task 5: Install and configure shadcn/ui
+## Task 5: Install and configure shadcn/ui (Tailwind v4 mode)
 
 **Files:**
-- Run shadcn CLI — creates `components/ui/*.tsx`, `lib/utils.ts`, updates `components.json`.
+- Run shadcn CLI — creates `components/ui/*.tsx`, `lib/utils.ts`, `components.json`. Appends shadcn-specific CSS vars to our `app/globals.css`.
+
+**Note on shadcn + Tailwind v4:** shadcn/ui's `init` CLI auto-detects Tailwind v4 and adapts. The prompt sequence differs from v3 — it won't ask about `tailwind.config.ts` because v4 doesn't need one. Expect fewer prompts than the v3 flow.
 
 - [ ] **Step 1: Run shadcn init**
 
-Run:
 ```powershell
 cd C:\Users\chath\command-center
 pnpm dlx shadcn@latest init
 ```
 
-Answer prompts:
+Answer prompts with these values:
 - Which style? → **New York**
-- Which color? → **Zinc**
-- Where is your global CSS? → `app/globals.css`
-- Would you like to use CSS variables? → **Yes**
-- Where is your tailwind.config? → `tailwind.config.ts`
-- Where would you like your components? → `@/components`
-- Where is your utils file? → `@/lib/utils`
+- Which base color? → **Zinc**
+- Where is your global CSS? → `app/globals.css` (accept default)
+- Where would you like your components? → `@/components` (accept default)
+- Where is your utils file? → `@/lib/utils` (accept default)
 - Are you using React Server Components? → **Yes**
 
-Expected: `components.json`, `lib/utils.ts` created. No errors.
+(If other prompts appear, accept defaults. The CLI may not ask every one of the above depending on what it auto-detects.)
 
-- [ ] **Step 2: Verify shadcn's CSS vars merge with ours (shadcn rewrote globals.css)**
+Expected: `components.json` and `lib/utils.ts` created; `app/globals.css` has new shadcn CSS vars appended (typically in OKLCH format inside an `@layer base` block with `:root` and `.dark` selectors).
 
-Re-apply our custom vars — open `C:\Users\chath\command-center\app\globals.css` and confirm our `--bg-base`, `--fg-primary`, etc. are still present after shadcn's additions. If shadcn replaced them, re-paste the `:root` and `.dark` blocks from Task 4 Step 2 below shadcn's `@layer base` block.
+- [ ] **Step 2: Reconcile our theme tokens with shadcn's additions**
+
+Shadcn may have appended its own `:root` and `.dark` blocks to `app/globals.css`. **Preserve both sets:** our `@theme` block from Task 4 (provides `--color-bg-base`, crew colors, etc.) AND shadcn's new variables (`--background`, `--foreground`, `--primary`, `--radius`, etc.) — these drive shadcn components' styling.
+
+After shadcn runs, verify:
+```powershell
+Get-Content app/globals.css | Select-String -Pattern "@theme|--color-bg-base|--background|--radius"
+```
+Expected matches: `@theme` block header, `--color-bg-base` (our token), `--background` (shadcn), `--radius` (shadcn).
+
+If shadcn's init removed our `@theme` block, re-paste it from Task 4 Step 2 above shadcn's `@layer base` block (order: `@import "tailwindcss"` → `@custom-variant dark` → our `@theme` → shadcn's `@layer base`).
 
 - [ ] **Step 3: Install the shadcn components we need for Phase 1**
 
