@@ -3842,9 +3842,23 @@ class ExpenseTracker {
         document.getElementById('amount').value = expense.amount;
         document.getElementById('vendor').value = expense.vendor;
 
+        // Travel fields — stored snake_case from Supabase; spread keeps original keys.
+        const setIf = (id, val) => {
+            const el = document.getElementById(id);
+            if (el) el.value = val ?? '';
+        };
+        setIf('modeOfExpense', expense.mode_of_expense ?? expense.modeOfExpense);
+        setIf('fromLocation', expense.from_location ?? expense.fromLocation);
+        setIf('toLocation', expense.to_location ?? expense.toLocation);
+        setIf('kilometers', expense.kilometers);
+
         // Populate payment mode and bill attached toggles
         this.setToggleValue('paymentModeToggle', expense.paymentMode || 'cash');
         this.setToggleValue('billAttachedToggle', expense.billAttached || 'yes');
+
+        // Render existing receipt images so the user sees "my bill is already here"
+        // and doesn't assume they need to re-upload.
+        this._renderExistingExpenseImages(expense.images || []);
 
         // Update submit button text
         const submitBtn = document.querySelector('#expenseForm button[type="submit"]');
@@ -3856,6 +3870,76 @@ class ExpenseTracker {
         // Open as modal popup
         this._openFormModal('Edit Expense', 'Update Details',
             '<path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>');
+    }
+
+    /// Paints the stored receipt image(s) inside the expense form's preview
+    /// container. Non-destructive: the submit flow at handleSubmit() already
+    /// preserves existing images when `files.length === 0`, so we only need
+    /// the user to see the previews — no other state to wire.
+    _renderExistingExpenseImages(images) {
+        const previewContainer = document.getElementById('imagePreview');
+        if (!previewContainer) return;
+
+        // Clear prior contents except the drag hint.
+        previewContainer.querySelectorAll(':not(#dragDropHint)').forEach(el => el.remove());
+        const dragHint = document.getElementById('dragDropHint');
+
+        if (!Array.isArray(images) || images.length === 0) {
+            if (dragHint) dragHint.style.display = '';
+            previewContainer.style.display = '';
+            return;
+        }
+
+        if (dragHint) dragHint.style.display = 'none';
+        previewContainer.style.display = '';
+
+        // Wrapper with a header so it's obvious these are EXISTING bills.
+        const wrapper = document.createElement('div');
+        wrapper.className = 'existing-bills-wrapper';
+        wrapper.style.cssText = 'padding: 12px; display: flex; flex-direction: column; gap: 10px;';
+
+        const header = document.createElement('div');
+        header.style.cssText = 'font-size: 12px; font-weight: 600; color: #059669; display: flex; align-items: center; gap: 6px;';
+        header.innerHTML = `
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span>${images.length} bill${images.length === 1 ? '' : 's'} already attached — upload more only if you need to replace them.</span>
+        `;
+        wrapper.appendChild(header);
+
+        const grid = document.createElement('div');
+        grid.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px;';
+
+        images.forEach((img, idx) => {
+            const url = img.url || img.public_url || '';
+            const name = img.filename || `bill-${idx + 1}`;
+            if (!url) return;
+            const isPdf = /\.pdf(\?|$)/i.test(url) || /pdf/i.test(name);
+            const cell = document.createElement('a');
+            cell.href = url;
+            cell.target = '_blank';
+            cell.rel = 'noopener';
+            cell.title = name;
+            cell.style.cssText = 'position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden; border: 1px solid #E5E7EB; background: #F9FAFB; display: flex; align-items: center; justify-content: center;';
+            if (isPdf) {
+                cell.innerHTML = `
+                    <div style="text-align:center;color:#6B7280;font-size:10px;padding:8px;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                        <div style="margin-top:4px;">PDF</div>
+                    </div>
+                `;
+            } else {
+                const imgEl = document.createElement('img');
+                imgEl.src = url;
+                imgEl.alt = name;
+                imgEl.loading = 'lazy';
+                imgEl.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
+                cell.appendChild(imgEl);
+            }
+            grid.appendChild(cell);
+        });
+
+        wrapper.appendChild(grid);
+        previewContainer.appendChild(wrapper);
     }
 
     async updateExpense(updatedExpense) {
