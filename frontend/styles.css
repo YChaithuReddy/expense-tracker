@@ -14384,3 +14384,142 @@ a svg {
     color: #fff;
 }
 .pvw__btn--approve:hover { background: #b91c1c; }
+
+/* ════════════════════════════════════════════════════════════════════════
+   Batch review card — v2 polish
+   Tighter hierarchy, SVG-icon labels, collapsible "Trip details" section.
+   Matches the existing #1a1a2e / #16213e glass aesthetic used by
+   .batch-review-modal-content.
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* Icon-prefixed form label used throughout the batch card. */
+.batch-card .form-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    color: #e0e7ff;                  /* high-contrast label against dark card */
+    margin-bottom: 5px;
+}
+.batch-card .form-label svg {
+    color: #00d4ff;                  /* full cyan accent, not dimmed */
+    flex-shrink: 0;
+}
+
+/* Inputs — solid dark fill + bright border so each field looks like a
+   distinct, clickable box instead of blending into the card background.
+   Overrides the earlier .card-inline-form .inline-input rules via
+   specificity (.batch-card scope). */
+.batch-card .inline-input,
+.batch-card select.inline-input,
+.batch-card .card-inline-form .inline-input {
+    background: rgba(0, 0, 0, 0.45) !important;
+    border: 1.5px solid rgba(0, 212, 255, 0.28) !important;
+    color: #ffffff !important;
+    border-radius: 8px !important;
+    padding: 10px 12px !important;
+    font-size: 13px !important;
+    min-height: 40px;
+    transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+    -webkit-appearance: none;
+    appearance: none;
+}
+.batch-card .inline-input::placeholder {
+    color: rgba(255, 255, 255, 0.55);
+    opacity: 1;
+}
+.batch-card .inline-input:hover {
+    border-color: rgba(0, 212, 255, 0.55) !important;
+    background: rgba(0, 0, 0, 0.55) !important;
+}
+.batch-card .inline-input:focus {
+    outline: none;
+    border-color: #00d4ff !important;
+    background: rgba(0, 212, 255, 0.1) !important;
+    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.22) !important;
+}
+/* Date & number inputs render calendar/spinner in browser default colour —
+   force them to the cyan accent. */
+.batch-card input[type="date"].inline-input,
+.batch-card input[type="number"].inline-input {
+    color-scheme: dark;
+}
+.batch-card input[type="date"].inline-input::-webkit-calendar-picker-indicator {
+    filter: invert(0.9) hue-rotate(160deg) saturate(3);
+    cursor: pointer;
+    opacity: 0.85;
+}
+
+/* Two-column row for From / To side by side */
+.batch-card .form-row-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+/* Collapsible "Trip details" group ──────────────────────────────────── */
+.batch-card .trip-details {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px dashed rgba(255, 255, 255, 0.08);
+}
+.batch-card .trip-details__summary {
+    list-style: none;           /* hides default marker in most browsers */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.82);
+    padding: 6px 8px;
+    border-radius: 8px;
+    transition: background-color 0.15s ease, color 0.15s ease;
+    user-select: none;
+}
+.batch-card .trip-details__summary::-webkit-details-marker { display: none; }  /* Safari */
+.batch-card .trip-details__summary::marker { content: ''; }                    /* Firefox */
+.batch-card .trip-details__summary > svg:first-child {
+    color: rgba(0, 212, 255, 0.8);
+    flex-shrink: 0;
+}
+.batch-card .trip-details__summary > span:first-of-type {
+    flex: 1;
+}
+.batch-card .trip-details__meta {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: rgba(0, 212, 255, 0.1);
+    color: rgba(0, 212, 255, 0.9);
+    border: 1px solid rgba(0, 212, 255, 0.22);
+}
+.batch-card .trip-details__chev {
+    color: rgba(255, 255, 255, 0.55);
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+}
+.batch-card .trip-details[open] .trip-details__chev {
+    transform: rotate(180deg);
+}
+.batch-card .trip-details__summary:hover {
+    background: rgba(0, 212, 255, 0.06);
+    color: #ffffff;
+}
+
+.batch-card .trip-details__body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px 4px 4px;
+    animation: tripDetailsReveal 0.18s ease-out;
+}
+@keyframes tripDetailsReveal {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
