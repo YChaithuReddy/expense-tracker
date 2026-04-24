@@ -1221,6 +1221,52 @@ class ExpenseTracker {
             }
         }
 
+        // UPI-style fallback: standalone amount line or line after PAYMENT TO / Amount header.
+        // UPI apps (Paytm / GPay / Kotak / HDFC) often render the amount alone, with no
+        // "Total"/"₹" prefix, so the priority 1-3 patterns miss it. This block picks it up.
+        if (!data.amount) {
+            const upiCandidates = [];
+            const numRe = /(?<![\w@])(\d{1,3}(?:,\d{2,3})*(?:\.\d{1,2})?|\d+\.\d{1,2})(?![\w@])/g;
+            const looksLikeNoise = (raw) => {
+                const clean = raw.replace(/,/g, '');
+                if (clean.length > 8 && !clean.includes('.')) return true; // long ref nos
+                if (/^[6-9]\d{9}$/.test(clean)) return true;                // mobile no
+                return false;
+            };
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                const lineLower = line.toLowerCase();
+                numRe.lastIndex = 0;
+                let m;
+                while ((m = numRe.exec(line)) !== null) {
+                    const raw = m[1];
+                    if (looksLikeNoise(raw)) continue;
+                    const val = cleanAmount(raw);
+                    if (!val) continue;
+                    let score = 0;
+                    // Standalone line = strong signal (ignoring ₹ / Rs / whitespace)
+                    if (/^[₹Rs.\s]*[\d,.\s]+$/i.test(line.trim())) score += 40;
+                    // Right after "PAYMENT TO" / "Amount" / "You paid"
+                    if (i > 0) {
+                        const prev = lines[i - 1].toLowerCase();
+                        if (/payment\s*to|paid\s*to|amount|you\s*paid/.test(prev)) score += 30;
+                    }
+                    if (raw.includes('.')) score += 20; // decimal-bearing = stronger
+                    if (raw.includes(',')) score += 10;
+                    // Penalise UPI/ref noise on the same line
+                    if (/upi\s*id|ref\.?\s*no|txn|transaction/i.test(line)) score -= 40;
+                    if (/\b\d{1,2}[:.]\d{2}\b/.test(line)) score -= 15;           // time
+                    if (/\b\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}\b/.test(line)) score -= 20; // date
+                    if (/(?:bill|payment|charge|total)/i.test(lineLower)) score += 15;
+                    if (score > 0 || val >= 10) upiCandidates.push({ raw, val, score });
+                }
+            }
+            if (upiCandidates.length > 0) {
+                upiCandidates.sort((a, b) => b.score - a.score || b.val - a.val);
+                data.amount = upiCandidates[0].val.toString();
+            }
+        }
+
         // Final fallback: Look for any standalone number near bill/payment keywords
         if (!data.amount) {
             for (const line of lines) {
@@ -1237,23 +1283,43 @@ class ExpenseTracker {
             }
         }
 
-        // Enhanced vendor extraction with smart filtering
+        // UPI fast-path: "PAYMENT TO / Paid to / Transferred to" on its own line,
+        // next clean line is the payee name (handles Paytm / GPay / Kotak screenshots).
+        if (!data.vendor) {
+            const upiHeaderRe = /^(?:payment\s*to|paid\s*to|transferred\s*to|pay\s*to|sent\s*to|to)\s*$/i;
+            for (let i = 0; i < lines.length - 1; i++) {
+                if (!upiHeaderRe.test(lines[i].trim())) continue;
+                for (let j = i + 1; j < lines.length && j < i + 4; j++) {
+                    const s = lines[j].trim();
+                    if (!s || s.length < 3 || s.length > 60) continue;
+                    if (s.includes('@')) continue;                         // UPI ID
+                    if (/^[\d\s\-+().,₹]+$/.test(s)) continue;            // numbers only
+                    if (/^(successful|failed|pending|completed|status)$/i.test(s)) continue;
+                    data.vendor = s.substring(0, 50).trim();
+                    break;
+                }
+                if (data.vendor) break;
+            }
+        }
+
+        // Enhanced vendor extraction with smart filtering (fallback scoring loop)
         const vendorCandidates = [];
-        const skipKeywords = /^(amount|to|from|paid|payment|paytm|phonepe|gpay|googlepay|upi|bank|ref|reference|date|time|bill|invoice|receipt|thank|thanks|total|subtotal|tax|gst|cgst|sgst|igst|cashier|customer)/i;
+        const skipKeywords = /^(amount|to|from|paid|payment|paytm|phonepe|gpay|googlepay|upi|bank|ref|reference|date|time|bill|invoice|receipt|thank|thanks|total|subtotal|tax|gst|cgst|sgst|igst|cashier|customer|status|transaction|successful|failed|pending)/i;
         const businessKeywords = /(limited|ltd|pvt|private|corp|corporation|company|inc|llp|station|store|stores|mart|shop|restaurant|hotel|cafe|petrol|pump|mall|center|centre)/i;
 
-        for (let i = 0; i < Math.min(lines.length, 15); i++) { // Check first 15 lines
+        for (let i = 0; i < Math.min(lines.length, 15) && !data.vendor; i++) { // Check first 15 lines
             const line = lines[i];
 
             // Skip lines with these characteristics
             if (
                 skipKeywords.test(line) ||           // Skip common header/footer words
                 /₹|\d{4,}/.test(line) ||             // Skip lines with amounts or long numbers
+                line.includes('@') ||                 // Skip UPI IDs (foo@bank)
                 line.length < 3 ||                    // Too short
                 line.length > 60 ||                   // Too long
                 /^\d+$/.test(line) ||                 // Just numbers
                 /^[^a-zA-Z]+$/.test(line) ||         // No letters
-                /transaction|order\s*id|ref/i.test(line) // Transaction details
+                /transaction|order\s*id|ref|upi\s*id/i.test(line) // Transaction details
             ) {
                 continue;
             }
@@ -1519,6 +1585,28 @@ class ExpenseTracker {
             console.log(`✅ Selected best match: ${data.date} (pattern: ${bestMatch.type}, confidence: ${(bestMatch.confidence * 100).toFixed(0)}%)`);
         }
 
+        // UPI-style "DD Mon" fallback — no year, assume current year.
+        // Paytm/GPay timestamps like "31 Mar, 06:24 PM" skip the year entirely,
+        // so the year-required patterns above miss them.
+        if (!data.date) {
+            const dmShort = text.match(/\b(\d{1,2})\s+([a-z]{3,9})\.?(?:[,\s]|$)/i);
+            if (dmShort) {
+                const m = findMonth(dmShort[2]);
+                const d = parseInt(dmShort[1]);
+                if (m !== undefined && !isNaN(m) && m >= 0 && m < 12 && d >= 1 && d <= 31) {
+                    const y = new Date().getFullYear();
+                    const dateObj = new Date(y, m, d);
+                    if (!isNaN(dateObj.getTime()) && dateObj.getDate() === d) {
+                        const mm = String(m + 1).padStart(2, '0');
+                        const dd = String(d).padStart(2, '0');
+                        data.date = `${y}-${mm}-${dd}`;
+                        data.dateConfidence = 0.55;
+                        console.log(`✅ Date via DD-Mon fallback: ${data.date}`);
+                    }
+                }
+            }
+        }
+
         // Comprehensive time extraction supporting multiple formats
         const timePatterns = [
             // 12-hour formats with AM/PM
@@ -1723,6 +1811,65 @@ class ExpenseTracker {
         } else {
             qualityLevel = 'Poor';
             qualityIcon = '❌';
+        }
+
+        // Travel-receipt extractors — Mode / From / To. Populated for every receipt;
+        // the form shows these fields always, so the user can edit / clear if they
+        // aren't relevant to a non-travel expense.
+        const extractLocation = (keywords) => {
+            const kwPattern = keywords.map(k => k.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')).join('|');
+            // Inline "From: X" / "Pickup - Y" form.
+            const inlineRe = new RegExp(
+                `\\b(?:${kwPattern})\\b\\s*[:\\-–]\\s*([A-Za-z0-9][A-Za-z0-9\\s,\\-]{2,60})`,
+                'i'
+            );
+            const inlineMatch = text.match(inlineRe);
+            if (inlineMatch) {
+                const cleaned = inlineMatch[1].replace(/[,\-\s]+$/, '').trim();
+                if (cleaned.length >= 3) return cleaned.substring(0, 60);
+            }
+            // Header-above-value form (keyword on its own line).
+            const headerRe = new RegExp(`^(?:${kwPattern})\\s*:?\\s*$`, 'i');
+            for (let i = 0; i < lines.length - 1; i++) {
+                if (!headerRe.test(lines[i].trim())) continue;
+                for (let j = i + 1; j < lines.length && j < i + 3; j++) {
+                    const s = lines[j].trim();
+                    if (!s || s.length < 3 || s.length > 80) continue;
+                    if (/^[\d\s\-+().,:\/]+$/.test(s)) continue; // numeric / date / time only
+                    if (/^\d{1,2}[:.]\d{2}/.test(s)) continue;
+                    return s.replace(/[,\-\s]+$/, '').trim().substring(0, 60);
+                }
+            }
+            return '';
+        };
+
+        data.fromLocation = extractLocation(['from', 'pickup', 'pick up', 'pick-up', 'source', 'starting', 'origin']);
+        data.toLocation = extractLocation(['to', 'drop', 'drop off', 'drop-off', 'destination', 'end']);
+
+        // Mode of transport — prefer subcategory if it's a ride label, else keyword sniff.
+        const rideSubs = new Set(['Rapido', 'Uber', 'Ola', 'Cab', 'Auto', 'Metro', 'Bus',
+                                  'Train', 'Flight', 'Personal Bike', 'Personal Car', 'Portar']);
+        if (data.subcategory && rideSubs.has(data.subcategory)) {
+            data.modeOfExpense = data.subcategory;
+        } else {
+            const modeMap = {
+                'Rapido': ['rapido'],
+                'Uber': ['uber'],
+                'Ola': ['ola cabs', 'ola '],
+                'Auto': ['auto rickshaw', 'auto '],
+                'Cab': ['cab', 'taxi'],
+                'Metro': ['metro'],
+                'Bus': ['ksrtc', 'redbus', 'bus '],
+                'Train': ['irctc', 'railway'],
+                'Flight': ['indigo', 'spicejet', 'vistara', 'air india', 'flight'],
+            };
+            for (const [label, kws] of Object.entries(modeMap)) {
+                if (kws.some(kw => textLower.includes(kw))) {
+                    data.modeOfExpense = label;
+                    break;
+                }
+            }
+            if (!data.modeOfExpense) data.modeOfExpense = '';
         }
 
         // Add quality metadata to data
@@ -2773,7 +2920,10 @@ class ExpenseTracker {
             { id: 'date', value: this.extractedData.date },
             { id: 'category', value: this.extractedData.category },
             { id: 'description', value: this.extractedData.description },
-            { id: 'amount', value: this.extractedData.amount }
+            { id: 'amount', value: this.extractedData.amount },
+            { id: 'modeOfExpense', value: this.extractedData.modeOfExpense },
+            { id: 'fromLocation', value: this.extractedData.fromLocation },
+            { id: 'toLocation', value: this.extractedData.toLocation }
         ];
 
         // Fill ONLY fields with valid extracted data, leave others empty
@@ -6811,19 +6961,8 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         const customCategoryInput = document.getElementById('customCategory');
         const hiddenCategory = document.getElementById('category');
 
-        // Toggle travel fields visibility (Mode/From/To/KM)
-        const travelFields = document.getElementById('travelFieldsGroup');
-        if (travelFields) {
-            // Travel-related categories that capture Mode/From/To/KM
-            const travelCats = new Set([
-                'Travel',
-                'Transportation',
-                'Local Conveyance',
-                'Mileage',
-                'Fuel',
-            ]);
-            travelFields.style.display = travelCats.has(mainCategory) ? 'block' : 'none';
-        }
+        // Travel fields (Mode/From/To/KM) are always visible — users can log
+        // trip details against any category, not just Travel-family ones.
 
         // Hide both subcategory dropdown and custom input by default
         subcategoryGroup.style.display = 'none';
