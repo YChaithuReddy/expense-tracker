@@ -957,10 +957,38 @@ class ExpenseTracker {
                         retryCount++;
                         const isTimeout = imageError.name === 'AbortError';
                         if (retryCount > maxRetries) {
-                            if (ocrStatus) ocrStatus.textContent = `Bill ${i + 1}: OCR timed out — you can enter details manually`;
-                            // Create expense with empty OCR text (user can edit manually)
-                            ocrText = '';
-                            ocrConfidence = 0;
+                            // Fallback to Tesseract.js (browser-side OCR) when OCR.space fails —
+                            // handles CORS blocks, network errors, and rate limits. Slower but
+                            // works offline and with no third-party service.
+                            if (typeof Tesseract !== 'undefined') {
+                                try {
+                                    if (ocrStatus) ocrStatus.textContent = `Bill ${i + 1}: OCR.space blocked — running local OCR…`;
+                                    const tsResult = await Tesseract.recognize(
+                                        this.scannedImages[i].data,
+                                        'eng',
+                                        {
+                                            logger: (msg) => {
+                                                if (msg.status === 'recognizing text' && ocrStatus) {
+                                                    ocrStatus.textContent =
+                                                        `Bill ${i + 1}: local OCR ${Math.round((msg.progress || 0) * 100)}%`;
+                                                }
+                                            },
+                                        }
+                                    );
+                                    ocrText = tsResult?.data?.text || '';
+                                    ocrConfidence = Math.round(tsResult?.data?.confidence || 0);
+                                    console.log(`✅ Tesseract fallback OCR for bill ${i + 1}: ${ocrText.length} chars, ${ocrConfidence}% confidence`);
+                                } catch (tsError) {
+                                    console.error('Tesseract fallback failed:', tsError);
+                                    if (ocrStatus) ocrStatus.textContent = `Bill ${i + 1}: OCR failed — you can enter details manually`;
+                                    ocrText = '';
+                                    ocrConfidence = 0;
+                                }
+                            } else {
+                                if (ocrStatus) ocrStatus.textContent = `Bill ${i + 1}: OCR timed out — you can enter details manually`;
+                                ocrText = '';
+                                ocrConfidence = 0;
+                            }
                         } else {
                             if (ocrStatus) ocrStatus.textContent = `Bill ${i + 1}: Retrying...`;
                             await new Promise(resolve => setTimeout(resolve, 500)); // Faster retry (was 1000)
@@ -2230,6 +2258,10 @@ class ExpenseTracker {
             const safeDate = this.sanitizeHTML(expense.date || '');
             const safeAmount = this.sanitizeHTML(expense.amount || '');
             const safeCategory = this.sanitizeHTML(expense.category || '');
+            const safeMode = this.sanitizeHTML(expense.modeOfExpense || '');
+            const safeFrom = this.sanitizeHTML(expense.fromLocation || '');
+            const safeTo = this.sanitizeHTML(expense.toLocation || '');
+            const safeKm = this.sanitizeHTML(expense.kilometers != null ? String(expense.kilometers) : '');
 
             // Parse main category and subcategory from "Category - Subcategory" format
             const categoryParts = safeCategory.split(' - ');
@@ -2309,6 +2341,22 @@ class ExpenseTracker {
                                 <option value="">Select Subcategory</option>
                                 ${subOptions}
                             </select>
+                        </div>
+                        <div class="form-row">
+                            <label class="form-label">🚗 Mode of Transport</label>
+                            <input type="text" class="inline-input expense-mode" data-index="${index}" value="${safeMode}" placeholder="e.g. Rapido, Personal Car, Auto">
+                        </div>
+                        <div class="form-row">
+                            <label class="form-label">📍 From Location</label>
+                            <input type="text" class="inline-input expense-from" data-index="${index}" value="${safeFrom}" placeholder="e.g. Office, Home">
+                        </div>
+                        <div class="form-row">
+                            <label class="form-label">🎯 To Location</label>
+                            <input type="text" class="inline-input expense-to" data-index="${index}" value="${safeTo}" placeholder="e.g. Client site, Event venue">
+                        </div>
+                        <div class="form-row">
+                            <label class="form-label">📏 Kilometers</label>
+                            <input type="number" class="inline-input expense-km" data-index="${index}" value="${safeKm}" step="0.1" min="0" placeholder="Distance in KM">
                         </div>
                     </div>
 
@@ -2484,6 +2532,23 @@ class ExpenseTracker {
                 // No full re-render needed - data model is updated
             });
         });
+
+        // Travel fields — Mode / From / To / KM on each batch card.
+        const bindField = (selector, field) => {
+            document.querySelectorAll(selector).forEach(input => {
+                input.addEventListener('change', (e) => {
+                    const index = parseInt(e.target.dataset.index);
+                    const value = field === 'kilometers'
+                        ? (parseFloat(e.target.value) || null)
+                        : e.target.value;
+                    this.updateExpenseField(index, field, value);
+                });
+            });
+        };
+        bindField('.expense-mode', 'modeOfExpense');
+        bindField('.expense-from', 'fromLocation');
+        bindField('.expense-to', 'toLocation');
+        bindField('.expense-km', 'kilometers');
 
         // Attach listeners to remove buttons
         const removeButtons = document.querySelectorAll('.remove-bill-btn');
@@ -2768,6 +2833,20 @@ class ExpenseTracker {
                     vendor: cleanVendor,
                     description: description
                 };
+                // Travel fields — only emit when the user actually entered them,
+                // so non-travel expenses don't write blank strings to the row.
+                if (expense.modeOfExpense && String(expense.modeOfExpense).trim()) {
+                    expenseData.mode_of_expense = String(expense.modeOfExpense).trim();
+                }
+                if (expense.fromLocation && String(expense.fromLocation).trim()) {
+                    expenseData.from_location = String(expense.fromLocation).trim();
+                }
+                if (expense.toLocation && String(expense.toLocation).trim()) {
+                    expenseData.to_location = String(expense.toLocation).trim();
+                }
+                if (expense.kilometers != null && !isNaN(parseFloat(expense.kilometers))) {
+                    expenseData.kilometers = parseFloat(expense.kilometers);
+                }
 
                 // Log the data being sent for debugging
                 console.log(`Submitting bill ${i + 1} with data:`, expenseData);
@@ -8756,16 +8835,30 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             ocrForm.append('scale', 'true');
             ocrForm.append('OCREngine', '2');
 
-            const response = await fetch('https://api.ocr.space/parse/image', {
-                method: 'POST',
-                body: ocrForm
-            });
-
             let ocrText = '';
-            if (response.ok) {
-                const result = await response.json();
-                if (result.ParsedResults?.[0]?.ParsedText) {
-                    ocrText = result.ParsedResults[0].ParsedText;
+            try {
+                const response = await fetch('https://api.ocr.space/parse/image', {
+                    method: 'POST',
+                    body: ocrForm
+                });
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.ParsedResults?.[0]?.ParsedText) {
+                        ocrText = result.ParsedResults[0].ParsedText;
+                    }
+                }
+            } catch (ocrSpaceError) {
+                console.warn('Quick Add: OCR.space blocked, falling back to Tesseract', ocrSpaceError);
+            }
+
+            // Fallback to Tesseract.js if OCR.space returned nothing (CORS / rate limit / offline).
+            if (!ocrText && typeof Tesseract !== 'undefined') {
+                try {
+                    if (scanStatus) scanStatus.textContent = 'Running local OCR…';
+                    const tsResult = await Tesseract.recognize(dataUrl, 'eng');
+                    ocrText = tsResult?.data?.text || '';
+                } catch (tsError) {
+                    console.error('Quick Add Tesseract fallback failed:', tsError);
                 }
             }
 
