@@ -877,13 +877,15 @@ class ExpenseTracker {
         // Clear previous extracted expenses
         this.extractedExpenses = [];
 
-        // OCR.space API — called directly (no backend proxy needed)
-        const OCR_API_URL = 'https://api.ocr.space/parse/image';
-        const OCR_API_KEY = 'K85403785688957'; // Free tier key
+        // Tesseract.js runs entirely in the browser — no CORS, no API key,
+        // no rate limits. OCR.space stopped setting Access-Control-Allow-Origin
+        // for this vercel.app origin, so every call there throws a CORS error
+        // in dev tools and wastes a 25s timeout before falling through.
+        // Going straight to Tesseract makes scans quieter and faster.
 
         try {
             // Show initializing status
-            document.getElementById('ocrStatus').textContent = 'Connecting to OCR.space...';
+            document.getElementById('ocrStatus').textContent = 'Starting local OCR engine…';
 
             // Process each image separately for batch upload
             for (let i = 0; i < this.scannedImages.length; i++) {
@@ -899,101 +901,33 @@ class ExpenseTracker {
 
                 let ocrText = '';
                 let ocrConfidence = 0;
-                let retryCount = 0;
-                const maxRetries = 1;
 
-                // Retry logic for individual image OCR
-                while (retryCount <= maxRetries) {
+                if (typeof Tesseract !== 'undefined') {
                     try {
-                        if (ocrStatus) ocrStatus.textContent = `Scanning bill ${i + 1} of ${this.scannedImages.length}${retryCount > 0 ? ' (retry)' : ''}...`;
-
-                        // Call OCR.space API directly
-                        const controller = new AbortController();
-                        const timeoutId = setTimeout(() => controller.abort(), 25000);
-
-                        const formData = new FormData();
-                        formData.append('apikey', OCR_API_KEY);
-                        formData.append('base64Image', this.scannedImages[i].data);
-                        formData.append('language', 'eng');
-                        formData.append('isOverlayRequired', 'false');
-                        formData.append('detectOrientation', 'true');
-                        formData.append('scale', 'true');
-                        formData.append('OCREngine', '2');
-
-                        const response = await fetch(OCR_API_URL, {
-                            method: 'POST',
-                            body: formData,
-                            signal: controller.signal
-                        });
-                        clearTimeout(timeoutId);
-
-                        if (!response.ok) {
-                            throw new Error(`OCR API error: ${response.status}`);
-                        }
-
-                        const result = await response.json();
-
-                        if (result.ParsedResults && result.ParsedResults.length > 0) {
-                            const parsedResult = result.ParsedResults[0];
-
-                            if (parsedResult.ErrorMessage) {
-                                throw new Error(parsedResult.ErrorMessage);
+                        const tsResult = await Tesseract.recognize(
+                            this.scannedImages[i].data,
+                            'eng',
+                            {
+                                logger: (msg) => {
+                                    if (msg.status === 'recognizing text' && ocrStatus) {
+                                        ocrStatus.textContent =
+                                            `Bill ${i + 1}: scanning ${Math.round((msg.progress || 0) * 100)}%`;
+                                    }
+                                },
                             }
-
-                            ocrText = parsedResult.ParsedText || '';
-                            // OCR.space doesn't return confidence %, estimate from exit code
-                            ocrConfidence = parsedResult.FileParseExitCode === 1 ? 95 : 70;
-
-                            // Add delay between requests to avoid rate limiting
-                            if (i < this.scannedImages.length - 1) {
-                                await new Promise(resolve => setTimeout(resolve, 1000));
-                            }
-                            break; // Success - exit retry loop
-                        } else {
-                            throw new Error(result.ErrorMessage || 'OCR failed - no results');
-                        }
-
-                    } catch (imageError) {
-                        retryCount++;
-                        const isTimeout = imageError.name === 'AbortError';
-                        if (retryCount > maxRetries) {
-                            // Fallback to Tesseract.js (browser-side OCR) when OCR.space fails —
-                            // handles CORS blocks, network errors, and rate limits. Slower but
-                            // works offline and with no third-party service.
-                            if (typeof Tesseract !== 'undefined') {
-                                try {
-                                    if (ocrStatus) ocrStatus.textContent = `Bill ${i + 1}: OCR.space blocked — running local OCR…`;
-                                    const tsResult = await Tesseract.recognize(
-                                        this.scannedImages[i].data,
-                                        'eng',
-                                        {
-                                            logger: (msg) => {
-                                                if (msg.status === 'recognizing text' && ocrStatus) {
-                                                    ocrStatus.textContent =
-                                                        `Bill ${i + 1}: local OCR ${Math.round((msg.progress || 0) * 100)}%`;
-                                                }
-                                            },
-                                        }
-                                    );
-                                    ocrText = tsResult?.data?.text || '';
-                                    ocrConfidence = Math.round(tsResult?.data?.confidence || 0);
-                                    console.log(`✅ Tesseract fallback OCR for bill ${i + 1}: ${ocrText.length} chars, ${ocrConfidence}% confidence`);
-                                } catch (tsError) {
-                                    console.error('Tesseract fallback failed:', tsError);
-                                    if (ocrStatus) ocrStatus.textContent = `Bill ${i + 1}: OCR failed — you can enter details manually`;
-                                    ocrText = '';
-                                    ocrConfidence = 0;
-                                }
-                            } else {
-                                if (ocrStatus) ocrStatus.textContent = `Bill ${i + 1}: OCR timed out — you can enter details manually`;
-                                ocrText = '';
-                                ocrConfidence = 0;
-                            }
-                        } else {
-                            if (ocrStatus) ocrStatus.textContent = `Bill ${i + 1}: Retrying...`;
-                            await new Promise(resolve => setTimeout(resolve, 500)); // Faster retry (was 1000)
-                        }
+                        );
+                        ocrText = tsResult?.data?.text || '';
+                        ocrConfidence = Math.round(tsResult?.data?.confidence || 0);
+                        console.log(`✅ Local OCR for bill ${i + 1}: ${ocrText.length} chars, ${ocrConfidence}% confidence`);
+                    } catch (tsError) {
+                        console.error('Tesseract OCR failed:', tsError);
+                        if (ocrStatus) ocrStatus.textContent = `Bill ${i + 1}: OCR failed — enter details manually`;
+                        ocrText = '';
+                        ocrConfidence = 0;
                     }
+                } else {
+                    console.warn('Tesseract not loaded; skipping OCR for bill', i + 1);
+                    if (ocrStatus) ocrStatus.textContent = `Bill ${i + 1}: OCR unavailable — enter details manually`;
                 }
 
                 // Extract expense data from this bill (even if OCR failed)
@@ -8909,41 +8843,26 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             });
             this._quickAddImageData = dataUrl;
 
-            // Call OCR.space API directly
-            const ocrForm = new FormData();
-            ocrForm.append('apikey', 'K85403785688957');
-            ocrForm.append('base64Image', dataUrl);
-            ocrForm.append('language', 'eng');
-            ocrForm.append('isOverlayRequired', 'false');
-            ocrForm.append('detectOrientation', 'true');
-            ocrForm.append('scale', 'true');
-            ocrForm.append('OCREngine', '2');
-
+            // Run OCR directly via Tesseract.js (browser-side, no CORS/API key).
+            // OCR.space is permanently CORS-blocked on this origin; skipping it
+            // avoids a ~25s timeout and noisy console errors.
             let ocrText = '';
-            try {
-                const response = await fetch('https://api.ocr.space/parse/image', {
-                    method: 'POST',
-                    body: ocrForm
-                });
-                if (response.ok) {
-                    const result = await response.json();
-                    if (result.ParsedResults?.[0]?.ParsedText) {
-                        ocrText = result.ParsedResults[0].ParsedText;
-                    }
-                }
-            } catch (ocrSpaceError) {
-                console.warn('Quick Add: OCR.space blocked, falling back to Tesseract', ocrSpaceError);
-            }
-
-            // Fallback to Tesseract.js if OCR.space returned nothing (CORS / rate limit / offline).
-            if (!ocrText && typeof Tesseract !== 'undefined') {
+            if (typeof Tesseract !== 'undefined') {
                 try {
                     if (scanStatus) scanStatus.textContent = 'Running local OCR…';
-                    const tsResult = await Tesseract.recognize(dataUrl, 'eng');
+                    const tsResult = await Tesseract.recognize(dataUrl, 'eng', {
+                        logger: (msg) => {
+                            if (msg.status === 'recognizing text' && scanStatus) {
+                                scanStatus.textContent = `Scanning ${Math.round((msg.progress || 0) * 100)}%`;
+                            }
+                        },
+                    });
                     ocrText = tsResult?.data?.text || '';
                 } catch (tsError) {
-                    console.error('Quick Add Tesseract fallback failed:', tsError);
+                    console.error('Quick Add Tesseract OCR failed:', tsError);
                 }
+            } else {
+                console.warn('Tesseract not loaded; Quick Add will open blank for manual entry');
             }
 
             // Extract data using existing parser
