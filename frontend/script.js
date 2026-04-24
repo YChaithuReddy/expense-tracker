@@ -2246,19 +2246,31 @@ class ExpenseTracker {
                     <!-- Inline Editable Form - Always visible -->
                     <div class="card-inline-form">
                         <div class="form-row">
-                            <label class="form-label">📅 Date</label>
+                            <label class="form-label">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                                Date
+                            </label>
                             <input type="date" class="inline-input expense-date" data-index="${index}" value="${safeDate}">
                         </div>
                         <div class="form-row">
-                            <label class="form-label">📋 Project Name</label>
+                            <label class="form-label">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                                Project Name
+                            </label>
                             <input type="text" class="inline-input expense-vendor" data-index="${index}" value="${safeVendor}" placeholder="Enter project name">
                         </div>
                         <div class="form-row">
-                            <label class="form-label">💰 Amount</label>
+                            <label class="form-label">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                                Amount
+                            </label>
                             <input type="number" class="inline-input expense-amount" data-index="${index}" value="${safeAmount}" step="0.01" placeholder="0.00">
                         </div>
                         <div class="form-row">
-                            <label class="form-label">📁 Category</label>
+                            <label class="form-label">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                                Category
+                            </label>
                             <select class="inline-input expense-main-category" data-index="${index}">
                                 <option value="Transportation" ${mainCat === 'Transportation' ? 'selected' : ''}>Transportation</option>
                                 <option value="Accommodation" ${mainCat === 'Accommodation' ? 'selected' : ''}>Accommodation</option>
@@ -2270,29 +2282,58 @@ class ExpenseTracker {
                             </select>
                         </div>
                         <div class="form-row batch-subcategory-row" data-index="${index}" style="${subOptions ? '' : 'display:none'}">
-                            <label class="form-label">📂 Subcategory</label>
+                            <label class="form-label">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 17 15 12 20 7"></polyline><path d="M4 18v-2a4 4 0 0 1 4-4h12"></path></svg>
+                                Subcategory
+                            </label>
                             <select class="inline-input expense-subcategory" data-index="${index}">
                                 <option value="">Select Subcategory</option>
                                 ${subOptions}
                             </select>
                         </div>
-                        <div class="form-row">
-                            <label class="form-label">🚗 Mode of Transport</label>
-                            <input type="text" class="inline-input expense-mode" data-index="${index}" value="${safeMode}" placeholder="e.g. Rapido, Personal Car, Auto">
-                        </div>
-                        <div class="form-row">
-                            <label class="form-label">📍 From Location</label>
-                            <input type="text" class="inline-input expense-from" data-index="${index}" value="${safeFrom}" placeholder="e.g. Office, Home">
-                        </div>
-                        <div class="form-row">
-                            <label class="form-label">🎯 To Location</label>
-                            <input type="text" class="inline-input expense-to" data-index="${index}" value="${safeTo}" placeholder="e.g. Client site, Event venue">
-                        </div>
-                        <div class="form-row">
-                            <label class="form-label">📏 Kilometers</label>
-                            <input type="number" class="inline-input expense-km" data-index="${index}" value="${safeKm}" step="0.1" min="0" placeholder="Distance in KM">
-                        </div>
                     </div>
+
+                    <!-- Trip details — collapsible secondary group -->
+                    <details class="trip-details" data-index="${index}"${(safeMode || safeFrom || safeTo || safeKm) ? ' open' : ''}>
+                        <summary class="trip-details__summary">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                            <span>Trip details</span>
+                            <span class="trip-details__meta">${(safeMode || safeFrom || safeTo || safeKm) ? 'prefilled' : 'optional'}</span>
+                            <svg class="trip-details__chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </summary>
+                        <div class="trip-details__body">
+                            <div class="form-row">
+                                <label class="form-label">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle><path d="M5 17H3V6a1 1 0 0 1 1-1h10v12M14 17h1m4 0h2v-6l-2-4h-5"></path></svg>
+                                    Mode of Transport
+                                </label>
+                                <input type="text" class="inline-input expense-mode" data-index="${index}" value="${safeMode}" placeholder="e.g. Rapido, Personal Car, Auto">
+                            </div>
+                            <div class="form-row-split">
+                                <div class="form-row">
+                                    <label class="form-label">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><circle cx="12" cy="12" r="10"></circle></svg>
+                                        From
+                                    </label>
+                                    <input type="text" class="inline-input expense-from" data-index="${index}" value="${safeFrom}" placeholder="Origin">
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                                        To
+                                    </label>
+                                    <input type="text" class="inline-input expense-to" data-index="${index}" value="${safeTo}" placeholder="Destination">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label class="form-label">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.73 18l-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3z"></path></svg>
+                                    Kilometers
+                                </label>
+                                <input type="number" class="inline-input expense-km" data-index="${index}" value="${safeKm}" step="0.1" min="0" placeholder="Distance in KM">
+                            </div>
+                        </div>
+                    </details>
 
                     <!-- Delete Button Only -->
                     <div class="card-action-buttons">
