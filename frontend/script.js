@@ -6695,6 +6695,89 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                 histExportText.textContent = 'Export to Google Sheets';
             }
         }
+
+        // History page delete button — only visible when something is selected.
+        const histDeleteBtn = document.getElementById('historyDeleteBtn');
+        const histDeleteText = document.getElementById('historyDeleteBtnText');
+        if (histDeleteBtn) {
+            histDeleteBtn.style.display = checkboxes.length > 0 ? 'inline-flex' : 'none';
+            if (histDeleteText) {
+                histDeleteText.textContent = checkboxes.length > 0
+                    ? `Delete Selected (${checkboxes.length})`
+                    : 'Delete Selected';
+            }
+        }
+    }
+
+    /// Bulk delete of every expense ticked in the history table. Loops through
+    /// the existing single-row api.deleteExpense (which also removes storage
+    /// files and the expense_images rows), shows a single combined confirm,
+    /// and refreshes the list once at the end so the UI only re-renders once.
+    async deleteSelectedExpenses() {
+        const selected = this.getSelectedExpenses();
+        if (selected.length === 0) {
+            this.showNotification('⚠️ Select expenses to delete by checking the boxes');
+            return;
+        }
+
+        const total = selected.reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
+        const confirmMsg = selected.length === 1
+            ? `Delete this expense of ₹${this.formatAmount(total)}? This cannot be undone.`
+            : `Delete ${selected.length} selected expenses (₹${this.formatAmount(total)} total)?\n\nThis cannot be undone — bills, images, and rows will all be removed.`;
+        if (!confirm(confirmMsg)) return;
+
+        const btn = document.getElementById('historyDeleteBtn');
+        const btnText = document.getElementById('historyDeleteBtnText');
+        const prevLabel = btnText ? btnText.textContent : '';
+        if (btn) btn.disabled = true;
+
+        let ok = 0;
+        let fail = 0;
+        const errors = [];
+
+        for (let i = 0; i < selected.length; i++) {
+            const exp = selected[i];
+            if (btnText) btnText.textContent = `Deleting ${i + 1} of ${selected.length}…`;
+            try {
+                const response = await api.deleteExpense(exp.id);
+                if (response && response.success !== false) {
+                    ok++;
+                    window.api?.logActivity?.(
+                        'expense_deleted',
+                        `Deleted expense ₹${exp.amount} — ${exp.vendor || 'Unknown'}`,
+                        { amount: exp.amount, vendor: exp.vendor, bulk: true },
+                    );
+                } else {
+                    fail++;
+                    errors.push(`${exp.vendor || exp.id}: ${response?.message || 'unknown error'}`);
+                }
+            } catch (err) {
+                fail++;
+                errors.push(`${exp.vendor || exp.id}: ${err.message || err}`);
+                console.error('Bulk delete — one row failed:', exp.id, err);
+            }
+        }
+
+        if (btn) btn.disabled = false;
+        if (btnText) btnText.textContent = prevLabel;
+
+        try {
+            await this.loadExpenses();
+        } catch (_) {
+            // loadExpenses does its own error handling; ignore here.
+        }
+
+        if (fail === 0) {
+            this.showNotification(
+                ok === 1
+                    ? '✅ Expense deleted successfully!'
+                    : `✅ Deleted ${ok} expenses successfully!`,
+            );
+        } else if (ok === 0) {
+            this.showNotification(`❌ Delete failed for all ${fail} selected expense(s). ${errors[0] || ''}`);
+        } else {
+            this.showNotification(`⚠️ Deleted ${ok} of ${ok + fail}. ${fail} failed — check console for details.`);
+        }
     }
 
     getSelectedExpenses() {

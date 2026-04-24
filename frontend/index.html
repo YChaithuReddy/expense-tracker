@@ -532,6 +532,10 @@
                         <p>View, search, and filter all your submitted expenses</p>
                     </div>
                     <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                        <button id="historyDeleteBtn" style="display:none;align-items:center;gap:8px;padding:9px 20px;background:#dc2626;color:#ffffff;border:none;border-radius:10px;font-size:0.84rem;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(220,38,38,0.3);transition:all 0.18s;" onmouseover="this.style.background='#b91c1c';this.style.boxShadow='0 6px 20px rgba(220,38,38,0.4)'" onmouseout="this.style.background='#dc2626';this.style.boxShadow='0 4px 14px rgba(220,38,38,0.3)'" onclick="expenseTracker.deleteSelectedExpenses()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                            <span id="historyDeleteBtnText">Delete Selected</span>
+                        </button>
                         <button id="historyExportBtn" style="display:inline-flex;align-items:center;gap:8px;padding:9px 20px;background:#059669;color:#ffffff;border:none;border-radius:10px;font-size:0.84rem;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(5,150,105,0.3);transition:all 0.18s;" onmouseover="this.style.background='#047857';this.style.boxShadow='0 6px 20px rgba(5,150,105,0.4)'" onmouseout="this.style.background='#059669';this.style.boxShadow='0 4px 14px rgba(5,150,105,0.3)'" onclick="expenseTracker.exportToGoogleSheets()">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>
                             <span id="historyExportBtnText">Export to Google Sheets</span>
