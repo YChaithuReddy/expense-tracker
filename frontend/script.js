@@ -4089,7 +4089,7 @@ class ExpenseTracker {
         const searchFilterContainer = document.getElementById('searchFilterContainer');
         const statsBar = document.getElementById('historyStatsBar');
 
-        // Update stats pills
+        // Update stat cards (image-style: colored icon tile + label + big value + caption)
         if (statsBar) {
             const all = this.expenses;
             const totalAmt = all.reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
@@ -4100,11 +4100,48 @@ class ExpenseTracker {
             });
             const thisMonthAmt = thisMonth.reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
             const withBill = all.filter(e => e.billAttached === 'yes').length;
+            const fmt = (n) => '₹' + n.toLocaleString('en-IN', { maximumFractionDigits: 2 });
             statsBar.innerHTML = `
-                <div class="admin-stat-pill">Expenses: <strong>${all.length}</strong></div>
-                <div class="admin-stat-pill admin-stat-pill--active">Total: <strong>₹${totalAmt.toLocaleString('en-IN')}</strong></div>
-                <div class="admin-stat-pill" style="color:#d97706;border-color:rgba(217,119,6,0.2);background:#fffbeb;">This Month: <strong>${thisMonth.length}</strong> (₹${thisMonthAmt.toLocaleString('en-IN')})</div>
-                <div class="admin-stat-pill" style="color:#2563eb;border-color:rgba(37,99,235,0.2);background:#eff6ff;">With Bill: <strong>${withBill}</strong></div>
+                <div class="hist-stat-card">
+                    <div class="hist-stat-card__icon hist-stat-card__icon--blue" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    </div>
+                    <div class="hist-stat-card__body">
+                        <div class="hist-stat-card__label">Expenses</div>
+                        <div class="hist-stat-card__value">${all.length}</div>
+                        <div class="hist-stat-card__caption">Total Expenses</div>
+                    </div>
+                </div>
+                <div class="hist-stat-card">
+                    <div class="hist-stat-card__icon hist-stat-card__icon--green" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 1 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/></svg>
+                    </div>
+                    <div class="hist-stat-card__body">
+                        <div class="hist-stat-card__label">Total Amount</div>
+                        <div class="hist-stat-card__value hist-stat-card__value--green">${fmt(totalAmt)}</div>
+                        <div class="hist-stat-card__caption">All Time Total</div>
+                    </div>
+                </div>
+                <div class="hist-stat-card">
+                    <div class="hist-stat-card__icon hist-stat-card__icon--amber" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    </div>
+                    <div class="hist-stat-card__body">
+                        <div class="hist-stat-card__label">This Month</div>
+                        <div class="hist-stat-card__value hist-stat-card__value--amber">${thisMonth.length} (${fmt(thisMonthAmt)})</div>
+                        <div class="hist-stat-card__caption">This Month Total</div>
+                    </div>
+                </div>
+                <div class="hist-stat-card">
+                    <div class="hist-stat-card__icon hist-stat-card__icon--violet" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"/><path d="M18 12h4v4h-4a2 2 0 1 1 0-4z"/></svg>
+                    </div>
+                    <div class="hist-stat-card__body">
+                        <div class="hist-stat-card__label">With Bill</div>
+                        <div class="hist-stat-card__value hist-stat-card__value--violet">${withBill}</div>
+                        <div class="hist-stat-card__caption">Expenses with Bill</div>
+                    </div>
+                </div>
             `;
         }
 
@@ -4193,8 +4230,14 @@ class ExpenseTracker {
             </tr>`;
         }).join('');
 
-        container.innerHTML = `<div class="admin-table-wrap"><table class="admin-table"><thead><tr>
-            <th style="width:36px;"></th><th>Date</th><th>Amount</th><th>Category</th><th>Vendor</th><th>Info</th><th style="width:80px;">Actions</th>
+        container.innerHTML = `<div class="admin-table-wrap hist-table-wrap"><table class="admin-table hist-table"><thead><tr>
+            <th style="width:36px;"></th>
+            <th class="hist-th hist-th--sortable">Date <span class="hist-sort-icon" aria-hidden="true">⇅</span></th>
+            <th class="hist-th hist-th--sortable">Amount <span class="hist-sort-icon" aria-hidden="true">⇅</span></th>
+            <th class="hist-th">Category</th>
+            <th class="hist-th">Vendor</th>
+            <th class="hist-th">Info</th>
+            <th class="hist-th" style="width:96px;text-align:right;">Actions</th>
         </tr></thead><tbody>${rows}</tbody></table></div>`;
 
         this.updateExportButton();
