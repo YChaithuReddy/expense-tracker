@@ -54,17 +54,18 @@ const expenseDetail = (() => {
         style.textContent = `
             .expense-detail-overlay { padding: 0 !important; }
             .expense-detail-overlay.active .expense-detail-panel {
-                width: min(1280px, 96vw);
-                max-height: 92vh;
+                width: min(1240px, 96vw);
+                max-height: 88vh;
                 display: flex; flex-direction: column;
-                border-radius: 18px;
+                border-radius: 16px;
                 background: #ffffff;
                 overflow: hidden;
             }
             .expense-detail-header {
-                padding: 18px 24px;
+                padding: 16px 22px;
                 background: #ffffff;
                 border-bottom: 1px solid #eef2f7;
+                flex-shrink: 0;
             }
             .expense-detail-header-title {
                 font-size: 1.02rem; font-weight: 700; color: #111827; letter-spacing: -0.01em;
@@ -83,25 +84,49 @@ const expenseDetail = (() => {
                 transition: background 0.15s, color 0.15s, border-color 0.15s;
             }
             .expense-detail-close:hover { background: #fee2e2; color: #dc2626; border-color: #fecaca; }
-            .expense-detail-content { flex: 1; min-height: 0; overflow-y: auto; padding: 0; }
+            /* Content is the flex container; scroll is delegated to columns
+               so the bill preview stays put while the right side scrolls. */
+            .expense-detail-content {
+                flex: 1; min-height: 0;
+                display: flex; flex-direction: column;
+                overflow: hidden;
+                padding: 0;
+            }
 
-            /* Two-column body */
+            /* Two-column body — each column owns its own scroll */
             .exp-det2 {
+                flex: 1; min-height: 0;
                 display: grid;
-                grid-template-columns: minmax(0, 380px) minmax(0, 1fr);
+                grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
                 gap: 0;
-                min-height: 100%;
+                overflow: hidden;
             }
             .exp-det2__left {
-                padding: 22px 24px;
+                padding: 20px 22px;
                 background: #fafbfc;
                 border-right: 1px solid #eef2f7;
-                display: flex; flex-direction: column; gap: 14px;
+                display: flex; flex-direction: column; gap: 12px;
+                overflow-y: auto;
+                min-height: 0;
+                scrollbar-width: thin;
+                scrollbar-color: #cbd5e1 transparent;
             }
             .exp-det2__right {
-                padding: 22px 28px 26px;
-                display: flex; flex-direction: column; gap: 14px;
+                padding: 20px 24px 22px;
+                display: flex; flex-direction: column; gap: 12px;
+                overflow-y: auto;
+                min-height: 0;
+                scrollbar-width: thin;
+                scrollbar-color: #cbd5e1 transparent;
             }
+            .exp-det2__left::-webkit-scrollbar,
+            .exp-det2__right::-webkit-scrollbar { width: 6px; }
+            .exp-det2__left::-webkit-scrollbar-thumb,
+            .exp-det2__right::-webkit-scrollbar-thumb {
+                background: #cbd5e1; border-radius: 4px;
+            }
+            .exp-det2__left::-webkit-scrollbar-track,
+            .exp-det2__right::-webkit-scrollbar-track { background: transparent; }
 
             /* Bill preview card */
             .exp-det2__bill-card {
@@ -153,8 +178,10 @@ const expenseDetail = (() => {
             /* Editable info rows */
             .exp-det2__rows { display: flex; flex-direction: column; gap: 8px; }
             .exp-det2__row {
+                /* icon | label (auto, can shrink) | value (fills + can shrink so long
+                   text doesn't blow out the row or get clipped at 60%) */
                 display: grid;
-                grid-template-columns: 24px 1fr auto;
+                grid-template-columns: 22px auto minmax(0, 1fr);
                 align-items: center;
                 gap: 12px;
                 padding: 10px 14px;
@@ -162,17 +189,22 @@ const expenseDetail = (() => {
                 border: 1px solid #eef2f7;
                 border-radius: 12px;
                 transition: border-color 0.15s, background 0.15s;
+                min-width: 0;
             }
             .exp-det2__row:focus-within { border-color: #93c5fd; background: #ffffff; }
-            .exp-det2__row svg { color: #64748b; }
+            .exp-det2__row svg { color: #64748b; flex-shrink: 0; }
             .exp-det2__row label {
                 font-size: 0.85rem; color: #475569; font-weight: 500;
+                min-width: 0;
+                white-space: nowrap;
             }
             .exp-det2__row input[type="text"],
             .exp-det2__row input[type="date"],
             .exp-det2__row input[type="time"],
             .exp-det2__row select {
                 justify-self: end;
+                width: 100%;
+                max-width: 100%;
                 text-align: right;
                 background: transparent;
                 border: none;
@@ -183,15 +215,30 @@ const expenseDetail = (() => {
                 font-size: 0.9rem;
                 padding: 4px 6px;
                 border-radius: 6px;
-                max-width: 60%;
+                min-width: 0;
+                text-overflow: ellipsis;
             }
-            .exp-det2__row input[type="text"] { min-width: 180px; }
             .exp-det2__row input:hover,
             .exp-det2__row select:hover { background: #ffffff; box-shadow: inset 0 0 0 1px #e5e7eb; }
             .exp-det2__row input:focus,
             .exp-det2__row select:focus { background: #ffffff; box-shadow: inset 0 0 0 2px #3b82f6; }
-            .exp-det2__row select { appearance: none; -webkit-appearance: none; padding-right: 22px; cursor: pointer; }
+            .exp-det2__row select {
+                appearance: none; -webkit-appearance: none;
+                padding-right: 22px;
+                cursor: pointer;
+                background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+                background-repeat: no-repeat;
+                background-position: right 6px center;
+            }
             .exp-det2__row select option { color: #111827; }
+            /* Native date/time pickers: keep their indicator visible without forcing a min-width
+               that clipped the value (was the "1:" / "Bill Payn" cause) */
+            .exp-det2__row input[type="date"]::-webkit-calendar-picker-indicator,
+            .exp-det2__row input[type="time"]::-webkit-calendar-picker-indicator {
+                margin-left: 4px;
+                opacity: 0.6;
+                cursor: pointer;
+            }
 
             .exp-det2__chip-cat {
                 background: #ede9fe; color: #6d28d9; border-radius: 8px;
@@ -247,14 +294,16 @@ const expenseDetail = (() => {
                 background: #f5f3ff; border-color: #ddd6fe;
             }
 
-            /* Sticky footer */
+            /* Footer — pinned at bottom of flex column, no overlap with content */
             .exp-det2__footer {
-                position: sticky; bottom: 0;
-                padding: 14px 24px;
+                flex-shrink: 0;
+                padding: 14px 22px;
                 background: #ffffff;
                 border-top: 1px solid #eef2f7;
                 display: flex; align-items: center; justify-content: space-between;
                 gap: 12px;
+                box-shadow: 0 -8px 24px rgba(15, 23, 42, 0.04);
+                z-index: 5;
             }
             .exp-det2__btn {
                 padding: 10px 18px; border-radius: 10px; cursor: pointer;
@@ -284,13 +333,27 @@ const expenseDetail = (() => {
                     width: 100vw; max-height: 100vh; max-height: 100dvh;
                     border-radius: 0;
                 }
-                .exp-det2 { grid-template-columns: 1fr; }
-                .exp-det2__left { border-right: none; border-bottom: 1px solid #eef2f7; }
+                /* Stack vertically on mobile; the parent content becomes the single
+                   scroll container so a tap on either column scrolls naturally */
+                .exp-det2 {
+                    grid-template-columns: 1fr;
+                    overflow-y: auto;
+                }
+                .exp-det2__left,
+                .exp-det2__right { overflow-y: visible; }
+                .exp-det2__left {
+                    border-right: none;
+                    border-bottom: 1px solid #eef2f7;
+                    padding: 16px 18px;
+                }
                 .exp-det2__right { padding: 18px 18px 22px; }
                 .exp-det2__bill-body { max-height: 320px; }
-                .exp-det2__row { grid-template-columns: 22px 1fr auto; padding: 9px 12px; }
-                .exp-det2__row input[type="text"] { min-width: 0; max-width: 60%; }
+                .exp-det2__row {
+                    grid-template-columns: 22px auto minmax(0, 1fr);
+                    padding: 9px 12px;
+                }
                 .exp-det2__amount { font-size: 1.5rem; }
+                .exp-det2__footer { padding: 12px 16px; }
             }
         `;
         document.head.appendChild(style);
