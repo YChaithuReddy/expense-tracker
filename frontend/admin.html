@@ -371,17 +371,24 @@
 
         .admin-sidebar__links { display: flex; gap: 7px; }
         .admin-sidebar__link {
-            padding: 6px 12px;
+            flex: 1;
+            padding: 8px 12px;
             border-radius: var(--radius-md);
             font-size: 0.73rem;
             font-weight: 600;
             cursor: pointer;
             border: 1px solid rgba(255,255,255,0.12);
             background: rgba(255,255,255,0.06);
-            color: rgba(255,255,255,0.6);
+            color: rgba(255,255,255,0.7);
             transition: background 0.18s, border-color 0.18s, color 0.18s;
             letter-spacing: 0.01em;
             backdrop-filter: blur(4px);
+            text-align: center;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
         }
         .admin-sidebar__link:hover {
             background: rgba(255,255,255,0.12);
@@ -864,17 +871,9 @@
                     </div>
                 </div>
                 <div class="admin-sidebar__links">
-                    <button class="btn-flux btn-flux--outline btn-flux--sm admin-sidebar__link" onclick="window.location.href='index.html'">
-                        <span class="btn-flux__text">
-                            <span class="btn-flux__text-inner">
-                                <span>App</span>
-                                <span>App</span>
-                            </span>
-                        </span>
-                        <span class="btn-flux__arrow">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                        </span>
+                    <button class="admin-sidebar__link" onclick="window.location.href='index.html'" aria-label="Open expense app">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        <span>App</span>
                     </button>
                     <button class="admin-sidebar__link admin-sidebar__link--danger" onclick="logout()">Logout</button>
                 </div>

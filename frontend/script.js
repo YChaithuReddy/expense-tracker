@@ -855,24 +855,50 @@ class ExpenseTracker {
         if (scanProgress) scanProgress.style.display = 'inline';
         if (scanButton) scanButton.disabled = true;
 
-        // Show enhanced progress indicator
+        // Self-contained progress overlay — pages.css isn't linked in index.html,
+        // so we inline the styles and don't depend on any external rules.
         const progressOverlay = document.createElement('div');
         progressOverlay.id = 'ocrProgressOverlay';
+        progressOverlay.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:100050;animation:ocrFadeIn 0.18s ease-out;';
         progressOverlay.innerHTML = `
-            <div class="ocr-progress-overlay">
-                <div class="ocr-progress-content">
-                    <div class="spinner"></div>
-                    <h3>🔍 Scanning Bills...</h3>
-                    <p id="ocrStatus">Extracting text from images</p>
-                    <div class="progress-bar">
-                        <div id="ocrProgressFill" class="progress-fill" style="width: 0%"></div>
-                    </div>
-                    <span id="ocrProgressText">0%</span>
+            <style>
+                @keyframes ocrFadeIn { from { opacity: 0; } to { opacity: 1; } }
+                @keyframes ocrSpin { to { transform: rotate(360deg); } }
+            </style>
+            <div role="dialog" aria-live="polite" aria-label="Scanning bills" style="background:#ffffff;border:1px solid #e5e7eb;border-radius:18px;padding:28px 32px;min-width:340px;max-width:420px;box-shadow:0 24px 48px rgba(15,23,42,0.18);text-align:center;">
+                <div style="width:48px;height:48px;border:3px solid #e5e7eb;border-top-color:#0369a1;border-radius:50%;margin:0 auto 18px;animation:ocrSpin 0.8s linear infinite;"></div>
+                <h3 id="ocrStage" style="margin:0 0 4px;font-size:1.05rem;font-weight:700;color:#111827;letter-spacing:-0.01em;">Starting OCR engine…</h3>
+                <p id="ocrStatus" style="margin:0 0 20px;font-size:0.85rem;color:#6b7280;min-height:1.2em;">Preparing to scan ${this.scannedImages.length} bill${this.scannedImages.length === 1 ? '' : 's'}</p>
+                <div style="background:#f1f5f9;height:8px;border-radius:99px;overflow:hidden;">
+                    <div id="ocrProgressFill" style="height:100%;width:0%;background:linear-gradient(90deg,#0ea5e9,#0369a1);border-radius:99px;transition:width 0.25s ease;"></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:0.78rem;color:#475569;">
+                    <span id="ocrCountText">Bill 0 of ${this.scannedImages.length}</span>
+                    <span id="ocrProgressText" style="font-weight:600;color:#0369a1;">0%</span>
                 </div>
             </div>
         `;
 
         document.body.appendChild(progressOverlay);
+
+        // Helper that keeps the overlay AND the button label in lockstep.
+        const updateProgress = (overallPercent, stageLabel, statusText, billIndex) => {
+            const fill = document.getElementById('ocrProgressFill');
+            const ocrText = document.getElementById('ocrProgressText');
+            const stageEl = document.getElementById('ocrStage');
+            const statusEl = document.getElementById('ocrStatus');
+            const countEl = document.getElementById('ocrCountText');
+            const buttonText = document.getElementById('progressText');
+
+            if (fill) fill.style.width = `${overallPercent}%`;
+            if (ocrText) ocrText.textContent = `${overallPercent}%`;
+            if (buttonText) buttonText.textContent = `${overallPercent}%`;
+            if (stageLabel && stageEl) stageEl.textContent = stageLabel;
+            if (statusText && statusEl) statusEl.textContent = statusText;
+            if (typeof billIndex === 'number' && countEl) {
+                countEl.textContent = `Bill ${billIndex} of ${this.scannedImages.length}`;
+            }
+        };
 
         // Clear previous extracted expenses
         this.extractedExpenses = [];
@@ -884,20 +910,15 @@ class ExpenseTracker {
         // Going straight to Tesseract makes scans quieter and faster.
 
         try {
-            // Show initializing status
-            document.getElementById('ocrStatus').textContent = 'Starting local OCR engine…';
+            const total = this.scannedImages.length;
+            updateProgress(0, 'Starting OCR engine…', `Preparing to scan ${total} bill${total === 1 ? '' : 's'}`, 0);
 
             // Process each image separately for batch upload
             for (let i = 0; i < this.scannedImages.length; i++) {
-                const overallProgress = Math.round(((i + 1) / this.scannedImages.length) * 100);
+                const billNumber = i + 1;
+                const baseProgress = Math.round((i / total) * 100);
 
-                const ocrProgressFill = document.getElementById('ocrProgressFill');
-                const ocrProgressText = document.getElementById('ocrProgressText');
-                const ocrStatus = document.getElementById('ocrStatus');
-
-                if (ocrProgressFill) ocrProgressFill.style.width = `${overallProgress}%`;
-                if (ocrProgressText) ocrProgressText.textContent = `${overallProgress}%`;
-                if (ocrStatus) ocrStatus.textContent = `Scanning bill ${i + 1} of ${this.scannedImages.length}`;
+                updateProgress(baseProgress, `Reading bill ${billNumber} of ${total}`, 'Loading image…', billNumber);
 
                 let ocrText = '';
                 let ocrConfidence = 0;
@@ -909,26 +930,40 @@ class ExpenseTracker {
                             'eng',
                             {
                                 logger: (msg) => {
-                                    if (msg.status === 'recognizing text' && ocrStatus) {
-                                        ocrStatus.textContent =
-                                            `Bill ${i + 1}: scanning ${Math.round((msg.progress || 0) * 100)}%`;
+                                    if (msg.status === 'recognizing text') {
+                                        const inner = Math.max(0, Math.min(1, msg.progress || 0));
+                                        const blended = Math.round(((i + inner) / total) * 100);
+                                        updateProgress(
+                                            blended,
+                                            `Reading bill ${billNumber} of ${total}`,
+                                            `OCR ${Math.round(inner * 100)}% — extracting text`,
+                                            billNumber
+                                        );
+                                    } else if (msg.status === 'loading tesseract core' || msg.status === 'initializing tesseract') {
+                                        updateProgress(baseProgress, 'Starting OCR engine…', msg.status, billNumber);
+                                    } else if (msg.status === 'loading language traineddata' || msg.status === 'initializing api') {
+                                        updateProgress(baseProgress, `Reading bill ${billNumber} of ${total}`, 'Preparing language model…', billNumber);
                                     }
                                 },
                             }
                         );
                         ocrText = tsResult?.data?.text || '';
                         ocrConfidence = Math.round(tsResult?.data?.confidence || 0);
-                        console.log(`✅ Local OCR for bill ${i + 1}: ${ocrText.length} chars, ${ocrConfidence}% confidence`);
+                        console.log(`✅ Local OCR for bill ${billNumber}: ${ocrText.length} chars, ${ocrConfidence}% confidence`);
                     } catch (tsError) {
                         console.error('Tesseract OCR failed:', tsError);
-                        if (ocrStatus) ocrStatus.textContent = `Bill ${i + 1}: OCR failed — enter details manually`;
+                        updateProgress(baseProgress, `Bill ${billNumber}: OCR failed`, 'You can enter details manually after scanning', billNumber);
                         ocrText = '';
                         ocrConfidence = 0;
                     }
                 } else {
-                    console.warn('Tesseract not loaded; skipping OCR for bill', i + 1);
-                    if (ocrStatus) ocrStatus.textContent = `Bill ${i + 1}: OCR unavailable — enter details manually`;
+                    console.warn('Tesseract not loaded; skipping OCR for bill', billNumber);
+                    updateProgress(baseProgress, `Bill ${billNumber}: OCR unavailable`, 'You can enter details manually', billNumber);
                 }
+
+                // Parsing stage — fast, but still flag it so users see progression on tiny images.
+                const parsedPercent = Math.round(((i + 0.95) / total) * 100);
+                updateProgress(parsedPercent, `Parsing bill ${billNumber} of ${total}`, 'Extracting amount, vendor, and date…', billNumber);
 
                 // Extract expense data from this bill (even if OCR failed)
                 const expenseData = this.parseReceiptText(ocrText);
@@ -963,10 +998,8 @@ class ExpenseTracker {
 
             }
 
-            // Update status
-            if (document.getElementById('ocrStatus')) {
-                document.getElementById('ocrStatus').textContent = 'Processing complete!';
-            }
+            // Final stage — everything done, show success briefly before the overlay tears down.
+            updateProgress(100, 'All bills scanned', 'Opening review…', this.scannedImages.length);
 
             // Check how many had OCR failures
             const failedCount = this.extractedExpenses.filter(e => e.ocrFailed).length;
@@ -3032,6 +3065,8 @@ class ExpenseTracker {
             vendorElement.removeAttribute('disabled');
             console.log('⚠️  vendor field left empty (user will enter manually)');
         }
+        // Reset advance-applied chip on every fresh form load.
+        if (typeof this.resetAdvanceLinkChip === 'function') this.resetAdvanceLinkChip();
 
         // Auto-populate Main Category dropdown from OCR detection
         const mainCategorySelect = document.getElementById('mainCategory');
@@ -4063,8 +4098,11 @@ class ExpenseTracker {
             const hasImages = expense.images && expense.images.length > 0;
 
             // Info column: compact badges for type, pay, bill, files
+            // Fall back to 'project' when a vendor (project name) is present but visit_type wasn't recorded
+            // (older rows or imports skipped that column).
             const infoParts = [];
-            if (expense.visitType) infoParts.push('<span class="visit-type-badge visit-type-badge--' + expense.visitType + '" style="font-size:0.6rem;padding:2px 6px;">' + expense.visitType.charAt(0).toUpperCase() + expense.visitType.slice(1) + '</span>');
+            const visitTypeForBadge = expense.visitType || (expense.vendor ? 'project' : null);
+            if (visitTypeForBadge) infoParts.push('<span class="visit-type-badge visit-type-badge--' + visitTypeForBadge + '" style="font-size:0.6rem;padding:2px 6px;">' + visitTypeForBadge.charAt(0).toUpperCase() + visitTypeForBadge.slice(1) + '</span>');
             infoParts.push('<span style="font-size:0.72rem;color:#6b7280;">' + payLabel + '</span>');
             if (expense.billAttached === 'yes') infoParts.push('<span style="color:#059669;font-size:0.72rem;" title="Bill attached">✓Bill</span>');
             if (hasImages) infoParts.push('<span style="color:#2563eb;font-size:0.72rem;" title="' + expense.images.length + ' file(s)">📎' + expense.images.length + '</span>');
@@ -4504,6 +4542,8 @@ class ExpenseTracker {
         // Reset payment mode and bill attached toggles to defaults
         this.setToggleValue('paymentModeToggle', 'cash');
         this.setToggleValue('billAttachedToggle', 'yes');
+        // Clear advance-applied chip + dismissal flag.
+        if (typeof this.resetAdvanceLinkChip === 'function') this.resetAdvanceLinkChip();
     }
 
     async initializeGoogleSheets() {
@@ -9125,16 +9165,25 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         });
         if (form) form.addEventListener('submit', (e) => this.handleAdvanceSave(e));
 
-        // Show advance indicator + auto-fill visit type when vendor field changes
+        // Show advance indicator + auto-fill visit type when vendor field changes.
+        // Editing the field re-arms the chip even if the user previously dismissed it.
         const vendorInput = document.getElementById('vendor');
         if (vendorInput) {
             let debounceTimer;
+            let lastVendor = vendorInput.value;
             vendorInput.addEventListener('input', () => {
+                if (vendorInput.value !== lastVendor) {
+                    lastVendor = vendorInput.value;
+                    this._skipAdvanceLink = false;
+                }
                 clearTimeout(debounceTimer);
                 debounceTimer = setTimeout(() => {
-                    this.updateAdvanceIndicator(vendorInput.value);
+                    // Clear the legacy indicator so the new chip is the single source of truth.
+                    const legacy = document.getElementById('advanceLinkIndicator');
+                    if (legacy) legacy.remove();
+                    this.updateAdvanceAppliedChip();
                     this.autoFillVisitTypeFromAdvance(vendorInput.value);
-                }, 300);
+                }, 200);
             });
         }
 
@@ -9602,38 +9651,39 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             const sc = statusColors[adv.status] || '#64748b';
             const advJson = JSON.stringify(adv).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
-            // Build actions
+            // Build actions — every action button stops propagation so the row-click drawer doesn't open.
+            const stop = "event.stopPropagation();";
             let actionsHtml = '';
             if (isPending) {
-                actionsHtml = `<button class="adv-tbl-btn adv-tbl-btn--danger" onclick="expenseTracker.deleteAdvance('${adv.id}','${this.sanitizeHTML(adv.project_name)}')" title="Withdraw">
+                actionsHtml = `<button class="adv-tbl-btn adv-tbl-btn--danger" onclick="${stop}expenseTracker.deleteAdvance('${adv.id}','${this.sanitizeHTML(adv.project_name)}')" title="Withdraw">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
                 </button>`;
             } else if (isRejected) {
                 actionsHtml = `
-                    <button class="adv-tbl-btn" onclick="expenseTracker.openAdvanceModal(${advJson})" title="Edit & Resubmit">
+                    <button class="adv-tbl-btn" onclick="${stop}expenseTracker.openAdvanceModal(${advJson})" title="Edit & Resubmit">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     </button>
-                    <button class="adv-tbl-btn adv-tbl-btn--danger" onclick="expenseTracker.deleteAdvance('${adv.id}','${this.sanitizeHTML(adv.project_name)}')" title="Delete">
+                    <button class="adv-tbl-btn adv-tbl-btn--danger" onclick="${stop}expenseTracker.deleteAdvance('${adv.id}','${this.sanitizeHTML(adv.project_name)}')" title="Delete">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
                     </button>`;
             } else {
                 actionsHtml = `
-                    <button class="adv-tbl-btn" onclick="expenseTracker.filterByAdvance('${adv.id}','${this.sanitizeHTML(adv.project_name)}')" title="View Expenses">
+                    <button class="adv-tbl-btn" onclick="${stop}expenseTracker.filterByAdvance('${adv.id}','${this.sanitizeHTML(adv.project_name)}')" title="View Expenses">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                     </button>
-                    <button class="adv-tbl-btn" onclick="expenseTracker.openAdvanceModal(${advJson})" title="Edit">
+                    <button class="adv-tbl-btn" onclick="${stop}expenseTracker.openAdvanceModal(${advJson})" title="Edit">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     </button>
                     ${adv.status === 'active'
-                        ? `<button class="adv-tbl-btn" onclick="expenseTracker.closeAdvance('${adv.id}')" title="Close"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>`
-                        : `<button class="adv-tbl-btn" onclick="expenseTracker.reopenAdvance('${adv.id}')" title="Reopen"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg></button>`
+                        ? `<button class="adv-tbl-btn" onclick="${stop}expenseTracker.closeAdvance('${adv.id}')" title="Close"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>`
+                        : `<button class="adv-tbl-btn" onclick="${stop}expenseTracker.reopenAdvance('${adv.id}')" title="Reopen"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg></button>`
                     }
-                    <button class="adv-tbl-btn adv-tbl-btn--danger" onclick="expenseTracker.deleteAdvance('${adv.id}','${this.sanitizeHTML(adv.project_name)}')" title="Delete">
+                    <button class="adv-tbl-btn adv-tbl-btn--danger" onclick="${stop}expenseTracker.deleteAdvance('${adv.id}','${this.sanitizeHTML(adv.project_name)}')" title="Delete">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
                     </button>`;
             }
 
-            return `<tr>
+            return `<tr style="cursor:pointer;" onclick="if(!event.target.closest('button'))expenseTracker.openAdvanceDrawer('${adv.id}')" title="Click to view linked bills">
                 <td><strong>${this.sanitizeHTML(adv.project_name)}</strong></td>
                 <td><span class="visit-type-badge visit-type-badge--${adv.visit_type || 'project'}" style="font-size:0.65rem;">${adv.visit_type || 'project'}</span></td>
                 <td style="font-weight:600;">₹${Number(adv.amount).toLocaleString('en-IN')}</td>
@@ -9666,6 +9716,161 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         const tab = el.closest('.advance-tab');
         if (!tab) return;
         tab.classList.toggle('advance-tab--open');
+    }
+
+    openAdvanceDrawer(advanceId) {
+        const adv = (this.advances || []).find(a => String(a.id) === String(advanceId));
+        if (!adv) return;
+
+        // Lazy-mount the drawer markup once.
+        let drawer = document.getElementById('advanceDetailDrawer');
+        if (!drawer) {
+            drawer = document.createElement('div');
+            drawer.id = 'advanceDetailDrawer';
+            drawer.innerHTML = `
+                <style>
+                    #advanceDetailDrawer { position: fixed; inset: 0; z-index: 100200; pointer-events: none; }
+                    #advanceDetailDrawer.is-open { pointer-events: auto; }
+                    #advanceDetailDrawer .adv-drawer-backdrop {
+                        position: absolute; inset: 0; background: rgba(15,23,42,0.4);
+                        backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+                        opacity: 0; transition: opacity 0.22s ease;
+                    }
+                    #advanceDetailDrawer.is-open .adv-drawer-backdrop { opacity: 1; }
+                    #advanceDetailDrawer .adv-drawer-panel {
+                        position: absolute; top: 0; right: 0; bottom: 0; width: min(440px, 92vw);
+                        background: #ffffff; box-shadow: -16px 0 40px rgba(15,23,42,0.18);
+                        display: flex; flex-direction: column;
+                        transform: translateX(100%); transition: transform 0.28s cubic-bezier(0.22,1,0.36,1);
+                    }
+                    #advanceDetailDrawer.is-open .adv-drawer-panel { transform: translateX(0); }
+                    .adv-drawer-header {
+                        padding: 22px 24px 18px; border-bottom: 1px solid #e5e7eb;
+                        display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+                    }
+                    .adv-drawer-header h2 { margin: 0 0 4px; font-size: 1.1rem; font-weight: 700; color: #111827; letter-spacing: -0.01em; }
+                    .adv-drawer-header p { margin: 0; font-size: 0.8rem; color: #6b7280; }
+                    .adv-drawer-close {
+                        flex-shrink: 0; width: 34px; height: 34px; border-radius: 10px;
+                        border: 1px solid #e5e7eb; background: #f9fafb; color: #475569;
+                        display: flex; align-items: center; justify-content: center; cursor: pointer;
+                        transition: background 0.15s, color 0.15s;
+                    }
+                    .adv-drawer-close:hover { background: #fee2e2; color: #dc2626; }
+                    .adv-drawer-summary {
+                        padding: 18px 24px; display: grid; grid-template-columns: repeat(3, 1fr);
+                        gap: 12px; border-bottom: 1px solid #e5e7eb; background: #f8fafc;
+                    }
+                    .adv-drawer-stat { font-size: 0.7rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
+                    .adv-drawer-stat strong { display: block; font-size: 1.05rem; color: #111827; margin-top: 4px; letter-spacing: -0.01em; }
+                    .adv-drawer-bar { height: 6px; background: #e2e8f0; border-radius: 99px; overflow: hidden; margin: 14px 24px 0; }
+                    .adv-drawer-bar > div { height: 100%; border-radius: 99px; transition: width 0.3s; }
+                    .adv-drawer-bar-label { padding: 6px 24px 16px; font-size: 0.72rem; color: #64748b; }
+                    .adv-drawer-list { flex: 1; overflow-y: auto; padding: 16px 24px 24px; }
+                    .adv-drawer-list-title { font-size: 0.78rem; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.04em; margin: 0 0 10px; }
+                    .adv-drawer-bill {
+                        padding: 12px 14px; border: 1px solid #e5e7eb; border-radius: 12px;
+                        margin-bottom: 8px; display: grid; grid-template-columns: auto 1fr auto;
+                        gap: 12px; align-items: center; cursor: pointer;
+                        transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+                    }
+                    .adv-drawer-bill:hover {
+                        border-color: #0369a1; box-shadow: 0 2px 8px rgba(3,105,161,0.08);
+                        transform: translateY(-1px);
+                    }
+                    .adv-drawer-bill__date { font-size: 0.72rem; color: #64748b; white-space: nowrap; }
+                    .adv-drawer-bill__main { min-width: 0; }
+                    .adv-drawer-bill__main strong { display: block; font-size: 0.92rem; color: #111827; }
+                    .adv-drawer-bill__main span { display: block; font-size: 0.74rem; color: #6b7280; margin-top: 2px; }
+                    .adv-drawer-bill__amt { font-weight: 700; color: #111827; font-size: 0.95rem; white-space: nowrap; }
+                    .adv-drawer-empty { text-align: center; padding: 40px 20px; color: #6b7280; font-size: 0.85rem; }
+                    .adv-drawer-empty svg { display: block; margin: 0 auto 12px; color: #cbd5e1; }
+                    @media (max-width: 480px) {
+                        #advanceDetailDrawer .adv-drawer-panel { width: 100%; }
+                        .adv-drawer-summary { grid-template-columns: repeat(3, 1fr); padding: 14px 16px; }
+                        .adv-drawer-header, .adv-drawer-list { padding-left: 16px; padding-right: 16px; }
+                    }
+                </style>
+                <div class="adv-drawer-backdrop" onclick="expenseTracker.closeAdvanceDrawer()"></div>
+                <aside class="adv-drawer-panel" role="dialog" aria-label="Advance details">
+                    <div class="adv-drawer-header">
+                        <div>
+                            <h2 id="advDrawerTitle">Advance</h2>
+                            <p id="advDrawerSubtitle"></p>
+                        </div>
+                        <button class="adv-drawer-close" onclick="expenseTracker.closeAdvanceDrawer()" aria-label="Close drawer">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                        </button>
+                    </div>
+                    <div class="adv-drawer-summary" id="advDrawerSummary"></div>
+                    <div class="adv-drawer-bar"><div id="advDrawerBarFill"></div></div>
+                    <div class="adv-drawer-bar-label" id="advDrawerBarLabel"></div>
+                    <div class="adv-drawer-list">
+                        <p class="adv-drawer-list-title" id="advDrawerListTitle">Linked bills</p>
+                        <div id="advDrawerBills"></div>
+                    </div>
+                </aside>
+            `;
+            document.body.appendChild(drawer);
+        }
+
+        // Populate from current advance + expenses.
+        const linked = (this.expenses || []).filter(e => String(e.advance_id) === String(advanceId));
+        const totalSpent = linked.reduce((s, e) => s + (Number(e.amount) || 0), 0);
+        const advAmount = Number(adv.amount) || 0;
+        const remaining = advAmount - totalSpent;
+        const percent = advAmount > 0 ? Math.min(100, Math.round((totalSpent / advAmount) * 100)) : 0;
+        const overspent = remaining < 0;
+        const barColor = overspent || percent >= 90 ? '#dc2626' : percent >= 70 ? '#d97706' : '#059669';
+
+        document.getElementById('advDrawerTitle').textContent = adv.project_name || 'Advance';
+        document.getElementById('advDrawerSubtitle').textContent =
+            `₹${advAmount.toLocaleString('en-IN')} · ${(adv.visit_type || 'project').toUpperCase()} · ${adv.status || 'active'}`;
+        document.getElementById('advDrawerSummary').innerHTML = `
+            <div class="adv-drawer-stat">Spent<strong>₹${totalSpent.toLocaleString('en-IN')}</strong></div>
+            <div class="adv-drawer-stat">Remaining<strong style="color:${barColor};">${overspent ? '-' : ''}₹${Math.abs(remaining).toLocaleString('en-IN')}</strong></div>
+            <div class="adv-drawer-stat">Bills<strong>${linked.length}</strong></div>
+        `;
+        const fill = document.getElementById('advDrawerBarFill');
+        fill.style.width = `${percent}%`;
+        fill.style.background = barColor;
+        document.getElementById('advDrawerBarLabel').textContent = `${percent}% used${overspent ? ' · overspent' : ''}`;
+
+        document.getElementById('advDrawerListTitle').textContent = `Linked bills (${linked.length})`;
+        const billsHtml = linked.length === 0
+            ? `<div class="adv-drawer-empty">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    No bills linked to this advance yet.
+                </div>`
+            : linked
+                .slice()
+                .sort((a, b) => new Date(b.date) - new Date(a.date))
+                .map(e => {
+                    const safeId = this.sanitizeHTML(e.id);
+                    const cat = this.sanitizeHTML(e.category || '-');
+                    const desc = this.sanitizeHTML(e.description || '');
+                    return `
+                        <div class="adv-drawer-bill" onclick="expenseTracker.closeAdvanceDrawer();expenseDetail.open('${safeId}')" title="Open expense">
+                            <div class="adv-drawer-bill__date">${this.formatDisplayDate(e.date)}</div>
+                            <div class="adv-drawer-bill__main">
+                                <strong>${cat}</strong>
+                                <span>${desc || '—'}</span>
+                            </div>
+                            <div class="adv-drawer-bill__amt">₹${this.formatAmount(e.amount)}</div>
+                        </div>`;
+                }).join('');
+        document.getElementById('advDrawerBills').innerHTML = billsHtml;
+
+        // Open with a class toggle so the CSS transitions run.
+        requestAnimationFrame(() => drawer.classList.add('is-open'));
+        document.body.classList.add('modal-open');
+    }
+
+    closeAdvanceDrawer() {
+        const drawer = document.getElementById('advanceDetailDrawer');
+        if (!drawer) return;
+        drawer.classList.remove('is-open');
+        document.body.classList.remove('modal-open');
     }
 
     filterByAdvance(advanceId, projectName) {
@@ -9764,6 +9969,12 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
 
     async autoLinkExpenseToAdvance(expenseId, vendor) {
         if (!vendor || vendor === 'N/A') return;
+        // User explicitly dismissed the "advance applied" chip on the form for this submission.
+        if (this._skipAdvanceLink) {
+            console.log('Auto-link skipped: user dismissed the advance chip');
+            this._skipAdvanceLink = false;
+            return;
+        }
         try {
             const advance = await api.getActiveAdvanceForProject(vendor);
             if (advance) {
@@ -9774,6 +9985,74 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         } catch (error) {
             console.error('Auto-link advance failed:', error);
         }
+    }
+
+    // Find an active advance whose project_name matches the entered vendor (case-insensitive, trimmed).
+    findMatchingActiveAdvance(vendor) {
+        if (!vendor) return null;
+        const needle = String(vendor).trim().toLowerCase();
+        if (!needle) return null;
+        return (this.advances || []).find(a =>
+            a.status === 'active' &&
+            String(a.project_name || '').trim().toLowerCase() === needle
+        ) || null;
+    }
+
+    // Render / hide the "advance applied" chip below the Project Name input.
+    updateAdvanceAppliedChip() {
+        const chip = document.getElementById('advanceAppliedChip');
+        const vendorInput = document.getElementById('vendor');
+        if (!chip || !vendorInput) return;
+
+        // If the user already dismissed the chip on this form, keep it hidden until they edit the field.
+        if (this._skipAdvanceLink) {
+            chip.style.display = 'none';
+            return;
+        }
+
+        const adv = this.findMatchingActiveAdvance(vendorInput.value);
+        if (!adv) {
+            chip.style.display = 'none';
+            chip.innerHTML = '';
+            return;
+        }
+
+        const remaining = (Number(adv.amount) || 0) - (Number(adv.totalSpent) || 0);
+        const remainingText = remaining >= 0
+            ? `₹${remaining.toLocaleString('en-IN')} left`
+            : `Overspent by ₹${Math.abs(remaining).toLocaleString('en-IN')}`;
+        const projectSafe = this.sanitizeHTML(adv.project_name);
+
+        chip.style.display = 'flex';
+        chip.innerHTML = `
+            <span class="advance-applied-chip__icon" aria-hidden="true">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+            </span>
+            <span class="advance-applied-chip__text">
+                <strong>Advance applied:</strong> ₹${Number(adv.amount).toLocaleString('en-IN')} for "${projectSafe}"
+                <span class="advance-applied-chip__sub">${remainingText}</span>
+            </span>
+            <button type="button" class="advance-applied-chip__cancel" onclick="expenseTracker.cancelAdvanceLink()" aria-label="Don't link this expense to the advance" title="Don't apply advance to this expense">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+        `;
+    }
+
+    // Called when user clicks × on the chip — skips the auto-link for this submission.
+    cancelAdvanceLink() {
+        this._skipAdvanceLink = true;
+        const chip = document.getElementById('advanceAppliedChip');
+        if (chip) {
+            chip.style.display = 'none';
+            chip.innerHTML = '';
+        }
+        this.showNotification('Advance link removed for this expense');
+    }
+
+    // Reset the dismissal flag (e.g., when the form opens fresh or the project changes).
+    resetAdvanceLinkChip() {
+        this._skipAdvanceLink = false;
+        this.updateAdvanceAppliedChip();
     }
 
     async linkExistingExpensesToAdvance(advanceId, projectName) {

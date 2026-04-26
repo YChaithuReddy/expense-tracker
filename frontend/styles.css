@@ -14523,3 +14523,365 @@ a svg {
     from { opacity: 0; transform: translateY(-4px); }
     to   { opacity: 1; transform: translateY(0); }
 }
+
+/* ================================================
+   Advance Applied Chip — shows under Project Name
+   in the expense form when an active advance matches.
+   ================================================ */
+.advance-applied-chip {
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    color: #065f46;
+    font-size: 0.82rem;
+    line-height: 1.35;
+    animation: advChipFadeIn 0.18s ease-out;
+}
+.advance-applied-chip__icon {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #059669;
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.advance-applied-chip__text {
+    flex: 1;
+    min-width: 0;
+}
+.advance-applied-chip__text strong {
+    font-weight: 600;
+    color: #065f46;
+}
+.advance-applied-chip__sub {
+    display: block;
+    margin-top: 2px;
+    font-size: 0.74rem;
+    color: #047857;
+    opacity: 0.85;
+}
+.advance-applied-chip__cancel {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    background: rgba(5, 150, 105, 0.08);
+    color: #047857;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.advance-applied-chip__cancel:hover {
+    background: #fee2e2;
+    border-color: #fecaca;
+    color: #dc2626;
+}
+@keyframes advChipFadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ================================================
+   Review Scanned Bills — modal redesign
+   Targets the batch review modal generated in
+   script.js#showBatchReviewUI without changing markup.
+   ================================================ */
+#batchReviewModal {
+    background: rgba(15, 23, 42, 0.5);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    align-items: stretch;
+    justify-content: stretch;
+}
+#batchReviewModal .batch-review-modal-content {
+    width: min(1280px, 96vw);
+    max-height: 92vh;
+    margin: auto;
+    background: #ffffff;
+    border-radius: 18px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 0;
+}
+#batchReviewModal .modal-header {
+    padding: 18px 24px;
+    border-bottom: 1px solid #eef2f7;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+#batchReviewModal .img-modal__title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+#batchReviewModal .img-modal__title-icon {
+    font-size: 1.3rem;
+}
+#batchReviewModal .img-modal__title h2 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #0f172a;
+    letter-spacing: -0.01em;
+    /* User noted the cyan title was hard to read; tone it down to a deep slate. */
+    background: none;
+    -webkit-text-fill-color: initial;
+}
+#batchReviewModal .img-modal__close {
+    width: 36px; height: 36px; border-radius: 10px;
+    border: 1px solid #e5e7eb; background: #f9fafb; color: #475569;
+    display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+#batchReviewModal .img-modal__close:hover {
+    background: #fee2e2; border-color: #fecaca; color: #dc2626;
+}
+#batchReviewModal .modal-body {
+    flex: 1; min-height: 0; overflow-y: auto;
+    padding: 0;
+    background: #f8fafc;
+}
+#batchReviewModal .batch-stats-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    padding: 18px 24px;
+    background: #ffffff;
+    border-bottom: 1px solid #eef2f7;
+}
+#batchReviewModal .batch-stat-card {
+    background: #f8fafc;
+    border: 1px solid #eef2f7;
+    border-radius: 12px;
+    padding: 12px 16px;
+    text-align: left;
+    box-shadow: none;
+}
+#batchReviewModal .batch-stat-label {
+    font-size: 0.66rem;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+}
+#batchReviewModal .batch-stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+}
+#batchReviewModal .batch-stat-value.success { color: #059669; }
+#batchReviewModal .batch-stat-value.warning { color: #d97706; }
+
+#batchReviewModal .batch-actions-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 24px;
+    background: #ffffff;
+    border-bottom: 1px solid #eef2f7;
+    flex-wrap: wrap;
+}
+#batchReviewModal .batch-selection {
+    display: flex; align-items: center; gap: 12px;
+}
+#batchReviewModal .batch-selection label {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 0.86rem; font-weight: 600; color: #0f172a; cursor: pointer;
+}
+#batchReviewModal .batch-selection input[type="checkbox"] {
+    width: 18px; height: 18px; accent-color: #0369a1; cursor: pointer;
+}
+#batchReviewModal .selection-count {
+    background: #e0f2fe;
+    color: #0369a1;
+    border-radius: 99px;
+    padding: 4px 12px;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+#batchReviewModal .batch-bulk-actions {
+    display: flex; align-items: center;
+}
+#batchReviewModal .batch-bulk-actions label {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-size: 0.82rem; color: #475569;
+}
+#batchReviewModal .bulk-vendor-input {
+    padding: 8px 12px; border-radius: 10px;
+    border: 1px solid #e5e7eb; background: #ffffff; color: #0f172a;
+    font-size: 0.85rem; min-width: 200px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+#batchReviewModal .bulk-vendor-input:focus {
+    outline: none; border-color: #93c5fd; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+#batchReviewModal .btn-apply-vendor {
+    padding: 8px 16px; border-radius: 10px;
+    border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a;
+    font-size: 0.78rem; font-weight: 700; cursor: pointer; letter-spacing: 0.04em;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+#batchReviewModal .btn-apply-vendor:hover {
+    background: #0369a1; color: #ffffff; border-color: #0369a1;
+}
+
+#batchReviewModal .batch-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+    padding: 20px 24px 24px;
+}
+#batchReviewModal .batch-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    overflow: hidden;
+    transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+    display: flex; flex-direction: column;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+#batchReviewModal .batch-card:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+    transform: translateY(-1px);
+}
+#batchReviewModal .batch-card.selected {
+    border-color: #0369a1;
+    box-shadow: 0 0 0 1px #0369a1, 0 6px 18px rgba(3, 105, 161, 0.12);
+}
+#batchReviewModal .batch-card.ocr-failed {
+    border-color: #fecaca;
+}
+#batchReviewModal .batch-card .card-checkbox {
+    position: absolute; top: 12px; left: 12px; z-index: 2;
+    width: 22px; height: 22px;
+    background: #ffffff; border-radius: 6px;
+    display: inline-flex; align-items: center; justify-content: center;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.15);
+}
+#batchReviewModal .batch-card .card-checkbox input[type="checkbox"] {
+    width: 16px; height: 16px; accent-color: #0369a1; cursor: pointer; margin: 0;
+}
+#batchReviewModal .batch-card .card-image {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    background: #f1f5f9;
+    overflow: hidden;
+    cursor: zoom-in;
+}
+#batchReviewModal .batch-card .card-image img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    transition: transform 0.25s ease;
+}
+#batchReviewModal .batch-card:hover .card-image img { transform: scale(1.02); }
+/* Tighter, less gimmicky amount badge — green chip top-right */
+#batchReviewModal .batch-card .amount-badge,
+#batchReviewModal .batch-card .card-amount-badge {
+    position: absolute; top: 10px; right: 10px;
+    background: #059669; color: #ffffff;
+    padding: 4px 10px; border-radius: 99px;
+    font-size: 0.78rem; font-weight: 700;
+    box-shadow: 0 2px 6px rgba(5, 150, 105, 0.3);
+    display: inline-flex; align-items: center; gap: 4px;
+}
+#batchReviewModal .batch-card .card-fields,
+#batchReviewModal .batch-card .card-body {
+    padding: 12px 14px;
+    display: flex; flex-direction: column; gap: 8px;
+}
+#batchReviewModal .batch-card label {
+    font-size: 0.7rem; font-weight: 600; color: #64748b;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    display: flex; align-items: center; gap: 4px;
+}
+#batchReviewModal .batch-card input,
+#batchReviewModal .batch-card select {
+    width: 100%;
+    padding: 8px 10px;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 0.85rem; color: #0f172a;
+    transition: border-color 0.15s, background 0.15s;
+}
+#batchReviewModal .batch-card input:focus,
+#batchReviewModal .batch-card select:focus {
+    outline: none; background: #ffffff; border-color: #93c5fd;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+#batchReviewModal .modal-footer.batch-review-footer {
+    position: sticky; bottom: 0;
+    background: #ffffff;
+    padding: 14px 24px;
+    border-top: 1px solid #eef2f7;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px;
+    box-shadow: 0 -8px 24px rgba(15, 23, 42, 0.04);
+}
+#batchReviewModal .modal-footer .btn-cancel {
+    padding: 10px 22px; border-radius: 10px;
+    border: 1px solid #e5e7eb; background: #ffffff; color: #475569;
+    font-size: 0.88rem; font-weight: 600; cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+#batchReviewModal .modal-footer .btn-cancel:hover {
+    background: #f9fafb; border-color: #cbd5e1; color: #0f172a;
+}
+#batchReviewModal .modal-footer .btn-submit {
+    padding: 10px 22px; border-radius: 10px;
+    border: none;
+    background: linear-gradient(135deg, #0ea5e9, #0369a1);
+    color: #ffffff;
+    font-size: 0.88rem; font-weight: 700; cursor: pointer;
+    box-shadow: 0 6px 16px rgba(3, 105, 161, 0.25);
+    transition: transform 0.1s, box-shadow 0.15s;
+}
+#batchReviewModal .modal-footer .btn-submit:hover {
+    box-shadow: 0 8px 22px rgba(3, 105, 161, 0.32);
+}
+#batchReviewModal .modal-footer .btn-submit:active { transform: scale(0.98); }
+#batchReviewModal .modal-footer .btn-submit:disabled {
+    background: #cbd5e1; cursor: not-allowed; box-shadow: none;
+}
+
+@media (max-width: 768px) {
+    #batchReviewModal .batch-review-modal-content {
+        width: 100vw; max-height: 100vh; max-height: 100dvh;
+        border-radius: 0;
+    }
+    #batchReviewModal .batch-stats-container {
+        grid-template-columns: repeat(2, 1fr);
+        padding: 14px 16px;
+    }
+    #batchReviewModal .batch-actions-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        padding: 12px 16px;
+    }
+    #batchReviewModal .batch-bulk-actions label { flex-wrap: wrap; }
+    #batchReviewModal .bulk-vendor-input { flex: 1; min-width: 0; }
+    #batchReviewModal .batch-gallery { padding: 16px; grid-template-columns: 1fr; gap: 12px; }
+    #batchReviewModal .modal-footer.batch-review-footer { padding: 12px 16px; }
+}
