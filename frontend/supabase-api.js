@@ -59,6 +59,38 @@ function handleError(error, context = 'Operation') {
     throw new Error(error.message || `${context} failed`);
 }
 
+// Resolve which expense IDs belong to a voucher.
+// Tries the junction table first (most authoritative, RLS-checked per row);
+// falls back to the vouchers.expense_ids array column populated at submission time.
+// The fallback exists because voucher_expenses RLS blocks accountants from
+// SELECTing junction rows submitted by other users — without it, the View
+// Details panel renders "No expenses".
+async function resolveVoucherExpenseIds(supabase, voucherId, voucher, prefetchedLinks) {
+    let links = prefetchedLinks;
+    if (!links) {
+        const { data } = await supabase
+            .from('voucher_expenses')
+            .select('expense_id')
+            .eq('voucher_id', voucherId);
+        links = data;
+    }
+    const ids = (links || []).map(l => l.expense_id);
+    if (ids.length > 0) return ids;
+    if (Array.isArray(voucher?.expense_ids) && voucher.expense_ids.length > 0) {
+        return voucher.expense_ids;
+    }
+    // No voucher passed in — fetch the array column directly as a last resort.
+    if (!voucher) {
+        const { data: v } = await supabase
+            .from('vouchers')
+            .select('expense_ids')
+            .eq('id', voucherId)
+            .single();
+        if (Array.isArray(v?.expense_ids)) return v.expense_ids;
+    }
+    return [];
+}
+
 // ==============================================
 // API OBJECT
 // ==============================================
@@ -2060,6 +2092,13 @@ const api = {
             status: 'pending_manager',
             total_amount: totalAmount,
             expense_count: expenseIds.length,
+            // Mirror the linked expense IDs onto the voucher row itself.
+            // Why: voucher_expenses RLS blocks accountants from SELECTing
+            // junction rows submitted by someone else, which makes the
+            // voucher detail panel render "No expenses". The expense_ids
+            // column was added by 20260406_voucher_expense_ids.sql exactly
+            // for this fallback — getVoucherDetail uses it.
+            expense_ids: expenseIds,
             submitted_at: new Date().toISOString()
         };
         // Optional fields — only add if they have values (avoids 400 if column doesn't exist)
@@ -2187,8 +2226,7 @@ const api = {
         if (vRes.error) handleError(vRes.error, 'Get voucher detail');
         const voucher = vRes.data;
 
-        // Fetch expenses if any links found
-        const expenseIds = (linkRes.data || []).map(l => l.expense_id);
+        const expenseIds = await resolveVoucherExpenseIds(supabase, voucherId, voucher, linkRes.data);
         let expenses = [];
         if (expenseIds.length > 0) {
             const { data: expData } = await supabase
@@ -2238,18 +2276,14 @@ const api = {
 
         if (updateErr) handleError(updateErr, 'Approve voucher');
 
-        // If fully approved, update expense statuses
+        // If fully approved, update expense statuses (uses junction → expense_ids fallback).
         if (newStatus === 'approved') {
-            const { data: links } = await supabase
-                .from('voucher_expenses')
-                .select('expense_id')
-                .eq('voucher_id', voucherId);
-
-            if (links?.length > 0) {
+            const expenseIds = await resolveVoucherExpenseIds(supabase, voucherId);
+            if (expenseIds.length > 0) {
                 await supabase
                     .from('expenses')
                     .update({ voucher_status: 'approved' })
-                    .in('id', links.map(l => l.expense_id));
+                    .in('id', expenseIds);
             }
         }
 
@@ -2302,17 +2336,13 @@ const api = {
 
         if (error) handleError(error, 'Reject voucher');
 
-        // Update expense statuses back to rejected
-        const { data: links } = await supabase
-            .from('voucher_expenses')
-            .select('expense_id')
-            .eq('voucher_id', voucherId);
-
-        if (links?.length > 0) {
+        // Update expense statuses back to rejected (junction → expense_ids fallback).
+        const expenseIdsRej = await resolveVoucherExpenseIds(supabase, voucherId);
+        if (expenseIdsRej.length > 0) {
             await supabase
                 .from('expenses')
                 .update({ voucher_status: 'rejected' })
-                .in('id', links.map(l => l.expense_id));
+                .in('id', expenseIdsRej);
         }
 
         // Add history
@@ -2349,17 +2379,13 @@ const api = {
 
         if (error) handleError(error, 'Resubmit voucher');
 
-        // Update expense statuses
-        const { data: links } = await supabase
-            .from('voucher_expenses')
-            .select('expense_id')
-            .eq('voucher_id', voucherId);
-
-        if (links?.length > 0) {
+        // Update expense statuses (junction → expense_ids fallback).
+        const expenseIdsResub = await resolveVoucherExpenseIds(supabase, voucherId);
+        if (expenseIdsResub.length > 0) {
             await supabase
                 .from('expenses')
                 .update({ voucher_status: 'submitted' })
-                .in('id', links.map(l => l.expense_id));
+                .in('id', expenseIdsResub);
         }
 
         // Add history

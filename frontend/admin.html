@@ -521,6 +521,47 @@
         .admin-stats-grid .admin-stat-card:nth-child(3) { animation-delay: 0.15s; }
         .admin-stats-grid .admin-stat-card:nth-child(4) { animation-delay: 0.20s; }
 
+        /* Clickable variant — explicit affordance + chevron, keeps existing hover */
+        .admin-stat-card--clickable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            outline: none;
+        }
+        .admin-stat-card--clickable:hover {
+            border-color: var(--gray-200);
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+        }
+        .admin-stat-card--clickable:focus-visible {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.35);
+        }
+        .admin-stat-card--clickable:active {
+            transform: translateY(-1px);
+        }
+        .admin-stat-card__chevron {
+            position: absolute;
+            top: 22px;
+            right: 22px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--gray-50, #f3f4f6);
+            color: var(--gray-400, #9ca3af);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.18s ease, transform 0.18s ease, background 0.18s ease, color 0.18s ease;
+            pointer-events: none;
+        }
+        .admin-stat-card--clickable:hover .admin-stat-card__chevron,
+        .admin-stat-card--clickable:focus-visible .admin-stat-card__chevron {
+            opacity: 1;
+            transform: translateX(2px);
+            background: var(--gray-100, #e5e7eb);
+            color: var(--gray-700, #374151);
+        }
+
         .admin-stat-card:hover {
             transform: translateY(-3px);
             box-shadow: var(--shadow-lg);
@@ -803,6 +844,171 @@
         .admin-quick-actions .btn-flux:hover .btn-flux__arrow svg {
             stroke: #fff !important;
         }
+
+        /* ============================================================
+           Approval Pipeline (Kanban) — premium dashboard styling
+           ============================================================ */
+        .kp-toolbar {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 12px; flex-wrap: wrap;
+            padding: 12px 14px; margin-bottom: 14px;
+            background: #ffffff; border: 1px solid #eef2f7; border-radius: 12px;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        }
+        .kp-toolbar__search {
+            display: flex; align-items: center; gap: 8px; flex: 1; min-width: 240px;
+            padding: 0 12px; height: 36px;
+            background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 10px;
+            color: #64748b;
+        }
+        .kp-toolbar__search input {
+            flex: 1; border: none; background: transparent; outline: none;
+            font: inherit; color: #0f172a; font-size: 0.85rem;
+        }
+        .kp-toolbar__search input::placeholder { color: #94a3b8; }
+        .kp-toolbar__right { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .kp-toolbar__right select {
+            height: 36px; padding: 0 32px 0 12px;
+            background: #ffffff; border: 1px solid #e5e7eb; border-radius: 10px;
+            font-size: 0.82rem; color: #0f172a; cursor: pointer;
+            appearance: none; -webkit-appearance: none;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6' fill='none'><path d='M1 1l4 4 4-4' stroke='%2364748b' stroke-width='1.5'/></svg>");
+            background-repeat: no-repeat; background-position: right 12px center;
+        }
+        .kp-toolbar__btn {
+            height: 36px; padding: 0 14px; border-radius: 10px;
+            border: 1px solid #e5e7eb; background: #ffffff; color: #475569;
+            font-size: 0.82rem; font-weight: 600; cursor: pointer;
+            display: inline-flex; align-items: center; gap: 6px;
+            transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
+        }
+        .kp-toolbar__btn:hover { background: #f8fafc; border-color: #cbd5e1; color: #0f172a; }
+        .kp-toolbar__btn:active { transform: scale(0.98); }
+        .kp-toolbar__btn--primary {
+            background: linear-gradient(135deg, #0ea5e9, #0369a1);
+            border-color: transparent; color: #ffffff;
+            box-shadow: 0 2px 8px rgba(3, 105, 161, 0.2);
+        }
+        .kp-toolbar__btn--primary:hover { color: #ffffff; box-shadow: 0 4px 12px rgba(3, 105, 161, 0.3); }
+
+        .kp-board {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(280px, 1fr));
+            gap: 14px;
+            align-items: stretch;
+            padding-bottom: 8px;
+        }
+        @media (max-width: 1280px) { .kp-board { grid-template-columns: repeat(2, minmax(280px, 1fr)); } }
+        @media (max-width: 720px)  { .kp-board { grid-template-columns: 1fr; } }
+
+        .kp-col {
+            display: flex; flex-direction: column;
+            background: #f8fafc;
+            border: 1px solid #eef2f7;
+            border-radius: 14px;
+            overflow: hidden;
+            min-height: 280px;
+        }
+        .kp-col__head {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 14px;
+            background: var(--soft);
+            border-bottom: 1px solid var(--border);
+            position: sticky; top: 0; z-index: 1;
+        }
+        .kp-col__head-left {
+            display: flex; align-items: center; gap: 8px;
+            color: var(--accent); font-weight: 700; font-size: 0.84rem;
+        }
+        .kp-col__icon {
+            width: 26px; height: 26px; border-radius: 8px;
+            background: #ffffff; border: 1px solid var(--border);
+            display: inline-flex; align-items: center; justify-content: center;
+            color: var(--accent);
+        }
+        .kp-col__label { color: #0f172a; letter-spacing: -0.01em; }
+        .kp-col__count {
+            min-width: 26px; height: 22px; padding: 0 8px;
+            background: #ffffff; color: var(--accent);
+            border: 1px solid var(--border); border-radius: 99px;
+            font-size: 0.74rem; font-weight: 700;
+            display: inline-flex; align-items: center; justify-content: center;
+        }
+        .kp-col__body {
+            flex: 1; min-height: 200px; max-height: 580px;
+            overflow-y: auto; padding: 10px;
+            display: flex; flex-direction: column; gap: 10px;
+            scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent;
+        }
+        .kp-col__body::-webkit-scrollbar { width: 8px; }
+        .kp-col__body::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+        .kp-col__foot {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 14px; border-top: 1px solid #eef2f7; background: #ffffff;
+            font-size: 0.74rem; color: #64748b; font-weight: 600;
+        }
+        .kp-col__foot strong { font-size: 0.92rem; letter-spacing: -0.01em; }
+
+        .kp-card {
+            background: #ffffff; border: 1px solid #eef2f7; border-radius: 12px;
+            padding: 12px 14px; cursor: grab; user-select: none;
+            border-left: 3px solid var(--accent, #94a3b8);
+            transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+            display: flex; flex-direction: column; gap: 6px;
+        }
+        .kp-card:hover {
+            border-color: #cbd5e1;
+            border-left-color: var(--accent);
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+            transform: translateY(-1px);
+        }
+        .kp-card:active { cursor: grabbing; }
+        .kp-card__head {
+            display: flex; align-items: center; justify-content: space-between; gap: 8px;
+        }
+        .kp-card__id {
+            font-weight: 700; font-size: 0.82rem; color: #0f172a; letter-spacing: -0.01em;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .kp-card__amt {
+            font-weight: 700; font-size: 0.92rem; color: var(--accent, #0f172a);
+            white-space: nowrap; letter-spacing: -0.01em;
+        }
+        .kp-card__row {
+            display: flex; align-items: center; justify-content: space-between; gap: 8px;
+            font-size: 0.76rem; color: #475569;
+        }
+        .kp-card__person { font-weight: 500; }
+        .kp-card__count { color: #64748b; font-size: 0.72rem; }
+        .kp-card__project {
+            font-size: 0.72rem; color: #6b7280; padding: 3px 8px;
+            background: #f1f5f9; border-radius: 6px; align-self: flex-start;
+            max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .kp-card__purpose {
+            font-size: 0.72rem; color: #64748b;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .kp-card__foot {
+            font-size: 0.68rem; color: #94a3b8; padding-top: 4px;
+            border-top: 1px dashed #eef2f7; margin-top: 2px;
+        }
+        .kp-pill {
+            font-size: 0.62rem; font-weight: 700; letter-spacing: 0.06em;
+            padding: 2px 8px; border-radius: 99px; text-transform: uppercase;
+        }
+        .kp-pill--purple { background: #f5f3ff; color: #7c3aed; }
+        .kp-pill--blue   { background: #eff6ff; color: #1d4ed8; }
+        .kp-pill--green  { background: #ecfdf5; color: #047857; }
+
+        .kp-empty {
+            text-align: center; padding: 28px 14px; color: #94a3b8;
+        }
+        .kp-empty svg { display: block; margin: 0 auto 10px; color: #cbd5e1; }
+        .kp-empty__title { margin: 0; font-weight: 600; color: #475569; font-size: 0.85rem; }
+        .kp-empty__sub   { margin: 4px 0 0; font-size: 0.74rem; color: #94a3b8; }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
     <link rel="preload" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js" as="script">
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js"></script>
@@ -900,33 +1106,49 @@
                     </div>
                 </div>
                 <div class="admin-stats-grid" id="overviewStats">
-                    <div class="admin-stat-card">
+                    <div class="admin-stat-card admin-stat-card--clickable" role="button" tabindex="0"
+                         onclick="switchSection('employees', document.querySelector('[data-section=employees]'))"
+                         onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchSection('employees', document.querySelector('[data-section=employees]'));}"
+                         aria-label="View employees">
                         <div class="admin-stat-card__icon admin-stat-card__icon--default">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
                         </div>
                         <div class="admin-stat-card__value" id="statEmployees">-</div>
                         <div class="admin-stat-card__label">Employees</div>
+                        <span class="admin-stat-card__chevron" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
                     </div>
-                    <div class="admin-stat-card admin-stat-card--blue">
+                    <div class="admin-stat-card admin-stat-card--blue admin-stat-card--clickable" role="button" tabindex="0"
+                         onclick="switchSection('projects', document.querySelector('[data-section=projects]'))"
+                         onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchSection('projects', document.querySelector('[data-section=projects]'));}"
+                         aria-label="View active projects">
                         <div class="admin-stat-card__icon">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
                         </div>
                         <div class="admin-stat-card__value" id="statProjects">-</div>
                         <div class="admin-stat-card__label">Active Projects</div>
+                        <span class="admin-stat-card__chevron" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
                     </div>
-                    <div class="admin-stat-card admin-stat-card--amber">
+                    <div class="admin-stat-card admin-stat-card--amber admin-stat-card--clickable" role="button" tabindex="0"
+                         onclick="switchSection('pipeline', document.querySelector('[data-section=pipeline]'))"
+                         onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchSection('pipeline', document.querySelector('[data-section=pipeline]'));}"
+                         aria-label="View pending vouchers in approval pipeline">
                         <div class="admin-stat-card__icon">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
                         </div>
                         <div class="admin-stat-card__value" id="statPending">-</div>
                         <div class="admin-stat-card__label">Pending Vouchers</div>
+                        <span class="admin-stat-card__chevron" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
                     </div>
-                    <div class="admin-stat-card admin-stat-card--green">
+                    <div class="admin-stat-card admin-stat-card--green admin-stat-card--clickable" role="button" tabindex="0"
+                         onclick="switchSection('vouchers', document.querySelector('[data-section=vouchers]'))"
+                         onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchSection('vouchers', document.querySelector('[data-section=vouchers]'));}"
+                         aria-label="View all approved vouchers">
                         <div class="admin-stat-card__icon">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
                         </div>
                         <div class="admin-stat-card__value" id="statApproved">-</div>
                         <div class="admin-stat-card__label">Approved Vouchers</div>
+                        <span class="admin-stat-card__chevron" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
                     </div>
                 </div>
                 <h3 class="admin-section-label">Quick Actions</h3>
@@ -1892,7 +2114,13 @@ WDL1,WONDERLA,Amusement Park,Amusement Park</code>
         }
 
         // ==================== Approval Pipeline ====================
-        async function loadPipeline() {
+        // Pipeline data cache + filter state — kept outside loadPipeline so the
+        // toolbar callbacks (search/sort/filter) can mutate them and re-render
+        // without refetching from Supabase.
+        let _pipelineData = { vouchers: [], advances: [] };
+        let _pipelineState = { search: '', sort: 'date_desc', showRejected: false };
+
+        async function loadPipeline(force = true) {
             const user = JSON.parse(localStorage.getItem('user') || '{}');
             const orgId = user.organization_id;
             if (!orgId) return;
@@ -1900,126 +2128,183 @@ WDL1,WONDERLA,Amusement Park,Amusement Park</code>
             const supabase = window.supabaseClient?.get();
             if (!supabase) return;
 
-            try {
-                // Fetch vouchers
-                const { data: vouchers } = await supabase
-                    .from('vouchers')
-                    .select('*, submitter:submitted_by(name, email), manager:manager_id(name), accountant:accountant_id(name)')
-                    .eq('organization_id', orgId)
-                    .order('submitted_at', { ascending: false })
-                    .limit(100);
+            const container = document.getElementById('pipelineView');
 
-                // Fetch advances + submitter profiles
-                const { data: advances } = await supabase
-                    .from('advances')
-                    .select('*')
-                    .eq('organization_id', orgId)
-                    .order('created_at', { ascending: false })
-                    .limit(100);
-                const advUserIds = [...new Set((advances || []).map(a => a.user_id).filter(Boolean))];
-                let advProfileMap = {};
-                if (advUserIds.length > 0) {
-                    const { data: profiles } = await supabase.from('profiles').select('id, name, email').in('id', advUserIds);
-                    (profiles || []).forEach(p => advProfileMap[p.id] = p);
-                }
+            if (force) {
+                container.innerHTML = '<div class="admin-empty"><div class="admin-empty__spinner" style="width:36px;height:36px;border:3px solid #e5e7eb;border-top-color:#0369a1;border-radius:50%;animation:spin 0.8s linear infinite;margin:32px auto 12px;"></div><p>Loading approval pipeline...</p></div>';
 
-                // Group by status
-                const groups = {
-                    pending_manager: { label: 'Pending Manager', color: '#f59e0b', icon: '⏳', items: [] },
-                    pending_accountant: { label: 'Pending Accountant', color: '#8b5cf6', icon: '📋', items: [] },
-                    manager_approved: { label: 'Manager Approved', color: '#3b82f6', icon: '✓', items: [] },
-                    approved: { label: 'Approved', color: '#10b981', icon: '✅', items: [] },
-                    active: { label: 'Active', color: '#059669', icon: '✅', items: [] },
-                    rejected: { label: 'Rejected', color: '#ef4444', icon: '✕', items: [] },
-                    reimbursed: { label: 'Reimbursed', color: '#06b6d4', icon: '💰', items: [] },
-                    closed: { label: 'Closed', color: '#64748b', icon: '🔒', items: [] }
-                };
+                try {
+                    const [vRes, aRes] = await Promise.all([
+                        supabase.from('vouchers')
+                            .select('*, submitter:submitted_by(name, email), manager:manager_id(name), accountant:accountant_id(name), project:project_id(project_name)')
+                            .eq('organization_id', orgId)
+                            .order('submitted_at', { ascending: false })
+                            .limit(200),
+                        supabase.from('advances')
+                            .select('*')
+                            .eq('organization_id', orgId)
+                            .order('created_at', { ascending: false })
+                            .limit(200),
+                    ]);
 
-                // Add vouchers
-                (vouchers || []).forEach(v => {
-                    v._type = 'voucher';
-                    if (groups[v.status]) groups[v.status].items.push(v);
-                });
+                    _pipelineData.vouchers = vRes.data || [];
+                    _pipelineData.advances = aRes.data || [];
 
-                // Add advances
-                (advances || []).forEach(a => {
-                    a._type = 'advance';
-                    a._submitterName = advProfileMap[a.user_id]?.name || 'Employee';
-                    if (groups[a.status]) groups[a.status].items.push(a);
-                });
-
-                const container = document.getElementById('pipelineView');
-
-                // Render card for each item
-                function renderCard(item, color) {
-                    if (item._type === 'advance') {
-                        return `<div style="background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:12px;margin-bottom:8px;border-left:3px solid ${color};">
-                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-                                <span style="font-weight:700;font-size:0.82rem;color:var(--gray-900);">${esc(item.project_name)}</span>
-                                <span style="font-weight:700;font-size:0.88rem;color:${color};">₹${Number(item.amount).toLocaleString('en-IN')}</span>
-                            </div>
-                            <div style="font-size:0.75rem;color:var(--gray-500);">
-                                ${esc(item._submitterName)} &middot; <span style="background:#f5f3ff;color:#7c3aed;padding:1px 6px;border-radius:4px;font-size:0.65rem;font-weight:600;">ADVANCE</span>
-                            </div>
-                            <div style="font-size:0.68rem;color:var(--gray-400);margin-top:6px;">
-                                ${item.created_at ? new Date(item.created_at).toLocaleDateString('en-IN') : ''}
-                                ${item.visit_type ? ' &middot; ' + esc(item.visit_type) : ''}
-                            </div>
-                        </div>`;
+                    const advUserIds = [...new Set(_pipelineData.advances.map(a => a.user_id).filter(Boolean))];
+                    if (advUserIds.length > 0) {
+                        const { data: profiles } = await supabase.from('profiles').select('id, name, email').in('id', advUserIds);
+                        const map = {};
+                        (profiles || []).forEach(p => map[p.id] = p);
+                        _pipelineData.advances.forEach(a => { a._submitterName = map[a.user_id]?.name || 'Employee'; });
                     }
-                    // Voucher card
-                    return `<div style="background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:12px;margin-bottom:8px;border-left:3px solid ${color};">
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-                            <span style="font-weight:700;font-size:0.82rem;color:var(--gray-900);">${esc(item.voucher_number)}</span>
-                            <span style="font-weight:700;font-size:0.88rem;color:${color};">₹${Number(item.total_amount).toLocaleString('en-IN')}</span>
-                        </div>
-                        <div style="font-size:0.75rem;color:var(--gray-500);">
-                            ${esc(item.submitter?.name || 'Employee')} &middot; ${item.expense_count || 0} expenses
-                        </div>
-                        ${item.purpose ? `<div style="font-size:0.72rem;color:var(--gray-400);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(item.purpose)}</div>` : ''}
-                        <div style="font-size:0.68rem;color:var(--gray-400);margin-top:6px;">
-                            ${item.submitted_at ? new Date(item.submitted_at).toLocaleDateString('en-IN') : ''}
-                            ${item.manager?.name ? ' → ' + esc(item.manager.name) : ''}
-                        </div>
-                    </div>`;
+                } catch (e) {
+                    console.error('Pipeline load error:', e);
+                    container.innerHTML = '<div class="admin-empty"><p>Failed to load pipeline.</p></div>';
+                    return;
                 }
-
-                // Pipeline columns
-                let columns = '';
-                for (const [status, group] of Object.entries(groups)) {
-                    if (group.items.length === 0 && ['manager_approved', 'reimbursed', 'closed'].includes(status)) continue; // hide empty non-essential columns
-                    const total = group.items.reduce((s, v) => s + (parseFloat(v.total_amount || v.amount) || 0), 0);
-                    const cards = group.items.map(v => renderCard(v, group.color)).join('') || '<div style="text-align:center;color:var(--gray-400);font-size:0.78rem;padding:20px;">Empty</div>';
-
-                    columns += `
-                        <div style="min-width:260px;flex:1;">
-                            <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:${group.color}11;border:1px solid ${group.color}22;border-radius:var(--radius-md) var(--radius-md) 0 0;">
-                                <div style="display:flex;align-items:center;gap:6px;">
-                                    <span style="font-size:1rem;">${group.icon}</span>
-                                    <span style="font-weight:700;font-size:0.78rem;color:var(--gray-900);">${group.label}</span>
-                                </div>
-                                <span style="font-size:0.72rem;font-weight:700;color:${group.color};background:${group.color}15;padding:2px 8px;border-radius:10px;">${group.items.length}</span>
-                            </div>
-                            <div style="background:var(--gray-50);border:1px solid var(--gray-200);border-top:none;border-radius:0 0 var(--radius-md) var(--radius-md);padding:8px;max-height:500px;overflow-y:auto;">
-                                ${cards}
-                            </div>
-                            <div style="text-align:center;font-size:0.72rem;color:var(--gray-500);padding:8px;font-weight:600;">
-                                Total: ₹${total.toLocaleString('en-IN')}
-                            </div>
-                        </div>
-                    `;
-                }
-
-                container.innerHTML = `
-                    <div style="display:flex;gap:12px;overflow-x:auto;padding-bottom:12px;">
-                        ${columns}
-                    </div>
-                `;
-
-            } catch (e) {
-                console.error('Pipeline load error:', e);
-                document.getElementById('pipelineView').innerHTML = '<div class="admin-empty"><p>Failed to load pipeline.</p></div>';
             }
+
+            renderPipeline();
+        }
+
+        function renderPipeline() {
+            const container = document.getElementById('pipelineView');
+            if (!container) return;
+
+            // Filter helpers
+            const needle = (_pipelineState.search || '').toLowerCase().trim();
+            const matchesSearch = (item) => {
+                if (!needle) return true;
+                const fields = item._type === 'advance'
+                    ? [item.project_name, item._submitterName, item.notes, String(item.amount)]
+                    : [item.voucher_number, item.submitter?.name, item.purpose, item.project?.project_name, String(item.total_amount)];
+                return fields.some(f => f && String(f).toLowerCase().includes(needle));
+            };
+            const sortFn = (a, b) => {
+                if (_pipelineState.sort === 'amount_desc') return (Number(b.total_amount || b.amount) || 0) - (Number(a.total_amount || a.amount) || 0);
+                if (_pipelineState.sort === 'amount_asc')  return (Number(a.total_amount || a.amount) || 0) - (Number(b.total_amount || b.amount) || 0);
+                if (_pipelineState.sort === 'date_asc')    return new Date(a.submitted_at || a.created_at || 0) - new Date(b.submitted_at || b.created_at || 0);
+                return new Date(b.submitted_at || b.created_at || 0) - new Date(a.submitted_at || a.created_at || 0); // date_desc
+            };
+
+            // Stage definitions — primary 4 columns user asked for, plus optional rejected/closed/reimbursed
+            const stages = [
+                { key: 'pending_manager',    label: 'Pending Manager',    accent: '#f59e0b', soft: '#fffbeb', border: '#fde68a',
+                  icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' },
+                { key: 'pending_accountant', label: 'Pending Accountant', accent: '#8b5cf6', soft: '#f5f3ff', border: '#ddd6fe',
+                  icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' },
+                { key: 'approved',           label: 'Approved',           accent: '#10b981', soft: '#ecfdf5', border: '#a7f3d0',
+                  icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>' },
+                { key: 'active',             label: 'Active',             accent: '#0ea5e9', soft: '#f0f9ff', border: '#bae6fd',
+                  icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>' },
+            ];
+            const extraStages = [
+                { key: 'rejected',    label: 'Rejected',    accent: '#ef4444', soft: '#fef2f2', border: '#fecaca' },
+                { key: 'reimbursed',  label: 'Reimbursed',  accent: '#06b6d4', soft: '#ecfeff', border: '#a5f3fc' },
+                { key: 'closed',      label: 'Closed',      accent: '#64748b', soft: '#f8fafc', border: '#e2e8f0' },
+            ];
+
+            const groups = {};
+            [...stages, ...extraStages].forEach(s => groups[s.key] = []);
+
+            (_pipelineData.vouchers || []).forEach(v => { v._type = 'voucher'; if (groups[v.status]) groups[v.status].push(v); });
+            (_pipelineData.advances || []).forEach(a => { a._type = 'advance'; if (groups[a.status]) groups[a.status].push(a); });
+
+            const renderCard = (item, accent) => {
+                if (item._type === 'advance') {
+                    return `<article class="kp-card" data-id="${esc(item.id)}" data-type="advance" style="--accent:${accent};">
+                        <header class="kp-card__head">
+                            <span class="kp-card__id">${esc(item.project_name)}</span>
+                            <span class="kp-card__amt">₹${Number(item.amount).toLocaleString('en-IN')}</span>
+                        </header>
+                        <div class="kp-card__row">
+                            <span class="kp-card__person">${esc(item._submitterName || 'Employee')}</span>
+                            <span class="kp-pill kp-pill--purple">ADVANCE</span>
+                        </div>
+                        <footer class="kp-card__foot">
+                            ${item.created_at ? new Date(item.created_at).toLocaleDateString('en-IN') : ''}
+                            ${item.visit_type ? ' · ' + esc(item.visit_type) : ''}
+                        </footer>
+                    </article>`;
+                }
+                const projectName = item.project?.project_name || '';
+                return `<article class="kp-card" data-id="${esc(item.id)}" data-type="voucher" style="--accent:${accent};" onclick="approvalWorkflow.openVoucherDetail('${esc(item.id)}')">
+                    <header class="kp-card__head">
+                        <span class="kp-card__id">${esc(item.voucher_number)}</span>
+                        <span class="kp-card__amt">₹${Number(item.total_amount || 0).toLocaleString('en-IN')}</span>
+                    </header>
+                    <div class="kp-card__row">
+                        <span class="kp-card__person">${esc(item.submitter?.name || 'Employee')}</span>
+                        <span class="kp-card__count">${item.expense_count || 0} ${item.expense_count === 1 ? 'expense' : 'expenses'}</span>
+                    </div>
+                    ${projectName ? `<div class="kp-card__project" title="${esc(projectName)}">${esc(projectName)}</div>` : ''}
+                    ${item.purpose ? `<div class="kp-card__purpose" title="${esc(item.purpose)}">${esc(item.purpose)}</div>` : ''}
+                    <footer class="kp-card__foot">
+                        ${item.submitted_at ? new Date(item.submitted_at).toLocaleDateString('en-IN') : ''}
+                        ${item.manager?.name ? ' → ' + esc(item.manager.name) : ''}
+                    </footer>
+                </article>`;
+            };
+
+            const renderColumn = (stage, items) => {
+                const filtered = items.filter(matchesSearch).sort(sortFn);
+                const total = filtered.reduce((s, v) => s + (parseFloat(v.total_amount || v.amount) || 0), 0);
+                const cards = filtered.length === 0
+                    ? `<div class="kp-empty">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                            <p class="kp-empty__title">No vouchers</p>
+                            <p class="kp-empty__sub">${needle ? 'Nothing matches your search.' : 'There are no vouchers in this stage.'}</p>
+                       </div>`
+                    : filtered.map(v => renderCard(v, stage.accent)).join('');
+
+                return `<section class="kp-col" data-stage="${stage.key}">
+                    <header class="kp-col__head" style="--accent:${stage.accent};--soft:${stage.soft};--border:${stage.border};">
+                        <div class="kp-col__head-left">
+                            <span class="kp-col__icon">${stage.icon || '•'}</span>
+                            <span class="kp-col__label">${stage.label}</span>
+                        </div>
+                        <span class="kp-col__count">${filtered.length}</span>
+                    </header>
+                    <div class="kp-col__body">${cards}</div>
+                    <footer class="kp-col__foot">
+                        <span>Total</span>
+                        <strong style="color:${stage.accent};">₹${total.toLocaleString('en-IN')}</strong>
+                    </footer>
+                </section>`;
+            };
+
+            // Toolbar
+            const toolbar = `
+                <div class="kp-toolbar">
+                    <div class="kp-toolbar__search">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <input type="search" id="kpSearch" placeholder="Search voucher, employee, project…" value="${esc(_pipelineState.search)}" oninput="_pipelineState.search=this.value;renderPipeline();" />
+                    </div>
+                    <div class="kp-toolbar__right">
+                        <select id="kpSort" onchange="_pipelineState.sort=this.value;renderPipeline();">
+                            <option value="date_desc" ${_pipelineState.sort==='date_desc'?'selected':''}>Newest first</option>
+                            <option value="date_asc"  ${_pipelineState.sort==='date_asc'?'selected':''}>Oldest first</option>
+                            <option value="amount_desc" ${_pipelineState.sort==='amount_desc'?'selected':''}>Highest amount</option>
+                            <option value="amount_asc"  ${_pipelineState.sort==='amount_asc'?'selected':''}>Lowest amount</option>
+                        </select>
+                        <button class="kp-toolbar__btn" onclick="_pipelineState.showRejected=!_pipelineState.showRejected;renderPipeline();" title="Toggle rejected/closed columns">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                            ${_pipelineState.showRejected ? 'Hide extras' : 'Show extras'}
+                        </button>
+                        <button class="kp-toolbar__btn kp-toolbar__btn--primary" onclick="loadPipeline(true)" title="Refresh">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10"/><path d="M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+                            Refresh
+                        </button>
+                    </div>
+                </div>`;
+
+            const allStages = _pipelineState.showRejected ? [...stages, ...extraStages] : stages;
+            const columnsHtml = allStages
+                .filter(s => stages.includes(s) || (groups[s.key] && groups[s.key].length > 0) || _pipelineState.showRejected)
+                .map(s => renderColumn(s, groups[s.key] || []))
+                .join('');
+
+            container.innerHTML = toolbar + `<div class="kp-board">${columnsHtml}</div>`;
         }
 
         // ==================== Analytics ====================
