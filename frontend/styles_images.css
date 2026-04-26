@@ -176,9 +176,11 @@
 
 /* ═══════════════════════════════════════════════════════════════════════════
    SECTION 2: LIGHT MODE OVERRIDES
+   Why: leading-comma selector below was invalid — browsers dropped the rule
+   and dark-mode defaults (white text) bled into the light-only app.
    ═══════════════════════════════════════════════════════════════════════════ */
 
-,
+:root[data-theme="light"],
 .theme-light {
   --img-bg-base: #f8f9fc;
   --img-bg-surface: #ffffff;
