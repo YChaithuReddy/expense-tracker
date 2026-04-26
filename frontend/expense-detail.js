@@ -52,14 +52,26 @@ const expenseDetail = (() => {
         const style = document.createElement('style');
         style.id = 'expense-detail-v2-styles';
         style.textContent = `
-            .expense-detail-overlay { padding: 0 !important; }
+            /* Center the panel within the overlay so the modal sits in the
+               viewport instead of clinging to the top edge with bottom-rounded
+               corners sliced off-screen. The base overlay rules in styles.css
+               leave it as flex-direction:column with no alignment, which is
+               what caused the "floating / cut off" look. */
+            .expense-detail-overlay {
+                padding: 0 !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
             .expense-detail-overlay.active .expense-detail-panel {
                 width: min(1240px, 96vw);
-                max-height: 88vh;
+                max-width: 96vw;
+                height: auto;
+                max-height: min(88vh, 88dvh);
                 display: flex; flex-direction: column;
                 border-radius: 16px;
                 background: #ffffff;
                 overflow: hidden;
+                margin: auto;
             }
             .expense-detail-header {
                 padding: 16px 22px;
