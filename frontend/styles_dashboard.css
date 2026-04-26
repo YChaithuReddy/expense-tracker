@@ -3080,3 +3080,220 @@ h3.admin-section-label {
     border-color: #bfdbfe;
 }
 .rpt-adv-card--info .rpt-adv-card__value { color: #2563eb; }
+
+/* ============================================================
+   EXPENSE HISTORY — modern stat cards, filter panel, table polish
+   Targets #section-history. Pipeline pages (admin/accountant
+   #section-pipeline) explicitly NOT touched.
+   ============================================================ */
+
+/* Override the legacy .admin-stats-bar layout for the history view only */
+#section-history .admin-stats-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    flex-wrap: nowrap;
+    margin-bottom: 18px;
+}
+#section-history .hist-stat-card {
+    background: #ffffff;
+    border: 1px solid #eef2f7;
+    border-radius: 14px;
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+#section-history .hist-stat-card:hover {
+    border-color: #d1d8e0;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+    transform: translateY(-1px);
+}
+.hist-stat-card__icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.hist-stat-card__icon--blue   { background: #eff6ff; color: #2563eb; }
+.hist-stat-card__icon--green  { background: #ecfdf5; color: #059669; }
+.hist-stat-card__icon--amber  { background: #fff7ed; color: #d97706; }
+.hist-stat-card__icon--violet { background: #f5f3ff; color: #7c3aed; }
+.hist-stat-card__body { min-width: 0; flex: 1; }
+.hist-stat-card__label {
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 2px;
+}
+.hist-stat-card__value {
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.hist-stat-card__value--green  { color: #059669; }
+.hist-stat-card__value--amber  { color: #d97706; }
+.hist-stat-card__value--violet { color: #7c3aed; }
+.hist-stat-card__caption {
+    font-size: 0.72rem;
+    color: #94a3b8;
+    margin-top: 2px;
+}
+
+/* Filters row — wrap into one cohesive panel */
+#section-history .hist-filters-row {
+    background: #ffffff;
+    border: 1px solid #eef2f7;
+    border-radius: 14px;
+    padding: 12px;
+    gap: 10px;
+    margin-bottom: 14px;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+}
+#section-history .hist-search-wrap {
+    flex: 1;
+    min-width: 200px;
+}
+#section-history .hist-search-input {
+    width: 100%;
+    padding: 9px 12px 9px 36px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    background: #f8fafc;
+    border-color: #eef2f7;
+}
+#section-history .hist-search-input:focus {
+    background: #ffffff;
+    border-color: #93c5fd;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+#section-history .hist-search-wrap svg { left: 12px; }
+#section-history .hist-filter-select,
+#section-history .hist-filter-date {
+    padding: 9px 12px;
+    border-radius: 10px;
+    border-color: #eef2f7;
+    background: #f8fafc;
+    font-size: 0.84rem;
+    max-width: none;
+    width: auto;
+    min-width: 130px;
+}
+#section-history .hist-filter-select:focus,
+#section-history .hist-filter-date:focus {
+    background: #ffffff;
+    border-color: #93c5fd;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+#section-history #resetFilters.adv-tbl-btn {
+    width: auto;
+    height: auto;
+    padding: 9px 16px;
+    font-size: 0.78rem;
+    border-radius: 10px;
+    background: #ffffff;
+    border-color: #eef2f7;
+    color: #475569;
+    font-weight: 600;
+}
+#section-history #resetFilters.adv-tbl-btn:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #0f172a;
+}
+
+/* Table polish */
+#section-history .hist-table-wrap {
+    border-radius: 14px;
+    border-color: #eef2f7;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+#section-history .hist-table thead th {
+    background: #ffffff;
+    color: #94a3b8;
+    font-size: 0.66rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 14px 16px;
+    border-bottom: 1px solid #eef2f7;
+}
+#section-history .hist-table tbody td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 0.86rem;
+    color: #334155;
+    vertical-align: middle;
+}
+#section-history .hist-table tbody tr {
+    transition: background 0.15s;
+}
+#section-history .hist-table tbody tr:hover td {
+    background: #f8fafc;
+}
+.hist-th--sortable { cursor: pointer; user-select: none; }
+.hist-th--sortable:hover .hist-sort-icon { color: #475569; }
+.hist-sort-icon {
+    color: #cbd5e1;
+    font-size: 0.72rem;
+    margin-left: 4px;
+    transition: color 0.15s;
+}
+
+/* Refined action buttons in table */
+#section-history .adv-tbl-btn {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    border-color: #eef2f7;
+}
+#section-history .adv-tbl-btn:hover {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+    color: #2563eb;
+}
+#section-history .adv-tbl-btn--danger:hover {
+    background: #fef2f2;
+    border-color: #fecaca;
+    color: #dc2626;
+}
+
+/* Refined category badge inside history */
+#section-history .expense-category-badge {
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 0.76rem;
+    font-weight: 600;
+    background: #eff6ff !important;
+    color: #2563eb !important;
+    border: 1px solid #bfdbfe !important;
+}
+
+/* Responsive — collapse stat cards then stack filters on small screens */
+@media (max-width: 1100px) {
+    #section-history .admin-stats-bar { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+    #section-history .admin-stats-bar { grid-template-columns: 1fr; gap: 10px; }
+    #section-history .hist-stat-card { padding: 12px 14px; gap: 10px; }
+    .hist-stat-card__icon { width: 36px; height: 36px; border-radius: 10px; }
+    .hist-stat-card__value { font-size: 1.2rem; }
+    #section-history .hist-filters-row {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 10px;
+    }
+    #section-history .hist-search-wrap,
+    #section-history .hist-search-input,
+    #section-history .hist-filter-select,
+    #section-history .hist-filter-date,
+    #section-history #resetFilters.adv-tbl-btn { width: 100%; max-width: none; }
+}
