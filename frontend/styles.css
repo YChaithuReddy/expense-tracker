@@ -14885,3 +14885,197 @@ a svg {
     #batchReviewModal .batch-gallery { padding: 16px; grid-template-columns: 1fr; gap: 12px; }
     #batchReviewModal .modal-footer.batch-review-footer { padding: 12px 16px; }
 }
+
+/* ================================================
+   Dashboard premium polish — overrides only.
+   Targets the existing .exp-card / .exp-action-card / .exp-top-row
+   markup so the JS render code doesn't have to change.
+   ================================================ */
+.exp-top-row {
+    gap: 18px;
+}
+.exp-card {
+    position: relative;
+    background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(248, 250, 252, 0.85));
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    border-radius: 18px !important;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow:
+        0 1px 2px rgba(15, 23, 42, 0.04),
+        0 8px 24px rgba(15, 23, 42, 0.06);
+    transition: box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+                border-color 0.2s;
+}
+.exp-card:hover {
+    box-shadow:
+        0 2px 4px rgba(15, 23, 42, 0.06),
+        0 14px 36px rgba(15, 23, 42, 0.1);
+    transform: translateY(-2px);
+    border-color: rgba(15, 23, 42, 0.08);
+}
+.exp-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), transparent 40%);
+    opacity: 0.6;
+    transition: opacity 0.25s;
+}
+.exp-card:hover::before { opacity: 1; }
+.exp-card--scan::before {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), transparent 60%);
+}
+.exp-card--manual::before {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), transparent 60%);
+}
+
+.exp-card__icon {
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+    transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.exp-card:hover .exp-card__icon { transform: scale(1.05) rotate(-2deg); }
+
+.exp-card__title {
+    letter-spacing: -0.015em;
+}
+
+/* Animated drag-drop zone */
+.exp-dropzone {
+    position: relative;
+    border: 2px dashed rgba(148, 163, 184, 0.5) !important;
+    background: linear-gradient(135deg, rgba(241, 245, 249, 0.6), rgba(248, 250, 252, 0.4)) !important;
+    border-radius: 14px !important;
+    transition: border-color 0.2s, background 0.2s, transform 0.15s;
+}
+.exp-dropzone::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    pointer-events: none;
+    background:
+        repeating-linear-gradient(
+            45deg,
+            transparent 0,
+            transparent 12px,
+            rgba(59, 130, 246, 0.08) 12px,
+            rgba(59, 130, 246, 0.08) 14px
+        );
+    opacity: 0;
+    transition: opacity 0.25s;
+}
+.ocr-dropzone--dragover .exp-dropzone {
+    border-color: #3b82f6 !important;
+    background: linear-gradient(135deg, rgba(219, 234, 254, 0.8), rgba(238, 242, 255, 0.6)) !important;
+    transform: scale(1.005);
+}
+.ocr-dropzone--dragover .exp-dropzone::after { opacity: 1; }
+
+/* Recent entries — sleeker rows with hover affordance */
+.recent-entries {
+    background: rgba(248, 250, 252, 0.6);
+    border: 1px solid rgba(226, 232, 240, 0.7);
+    border-radius: 12px;
+    padding: 10px 12px;
+}
+.recent-entries__label {
+    margin: 0 0 6px;
+    font-size: 0.66rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+.recent-entries__items > * {
+    transition: background 0.15s, transform 0.15s;
+    border-radius: 8px;
+}
+.recent-entries__items > *:hover {
+    background: rgba(255, 255, 255, 0.8);
+    transform: translateX(2px);
+}
+
+/* Submit Reimbursement hero */
+#downloadReimbursementPackage.btn-flux.btn-flux--lg {
+    height: 64px !important;
+    border-radius: 16px !important;
+    background: linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #8b5cf6 100%) !important;
+    box-shadow:
+        0 6px 20px rgba(99, 102, 241, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+    transition: box-shadow 0.3s, transform 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+#downloadReimbursementPackage.btn-flux.btn-flux--lg::before {
+    background: linear-gradient(135deg, #4338ca 0%, #4f46e5 50%, #7c3aed 100%);
+}
+#downloadReimbursementPackage.btn-flux.btn-flux--lg:hover {
+    transform: translateY(-2px) scale(1.005);
+    box-shadow:
+        0 12px 32px rgba(99, 102, 241, 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+}
+
+/* Action tile row */
+.exp-actions-row { gap: 14px; }
+.exp-action-card {
+    position: relative;
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: 16px !important;
+    padding: 18px 16px !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    transition:
+        transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+        border-color 0.2s,
+        background 0.2s;
+    overflow: hidden;
+}
+.exp-action-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(135deg, var(--tile-tint, rgba(15, 23, 42, 0.04)), transparent 60%);
+    opacity: 0;
+    transition: opacity 0.25s;
+    pointer-events: none;
+}
+.exp-action-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.1);
+    border-color: rgba(15, 23, 42, 0.08);
+    background: rgba(255, 255, 255, 0.95);
+}
+.exp-action-card:hover::before { opacity: 1; }
+.exp-action-card:active { transform: translateY(-1px); }
+.exp-action-card__icon {
+    transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.exp-action-card:hover .exp-action-card__icon { transform: scale(1.1) rotate(-3deg); }
+
+.exp-action-card__icon--teal   { --tile-tint: rgba(13, 148, 136, 0.08); }
+.exp-action-card__icon--purple { --tile-tint: rgba(139, 92, 246, 0.08); }
+.exp-action-card__icon--amber  { --tile-tint: rgba(245, 158, 11, 0.08); }
+.exp-action-card__icon--red    { --tile-tint: rgba(239, 68, 68, 0.08); }
+.exp-action-card:has(.exp-action-card__icon--teal)   { --tile-tint: rgba(13, 148, 136, 0.06); }
+.exp-action-card:has(.exp-action-card__icon--purple) { --tile-tint: rgba(139, 92, 246, 0.06); }
+.exp-action-card:has(.exp-action-card__icon--amber)  { --tile-tint: rgba(245, 158, 11, 0.06); }
+.exp-action-card:has(.exp-action-card__icon--red)    { --tile-tint: rgba(239, 68, 68, 0.06); }
+
+@media (max-width: 768px) {
+    .exp-actions-row { grid-template-columns: repeat(2, 1fr) !important; }
+}
+@media (max-width: 480px) {
+    .exp-card { border-radius: 14px !important; }
+    .exp-action-card { padding: 14px 12px !important; }
+}

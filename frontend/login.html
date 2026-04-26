@@ -516,27 +516,37 @@
             padding: 0 4px;
         }
 
-        /* Google button */
-        .btn-google {
-            width: 100%; padding: 9px; border: 1.5px solid rgba(255,255,255,0.2) !important;
-            border-radius: var(--radius-md); background: rgba(255,255,255,0.08) !important;
-            font-size: 0.84rem; font-weight: 600; font-family: var(--font);
-            color: #ffffff !important; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            transition: background 0.18s, border-color 0.18s, box-shadow 0.18s;
-            min-height: 42px;
+        /* Google button — Google-branded white pill, readable dark text.
+           Past version forced white text on top of btn-flux--outline's white
+           background (specificity bug = invisible white-on-white). */
+        .btn-flux.btn-flux--outline.btn-google {
+            background: #ffffff !important;
+            color: #1f1f1f !important;
+            border: 1px solid #dadce0 !important;
+            border-radius: 10px !important;
+            min-height: 44px;
+            font-weight: 600;
+            box-shadow: 0 1px 2px rgba(60, 64, 67, 0.08), 0 1px 3px rgba(60, 64, 67, 0.06);
+            transition: background 0.18s, border-color 0.18s, box-shadow 0.18s, transform 0.1s;
         }
-        .btn-google:hover {
-            background: rgba(255,255,255,0.14) !important; border-color: rgba(255,255,255,0.3) !important;
+        .btn-flux.btn-flux--outline.btn-google:hover {
+            background: #f8fafc !important;
+            border-color: #c2c8cf !important;
+            box-shadow: 0 2px 6px rgba(60, 64, 67, 0.12), 0 1px 3px rgba(60, 64, 67, 0.08);
         }
-        /* Force white text on Google button (must beat .btn-flux--outline specificity) */
+        .btn-flux.btn-flux--outline.btn-google:active { transform: scale(0.99); }
         .btn-flux.btn-flux--outline.btn-google .btn-flux__text-inner span:first-child,
         .btn-flux.btn-flux--outline.btn-google .btn-flux__text-inner span:last-child,
         .btn-flux.btn-flux--outline.btn-google .btn-flux__text-inner span {
-            color: #ffffff !important;
+            color: #1f1f1f !important;
         }
         .btn-flux.btn-flux--outline.btn-google .btn-flux__arrow svg {
-            stroke: #ffffff !important;
+            stroke: #5f6368 !important;
+        }
+        /* Slot the official Google G icon next to the text */
+        .btn-flux.btn-flux--outline.btn-google .btn-google__icon {
+            width: 18px; height: 18px; flex-shrink: 0;
+            margin-right: 6px;
         }
 
         /* APK banner */
