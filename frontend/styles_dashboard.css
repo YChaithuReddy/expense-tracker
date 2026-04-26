@@ -1330,6 +1330,24 @@ h3.admin-section-label {
     display: flex;
     flex-direction: column;
     gap: 0;
+    /* Reserve a fixed slot so the section doesn't grow from 0 → 3 items
+       and shove the action buttons below it off the viewport. Items scroll
+       inside if there's overflow; empty state sits at top of the reserved area. */
+    min-height: 96px;
+    max-height: 96px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+}
+.recent-entries__items::-webkit-scrollbar {
+    width: 4px;
+}
+.recent-entries__items::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+.recent-entries__items::-webkit-scrollbar-track {
+    background: transparent;
 }
 .recent-entries__item {
     display: flex;
