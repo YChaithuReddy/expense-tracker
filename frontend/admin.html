@@ -405,6 +405,16 @@
             border-color: rgba(252,165,165,0.35);
             color: #fca5a5;
         }
+        .admin-sidebar__link:not(.admin-sidebar__link--danger) {
+            background: rgba(37, 99, 235, 0.18);
+            border-color: rgba(96, 165, 250, 0.35);
+            color: #93c5fd;
+        }
+        .admin-sidebar__link:not(.admin-sidebar__link--danger):hover {
+            background: rgba(37, 99, 235, 0.26);
+            border-color: rgba(96, 165, 250, 0.50);
+            color: #bfdbfe;
+        }
 
         /* ============================================================
            MAIN CONTENT
@@ -805,6 +815,36 @@
             .admin-csv-template__code { font-size: 0.65rem; }
         }
 
+        /* hist-stat-card (matches history page design) */
+        .hist-stat-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+        .hist-stat-card {
+            background: #ffffff; border: 1px solid #eef2f7; border-radius: 14px;
+            padding: 14px 16px; display: flex; align-items: center; gap: 12px;
+            box-shadow: 0 2px 8px rgba(15,23,42,0.04);
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        .hist-stat-card:hover { border-color: #d1d8e0; box-shadow: 0 6px 18px rgba(15,23,42,0.06); }
+        .hist-stat-card__icon { width: 44px; height: 44px; border-radius: 12px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .hist-stat-card__icon--blue   { background: #eff6ff; color: #2563eb; }
+        .hist-stat-card__icon--green  { background: #ecfdf5; color: #059669; }
+        .hist-stat-card__icon--amber  { background: #fff7ed; color: #d97706; }
+        .hist-stat-card__icon--violet { background: #f5f3ff; color: #7c3aed; }
+        .hist-stat-card__icon--red    { background: #fef2f2; color: #dc2626; }
+        .hist-stat-card__body { min-width: 0; flex: 1; }
+        .hist-stat-card__label { font-size:0.62rem; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:2px; }
+        .hist-stat-card__value { font-size:1.45rem; font-weight:700; color:#0f172a; line-height:1.1; letter-spacing:-0.02em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .hist-stat-card__value--green  { color: #059669; }
+        .hist-stat-card__value--amber  { color: #d97706; }
+        .hist-stat-card__value--red    { color: #dc2626; }
+        .hist-stat-card__caption { font-size:0.72rem; color:#94a3b8; margin-top:2px; }
+        @media (max-width: 900px) { .hist-stat-cards-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 500px) { .hist-stat-cards-grid { grid-template-columns: 1fr; } }
+
         /* ---- btn-flux sidebar overrides ---- */
         .admin-sidebar__links .btn-flux {
             --btn-h: 14px;
@@ -1200,7 +1240,7 @@
                         <h2>Employees</h2><p>Manage team members and roles</p>
                     </div>
                 </div>
-                <div class="admin-stats-bar" id="empStats"></div>
+                <div id="empStats"></div>
                 <div id="empList"><div class="admin-empty"><p>Loading employees...</p></div></div>
             </div>
 
@@ -1229,7 +1269,7 @@
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                     <input type="text" id="projectSearch" placeholder="Search projects by name, code, or client..." oninput="filterProjects()" style="width:100%;padding:10px 12px 10px 38px;border:1px solid var(--gray-200);border-radius:var(--radius-md);font-size:0.875rem;background:var(--white);color:var(--gray-900);outline:none;transition:border-color 0.15s;" onfocus="this.style.borderColor='var(--gray-400)'" onblur="this.style.borderColor='var(--gray-200)'">
                 </div>
-                <div id="projectStats" class="admin-stats-bar"></div>
+                <div id="projectStats"></div>
                 <div id="projectList"><div class="admin-empty"><p>Loading projects...</p></div></div>
             </div>
 
@@ -1253,7 +1293,7 @@
                     </div>
                 </div>
                 <!-- Advance Stats -->
-                <div class="admin-stats-bar" id="advanceStats"></div>
+                <div id="advanceStats"></div>
                 <!-- Advance Filters -->
                 <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
                     <select id="advanceStatusFilter" onchange="loadAdvancesOverview()" style="padding:8px 12px;border:1px solid var(--gray-200);border-radius:var(--radius-md);font-size:0.84rem;background:var(--white);color:var(--gray-900);">
@@ -1573,12 +1613,48 @@ WDL1,WONDERLA,Amusement Park,Amusement Park</code>
             const active = employees.filter(e => e.is_active).length;
             const roles = { admin: 0, manager: 0, accountant: 0, employee: 0 };
             employees.forEach(e => { if (roles[e.role] !== undefined) roles[e.role]++; });
+            stats.className = 'hist-stat-cards-grid';
             stats.innerHTML = `
-                <div class="admin-stat-pill">Total: <strong>${employees.length}</strong></div>
-                <div class="admin-stat-pill admin-stat-pill--active">Active: <strong>${active}</strong></div>
-                <div class="admin-stat-pill admin-stat-pill--admin">Admins: <strong>${roles.admin}</strong></div>
-                <div class="admin-stat-pill admin-stat-pill--manager">Managers: <strong>${roles.manager}</strong></div>
-                <div class="admin-stat-pill admin-stat-pill--accountant">Accountants: <strong>${roles.accountant}</strong></div>
+                <div class="hist-stat-card">
+                    <div class="hist-stat-card__icon hist-stat-card__icon--blue" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </div>
+                    <div class="hist-stat-card__body">
+                        <div class="hist-stat-card__label">Total</div>
+                        <div class="hist-stat-card__value">${employees.length}</div>
+                        <div class="hist-stat-card__caption">All Employees</div>
+                    </div>
+                </div>
+                <div class="hist-stat-card">
+                    <div class="hist-stat-card__icon hist-stat-card__icon--green" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    </div>
+                    <div class="hist-stat-card__body">
+                        <div class="hist-stat-card__label">Active</div>
+                        <div class="hist-stat-card__value hist-stat-card__value--green">${active}</div>
+                        <div class="hist-stat-card__caption">Active Members</div>
+                    </div>
+                </div>
+                <div class="hist-stat-card">
+                    <div class="hist-stat-card__icon hist-stat-card__icon--violet" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    </div>
+                    <div class="hist-stat-card__body">
+                        <div class="hist-stat-card__label">Admins</div>
+                        <div class="hist-stat-card__value">${roles.admin}</div>
+                        <div class="hist-stat-card__caption">Admin Role</div>
+                    </div>
+                </div>
+                <div class="hist-stat-card">
+                    <div class="hist-stat-card__icon hist-stat-card__icon--amber" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    </div>
+                    <div class="hist-stat-card__body">
+                        <div class="hist-stat-card__label">Managers</div>
+                        <div class="hist-stat-card__value hist-stat-card__value--amber">${roles.manager}</div>
+                        <div class="hist-stat-card__caption">Manager Role</div>
+                    </div>
+                </div>
             `;
 
             if (employees.length === 0) {
@@ -1632,11 +1708,48 @@ WDL1,WONDERLA,Amusement Park,Amusement Park</code>
             const active = projects.filter(p => p.status === 'active').length;
             const onHold = projects.filter(p => p.status === 'on_hold').length;
             const completed = projects.filter(p => p.status === 'completed').length;
+            stats.className = 'hist-stat-cards-grid';
             stats.innerHTML = `
-                <div class="admin-stat-pill">Total: <strong>${projects.length}</strong></div>
-                <div class="admin-stat-pill admin-stat-pill--active">Active: <strong>${active}</strong></div>
-                <div class="admin-stat-pill admin-stat-pill--manager">On Hold: <strong>${onHold}</strong></div>
-                <div class="admin-stat-pill admin-stat-pill--accountant">Completed: <strong>${completed}</strong></div>
+                <div class="hist-stat-card">
+                    <div class="hist-stat-card__icon hist-stat-card__icon--blue" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                    </div>
+                    <div class="hist-stat-card__body">
+                        <div class="hist-stat-card__label">Total</div>
+                        <div class="hist-stat-card__value">${projects.length}</div>
+                        <div class="hist-stat-card__caption">All Projects</div>
+                    </div>
+                </div>
+                <div class="hist-stat-card">
+                    <div class="hist-stat-card__icon hist-stat-card__icon--green" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    </div>
+                    <div class="hist-stat-card__body">
+                        <div class="hist-stat-card__label">Active</div>
+                        <div class="hist-stat-card__value hist-stat-card__value--green">${active}</div>
+                        <div class="hist-stat-card__caption">Active Projects</div>
+                    </div>
+                </div>
+                <div class="hist-stat-card">
+                    <div class="hist-stat-card__icon hist-stat-card__icon--amber" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    </div>
+                    <div class="hist-stat-card__body">
+                        <div class="hist-stat-card__label">On Hold</div>
+                        <div class="hist-stat-card__value hist-stat-card__value--amber">${onHold}</div>
+                        <div class="hist-stat-card__caption">Paused Projects</div>
+                    </div>
+                </div>
+                <div class="hist-stat-card">
+                    <div class="hist-stat-card__icon hist-stat-card__icon--violet" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    </div>
+                    <div class="hist-stat-card__body">
+                        <div class="hist-stat-card__label">Completed</div>
+                        <div class="hist-stat-card__value">${completed}</div>
+                        <div class="hist-stat-card__caption">Finished</div>
+                    </div>
+                </div>
             `;
 
             renderProjects(projects);
@@ -2038,11 +2151,48 @@ WDL1,WONDERLA,Amusement Park,Amusement Park</code>
                 const totalActive = active.reduce((s, a) => s + (parseFloat(a.amount) || 0), 0);
                 const rejected = all.filter(a => a.status === 'rejected');
 
+                stats.className = 'hist-stat-cards-grid';
                 stats.innerHTML = `
-                    <div class="admin-stat-pill">Total: <strong>${all.length}</strong></div>
-                    <div class="admin-stat-pill" style="color:var(--amber);border-color:rgba(217,119,6,0.2);">Pending: <strong>${pending.length}</strong></div>
-                    <div class="admin-stat-pill admin-stat-pill--active">Active: <strong>${active.length}</strong> (₹${totalActive.toLocaleString('en-IN')})</div>
-                    <div class="admin-stat-pill" style="color:var(--red);border-color:rgba(220,38,38,0.2);">Rejected: <strong>${rejected.length}</strong></div>
+                    <div class="hist-stat-card">
+                        <div class="hist-stat-card__icon hist-stat-card__icon--blue" aria-hidden="true">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 1 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/></svg>
+                        </div>
+                        <div class="hist-stat-card__body">
+                            <div class="hist-stat-card__label">Total</div>
+                            <div class="hist-stat-card__value">${all.length}</div>
+                            <div class="hist-stat-card__caption">All Advances</div>
+                        </div>
+                    </div>
+                    <div class="hist-stat-card">
+                        <div class="hist-stat-card__icon hist-stat-card__icon--amber" aria-hidden="true">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        </div>
+                        <div class="hist-stat-card__body">
+                            <div class="hist-stat-card__label">Pending</div>
+                            <div class="hist-stat-card__value hist-stat-card__value--amber">${pending.length}</div>
+                            <div class="hist-stat-card__caption">Awaiting Approval</div>
+                        </div>
+                    </div>
+                    <div class="hist-stat-card">
+                        <div class="hist-stat-card__icon hist-stat-card__icon--green" aria-hidden="true">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        </div>
+                        <div class="hist-stat-card__body">
+                            <div class="hist-stat-card__label">Active</div>
+                            <div class="hist-stat-card__value hist-stat-card__value--green">${active.length}</div>
+                            <div class="hist-stat-card__caption">₹${totalActive.toLocaleString('en-IN')} outstanding</div>
+                        </div>
+                    </div>
+                    <div class="hist-stat-card">
+                        <div class="hist-stat-card__icon hist-stat-card__icon--red" aria-hidden="true">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                        </div>
+                        <div class="hist-stat-card__body">
+                            <div class="hist-stat-card__label">Rejected</div>
+                            <div class="hist-stat-card__value hist-stat-card__value--red">${rejected.length}</div>
+                            <div class="hist-stat-card__caption">Declined</div>
+                        </div>
+                    </div>
                 `;
 
                 // Table

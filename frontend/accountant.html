@@ -338,6 +338,10 @@
             color: #ffffff;
             transition: background 0.15s, border-color 0.15s, color 0.15s;
             text-align: center;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
         }
         .admin-sidebar__link:hover {
             background: rgba(255,255,255,0.18);
@@ -353,6 +357,16 @@
             background: rgba(220, 38, 38, 0.18);
             border-color: rgba(220, 38, 38, 0.4);
             color: #fca5a5;
+        }
+        .admin-sidebar__link:not(.admin-sidebar__link--danger) {
+            background: rgba(37, 99, 235, 0.18);
+            border-color: rgba(96, 165, 250, 0.35);
+            color: #93c5fd;
+        }
+        .admin-sidebar__link:not(.admin-sidebar__link--danger):hover {
+            background: rgba(37, 99, 235, 0.26);
+            border-color: rgba(96, 165, 250, 0.50);
+            color: #bfdbfe;
         }
 
         /* btn-flux overrides for sidebar context */
@@ -1383,6 +1397,36 @@
         .admin-stat-pill strong { color: var(--gray-900); font-weight: 700; }
         .admin-stat-pill--active { color: var(--green); border-color: var(--green-light); }
 
+        /* hist-stat-card (matches history page design) */
+        .hist-stat-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+        .hist-stat-card {
+            background: #ffffff; border: 1px solid #eef2f7; border-radius: 14px;
+            padding: 14px 16px; display: flex; align-items: center; gap: 12px;
+            box-shadow: 0 2px 8px rgba(15,23,42,0.04);
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        .hist-stat-card:hover { border-color: #d1d8e0; box-shadow: 0 6px 18px rgba(15,23,42,0.06); }
+        .hist-stat-card__icon { width: 44px; height: 44px; border-radius: 12px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .hist-stat-card__icon--blue   { background: #eff6ff; color: #2563eb; }
+        .hist-stat-card__icon--green  { background: #ecfdf5; color: #059669; }
+        .hist-stat-card__icon--amber  { background: #fff7ed; color: #d97706; }
+        .hist-stat-card__icon--violet { background: #f5f3ff; color: #7c3aed; }
+        .hist-stat-card__icon--red    { background: #fef2f2; color: #dc2626; }
+        .hist-stat-card__body { min-width: 0; flex: 1; }
+        .hist-stat-card__label { font-size:0.62rem; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:2px; }
+        .hist-stat-card__value { font-size:1.45rem; font-weight:700; color:#0f172a; line-height:1.1; letter-spacing:-0.02em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .hist-stat-card__value--green  { color: #059669; }
+        .hist-stat-card__value--amber  { color: #d97706; }
+        .hist-stat-card__value--red    { color: #dc2626; }
+        .hist-stat-card__caption { font-size:0.72rem; color:#94a3b8; margin-top:2px; }
+        @media (max-width: 900px) { .hist-stat-cards-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 500px) { .hist-stat-cards-grid { grid-template-columns: 1fr; } }
+
         /* Visit type badge */
         .visit-type-badge {
             display: inline-flex;
@@ -1836,17 +1880,9 @@
                     </div>
                 </div>
                 <div class="admin-sidebar__links">
-                    <button class="btn-flux btn-flux--outline btn-flux--sm" onclick="window.location.href='index.html'" style="flex:1;">
-                        <span class="btn-flux__text">
-                            <span class="btn-flux__text-inner">
-                                <span>App</span>
-                                <span>App</span>
-                            </span>
-                        </span>
-                        <span class="btn-flux__arrow">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                        </span>
+                    <button class="admin-sidebar__link" onclick="window.location.href='index.html'" aria-label="Open expense app">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        <span>App</span>
                     </button>
                     <button class="btn-flux btn-flux--outline btn-flux--sm admin-sidebar__link admin-sidebar__link--danger" onclick="logout()">
                         <span class="btn-flux__text">
@@ -2043,7 +2079,7 @@
                 <div class="admin-main__header">
                     <div><h2>Advances Overview</h2><p>All advance requests across the organization</p></div>
                 </div>
-                <div class="admin-stats-bar" id="advanceStats"></div>
+                <div id="advanceStats"></div>
                 <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
                     <select id="advanceStatusFilter" onchange="loadAdvancesOverview()" style="padding:8px 12px;border:1px solid var(--gray-200);border-radius:var(--radius-md);font-size:0.84rem;background:var(--white);color:var(--gray-900);">
                         <option value="">All Statuses</option>
@@ -2316,11 +2352,48 @@
                 const totalActive = active.reduce((s, a) => s + (parseFloat(a.amount) || 0), 0);
                 const rejected = all.filter(a => a.status === 'rejected');
 
+                stats.className = 'hist-stat-cards-grid';
                 stats.innerHTML = `
-                    <div class="admin-stat-pill">Total: <strong>${all.length}</strong></div>
-                    <div class="admin-stat-pill" style="color:var(--amber);border-color:rgba(217,119,6,0.2);">Pending: <strong>${pending.length}</strong></div>
-                    <div class="admin-stat-pill admin-stat-pill--active">Active: <strong>${active.length}</strong> (${formatCurrency(totalActive)})</div>
-                    <div class="admin-stat-pill" style="color:var(--red);border-color:rgba(220,38,38,0.2);">Rejected: <strong>${rejected.length}</strong></div>
+                    <div class="hist-stat-card">
+                        <div class="hist-stat-card__icon hist-stat-card__icon--blue" aria-hidden="true">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 1 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/></svg>
+                        </div>
+                        <div class="hist-stat-card__body">
+                            <div class="hist-stat-card__label">Total</div>
+                            <div class="hist-stat-card__value">${all.length}</div>
+                            <div class="hist-stat-card__caption">All Advances</div>
+                        </div>
+                    </div>
+                    <div class="hist-stat-card">
+                        <div class="hist-stat-card__icon hist-stat-card__icon--amber" aria-hidden="true">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        </div>
+                        <div class="hist-stat-card__body">
+                            <div class="hist-stat-card__label">Pending</div>
+                            <div class="hist-stat-card__value hist-stat-card__value--amber">${pending.length}</div>
+                            <div class="hist-stat-card__caption">Awaiting Approval</div>
+                        </div>
+                    </div>
+                    <div class="hist-stat-card">
+                        <div class="hist-stat-card__icon hist-stat-card__icon--green" aria-hidden="true">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        </div>
+                        <div class="hist-stat-card__body">
+                            <div class="hist-stat-card__label">Active</div>
+                            <div class="hist-stat-card__value hist-stat-card__value--green">${active.length}</div>
+                            <div class="hist-stat-card__caption">${formatCurrency(totalActive)} outstanding</div>
+                        </div>
+                    </div>
+                    <div class="hist-stat-card">
+                        <div class="hist-stat-card__icon hist-stat-card__icon--red" aria-hidden="true">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                        </div>
+                        <div class="hist-stat-card__body">
+                            <div class="hist-stat-card__label">Rejected</div>
+                            <div class="hist-stat-card__value hist-stat-card__value--red">${rejected.length}</div>
+                            <div class="hist-stat-card__caption">Declined</div>
+                        </div>
+                    </div>
                 `;
 
                 const container = document.getElementById('advancesList');

@@ -3121,6 +3121,7 @@ h3.admin-section-label {
 .hist-stat-card__icon--green  { background: #ecfdf5; color: #059669; }
 .hist-stat-card__icon--amber  { background: #fff7ed; color: #d97706; }
 .hist-stat-card__icon--violet { background: #f5f3ff; color: #7c3aed; }
+.hist-stat-card__icon--red    { background: #fef2f2; color: #dc2626; }
 .hist-stat-card__body { min-width: 0; flex: 1; }
 .hist-stat-card__label {
     font-size: 0.62rem;
@@ -3143,11 +3144,38 @@ h3.admin-section-label {
 .hist-stat-card__value--green  { color: #059669; }
 .hist-stat-card__value--amber  { color: #d97706; }
 .hist-stat-card__value--violet { color: #7c3aed; }
+.hist-stat-card__value--red    { color: #dc2626; }
 .hist-stat-card__caption {
     font-size: 0.72rem;
     color: #94a3b8;
     margin-top: 2px;
 }
+
+/* Reusable grid container for hist-stat-cards (used outside #section-history, e.g. advances) */
+.hist-stat-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 18px;
+}
+.hist-stat-cards-grid .hist-stat-card {
+    background: #ffffff;
+    border: 1px solid #eef2f7;
+    border-radius: 14px;
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+.hist-stat-cards-grid .hist-stat-card:hover {
+    border-color: #d1d8e0;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+    transform: translateY(-1px);
+}
+@media (max-width: 900px) { .hist-stat-cards-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 500px) { .hist-stat-cards-grid { grid-template-columns: 1fr; } }
 
 /* Filters row — wrap into one cohesive panel; force single row at typical widths */
 #section-history .hist-filters-row {
