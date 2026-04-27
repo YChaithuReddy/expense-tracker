@@ -9718,12 +9718,48 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
         const rejected = all.filter(a => a.status === 'rejected');
 
         if (statsBar) {
+            statsBar.className = 'hist-stat-cards-grid';
             statsBar.innerHTML = `
-                <div class="admin-stat-pill">Total: <strong>${all.length}</strong></div>
-                <div class="admin-stat-pill" style="color:#d97706;border-color:rgba(217,119,6,0.2);background:#fffbeb;">Pending: <strong>${pending.length}</strong></div>
-                <div class="admin-stat-pill admin-stat-pill--active">Active: <strong>${active.length}</strong> (₹${totalActive.toLocaleString('en-IN')})</div>
-                <div class="admin-stat-pill" style="color:#64748b;border-color:#d1d5db;">Closed: <strong>${closed.length}</strong></div>
-                <div class="admin-stat-pill" style="color:#dc2626;border-color:rgba(220,38,38,0.2);background:#fef2f2;">Rejected: <strong>${rejected.length}</strong></div>
+                <div class="hist-stat-card">
+                    <div class="hist-stat-card__icon hist-stat-card__icon--blue" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 1 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/></svg>
+                    </div>
+                    <div class="hist-stat-card__body">
+                        <div class="hist-stat-card__label">Total</div>
+                        <div class="hist-stat-card__value">${all.length}</div>
+                        <div class="hist-stat-card__caption">All Advances</div>
+                    </div>
+                </div>
+                <div class="hist-stat-card">
+                    <div class="hist-stat-card__icon hist-stat-card__icon--amber" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    </div>
+                    <div class="hist-stat-card__body">
+                        <div class="hist-stat-card__label">Pending</div>
+                        <div class="hist-stat-card__value hist-stat-card__value--amber">${pending.length}</div>
+                        <div class="hist-stat-card__caption">Awaiting Approval</div>
+                    </div>
+                </div>
+                <div class="hist-stat-card">
+                    <div class="hist-stat-card__icon hist-stat-card__icon--green" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    </div>
+                    <div class="hist-stat-card__body">
+                        <div class="hist-stat-card__label">Active</div>
+                        <div class="hist-stat-card__value hist-stat-card__value--green">${active.length}</div>
+                        <div class="hist-stat-card__caption">₹${totalActive.toLocaleString('en-IN')} outstanding</div>
+                    </div>
+                </div>
+                <div class="hist-stat-card">
+                    <div class="hist-stat-card__icon hist-stat-card__icon--red" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                    </div>
+                    <div class="hist-stat-card__body">
+                        <div class="hist-stat-card__label">Rejected</div>
+                        <div class="hist-stat-card__value hist-stat-card__value--red">${rejected.length}</div>
+                        <div class="hist-stat-card__caption">Declined</div>
+                    </div>
+                </div>
             `;
         }
 
