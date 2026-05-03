@@ -14059,6 +14059,67 @@ button[type="reset"] {
     color: #111827 !important;
     border-color: #9ca3af !important;
 }
+/* Restore all named button systems inside [class*="action"] containers.
+   The broad rule above wins by source order even with !important on both sides. */
+
+/* .btn-flux (submit / primary actions) */
+[class*="action"] .btn-flux:not(.btn-flux--outline),
+[class*="actions"] .btn-flux:not(.btn-flux--outline),
+.form-actions .btn-flux:not(.btn-flux--outline) {
+    background: #0369a1 !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 999px !important;
+}
+
+/* .wizard-btn (Submit Wizard) */
+[class*="action"] .wizard-btn--primary,
+[class*="actions"] .wizard-btn--primary {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    color: #fff !important;
+    border: none !important;
+}
+[class*="action"] .wizard-btn--secondary,
+[class*="actions"] .wizard-btn--secondary {
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: #6a8a7a !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+/* .kodo-btn (Kodo form actions) */
+[class*="action"] .kodo-btn-primary,
+[class*="actions"] .kodo-btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #6366f1) !important;
+    color: #fff !important;
+    border: none !important;
+}
+[class*="action"] .kodo-btn-secondary,
+[class*="actions"] .kodo-btn-secondary {
+    background: var(--hover-bg, #f3f4f6) !important;
+    color: var(--text-primary, #374151) !important;
+    border: none !important;
+}
+
+/* .kodo-confirm-modal__btn (approve/reject confirm modals) */
+[class*="action"] .kodo-confirm-modal__btn--submit,
+[class*="actions"] .kodo-confirm-modal__btn--submit {
+    background: linear-gradient(135deg, #0ea5e9, #6366f1) !important;
+    color: #fff !important;
+    border: none !important;
+}
+[class*="action"] .kodo-confirm-modal__btn--cancel,
+[class*="actions"] .kodo-confirm-modal__btn--cancel {
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: var(--text-secondary, #94a3b8) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+/* .clear-data-confirm-btn-delete (destructive clear action) */
+[class*="action"] .clear-data-confirm-btn-delete,
+[class*="actions"] .clear-data-confirm-btn-delete {
+    background: transparent !important;
+    border: 1px solid rgba(239, 68, 68, 0.3) !important;
+}
 
 /* ALL modal overlays - dark semi-transparent backdrop */
 .modal-overlay,
