@@ -2264,72 +2264,148 @@ class ExpenseTracker {
             const safeDate = this.sanitizeHTML(expense.date || '');
             const safeAmount = this.sanitizeHTML(expense.amount || '');
             const safeCategory = this.sanitizeHTML(expense.category || '');
+            const safeMode = this.sanitizeHTML(expense.modeOfExpense || '');
+            const safeFrom = this.sanitizeHTML(expense.fromLocation || '');
+            const safeTo = this.sanitizeHTML(expense.toLocation || '');
+            const safeKm = this.sanitizeHTML(expense.kilometers != null ? String(expense.kilometers) : '');
 
             // Parse main category and subcategory from "Category - Subcategory" format
             const categoryParts = safeCategory.split(' - ');
             const mainCat = categoryParts[0] || '';
             const subCat = categoryParts[1] || '';
 
-            // Format date for display
-            const displayDate = safeDate
-                ? new Date(safeDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
-                : 'Not set';
+            // Build subcategory options if main category has subcategories
+            const subOptions = this.categorySubcategories[mainCat]
+                ? this.categorySubcategories[mainCat].map(sub =>
+                    `<option value="${sub}" ${sub === subCat ? 'selected' : ''}>${sub}</option>`
+                  ).join('')
+                : '';
 
-            const amountFormatted = (parseFloat(safeAmount) || 0).toLocaleString('en-IN', {
-                maximumFractionDigits: 0,
-            });
-            const projectDisplay = safeVendor || '—';
-            const categoryDisplay = subCat ? `${mainCat} · ${subCat}` : (mainCat || 'Uncategorized');
-            const vendorDisplay = safeVendor || 'Unknown vendor';
+            // Convert amount to words
+            const amountWords = this.amountToWords(safeAmount);
 
             return `
             <div class="batch-card ${expense.selected ? 'selected' : ''} ${expense.ocrFailed ? 'ocr-failed' : ''}" data-index="${index}">
                 <div class="card-checkbox">
-                    <input type="checkbox" class="bill-checkbox" data-index="${index}" ${expense.selected ? 'checked' : ''} aria-label="Select bill ${index + 1}">
+                    <input type="checkbox" class="bill-checkbox" data-index="${index}" ${expense.selected ? 'checked' : ''}>
                 </div>
 
-                <span class="card-amount-badge" title="₹${safeAmount || '0'}">₹${amountFormatted}</span>
+                <div class="card-image preview-image-btn" data-index="${index}">
+                    <img src="${expense.imageData}" alt="Bill ${index + 1}">
 
-                <div class="card-body">
-                    <button type="button" class="card-thumb preview-image-btn" data-index="${index}" aria-label="Preview bill ${index + 1}">
-                        <img src="${expense.imageData}" alt="Bill ${index + 1}" loading="lazy">
-                    </button>
-
-                    <div class="card-summary">
-                        <div class="card-summary__row">
-                            <div class="card-summary__label">Project Name</div>
-                            <div class="card-summary__value card-summary__value--strong">${projectDisplay}</div>
-                        </div>
-                        <div class="card-summary__row">
-                            <div class="card-summary__label">Category</div>
-                            <div class="card-summary__value card-summary__value--icon">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-                                <span>${categoryDisplay}</span>
-                            </div>
-                        </div>
-                        <div class="card-summary__row">
-                            <div class="card-summary__label">Date</div>
-                            <div class="card-summary__value card-summary__value--icon">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                                <span>${displayDate}</span>
-                            </div>
-                        </div>
-                        <div class="card-summary__row">
-                            <div class="card-summary__label">Vendor</div>
-                            <div class="card-summary__value card-summary__value--strong">${vendorDisplay}</div>
-                        </div>
+                    <!-- Amount Badge Overlay -->
+                    <div class="card-amount-badge ${expense.selected ? 'selected' : ''}">
+                        ${expense.selected ? `
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                            </svg>
+                        ` : ''}
+                        ₹${safeAmount || '0'}
                     </div>
                 </div>
 
-                <div class="card-actions">
-                    <button type="button" class="card-action card-action--edit edit-bill-btn" data-index="${index}">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path></svg>
-                        Edit Details
-                    </button>
-                    <button type="button" class="card-action card-action--delete remove-bill-btn" data-index="${index}">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path></svg>
-                        Delete
-                    </button>
+                <div class="card-content">
+                    <!-- Amount in words -->
+                    <div class="card-amount-words">${amountWords}</div>
+
+                    <!-- Inline Editable Form - Always visible -->
+                    <div class="card-inline-form">
+                        <div class="form-row">
+                            <label class="form-label">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                                Date
+                            </label>
+                            <input type="date" class="inline-input expense-date" data-index="${index}" value="${safeDate}">
+                        </div>
+                        <div class="form-row">
+                            <label class="form-label">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                                Project Name
+                            </label>
+                            <input type="text" class="inline-input expense-vendor" data-index="${index}" value="${safeVendor}" placeholder="Enter project name">
+                        </div>
+                        <div class="form-row">
+                            <label class="form-label">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                                Amount
+                            </label>
+                            <input type="number" class="inline-input expense-amount" data-index="${index}" value="${safeAmount}" step="0.01" placeholder="0.00">
+                        </div>
+                        <div class="form-row">
+                            <label class="form-label">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                                Category
+                            </label>
+                            <select class="inline-input expense-main-category" data-index="${index}">
+                                <option value="Transportation" ${mainCat === 'Transportation' ? 'selected' : ''}>Transportation</option>
+                                <option value="Accommodation" ${mainCat === 'Accommodation' ? 'selected' : ''}>Accommodation</option>
+                                <option value="Meals" ${mainCat === 'Meals' ? 'selected' : ''}>Meals</option>
+                                <option value="Fuel" ${mainCat === 'Fuel' ? 'selected' : ''}>Fuel</option>
+                                <option value="Bill Payments" ${mainCat === 'Bill Payments' ? 'selected' : ''}>Bill Payments</option>
+                                <option value="Food" ${mainCat === 'Food' ? 'selected' : ''}>Food</option>
+                                <option value="Miscellaneous" ${mainCat === 'Miscellaneous' ? 'selected' : ''}>Miscellaneous</option>
+                            </select>
+                        </div>
+                        <div class="form-row batch-subcategory-row" data-index="${index}" style="${subOptions ? '' : 'display:none'}">
+                            <label class="form-label">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 17 15 12 20 7"></polyline><path d="M4 18v-2a4 4 0 0 1 4-4h12"></path></svg>
+                                Subcategory
+                            </label>
+                            <select class="inline-input expense-subcategory" data-index="${index}">
+                                <option value="">Select Subcategory</option>
+                                ${subOptions}
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Trip details — collapsible secondary group -->
+                    <details class="trip-details" data-index="${index}"${(safeMode || safeFrom || safeTo || safeKm) ? ' open' : ''}>
+                        <summary class="trip-details__summary">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                            <span>Trip details</span>
+                            <span class="trip-details__meta">${(safeMode || safeFrom || safeTo || safeKm) ? 'prefilled' : 'optional'}</span>
+                            <svg class="trip-details__chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </summary>
+                        <div class="trip-details__body">
+                            <div class="form-row">
+                                <label class="form-label">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle><path d="M5 17H3V6a1 1 0 0 1 1-1h10v12M14 17h1m4 0h2v-6l-2-4h-5"></path></svg>
+                                    Mode of Transport
+                                </label>
+                                <input type="text" class="inline-input expense-mode" data-index="${index}" value="${safeMode}" placeholder="e.g. Rapido, Personal Car, Auto">
+                            </div>
+                            <div class="form-row-split">
+                                <div class="form-row">
+                                    <label class="form-label">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><circle cx="12" cy="12" r="10"></circle></svg>
+                                        From
+                                    </label>
+                                    <input type="text" class="inline-input expense-from" data-index="${index}" value="${safeFrom}" placeholder="Origin">
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                                        To
+                                    </label>
+                                    <input type="text" class="inline-input expense-to" data-index="${index}" value="${safeTo}" placeholder="Destination">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label class="form-label">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.73 18l-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3z"></path></svg>
+                                    Kilometers
+                                </label>
+                                <input type="number" class="inline-input expense-km" data-index="${index}" value="${safeKm}" step="0.1" min="0" placeholder="Distance in KM">
+                            </div>
+                        </div>
+                    </details>
+
+                    <!-- Delete Button Only -->
+                    <div class="card-action-buttons">
+                        <button class="btn-delete-card remove-bill-btn" data-index="${index}" type="button">
+                            🗑️ Delete
+                        </button>
+                    </div>
                 </div>
             </div>
         `;
@@ -2390,14 +2466,13 @@ class ExpenseTracker {
     }
 
     attachBatchGalleryListeners() {
-        const gallery = document.getElementById('batchGallery');
-        if (!gallery) return;
-
-        // Bill checkboxes
-        gallery.querySelectorAll('.bill-checkbox').forEach(checkbox => {
+        // Attach listeners to all bill checkboxes
+        const billCheckboxes = document.querySelectorAll('.bill-checkbox');
+        billCheckboxes.forEach(checkbox => {
             checkbox.addEventListener('change', (e) => {
                 const index = parseInt(e.target.dataset.index);
                 this.toggleBillSelection(index, e.target.checked);
+                // Update selection visuals without full re-render
                 const card = e.target.closest('.batch-card');
                 if (card) card.classList.toggle('selected', e.target.checked);
                 this.updateSelectionCount();
@@ -2405,249 +2480,114 @@ class ExpenseTracker {
             });
         });
 
-        // Edit details — opens dedicated edit modal
-        gallery.querySelectorAll('.edit-bill-btn').forEach(button => {
-            button.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const index = parseInt(button.dataset.index);
-                if (!isNaN(index)) this.openBillEditModal(index);
-            }, { passive: false });
-        });
-
-        // Delete bill
-        gallery.querySelectorAll('.remove-bill-btn').forEach(button => {
-            button.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const index = parseInt(button.dataset.index);
-                if (!isNaN(index)) this.removeBillFromBatch(index);
-            }, { passive: false });
-        });
-
-        // Image thumb preview (lightbox)
-        gallery.querySelectorAll('.preview-image-btn').forEach(button => {
-            button.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const index = parseInt(button.dataset.index);
-                if (!isNaN(index)) this.previewBillImage(index);
+        // Attach listeners to all input fields
+        const vendorInputs = document.querySelectorAll('.expense-vendor');
+        vendorInputs.forEach(input => {
+            input.addEventListener('change', (e) => {
+                const index = parseInt(e.target.dataset.index);
+                this.updateExpenseField(index, 'vendor', e.target.value);
             });
         });
-    }
 
-    openBillEditModal(index) {
-        const expense = this.extractedExpenses[index];
-        if (!expense) return;
-
-        // Remove any prior edit modal first
-        this.closeBillEditModal();
-
-        const safeVendor = this.sanitizeHTML(expense.vendor || '');
-        const safeDate = this.sanitizeHTML(expense.date || '');
-        const safeAmount = this.sanitizeHTML(expense.amount || '');
-        const safeCategory = this.sanitizeHTML(expense.category || '');
-        const safeMode = this.sanitizeHTML(expense.modeOfExpense || '');
-        const safeFrom = this.sanitizeHTML(expense.fromLocation || '');
-        const safeTo = this.sanitizeHTML(expense.toLocation || '');
-        const safeKm = this.sanitizeHTML(expense.kilometers != null ? String(expense.kilometers) : '');
-
-        const [mainCat = '', subCat = ''] = safeCategory.split(' - ');
-        const subOptions = this.categorySubcategories[mainCat]
-            ? this.categorySubcategories[mainCat]
-                  .map(sub => `<option value="${sub}" ${sub === subCat ? 'selected' : ''}>${sub}</option>`)
-                  .join('')
-            : '';
-        const showTrip = mainCat === 'Transportation';
-
-        const modal = document.createElement('div');
-        modal.id = 'editBillModal';
-        modal.className = 'modal active edit-bill-modal';
-        modal.style.display = 'flex';
-        modal.innerHTML = `
-            <div class="modal-content edit-bill-modal__content">
-                <div class="modal-header edit-bill-modal__header">
-                    <div class="batch-header__lead">
-                        <div class="batch-header__icon" aria-hidden="true">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path></svg>
-                        </div>
-                        <div class="batch-header__text">
-                            <h2 class="batch-header__title">Edit Bill Details</h2>
-                            <p class="batch-header__subtitle">Bill ${index + 1} of ${this.extractedExpenses.length}</p>
-                        </div>
-                    </div>
-                    <button class="img-modal__close" id="closeEditBillBtn" type="button" aria-label="Close">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M18 6L6 18M6 6l12 12"></path>
-                        </svg>
-                    </button>
-                </div>
-                <div class="modal-body edit-bill-modal__body">
-                    <div class="edit-bill-form">
-                        <div class="form-row">
-                            <label class="form-label">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                                Date
-                            </label>
-                            <input type="date" class="inline-input expense-date" data-index="${index}" value="${safeDate}">
-                        </div>
-                        <div class="form-row">
-                            <label class="form-label">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
-                                Project Name
-                            </label>
-                            <input type="text" class="inline-input expense-vendor" data-index="${index}" value="${safeVendor}" placeholder="Enter project name">
-                        </div>
-                        <div class="form-row">
-                            <label class="form-label">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-                                Amount
-                            </label>
-                            <input type="number" class="inline-input expense-amount" data-index="${index}" value="${safeAmount}" step="0.01" placeholder="0.00">
-                        </div>
-                        <div class="form-row">
-                            <label class="form-label">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-                                Category
-                            </label>
-                            <select class="inline-input expense-main-category" data-index="${index}">
-                                <option value="Transportation" ${mainCat === 'Transportation' ? 'selected' : ''}>Transportation</option>
-                                <option value="Accommodation" ${mainCat === 'Accommodation' ? 'selected' : ''}>Accommodation</option>
-                                <option value="Meals" ${mainCat === 'Meals' ? 'selected' : ''}>Meals</option>
-                                <option value="Fuel" ${mainCat === 'Fuel' ? 'selected' : ''}>Fuel</option>
-                                <option value="Bill Payments" ${mainCat === 'Bill Payments' ? 'selected' : ''}>Bill Payments</option>
-                                <option value="Food" ${mainCat === 'Food' ? 'selected' : ''}>Food</option>
-                                <option value="Miscellaneous" ${mainCat === 'Miscellaneous' ? 'selected' : ''}>Miscellaneous</option>
-                            </select>
-                        </div>
-                        <div class="form-row batch-subcategory-row" data-index="${index}" style="${subOptions ? '' : 'display:none'}">
-                            <label class="form-label">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 17 15 12 20 7"></polyline><path d="M4 18v-2a4 4 0 0 1 4-4h12"></path></svg>
-                                Subcategory
-                            </label>
-                            <select class="inline-input expense-subcategory" data-index="${index}">
-                                <option value="">Select Subcategory</option>
-                                ${subOptions}
-                            </select>
-                        </div>
-
-                        <div class="trip-details-wrap" data-show-when="Transportation" style="${showTrip ? '' : 'display:none'}">
-                            <div class="trip-details-wrap__title">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                                <span>Trip details</span>
-                            </div>
-                            <div class="form-row">
-                                <label class="form-label">Mode of Transport</label>
-                                <input type="text" class="inline-input expense-mode" data-index="${index}" value="${safeMode}" placeholder="e.g. Rapido, Personal Car, Auto">
-                            </div>
-                            <div class="form-row-split">
-                                <div class="form-row">
-                                    <label class="form-label">From</label>
-                                    <input type="text" class="inline-input expense-from" data-index="${index}" value="${safeFrom}" placeholder="Origin">
-                                </div>
-                                <div class="form-row">
-                                    <label class="form-label">To</label>
-                                    <input type="text" class="inline-input expense-to" data-index="${index}" value="${safeTo}" placeholder="Destination">
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <label class="form-label">Kilometers</label>
-                                <input type="number" class="inline-input expense-km" data-index="${index}" value="${safeKm}" step="0.1" min="0" placeholder="Distance in KM">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer edit-bill-modal__footer">
-                    <button class="btn-secondary btn-cancel" id="cancelEditBillBtn" type="button">Cancel</button>
-                    <button class="btn-primary btn-submit" id="saveEditBillBtn" type="button">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                        <span>Save Changes</span>
-                    </button>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(modal);
-
-        this.attachBillEditListeners(modal, index);
-    }
-
-    attachBillEditListeners(modal, index) {
-        const close = () => this.closeBillEditModal();
-        modal.querySelector('#closeEditBillBtn')?.addEventListener('click', close);
-        modal.querySelector('#cancelEditBillBtn')?.addEventListener('click', close);
-        modal.querySelector('#saveEditBillBtn')?.addEventListener('click', () => {
-            close();
-            this.updateBatchUI();
-        });
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) close();
+        const dateInputs = document.querySelectorAll('.expense-date');
+        dateInputs.forEach(input => {
+            input.addEventListener('change', (e) => {
+                const index = parseInt(e.target.dataset.index);
+                this.updateExpenseField(index, 'date', e.target.value);
+            });
         });
 
-        const $ = (sel) => modal.querySelector(sel);
-
-        $('.expense-vendor')?.addEventListener('input', (e) => {
-            this.updateExpenseField(index, 'vendor', e.target.value);
-        });
-        $('.expense-date')?.addEventListener('change', (e) => {
-            this.updateExpenseField(index, 'date', e.target.value);
-        });
-        $('.expense-amount')?.addEventListener('input', (e) => {
-            this.updateExpenseField(index, 'amount', e.target.value);
-            this.updateSelectionCount();
-            this.updateSubmitButton();
+        const amountInputs = document.querySelectorAll('.expense-amount');
+        amountInputs.forEach(input => {
+            input.addEventListener('change', (e) => {
+                const index = parseInt(e.target.dataset.index);
+                this.updateExpenseField(index, 'amount', e.target.value);
+                this.updateSelectionCount();
+                this.updateSubmitButton();
+            });
         });
 
-        const mainSel = $('.expense-main-category');
-        const subSel = $('.expense-subcategory');
-        const subRow = $('.batch-subcategory-row');
-        const tripWrap = $('.trip-details-wrap');
+        const mainCategorySelects = document.querySelectorAll('.expense-main-category');
+        mainCategorySelects.forEach(select => {
+            select.addEventListener('change', (e) => {
+                const index = parseInt(e.target.dataset.index);
+                const mainCat = e.target.value;
+                const subRow = document.querySelector(`.batch-subcategory-row[data-index="${index}"]`);
+                const subSelect = document.querySelector(`.expense-subcategory[data-index="${index}"]`);
 
-        mainSel?.addEventListener('change', (e) => {
-            const mainCat = e.target.value;
-            // Subcategory toggling
-            if (subSel) {
-                subSel.innerHTML = '<option value="">Select Subcategory</option>';
-                if (this.categorySubcategories[mainCat]) {
+                // Populate subcategory options
+                if (subSelect && this.categorySubcategories[mainCat]) {
+                    subSelect.innerHTML = '<option value="">Select Subcategory</option>';
                     this.categorySubcategories[mainCat].forEach(sub => {
                         const opt = document.createElement('option');
                         opt.value = sub;
                         opt.textContent = sub;
-                        subSel.appendChild(opt);
+                        subSelect.appendChild(opt);
                     });
                     if (subRow) subRow.style.display = '';
-                } else if (subRow) {
-                    subRow.style.display = 'none';
+                } else {
+                    if (subSelect) subSelect.innerHTML = '<option value="">Select Subcategory</option>';
+                    if (subRow) subRow.style.display = 'none';
                 }
-            }
-            // Trip details visibility — only Transportation
-            if (tripWrap) tripWrap.style.display = mainCat === 'Transportation' ? '' : 'none';
-            this.updateExpenseField(index, 'category', mainCat);
+
+                this.updateExpenseField(index, 'category', mainCat);
+            });
         });
 
-        subSel?.addEventListener('change', (e) => {
-            const mainCat = mainSel ? mainSel.value : '';
-            const subCat = e.target.value;
-            const combined = subCat ? `${mainCat} - ${subCat}` : mainCat;
-            this.updateExpenseField(index, 'category', combined);
+        const subCategorySelects = document.querySelectorAll('.expense-subcategory');
+        subCategorySelects.forEach(select => {
+            select.addEventListener('change', (e) => {
+                const index = parseInt(e.target.dataset.index);
+                const mainSelect = document.querySelector(`.expense-main-category[data-index="${index}"]`);
+                const mainCat = mainSelect ? mainSelect.value : '';
+                const subCat = e.target.value;
+                const combined = subCat ? `${mainCat} - ${subCat}` : mainCat;
+                this.updateExpenseField(index, 'category', combined);
+            });
         });
 
-        $('.expense-mode')?.addEventListener('input', (e) => {
-            this.updateExpenseField(index, 'modeOfExpense', e.target.value);
-        });
-        $('.expense-from')?.addEventListener('input', (e) => {
-            this.updateExpenseField(index, 'fromLocation', e.target.value);
-        });
-        $('.expense-to')?.addEventListener('input', (e) => {
-            this.updateExpenseField(index, 'toLocation', e.target.value);
-        });
-        $('.expense-km')?.addEventListener('input', (e) => {
-            this.updateExpenseField(index, 'kilometers', parseFloat(e.target.value) || null);
-        });
-    }
+        // Travel fields — Mode / From / To / KM on each batch card.
+        const bindField = (selector, field) => {
+            document.querySelectorAll(selector).forEach(input => {
+                input.addEventListener('change', (e) => {
+                    const index = parseInt(e.target.dataset.index);
+                    const value = field === 'kilometers'
+                        ? (parseFloat(e.target.value) || null)
+                        : e.target.value;
+                    this.updateExpenseField(index, field, value);
+                });
+            });
+        };
+        bindField('.expense-mode', 'modeOfExpense');
+        bindField('.expense-from', 'fromLocation');
+        bindField('.expense-to', 'toLocation');
+        bindField('.expense-km', 'kilometers');
 
-    closeBillEditModal() {
-        const modal = document.getElementById('editBillModal');
-        if (modal && modal.parentNode) modal.parentNode.removeChild(modal);
+        // Attach listeners to remove buttons
+        const removeButtons = document.querySelectorAll('.remove-bill-btn');
+        removeButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const index = parseInt(button.dataset.index);
+                if (!isNaN(index)) {
+                    this.removeBillFromBatch(index);
+                }
+            }, { passive: false });
+        });
+
+        // Attach listeners to preview image buttons
+        const previewButtons = document.querySelectorAll('.preview-image-btn');
+        previewButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const index = parseInt(button.dataset.index);
+                if (!isNaN(index)) {
+                    this.previewBillImage(index);
+                }
+            });
+        });
     }
 
     toggleCardEditMode(index) {
