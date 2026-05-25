@@ -46,6 +46,8 @@ function doPost(e) {
         return resetSheetFromMaster(data);
       case 'updateEmployeeInfo':
         return updateEmployeeInformation(data);
+      case 'updateAndExportPdf':
+        return updateEmployeeInfoAndExportPdf(data);
       default:
         return createResponse(false, 'Unknown action: ' + action);
     }
@@ -756,10 +758,107 @@ function updateEmployeeInformation(data) {
 
     Logger.log('✅ Employee information updated successfully');
 
+    // IMPORTANT: flush() forces all pending setValue() calls to be written to
+    // the sheet immediately. Without this, changes may be buffered and not
+    // visible to a subsequent UrlFetchApp PDF export that runs right after.
+    SpreadsheetApp.flush();
+
     return createResponse(true, 'Employee information updated successfully');
 
   } catch (error) {
     Logger.log('❌ Error updating employee info: ' + error.toString());
     return createResponse(false, 'Failed to update employee information: ' + error.toString());
+  }
+}
+
+/**
+ * Atomically update employee info AND export the sheet as PDF in one call.
+ * This avoids the race condition where a separate updateEmployeeInfo call
+ * completes but the subsequent exportPdf call hits a cached version of the
+ * sheet that doesn't include the just-written cells.
+ *
+ * Called with: { action: 'updateAndExportPdf', sheetId, employeeData }
+ * Returns: same response as exportSheetAsPdf (pdfBase64, fileName, size)
+ */
+function updateEmployeeInfoAndExportPdf(data) {
+  try {
+    const { sheetId, employeeData } = data;
+
+    if (!sheetId) return createResponse(false, 'Missing sheetId');
+    if (!employeeData) return createResponse(false, 'Missing employeeData');
+
+    Logger.log('=== updateAndExportPdf: updating cells then exporting ===');
+
+    // --- Step 1: write employee info ---
+    const spreadsheet = SpreadsheetApp.openById(sheetId);
+    const activeSheet = spreadsheet.getActiveSheet();
+
+    if (employeeData.employeeName) {
+      activeSheet.getRange('D4').setValue(employeeData.employeeName);
+    }
+    if (employeeData.employeeCode) {
+      activeSheet.getRange('D5').setValue(employeeData.employeeCode);
+    } else {
+      activeSheet.getRange('D5').setValue('');
+    }
+    if (employeeData.expensePeriodFrom) {
+      const fromDate = new Date(employeeData.expensePeriodFrom);
+      const formatted = Utilities.formatDate(fromDate, Session.getScriptTimeZone(), 'dd-MMM-yyyy');
+      const cell = activeSheet.getRange('F5');
+      cell.setValue(formatted);
+      cell.setNumberFormat('dd-mmm-yyyy');
+    }
+    if (employeeData.expensePeriodTo) {
+      const toDate = new Date(employeeData.expensePeriodTo);
+      const formatted = Utilities.formatDate(toDate, Session.getScriptTimeZone(), 'dd-MMM-yyyy');
+      const cell = activeSheet.getRange('F6');
+      cell.setValue(formatted);
+      cell.setNumberFormat('dd-mmm-yyyy');
+    }
+    if (employeeData.businessPurpose) {
+      activeSheet.getRange('D9').setValue(employeeData.businessPurpose);
+    }
+
+    // Flush all pending writes to the sheet before generating the PDF.
+    // Without this, the PDF export URL may serve a cached (stale) version.
+    SpreadsheetApp.flush();
+
+    // Brief pause to allow Google Sheets to propagate the flushed changes
+    // before the PDF export URL is fetched.
+    Utilities.sleep(1500);
+
+    Logger.log('✅ Cells written and flushed — now exporting PDF');
+
+    // --- Step 2: export the sheet as PDF ---
+    const sheet = spreadsheet.getSheetByName(TAB_NAME);
+    if (!sheet) return createResponse(false, 'Tab "' + TAB_NAME + '" not found');
+
+    const url = 'https://docs.google.com/spreadsheets/d/' + sheetId + '/export?';
+    const params = {
+      format: 'pdf', size: 'A4', portrait: true, fitw: true, fith: true,
+      scale: 4, sheetnames: false, printtitle: false, pagenumbers: false,
+      gridlines: false, fzr: false,
+      horizontal_alignment: 'CENTER', vertical_alignment: 'TOP',
+      gid: sheet.getSheetId()
+    };
+    const queryString = Object.keys(params).map(function(k) { return k + '=' + params[k]; }).join('&');
+    const pdfUrl = url + queryString;
+
+    const token = ScriptApp.getOAuthToken();
+    const response = UrlFetchApp.fetch(pdfUrl, { headers: { 'Authorization': 'Bearer ' + token } });
+    const pdfBlob = response.getBlob();
+    const base64Pdf = Utilities.base64Encode(pdfBlob.getBytes());
+
+    Logger.log('✅ PDF exported: ' + pdfBlob.getBytes().length + ' bytes');
+
+    return createResponse(true, 'Updated and exported', {
+      pdfBase64: base64Pdf,
+      fileName: 'Expense_Report.pdf',
+      size: pdfBlob.getBytes().length
+    });
+
+  } catch (error) {
+    Logger.log('❌ Error in updateAndExportPdf: ' + error.toString());
+    return createResponse(false, 'Failed to update and export: ' + error.toString());
   }
 }

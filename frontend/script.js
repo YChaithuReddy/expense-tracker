@@ -5251,9 +5251,17 @@ class ExpenseTracker {
             // Show loading indicator
             this.showLoading('📦 Generating Reimbursement Package...', 'This may take up to 30 seconds');
 
-            // Download Google Sheet as PDF from backend
+            // Download Google Sheet as PDF — if we have pending employee data,
+            // use the atomic 'updateAndExportPdf' action which writes cells,
+            // flushes, sleeps 1.5 s, then exports. This avoids the race condition
+            // where a separate updateEmployeeInfo call completes but the PDF
+            // export immediately after serves a cached (pre-update) version.
             console.log('📄 Downloading Google Sheet PDF...');
-            const sheetPdfResponse = await api.exportGoogleSheetAsPdf();
+            const pendingEmp = this._pendingEmployeeData || null;
+            const sheetPdfResponse = pendingEmp
+                ? await googleSheetsService.updateAndExportPdf(pendingEmp)
+                : await api.exportGoogleSheetAsPdf();
+            this._pendingEmployeeData = null; // clear after use
 
             // Convert base64 to bytes
             const sheetPdfBase64 = sheetPdfResponse.data.pdfBase64;
@@ -8008,12 +8016,13 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
             // Show loading spinner immediately — no freeze
             this.showLoading('📝 Updating Google Sheet...', 'Saving employee details');
 
-            // Update Google Sheet with employee information
-            await googleSheetsService.updateEmployeeInfo(formData);
+            // Store employee data on instance so generateCombinedReimbursementPDFWithEmployeeInfo
+            // can pass it to the atomic updateAndExportPdf Apps Script action.
+            this._pendingEmployeeData = formData;
 
             this.updateLoadingText('✅ Sheet updated!', 'Preparing reimbursement package...');
 
-            // Proceed with PDF download (showLoading is already visible)
+            // Proceed with PDF download (employee info written atomically during export)
             await this.generateCombinedReimbursementPDFWithEmployeeInfo();
 
         } catch (error) {

@@ -668,6 +668,45 @@ class GoogleSheetsService {
     }
 
     /**
+     * Atomically update employee info AND export the sheet as PDF in one Apps
+     * Script call.  The Apps Script writes cells, calls SpreadsheetApp.flush(),
+     * sleeps 1.5 s (to let Google Sheets propagate the write), then exports.
+     * This is the preferred path — avoids the race condition where a prior
+     * updateEmployeeInfo POST writes cells but the subsequent separate
+     * exportGoogleSheetAsPdf hits a cached (stale) version of the sheet.
+     *
+     * Returns the same shape as api.exportGoogleSheetAsPdf():
+     *   { success: true, data: { pdfBase64, fileName, size } }
+     */
+    async updateAndExportPdf(employeeData) {
+        if (!this.sheetId) {
+            await this.createSheet();
+        }
+
+        const payload = JSON.stringify({
+            action: 'updateAndExportPdf',
+            sheetId: this.sheetId,
+            employeeData: employeeData
+        });
+
+        console.log('📝 updateAndExportPdf: writing cells + flushing + exporting atomically...');
+        const result = await this._fetchViaPost(payload);
+
+        if (result.status === 'success' && result.data) {
+            console.log('✅ updateAndExportPdf succeeded');
+            return {
+                success: true,
+                data: {
+                    pdfBase64: result.data.pdfBase64,
+                    fileName: result.data.fileName || 'Expense_Report.pdf',
+                    size: result.data.size
+                }
+            };
+        }
+        throw new Error(result.message || 'updateAndExportPdf failed');
+    }
+
+    /**
      * Export sheet as PDF
      */
     async exportAsPdf() {
