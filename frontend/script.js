@@ -4827,6 +4827,16 @@ class ExpenseTracker {
         const selectedExpenses = this.getSelectedExpenses();
         const expensesToInclude = selectedExpenses.length > 0 ? selectedExpenses : this.expenses;
 
+        // === DIAGNOSTIC: log exact image data per expense ===
+        console.log(`[PDF-DIAG] ${expensesToInclude.length} expenses to process (${selectedExpenses.length > 0 ? 'selected' : 'all'})`);
+        expensesToInclude.forEach((exp, i) => {
+            console.log(`[PDF-DIAG] Expense ${i+1} id=${exp.id} date=${exp.date} images.length=${exp.images ? exp.images.length : 0}`);
+            (exp.images || []).forEach((img, j) => {
+                console.log(`[PDF-DIAG]   img[${j}] name=${img.name} url=${img.data || img.url}`);
+            });
+        });
+        // ====================================================
+
         // Add current expense images — deduplicate by URL across expenses
         // (same Cloudinary URL stored on multiple expense records = same bill shown twice)
         const seenImageUrls = new Set();
@@ -4838,7 +4848,7 @@ class ExpenseTracker {
                     const isPdf = image.isPdf || name.toLowerCase().endsWith('.pdf');
                     // Skip if we've already added this exact URL from another expense
                     if (data && seenImageUrls.has(data)) {
-                        console.log(`Skipping duplicate image in expense ${expenseIndex + 1}: already added from an earlier expense`);
+                        console.log(`[PDF-DIAG] Skipping duplicate URL in expense ${expenseIndex + 1}, img ${imageIndex}: already added`);
                         return;
                     }
                     if (data) seenImageUrls.add(data);
@@ -4854,7 +4864,8 @@ class ExpenseTracker {
                 });
             });
         }
-        console.log(`Current expense images found: ${currentExpenseImages}`);
+        console.log(`[PDF-DIAG] Current expense images after dedup: ${currentExpenseImages} (total unique URLs)`);
+        console.log(`[PDF-DIAG] Orphaned check: includeOrphaned=${includeOrphaned} currentExpenseImages=${currentExpenseImages}`);
 
         // Check for and add orphaned images if requested.
         // Orphaned images exist when "Clear Expense Data Only" was used — images are
