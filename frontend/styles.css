@@ -14498,8 +14498,9 @@ a svg {
 .batch-card .inline-input:focus {
     outline: none;
     border-color: #00d4ff !important;
-    background: rgba(0, 212, 255, 0.1) !important;
+    background: rgba(0, 0, 0, 0.55) !important;
     box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.22) !important;
+    color: #ffffff !important;
 }
 /* Date & number inputs render calendar/spinner in browser default colour —
    force them to the cyan accent. */

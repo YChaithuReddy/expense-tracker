@@ -1,7 +1,7 @@
 // Service Worker for Expense Tracker PWA
-const CACHE_NAME = 'expense-tracker-v118';
-const STATIC_CACHE = 'expense-tracker-static-v118';
-const DYNAMIC_CACHE = 'expense-tracker-dynamic-v118';
+const CACHE_NAME = 'expense-tracker-v119';
+const STATIC_CACHE = 'expense-tracker-static-v119';
+const DYNAMIC_CACHE = 'expense-tracker-dynamic-v119';
 
 // Files to cache immediately on install
 const STATIC_ASSETS = [
