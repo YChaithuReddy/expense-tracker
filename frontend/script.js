@@ -4856,24 +4856,21 @@ class ExpenseTracker {
         }
         console.log(`Current expense images found: ${currentExpenseImages}`);
 
-        // Check for and add orphaned images if requested
-        if (includeOrphaned) {
+        // Check for and add orphaned images if requested.
+        // Orphaned images exist when "Clear Expense Data Only" was used — images are
+        // preserved even though expense records were deleted. Only include them when
+        // there are NO current expense images; if current expenses already have images,
+        // orphaned images are leftovers from a previous session and would cause every
+        // bill to appear twice.
+        if (includeOrphaned && currentExpenseImages === 0) {
             try {
-                console.log('Fetching orphaned/saved images...');
+                console.log('No current expense images — fetching orphaned/saved images...');
                 const orphanedResponse = await api.getOrphanedImages();
 
                 if (orphanedResponse.status === 'success' && orphanedResponse.images && orphanedResponse.images.length > 0) {
                     console.log(`Found ${orphanedResponse.images.length} orphaned/saved images`);
 
-                    // Build a set of URLs already added from current expenses to avoid duplicates
-                    const existingUrls = new Set(allImages.map(i => i.data));
-
                     orphanedResponse.images.forEach((img, index) => {
-                        // Skip if this image URL is already included via a current expense
-                        if (existingUrls.has(img.url)) {
-                            console.log(`Skipping duplicate orphaned image: ${img.url}`);
-                            return;
-                        }
                         allImages.push({
                             data: img.url,
                             label: `Saved ${index + 1}`,
