@@ -485,10 +485,31 @@ const api = {
 
         if (error) handleError(error, 'Update expense');
 
-        // Upload new images
+        // Upload new images — replace any existing row with the same filename to
+        // prevent duplicate expense_images rows accumulating when the user re-uploads
+        // the same bill (e.g. after editing an expense).
         for (const imageFile of images) {
             try {
                 const imageData = await window.supabaseClient.uploadImage(imageFile, user.id);
+
+                // Delete any existing expense_image row with the same filename for this expense
+                const { data: existing } = await supabase
+                    .from('expense_images')
+                    .select('id, storage_path')
+                    .eq('expense_id', id)
+                    .eq('filename', imageData.filename);
+
+                if (existing && existing.length > 0) {
+                    // Remove old storage files and DB rows
+                    const oldPaths = existing.map(r => r.storage_path).filter(Boolean);
+                    if (oldPaths.length > 0) {
+                        await supabase.storage.from('expense-bills').remove(oldPaths);
+                    }
+                    await supabase
+                        .from('expense_images')
+                        .delete()
+                        .in('id', existing.map(r => r.id));
+                }
 
                 await supabase
                     .from('expense_images')

@@ -4827,28 +4827,36 @@ class ExpenseTracker {
         const selectedExpenses = this.getSelectedExpenses();
         const expensesToInclude = selectedExpenses.length > 0 ? selectedExpenses : this.expenses;
 
-        // === DIAGNOSTIC: log exact image data per expense ===
-        console.log(`[PDF-DIAG] ${expensesToInclude.length} expenses to process (${selectedExpenses.length > 0 ? 'selected' : 'all'})`);
-        expensesToInclude.forEach((exp, i) => {
-            console.log(`[PDF-DIAG] Expense ${i+1} id=${exp.id} date=${exp.date} images.length=${exp.images ? exp.images.length : 0}`);
-            (exp.images || []).forEach((img, j) => {
-                console.log(`[PDF-DIAG]   img[${j}] name=${img.name} url=${img.data || img.url}`);
+        // Deduplicate images WITHIN each expense by filename.
+        // This fixes the case where the same bill was uploaded more than once for the
+        // same expense (e.g. after editing/re-uploading) — supabase-api.js addImage
+        // inserts a new expense_images row without deleting the old one, so you end up
+        // with 2+ rows sharing the same original filename. Keep the last row (highest
+        // storage URL timestamp = most recently uploaded copy).
+        const dedupedExpenses = expensesToInclude.map(expense => {
+            const byName = new Map();
+            (expense.images || []).forEach(img => {
+                const key = img.name || img.filename || (img.data || img.url); // filename as dedup key
+                byName.set(key, img); // last write wins → most recently inserted row
             });
+            const deduped = Array.from(byName.values());
+            if (deduped.length < (expense.images || []).length) {
+                console.log(`[PDF] Expense ${expense.id}: removed ${(expense.images || []).length - deduped.length} duplicate image(s) by filename`);
+            }
+            return { ...expense, images: deduped };
         });
-        // ====================================================
 
         // Add current expense images — deduplicate by URL across expenses
-        // (same Cloudinary URL stored on multiple expense records = same bill shown twice)
+        // (same URL stored on multiple expense records = same bill shown twice)
         const seenImageUrls = new Set();
-        if (expensesToInclude.length > 0) {
-            expensesToInclude.forEach((expense, expenseIndex) => {
-                expense.images.forEach((image, imageIndex) => {
+        if (dedupedExpenses.length > 0) {
+            dedupedExpenses.forEach((expense, expenseIndex) => {
+                expense.images.forEach((image) => {
                     const name = image.name || image.filename || '';
                     const data = image.data || image.url || '';
                     const isPdf = image.isPdf || name.toLowerCase().endsWith('.pdf');
-                    // Skip if we've already added this exact URL from another expense
+                    // Skip if same URL already added from a different expense
                     if (data && seenImageUrls.has(data)) {
-                        console.log(`[PDF-DIAG] Skipping duplicate URL in expense ${expenseIndex + 1}, img ${imageIndex}: already added`);
                         return;
                     }
                     if (data) seenImageUrls.add(data);
@@ -4864,8 +4872,7 @@ class ExpenseTracker {
                 });
             });
         }
-        console.log(`[PDF-DIAG] Current expense images after dedup: ${currentExpenseImages} (total unique URLs)`);
-        console.log(`[PDF-DIAG] Orphaned check: includeOrphaned=${includeOrphaned} currentExpenseImages=${currentExpenseImages}`);
+        console.log(`[PDF] ${currentExpenseImages} unique bill images from ${dedupedExpenses.length} expenses`);
 
         // Check for and add orphaned images if requested.
         // Orphaned images exist when "Clear Expense Data Only" was used — images are
