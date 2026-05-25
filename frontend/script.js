@@ -4827,13 +4827,21 @@ class ExpenseTracker {
         const selectedExpenses = this.getSelectedExpenses();
         const expensesToInclude = selectedExpenses.length > 0 ? selectedExpenses : this.expenses;
 
-        // Add current expense images
+        // Add current expense images — deduplicate by URL across expenses
+        // (same Cloudinary URL stored on multiple expense records = same bill shown twice)
+        const seenImageUrls = new Set();
         if (expensesToInclude.length > 0) {
             expensesToInclude.forEach((expense, expenseIndex) => {
                 expense.images.forEach((image, imageIndex) => {
                     const name = image.name || image.filename || '';
                     const data = image.data || image.url || '';
                     const isPdf = image.isPdf || name.toLowerCase().endsWith('.pdf');
+                    // Skip if we've already added this exact URL from another expense
+                    if (data && seenImageUrls.has(data)) {
+                        console.log(`Skipping duplicate image in expense ${expenseIndex + 1}: already added from an earlier expense`);
+                        return;
+                    }
+                    if (data) seenImageUrls.add(data);
                     allImages.push({
                         data,
                         label: `Expense ${expenseIndex + 1}`,
