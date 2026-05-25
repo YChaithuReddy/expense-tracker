@@ -630,7 +630,13 @@ class GoogleSheetsService {
     }
 
     /**
-     * Update employee information in the sheet
+     * Update employee information in the sheet.
+     *
+     * IMPORTANT: Must use POST, not GET.
+     * fetchAppsScript() routes payloads < 1800 chars via GET, but doGet() in the
+     * Apps Script only returns a generic status message and never handles any action.
+     * Only doPost() dispatches actions. The updateEmployeeInfo payload is ~300 chars
+     * so it would silently go via GET and do nothing — always force POST here.
      */
     async updateEmployeeInfo(employeeData) {
         try {
@@ -638,13 +644,14 @@ class GoogleSheetsService {
                 await this.createSheet();
             }
 
-            const data = {
+            const payload = JSON.stringify({
                 action: 'updateEmployeeInfo',
                 sheetId: this.sheetId,
                 employeeData: employeeData
-            };
+            });
 
-            const result = await this.fetchAppsScript(data);
+            // Always POST — doGet() never handles actions, only doPost() does.
+            const result = await this._fetchViaPost(payload);
 
             if (result.status === 'success') {
                 return {
@@ -656,10 +663,7 @@ class GoogleSheetsService {
             }
         } catch (error) {
             console.error('Error updating employee info:', error);
-            return {
-                success: false,
-                message: error.message || 'Failed to update employee information'
-            };
+            throw error; // Re-throw so handleEmployeeInfoSubmit can catch and report it
         }
     }
 
