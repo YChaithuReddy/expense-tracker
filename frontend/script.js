@@ -4857,7 +4857,15 @@ class ExpenseTracker {
                 if (orphanedResponse.status === 'success' && orphanedResponse.images && orphanedResponse.images.length > 0) {
                     console.log(`Found ${orphanedResponse.images.length} orphaned/saved images`);
 
+                    // Build a set of URLs already added from current expenses to avoid duplicates
+                    const existingUrls = new Set(allImages.map(i => i.data));
+
                     orphanedResponse.images.forEach((img, index) => {
+                        // Skip if this image URL is already included via a current expense
+                        if (existingUrls.has(img.url)) {
+                            console.log(`Skipping duplicate orphaned image: ${img.url}`);
+                            return;
+                        }
                         allImages.push({
                             data: img.url,
                             label: `Saved ${index + 1}`,
