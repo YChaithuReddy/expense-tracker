@@ -226,20 +226,19 @@ class GoogleSheetsService {
     }
 
     async _fetchViaPost(payload) {
-        // Use real fetch POST with form-encoded body.
-        // application/x-www-form-urlencoded is a "simple" CORS content-type —
-        // no preflight needed, and Apps Script doPost(e) reads it via e.parameter.data
-        // exactly like doGet. The old iframe-form approach was fire-and-forget
-        // (cross-origin postMessage is blocked), so Apps Script ran but we never
-        // confirmed the write — causing silent data loss on large exports.
+        // Send as text/plain so Apps Script doPost(e) receives the raw JSON
+        // string in e.postData.contents and can JSON.parse() it directly.
+        // text/plain is a simple CORS content-type — no preflight needed.
+        // (application/x-www-form-urlencoded wraps the body as "data=<encoded>"
+        //  which the script tries to JSON.parse and fails with "Unexpected token 'd'".)
         try {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 90000);
 
             const response = await fetch(this.APPS_SCRIPT_URL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: new URLSearchParams({ data: payload }).toString(),
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: payload,   // raw JSON string — Apps Script reads via e.postData.contents
                 redirect: 'follow',
                 signal: controller.signal
             });
