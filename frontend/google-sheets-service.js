@@ -449,11 +449,11 @@ class GoogleSheetsService {
                 visitType: exp.visitType || '',
                 paymentMode: exp.paymentMode === 'bank_transfer' ? 'Bank Transfer' : exp.paymentMode === 'upi' ? 'UPI' : 'Cash',
                 billAttached: exp.billAttached === 'no' ? 'No' : 'Yes',
-                // New fields for updated Fluxgen sheet format
-                modeOfExpense: exp.mode_of_expense || exp.modeOfExpense || '',
-                fromLocation: exp.from_location || exp.fromLocation || '',
-                toLocation: exp.to_location || exp.toLocation || '',
-                kilometers: exp.kilometers || 0
+                // New fields for updated Fluxgen sheet format — use N/A for empty cells
+                modeOfExpense: exp.mode_of_expense || exp.modeOfExpense || 'N/A',
+                fromLocation: exp.from_location || exp.fromLocation || 'N/A',
+                toLocation: exp.to_location || exp.toLocation || 'N/A',
+                kilometers: exp.kilometers || 'N/A'
             }));
 
             const data = {
