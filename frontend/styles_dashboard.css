@@ -3281,6 +3281,16 @@ h3.admin-section-label {
 #section-history .hist-table tbody tr:hover td {
     background: #f8fafc;
 }
+/* Select-all checkbox in table header */
+.hist-select-all-cb {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: #2563eb;
+    vertical-align: middle;
+    display: block;
+    margin: 0 auto;
+}
 .hist-th--sortable { cursor: pointer; user-select: none; }
 .hist-th--sortable:hover .hist-sort-icon { color: #475569; }
 .hist-sort-icon {

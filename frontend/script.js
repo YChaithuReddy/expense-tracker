@@ -185,8 +185,10 @@ class ExpenseTracker {
             window.kodoService.initialize();
         }
 
-        // Select All checkbox
-        document.getElementById('selectAllCheckbox').addEventListener('change', (e) => this.handleSelectAll(e));
+        // Select All checkbox — delegation so it works after table re-renders
+        document.getElementById('expensesList').addEventListener('change', (e) => {
+            if (e.target.id === 'selectAllCheckbox') this.handleSelectAll(e);
+        });
 
         // Image modal removed - feature disabled
 
@@ -4092,20 +4094,6 @@ class ExpenseTracker {
             return;
         }
 
-        // Show search/filter and select all if there are expenses
-        selectAllContainer.style.display = 'flex';
-
-        // Update Select All label with project name when filtered
-        const selectAllTextEl = selectAllContainer.querySelector('.select-all-text');
-        if (selectAllTextEl) {
-            const displayList = this.isFilterActive() ? this.filteredExpenses : this.expenses;
-            if (this.filterProject) {
-                selectAllTextEl.textContent = `Select All ${this.filterProject} (${displayList.length})`;
-            } else {
-                selectAllTextEl.textContent = `Select All (${displayList.length})`;
-            }
-        }
-
         if (searchFilterContainer) {
             searchFilterContainer.classList.remove('hidden');
         }
@@ -4171,7 +4159,7 @@ class ExpenseTracker {
         }).join('');
 
         container.innerHTML = `<div class="admin-table-wrap hist-table-wrap"><table class="admin-table hist-table"><thead><tr>
-            <th style="width:36px;"></th>
+            <th style="width:36px;padding:0 10px;text-align:center;"><input type="checkbox" id="selectAllCheckbox" class="hist-select-all-cb" title="Select all"></th>
             <th class="hist-th hist-th--sortable">Date <span class="hist-sort-icon" aria-hidden="true">⇅</span></th>
             <th class="hist-th hist-th--sortable">Amount <span class="hist-sort-icon" aria-hidden="true">⇅</span></th>
             <th class="hist-th">Category</th>
