@@ -226,51 +226,42 @@ class GoogleSheetsService {
     }
 
     async _fetchViaPost(payload) {
-        return new Promise((resolve, reject) => {
-            const iframe = document.createElement('iframe');
-            iframe.name = 'gs_post_frame_' + Date.now();
-            iframe.style.display = 'none';
-            document.body.appendChild(iframe);
+        // Use real fetch POST with form-encoded body.
+        // application/x-www-form-urlencoded is a "simple" CORS content-type —
+        // no preflight needed, and Apps Script doPost(e) reads it via e.parameter.data
+        // exactly like doGet. The old iframe-form approach was fire-and-forget
+        // (cross-origin postMessage is blocked), so Apps Script ran but we never
+        // confirmed the write — causing silent data loss on large exports.
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 90000);
 
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = this.APPS_SCRIPT_URL;
-            form.target = iframe.name;
-            form.style.display = 'none';
+            const response = await fetch(this.APPS_SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ data: payload }).toString(),
+                redirect: 'follow',
+                signal: controller.signal
+            });
 
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'data';
-            input.value = payload;
-            form.appendChild(input);
-            document.body.appendChild(form);
+            clearTimeout(timeoutId);
 
-            const cleanup = () => {
-                if (document.body.contains(iframe)) document.body.removeChild(iframe);
-                if (document.body.contains(form)) document.body.removeChild(form);
-                window.removeEventListener('message', messageHandler);
-            };
-
-            const messageHandler = (event) => {
-                try {
-                    const result = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
-                    if (result && (result.status === 'success' || result.status === 'error')) {
-                        cleanup();
-                        resolve(result);
-                    }
-                } catch (e) { /* ignore non-JSON messages */ }
-            };
-            window.addEventListener('message', messageHandler);
-
-            // 60-second timeout — Apps Script can be slow on large exports
-            const timeoutId = setTimeout(() => {
-                cleanup();
-                // Assume success — Apps Script may not postMessage back
-                resolve({ status: 'success', data: {} });
-            }, 60000);
-
-            form.submit();
-        });
+            const text = await response.text();
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                // Apps Script returned non-JSON (e.g. HTML error page)
+                console.warn('Apps Script POST non-JSON response:', text.substring(0, 300));
+                // If HTTP status was OK, assume the write succeeded
+                if (response.ok) return { status: 'success', data: {} };
+                throw new Error('Apps Script returned an unexpected response');
+            }
+        } catch (error) {
+            if (error.name === 'AbortError') {
+                throw new Error('Export timed out (90 s) — please try again');
+            }
+            throw error;
+        }
     }
 
     /**
