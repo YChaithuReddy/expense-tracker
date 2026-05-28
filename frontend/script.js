@@ -557,7 +557,7 @@ class ExpenseTracker {
                     width: 50px;
                     height: 50px;
                     border: 4px solid rgba(79, 172, 254, 0.2);
-                    border-top-color: #4FACFE;
+                    border-top-color: #0f172a;
                     border-radius: 50%;
                     animation: spin 1s linear infinite;
                     margin: 0 auto;
@@ -575,12 +575,12 @@ class ExpenseTracker {
                 }
                 .progress-fill {
                     height: 100%;
-                    background: linear-gradient(135deg, #4FACFE 0%, #00F2FE 100%);
+                    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
                     transition: width 0.3s ease;
                 }
                 #progressText {
                     font-size: 14px;
-                    color: #4FACFE;
+                    color: #0f172a;
                     font-weight: 600;
                 }
                 #processingStatus {
@@ -893,7 +893,7 @@ class ExpenseTracker {
                 @keyframes ocrFadeIn { from { opacity: 0; } to { opacity: 1; } }
                 @keyframes ocrSpin { to { transform: rotate(360deg); } }
             </style>
-            <div role="dialog" aria-live="polite" aria-label="Scanning bills" style="background:#ffffff;border:1px solid #e5e7eb;border-radius:18px;padding:28px 32px;min-width:340px;max-width:420px;box-shadow:0 24px 48px rgba(15,23,42,0.18);text-align:center;">
+            <div role="dialog" aria-live="polite" aria-label="Scanning bills" style="background:#ffffff;border:1px solid #e5e7eb;border-radius:18px;padding:28px 32px;min-width:340px;max-width:540px;width:90vw;box-shadow:0 24px 48px rgba(15,23,42,0.18);text-align:center;">
                 <div style="width:48px;height:48px;border:3px solid #e5e7eb;border-top-color:#0369a1;border-radius:50%;margin:0 auto 18px;animation:ocrSpin 0.8s linear infinite;"></div>
                 <h3 id="ocrStage" style="margin:0 0 4px;font-size:1.05rem;font-weight:700;color:#111827;letter-spacing:-0.01em;">Starting OCR engine…</h3>
                 <p id="ocrStatus" style="margin:0 0 20px;font-size:0.85rem;color:#6b7280;min-height:1.2em;">Preparing to scan ${this.scannedImages.length} bill${this.scannedImages.length === 1 ? '' : 's'}</p>
@@ -2806,7 +2806,7 @@ class ExpenseTracker {
         progressModal.id = 'batchUploadProgress';
         progressModal.className = 'modal active';
         progressModal.innerHTML = `
-            <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-content" style="max-width: 680px;width:90vw;">
                 <div class="modal-header">
                     <h3>📤 Uploading Bills...</h3>
                 </div>
@@ -2815,12 +2815,12 @@ class ExpenseTracker {
                         <img id="currentBillImage" src="" alt="Current bill" style="max-width: 200px; max-height: 150px; margin-bottom: 20px; border-radius: 8px;">
                         <p id="uploadStatus" style="font-size: 18px; margin: 10px 0;">Uploading bill 1 of ${selectedExpenses.length}...</p>
                         <div class="progress-bar" style="width: 100%; height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden; margin: 20px 0;">
-                            <div id="uploadProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #4FACFE, #00F2FE); transition: width 0.3s;"></div>
+                            <div id="uploadProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #0f172a, #1e293b); transition: width 0.3s;"></div>
                         </div>
-                        <p id="uploadPercentage" style="font-weight: 600; color: #4FACFE;">0%</p>
+                        <p id="uploadPercentage" style="font-weight: 600; color: #0f172a;">0%</p>
                     </div>
                     <div id="uploadResults" style="margin-top: 20px; display: none;">
-                        <h4 style="color: #4FACFE;">Upload Complete!</h4>
+                        <h4 style="color: #0f172a;">Upload Complete!</h4>
                         <p id="uploadSummary"></p>
                         <button class="btn-primary" onclick="expenseTracker.finishBatchUpload()" style="margin-top: 20px;">Done</button>
                     </div>
@@ -3704,7 +3704,7 @@ class ExpenseTracker {
                         border: 1px solid rgba(79, 172, 254, 0.2);
                     }
                     .upload-progress-content h3 {
-                        color: #4FACFE;
+                        color: #ffffff;
                         margin: 20px 0 15px;
                         font-size: 24px;
                     }
@@ -3713,7 +3713,7 @@ class ExpenseTracker {
                         margin: 10px 0 20px;
                     }
                     #uploadProgressText {
-                        color: #4FACFE;
+                        color: #e2e8f0;
                         font-weight: 600;
                         display: block;
                         margin-top: 10px;

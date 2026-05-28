@@ -1334,7 +1334,7 @@ h3.admin-section-label {
        and shove the action buttons below it off the viewport. Items scroll
        inside if there's overflow; empty state sits at top of the reserved area. */
     min-height: 96px;
-    max-height: 96px;
+    max-height: 150px;
     overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: #cbd5e1 transparent;
