@@ -4639,6 +4639,10 @@ class ExpenseTracker {
                     billAttached: exp.bill_attached || null,
                     voucherStatus: exp.voucher_status || null,
                     time: exp.time || '',
+                    modeOfExpense: exp.mode_of_expense || null,
+                    fromLocation: exp.from_location || null,
+                    toLocation: exp.to_location || null,
+                    kilometers: exp.kilometers ?? null,
                     images: exp.images.map(img => ({
                         name: img.filename,
                         data: img.url // Cloudinary URL
