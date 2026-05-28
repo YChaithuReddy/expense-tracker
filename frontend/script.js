@@ -3190,7 +3190,7 @@ class ExpenseTracker {
         overlay.id = 'expenseFormModalOverlay';
 
         overlay.innerHTML = `
-            <div class="kodo-confirm-modal" style="max-width:560px;">
+            <div class="kodo-confirm-modal" style="max-width:860px;width:90vw;">
                 <div class="kodo-confirm-modal__header">
                     <div class="kodo-confirm-modal__header-accent"></div>
                     <div class="kodo-confirm-modal__header-content">
