@@ -142,6 +142,9 @@ function doPost(e) {
       case 'updateEmployeeInfo':
         return updateEmployeeInformation(data);
 
+      case 'updateAndExportPdf':
+        return updateAndExportPdf(data);
+
       default:
         return createResponse(false, 'Unknown action: ' + action);
     }
@@ -808,6 +811,84 @@ function updateEmployeeInformation(data) {
   } catch (error) {
     Logger.log('Error updating employee information: ' + error.toString());
     return createResponse(false, 'Failed to update employee information: ' + error.toString());
+  }
+}
+
+/**
+ * Atomically update employee info, flush, then export PDF.
+ * Avoids the race condition where a separate updateEmployeeInfo + exportPdf
+ * sequence can return a cached (pre-update) PDF.
+ */
+function updateAndExportPdf(data) {
+  try {
+    var sheetId = data.sheetId;
+    var employeeData = data.employeeData || {};
+
+    if (!sheetId) {
+      return createResponse(false, 'Missing required field: sheetId');
+    }
+
+    Logger.log('updateAndExportPdf: updating employee info then exporting PDF for sheet: ' + sheetId);
+
+    var spreadsheet = SpreadsheetApp.openById(String(sheetId));
+    var sheet = spreadsheet.getSheetByName(TAB_NAME);
+
+    if (!sheet) {
+      return createResponse(false, 'Tab "' + TAB_NAME + '" not found in sheet');
+    }
+
+    // Write employee fields
+    if (employeeData.employeeName) sheet.getRange('D4').setValue(employeeData.employeeName);
+    if (employeeData.employeeCode) sheet.getRange('D5').setValue(employeeData.employeeCode);
+    if (employeeData.fromDate)     sheet.getRange('F5').setValue(employeeData.fromDate);
+    if (employeeData.toDate)       sheet.getRange('F6').setValue(employeeData.toDate);
+    if (employeeData.businessPurpose) sheet.getRange('D9').setValue(employeeData.businessPurpose);
+
+    // Force all pending writes to disk before exporting
+    SpreadsheetApp.flush();
+
+    // Export PDF
+    var url = 'https://docs.google.com/spreadsheets/d/' + sheetId + '/export?';
+    var params = {
+      format: 'pdf',
+      size: 'A4',
+      portrait: true,
+      fitw: true,
+      fith: true,
+      scale: 4,
+      sheetnames: false,
+      printtitle: false,
+      pagenumbers: false,
+      gridlines: false,
+      fzr: false,
+      horizontal_alignment: 'CENTER',
+      vertical_alignment: 'TOP',
+      gid: sheet.getSheetId()
+    };
+
+    var queryString = Object.keys(params).map(function(key) {
+      return key + '=' + params[key];
+    }).join('&');
+
+    var token = ScriptApp.getOAuthToken();
+    var response = UrlFetchApp.fetch(url + queryString, {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+
+    var pdfBlob = response.getBlob();
+    var base64Pdf = Utilities.base64Encode(pdfBlob.getBytes());
+
+    Logger.log('updateAndExportPdf: PDF size: ' + pdfBlob.getBytes().length + ' bytes');
+
+    return createResponse(true, 'Updated employee info and exported PDF', {
+      pdfBase64: base64Pdf,
+      fileName: spreadsheet.getName() + '.pdf',
+      size: pdfBlob.getBytes().length
+    });
+
+  } catch (error) {
+    Logger.log('Error in updateAndExportPdf: ' + error.toString());
+    return createResponse(false, 'updateAndExportPdf failed: ' + error.toString());
   }
 }
 
