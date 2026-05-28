@@ -15390,6 +15390,7 @@ a svg {
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: #64748b;
+    flex-shrink: 0;
 }
 .sel-img-panel__count {
     margin-left: auto;
@@ -15405,10 +15406,14 @@ a svg {
     display: grid;
     gap: 8px;
     overflow-y: auto;
-    max-height: 220px;
+    flex: 1;
+    min-height: 0;
+    align-content: start;
 }
 .sel-img-panel__grid--single {
     grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    align-content: stretch;
 }
 .sel-img-panel__grid--multi {
     grid-template-columns: repeat(2, 1fr);
@@ -15416,20 +15421,25 @@ a svg {
 .sel-img-item {
     display: flex;
     flex-direction: column;
-    gap: 4px;
     border-radius: 8px;
     overflow: hidden;
     border: 1px solid rgba(226, 232, 240, 0.7);
     background: rgba(248, 250, 252, 0.6);
+    min-height: 0;
+}
+.sel-img-panel__grid--single .sel-img-item {
+    height: 100%;
 }
 .sel-img-thumb {
     width: 100%;
     object-fit: cover;
-    height: 90px;
     display: block;
+    height: 100px;
 }
 .sel-img-panel__grid--single .sel-img-thumb {
-    height: 160px;
+    flex: 1;
+    min-height: 0;
+    height: 100%;
 }
 .sel-img-caption {
     font-size: 0.65rem;
@@ -15438,6 +15448,7 @@ a svg {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    flex-shrink: 0;
 }
 
 /* Submit Reimbursement hero */
