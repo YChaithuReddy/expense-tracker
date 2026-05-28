@@ -15350,6 +15350,96 @@ a svg {
     transform: translateX(2px);
 }
 
+/* ── Scan-selected badge (compact indicator in Section 1) ── */
+.scan-selected-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: rgba(59, 130, 246, 0.08);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: #3b82f6;
+    width: 100%;
+    box-sizing: border-box;
+}
+.scan-badge-arrow {
+    margin-left: auto;
+    font-size: 0.75rem;
+    opacity: 0.7;
+    white-space: nowrap;
+}
+
+/* ── Selected images panel (replaces right card content) ── */
+.sel-img-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+}
+.sel-img-panel__header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #64748b;
+}
+.sel-img-panel__count {
+    margin-left: auto;
+    background: #3b82f6;
+    color: #fff;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 1px 7px;
+    line-height: 1.6;
+}
+.sel-img-panel__grid {
+    display: grid;
+    gap: 8px;
+    overflow-y: auto;
+    max-height: 220px;
+}
+.sel-img-panel__grid--single {
+    grid-template-columns: 1fr;
+}
+.sel-img-panel__grid--multi {
+    grid-template-columns: repeat(2, 1fr);
+}
+.sel-img-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(226, 232, 240, 0.7);
+    background: rgba(248, 250, 252, 0.6);
+}
+.sel-img-thumb {
+    width: 100%;
+    object-fit: cover;
+    height: 90px;
+    display: block;
+}
+.sel-img-panel__grid--single .sel-img-thumb {
+    height: 160px;
+}
+.sel-img-caption {
+    font-size: 0.65rem;
+    color: #64748b;
+    padding: 3px 6px 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 /* Submit Reimbursement hero */
 /* Submit Reimbursement — emerald green (signals success/completion action) */
 #downloadReimbursementPackage.btn-flux.btn-flux--lg {

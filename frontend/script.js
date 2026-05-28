@@ -658,6 +658,7 @@ class ExpenseTracker {
                 const dragHint = document.getElementById('dragDropHint');
                 if (dragHint) dragHint.style.display = '';
                 previewContainer.className = 'image-preview-container drag-drop-zone';
+                this._restoreRightCard();
 
                 this.isProcessingImages = false;
                 return;
@@ -792,27 +793,15 @@ class ExpenseTracker {
 
             previewContainer.className = 'image-preview-container drag-drop-zone has-images';
 
-            // Removed the "Selected Images:" header for cleaner UI
+            // Compact badge in Section 1 — full previews move to the right card
+            const badge = document.createElement('div');
+            badge.className = 'scan-selected-badge';
+            const n = processedImages.length;
+            badge.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><span>${n} bill${n > 1 ? 's' : ''} selected</span><span class="scan-badge-arrow">Preview →</span>`;
+            previewContainer.appendChild(badge);
 
-            const imagesWrapper = document.createElement('div');
-            // Remove inline styles - let CSS handle the styling
-            imagesWrapper.id = 'imagesWrapper';
-            // Add class based on image count - single image gets full width, multiple images use 2-column grid
-            imagesWrapper.className = processedImages.length === 1 ? 'single-image' : 'multiple-images';
-            previewContainer.appendChild(imagesWrapper);
-
-            // Display all images
-            processedImages.forEach((img) => {
-                const imageDiv = document.createElement('div');
-                imageDiv.className = 'image-preview-item';
-                imageDiv.innerHTML = `
-                    <div class="thumb-container">
-                        <img src="${img.data}" alt="${img.name}" class="thumb-image">
-                    </div>
-                    <div class="thumb-caption">${img.name}</div>
-                `;
-                imagesWrapper.appendChild(imageDiv);
-            });
+            // Show full-size previews in the right card
+            this._showImagesInRightCard(processedImages);
 
             // Show scan button — MUST also clear disabled in case a previous
             // scan left it disabled (user re-uploaded images mid-scan).
@@ -839,6 +828,43 @@ class ExpenseTracker {
         } finally {
             this.isProcessingImages = false;
         }
+    }
+
+    _showImagesInRightCard(images) {
+        const manualCard = document.querySelector('.exp-card--manual');
+        if (!manualCard) return;
+        manualCard.querySelector('.exp-card__header-row')?.style.setProperty('display', 'none');
+        document.getElementById('recentEntriesList')?.style.setProperty('display', 'none');
+        document.getElementById('skipToManualEntry')?.style.setProperty('display', 'none');
+
+        const panel = document.getElementById('selectedImagesPanel');
+        if (!panel) return;
+        const isSingle = images.length === 1;
+        panel.innerHTML = `
+            <div class="sel-img-panel__header">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                <span>Selected Bills</span>
+                <span class="sel-img-panel__count">${images.length}</span>
+            </div>
+            <div class="sel-img-panel__grid ${isSingle ? 'sel-img-panel__grid--single' : 'sel-img-panel__grid--multi'}">
+                ${images.map(img => `
+                    <div class="sel-img-item">
+                        <img src="${img.data}" alt="${img.name}" class="sel-img-thumb">
+                        <div class="sel-img-caption">${img.name}</div>
+                    </div>`).join('')}
+            </div>`;
+        panel.style.display = '';
+    }
+
+    _restoreRightCard() {
+        const manualCard = document.querySelector('.exp-card--manual');
+        if (!manualCard) return;
+        manualCard.querySelector('.exp-card__header-row')?.style.removeProperty('display');
+        document.getElementById('recentEntriesList')?.style.removeProperty('display');
+        document.getElementById('skipToManualEntry')?.style.removeProperty('display');
+
+        const panel = document.getElementById('selectedImagesPanel');
+        if (panel) { panel.style.display = 'none'; panel.innerHTML = ''; }
     }
 
     async scanBills() {
@@ -2718,6 +2744,7 @@ class ExpenseTracker {
                 </div>`;
             imagePreview.className = 'image-preview-container drag-drop-zone';
         }
+        this._restoreRightCard();
 
         // Hide scan button
         const scanBtn = document.getElementById('scanBills');
