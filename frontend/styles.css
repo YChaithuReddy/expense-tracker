@@ -15533,8 +15533,56 @@ a svg {
     transform: translateY(-1px);
 }
 
-/* Expenses section — full width, no side gaps */
+/* =====================================================
+   EXPENSES SECTION — full-screen no-scroll layout
+   Everything fits in one viewport, no scrollbar
+   ===================================================== */
+
+/* Lock admin-main overflow only when expenses tab is active */
+.admin-main:has(#section-expenses.active) {
+    overflow: hidden !important;
+    padding: 16px 24px !important;
+}
+
+/* Section fills full height of admin-main */
 #section-expenses {
     width: 100%;
     max-width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow: hidden;
+}
+
+/* Header row — fixed height, no shrink */
+#section-expenses .admin-main__header {
+    flex-shrink: 0;
+    margin-bottom: 0 !important;
+}
+
+/* Top two cards — take all remaining space */
+#section-expenses .exp-top-row {
+    flex: 1 1 0;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+/* Each card fills its grid cell */
+#section-expenses .exp-card {
+    height: 100%;
+    overflow: hidden;
+}
+
+/* Submit button — compact, fixed */
+#downloadReimbursementPackage.btn-flux.btn-flux--lg {
+    flex-shrink: 0;
+    height: 52px !important;
+}
+
+/* Action tiles row — fixed, no shrink */
+#section-expenses .exp-actions-row {
+    flex-shrink: 0;
 }
