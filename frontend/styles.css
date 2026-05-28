@@ -15452,26 +15452,26 @@ a svg {
 }
 
 /* Submit Reimbursement hero */
-/* Submit Reimbursement — emerald green (signals success/completion action) */
+/* Submit Reimbursement — dark navy matching sidebar and Camera button */
 #downloadReimbursementPackage.btn-flux.btn-flux--lg {
     height: 64px !important;
     border-radius: 16px !important;
-    background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%) !important;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
     box-shadow:
-        0 6px 20px rgba(16, 185, 129, 0.35),
-        inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+        0 6px 20px rgba(15, 23, 42, 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
     transition: box-shadow 0.3s, transform 0.2s;
     position: relative;
     overflow: hidden;
 }
 #downloadReimbursementPackage.btn-flux.btn-flux--lg::before {
-    background: linear-gradient(135deg, #047857 0%, #059669 50%, #10b981 100%);
+    background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
 }
 #downloadReimbursementPackage.btn-flux.btn-flux--lg:hover {
     transform: translateY(-2px) scale(1.005);
     box-shadow:
-        0 12px 32px rgba(16, 185, 129, 0.45),
-        inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+        0 12px 32px rgba(15, 23, 42, 0.55),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
 }
 
 /* Action tile row */
