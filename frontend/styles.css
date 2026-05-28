@@ -15351,24 +15351,25 @@ a svg {
 }
 
 /* Submit Reimbursement hero */
+/* Submit Reimbursement — emerald green (signals success/completion action) */
 #downloadReimbursementPackage.btn-flux.btn-flux--lg {
     height: 64px !important;
     border-radius: 16px !important;
-    background: linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #8b5cf6 100%) !important;
+    background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%) !important;
     box-shadow:
-        0 6px 20px rgba(99, 102, 241, 0.35),
+        0 6px 20px rgba(16, 185, 129, 0.35),
         inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
     transition: box-shadow 0.3s, transform 0.2s;
     position: relative;
     overflow: hidden;
 }
 #downloadReimbursementPackage.btn-flux.btn-flux--lg::before {
-    background: linear-gradient(135deg, #4338ca 0%, #4f46e5 50%, #7c3aed 100%);
+    background: linear-gradient(135deg, #047857 0%, #059669 50%, #10b981 100%);
 }
 #downloadReimbursementPackage.btn-flux.btn-flux--lg:hover {
     transform: translateY(-2px) scale(1.005);
     box-shadow:
-        0 12px 32px rgba(99, 102, 241, 0.45),
+        0 12px 32px rgba(16, 185, 129, 0.45),
         inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
 }
 
@@ -15428,4 +15429,25 @@ a svg {
 @media (max-width: 480px) {
     .exp-card { border-radius: 14px !important; }
     .exp-action-card { padding: 14px 12px !important; }
+}
+
+/* Camera button — vibrant teal (matches FluxGen Emerald brand) */
+#cameraBtn.btn-flux.exp-btn--dark {
+    background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%) !important;
+    box-shadow: 0 4px 14px rgba(6, 182, 212, 0.4) !important;
+    border-radius: 999px !important;
+}
+#cameraBtn.btn-flux.exp-btn--dark:hover {
+    background: linear-gradient(135deg, #0e7490 0%, #0891b2 100%) !important;
+    box-shadow: 0 6px 20px rgba(6, 182, 212, 0.5) !important;
+    transform: translateY(-1px);
+}
+
+/* Center the expenses section content with a max-width so it doesn't
+   stretch edge-to-edge on wide monitors */
+#section-expenses {
+    max-width: 960px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
 }
