@@ -15533,11 +15533,8 @@ a svg {
     transform: translateY(-1px);
 }
 
-/* Center the expenses section content with a max-width so it doesn't
-   stretch edge-to-edge on wide monitors */
+/* Expenses section — full width, no side gaps */
 #section-expenses {
-    max-width: 960px;
-    margin-left: auto;
-    margin-right: auto;
     width: 100%;
+    max-width: 100%;
 }
