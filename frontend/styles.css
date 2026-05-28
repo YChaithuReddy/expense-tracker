@@ -15417,6 +15417,16 @@ a svg {
 }
 .sel-img-panel__grid--multi {
     grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: 1fr;
+    align-content: stretch;
+}
+.sel-img-panel__grid--multi .sel-img-item {
+    height: 100%;
+}
+.sel-img-panel__grid--multi .sel-img-thumb {
+    flex: 1;
+    min-height: 0;
+    height: 100%;
 }
 .sel-img-item {
     display: flex;
