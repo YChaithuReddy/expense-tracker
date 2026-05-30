@@ -1,0 +1,405 @@
+- generic [ref=e1]:
+  - generic [ref=e191] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e192]:
+      - img [ref=e193]
+    - generic [ref=e196]:
+      - button "Open issues overlay" [ref=e197]:
+        - generic [ref=e198]:
+          - generic [ref=e199]: "0"
+          - generic [ref=e200]: "1"
+        - generic [ref=e201]: Issue
+      - button "Collapse issues badge" [ref=e202]:
+        - img [ref=e203]
+  - generic [ref=e205]:
+    - complementary [ref=e206]:
+      - generic [ref=e207]: ROBO GROUP
+      - navigation [ref=e208]:
+        - link "Dashboard" [ref=e210] [cursor=pointer]:
+          - /url: /
+          - img [ref=e211]
+          - text: Dashboard
+        - generic [ref=e216]:
+          - generic [ref=e217]: Operations
+          - link "Crew Chat" [ref=e218] [cursor=pointer]:
+            - /url: /chat
+            - img [ref=e219]
+            - text: Crew Chat
+          - link "Crew Console" [ref=e221] [cursor=pointer]:
+            - /url: /crew-console/dev
+            - img [ref=e222]
+            - text: Crew Console
+          - link "Telegram" [ref=e224] [cursor=pointer]:
+            - /url: /telegram
+            - img [ref=e225]
+            - text: Telegram
+          - link "Missions" [ref=e227] [cursor=pointer]:
+            - /url: /missions
+            - img [ref=e228]
+            - text: Missions
+          - link "Workflows" [ref=e232] [cursor=pointer]:
+            - /url: /workflows
+            - img [ref=e233]
+            - text: Workflows
+          - link "Cron" [ref=e237] [cursor=pointer]:
+            - /url: /cron
+            - img [ref=e238]
+            - text: Cron
+          - link "Skills" [ref=e241] [cursor=pointer]:
+            - /url: /skill-tree
+            - img [ref=e242]
+            - text: Skills
+        - generic [ref=e247]:
+          - generic [ref=e248]: Intel
+          - link "Logs" [ref=e249] [cursor=pointer]:
+            - /url: /logs
+            - img [ref=e250]
+            - text: Logs
+          - link "Sessions" [ref=e252] [cursor=pointer]:
+            - /url: /sessions
+            - img [ref=e253]
+            - text: Sessions
+          - link "Analytics" [ref=e257] [cursor=pointer]:
+            - /url: /analytics
+            - img [ref=e258]
+            - text: Analytics
+          - link "Code Map" [ref=e260] [cursor=pointer]:
+            - /url: /code-map
+            - img [ref=e261]
+            - text: Code Map
+          - link "Skill 3D" [ref=e263] [cursor=pointer]:
+            - /url: /skill-tree-3d
+            - img [ref=e264]
+            - text: Skill 3D
+        - generic [ref=e267]:
+          - generic [ref=e268]: Crew
+          - link "Crew" [ref=e269] [cursor=pointer]:
+            - /url: /crew
+            - img [ref=e270]
+            - text: Crew
+          - link "All Crew" [ref=e275] [cursor=pointer]:
+            - /url: /all-crew
+            - img [ref=e276]
+            - text: All Crew
+          - link "Memory" [ref=e281] [cursor=pointer]:
+            - /url: /memory
+            - img [ref=e282]
+            - text: Memory
+          - link "Inbox" [ref=e290] [cursor=pointer]:
+            - /url: /inbox
+            - img [ref=e291]
+            - text: Inbox
+        - generic [ref=e294]:
+          - generic [ref=e295]: System
+          - link "Projects" [ref=e296] [cursor=pointer]:
+            - /url: /projects
+            - img [ref=e297]
+            - text: Projects
+          - link "Docs" [ref=e299] [cursor=pointer]:
+            - /url: /docs
+            - img [ref=e300]
+            - text: Docs
+          - link "Settings" [ref=e302] [cursor=pointer]:
+            - /url: /settings
+            - img [ref=e303]
+            - text: Settings
+        - button "▸ Legacy" [ref=e307]:
+          - generic [ref=e308]: ▸
+          - generic [ref=e309]: Legacy
+    - generic [ref=e310]:
+      - banner [ref=e311]:
+        - generic [ref=e312]:
+          - img [ref=e314]
+          - generic [ref=e320]: ROBO GROUP
+        - generic [ref=e321]:
+          - img [ref=e322]
+          - generic [ref=e325]: 15:12:48
+        - generic [ref=e326]:
+          - generic [ref=e327]: UPT
+          - generic [ref=e328]: 0h 0m 56s
+        - generic [ref=e329]:
+          - img [ref=e330]
+          - generic [ref=e333]: CREW
+          - generic [ref=e334]: "7"
+        - generic [ref=e335]:
+          - img [ref=e336]
+          - generic [ref=e338]: MSN
+          - generic [ref=e339]: "3"
+        - generic [ref=e340]:
+          - img [ref=e341]
+          - generic [ref=e343]: TG
+          - generic [ref=e344]: OK
+        - button "Emergency stop" [ref=e345]:
+          - img [ref=e346]
+          - generic [ref=e348]: EMRG
+        - 'button "Theme: Mission Control, click for dark" [ref=e349]':
+          - img
+      - generic [ref=e350]:
+        - main [ref=e351]:
+          - generic [ref=e352]:
+            - generic [ref=e353]:
+              - generic [ref=e354]:
+                - heading "All Crew · Live" [level=1] [ref=e355]
+                - paragraph [ref=e356]: Multi-pane control room. Each pane streams that crew's session transcript.
+              - generic [ref=e357]:
+                - generic [ref=e358]: 5 active / 8 idle
+                - generic [ref=e359]:
+                  - button "transcript" [ref=e360]:
+                    - img [ref=e361]
+                    - text: transcript
+                  - button "live console" [ref=e364]:
+                    - img [ref=e365]
+                    - text: live console
+                - button "all" [active] [ref=e367]
+                - button "channels-enabled" [ref=e368]
+                - button "busy" [ref=e369]
+                - button "idle" [ref=e370]
+            - generic [ref=e371]:
+              - generic [ref=e1802]:
+                - link "fluxy avatar Fluxy live Orchestrator" [ref=e1803] [cursor=pointer]:
+                  - /url: /crew-console/fluxy
+                  - img "fluxy avatar" [ref=e1804]
+                  - generic [ref=e1865]:
+                    - generic [ref=e1866]:
+                      - generic [ref=e1867]: Fluxy
+                      - generic [ref=e1869]: live
+                    - generic [ref=e1870]: Orchestrator
+                - generic [ref=e1876]:
+                  - generic:
+                    - textbox "Terminal input"
+              - generic [ref=e1905]:
+                - link "cass avatar Cass live Frontend / UI" [ref=e1906] [cursor=pointer]:
+                  - /url: /crew-console/cass
+                  - img "cass avatar" [ref=e1907]
+                  - generic [ref=e1975]:
+                    - generic [ref=e1976]:
+                      - generic [ref=e1977]: Cass
+                      - generic [ref=e1979]: live
+                    - generic [ref=e1980]: Frontend / UI
+                - generic [ref=e1986]:
+                  - generic:
+                    - textbox "Terminal input"
+              - generic [ref=e2015]:
+                - link "supa avatar Supa live Backend / DB" [ref=e2016] [cursor=pointer]:
+                  - /url: /crew-console/supa
+                  - img "supa avatar" [ref=e2017]
+                  - generic [ref=e2084]:
+                    - generic [ref=e2085]:
+                      - generic [ref=e2086]: Supa
+                      - generic [ref=e2088]: live
+                    - generic [ref=e2089]: Backend / DB
+                - generic [ref=e2095]:
+                  - generic:
+                    - textbox "Terminal input"
+              - generic [ref=e2124]:
+                - link "bugsy avatar Bugsy live Debug / QA" [ref=e2125] [cursor=pointer]:
+                  - /url: /crew-console/bugsy
+                  - img "bugsy avatar" [ref=e2126]
+                  - generic [ref=e2185]:
+                    - generic [ref=e2186]:
+                      - generic [ref=e2187]: Bugsy
+                      - generic [ref=e2189]: live
+                    - generic [ref=e2190]: Debug / QA
+                - generic [ref=e2196]:
+                  - generic:
+                    - textbox "Terminal input"
+              - generic [ref=e2225]:
+                - link "shield avatar Shield live Security / Perf" [ref=e2226] [cursor=pointer]:
+                  - /url: /crew-console/shield
+                  - img "shield avatar" [ref=e2227]
+                  - generic [ref=e2295]:
+                    - generic [ref=e2296]:
+                      - generic [ref=e2297]: Shield
+                      - generic [ref=e2299]: live
+                    - generic [ref=e2300]: Security / Perf
+                - generic [ref=e2306]:
+                  - generic:
+                    - textbox "Terminal input"
+              - generic [ref=e2335]:
+                - link "scribe avatar Scribe live Docs / Memory" [ref=e2336] [cursor=pointer]:
+                  - /url: /crew-console/scribe
+                  - img "scribe avatar" [ref=e2337]
+                  - generic [ref=e2409]:
+                    - generic [ref=e2410]:
+                      - generic [ref=e2411]: Scribe
+                      - generic [ref=e2413]: live
+                    - generic [ref=e2414]: Docs / Memory
+                - generic [ref=e2420]:
+                  - generic:
+                    - textbox "Terminal input"
+              - generic [ref=e2449]:
+                - link "ceo avatar CEO live Strategy & Direction" [ref=e2450] [cursor=pointer]:
+                  - /url: /crew-console/ceo
+                  - img "ceo avatar" [ref=e2451]
+                  - generic [ref=e2508]:
+                    - generic [ref=e2509]:
+                      - generic [ref=e2510]: CEO
+                      - generic [ref=e2512]: live
+                    - generic [ref=e2513]: Strategy & Direction
+                - generic [ref=e2519]:
+                  - generic:
+                    - textbox "Terminal input"
+              - generic [ref=e2548]:
+                - link "dev avatar Dev live Engineering" [ref=e2549] [cursor=pointer]:
+                  - /url: /crew-console/dev
+                  - img "dev avatar" [ref=e2550]
+                  - generic [ref=e2607]:
+                    - generic [ref=e2608]:
+                      - generic [ref=e2609]: Dev
+                      - generic [ref=e2611]: live
+                    - generic [ref=e2612]: Engineering
+                - generic [ref=e2618]:
+                  - generic:
+                    - textbox "Terminal input"
+              - generic [ref=e2647]:
+                - link "ui avatar UI live Design & Frontend" [ref=e2648] [cursor=pointer]:
+                  - /url: /crew-console/ui
+                  - img "ui avatar" [ref=e2649]
+                  - generic [ref=e2706]:
+                    - generic [ref=e2707]:
+                      - generic [ref=e2708]: UI
+                      - generic [ref=e2710]: live
+                    - generic [ref=e2711]: Design & Frontend
+                - generic [ref=e2717]:
+                  - generic:
+                    - textbox "Terminal input"
+              - generic [ref=e2746]:
+                - link "finance avatar Finance live Money & Numbers" [ref=e2747] [cursor=pointer]:
+                  - /url: /crew-console/finance
+                  - img "finance avatar" [ref=e2748]
+                  - generic [ref=e2805]:
+                    - generic [ref=e2806]:
+                      - generic [ref=e2807]: Finance
+                      - generic [ref=e2809]: live
+                    - generic [ref=e2810]: Money & Numbers
+                - generic [ref=e2816]:
+                  - generic:
+                    - textbox "Terminal input"
+              - generic [ref=e2845]:
+                - link "research avatar Research live Discovery" [ref=e2846] [cursor=pointer]:
+                  - /url: /crew-console/research
+                  - img "research avatar" [ref=e2847]
+                  - generic [ref=e2904]:
+                    - generic [ref=e2905]:
+                      - generic [ref=e2906]: Research
+                      - generic [ref=e2908]: live
+                    - generic [ref=e2909]: Discovery
+                - generic [ref=e2915]:
+                  - generic:
+                    - textbox "Terminal input"
+              - generic [ref=e2944]:
+                - link "ops avatar Ops live Infrastructure" [ref=e2945] [cursor=pointer]:
+                  - /url: /crew-console/ops
+                  - img "ops avatar" [ref=e2946]
+                  - generic [ref=e3003]:
+                    - generic [ref=e3004]:
+                      - generic [ref=e3005]: Ops
+                      - generic [ref=e3007]: live
+                    - generic [ref=e3008]: Infrastructure
+                - generic [ref=e3014]:
+                  - generic:
+                    - textbox "Terminal input"
+              - generic [ref=e3043]:
+                - link "marketing avatar Marketing live Reach & Voice" [ref=e3044] [cursor=pointer]:
+                  - /url: /crew-console/marketing
+                  - img "marketing avatar" [ref=e3045]
+                  - generic [ref=e3102]:
+                    - generic [ref=e3103]:
+                      - generic [ref=e3104]: Marketing
+                      - generic [ref=e3106]: live
+                    - generic [ref=e3107]: Reach & Voice
+                - generic [ref=e3113]:
+                  - generic:
+                    - textbox "Terminal input"
+        - complementary [ref=e1708]:
+          - generic [ref=e1709]:
+            - img [ref=e1710]
+            - generic [ref=e1716]: Live Feed
+          - generic [ref=e1719]:
+            - generic [ref=e3142]:
+              - generic [ref=e3143]: 15:12:03
+              - generic [ref=e3144]: ›
+              - generic [ref=e3145]:
+                - text: spawn_started
+                - generic [ref=e3146]: "{\"agentId\":\"scribe\",\"projectPath\":\"C:\\\\Users\\\\chath\\\\Documents\\\\Python code\\\\com"
+            - generic [ref=e1720]:
+              - generic [ref=e1721]: 15:12:00
+              - generic [ref=e1722]: ›
+              - generic [ref=e1723]:
+                - text: spawn_started
+                - generic [ref=e1724]: "{\"agentId\":\"shield\",\"projectPath\":\"C:\\\\Users\\\\chath\\\\Documents\\\\Python code\\\\com"
+            - generic [ref=e1725]:
+              - generic [ref=e1726]: 15:12:00
+              - generic [ref=e1727]: ›
+              - generic [ref=e1728]:
+                - text: spawn_started
+                - generic [ref=e1729]: "{\"agentId\":\"bugsy\",\"projectPath\":\"C:\\\\Users\\\\chath\\\\Documents\\\\Python code\\\\comm"
+            - generic [ref=e1730]:
+              - generic [ref=e1731]: 15:11:59
+              - generic [ref=e1732]: ›
+              - generic [ref=e1733]:
+                - text: spawn_started
+                - generic [ref=e1734]: "{\"agentId\":\"supa\",\"projectPath\":\"C:\\\\Users\\\\chath\\\\Documents\\\\Python code\\\\comma"
+            - generic [ref=e1735]:
+              - generic [ref=e1736]: 15:11:59
+              - generic [ref=e1737]: ›
+              - generic [ref=e1738]:
+                - text: spawn_started
+                - generic [ref=e1739]: "{\"agentId\":\"fluxy\",\"projectPath\":\"C:\\\\Users\\\\chath\\\\Documents\\\\Python code\\\\comm"
+            - generic [ref=e1740]:
+              - generic [ref=e1741]: 15:05:33
+              - generic [ref=e1742]: ›
+              - generic [ref=e1743]:
+                - text: spawn_started
+                - generic [ref=e1744]: ceo
+            - generic [ref=e1745]:
+              - generic [ref=e1746]: 15:04:45
+              - generic [ref=e1747]: ›
+              - generic [ref=e1748]:
+                - text: spawn_started
+                - generic [ref=e1749]: ceo
+            - generic [ref=e1750]:
+              - generic [ref=e1751]: 02:37:21
+              - generic [ref=e1752]: ›
+              - generic [ref=e1753]:
+                - text: spawn_started
+                - generic [ref=e1754]: ceo
+            - generic [ref=e1755]:
+              - generic [ref=e1756]: 01:49:07
+              - generic [ref=e1757]: ›
+              - generic [ref=e1758]:
+                - text: spawn_started
+                - generic [ref=e1759]: ceo
+            - generic [ref=e1760]:
+              - generic [ref=e1761]: 21:22:04
+              - generic [ref=e1762]: ›
+              - generic [ref=e1763]:
+                - text: spawn_started
+                - generic [ref=e1764]: ceo
+            - generic [ref=e1765]:
+              - generic [ref=e1766]: 21:21:33
+              - generic [ref=e1767]: ›
+              - generic [ref=e1768]:
+                - text: spawn_started
+                - generic [ref=e1769]: ceo
+            - generic [ref=e1770]:
+              - generic [ref=e1771]: 21:00:16
+              - generic [ref=e1772]: ›
+              - generic [ref=e1773]:
+                - text: spawn_started
+                - generic [ref=e1774]: ceo
+            - generic [ref=e1775]:
+              - generic [ref=e1776]: 00:40:53
+              - generic [ref=e1777]: ›
+              - generic [ref=e1778]:
+                - text: spawn_started
+                - generic [ref=e1779]: human · expense-tracker
+            - generic [ref=e1780]:
+              - generic [ref=e1781]: 00:40:16
+              - generic [ref=e1782]: ›
+              - generic [ref=e1783]:
+                - text: spawn_started
+                - generic [ref=e1784]: human · expense-tracker
+          - generic [ref=e1785]:
+            - generic [ref=e1786]: _
+            - generic [ref=e1787]: 14 events buffered
+  - alert [ref=e1788]

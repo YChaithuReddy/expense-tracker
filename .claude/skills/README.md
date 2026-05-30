@@ -1,395 +1,267 @@
-# 🚀 Custom Skills for Expense Tracker
+# Command Center Skills — Master Reference
 
-## Overview
-
-This directory contains **9 specialized skills** designed specifically for your expense tracker project. These skills make redesigning and upgrading your app incredibly easy.
-
-## Available Skills
-
-### 1. 📸 **Indian Receipt OCR Enhancement**
-**Location:** `.claude/skills/indian-receipt-ocr/`
-
-**What it does:**
-- 95% accuracy for Indian bills
-- Supports 20+ vendors (Swiggy, Zomato, Uber, Ola, Amazon, etc.)
-- Extracts GST automatically (CGST, SGST, IGST)
-- Handles all Indian date and currency formats
-- Provides confidence scoring
-
-**Use it by saying:**
-- "Fix the OCR for Indian receipts"
-- "The OCR isn't reading Swiggy bills correctly"
-- "Improve receipt scanning accuracy"
+> Last updated: May 2026. All skills linked to their primary owning agent.
 
 ---
 
-### 2. 🎨 **UI Redesigner**
-**Location:** `.claude/skills/ui-redesigner/`
+## Skill to Agent Ownership Map
 
-**What it does:**
-- Modern design patterns (glassmorphism, gradients)
-- Smooth animations and transitions
-- Responsive layouts (mobile, tablet, desktop)
-- Professional color schemes
-- Loading states and micro-interactions
-
-**Use it by saying:**
-- "Make the UI look more professional"
-- "Add smooth animations"
-- "Redesign the expense cards"
-- "Make it more mobile-friendly"
-
----
-
-### 3. 🧩 **Component Generator**
-**Location:** `.claude/skills/component-generator/`
-
-**What it does:**
-- Generates ready-to-use components
-- Modals, cards, buttons, forms, charts
-- Consistent styling
-- Responsive and accessible
-
-**Use it by saying:**
-- "Create a modal for editing expenses"
-- "Add a toast notification system"
-- "Generate a loading skeleton"
-- "Build a chart component"
+| Skill | Owner Agent | Invoke | Purpose |
+|-------|-------------|--------|---------|
+| debug-issue.md | dev-engineering | .claude/skills/debug-issue.md | Debugging protocol with 8 known codebase traps |
+| explore-codebase.md | dev-engineering | .claude/skills/explore-codebase.md | Deep exploration before implementing |
+| refactor-safely.md | dev-engineering | .claude/skills/refactor-safely.md | Safe refactoring patterns |
+| review-changes.md | dev-engineering | .claude/skills/review-changes.md | Impact analysis before committing |
+| feature-upgrader/ | dev-engineering | /feature-upgrader | Dark mode, budget tracking, recurring expenses |
+| component-generator/ | dev-engineering | /component-generator | Modals, cards, buttons, forms, charts |
+| performance-optimizer/ | dev-engineering | /performance-optimizer | Lazy loading, virtual scrolling, caching |
+| mobile-build/ | dev-engineering | /mobile-build | Build and sync Capacitor Android APK |
+| mobile-debug/ | dev-engineering | /mobile-debug | Diagnose mobile layout and breakpoints |
+| mobile-fix/ | dev-engineering | /mobile-fix | Apply responsive CSS fixes |
+| indian-receipt-ocr/ | dev-engineering | /indian-receipt-ocr | 95% accuracy OCR for Indian bills |
+| report-generator/ | dev-engineering | /report-generator | Excel/PDF reports with GST breakdown |
+| ui-redesigner/ | premium-ui-designer | /ui-redesigner | Modern UI with glassmorphism and animations |
+| layout-fixer/ | design-review | /layout-fixer | Fix alignment, spacing, flexbox/grid issues |
 
 ---
 
-### 4. ⚡ **Performance Optimizer**
-**Location:** `.claude/skills/performance-optimizer/`
+## Engineering Skills (Dev owns these)
 
-**What it does:**
-- Lazy loading for images
-- Virtual scrolling for large lists
-- API response caching
-- Debounced search/filter
-- IndexedDB offline storage
+### Debugging
+- **debug-issue.md** — Pre-loaded with 8 codebase-specific traps. Start here for any bug.
+- **explore-codebase.md** — Systematic exploration before any implementation.
 
-**Use it by saying:**
-- "The app is slow, optimize it"
-- "Images take too long to load"
-- "Make the search faster"
-- "Add offline support"
+### Code Quality
+- **review-changes.md** — Checks blast radius and regressions before committing.
+- **refactor-safely.md** — Restructure code without breaking behavior.
 
----
+### Feature Development
+- **feature-upgrader/** — Complete implementations: dark mode, budget tracking, recurring expenses, duplicate detection, multi-currency.
+- **component-generator/** — Ready-to-use: modals, toasts, skeletons, charts, form layouts.
 
-### 5. 📊 **Report Generator**
-**Location:** `.claude/skills/report-generator/`
+### Performance
+- **performance-optimizer/** — Lazy loading, virtual scrolling, API caching, IndexedDB offline, debounced search.
 
-**What it does:**
-- Professional Excel reports with formulas
-- PDF generation with branding
-- Charts and graphs
-- GST breakdown
-- Category summaries
+### Mobile
+- **mobile-build/** — Full APK pipeline: node build.js -> npx cap sync android -> Android Studio.
+- **mobile-debug/** — Diagnostic report: breakpoints, touch targets, overflow, media query coverage.
+- **mobile-fix/** — Templates: responsive patterns, touch sizing, modal layouts, mobile-first queries.
 
-**Use it by saying:**
-- "Generate a reimbursement report"
-- "Export to Excel with formulas"
-- "Create a PDF report"
-- "Add chart to report"
+### Domain
+- **indian-receipt-ocr/** — 20+ Indian vendor patterns, GST extraction, Indian date/currency formats, confidence scoring.
+- **report-generator/** — Excel with formulas, PDF with branding, charts, GST breakdown, reimbursement summaries.
 
 ---
 
-### 6. 🔧 **Feature Upgrader**
-**Location:** `.claude/skills/feature-upgrader/`
+## Design Skills (Premium UI Designer owns)
+- **ui-redesigner/** — Glassmorphism design, animations, responsive layouts, micro-interactions.
 
-**What it does:**
-- Adds complete features quickly
-- Dark mode, budget tracking, recurring expenses
-- Smart category suggestions
-- Duplicate detection
-- Multi-currency support
-
-**Use it by saying:**
-- "Add dark mode"
-- "Implement budget tracking"
-- "Add recurring expenses"
-- "Detect duplicate entries"
+## Layout Skills (Design Review Agent owns)
+- **layout-fixer/** — Alignment fixes, spacing corrections, flexbox/grid repairs, overflow fixes.
 
 ---
 
-### 7. 📐 **Layout Fixer**
-**Location:** `.claude/skills/layout-fixer/`
+## Global Skills (All agents can invoke)
 
-**What it does:**
-- Fixes alignment issues (vertical, horizontal, grid)
-- Corrects spacing inconsistencies
-- Resolves flexbox and grid layout problems
-- Handles overflow and positioning issues
-- Fixes responsive layout breakpoints
-- Aligns form fields and buttons perfectly
-
-**Use it by saying:**
-- "Fix the card alignment"
-- "The spacing looks inconsistent"
-- "Elements are overlapping"
-- "Make the grid responsive"
-- "Fix the form layout"
-
----
-
-### 8. 📱 **Mobile Debug**
-**Location:** `.claude/skills/mobile-debug/`
-
-**What it does:**
-- Diagnoses mobile layout and alignment issues
-- Inspects CSS responsive breakpoints
-- Identifies common mobile problems (touch targets, overflow, etc.)
-- Checks media query coverage
-- Analyzes button positioning and sizing for mobile
-- Reviews mobile-related git history
-- Provides detailed diagnostic reports
-
-**Use it by saying:**
-- "I'm seeing alignment issues on mobile"
-- "Debug the mobile view problems"
-- "Why is the modal not displaying correctly on mobile?"
-- "The buttons are misaligned on mobile"
-- "Mobile view is broken"
-
-**Supporting files:**
-- `common-issues.md` - Common mobile layout problems and solutions
-- `debugging-checklist.md` - Comprehensive mobile debugging checklist
+| Skill | Invoke | Purpose |
+|-------|--------|---------|
+| Systematic Debugging | /investigate | 4-phase root cause investigation |
+| Code Health | /health | Composite 0-10 quality score |
+| PR Review | /review | Pre-landing code review |
+| Security Audit | /cso | OWASP Top 10, threat modeling |
+| Performance Audit | /performance | Core Web Vitals, bundle size |
+| Ship Workflow | /ship | Full deploy pipeline |
+| Supabase | /supabase:supabase | Database, auth, storage |
+| Brainstorm | /superpowers:brainstorming | Design before coding |
+| Write Plans | /superpowers:writing-plans | Implementation planning |
+| Learn & Remember | /learn-and-remember | Record learnings after changes |
+| Cache Bump | /cache-bump | Service worker version update |
+| Deploy Verify | /deploy-verify | Commit -> push -> screenshot verify |
 
 ---
 
-### 9. 🔧 **Mobile Fix**
-**Location:** `.claude/skills/mobile-fix/`
+## Quick Reference
 
-**What it does:**
-- Applies responsive CSS fixes
-- Updates and creates mobile media queries
-- Adjusts spacing and sizing for touch interfaces
-- Fixes button positioning for mobile
-- Updates modal layouts for mobile screens
-- Ensures proper flexbox/grid mobile configurations
-- Applies mobile-first design patterns
-
-**Use it by saying:**
-- "Fix the mobile alignment issues"
-- "Make this component mobile-responsive"
-- "The buttons need to be fixed on mobile"
-- "Apply mobile fixes"
-- "Make the modal work on mobile"
-
-**Supporting files:**
-- `templates.md` - Ready-to-use CSS templates for mobile patterns
+| Problem | Skill |
+|---------|-------|
+| App broken, unknown why | debug-issue.md + /investigate |
+| CSS looks wrong | debug-issue.md -> check ALL CSS files |
+| Mobile layout broken | mobile-debug -> mobile-fix |
+| App is slow | performance-optimizer + /performance |
+| Need new feature | /superpowers:brainstorming -> feature-upgrader |
+| Need new component | component-generator |
+| OCR failing on Indian bills | indian-receipt-ocr |
+| Need expense report | report-generator |
+| UI looks outdated | ui-redesigner |
+| Spacing/alignment off | layout-fixer |
+| Build APK | mobile-build |
+| Deploying changes | /cache-bump -> /deploy-verify -> /ship |
+| Code quality concerns | /health + review-changes.md |
+| Security check | /cso |
 
 ---
 
-## 🎯 How to Use Skills
+## Adding a New Skill
 
-### Option 1: Just Talk Naturally (Easiest!)
+1. Create: .claude/skills/<skill-name>/SKILL.md
+2. Add entry to this README under the correct agent owner
+3. Update owning agent's .claude/agents/<agent>.md skill arsenal section
+4. Update soul.md if it changes crew capabilities
 
-Skills activate automatically when you mention relevant keywords:
-
-```
-You: "The OCR isn't reading Indian receipts correctly"
-→ Activates: Indian Receipt OCR Enhancement skill
-→ Claude uses specialized Indian patterns
-
-You: "Make the expense cards look better"
-→ Activates: UI Redesigner skill
-→ Claude applies modern design patterns
-
-You: "Add a dark mode"
-→ Activates: Feature Upgrader skill
-→ Claude implements complete dark mode
-```
-
-### Option 2: Direct Request
-
-```
-You: "Use the OCR skill to improve receipt scanning"
-You: "Apply the UI redesigner skill to the dashboard"
-You: "Use performance optimizer skill"
-```
-
-### Option 3: Specific Feature
-
-```
-You: "Create a modal component" → Component Generator
-You: "Generate Excel report" → Report Generator
-You: "Lazy load images" → Performance Optimizer
-```
 
 ---
 
-## 📋 Quick Reference
+## Infrastructure and DevOps Skills (Ops Agent)
 
-| What You Want | Say This | Skill Used |
+These 4 skills power the Ops crew member - covering deploys, cache management, monitoring, and Vercel configuration.
+
+---
+
+### 10. SW Cache Bump
+Location: .claude/skills/cache-bump/
+
+What it does:
+- Syncs all 3 Service Worker cache version numbers together (CACHE_NAME, STATIC_CACHE, DYNAMIC_CACHE)
+- Detects and fixes version drift (e.g. CACHE_NAME=v115 but STATIC=v96)
+- Prevents stale CSS/JS reaching users after every deploy
+- Step-by-step process with before/after verification
+
+Use it by saying:
+- Bump the SW cache
+- Users are seeing the old version
+- Update the service worker version
+- Stale cache after deploy
+
+---
+
+### 11. Deploy Verify
+Location: .claude/skills/deploy-verify/
+
+What it does:
+- Pre-deploy: checks build.js vs sw.js file parity, verifies SW cache bumped
+- Runs safe git staging workflow (no git add .)
+- Pushes to Vercel and waits for deploy
+- Post-deploy: smoke tests production URL, checks console for errors
+
+Use it by saying:
+- Deploy the app
+- Ship this to production
+- Push to prod
+- Release this
+
+---
+
+### 12. Canary Monitoring
+Location: .claude/skills/canary/
+
+What it does:
+- Post-deploy health check sequence
+- Scans browser console for JS errors and failed requests
+- Verifies all critical pages load (home, login, admin, dashboard)
+- Tests golden path of last changed feature
+- Checks SW registration status in DevTools
+- Returns PASS / WARN / FAIL health score plus rollback procedure
+
+Use it by saying:
+- Run a canary check
+- Is production healthy?
+- Post-deploy monitoring
+- Verify the deploy worked
+
+---
+
+### 13. Vercel Infrastructure
+Location: .claude/skills/vercel-infra/
+
+What it does:
+- Creates .vercelignore to block test and debug HTML from production
+- Adds security headers via vercel.json (X-Frame-Options, nosniff, Referrer-Policy)
+- Audits environment variable exposure
+- Reviews build configuration
+- Documents known production security gaps
+
+Use it by saying:
+- Fix the Vercel config
+- Test files are accessible on production
+- Add .vercelignore
+- Security audit for Vercel
+- Add security headers
+
+---
+
+### Ops Quick Reference
+
+| What You Need | Say This | Skill Used |
 |--------------|----------|------------|
-| Better OCR | "Fix OCR for Indian bills" | Indian Receipt OCR |
-| Modern UI | "Redesign the interface" | UI Redesigner |
-| New Component | "Create a modal" | Component Generator |
-| Faster App | "Optimize performance" | Performance Optimizer |
-| Export Data | "Generate Excel report" | Report Generator |
-| New Feature | "Add dark mode" | Feature Upgrader |
-| Fix Layout | "Fix the alignment" | Layout Fixer |
-| Debug Mobile | "Mobile view has issues" | Mobile Debug |
-| Fix Mobile | "Fix mobile alignment" | Mobile Fix |
+| Fresh assets after code change | Bump the cache | Cache Bump |
+| Send code to production | Deploy this | Deploy Verify |
+| Confirm prod is healthy | Canary check | Canary Monitoring |
+| Fix test files in production | Add .vercelignore | Vercel Infrastructure |
+| Build Android APK | Build the APK | Mobile Build |
+
+### Ops Skill Impact
+
+| Skill | Time | Impact | Priority |
+|-------|------|--------|----------|
+| Cache Bump | 2 min | High - prevents stale asset bugs | High |
+| Deploy Verify | 10 min | High - safe end-to-end deploy | High |
+| Canary | 5 min | High - catch prod issues early | High |
+| Vercel Infra | 30 min | Medium - security + hygiene | Medium |
 
 ---
 
-## 🎨 Example Requests
+### 10. ✍️ **Copy Writer**
+**Location:** `.claude/skills/copy-writer/`
+**Agent:** Marketing
 
-### For Redesigning:
-```
-"Make the expense tracker look more professional"
-"Add smooth animations to buttons"
-"Improve the mobile layout"
-"Create a modern glassmorphism design"
-"Add loading states"
-```
+**What it does:**
+- Audits all in-app text for clarity, tone, and conversion effectiveness
+- Rewrites headlines, CTAs, placeholders, error messages in India-first voice
+- Flags and removes fake stats and unverified trust badges (e.g. SOC 2)
+- Checks copyright year, app name consistency, email placeholder policy
+- Outputs before/after comparison table with rationale
 
-### For Features:
-```
-"Add dark mode"
-"Implement budget tracking with alerts"
-"Create recurring expenses"
-"Add duplicate detection"
-"Export to Google Sheets"
-```
-
-### For Performance:
-```
-"The app is slow, make it faster"
-"Images take too long to load"
-"Add offline support"
-"Cache API responses"
-```
-
-### For OCR:
-```
-"OCR isn't reading amounts correctly"
-"Support Swiggy and Zomato bills"
-"Extract GST from receipts"
-"Handle Indian date formats"
-```
-
-### For Layout:
-```
-"Fix the card alignment"
-"The spacing looks inconsistent"
-"Elements are overlapping"
-"Make the form fields align properly"
-"Fix the responsive layout on mobile"
-```
-
-### For Mobile Issues:
-```
-"Debug mobile view problems"
-"The modal doesn't work on mobile"
-"Buttons are misaligned on mobile"
-"Fix mobile alignment issues"
-"Make this mobile-responsive"
-"The layout breaks on small screens"
-```
+**Use it by saying:**
+- "Audit the login page copy"
+- "The signup CTA feels weak"
+- "Fix the error messages to be human-readable"
+- "Rewrite the empty state messages"
 
 ---
 
-## 📊 Skill Impact
+### 11. 📣 **Launch Announcer**
+**Location:** `.claude/skills/launch-announcer/`
+**Agent:** Marketing
 
-| Skill | Time to Implement | Impact | Priority |
-|-------|------------------|--------|----------|
-| Indian Receipt OCR | 2 hours | ⭐⭐⭐⭐⭐ High | High |
-| UI Redesigner | 3-4 hours | ⭐⭐⭐⭐⭐ High | High |
-| Layout Fixer | 30 min - 1 hour | ⭐⭐⭐⭐⭐ High | High |
-| Mobile Debug | 15-30 min | ⭐⭐⭐⭐⭐ High | High |
-| Mobile Fix | 30 min - 1 hour | ⭐⭐⭐⭐⭐ High | High |
-| Performance Optimizer | 2-3 hours | ⭐⭐⭐⭐ High | Medium |
-| Component Generator | 30 min/component | ⭐⭐⭐ Medium | Medium |
-| Report Generator | 2 hours | ⭐⭐⭐ Medium | Medium |
-| Feature Upgrader | 1-3 hours/feature | ⭐⭐⭐⭐ High | Medium |
+**What it does:**
+- Converts git changelogs into polished launch content
+- Formats for Product Hunt, WhatsApp, Play Store What's New, GitHub releases
+- Filters out internal refactors — shows only user-facing changes
+- WhatsApp format optimised for Indian teams (3-5 lines, emoji sparingly, clear CTA)
+- Product Hunt tagline ≤60 chars, verb-led, benefit-first
 
----
-
-## 🔍 Skill Details
-
-### View Skill Documentation
-Each skill has a detailed `SKILL.md` file:
-```
-.claude/skills/indian-receipt-ocr/SKILL.md
-.claude/skills/ui-redesigner/SKILL.md
-.claude/skills/layout-fixer/SKILL.md
-.claude/skills/mobile-debug/SKILL.md
-.claude/skills/mobile-fix/SKILL.md
-.claude/skills/component-generator/SKILL.md
-.claude/skills/performance-optimizer/SKILL.md
-.claude/skills/report-generator/SKILL.md
-.claude/skills/feature-upgrader/SKILL.md
-```
-
-### Manifest File
-Configuration: `.claude/skills/manifest.json`
-- Lists all skills
-- Trigger keywords
-- Feature lists
-- Priorities
+**Use it by saying:**
+- "Write release notes for v3.2"
+- "Draft a Product Hunt post"
+- "Write the WhatsApp announcement for the team"
+- "Update the Play Store What's New section"
 
 ---
 
-## 💡 Pro Tips
+### 12. 🔍 **SEO Optimizer**
+**Location:** `.claude/skills/seo-optimizer/`
+**Agent:** Marketing
 
-1. **Combine Skills**: "Redesign the UI and make it faster"
-   → Uses UI Redesigner + Performance Optimizer
+**What it does:**
+- Adds meta descriptions, OG tags, Twitter cards to login, signup, and index pages
+- Play Store ASO — title (30 chars), short description (80 chars), full description, keywords
+- Optimised for Indian market keywords (GST, UPI, Tally, reimbursement, bill scanner)
+- Fixes blank link previews for WhatsApp and LinkedIn sharing
+- Verifies canonical URLs are absolute (https://expense-tracker-delta-ashy.vercel.app)
 
-2. **Be Specific**: "Add dark mode with smooth transitions"
-   → Feature Upgrader uses UI Redesigner patterns
+**Use it by saying:**
+- "Add SEO tags to the login page"
+- "The WhatsApp link preview shows nothing"
+- "Write the Play Store description"
+- "Fix Open Graph tags on all pages"
 
-3. **Iterate**: Start with one skill, then add more
-   → "First fix OCR, then redesign the cards"
-
-4. **Natural Language**: Just describe the problem
-   → "Users complain the app looks outdated and is slow"
-   → Activates: UI Redesigner + Performance Optimizer
-
----
-
-## 🎉 Getting Started
-
-### Step 1: Try Your First Skill
-```
-You: "Fix the OCR to read Indian receipts better"
-Claude: [Automatically uses Indian Receipt OCR skill]
-Result: 95% accuracy for Indian bills!
-```
-
-### Step 2: Redesign Something
-```
-You: "Make the expense cards look more professional"
-Claude: [Uses UI Redesigner skill]
-Result: Modern glassmorphism cards with animations!
-```
-
-### Step 3: Add a Feature
-```
-You: "Add budget tracking"
-Claude: [Uses Feature Upgrader skill]
-Result: Complete budget system with warnings!
-```
-
----
-
-## 📚 Further Reading
-
-- **Main Guide**: `SKILLS_PRACTICAL_GUIDE.md` (in project root)
-- **Anthropic Documentation**: `anthropic_skills_guide.md`
-- **Implementation Plan**: `skills_implementation_plan.md`
-- **Recommendations**: `project_skills_recommendations.md`
-
----
-
-## 🤝 Need Help?
-
-Just ask:
-- "What skills do I have?"
-- "How do I use the OCR skill?"
-- "Show me an example of using skills"
-- "Which skill should I use for [problem]?"
-
-Claude will guide you! 🚀

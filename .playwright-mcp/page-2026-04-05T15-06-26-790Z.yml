@@ -1,0 +1,105 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - img "FluxGen" [ref=e6]
+        - generic [ref=e7]: Employee Dashboard
+        - generic [ref=e8]: Employee
+      - navigation [ref=e11]:
+        - button "Expenses" [ref=e12] [cursor=pointer]:
+          - img [ref=e13]
+          - generic [ref=e15]: Expenses
+        - button "History" [ref=e16] [cursor=pointer]:
+          - img [ref=e17]
+          - generic [ref=e20]: History
+        - button "Advance" [ref=e21] [cursor=pointer]:
+          - img [ref=e22]
+          - generic [ref=e24]: Advance
+        - button "Reports" [ref=e25] [cursor=pointer]:
+          - img [ref=e26]
+          - generic [ref=e29]: Reports
+        - button "Settings" [ref=e30] [cursor=pointer]:
+          - img [ref=e31]
+          - generic [ref=e34]: Settings
+      - generic [ref=e35]:
+        - generic "Realtime sync" [ref=e36]
+        - generic [ref=e37]:
+          - generic [ref=e38]: U
+          - strong [ref=e40]: User
+        - button "Logout" [ref=e42] [cursor=pointer]
+    - main [ref=e43]:
+      - generic [ref=e44]:
+        - generic [ref=e45]:
+          - generic [ref=e46]:
+            - heading "Good evening, admin" [level=2] [ref=e47]
+            - paragraph [ref=e48]: Scan a bill or enter details manually
+          - generic [ref=e51]:
+            - button "Toggle Theme" [ref=e52] [cursor=pointer]:
+              - generic [ref=e53]: 🌈
+            - generic [ref=e54]:
+              - generic [ref=e55]: admin@fluxgentech.com
+              - generic [ref=e56]: ADMIN
+            - button "Admin Dashboard" [ref=e57] [cursor=pointer]:
+              - generic [ref=e58]: ⚙
+            - button "Notifications" [ref=e59] [cursor=pointer]:
+              - generic [ref=e60]: 🔔
+            - button "Approvals" [ref=e61] [cursor=pointer]:
+              - generic [ref=e62]: ✅
+            - button "Activity Log" [ref=e63] [cursor=pointer]:
+              - generic [ref=e64]: 📋
+            - button "Profile" [ref=e65] [cursor=pointer]:
+              - generic [ref=e66]: 👤
+        - generic [ref=e67]:
+          - heading "Scan Your Bill" [level=2] [ref=e68]:
+            - img [ref=e69]
+            - text: Scan Your Bill
+          - paragraph [ref=e72]: Upload bill images to automatically extract expense details
+          - generic [ref=e73]:
+            - generic [ref=e74]:
+              - button "Camera" [ref=e75] [cursor=pointer]:
+                - img [ref=e76]
+                - text: Camera
+              - button "Gallery" [ref=e79] [cursor=pointer]:
+                - img [ref=e80]
+                - text: Gallery
+            - generic [ref=e84]: Drag & drop anywhere on this card, use camera, or select from gallery
+          - generic [ref=e86] [cursor=pointer]:
+            - generic [ref=e87]: Drag & Drop Receipt Images Here
+            - generic [ref=e88]: or click to browse files
+          - generic [ref=e89]:
+            - generic [ref=e92]: OR
+            - button "✍️ Enter Expense Manually (Without Bill)" [ref=e94] [cursor=pointer]
+            - generic [ref=e95]: Perfect for cash payments or when you don't have a receipt
+        - generic [ref=e97]:
+          - heading "Your Expenses" [level=2] [ref=e98]
+          - generic [ref=e99]:
+            - button "Google Export" [ref=e100] [cursor=pointer]:
+              - img [ref=e102]
+              - generic [ref=e105]: Google Export
+            - button "View Sheet" [ref=e106] [cursor=pointer]:
+              - img [ref=e108]
+              - generic [ref=e112]: View Sheet
+            - button "View Images" [ref=e113] [cursor=pointer]:
+              - img [ref=e115]
+              - generic [ref=e119]: View Images
+            - button "Clear Data" [ref=e120] [cursor=pointer]:
+              - img [ref=e122]
+              - generic [ref=e124]: Clear Data
+            - button "Submit Reimbursement Package" [ref=e125] [cursor=pointer]:
+              - img [ref=e127]
+              - generic [ref=e130]:
+                - generic [ref=e131]: Submit
+                - generic [ref=e132]: Reimbursement Package
+              - img [ref=e134]
+            - button "Reset Sheet" [ref=e136] [cursor=pointer]:
+              - img [ref=e138]
+              - generic [ref=e141]: Reset Sheet
+            - button "PDF Library" [ref=e142] [cursor=pointer]:
+              - img [ref=e144]
+              - generic [ref=e147]: PDF Library
+  - button "Quick Add Expense" [ref=e148] [cursor=pointer]:
+    - img [ref=e149]
+  - button "Quick Add Expense" [ref=e150] [cursor=pointer]:
+    - img [ref=e151]
+  - generic:
+    - generic: Online

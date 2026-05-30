@@ -1,0 +1,65 @@
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - heading "Expense Tracker" [level=1] [ref=e5]
+    - navigation [ref=e6]:
+      - button "Expenses" [ref=e7] [cursor=pointer]
+  - main [ref=e8]:
+    - generic [ref=e9]:
+      - img [ref=e10]
+      - text: EXPENSES
+    - generic [ref=e15]:
+      - generic [ref=e16]:
+        - heading "My Expenses" [level=2] [ref=e17]
+        - paragraph [ref=e18]: Scan bills, add expenses, and manage your reimbursements
+      - generic [ref=e19]:
+        - generic [ref=e20]:
+          - heading "Scan Your Bill" [level=3] [ref=e21]:
+            - img [ref=e22]
+            - text: Scan Your Bill
+          - paragraph [ref=e25]: Upload bill images to auto-extract expense details
+          - generic [ref=e26]:
+            - button "CAMERA" [ref=e27] [cursor=pointer]:
+              - img [ref=e28]
+              - text: CAMERA
+            - button "GALLERY" [ref=e31] [cursor=pointer]:
+              - img [ref=e32]
+              - text: GALLERY
+          - generic [ref=e37] [cursor=pointer]:
+            - generic [ref=e38]: Drag & Drop here
+            - generic [ref=e39]: or click to browse
+          - generic [ref=e42]: OR
+          - button "ENTER MANUALLY (WITHOUT BILL)" [ref=e44] [cursor=pointer]:
+            - img [ref=e45]
+            - text: ENTER MANUALLY (WITHOUT BILL)
+          - paragraph [ref=e48]: For cash payments or when no receipt is available
+        - generic [ref=e49]:
+          - heading "Your Expenses" [level=3] [ref=e50]
+          - generic [ref=e51]:
+            - button "GOOGLE EXPORT" [ref=e52] [cursor=pointer]:
+              - img [ref=e54]
+              - generic [ref=e57]: GOOGLE EXPORT
+            - button "VIEW SHEET" [ref=e58] [cursor=pointer]:
+              - img [ref=e60]
+              - generic [ref=e64]: VIEW SHEET
+            - button "VIEW IMAGES" [ref=e65] [cursor=pointer]:
+              - img [ref=e67]
+              - generic [ref=e71]: VIEW IMAGES
+            - button "CLEAR DATA" [ref=e72] [cursor=pointer]:
+              - img [ref=e74]
+              - generic [ref=e76]: CLEAR DATA
+          - button "Submit Reimbursement Package" [ref=e77] [cursor=pointer]:
+            - img [ref=e79]
+            - generic [ref=e82]:
+              - generic [ref=e83]: Submit
+              - generic [ref=e84]: Reimbursement Package
+            - img [ref=e86]
+          - generic [ref=e88]:
+            - button "Reset Sheet" [ref=e89] [cursor=pointer]:
+              - img [ref=e91]
+              - generic [ref=e94]: Reset Sheet
+            - button "PDF Library" [ref=e95] [cursor=pointer]:
+              - img [ref=e97]
+              - generic [ref=e100]: PDF Library
+      - generic [ref=e101]:
+        - heading "Recent Expenses" [level=3] [ref=e102]
+        - paragraph [ref=e103]: No expenses yet. Scan a bill or add manually to get started.

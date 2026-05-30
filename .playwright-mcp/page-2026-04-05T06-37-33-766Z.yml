@@ -1,0 +1,81 @@
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - img [ref=e7]
+        - heading "FluxGen" [level=1] [ref=e11]:
+          - generic [ref=e12]: FluxGen
+      - generic [ref=e13]: Admin Dashboard
+      - generic [ref=e14]: Loading...
+    - navigation [ref=e15]:
+      - button "Overview" [ref=e16] [cursor=pointer]:
+        - img [ref=e17]
+        - generic [ref=e22]: Overview
+      - button "Employees" [ref=e23] [cursor=pointer]:
+        - img [ref=e24]
+        - generic [ref=e28]: Employees
+      - button "Projects" [ref=e29] [cursor=pointer]:
+        - img [ref=e30]
+        - generic [ref=e33]: Projects
+      - button "Vouchers" [ref=e34] [cursor=pointer]:
+        - img [ref=e35]
+        - generic [ref=e38]: Vouchers
+      - button "Advances" [ref=e39] [cursor=pointer]:
+        - img [ref=e40]
+        - generic [ref=e42]: Advances
+      - button "Pipeline" [ref=e43] [cursor=pointer]:
+        - img [ref=e44]
+        - generic [ref=e46]: Pipeline
+      - button "Analytics" [ref=e47] [cursor=pointer]:
+        - img [ref=e48]
+        - generic [ref=e52]: Analytics
+      - button "Import CSV" [ref=e53] [cursor=pointer]:
+        - img [ref=e54]
+        - generic [ref=e56]: Import CSV
+      - button "Settings" [ref=e57] [cursor=pointer]:
+        - img [ref=e58]
+        - generic [ref=e61]: Settings
+    - generic [ref=e62]:
+      - generic [ref=e63]:
+        - generic [ref=e64]: AU
+        - generic [ref=e65]:
+          - strong [ref=e66]: Admin User
+          - generic [ref=e67]: admin@fluxgentech.com
+      - generic [ref=e68]:
+        - button "App" [ref=e69] [cursor=pointer]
+        - button "Logout" [ref=e70] [cursor=pointer]
+  - main [ref=e71]:
+    - generic [ref=e72]:
+      - generic [ref=e73]:
+        - generic [ref=e74]:
+          - generic [ref=e75]:
+            - img [ref=e76]
+            - text: Overview
+          - heading "Good afternoon, Admin" [level=2] [ref=e81]
+          - paragraph [ref=e82]: Organization summary and quick actions
+        - generic [ref=e83]:
+          - img
+          - textbox "Global search" [ref=e84]:
+            - /placeholder: Search anything...
+      - generic [ref=e85]:
+        - generic [ref=e86]:
+          - img [ref=e88]
+          - generic [ref=e92]: "-"
+          - generic [ref=e93]: Employees
+        - generic [ref=e94]:
+          - img [ref=e96]
+          - generic [ref=e99]: "-"
+          - generic [ref=e100]: Active Projects
+        - generic [ref=e101]:
+          - img [ref=e103]
+          - generic [ref=e106]: "-"
+          - generic [ref=e107]: Pending Vouchers
+        - generic [ref=e108]:
+          - img [ref=e110]
+          - generic [ref=e112]: "-"
+          - generic [ref=e113]: Approved Vouchers
+      - heading "Quick Actions" [level=3] [ref=e114]
+      - generic [ref=e115]:
+        - button "Import Employees" [ref=e116] [cursor=pointer]
+        - button "Manage Projects" [ref=e117] [cursor=pointer]
+        - button "View All Vouchers" [ref=e118] [cursor=pointer]

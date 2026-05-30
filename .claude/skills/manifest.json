@@ -232,6 +232,372 @@
       ],
       "impact": "high",
       "estimatedTime": "30 minutes - 1 hour"
+    },
+    {
+      "id": "budget-tracker",
+      "name": "Budget Tracker",
+      "description": "Set, monitor, and alert on per-category budgets. Tracks burn rate and flags over-budget categories.",
+      "enabled": true,
+      "priority": "high",
+      "triggers": [
+        "budget",
+        "over budget",
+        "spending limit",
+        "cap",
+        "budget alert",
+        "how much left",
+        "remaining budget",
+        "burn rate"
+      ],
+      "files": [
+        ".claude/skills/budget-tracker/SKILL.md"
+      ],
+      "features": [
+        "Per-category monthly caps",
+        "Real-time burn rate",
+        "Over-budget alerts",
+        "Supabase budget storage",
+        "Toast notifications"
+      ],
+      "impact": "high",
+      "estimatedTime": "2 hours to implement",
+      "agent": "finance"
+    },
+    {
+      "id": "spend-forecast",
+      "name": "Spend Forecast",
+      "description": "Forecast month-end spend from current burn rate. Projects category totals and compares to prior months.",
+      "enabled": true,
+      "priority": "high",
+      "triggers": [
+        "forecast",
+        "predict",
+        "month-end",
+        "burn rate",
+        "how much will i spend",
+        "projection",
+        "trend",
+        "at this rate"
+      ],
+      "files": [
+        ".claude/skills/spend-forecast/SKILL.md"
+      ],
+      "features": [
+        "Linear daily-average projection",
+        "Category-level forecasts",
+        "Month-over-month comparison",
+        "Acceleration detection"
+      ],
+      "impact": "high",
+      "estimatedTime": "1 hour to implement",
+      "agent": "finance"
+    },
+    {
+      "id": "gst-report",
+      "name": "GST Report",
+      "description": "Extract, compute, and report GST (CGST/SGST/IGST) from Indian expenses. GSTR-ready summaries.",
+      "enabled": true,
+      "priority": "high",
+      "triggers": [
+        "gst",
+        "tax",
+        "cgst",
+        "sgst",
+        "igst",
+        "gstr",
+        "input tax credit",
+        "itc",
+        "tax report",
+        "gstin"
+      ],
+      "files": [
+        ".claude/skills/gst-report/SKILL.md"
+      ],
+      "features": [
+        "CGST/SGST/IGST extraction from OCR",
+        "GSTIN validation",
+        "GSTR-3B compatible summary",
+        "ITC claimable total",
+        "Google Sheets GST columns"
+      ],
+      "impact": "high",
+      "estimatedTime": "2 hours to implement",
+      "agent": "finance"
+    },
+    {
+      "id": "category-analysis",
+      "name": "Category Analysis",
+      "description": "Analyse expense spend by category — distributions, trends, anomalies, and top vendors.",
+      "enabled": true,
+      "priority": "medium",
+      "triggers": [
+        "category",
+        "breakdown",
+        "where did my money go",
+        "spending by category",
+        "top categories",
+        "category trend",
+        "what am i spending on"
+      ],
+      "files": [
+        ".claude/skills/category-analysis/SKILL.md"
+      ],
+      "features": [
+        "Category breakdown with percentages",
+        "Top vendor per category",
+        "Month-over-month trends",
+        "Anomaly detection (3x average)",
+        "Backend /stats/summary integration"
+      ],
+      "impact": "high",
+      "estimatedTime": "1 hour to implement",
+      "agent": "finance"
+    },
+    {
+      "id": "reconciliation",
+      "name": "Advance Reconciliation",
+      "description": "Reconcile advances against expenses using advance_id linkage. Shows outstanding balances and excess claims.",
+      "enabled": true,
+      "priority": "medium",
+      "triggers": [
+        "reconcile",
+        "advance",
+        "outstanding",
+        "balance",
+        "unmatched",
+        "advance used",
+        "clear advance",
+        "advance report"
+      ],
+      "files": [
+        ".claude/skills/reconciliation/SKILL.md"
+      ],
+      "features": [
+        "Advance utilisation summary",
+        "Outstanding balance tracking",
+        "Excess claim detection",
+        "30-day overdue flagging",
+        "Reconciliation export for Google Sheets"
+      ],
+      "impact": "high",
+      "estimatedTime": "2 hours to implement",
+      "agent": "finance"
+    },
+    {
+      "id": "cache-bump",
+      "name": "Cache Bump",
+      "description": "Safely increment all three SW cache version numbers in sync to force fresh asset delivery",
+      "enabled": true,
+      "priority": "high",
+      "triggers": [
+        "bump cache",
+        "sw version",
+        "stale cache",
+        "users seeing old version",
+        "cache not updating",
+        "old css",
+        "service worker"
+      ],
+      "files": [
+        ".claude/skills/cache-bump/SKILL.md"
+      ],
+      "features": [
+        "Sync-bump CACHE_NAME + STATIC_CACHE + DYNAMIC_CACHE",
+        "Detects version drift",
+        "Step-by-step with before/after verification",
+        "Anti-pattern warnings"
+      ],
+      "impact": "high",
+      "estimatedTime": "2 minutes",
+      "agent": "ops"
+    },
+    {
+      "id": "deploy-verify",
+      "name": "Deploy Verify",
+      "description": "End-to-end deploy workflow: pre-flight checks, commit, push, Vercel deploy, production verification",
+      "enabled": true,
+      "priority": "high",
+      "triggers": [
+        "deploy",
+        "ship",
+        "push to production",
+        "release",
+        "go live",
+        "push to prod",
+        "commit and push"
+      ],
+      "files": [
+        ".claude/skills/deploy-verify/SKILL.md"
+      ],
+      "features": [
+        "Pre-deploy parity check",
+        "SW cache version verification",
+        "Safe git staging",
+        "Post-deploy smoke test",
+        "Rollback procedure"
+      ],
+      "impact": "high",
+      "estimatedTime": "5-10 minutes",
+      "agent": "ops"
+    },
+    {
+      "id": "canary",
+      "name": "Canary Monitoring",
+      "description": "Post-deploy health check: JS errors, page loads, golden path smoke test, SW registration",
+      "enabled": true,
+      "priority": "high",
+      "triggers": [
+        "canary",
+        "monitor",
+        "production health",
+        "post-deploy check",
+        "is prod healthy",
+        "check production",
+        "verify deploy"
+      ],
+      "files": [
+        ".claude/skills/canary/SKILL.md"
+      ],
+      "features": [
+        "Console error scan",
+        "Critical page load check",
+        "Feature smoke test",
+        "SW health check",
+        "PASS/WARN/FAIL score",
+        "Rollback procedure"
+      ],
+      "impact": "high",
+      "estimatedTime": "5 minutes",
+      "agent": "ops"
+    },
+    {
+      "id": "vercel-infra",
+      "name": "Vercel Infrastructure",
+      "description": "Audit and fix Vercel config: .vercelignore, security headers, env vars, build settings",
+      "enabled": true,
+      "priority": "medium",
+      "triggers": [
+        "vercel config",
+        ".vercelignore",
+        "test files in production",
+        "env var leak",
+        "security headers",
+        "vercel settings"
+      ],
+      "files": [
+        ".claude/skills/vercel-infra/SKILL.md"
+      ],
+      "features": [
+        "Create .vercelignore",
+        "Security headers (vercel.json)",
+        "Env variable audit",
+        "Build config review"
+      ],
+      "impact": "medium",
+      "estimatedTime": "15-30 minutes",
+      "agent": "ops"
+    },
+    {
+      "id": "copy-writer",
+      "name": "Copy Writer",
+      "description": "Audit and rewrite in-app copy — headlines, CTAs, placeholders, error messages, empty states, trust badges",
+      "enabled": true,
+      "priority": "high",
+      "agent": "marketing-agent",
+      "triggers": [
+        "copy",
+        "headline",
+        "CTA",
+        "button text",
+        "placeholder",
+        "error message",
+        "onboarding text",
+        "empty state",
+        "trust badge",
+        "improve wording",
+        "fix text",
+        "rewrite"
+      ],
+      "files": [
+        ".claude/skills/copy-writer/SKILL.md"
+      ],
+      "features": [
+        "Headline audit and rewrite",
+        "CTA optimisation",
+        "India-first voice",
+        "Before/after comparison output",
+        "Trust badge verification",
+        "Copyright year check"
+      ],
+      "impact": "high",
+      "estimatedTime": "30 min - 1 hour"
+    },
+    {
+      "id": "launch-announcer",
+      "name": "Launch Announcer",
+      "description": "Convert changelogs into Product Hunt posts, release notes, WhatsApp announcements, and Play Store updates",
+      "enabled": true,
+      "priority": "medium",
+      "agent": "marketing-agent",
+      "triggers": [
+        "launch",
+        "announce",
+        "Product Hunt",
+        "release notes",
+        "changelog",
+        "WhatsApp announcement",
+        "whats new",
+        "ship",
+        "version",
+        "APK release"
+      ],
+      "files": [
+        ".claude/skills/launch-announcer/SKILL.md"
+      ],
+      "features": [
+        "Product Hunt post format",
+        "WhatsApp announcement for Indian teams",
+        "Play Store Whats New 500 chars",
+        "GitHub release notes",
+        "User-facing change filtering"
+      ],
+      "impact": "medium",
+      "estimatedTime": "20-30 min"
+    },
+    {
+      "id": "seo-optimizer",
+      "name": "SEO Optimizer",
+      "description": "Add or fix meta descriptions, OG tags, Twitter cards, and Play Store ASO for all public pages",
+      "enabled": true,
+      "priority": "high",
+      "agent": "marketing-agent",
+      "triggers": [
+        "SEO",
+        "meta description",
+        "OG tags",
+        "Open Graph",
+        "Twitter card",
+        "Play Store",
+        "ASO",
+        "no preview",
+        "WhatsApp preview",
+        "link preview",
+        "discoverability",
+        "search"
+      ],
+      "files": [
+        ".claude/skills/seo-optimizer/SKILL.md"
+      ],
+      "features": [
+        "Meta description copy per page",
+        "Open Graph tags",
+        "Twitter cards",
+        "Play Store title and description",
+        "Keyword strategy for Indian market",
+        "Canonical URL verification"
+      ],
+      "impact": "high",
+      "estimatedTime": "30 min"
     }
   ],
   "config": {
@@ -253,7 +619,7 @@
   "installation": {
     "status": "installed",
     "location": ".claude/skills/",
-    "totalSkills": 7,
-    "enabledSkills": 7
+    "totalSkills": 19,
+    "enabledSkills": 19
   }
 }

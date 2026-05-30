@@ -1,0 +1,74 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - img "FluxGen" [ref=e5]
+        - heading "Expense Tracker" [level=1] [ref=e6]
+        - generic [ref=e7]: Employee Dashboard
+        - generic [ref=e8]: Loading...
+      - navigation [ref=e9]:
+        - button "Overview" [ref=e10] [cursor=pointer]:
+          - img [ref=e11]
+          - generic [ref=e16]: Overview
+        - button "Expenses" [active] [ref=e17] [cursor=pointer]:
+          - img [ref=e18]
+          - generic [ref=e20]: Expenses
+        - button "Advance" [ref=e21] [cursor=pointer]:
+          - img [ref=e22]
+          - generic [ref=e24]: Advance
+        - button "Reports" [ref=e25] [cursor=pointer]:
+          - img [ref=e26]
+          - generic [ref=e29]: Reports
+        - button "Settings" [ref=e30] [cursor=pointer]:
+          - img [ref=e31]
+          - generic [ref=e34]: Settings
+      - generic [ref=e35]:
+        - generic [ref=e36]:
+          - strong [ref=e37]: User
+          - text: Loading...
+        - button "Logout" [ref=e39] [cursor=pointer]
+    - main [ref=e40]:
+      - generic [ref=e57]:
+        - generic [ref=e58]:
+          - heading "📷 Scan Your Bill" [level=2] [ref=e59]
+          - paragraph [ref=e60]: Upload bill images to automatically extract expense details
+          - generic [ref=e61]:
+            - generic [ref=e62]:
+              - button "📷 Camera" [ref=e63] [cursor=pointer]
+              - button "🖼️ Gallery" [ref=e64] [cursor=pointer]
+            - generic [ref=e65]: Drag & drop anywhere on this card, use camera, or select from gallery
+          - generic [ref=e67] [cursor=pointer]:
+            - generic [ref=e68]: Drag & Drop Receipt Images Here
+            - generic [ref=e69]: or click to browse files
+          - generic [ref=e70]:
+            - generic [ref=e73]: OR
+            - button "✍️ Enter Expense Manually (Without Bill)" [ref=e75] [cursor=pointer]
+            - generic [ref=e76]: Perfect for cash payments or when you don't have a receipt
+        - text: Click to select date
+        - generic [ref=e78]:
+          - heading "Your Expenses" [level=2] [ref=e79]
+          - generic [ref=e80]:
+            - button "☁️ Google Export" [ref=e81] [cursor=pointer]:
+              - generic [ref=e82]: ☁️
+              - generic [ref=e83]: Google Export
+            - button "🖼️ View Images" [ref=e84] [cursor=pointer]:
+              - generic [ref=e85]: 🖼️
+              - generic [ref=e86]: View Images
+            - button "🗑️ Clear Data" [ref=e87] [cursor=pointer]:
+              - generic [ref=e88]: 🗑️
+              - generic [ref=e89]: Clear Data
+            - button "Submit Reimbursement Package" [ref=e90] [cursor=pointer]:
+              - img [ref=e92]
+              - generic [ref=e95]:
+                - generic [ref=e96]: Submit
+                - generic [ref=e97]: Reimbursement Package
+              - img [ref=e99]
+            - button "🔄 Reset Sheet" [ref=e101] [cursor=pointer]:
+              - generic [ref=e102]: 🔄
+              - generic [ref=e103]: Reset Sheet
+            - button "📄 PDF Library" [ref=e104] [cursor=pointer]:
+              - generic [ref=e105]: 📄
+              - generic [ref=e106]: PDF Library
+        - strong [ref=e109]: "Total Amount: ₹0.00"
+  - generic:
+    - generic: Online

@@ -1,0 +1,143 @@
+<h2>Which design direction for Admin & Accountant dashboards?</h2>
+<p class="subtitle">Based on your 4 reference designs. Click the one that feels right.</p>
+
+<div class="cards">
+  <!-- Option A: Soft & Warm -->
+  <div class="card" data-choice="a-soft-warm" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:20px;background:linear-gradient(135deg,#f5f0e8,#ede8dd);min-height:220px;">
+      <!-- Be.run style mockup -->
+      <div style="font-size:18px;font-weight:700;color:#2d2a26;margin-bottom:4px;">Hi, Chaitanya!</div>
+      <div style="font-size:11px;color:#8a8580;margin-bottom:16px;">Let's review today's expenses</div>
+      <div style="display:flex;gap:10px;">
+        <div style="flex:1;background:rgba(255,255,255,0.7);backdrop-filter:blur(10px);border-radius:16px;padding:14px;border:1px solid rgba(255,255,255,0.5);">
+          <div style="font-size:10px;color:#8a8580;text-transform:uppercase;letter-spacing:0.05em;">Pending</div>
+          <div style="font-size:22px;font-weight:800;color:#c4953a;margin-top:4px;">12</div>
+        </div>
+        <div style="flex:1;background:rgba(255,255,255,0.7);backdrop-filter:blur(10px);border-radius:16px;padding:14px;border:1px solid rgba(255,255,255,0.5);">
+          <div style="font-size:10px;color:#8a8580;text-transform:uppercase;letter-spacing:0.05em;">Approved</div>
+          <div style="font-size:22px;font-weight:800;color:#5a8a5e;margin-top:4px;">48</div>
+        </div>
+      </div>
+      <div style="margin-top:12px;background:rgba(255,255,255,0.6);border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:8px;">
+        <div style="width:8px;height:8px;border-radius:50%;background:#c4953a;"></div>
+        <span style="font-size:11px;color:#5a554e;">3 vouchers need your review</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A. Soft & Warm</h3>
+      <p>Cream/beige backgrounds, glassmorphic blur, warm golden tones, rounded elements. Feels premium and approachable. Inspired by Be.run.</p>
+    </div>
+  </div>
+
+  <!-- Option B: Clean & Professional -->
+  <div class="card" data-choice="b-clean-pro" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:20px;background:#f8fafc;min-height:220px;border-bottom:1px solid #e2e8f0;">
+      <!-- Kital style mockup -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div style="font-size:16px;font-weight:700;color:#0f172a;">Dashboard</div>
+        <div style="display:flex;align-items:center;gap:6px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:6px 12px;">
+          <span style="font-size:11px;color:#94a3b8;">Search or type a command</span>
+          <span style="font-size:9px;color:#94a3b8;background:#f1f5f9;padding:2px 5px;border-radius:3px;">Ctrl+K</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <div style="flex:1;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:14px;position:relative;overflow:hidden;">
+          <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#3b82f6;border-radius:10px 10px 0 0;"></div>
+          <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em;font-weight:600;">Pending</div>
+          <div style="font-size:22px;font-weight:800;color:#3b82f6;margin-top:4px;">12</div>
+        </div>
+        <div style="flex:1;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:14px;position:relative;overflow:hidden;">
+          <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#059669;border-radius:10px 10px 0 0;"></div>
+          <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em;font-weight:600;">Approved</div>
+          <div style="font-size:22px;font-weight:800;color:#059669;margin-top:4px;">48</div>
+        </div>
+      </div>
+      <div style="margin-top:12px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:8px 12px;font-size:11px;color:#64748b;">
+        <div style="display:flex;justify-content:space-between;"><span>INV-2024-034</span><span style="color:#059669;font-weight:600;">Approved</span></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B. Clean & Professional</h3>
+      <p>White backgrounds, navy/slate accents, structured cards with colored top borders, command palette. Data-dense and organized. Inspired by Kital.</p>
+    </div>
+  </div>
+
+  <!-- Option C: Minimal & Airy -->
+  <div class="card" data-choice="c-minimal-airy" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:20px;background:#f7faf7;min-height:220px;">
+      <!-- Starpaye style mockup -->
+      <div style="font-size:16px;font-weight:700;color:#1a2e1a;margin-bottom:16px;">Dashboard</div>
+      <div style="display:flex;gap:12px;margin-bottom:14px;">
+        <div style="flex:1;background:#fff;border-radius:14px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+          <div style="width:36px;height:36px;border-radius:10px;background:#e8f5e9;display:flex;align-items:center;justify-content:center;margin-bottom:10px;">
+            <span style="font-size:16px;">$</span>
+          </div>
+          <div style="font-size:10px;color:#6b8a6b;">Total Spent</div>
+          <div style="font-size:18px;font-weight:800;color:#1a2e1a;margin-top:2px;">$4,250</div>
+        </div>
+        <div style="flex:1;background:#fff;border-radius:14px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+          <div style="width:36px;height:36px;border-radius:10px;background:#fff8e1;display:flex;align-items:center;justify-content:center;margin-bottom:10px;">
+            <span style="font-size:16px;">!</span>
+          </div>
+          <div style="font-size:10px;color:#6b8a6b;">Pending</div>
+          <div style="font-size:18px;font-weight:800;color:#1a2e1a;margin-top:2px;">12</div>
+        </div>
+      </div>
+      <div style="background:#fff;border-radius:12px;padding:10px 14px;box-shadow:0 1px 2px rgba(0,0,0,0.04);display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:11px;color:#4a6a4a;">Recent Transactions</span>
+        <span style="font-size:10px;color:#8aaa8a;background:#f0f7f0;padding:3px 8px;border-radius:6px;">Recent</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C. Minimal & Airy</h3>
+      <p>Soft green palette, lots of whitespace, icon-topped cards, gentle shadows, nature-inspired calm. Feels light and fresh. Inspired by Starpaye.</p>
+    </div>
+  </div>
+
+  <!-- Option D: Friendly & Personal -->
+  <div class="card" data-choice="d-friendly-personal" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:20px;background:#fafbfc;min-height:220px;">
+      <!-- Logip style mockup -->
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
+        <div>
+          <div style="font-size:18px;font-weight:700;color:#1a1a2e;">Hello, Chaitanya</div>
+          <div style="font-size:11px;color:#8b8fa3;">Track team expenses. You're doing great!</div>
+        </div>
+        <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;">C</div>
+      </div>
+      <div style="display:flex;gap:16px;margin-bottom:14px;">
+        <div style="text-align:center;">
+          <div style="font-size:20px;font-weight:800;color:#1a1a2e;">18</div>
+          <div style="font-size:9px;color:#8b8fa3;">Approved</div>
+          <div style="font-size:9px;color:#22c55e;">+8 this week</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:20px;font-weight:800;color:#1a1a2e;">31h</div>
+          <div style="font-size:9px;color:#8b8fa3;">Processing</div>
+          <div style="font-size:9px;color:#ef4444;">-6 hours</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:20px;font-weight:800;color:#1a1a2e;">93%</div>
+          <div style="font-size:9px;color:#8b8fa3;">Efficiency</div>
+          <div style="font-size:9px;color:#22c55e;">+12%</div>
+        </div>
+      </div>
+      <div style="background:#fff;border:1px solid #e8eaef;border-radius:10px;padding:10px 14px;">
+        <div style="font-size:10px;font-weight:600;color:#8b8fa3;margin-bottom:6px;">Activity</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="width:24px;height:24px;border-radius:50%;background:#e8f5e9;display:flex;align-items:center;justify-content:center;font-size:10px;">R</div>
+          <div style="font-size:11px;color:#4a4a6a;">Ravi submitted voucher V-034</div>
+          <div style="font-size:9px;color:#b0b4c8;margin-left:auto;">2m ago</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>D. Friendly & Personal</h3>
+      <p>Greeting header, avatar, efficiency metrics with trend indicators, activity feed. Feels human and engaging. Inspired by Logip.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:24px;">
+  <p class="subtitle" style="text-align:center;">You can also tell me in the terminal if you want to mix elements from multiple options (e.g., "B's structure with A's warmth")</p>
+</div>

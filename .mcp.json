@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "code-review-graph": {
+      "command": "uvx",
+      "args": [
+        "code-review-graph",
+        "serve"
+      ],
+      "type": "stdio"
+    },
+    "pencil": {
+      "command": "C:\\Users\\chath\\.pencil\\mcp\\visual_studio_code\\out\\mcp-server-windows-x64.exe",
+      "args": [
+        "--app",
+        "visual_studio_code"
+      ],
+      "type": "stdio"
+    }
+  }
+}

@@ -1,0 +1,39 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - img "FluxGen" [ref=e5]
+        - text: FluxGen
+      - navigation [ref=e6]:
+        - button "Dashboard" [ref=e7]:
+          - img [ref=e8]
+          - text: Dashboard
+        - button "Expenses" [ref=e13]:
+          - img [ref=e14]
+          - text: Expenses
+        - button "Advance" [ref=e16]:
+          - img [ref=e17]
+          - text: Advance
+        - button "Reports" [ref=e19]:
+          - img [ref=e20]
+          - text: Reports
+        - button "Settings" [ref=e23]:
+          - img [ref=e24]
+          - text: Settings
+    - generic [ref=e27]:
+      - banner [ref=e28]:
+        - button [ref=e29]:
+          - img [ref=e30]
+        - generic [ref=e31]:
+          - heading "Welcome back" [level=2] [ref=e32]
+          - paragraph
+        - textbox "Search expenses..." [ref=e35]
+      - generic [ref=e36]:
+        - generic [ref=e38]:
+          - heading "Dashboard" [level=2] [ref=e39]
+          - paragraph [ref=e40]: Welcome to your expense tracking dashboard. Use the sidebar to navigate.
+        - text: Click to select date
+  - button "Quick Add Expense" [ref=e41] [cursor=pointer]:
+    - img [ref=e42]
+  - generic:
+    - generic: Online

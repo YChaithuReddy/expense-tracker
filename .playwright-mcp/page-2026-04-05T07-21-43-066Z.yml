@@ -1,0 +1,118 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - img [ref=e7]
+          - heading "FluxGen" [level=1] [ref=e11]:
+            - generic [ref=e12]: FluxGen
+        - generic [ref=e13]: Employee Dashboard
+        - generic [ref=e14]: Employee
+      - navigation [ref=e17]:
+        - button "Expenses" [ref=e18] [cursor=pointer]:
+          - img [ref=e19]
+          - generic [ref=e21]: Expenses
+        - button "Advance" [ref=e22] [cursor=pointer]:
+          - img [ref=e23]
+          - generic [ref=e25]: Advance
+        - button "Reports" [ref=e26] [cursor=pointer]:
+          - img [ref=e27]
+          - generic [ref=e30]: Reports
+        - button "Settings" [ref=e31] [cursor=pointer]:
+          - img [ref=e32]
+          - generic [ref=e35]: Settings
+      - generic [ref=e36]:
+        - generic "Connecting..." [ref=e37]
+        - generic [ref=e38]:
+          - generic [ref=e39]: U
+          - strong [ref=e41]: User
+        - button "Logout" [ref=e43] [cursor=pointer]
+    - main [ref=e44]:
+      - generic [ref=e45]:
+        - generic [ref=e46]:
+          - generic [ref=e47]:
+            - generic [ref=e48]:
+              - img [ref=e49]
+              - text: Expenses
+            - heading "Good afternoon" [level=2] [ref=e51]
+            - paragraph [ref=e52]: Track, scan, and submit your reimbursements
+          - generic [ref=e53]:
+            - img
+            - textbox "Search expenses" [ref=e54]:
+              - /placeholder: Search expenses...
+        - generic [ref=e55]:
+          - heading "📷 Scan Your Bill" [level=2] [ref=e56]
+          - paragraph [ref=e57]: Upload bill images to automatically extract expense details
+          - generic [ref=e58]:
+            - generic [ref=e59]:
+              - button "📷 Camera" [ref=e60] [cursor=pointer]
+              - button "🖼️ Gallery" [ref=e61] [cursor=pointer]
+            - generic [ref=e62]: Drag & drop anywhere on this card, use camera, or select from gallery
+          - generic [ref=e64] [cursor=pointer]:
+            - generic [ref=e65]: Drag & Drop Receipt Images Here
+            - generic [ref=e66]: or click to browse files
+          - generic [ref=e67]:
+            - generic [ref=e70]: OR
+            - button "✍️ Enter Expense Manually (Without Bill)" [ref=e72] [cursor=pointer]
+            - generic [ref=e73]: Perfect for cash payments or when you don't have a receipt
+        - generic [ref=e75]:
+          - heading "Your Expenses" [level=2] [ref=e76]
+          - generic [ref=e77]:
+            - button "☁️ Google Export" [ref=e78] [cursor=pointer]:
+              - generic [ref=e79]: ☁️
+              - generic [ref=e80]: Google Export
+            - button "🔗 View Sheet" [ref=e81] [cursor=pointer]:
+              - generic [ref=e82]: 🔗
+              - generic [ref=e83]: View Sheet
+            - button "🖼️ View Images" [ref=e84] [cursor=pointer]:
+              - generic [ref=e85]: 🖼️
+              - generic [ref=e86]: View Images
+            - button "🗑️ Clear Data" [ref=e87] [cursor=pointer]:
+              - generic [ref=e88]: 🗑️
+              - generic [ref=e89]: Clear Data
+            - button "Submit Reimbursement Package" [ref=e90] [cursor=pointer]:
+              - img [ref=e92]
+              - generic [ref=e95]:
+                - generic [ref=e96]: Submit
+                - generic [ref=e97]: Reimbursement Package
+              - img [ref=e99]
+            - button "🔄 Reset Sheet" [ref=e101] [cursor=pointer]:
+              - generic [ref=e102]: 🔄
+              - generic [ref=e103]: Reset Sheet
+            - button "📄 PDF Library" [ref=e104] [cursor=pointer]:
+              - generic [ref=e105]: 📄
+              - generic [ref=e106]: PDF Library
+  - button "Quick Add Expense" [ref=e107] [cursor=pointer]:
+    - img [ref=e108]
+  - generic [ref=e109]:
+    - generic [ref=e110]:
+      - generic [ref=e111]:
+        - img
+        - textbox "Search" [ref=e112]:
+          - /placeholder: Search by project, description, or category...
+          - text: admin@fluxgentech.com
+        - button "✕" [ref=e113] [cursor=pointer]
+        - button "Expand filters" [ref=e114] [cursor=pointer]:
+          - generic [ref=e115]: ▼
+      - generic [ref=e116]:
+        - combobox [ref=e117]:
+          - option "All Projects" [selected]
+        - combobox [ref=e118]:
+          - option "All Categories" [selected]
+        - combobox [ref=e119]:
+          - option "All Types" [selected]
+          - option "Project"
+          - option "Service"
+          - option "Survey"
+        - generic [ref=e120]:
+          - generic [ref=e121]: From Date
+          - textbox "From Date" [ref=e122]
+        - generic [ref=e123]:
+          - generic [ref=e124]: To Date
+          - textbox "To Date" [ref=e125]
+        - button "Reset Filters" [ref=e126] [cursor=pointer]
+    - strong [ref=e128]: "Total Amount: ₹0.00"
+  - button "Quick Add Expense" [ref=e129] [cursor=pointer]:
+    - img [ref=e130]
+  - generic:
+    - generic: Online

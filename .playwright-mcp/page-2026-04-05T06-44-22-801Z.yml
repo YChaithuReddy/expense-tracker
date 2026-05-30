@@ -1,0 +1,76 @@
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - generic [ref=e4]:
+      - img "FluxGen" [ref=e5]
+      - heading "Expense Tracker" [level=1] [ref=e6]:
+        - img [ref=e7]
+        - generic [ref=e9]: Expense Tracker
+      - generic [ref=e10]: Loading...
+      - generic [ref=e11]: Accountant
+    - navigation [ref=e12]:
+      - button "Overview" [ref=e13] [cursor=pointer]:
+        - img [ref=e14]
+        - generic [ref=e19]: Overview
+      - button "Pending Approval" [ref=e20] [cursor=pointer]:
+        - img [ref=e21]
+        - generic [ref=e24]: Pending Approval
+      - button "All Vouchers" [ref=e25] [cursor=pointer]:
+        - img [ref=e26]
+        - generic [ref=e29]: All Vouchers
+      - button "Tally Export" [ref=e30] [cursor=pointer]:
+        - img [ref=e31]
+        - generic [ref=e34]: Tally Export
+      - button "Advances" [ref=e35] [cursor=pointer]:
+        - img [ref=e36]
+        - generic [ref=e38]: Advances
+      - button "Pipeline" [ref=e39] [cursor=pointer]:
+        - img [ref=e40]
+        - generic [ref=e42]: Pipeline
+      - button "Analytics" [ref=e43] [cursor=pointer]:
+        - img [ref=e44]
+        - generic [ref=e46]: Analytics
+      - button "Settings" [ref=e47] [cursor=pointer]:
+        - img [ref=e48]
+        - generic [ref=e51]: Settings
+    - generic [ref=e52]:
+      - generic [ref=e53]:
+        - generic [ref=e54]: AU
+        - generic [ref=e56]:
+          - strong [ref=e57]: Admin User
+          - text: admin@fluxgentech.com
+      - generic [ref=e58]:
+        - button "App" [ref=e59] [cursor=pointer]
+        - button "Logout" [ref=e60] [cursor=pointer]
+  - main [ref=e61]:
+    - generic [ref=e62]:
+      - generic [ref=e63]:
+        - heading "Good afternoon, Admin" [level=2] [ref=e64]
+        - paragraph [ref=e65]: Sunday, 5 April 2026
+      - generic [ref=e67]:
+        - img [ref=e68]
+        - textbox "Search vouchers..." [ref=e71]
+    - generic [ref=e72]:
+      - generic [ref=e74]:
+        - heading "Accountant Overview" [level=2] [ref=e75]
+        - paragraph [ref=e76]: Voucher summary and quick actions
+      - generic [ref=e77]:
+        - generic [ref=e78]:
+          - generic [ref=e79]: "-"
+          - generic [ref=e80]: Pending Approval
+        - generic [ref=e81]:
+          - generic [ref=e82]: "-"
+          - generic [ref=e83]: Approved
+        - generic [ref=e84]:
+          - generic [ref=e85]: "-"
+          - generic [ref=e86]: Exported to Tally
+        - generic [ref=e87]:
+          - generic [ref=e88]: "-"
+          - generic [ref=e89]: Total Pending Amount
+        - generic [ref=e90]:
+          - generic [ref=e91]: "-"
+          - generic [ref=e92]: Reimbursed
+      - heading "Quick Actions" [level=3] [ref=e93]
+      - generic [ref=e94]:
+        - button "Review Pending" [ref=e95] [cursor=pointer]
+        - button "All Vouchers" [ref=e96] [cursor=pointer]
+        - button "Export to Tally" [ref=e97] [cursor=pointer]

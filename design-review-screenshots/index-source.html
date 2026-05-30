@@ -1,0 +1,941 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><script>document.documentElement.setAttribute('data-theme', 'light');</script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Expense Tracker">
+    <title>Login — FluxGen Expense Tracker</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.svg">
+    <link rel="manifest" href="manifest.json">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --white: #ffffff;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
+            --black: #020617;
+            --accent: #111827;
+            --green: #059669;
+            --green-bg: #ecfdf5;
+            --red: #dc2626;
+            --red-bg: #fef2f2;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --shadow-sm: 0 1px 3px rgba(15,23,42,0.08), 0 1px 2px rgba(15,23,42,0.04);
+            --shadow-md: 0 4px 12px rgba(15,23,42,0.06), 0 2px 4px rgba(15,23,42,0.04);
+            --shadow-lg: 0 10px 25px rgba(0,0,0,0.08), 0 4px 10px rgba(15,23,42,0.06);
+            --shadow-xl: 0 20px 40px rgba(0,0,0,0.10), 0 8px 16px rgba(15,23,42,0.08);
+        }
+
+        html, body {
+            height: 100%; width: 100%; margin: 0;
+            font-family: var(--font);
+            background: var(--gray-50);
+            color: var(--gray-900);
+            -webkit-font-smoothing: antialiased;
+            overflow: hidden;
+        }
+
+        /* ─── Layout ─── */
+        .login-shell {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            height: 100vh;
+        }
+
+        /* ─── Left Panel ─── */
+        .login-panel-left {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 40px 48px;
+            background: linear-gradient(135deg, var(--gray-800) 0%, var(--black) 100%);
+            overflow: hidden;
+        }
+        .login-panel-left::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 20% 20%, rgba(255,255,255,0.04) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 80% at 80% 80%, rgba(255,255,255,0.02) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .login-panel-left::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 48px 48px;
+            pointer-events: none;
+        }
+
+        .left-content { position: relative; z-index: 1; display: flex; flex-direction: column; height: 100%; justify-content: space-between; }
+
+        .brand-top-row { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+        .brand-top-text { flex: 1; min-width: 0; }
+
+        .left-eyebrow {
+            display: inline-flex; align-items: center; gap: 8px;
+            font-size: 11px; font-weight: 600; letter-spacing: 0.12em;
+            text-transform: uppercase; color: var(--gray-400); margin-bottom: 16px;
+        }
+        .left-eyebrow-dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: var(--green); box-shadow: 0 0 6px rgba(5,150,105,0.6);
+            animation: dotPulse 2s ease-in-out infinite;
+        }
+        @keyframes dotPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        /* === 1. FLOATING WATER BUBBLES === */
+        .bubbles-container {
+            position: absolute; inset: 0; overflow: hidden;
+            pointer-events: none; z-index: 0;
+        }
+        .bubble {
+            position: absolute;
+            bottom: -20px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(56, 189, 248, 0.3), rgba(14, 116, 144, 0.12));
+            border: 1px solid rgba(56, 189, 248, 0.15);
+            animation: bubbleRise linear infinite;
+        }
+        @keyframes bubbleRise {
+            0%   { transform: translateY(0) scale(1); opacity: 0; }
+            10%  { opacity: 1; }
+            90%  { opacity: 0.6; }
+            100% { transform: translateY(-110vh) scale(0.4); opacity: 0; }
+        }
+        .bubble:nth-child(1)  { left: 5%;  width: 10px; height: 10px; animation-duration: 11s; animation-delay: 0s; }
+        .bubble:nth-child(2)  { left: 18%; width: 18px; height: 18px; animation-duration: 14s; animation-delay: 1.5s; }
+        .bubble:nth-child(3)  { left: 32%; width: 8px;  height: 8px;  animation-duration: 10s; animation-delay: 3s; }
+        .bubble:nth-child(4)  { left: 48%; width: 14px; height: 14px; animation-duration: 16s; animation-delay: 0.5s; }
+        .bubble:nth-child(5)  { left: 60%; width: 22px; height: 22px; animation-duration: 18s; animation-delay: 2s; }
+        .bubble:nth-child(6)  { left: 75%; width: 12px; height: 12px; animation-duration: 12s; animation-delay: 4s; }
+        .bubble:nth-child(7)  { left: 88%; width: 16px; height: 16px; animation-duration: 15s; animation-delay: 0.8s; }
+        .bubble:nth-child(8)  { left: 12%; width: 20px; height: 20px; animation-duration: 17s; animation-delay: 5s; }
+        .bubble:nth-child(9)  { left: 42%; width: 10px; height: 10px; animation-duration: 11s; animation-delay: 7s; }
+        .bubble:nth-child(10) { left: 68%; width: 24px; height: 24px; animation-duration: 20s; animation-delay: 3s; }
+        .bubble:nth-child(11) { left: 25%; width: 6px;  height: 6px;  animation-duration: 9s;  animation-delay: 6s; }
+        .bubble:nth-child(12) { left: 55%; width: 16px; height: 16px; animation-duration: 13s; animation-delay: 8s; }
+
+        /* === 2. GRADIENT WAVE BACKGROUND === */
+        .gradient-wave {
+            position: absolute; inset: 0;
+            pointer-events: none; z-index: 0;
+            background:
+                radial-gradient(ellipse 50% 40% at 20% 50%, rgba(14, 116, 144, 0.15) 0%, transparent 70%),
+                radial-gradient(ellipse 40% 50% at 80% 30%, rgba(56, 189, 248, 0.08) 0%, transparent 70%);
+            animation: gradientShift 8s ease-in-out infinite alternate;
+        }
+        @keyframes gradientShift {
+            0%   { opacity: 0.4; transform: scale(1) translateX(0); }
+            33%  { opacity: 1; transform: scale(1.1) translateX(5%); }
+            66%  { opacity: 0.7; transform: scale(0.95) translateX(-3%); }
+            100% { opacity: 0.4; transform: scale(1) translateX(0); }
+        }
+
+        /* === 3. TYPING EFFECT === */
+        .typing-cursor {
+            display: inline-block;
+            width: 2px; height: 1em;
+            background: rgba(56, 189, 248, 0.8);
+            margin-left: 2px;
+            animation: blink 0.8s step-end infinite;
+            vertical-align: text-bottom;
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        /* === 4. GLOW PULSE ON FEATURE ICONS === */
+        .left-feature-icon {
+            width: 28px; height: 28px; border-radius: 8px;
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+            animation: iconGlow 3s ease-in-out infinite;
+        }
+        @keyframes iconGlow {
+            0%, 100% { box-shadow: 0 0 4px rgba(56, 189, 248, 0.1), 0 0 0 rgba(56, 189, 248, 0); border-color: rgba(255,255,255,0.08); }
+            50%      { box-shadow: 0 0 12px rgba(56, 189, 248, 0.3), 0 0 24px rgba(56, 189, 248, 0.1); border-color: rgba(56, 189, 248, 0.25); }
+        }
+        .left-feature:nth-child(1) .left-feature-icon { animation-delay: 0s; }
+        .left-feature:nth-child(2) .left-feature-icon { animation-delay: 0.8s; }
+        .left-feature:nth-child(3) .left-feature-icon { animation-delay: 1.6s; }
+        .left-feature:nth-child(4) .left-feature-icon { animation-delay: 2.4s; }
+
+        /* === FluxGen-style entrance animations === */
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeSlideRight {
+            from { opacity: 0; transform: translateX(-20px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.92); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+
+        /* Left panel staggered entrance */
+        .left-eyebrow       { opacity: 0; animation: fadeSlideUp 0.6s 0.1s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .left-headline       { opacity: 0; animation: fadeSlideUp 0.6s 0.25s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .water-drop-wrap     { opacity: 0; animation: scaleIn 0.5s 0.4s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .left-subtext        { opacity: 0; animation: fadeSlideUp 0.5s 0.5s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .left-feature:nth-child(1) { opacity: 0; animation: fadeSlideRight 0.4s 0.6s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .left-feature:nth-child(2) { opacity: 0; animation: fadeSlideRight 0.4s 0.72s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .left-feature:nth-child(3) { opacity: 0; animation: fadeSlideRight 0.4s 0.84s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .left-feature:nth-child(4) { opacity: 0; animation: fadeSlideRight 0.4s 0.96s cubic-bezier(0.22,1,0.36,1) forwards; }
+
+        /* Right panel form entrance */
+        .form-header-brand   { opacity: 0; animation: scaleIn 0.4s 0.3s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .form-header-title   { opacity: 0; animation: fadeSlideUp 0.5s 0.4s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .form-header-sub     { opacity: 0; animation: fadeSlideUp 0.4s 0.5s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .auth-form           { opacity: 0; animation: fadeSlideUp 0.5s 0.55s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .auth-divider        { opacity: 0; animation: fadeSlideUp 0.3s 0.7s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .btn-flux--outline   { opacity: 0; animation: fadeSlideUp 0.4s 0.8s cubic-bezier(0.22,1,0.36,1) forwards; }
+
+        /* Animated water drop */
+        .water-drop-wrap {
+            position: relative;
+            width: 80px; height: 80px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .water-drop-svg {
+            width: 56px; height: 56px;
+            filter: drop-shadow(0 0 18px rgba(56, 189, 248, 0.6)) drop-shadow(0 0 40px rgba(3, 105, 161, 0.3));
+            animation: dropFloat 4s ease-in-out infinite;
+        }
+        @keyframes dropFloat {
+            0%, 100% { transform: translateY(0); }
+            50%      { transform: translateY(-6px); }
+        }
+        /* Ripple rings */
+        .water-ripple {
+            position: absolute;
+            bottom: 2px; left: 50%; transform: translateX(-50%);
+            width: 40px; height: 10px;
+            border: 1.5px solid rgba(56, 189, 248, 0.45);
+            border-radius: 50%;
+            animation: rippleExpand 3s ease-out infinite;
+        }
+        .water-ripple:nth-child(2) { animation-delay: 1s; }
+        .water-ripple:nth-child(3) { animation-delay: 2s; }
+        @keyframes rippleExpand {
+            0%   { width: 20px; height: 6px; opacity: 0.6; }
+            100% { width: 70px; height: 16px; opacity: 0; }
+        }
+
+        .left-hero { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 20px 0; }
+
+        .left-headline {
+            font-size: clamp(26px, 3vw, 38px); font-weight: 800;
+            line-height: 1.15; color: var(--white);
+            letter-spacing: -0.03em; margin-bottom: 18px;
+        }
+        .left-headline em {
+            font-style: normal;
+            background: linear-gradient(135deg, #e2e8f0, #ffffff);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+
+        .left-subtext { font-size: 14px; line-height: 1.7; color: var(--gray-400); max-width: 360px; }
+
+        .left-features { display: flex; flex-direction: column; gap: 14px; margin-top: 36px; list-style: none; }
+        .left-feature { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--gray-400); font-weight: 450; }
+        .left-feature-icon svg { width: 14px; height: 14px; stroke: var(--gray-300); }
+
+        .left-footer { font-size: 12px; color: var(--gray-500); letter-spacing: 0.01em; }
+
+        /* ─── Right Panel ─── */
+        .login-panel-right {
+            display: flex; align-items: center; justify-content: center;
+            padding: 24px 40px; background: var(--white);
+            overflow-y: auto;
+        }
+        .login-form-card { width: 100%; max-width: 400px; }
+
+        .mobile-brand { display: none; text-align: center; margin-bottom: 24px; }
+        .mobile-brand-pill {
+            display: inline-flex; background: var(--gray-50); border-radius: 12px;
+            padding: 10px 20px; box-shadow: var(--shadow-sm);
+        }
+        .mobile-brand-pill img { height: 40px; width: auto; }
+
+        .form-header { margin-bottom: 20px; text-align: center; }
+        .form-header-brand {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 5px 14px; border-radius: 999px;
+            background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
+            border: 1px solid #7dd3fc;
+            margin-bottom: 10px;
+        }
+        .form-header-brand img { height: 18px; width: auto; }
+        .form-header-brand span {
+            font-size: 0.7rem; font-weight: 600; color: #0369a1;
+            letter-spacing: 0.03em; text-transform: none;
+        }
+        .form-header-title {
+            font-size: 1.4rem; font-weight: 800; color: var(--gray-900);
+            letter-spacing: -0.03em; margin-bottom: 4px;
+        }
+        .form-header-sub { font-size: 0.82rem; color: var(--gray-600); }
+
+        /* Override styles.css label uppercase for login form */
+        .login-panel-right label {
+            text-transform: none !important;
+            font-size: 0.84rem !important;
+            font-weight: 500 !important;
+            letter-spacing: normal !important;
+            color: var(--gray-700) !important;
+        }
+
+        /* Messages */
+        .message {
+            padding: 12px 16px; border-radius: var(--radius-md);
+            font-size: 0.84rem; font-weight: 500; margin-bottom: 20px;
+        }
+        .message.error { background: var(--red-bg); color: var(--red); border: 1px solid #fecaca; }
+        .message.success { background: var(--green-bg); color: var(--green); border: 1px solid #a7f3d0; }
+
+        /* Form */
+        .auth-form { display: flex; flex-direction: column; gap: 14px; }
+        .form-group { display: flex; flex-direction: column; gap: 4px; }
+        .form-group label {
+            font-size: 0.8rem; font-weight: 600; color: var(--gray-700);
+            letter-spacing: 0.01em;
+        }
+        .form-group input {
+            padding: 10px 14px; border: 1.5px solid var(--gray-200);
+            border-radius: var(--radius-md); font-size: 0.88rem;
+            font-family: var(--font); color: var(--gray-900);
+            background: var(--white); outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-group input::placeholder { color: var(--gray-400); }
+        .form-group input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(17,24,39,0.08);
+        }
+        .form-group small {
+            font-size: 0.72rem; color: var(--gray-500); margin-top: 2px;
+        }
+
+        .password-input-wrapper { position: relative; }
+        .password-input-wrapper input { width: 100%; padding-right: 42px; }
+        .password-toggle-icon {
+            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+            cursor: pointer; font-size: 16px; user-select: none; opacity: 0.5;
+            transition: opacity 0.15s;
+            background: none; border: none; padding: 2px; line-height: 1;
+        }
+        .password-toggle-icon:hover { opacity: 0.8; }
+        .password-toggle-icon:focus-visible { outline: 2px solid #0369a1; outline-offset: 2px; border-radius: 4px; }
+
+        .forgot-row { display: flex; justify-content: flex-end; margin-top: -8px; }
+        .auth-link {
+            color: var(--accent); font-weight: 600; text-decoration: none;
+            transition: opacity 0.15s; font-size: 0.82rem;
+        }
+        .auth-link:hover { opacity: 0.7; text-decoration: underline; }
+
+        .btn-primary {
+            width: 100%; padding: 12px; border: none;
+            border-radius: var(--radius-md);
+            background: var(--accent); color: var(--white);
+            font-size: 0.88rem; font-weight: 600; font-family: var(--font);
+            cursor: pointer; transition: background 0.18s, box-shadow 0.18s, transform 0.15s;
+            box-shadow: 0 4px 14px rgba(17,24,39,0.25);
+        }
+        .btn-primary:hover {
+            background: var(--gray-800);
+            box-shadow: 0 6px 20px rgba(17,24,39,0.35);
+            transform: translateY(-1px);
+        }
+        .btn-primary:active { transform: translateY(0); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        /* Divider */
+        .auth-divider {
+            display: flex; align-items: center; gap: 14px;
+            margin: 4px 0;
+        }
+        .auth-divider-line { flex: 1; height: 1px; background: var(--gray-200); }
+        .auth-divider-text { font-size: 0.78rem; color: var(--gray-400); font-weight: 500; }
+
+        /* Google button */
+        .btn-google {
+            width: 100%; padding: 11px; border: 1.5px solid var(--gray-200);
+            border-radius: var(--radius-md); background: var(--white);
+            font-size: 0.86rem; font-weight: 600; font-family: var(--font);
+            color: var(--gray-700); cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            transition: background 0.18s, border-color 0.18s, box-shadow 0.18s;
+        }
+        .btn-google:hover {
+            background: var(--gray-50); border-color: var(--gray-300);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* APK banner */
+        .apk-banner {
+            display: none; text-align: center; margin-top: 12px;
+            padding: 10px; background: var(--gray-50);
+            border: 1px solid var(--gray-200); border-radius: var(--radius-md);
+        }
+        .apk-banner-text { font-size: 0.78rem; color: var(--gray-500); margin-bottom: 8px; }
+        .apk-btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 7px 16px; border-radius: 8px;
+            background: var(--gray-100); border: 1px solid var(--gray-200);
+            color: var(--gray-700); font-size: 0.78rem; font-weight: 600;
+            text-decoration: none; transition: all 0.15s;
+        }
+        .apk-btn:hover { background: var(--gray-200); color: var(--accent); }
+        .apk-btn svg { width: 14px; height: 14px; stroke: currentColor; }
+
+        /* Footer */
+        .auth-footer { text-align: center; margin-top: 14px; font-size: 0.82rem; color: var(--gray-500); }
+        .auth-footer a { color: var(--accent); font-weight: 600; text-decoration: none; }
+        .auth-footer a:hover { text-decoration: underline; }
+
+        /* ─── Responsive ─── */
+        @media (max-width: 900px) {
+            .login-shell { grid-template-columns: 1fr; }
+            .login-panel-left { display: none; }
+            .login-panel-right { padding: 40px 24px; }
+            .mobile-brand { display: block; }
+        }
+        @media (max-width: 480px) {
+            .login-panel-right { padding: 32px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-shell">
+
+    <!-- LEFT PANEL — Branding -->
+    <aside class="login-panel-left">
+        <!-- Animated background layers -->
+        <div class="gradient-wave"></div>
+        <div class="bubbles-container">
+            <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
+            <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
+            <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
+            <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
+        </div>
+        <div class="left-content">
+            <div class="brand-top-row">
+                <div class="brand-top-text">
+                    <span class="left-eyebrow">
+                        <span class="left-eyebrow-dot"></span>
+                        FluxGen Technologies Pvt Ltd
+                    </span>
+                    <h2 class="left-headline" style="opacity: 1; animation: auto ease 0s 1 normal none running none;">
+                        Track every rupee.<br>
+                        <em>Approve in seconds.</em>
+                    </h2>
+                </div>
+                <div class="brand-logo-wrap">
+                    <div class="water-drop-wrap">
+                        <svg class="water-drop-svg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="dropGrad" x1="32" y1="4" x2="32" y2="60" gradientUnits="userSpaceOnUse">
+                                    <stop offset="0%" stop-color="#38bdf8"></stop>
+                                    <stop offset="100%" stop-color="#0369a1"></stop>
+                                </linearGradient>
+                            </defs>
+                            <path d="M32 4 C32 4 12 30 12 42 C12 53 21 60 32 60 C43 60 52 53 52 42 C52 30 32 4 32 4Z" fill="url(#dropGrad)"></path>
+                            <path d="M24 38 C24 38 22 44 28 48" stroke="rgba(255,255,255,0.4)" stroke-width="2" stroke-linecap="round" fill="none"></path>
+                        </svg>
+                        <div class="water-ripple"></div>
+                        <div class="water-ripple"></div>
+                        <div class="water-ripple"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="left-hero">
+                <p class="left-subtext">
+                    Join innovative teams who are transforming their expense workflows — from receipt to reimbursement in minutes, not days.
+                </p>
+                <ul class="left-features">
+                    <li class="left-feature">
+                        <span class="left-feature-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                        </span>
+                        Scan bills instantly with AI-powered OCR
+                    </li>
+                    <li class="left-feature">
+                        <span class="left-feature-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                        </span>
+                        Multi-level approvals with real-time tracking
+                    </li>
+                    <li class="left-feature">
+                        <span class="left-feature-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"></rect><path d="M2 10h20"></path></svg>
+                        </span>
+                        UPI payments — Google Pay, PhonePe, Paytm
+                    </li>
+                    <li class="left-feature">
+                        <span class="left-feature-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                        </span>
+                        Export to Tally, Google Sheets &amp; PDF reports
+                    </li>
+                </ul>
+            </div>
+
+            <footer class="left-footer">
+                © 2025 FluxGen Technologies Pvt Ltd. All rights reserved.
+            </footer>
+        </div>
+    </aside>
+
+    <!-- RIGHT PANEL — Form -->
+    <main class="login-panel-right">
+        <div class="login-form-card">
+
+            <div class="mobile-brand">
+                <div class="mobile-brand-pill">
+                    <img src="fluxgen-logo.jpg" alt="FluxGen">
+                </div>
+            </div>
+
+            <div class="form-header">
+                <div class="form-header-brand">
+                    <img src="fluxgen-logo.jpg" alt="FluxGen">
+                    <span>FluxGen Expense Tracker</span>
+                </div>
+                <h1 class="form-header-title auth-section-title">Welcome back</h1>
+                <p class="form-header-sub auth-section-sub">Sign in to your FluxGen account</p>
+            </div>
+
+            <div id="loginMessage" class="message" style="display: none;"></div>
+
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label for="email">Email address</label>
+                    <input type="email" id="email" name="email" placeholder="you@fluxgentech.com" required="" autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="password" name="password" placeholder="Enter your password" required="" autocomplete="current-password" minlength="6">
+                        <button type="button" class="password-toggle-icon" onclick="togglePasswordVisibility('password', this)" aria-label="Toggle password visibility" tabindex="0">👁</button>
+                    </div>
+                </div>
+                <div class="forgot-row">
+                    <a href="#" class="auth-link" id="forgotPasswordLink">Forgot password?</a>
+                </div>
+                <button type="submit" class="btn-flux" id="loginBtn" style="width:100%;">
+                    <span class="btn-flux__text">
+                        <span class="btn-flux__text-inner">
+                            <span id="loginBtnText">Sign in</span>
+                            <span>Let's go</span>
+                        </span>
+                    </span>
+                    <span class="btn-flux__arrow">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                    </span>
+                    <span id="loginBtnLoading" style="display:none;position:relative;z-index:1;">Signing in…</span>
+                </button>
+            </form>
+
+            <form id="forgotPasswordForm" class="auth-form" style="display: none;" inert="">
+                <p style="font-size: 0.84rem; color: var(--gray-500); margin-bottom: 16px; line-height: 1.6;">
+                    Enter your email address and we'll send you a secure link to reset your password.
+                </p>
+                <div class="form-group">
+                    <label for="resetEmail">Email address</label>
+                    <input type="email" id="resetEmail" name="email" placeholder="you@fluxgentech.com" required="" autocomplete="email">
+                </div>
+                <button type="submit" class="btn-flux" id="resetBtn" style="width:100%;">
+                    <span class="btn-flux__text">
+                        <span class="btn-flux__text-inner">
+                            <span id="resetBtnText">Send reset link</span>
+                            <span>Sending...</span>
+                        </span>
+                    </span>
+                    <span class="btn-flux__arrow">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                    </span>
+                    <span id="resetBtnLoading" style="display:none;position:relative;z-index:1;">Sending…</span>
+                </button>
+                <div style="text-align: center; margin-top: 16px;">
+                    <a href="#" class="auth-link" id="backToLoginLink">← Back to sign in</a>
+                </div>
+            </form>
+
+            <div class="auth-divider" style="margin-top: 24px;">
+                <div class="auth-divider-line"></div>
+                <span class="auth-divider-text">or</span>
+                <div class="auth-divider-line"></div>
+            </div>
+
+            <button type="button" class="btn-flux btn-flux--outline btn-google" onclick="loginWithGoogle()" style="width:100%;margin-top:6px;">
+                <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" style="position:relative;z-index:1;flex-shrink:0;">
+                    <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"></path>
+                    <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.180l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"></path>
+                    <path fill="#FBBC05" d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z"></path>
+                    <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.440 1.345l2.582-2.580C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"></path>
+                </svg>
+                <span class="btn-flux__text">
+                    <span class="btn-flux__text-inner">
+                        <span>Continue with Google</span>
+                        <span>Let's go with Google</span>
+                    </span>
+                </span>
+                <span class="btn-flux__arrow">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                </span>
+            </button>
+
+            <div id="apkDownloadBanner" class="apk-banner" style="display: block;">
+                <p class="apk-banner-text">Get the full experience on Android</p>
+                <a href="https://github.com/YChaithuReddy/expense-tracker/releases/latest/download/expense-tracker.apk" class="apk-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Download APK
+                </a>
+            </div>
+
+            <div class="auth-footer">
+                <p>Don't have an account? <a href="signup.html">Create one</a></p>
+            </div>
+
+        </div>
+    </main>
+
+</div>
+
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
+<script src="supabase-api.js"></script>
+<script src="supabase-auth.js"></script>
+<script src="deep-link-handler.js"></script>
+<script>
+    // === Continuous typing effect for headline ===
+    (function() {
+        const headline = document.querySelector('.left-headline');
+        if (!headline) return;
+
+        const phrases = [
+            ['Track every rupee.', 'Approve in seconds.'],
+            ['Scan. Submit.', 'Get reimbursed.'],
+            ['From receipt', 'to report — automated.'],
+        ];
+        let phraseIdx = 0;
+        const cursor = document.createElement('span');
+        cursor.className = 'typing-cursor';
+        headline.style.opacity = '1';
+        headline.style.animation = 'none';
+
+        function typePhrase() {
+            const [line1, line2] = phrases[phraseIdx];
+            let i = 0, phase = 1;
+
+            function type() {
+                if (phase === 1) {
+                    if (i <= line1.length) {
+                        headline.innerHTML = line1.substring(0, i) + '<br>';
+                        headline.appendChild(cursor);
+                        i++; setTimeout(type, 55 + Math.random() * 25);
+                    } else { i = 0; phase = 2; setTimeout(type, 250); }
+                } else {
+                    if (i <= line2.length) {
+                        headline.innerHTML = line1 + '<br><em>' + line2.substring(0, i) + '</em>';
+                        headline.appendChild(cursor);
+                        i++; setTimeout(type, 55 + Math.random() * 25);
+                    } else {
+                        // Pause, then erase
+                        setTimeout(erase, 2500);
+                    }
+                }
+            }
+
+            function erase() {
+                const full = line1 + line2;
+                let len = full.length;
+                function del() {
+                    if (len > 0) {
+                        const t = len > line2.length ? line1.substring(0, len - line2.length) : '';
+                        const t2 = len > line2.length ? line2 : line2.substring(0, len);
+                        headline.innerHTML = t + '<br><em>' + t2 + '</em>';
+                        headline.appendChild(cursor);
+                        len--; setTimeout(del, 25);
+                    } else {
+                        headline.innerHTML = '<br>';
+                        headline.appendChild(cursor);
+                        phraseIdx = (phraseIdx + 1) % phrases.length;
+                        setTimeout(typePhrase, 400);
+                    }
+                }
+                del();
+            }
+            type();
+        }
+        setTimeout(typePhrase, 400);
+    })();
+
+    function togglePasswordVisibility(inputId, iconElement) {
+        const input = document.getElementById(inputId);
+        if (input.type === 'password') {
+            input.type = 'text';
+            iconElement.textContent = '\uD83D\uDE48';
+        } else {
+            input.type = 'password';
+            iconElement.textContent = '\uD83D\uDC41\uFE0F';
+        }
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        const messageEl = document.getElementById('loginMessage');
+        const btnText = document.getElementById('loginBtnText');
+        const btnLoading = document.getElementById('loginBtnLoading');
+        const loginBtn = document.getElementById('loginBtn');
+
+        messageEl.style.display = 'none';
+        if (!email || !password) { showMessage('Please fill in all fields', 'error'); return; }
+        if (!email.toLowerCase().endsWith('@fluxgentech.com')) {
+            showMessage('Only @fluxgentech.com email addresses are allowed. Contact your admin for access.', 'error'); return;
+        }
+
+        loginBtn.disabled = true;
+        btnText.style.display = 'none';
+        btnLoading.style.display = 'inline';
+
+        try {
+            const response = await api.login(email, password);
+            if (response.success) {
+                showMessage('Login successful! Redirecting...', 'success');
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                const userEmail = user.email?.toLowerCase();
+                const redirectUrl = userEmail === 'admin@fluxgentech.com' ? 'admin.html'
+                    : userEmail === 'accountant@fluxgentech.com' ? 'accountant.html'
+                    : 'index.html';
+                setTimeout(() => { window.location.href = redirectUrl; }, 1000);
+            } else {
+                showMessage(response.message || 'Login failed', 'error');
+                resetButton();
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            const msg = error.message || '';
+            if (msg.toLowerCase().includes('failed to fetch') || msg.toLowerCase().includes('network')) {
+                showMessage('Network error: Could not reach the server. Please check your internet connection.', 'error');
+            } else {
+                showMessage(msg || 'Login failed. Please try again.', 'error');
+            }
+            resetButton();
+        }
+    });
+
+    function showMessage(message, type) {
+        const messageEl = document.getElementById('loginMessage');
+        messageEl.textContent = message;
+        messageEl.className = `message ${type}`;
+        messageEl.style.display = 'block';
+    }
+
+    function resetButton() {
+        document.getElementById('loginBtn').disabled = false;
+        document.getElementById('loginBtnText').style.display = 'inline';
+        document.getElementById('loginBtnLoading').style.display = 'none';
+    }
+
+    function isCapacitorApp() { return window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform(); }
+    function getPlatform() { return isCapacitorApp() ? window.Capacitor.getPlatform() : 'web'; }
+
+    async function loginWithGoogle() {
+        try { await api.loginWithGoogle(); }
+        catch (error) { console.error('Google login error:', error); showMessage('Google login failed: ' + error.message, 'error'); }
+    }
+
+    function handleOAuthCallback() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error');
+        if (error === 'google_auth_failed') showMessage('Google authentication failed. Please try again.', 'error');
+        else if (error === 'auth_error') showMessage('Authentication error occurred. Please try again.', 'error');
+    }
+    handleOAuthCallback();
+
+    if (!isCapacitorApp()) { const banner = document.getElementById('apkDownloadBanner'); if (banner) banner.style.display = 'block'; }
+
+    // ---- Forgot Password Flow ----
+    const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+    const backToLoginLink = document.getElementById('backToLoginLink');
+    const loginForm = document.getElementById('loginForm');
+    const forgotPasswordForm = document.getElementById('forgotPasswordForm');
+    const loginHeading = document.querySelector('.auth-section-title');
+    const loginSubtext = document.querySelector('.auth-section-sub');
+    const googleDivider = document.querySelector('.auth-divider');
+    const googleBtn = document.querySelector('.btn-google');
+
+    forgotPasswordLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        loginForm.style.display = 'none'; forgotPasswordForm.style.display = 'block'; forgotPasswordForm.removeAttribute('inert');
+        googleDivider.style.display = 'none'; googleBtn.style.display = 'none';
+        loginHeading.textContent = 'Reset password';
+        loginSubtext.textContent = "We'll email you a secure reset link";
+        document.getElementById('loginMessage').style.display = 'none';
+    });
+
+    backToLoginLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        loginForm.style.display = 'block'; forgotPasswordForm.style.display = 'none'; forgotPasswordForm.setAttribute('inert', '');
+        googleDivider.style.display = ''; googleBtn.style.display = '';
+        loginHeading.textContent = 'Welcome back';
+        loginSubtext.textContent = 'Sign in to your FluxGen account';
+        document.getElementById('loginMessage').style.display = 'none';
+    });
+
+    forgotPasswordForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('resetEmail').value.trim();
+        const resetBtn = document.getElementById('resetBtn');
+        if (!email) { showMessage('Please enter your email address', 'error'); return; }
+        resetBtn.disabled = true;
+        document.getElementById('resetBtnText').style.display = 'none';
+        document.getElementById('resetBtnLoading').style.display = 'inline';
+        try {
+            const supabase = window.supabaseClient?.get();
+            const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/login.html?reset=true` });
+            if (error) throw error;
+            showMessage('Password reset link sent! Check your email inbox (and spam folder).', 'success');
+        } catch (error) {
+            showMessage(error.message || 'Failed to send reset link.', 'error');
+        } finally {
+            resetBtn.disabled = false;
+            document.getElementById('resetBtnText').style.display = 'inline';
+            document.getElementById('resetBtnLoading').style.display = 'none';
+        }
+    });
+
+    async function handlePasswordReset() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('reset') !== 'true') return;
+        const supabase = window.supabaseClient?.get?.();
+        if (!supabase) { showMessage('System not ready. Please refresh.', 'error'); return; }
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return;
+
+        loginForm.style.display = 'none'; forgotPasswordForm.style.display = 'none';
+        googleDivider.style.display = 'none'; googleBtn.style.display = 'none';
+        loginHeading.textContent = 'Set new password';
+        loginSubtext.textContent = 'Choose a strong password for your account';
+
+        const resetFormHTML = document.createElement('form');
+        resetFormHTML.className = 'auth-form'; resetFormHTML.id = 'newPasswordForm';
+        resetFormHTML.innerHTML = `
+            <div class="form-group"><label for="newPassword">New password</label>
+                <div class="password-input-wrapper">
+                    <input type="password" id="newPassword" placeholder="Enter new password" required minlength="6" autocomplete="new-password">
+                    <button type="button" class="password-toggle-icon" onclick="togglePasswordVisibility('newPassword', this)" aria-label="Toggle password visibility" tabindex="0">&#128065;</button>
+                </div>
+                <small id="passwordStrength">Min 6 characters: uppercase, lowercase, and number required</small>
+            </div>
+            <div class="form-group"><label for="confirmNewPassword">Confirm password</label>
+                <div class="password-input-wrapper">
+                    <input type="password" id="confirmNewPassword" placeholder="Confirm new password" required minlength="6" autocomplete="new-password">
+                    <button type="button" class="password-toggle-icon" onclick="togglePasswordVisibility('confirmNewPassword', this)" aria-label="Toggle password visibility" tabindex="0">&#128065;</button>
+                </div>
+            </div>
+            <button type="submit" class="btn-flux" id="setPasswordBtn" style="width:100%;">
+                <span class="btn-flux__text">
+                    <span class="btn-flux__text-inner">
+                        <span id="setPasswordBtnText">Update password</span>
+                        <span>Saving...</span>
+                    </span>
+                </span>
+                <span class="btn-flux__arrow">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                </span>
+                <span id="setPasswordBtnLoading" style="display:none;position:relative;z-index:1;">Updating&hellip;</span>
+            </button>`;
+
+        document.querySelector('.login-form-card').appendChild(resetFormHTML);
+
+        const newPwInput = document.getElementById('newPassword');
+        const strengthEl = document.getElementById('passwordStrength');
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
+
+        newPwInput.addEventListener('input', () => {
+            const val = newPwInput.value;
+            if (!val) { strengthEl.style.color = 'var(--gray-500)'; strengthEl.textContent = 'Min 6 characters: uppercase, lowercase, and number required'; }
+            else if (val.length < 6) { strengthEl.style.color = '#dc2626'; strengthEl.textContent = `Too short (${val.length}/6)`; }
+            else if (!passwordRegex.test(val)) {
+                strengthEl.style.color = '#d97706';
+                const m = []; if (!/[a-z]/.test(val)) m.push('lowercase'); if (!/[A-Z]/.test(val)) m.push('uppercase'); if (!/\d/.test(val)) m.push('number');
+                strengthEl.textContent = `Missing: ${m.join(', ')}`;
+            } else { strengthEl.style.color = '#059669'; strengthEl.textContent = 'Strong password ✓'; }
+        });
+
+        resetFormHTML.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const newPassword = newPwInput.value;
+            const confirmPassword = document.getElementById('confirmNewPassword').value;
+            if (!passwordRegex.test(newPassword)) { showMessage('Password must be at least 6 characters with uppercase, lowercase, and number', 'error'); return; }
+            if (newPassword !== confirmPassword) { showMessage('Passwords do not match', 'error'); return; }
+
+            const btn = document.getElementById('setPasswordBtn');
+            btn.disabled = true;
+            document.getElementById('setPasswordBtnText').style.display = 'none';
+            document.getElementById('setPasswordBtnLoading').style.display = 'inline';
+
+            try {
+                const { error } = await supabase.auth.updateUser({ password: newPassword });
+                if (error) throw error;
+                showMessage('Password updated! You can now sign in.', 'success');
+                window.history.replaceState({}, '', window.location.pathname);
+                resetFormHTML.remove();
+                loginForm.style.display = 'block'; googleDivider.style.display = ''; googleBtn.style.display = '';
+                loginHeading.textContent = 'Welcome back'; loginSubtext.textContent = 'Sign in to your FluxGen account';
+            } catch (error) {
+                showMessage('Failed: ' + error.message, 'error');
+                btn.disabled = false;
+                document.getElementById('setPasswordBtnText').style.display = 'inline';
+                document.getElementById('setPasswordBtnLoading').style.display = 'none';
+            }
+        });
+    }
+    handlePasswordReset();
+</script>
+
+
+</body></html>

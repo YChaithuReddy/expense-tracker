@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed": "#d3e4fe",
+                        "surface-container-high": "#e6e8ea",
+                        "on-error": "#ffffff",
+                        "on-secondary-fixed": "#0b1c30",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-highest": "#e0e3e5",
+                        "primary": "#00288e",
+                        "outline": "#757684",
+                        "inverse-surface": "#2d3133",
+                        "error-container": "#ffdad6",
+                        "primary-fixed": "#dde1ff",
+                        "surface-variant": "#e0e3e5",
+                        "inverse-on-surface": "#eff1f3",
+                        "on-primary-fixed": "#001453",
+                        "surface-bright": "#f7f9fb",
+                        "secondary-container": "#d0e1fb",
+                        "on-error-container": "#93000a",
+                        "error": "#ba1a1a",
+                        "surface-tint": "#3755c3",
+                        "primary-fixed-dim": "#b8c4ff",
+                        "on-tertiary-container": "#ffa583",
+                        "tertiary": "#611e00",
+                        "outline-variant": "#c4c5d5",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-fixed": "#ffdbce",
+                        "surface-container-low": "#f2f4f6",
+                        "on-primary-fixed-variant": "#173bab",
+                        "on-surface": "#191c1e",
+                        "on-secondary": "#ffffff",
+                        "background": "#f7f9fb",
+                        "surface": "#f7f9fb",
+                        "on-surface-variant": "#444653",
+                        "secondary": "#505f76",
+                        "on-secondary-fixed-variant": "#38485d",
+                        "on-tertiary-fixed-variant": "#802a00",
+                        "tertiary-fixed-dim": "#ffb59a",
+                        "secondary-fixed-dim": "#b7c8e1",
+                        "inverse-primary": "#b8c4ff",
+                        "on-primary": "#ffffff",
+                        "on-secondary-container": "#54647a",
+                        "primary-container": "#1e40af",
+                        "on-tertiary-fixed": "#380d00",
+                        "surface-container": "#eceef0",
+                        "surface-dim": "#d8dadc",
+                        "on-background": "#191c1e",
+                        "tertiary-container": "#872d00",
+                        "on-primary-container": "#a8b8ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.5rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        .bottom-sheet-overlay { background-color: rgba(25, 28, 30, 0.4); }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen flex flex-col items-center justify-end overflow-hidden">
+<div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+<div class="absolute top-0 left-0 w-full p-6">
+<div class="flex justify-between items-center mb-10">
+<h1 class="text-2xl font-extrabold tracking-tighter text-primary">ExpenseFlow</h1>
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-outline">notifications</span>
+</div>
+</div>
+<div class="space-y-6 opacity-40">
+<div class="bg-surface-container-low h-32 rounded-xl p-4">
+<div class="w-24 h-4 bg-surface-container-high rounded mb-4"></div>
+<div class="w-48 h-8 bg-surface-container-highest rounded"></div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container-low h-24 rounded-xl"></div>
+<div class="bg-surface-container-low h-24 rounded-xl"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="fixed inset-0 bottom-sheet-overlay z-40 backdrop-blur-sm"></div>
+<main class="relative z-50 w-full max-w-md bg-surface rounded-t-[2.5rem] shadow-2xl flex flex-col h-[751px] animate-slide-up">
+<div class="flex flex-col items-center pt-3 pb-2">
+<div class="w-12 h-1.5 bg-surface-container-highest rounded-full mb-4"></div>
+</div>
+<div class="px-8 pb-4">
+<h2 class="text-2xl font-bold tracking-tight text-primary mb-1">Request Advance</h2>
+<p class="text-sm text-on-surface-variant">Request funds for upcoming project site visits.</p>
+</div>
+<div class="flex-1 overflow-y-auto px-8 py-4 space-y-8 pb-32">
+<section class="space-y-2">
+<label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant px-1">Project Name</label>
+<div class="relative">
+<select class="w-full h-14 pl-4 pr-10 bg-surface-container-high border-none rounded-xl appearance-none focus:ring-2 focus:ring-primary text-on-surface font-medium">
+<option>Metropolis Urban Redevelopment</option>
+<option>Skyline Office Complex</option>
+<option>Harbor Bridge Restoration</option>
+<option>Green Valley Solar Farm</option>
+</select>
+<div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+<span class="material-symbols-outlined text-outline">expand_more</span>
+</div>
+</div>
+</section>
+<section class="space-y-2">
+<label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant px-1">Requested Amount</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-primary font-bold text-xl">$</span>
+<input class="w-full h-16 pl-10 pr-4 bg-surface-container-high border-none rounded-xl focus:ring-2 focus:ring-primary text-2xl font-bold text-on-surface placeholder:text-outline/30" placeholder="0.00" type="number"/>
+</div>
+<p class="text-[11px] text-on-surface-variant px-1">Available balance for project: <span class="font-bold">$12,450.00</span></p>
+</section>
+<section class="space-y-3">
+<label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant px-1">Visit Type</label>
+<div class="grid grid-cols-3 gap-2 p-1.5 bg-surface-container-low rounded-xl">
+<button class="flex items-center justify-center py-2.5 rounded-lg text-xs font-bold bg-primary text-on-primary shadow-sm">
+                        SITE
+                    </button>
+<button class="flex items-center justify-center py-2.5 rounded-lg text-xs font-bold text-on-surface-variant hover:bg-surface-container-high transition-colors">
+                        OFFICE
+                    </button>
+<button class="flex items-center justify-center py-2.5 rounded-lg text-xs font-bold text-on-surface-variant hover:bg-surface-container-high transition-colors">
+                        OTHER
+                    </button>
+</div>
+</section>
+<section class="space-y-2">
+<label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant px-1">Purpose/Notes</label>
+<textarea class="w-full p-4 bg-surface-container-high border-none rounded-xl focus:ring-2 focus:ring-primary text-on-surface resize-none placeholder:text-outline/40" placeholder="Briefly describe the reason for this advance..." rows="4"></textarea>
+</section>
+<div class="bg-primary-fixed/30 p-4 rounded-xl border border-primary-fixed/50 flex gap-4">
+<div class="flex-shrink-0 w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-fixed" style="font-variation-settings: 'FILL' 1;">info</span>
+</div>
+<div>
+<h4 class="text-sm font-bold text-on-primary-fixed">Policy Awareness</h4>
+<p class="text-xs text-on-primary-fixed-variant mt-1 leading-relaxed">Advances exceeding $500 require digital approval from your manager within 24 hours of submission.</p>
+</div>
+</div>
+</div>
+<div class="absolute bottom-0 left-0 w-full p-8 bg-surface/80 backdrop-blur-md rounded-t-3xl border-t border-surface-container-high">
+<button class="w-full h-14 rounded-xl bg-gradient-to-br from-primary to-primary-container text-on-primary font-bold text-lg shadow-lg active:scale-[0.98] transition-transform">
+                Submit Request
+            </button>
+</div>
+</main>
+<nav class="hidden md:flex fixed top-0 w-full z-50 bg-[#f7f9fb]/80 dark:bg-slate-900/80 backdrop-blur-xl flex justify-between items-center px-6 h-16 w-full">
+<div class="text-xl font-bold tracking-tighter text-blue-900 dark:text-blue-100 font-['Inter'] tracking-tight">ExpenseFlow</div>
+<div class="flex gap-8">
+<span class="text-blue-700 dark:text-blue-300 font-medium cursor-pointer">Ledger</span>
+<span class="text-slate-500 dark:text-slate-400 font-medium cursor-pointer">Advances</span>
+<span class="text-slate-500 dark:text-slate-400 font-medium cursor-pointer">Reports</span>
+<span class="text-slate-500 dark:text-slate-400 font-medium cursor-pointer">Settings</span>
+</div>
+</nav>
+<nav class="fixed bottom-0 left-0 w-full h-20 flex justify-around items-center px-4 pb-safe bg-white/90 dark:bg-slate-950/90 backdrop-blur-md shadow-[0_-4px_20px_rgba(25,28,30,0.04)] rounded-t-2xl z-50 md:hidden">
+<div class="flex flex-col items-center justify-center gap-1 text-slate-500 dark:text-slate-400 px-3 py-1.5 transition-all">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span class="text-[11px] font-medium font-['Inter'] uppercase tracking-wider">Ledger</span>
+</div>
+<div class="flex flex-col items-center justify-center gap-1 text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30 rounded-xl px-3 py-1.5 transition-all">
+<span class="material-symbols-outlined" data-icon="payments" style="font-variation-settings: 'FILL' 1;">payments</span>
+<span class="text-[11px] font-medium font-['Inter'] uppercase tracking-wider">Advances</span>
+</div>
+<div class="flex flex-col items-center justify-center gap-1 text-slate-500 dark:text-slate-400 px-3 py-1.5 transition-all">
+<span class="material-symbols-outlined" data-icon="insert_chart">insert_chart</span>
+<span class="text-[11px] font-medium font-['Inter'] uppercase tracking-wider">Reports</span>
+</div>
+<div class="flex flex-col items-center justify-center gap-1 text-slate-500 dark:text-slate-400 px-3 py-1.5 transition-all">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-[11px] font-medium font-['Inter'] uppercase tracking-wider">Settings</span>
+</div>
+</nav>
+</body></html>

@@ -1,0 +1,241 @@
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - generic [ref=e4]: ROBO GROUP
+    - navigation [ref=e5]:
+      - link "Dashboard" [ref=e7] [cursor=pointer]:
+        - /url: /
+        - img [ref=e8]
+        - text: Dashboard
+      - generic [ref=e13]:
+        - generic [ref=e14]: Operations
+        - link "Crew Chat" [ref=e15] [cursor=pointer]:
+          - /url: /chat
+          - img [ref=e16]
+          - text: Crew Chat
+        - link "Crew Console" [ref=e18] [cursor=pointer]:
+          - /url: /crew-console/dev
+          - img [ref=e19]
+          - text: Crew Console
+        - link "Telegram" [ref=e21] [cursor=pointer]:
+          - /url: /telegram
+          - img [ref=e22]
+          - text: Telegram
+        - link "Missions" [ref=e24] [cursor=pointer]:
+          - /url: /missions
+          - img [ref=e25]
+          - text: Missions
+        - link "Workflows" [ref=e29] [cursor=pointer]:
+          - /url: /workflows
+          - img [ref=e30]
+          - text: Workflows
+        - link "Cron" [ref=e34] [cursor=pointer]:
+          - /url: /cron
+          - img [ref=e35]
+          - text: Cron
+        - link "Skills" [ref=e38] [cursor=pointer]:
+          - /url: /skill-tree
+          - img [ref=e39]
+          - text: Skills
+      - generic [ref=e44]:
+        - generic [ref=e45]: Intel
+        - link "Logs" [ref=e46] [cursor=pointer]:
+          - /url: /logs
+          - img [ref=e47]
+          - text: Logs
+        - link "Sessions" [ref=e49] [cursor=pointer]:
+          - /url: /sessions
+          - img [ref=e50]
+          - text: Sessions
+        - link "Analytics" [ref=e54] [cursor=pointer]:
+          - /url: /analytics
+          - img [ref=e55]
+          - text: Analytics
+        - link "Code Map" [ref=e57] [cursor=pointer]:
+          - /url: /code-map
+          - img [ref=e58]
+          - text: Code Map
+        - link "Skill 3D" [ref=e60] [cursor=pointer]:
+          - /url: /skill-tree-3d
+          - img [ref=e61]
+          - text: Skill 3D
+      - generic [ref=e64]:
+        - generic [ref=e65]: Crew
+        - link "Crew" [ref=e66] [cursor=pointer]:
+          - /url: /crew
+          - img [ref=e67]
+          - text: Crew
+        - link "All Crew" [ref=e72] [cursor=pointer]:
+          - /url: /all-crew
+          - img [ref=e73]
+          - text: All Crew
+        - link "Memory" [ref=e78] [cursor=pointer]:
+          - /url: /memory
+          - img [ref=e79]
+          - text: Memory
+        - link "Inbox" [ref=e87] [cursor=pointer]:
+          - /url: /inbox
+          - img [ref=e88]
+          - text: Inbox
+      - generic [ref=e91]:
+        - generic [ref=e92]: System
+        - link "Projects" [ref=e93] [cursor=pointer]:
+          - /url: /projects
+          - img [ref=e94]
+          - text: Projects
+        - link "Docs" [ref=e96] [cursor=pointer]:
+          - /url: /docs
+          - img [ref=e97]
+          - text: Docs
+        - link "Settings" [ref=e99] [cursor=pointer]:
+          - /url: /settings
+          - img [ref=e100]
+          - text: Settings
+      - button "▸ Legacy" [ref=e104]:
+        - generic [ref=e105]: ▸
+        - generic [ref=e106]: Legacy
+  - generic [ref=e107]:
+    - banner [ref=e108]:
+      - generic [ref=e109]:
+        - img [ref=e111]
+        - generic [ref=e117]: ROBO GROUP
+      - generic [ref=e118]:
+        - img [ref=e119]
+        - generic [ref=e122]: 11:20:06
+      - generic [ref=e123]:
+        - generic [ref=e124]: UPT
+        - generic [ref=e125]: 0h 0m 0s
+      - generic [ref=e126]:
+        - img [ref=e127]
+        - generic [ref=e130]: CREW
+        - generic [ref=e131]: "0"
+      - generic [ref=e132]:
+        - img [ref=e133]
+        - generic [ref=e135]: MSN
+        - generic [ref=e136]: "0"
+      - generic [ref=e137]:
+        - img [ref=e138]
+        - generic [ref=e140]: TG
+        - generic [ref=e141]: "OFF"
+      - button "Emergency stop" [ref=e142]:
+        - img [ref=e143]
+        - generic [ref=e145]: EMRG
+    - generic [ref=e147]:
+      - main [ref=e148]:
+        - generic [ref=e149]:
+          - generic [ref=e150]:
+            - heading "Dashboard" [level=1] [ref=e151]
+            - paragraph [ref=e152]: Crew is idle. Create a task to get started.
+          - generic [ref=e153]:
+            - generic [ref=e154]:
+              - img [ref=e155]
+              - generic [ref=e158]:
+                - heading "Broadcast to Crew" [level=2] [ref=e159]
+                - paragraph [ref=e160]: One prompt → fan out to every crew member, watch their work in /all-crew
+            - textbox "What should the whole crew weigh in on?" [ref=e161]
+            - generic [ref=e162]:
+              - generic [ref=e163]: Crew (7/7)
+              - generic [ref=e164]:
+                - button "ceo" [ref=e165]
+                - button "dev" [ref=e166]
+                - button "ui" [ref=e167]
+                - button "finance" [ref=e168]
+                - button "research" [ref=e169]
+                - button "ops" [ref=e170]
+                - button "marketing" [ref=e171]
+            - generic [ref=e172]:
+              - generic [ref=e174]:
+                - checkbox "Send to running consoles" [checked] [ref=e175]
+                - text: Send to running consoles
+              - button "🚀 Broadcast to 7 crew" [disabled] [ref=e176]:
+                - img [ref=e177]
+                - text: 🚀 Broadcast to 7 crew
+          - generic [ref=e180]:
+            - generic [ref=e182]:
+              - img [ref=e183]
+              - generic [ref=e188]:
+                - heading "Launch Crew" [level=2] [ref=e189]
+                - paragraph [ref=e190]: Fire up every crew member in their own terminal — Jay-style
+            - button "Launch all crew · in-browser consoles" [ref=e191]:
+              - img [ref=e192]
+              - text: Launch all crew · in-browser consoles
+            - paragraph [ref=e195]:
+              - text: Spawns 7 pty-backed claude processes you can drive from
+              - code [ref=e196]: /all-crew
+              - text: . Type in the dashboard, the running claude processes it, output streams back live.
+            - generic [ref=e197]:
+              - paragraph [ref=e198]: Or open desktop terminal windows (wt.exe)
+              - generic [ref=e199]:
+                - generic [ref=e200]:
+                  - generic [ref=e201]: Preset
+                  - combobox [disabled] [ref=e202]:
+                    - option "all-hands" [selected]
+                - button "Launch" [ref=e203]:
+                  - img [ref=e204]
+                  - text: Launch
+            - button "Launch single crew" [ref=e210]:
+              - img [ref=e211]
+              - text: Launch single crew
+              - img [ref=e213]
+          - generic [ref=e215]:
+            - generic [ref=e216]:
+              - img [ref=e217]
+              - generic [ref=e219]: quick tg
+              - generic [ref=e220]: fires a quick note to the configured chat
+            - generic [ref=e221]:
+              - textbox "quick note to telegram…" [ref=e222]
+              - button "Send" [disabled] [ref=e223]:
+                - img [ref=e224]
+                - text: Send
+          - link "Active Sprint No active sprint" [ref=e227] [cursor=pointer]:
+            - /url: /sprint
+            - generic [ref=e229]:
+              - generic [ref=e230]: Active Sprint
+              - generic [ref=e231]: No active sprint
+          - generic [ref=e232]:
+            - link "Inbox 0 unread · 0 total" [ref=e233] [cursor=pointer]:
+              - /url: /inbox
+              - generic [ref=e234]: Inbox
+              - generic [ref=e235]: "0"
+              - generic [ref=e236]: unread · 0 total
+            - link "In progress 0 active tasks" [ref=e237] [cursor=pointer]:
+              - /url: /backlog
+              - generic [ref=e238]: In progress
+              - generic [ref=e239]: "0"
+              - generic [ref=e240]: active tasks
+            - link "Done today 0 completed" [ref=e241] [cursor=pointer]:
+              - /url: /backlog
+              - generic [ref=e242]: Done today
+              - generic [ref=e243]: "0"
+              - generic [ref=e244]: completed
+            - link "Crew 0 ready" [ref=e245] [cursor=pointer]:
+              - /url: /crew
+              - generic [ref=e246]: Crew
+              - generic [ref=e247]: "0"
+              - generic [ref=e248]: ready
+          - generic [ref=e250]:
+            - heading "Crew status" [level=2] [ref=e251]
+            - link "View all →" [ref=e252] [cursor=pointer]:
+              - /url: /crew
+          - generic [ref=e253]:
+            - generic [ref=e254]:
+              - generic [ref=e255]:
+                - heading "Recent inbox" [level=2] [ref=e256]
+                - link "View all →" [ref=e257] [cursor=pointer]:
+                  - /url: /inbox
+              - generic [ref=e259]: No messages yet.
+            - generic [ref=e260]:
+              - generic [ref=e261]:
+                - heading "Activity ticker" [level=2] [ref=e262]
+                - link "View all →" [ref=e263] [cursor=pointer]:
+                  - /url: /activity
+              - generic [ref=e265]: No activity yet.
+      - complementary [ref=e266]:
+        - generic [ref=e267]:
+          - img [ref=e268]
+          - generic [ref=e274]: Live Feed
+        - generic [ref=e277]:
+          - img [ref=e278]
+          - generic [ref=e280]: standby…
+        - generic [ref=e281]:
+          - generic [ref=e282]: _
+          - generic [ref=e283]: 0 events buffered

@@ -1,0 +1,48 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - img "FluxGen" [ref=e5]
+        - heading "Expense Tracker" [level=1] [ref=e6]
+        - generic [ref=e7]: Employee Dashboard
+        - generic [ref=e8]: Loading...
+      - navigation [ref=e9]:
+        - button "Overview" [ref=e10] [cursor=pointer]:
+          - img [ref=e11]
+          - generic [ref=e16]: Overview
+        - button "Expenses" [ref=e17] [cursor=pointer]:
+          - img [ref=e18]
+          - generic [ref=e20]: Expenses
+        - button "Advance" [ref=e21] [cursor=pointer]:
+          - img [ref=e22]
+          - generic [ref=e24]: Advance
+        - button "Reports" [ref=e25] [cursor=pointer]:
+          - img [ref=e26]
+          - generic [ref=e29]: Reports
+        - button "Settings" [ref=e30] [cursor=pointer]:
+          - img [ref=e31]
+          - generic [ref=e34]: Settings
+      - generic [ref=e35]:
+        - generic [ref=e36]:
+          - strong [ref=e37]: User
+          - text: Loading...
+        - button "Logout" [ref=e39] [cursor=pointer]
+    - main [ref=e40]:
+      - generic [ref=e41]:
+        - generic [ref=e43]:
+          - heading "Overview" [level=2] [ref=e44]
+          - paragraph [ref=e45]: Your expense summary and quick stats
+        - generic [ref=e46]:
+          - generic [ref=e47]:
+            - generic [ref=e48]: ₹0.00
+            - generic [ref=e49]: Total Expenses
+          - generic [ref=e50]:
+            - generic [ref=e51]: ₹0.00
+            - generic [ref=e52]: Monthly Spend
+          - generic [ref=e53]:
+            - generic [ref=e54]: "0"
+            - generic [ref=e55]: Pending Approval
+        - generic [ref=e56]: Add your first expense to see statistics here.
+      - text: Click to select date
+  - generic:
+    - generic: Online

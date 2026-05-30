@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FluxGen Emerald - Scan Receipt</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#006699", // Teal blue from the screenshot
+              "background-light": "#F3F4F6",
+              "background-dark": "#111827",
+              "card-light": "#FFFFFF",
+              "card-dark": "#1F2937",
+            },
+            fontFamily: {
+              display: ["Inter", "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "1rem",
+              "xl": "1.5rem",
+            },
+          },
+        },
+      };
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .ios-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen text-slate-900 dark:text-slate-100 pb-24">
+<div class="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 px-4 py-3 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold">F</div>
+<span class="font-bold text-lg tracking-tight">Emerald</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-icons-outlined text-gray-500 dark:text-gray-400">notifications</span>
+<span class="material-icons-outlined text-gray-500 dark:text-gray-400">more_vert</span>
+</div>
+</div>
+<main class="p-4 space-y-6 max-w-md mx-auto">
+<div class="bg-card-light dark:bg-card-dark p-6 rounded-xl ios-shadow border border-gray-100 dark:border-gray-800 text-center">
+<h1 class="text-xl font-bold mb-1">Good afternoon, Chaithanya</h1>
+<p class="text-gray-500 dark:text-gray-400 text-sm mb-2">Scan a bill or enter details manually</p>
+<p class="text-gray-400 dark:text-gray-500 text-xs mb-4">chaithanya@fluxgentech.com</p>
+<div class="inline-block px-3 py-1 rounded-md bg-rose-50 dark:bg-rose-900/20 text-rose-500 dark:text-rose-400 text-[10px] font-bold tracking-widest uppercase mb-6">
+                ADMIN
+            </div>
+<div class="flex justify-center gap-3">
+<button class="w-12 h-12 rounded-xl border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+<span class="material-icons-outlined">settings</span>
+</button>
+<button class="relative w-12 h-12 rounded-xl border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+<span class="material-icons-outlined">notifications</span>
+<span class="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border-2 border-white dark:border-gray-900">12</span>
+</button>
+<button class="w-12 h-12 rounded-xl border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+<span class="material-icons-outlined">check_circle</span>
+</button>
+<button class="w-12 h-12 rounded-xl border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+<span class="material-icons-outlined">dashboard</span>
+</button>
+<button class="w-12 h-12 rounded-xl border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+<span class="material-icons-outlined">person</span>
+</button>
+</div>
+</div>
+<div class="bg-card-light dark:bg-card-dark p-6 rounded-xl ios-shadow border border-gray-100 dark:border-gray-800">
+<div class="flex items-center gap-4 mb-4">
+<div class="w-12 h-12 bg-blue-50 dark:bg-blue-900/30 text-primary rounded-xl flex items-center justify-center">
+<span class="material-icons-outlined text-2xl">photo_camera</span>
+</div>
+<div>
+<h2 class="text-lg font-bold">Scan Receipt</h2>
+<p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+                        Take a photo or upload a bill image to auto-extract details
+                    </p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3 pt-2">
+<button class="flex items-center justify-center gap-2 bg-primary hover:opacity-90 text-white font-semibold py-4 px-4 rounded-full transition-all group">
+<span class="material-icons-outlined text-xl">photo_camera</span>
+<span class="text-base">Camera</span>
+<span class="material-icons-outlined text-xl transition-transform group-hover:translate-x-1">arrow_forward</span>
+</button>
+<button class="flex items-center justify-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-100 font-semibold py-4 px-4 rounded-full transition-all group">
+<span class="material-icons-outlined text-xl">image</span>
+<span class="text-base">Gallery</span>
+<span class="material-icons-outlined text-xl transition-transform group-hover:translate-x-1">arrow_forward</span>
+</button>
+</div>
+</div>
+<div class="bg-card-light dark:bg-card-dark p-6 rounded-xl ios-shadow border border-gray-100 dark:border-gray-800">
+<div class="flex items-start gap-4">
+<div class="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-xl flex items-center justify-center shrink-0">
+<span class="material-icons-outlined text-2xl">edit_note</span>
+</div>
+<div>
+<h2 class="text-lg font-bold">Enter Manually</h2>
+<p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+                        Add expense details without a receipt — perfect for cash payments
+                    </p>
+</div>
+</div>
+</div>
+<div>
+<h3 class="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3 px-1">Recent Entries</h3>
+<div class="space-y-3">
+<div class="bg-card-light dark:bg-card-dark p-4 rounded-xl flex items-center justify-between border border-gray-100 dark:border-gray-800">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-gray-50 dark:bg-gray-800 rounded-lg flex items-center justify-center">
+<span class="material-icons-outlined text-gray-400">receipt_long</span>
+</div>
+<div>
+<p class="font-bold text-sm">ACE</p>
+<p class="text-[10px] text-gray-400 uppercase tracking-tight">Transportation - Cab (Uber/Rapido) • 9 Apr</p>
+</div>
+</div>
+<p class="font-bold">₹80</p>
+</div>
+<div class="bg-card-light dark:bg-card-dark p-4 rounded-xl flex items-center justify-between border border-gray-100 dark:border-gray-800">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-gray-50 dark:bg-gray-800 rounded-lg flex items-center justify-center">
+<span class="material-icons-outlined text-gray-400">shopping_cart</span>
+</div>
+<div>
+<p class="font-bold text-sm">Amazon</p>
+<p class="text-[10px] text-gray-400 uppercase tracking-tight">Shopping - Supplies • 8 Apr</p>
+</div>
+</div>
+<p class="font-bold">₹123</p>
+</div>
+</div>
+</div>
+</main>
+<nav class="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 px-6 py-2 pb-8 flex justify-between items-center z-50">
+<button class="flex flex-col items-center gap-1 text-primary">
+<span class="material-icons-outlined">home</span>
+<span class="text-[10px] font-medium">Home</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-gray-400 dark:text-gray-500">
+<span class="material-icons-outlined">payments</span>
+<span class="text-[10px] font-medium">Advance</span>
+</button>
+<div class="relative -top-6">
+<button class="w-14 h-14 bg-primary rounded-full flex items-center justify-center text-white shadow-lg shadow-primary/30 ring-4 ring-white dark:ring-gray-900">
+<span class="material-icons-outlined text-2xl">photo_camera</span>
+</button>
+</div>
+<button class="flex flex-col items-center gap-1 text-gray-400 dark:text-gray-500">
+<span class="material-icons-outlined">history</span>
+<span class="text-[10px] font-medium">History</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-gray-400 dark:text-gray-500">
+<span class="material-icons-outlined">person_outline</span>
+<span class="text-[10px] font-medium">Profile</span>
+</button>
+</nav>
+
+</body></html>

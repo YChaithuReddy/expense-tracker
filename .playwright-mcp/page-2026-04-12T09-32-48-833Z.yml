@@ -1,0 +1,101 @@
+- generic [active] [ref=e1]:
+  - main [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e6]:
+          - heading "Good afternoon, admin" [level=2] [ref=e7]
+          - paragraph [ref=e8]: Scan a bill or enter details manually
+        - generic [ref=e11]:
+          - button "Toggle Theme" [ref=e12] [cursor=pointer]:
+            - generic [ref=e13]: 🌈
+          - generic [ref=e14]:
+            - generic [ref=e15]: admin@fluxgentech.com
+            - generic [ref=e16]: ADMIN
+          - button "Admin Dashboard" [ref=e17] [cursor=pointer]:
+            - generic [ref=e18]: ⚙
+          - button "Notifications" [ref=e19] [cursor=pointer]:
+            - generic [ref=e20]: 🔔
+          - button "Approvals" [ref=e21] [cursor=pointer]:
+            - generic [ref=e22]: ✅
+          - button "Activity Log" [ref=e23] [cursor=pointer]:
+            - generic [ref=e24]: 📋
+          - button "Profile" [ref=e25] [cursor=pointer]:
+            - generic [ref=e26]: 👤
+      - generic [ref=e27]:
+        - generic [ref=e28]:
+          - generic [ref=e29]:
+            - img [ref=e31]
+            - generic [ref=e34]:
+              - heading "Scan Receipt" [level=3] [ref=e35]
+              - paragraph [ref=e36]: Take a photo or upload a bill image to auto-extract details
+          - generic [ref=e37]:
+            - button "Camera Camera" [ref=e38] [cursor=pointer]:
+              - img [ref=e39]
+              - generic [ref=e43]:
+                - generic [ref=e44]: Camera
+                - generic [ref=e45]: Camera
+              - generic [ref=e46]:
+                - img [ref=e47]
+                - img [ref=e49]
+            - button "Gallery Gallery" [ref=e51] [cursor=pointer]:
+              - img [ref=e52]
+              - generic [ref=e57]:
+                - generic [ref=e58]: Gallery
+                - generic [ref=e59]: Gallery
+              - generic [ref=e60]:
+                - img [ref=e61]
+                - img [ref=e63]
+        - generic [ref=e65]:
+          - generic [ref=e66]:
+            - img [ref=e68]
+            - generic [ref=e71]:
+              - heading "Enter Manually" [level=3] [ref=e72]
+              - paragraph [ref=e73]: Add expense details without a receipt — perfect for cash payments
+          - generic [ref=e74]:
+            - paragraph [ref=e75]: Recent entries
+            - generic [ref=e77]: No expenses yet
+          - button "Start entry Start entry" [ref=e78] [cursor=pointer]:
+            - generic [ref=e80]:
+              - generic [ref=e81]: Start entry
+              - generic [ref=e82]: Start entry
+            - generic [ref=e83]:
+              - img [ref=e84]
+              - img [ref=e86]
+      - button "Submit Reimbursement Package & Send" [ref=e88] [cursor=pointer]:
+        - generic [ref=e90]:
+          - generic [ref=e91]: Submit Reimbursement
+          - generic [ref=e92]: Package & Send
+        - generic [ref=e93]:
+          - img [ref=e94]
+          - img [ref=e96]
+      - generic [ref=e98]:
+        - button "View Sheet" [ref=e99] [cursor=pointer]:
+          - img [ref=e101]
+          - generic [ref=e105]: View Sheet
+        - button "Images" [ref=e106] [cursor=pointer]:
+          - img [ref=e108]
+          - generic [ref=e112]: Images
+        - button "PDF Library" [ref=e113] [cursor=pointer]:
+          - img [ref=e115]
+          - generic [ref=e118]: PDF Library
+        - button "Clear Data" [ref=e119] [cursor=pointer]:
+          - img [ref=e121]
+          - generic [ref=e123]: Clear Data
+  - navigation [ref=e124]:
+    - generic [ref=e125]:
+      - button "Home" [ref=e126] [cursor=pointer]:
+        - img [ref=e127]
+        - text: Home
+      - button "Advance" [ref=e130] [cursor=pointer]:
+        - img [ref=e131]
+        - text: Advance
+      - button [ref=e133] [cursor=pointer]:
+        - img [ref=e134]
+      - button "History" [ref=e137] [cursor=pointer]:
+        - img [ref=e138]
+        - text: History
+      - button "Profile" [ref=e141] [cursor=pointer]:
+        - img [ref=e142]
+        - text: Profile
+  - generic:
+    - generic: Online

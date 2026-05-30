@@ -1,0 +1,66 @@
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - generic [ref=e4]:
+      - img "FluxGen" [ref=e5]
+      - heading "Expense Tracker" [level=1] [ref=e6]:
+        - generic [ref=e7]: Expense Tracker
+      - generic [ref=e8]: Admin Dashboard
+      - generic [ref=e9]: Loading...
+    - navigation [ref=e10]:
+      - button "Overview" [ref=e11] [cursor=pointer]:
+        - img [ref=e12]
+        - generic [ref=e17]: Overview
+      - button "Employees" [ref=e18] [cursor=pointer]:
+        - img [ref=e19]
+        - generic [ref=e23]: Employees
+      - button "Projects" [ref=e24] [cursor=pointer]:
+        - img [ref=e25]
+        - generic [ref=e28]: Projects
+      - button "Vouchers" [ref=e29] [cursor=pointer]:
+        - img [ref=e30]
+        - generic [ref=e33]: Vouchers
+      - button "Advances" [ref=e34] [cursor=pointer]:
+        - img [ref=e35]
+        - generic [ref=e37]: Advances
+      - button "Pipeline" [ref=e38] [cursor=pointer]:
+        - img [ref=e39]
+        - generic [ref=e41]: Pipeline
+      - button "Analytics" [ref=e42] [cursor=pointer]:
+        - img [ref=e43]
+        - generic [ref=e47]: Analytics
+      - button "Import CSV" [ref=e48] [cursor=pointer]:
+        - img [ref=e49]
+        - generic [ref=e51]: Import CSV
+      - button "Settings" [ref=e52] [cursor=pointer]:
+        - img [ref=e53]
+        - generic [ref=e56]: Settings
+    - generic [ref=e57]:
+      - generic [ref=e58]:
+        - strong [ref=e59]: admin
+        - text: admin@fluxgentech.com
+      - generic [ref=e60]:
+        - button "App" [ref=e61] [cursor=pointer]
+        - button "Logout" [ref=e62] [cursor=pointer]
+  - main [ref=e63]:
+    - generic [ref=e64]:
+      - generic [ref=e66]:
+        - heading "Dashboard Overview" [level=2] [ref=e67]
+        - paragraph [ref=e68]: Organization summary and quick actions
+      - generic [ref=e69]:
+        - generic [ref=e70]:
+          - generic [ref=e71]: "-"
+          - generic [ref=e72]: Employees
+        - generic [ref=e73]:
+          - generic [ref=e74]: "-"
+          - generic [ref=e75]: Active Projects
+        - generic [ref=e76]:
+          - generic [ref=e77]: "-"
+          - generic [ref=e78]: Pending Vouchers
+        - generic [ref=e79]:
+          - generic [ref=e80]: "-"
+          - generic [ref=e81]: Approved Vouchers
+      - heading "Quick Actions" [level=3] [ref=e82]
+      - generic [ref=e83]:
+        - button "Import Employees" [ref=e84] [cursor=pointer]
+        - button "Manage Projects" [ref=e85] [cursor=pointer]
+        - button "View All Vouchers" [ref=e86] [cursor=pointer]

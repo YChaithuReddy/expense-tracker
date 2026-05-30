@@ -1,0 +1,78 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - img "FluxGen" [ref=e5]
+        - heading "Expense Tracker" [level=1] [ref=e6]
+        - generic [ref=e7]: Employee Dashboard
+        - generic [ref=e8]: Loading...
+      - navigation [ref=e9]:
+        - button "Overview" [ref=e10] [cursor=pointer]:
+          - img [ref=e11]
+          - generic [ref=e16]: Overview
+        - button "Expenses" [active] [ref=e17] [cursor=pointer]:
+          - img [ref=e18]
+          - generic [ref=e20]: Expenses
+        - button "Advance" [ref=e21] [cursor=pointer]:
+          - img [ref=e22]
+          - generic [ref=e24]: Advance
+        - button "Reports" [ref=e25] [cursor=pointer]:
+          - img [ref=e26]
+          - generic [ref=e29]: Reports
+        - button "Settings" [ref=e30] [cursor=pointer]:
+          - img [ref=e31]
+          - generic [ref=e34]: Settings
+      - generic [ref=e35]:
+        - generic [ref=e36]:
+          - strong [ref=e37]: User
+          - text: Loading...
+        - button "Logout" [ref=e39] [cursor=pointer]
+    - main [ref=e40]:
+      - generic [ref=e57]:
+        - generic [ref=e59]:
+          - heading "Expenses" [level=2] [ref=e60]
+          - paragraph [ref=e61]: Manage and track your expense submissions
+        - generic [ref=e62]:
+          - heading "📷 Scan Your Bill" [level=2] [ref=e63]
+          - paragraph [ref=e64]: Upload bill images to automatically extract expense details
+          - generic [ref=e65]:
+            - generic [ref=e66]:
+              - button "📷 Camera" [ref=e67] [cursor=pointer]
+              - button "🖼️ Gallery" [ref=e68] [cursor=pointer]
+            - generic [ref=e69]: Drag & drop anywhere on this card, use camera, or select from gallery
+          - generic [ref=e70] [cursor=pointer]:
+            - generic:
+              - generic: Drag & Drop Receipt Images Here
+              - generic: or click to browse files
+          - generic [ref=e71]:
+            - generic [ref=e74]: OR
+            - button "✍️ Enter Expense Manually (Without Bill)" [ref=e76] [cursor=pointer]
+            - generic [ref=e77]: Perfect for cash payments or when you don't have a receipt
+        - text: Click to select date
+        - generic [ref=e79]:
+          - heading "Your Expenses" [level=2] [ref=e80]
+          - generic [ref=e81]:
+            - button "☁️ Google Export" [ref=e82] [cursor=pointer]:
+              - generic [ref=e83]: ☁️
+              - generic [ref=e84]: Google Export
+            - button "🖼️ View Images" [ref=e85] [cursor=pointer]:
+              - generic [ref=e86]: 🖼️
+              - generic [ref=e87]: View Images
+            - button "🗑️ Clear Data" [ref=e88] [cursor=pointer]:
+              - generic [ref=e89]: 🗑️
+              - generic [ref=e90]: Clear Data
+            - button "Submit Reimbursement Package" [ref=e91] [cursor=pointer]:
+              - img [ref=e93]
+              - generic [ref=e96]:
+                - generic [ref=e97]: Submit
+                - generic [ref=e98]: Reimbursement Package
+              - img [ref=e100]
+            - button "🔄 Reset Sheet" [ref=e102] [cursor=pointer]:
+              - generic [ref=e103]: 🔄
+              - generic [ref=e104]: Reset Sheet
+            - button "📄 PDF Library" [ref=e105] [cursor=pointer]:
+              - generic [ref=e106]: 📄
+              - generic [ref=e107]: PDF Library
+        - strong [ref=e110]: "Total Amount: ₹0.00"
+  - generic:
+    - generic: Online

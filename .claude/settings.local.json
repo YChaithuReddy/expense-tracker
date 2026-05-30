@@ -1,34 +1,29 @@
 {
   "permissions": {
     "allow": [
-      "Bash(dir:*)",
-      "Bash(git log:*)",
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(git push)",
-      "Bash(node create-placeholder-icons.js:*)",
-      "Bash(npm install:*)",
-      "Bash(npx cap add android)",
-      "Bash(cd frontend && node build.js)",
-      "Bash(cd frontend && npx cap sync android)",
+      "Write(*)",
+      "Edit(*)",
+      "MultiEdit(*)",
+      "Read(*)",
+      "Bash(*)",
       "WebSearch",
-      "Bash(node build.js:*)",
-      "Bash(npx cap:*)",
+      "WebFetch(*)",
+      "Agent(*)",
       "mcp__plugin_supabase_supabase__list_projects",
       "mcp__playwright__browser_navigate",
       "mcp__playwright__browser_take_screenshot",
       "mcp__playwright__browser_resize",
       "mcp__playwright__browser_fill_form",
       "mcp__playwright__browser_snapshot",
-      "Bash(npx claude-code-templates@latest --command=design/web-design-reviewer --yes)",
-      "Bash(node -e:*)",
-      "Bash(git push:*)",
-      "Bash(cd:*)",
-      "Bash(tree:*)"
+      "PowerShell(Get-Content *)"
     ],
     "deny": [],
     "ask": []
   },
+  "enabledMcpjsonServers": [
+    "code-review-graph",
+    "pencil"
+  ],
   "hooks": {
     "SessionStart": [
       {

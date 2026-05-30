@@ -1,0 +1,94 @@
+- generic [ref=e2]:
+  - complementary [ref=e5]:
+    - generic:
+      - generic:
+        - generic:
+          - generic: FluxGen Technologies Pvt Ltd
+          - heading "Track" [level=2]: Track
+        - img [ref=e7]
+      - generic:
+        - paragraph: Join innovative teams who are transforming their expense workflows — from receipt to reimbursement in minutes, not days.
+        - list:
+          - listitem:
+            - generic:
+              - img
+            - text: Scan bills instantly with AI-powered OCR
+          - listitem:
+            - generic:
+              - img
+            - text: Multi-level approvals with real-time tracking
+          - listitem:
+            - generic:
+              - img
+            - text: UPI payments — Google Pay, PhonePe, Paytm
+          - listitem:
+            - generic:
+              - img
+            - text: Export to Tally, Google Sheets & PDF reports
+      - generic:
+        - generic:
+          - generic: "0"
+          - generic: Receipts scanned
+        - generic:
+          - generic: "0"
+          - generic: Teams onboarded
+        - generic:
+          - generic: "0"
+          - generic: Accuracy rate
+      - generic:
+        - generic:
+          - img
+          - generic: Bank-grade encryption
+        - generic:
+          - img
+          - generic: SOC 2 compliant
+      - generic: © 2025 FluxGen Technologies Pvt Ltd. All rights reserved.
+  - main:
+    - generic [ref=e13]:
+      - generic [ref=e14]:
+        - generic [ref=e15]:
+          - img "FluxGen" [ref=e16]
+          - generic [ref=e17]: FluxGen Expense Tracker
+        - heading "Welcome back" [level=1] [ref=e18]
+        - paragraph [ref=e19]: Sign in to your FluxGen account
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - generic [ref=e22]: Email address
+          - textbox "Email address" [ref=e23]:
+            - /placeholder: you@fluxgentech.com
+            - text: chaithanya@fluxgentech.com
+        - generic [ref=e24]:
+          - generic [ref=e25]: Password
+          - generic [ref=e26]:
+            - textbox "Password" [ref=e27]:
+              - /placeholder: Enter your password
+              - text: 8187883865C@r
+            - button "Toggle password visibility" [ref=e28] [cursor=pointer]: 👁
+        - link "Forgot password?" [ref=e30] [cursor=pointer]:
+          - /url: "#"
+        - button "Sign in Let's go" [ref=e31] [cursor=pointer]:
+          - generic [ref=e33]:
+            - generic [ref=e34]: Sign in
+            - generic [ref=e35]: Let's go
+          - generic [ref=e36]:
+            - img [ref=e37]
+            - img [ref=e39]
+      - generic [ref=e43]: or
+      - button "Continue with Google Let's go with Google" [ref=e45] [cursor=pointer]:
+        - img [ref=e46]
+        - generic [ref=e52]:
+          - generic [ref=e53]: Continue with Google
+          - generic [ref=e54]: Let's go with Google
+        - generic [ref=e55]:
+          - img [ref=e56]
+          - img [ref=e58]
+      - generic [ref=e60]:
+        - paragraph [ref=e61]: Get the full experience on Android
+        - link "Download APK" [ref=e62] [cursor=pointer]:
+          - /url: https://github.com/YChaithuReddy/expense-tracker/releases/latest/download/expense-tracker.apk
+          - img [ref=e63]
+          - text: Download APK
+      - paragraph [ref=e67]:
+        - text: Don't have an account?
+        - link "Create one" [ref=e68] [cursor=pointer]:
+          - /url: signup.html

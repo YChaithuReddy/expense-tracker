@@ -1,0 +1,152 @@
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - generic [ref=e4]: ROBO GROUP
+    - navigation [ref=e5]:
+      - link "Dashboard" [ref=e7] [cursor=pointer]:
+        - /url: /
+        - img [ref=e8]
+        - text: Dashboard
+      - generic [ref=e13]:
+        - generic [ref=e14]: Operations
+        - link "Crew Chat" [ref=e15] [cursor=pointer]:
+          - /url: /chat
+          - img [ref=e16]
+          - text: Crew Chat
+        - link "Crew Console" [ref=e18] [cursor=pointer]:
+          - /url: /crew-console/dev
+          - img [ref=e19]
+          - text: Crew Console
+        - link "Telegram" [ref=e21] [cursor=pointer]:
+          - /url: /telegram
+          - img [ref=e22]
+          - text: Telegram
+        - link "Missions" [ref=e24] [cursor=pointer]:
+          - /url: /missions
+          - img [ref=e25]
+          - text: Missions
+        - link "Workflows" [ref=e29] [cursor=pointer]:
+          - /url: /workflows
+          - img [ref=e30]
+          - text: Workflows
+        - link "Cron" [ref=e34] [cursor=pointer]:
+          - /url: /cron
+          - img [ref=e35]
+          - text: Cron
+        - link "Skills" [ref=e38] [cursor=pointer]:
+          - /url: /skill-tree
+          - img [ref=e39]
+          - text: Skills
+      - generic [ref=e44]:
+        - generic [ref=e45]: Intel
+        - link "Logs" [ref=e46] [cursor=pointer]:
+          - /url: /logs
+          - img [ref=e47]
+          - text: Logs
+        - link "Sessions" [ref=e49] [cursor=pointer]:
+          - /url: /sessions
+          - img [ref=e50]
+          - text: Sessions
+        - link "Analytics" [ref=e54] [cursor=pointer]:
+          - /url: /analytics
+          - img [ref=e55]
+          - text: Analytics
+        - link "Code Map" [ref=e57] [cursor=pointer]:
+          - /url: /code-map
+          - img [ref=e58]
+          - text: Code Map
+        - link "Skill 3D" [ref=e60] [cursor=pointer]:
+          - /url: /skill-tree-3d
+          - img [ref=e61]
+          - text: Skill 3D
+      - generic [ref=e64]:
+        - generic [ref=e65]: Crew
+        - link "Crew" [ref=e66] [cursor=pointer]:
+          - /url: /crew
+          - img [ref=e67]
+          - text: Crew
+        - link "All Crew" [ref=e72] [cursor=pointer]:
+          - /url: /all-crew
+          - img [ref=e73]
+          - text: All Crew
+        - link "Memory" [ref=e78] [cursor=pointer]:
+          - /url: /memory
+          - img [ref=e79]
+          - text: Memory
+        - link "Inbox" [ref=e87] [cursor=pointer]:
+          - /url: /inbox
+          - img [ref=e88]
+          - text: Inbox
+      - generic [ref=e91]:
+        - generic [ref=e92]: System
+        - link "Projects" [ref=e93] [cursor=pointer]:
+          - /url: /projects
+          - img [ref=e94]
+          - text: Projects
+        - link "Docs" [ref=e96] [cursor=pointer]:
+          - /url: /docs
+          - img [ref=e97]
+          - text: Docs
+        - link "Settings" [ref=e99] [cursor=pointer]:
+          - /url: /settings
+          - img [ref=e100]
+          - text: Settings
+      - button "▸ Legacy" [ref=e104]:
+        - generic [ref=e105]: ▸
+        - generic [ref=e106]: Legacy
+  - generic [ref=e107]:
+    - banner [ref=e108]:
+      - generic [ref=e109]:
+        - img [ref=e111]
+        - generic [ref=e117]: ROBO GROUP
+      - generic [ref=e118]:
+        - img [ref=e119]
+        - generic [ref=e122]: 15:11:51
+      - generic [ref=e123]:
+        - generic [ref=e124]: UPT
+        - generic [ref=e125]: 0h 0m 0s
+      - generic [ref=e126]:
+        - img [ref=e127]
+        - generic [ref=e130]: CREW
+        - generic [ref=e131]: "0"
+      - generic [ref=e132]:
+        - img [ref=e133]
+        - generic [ref=e135]: MSN
+        - generic [ref=e136]: "0"
+      - generic [ref=e137]:
+        - img [ref=e138]
+        - generic [ref=e140]: TG
+        - generic [ref=e141]: "OFF"
+      - button "Emergency stop" [ref=e142]:
+        - img [ref=e143]
+        - generic [ref=e145]: EMRG
+    - generic [ref=e147]:
+      - main [ref=e148]:
+        - generic [ref=e149]:
+          - generic [ref=e150]:
+            - generic [ref=e151]:
+              - heading "All Crew · Live" [level=1] [ref=e152]
+              - paragraph [ref=e153]: Multi-pane control room. Each pane streams that crew's session transcript.
+            - generic [ref=e154]:
+              - generic [ref=e155]: 0 active / 0 idle
+              - generic [ref=e156]:
+                - button "transcript" [ref=e157]:
+                  - img [ref=e158]
+                  - text: transcript
+                - button "live console" [ref=e161]:
+                  - img [ref=e162]
+                  - text: live console
+              - button "all" [ref=e164]
+              - button "channels-enabled" [ref=e165]
+              - button "busy" [ref=e166]
+              - button "idle" [ref=e167]
+          - generic [ref=e168]: Loading crew…
+      - complementary [ref=e169]:
+        - generic [ref=e170]:
+          - img [ref=e171]
+          - generic [ref=e177]: Live Feed
+        - generic [ref=e180]:
+          - img [ref=e181]
+          - generic [ref=e183]: standby…
+        - generic [ref=e184]:
+          - generic [ref=e185]: _
+          - generic [ref=e186]: 0 events buffered

@@ -1,0 +1,50 @@
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - heading "Expense Tracker" [level=1] [ref=e5]
+    - navigation [ref=e6]:
+      - button "Expenses" [ref=e7] [cursor=pointer]
+      - button "History" [ref=e8] [cursor=pointer]
+  - main [ref=e9]:
+    - generic [ref=e10]:
+      - generic [ref=e12]:
+        - heading "Add New Expense" [level=2] [ref=e13]
+        - paragraph [ref=e14]: Scan a bill or enter details manually
+      - generic [ref=e15]:
+        - heading "Scan Your Bill" [level=2] [ref=e16]
+        - paragraph [ref=e17]: Upload bill images to automatically extract expense details
+        - generic [ref=e18]:
+          - generic [ref=e19]:
+            - button "Camera" [ref=e20] [cursor=pointer]
+            - button "Gallery" [ref=e21] [cursor=pointer]
+          - generic [ref=e22]: Drag & drop anywhere on this card, use camera, or select from gallery
+        - generic [ref=e24] [cursor=pointer]:
+          - generic [ref=e25]: Drag & Drop Receipt Images Here
+          - generic [ref=e26]: or click to browse files
+        - generic [ref=e27]:
+          - generic [ref=e30]: OR
+          - button "Enter Expense Manually (Without Bill)" [ref=e32] [cursor=pointer]
+          - generic [ref=e33]: Perfect for cash payments or when you don't have a receipt
+      - generic [ref=e35]:
+        - heading "Your Expenses" [level=2] [ref=e36]
+        - generic [ref=e37]:
+          - button "📤 Google Export" [ref=e38] [cursor=pointer]:
+            - generic [ref=e39]: 📤
+            - generic [ref=e40]: Google Export
+          - button "🖼 View Images" [ref=e41] [cursor=pointer]:
+            - generic [ref=e42]: 🖼
+            - generic [ref=e43]: View Images
+          - button "🗑 Clear Data" [ref=e44] [cursor=pointer]:
+            - generic [ref=e45]: 🗑
+            - generic [ref=e46]: Clear Data
+          - button "✈ Submit Reimbursement Package ›" [ref=e47] [cursor=pointer]:
+            - generic [ref=e48]: ✈
+            - generic [ref=e49]:
+              - generic [ref=e50]: Submit
+              - generic [ref=e51]: Reimbursement Package
+            - generic [ref=e52]: ›
+          - button "🔄 Reset Sheet" [ref=e53] [cursor=pointer]:
+            - generic [ref=e54]: 🔄
+            - generic [ref=e55]: Reset Sheet
+          - button "📄 PDF Library" [ref=e56] [cursor=pointer]:
+            - generic [ref=e57]: 📄
+            - generic [ref=e58]: PDF Library

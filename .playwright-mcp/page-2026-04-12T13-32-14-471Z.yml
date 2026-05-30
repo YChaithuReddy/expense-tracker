@@ -1,0 +1,90 @@
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e6]:
+        - generic [ref=e7]: FluxGen Technologies Pvt Ltd
+        - heading "Track every rupee. Approve in seconds." [level=2] [ref=e9]:
+          - text: Track every rupee.
+          - emphasis [ref=e10]: Approve in seconds.
+      - generic [ref=e15]:
+        - paragraph [ref=e16]: Join innovative teams who are transforming their expense workflows — from receipt to reimbursement in minutes, not days.
+        - list [ref=e17]:
+          - listitem [ref=e18]:
+            - img [ref=e20]
+            - text: Scan bills instantly with AI-powered OCR
+          - listitem [ref=e23]:
+            - img [ref=e25]
+            - text: Multi-level approvals with real-time tracking
+          - listitem [ref=e27]:
+            - img [ref=e29]
+            - text: UPI payments — Google Pay, PhonePe, Paytm
+          - listitem [ref=e31]:
+            - img [ref=e33]
+            - text: Export to Tally, Google Sheets & PDF reports
+      - generic [ref=e36]:
+        - generic [ref=e37]:
+          - generic [ref=e38]: "0"
+          - generic [ref=e39]: Receipts scanned
+        - generic [ref=e41]:
+          - generic [ref=e42]: "0"
+          - generic [ref=e43]: Teams onboarded
+        - generic [ref=e45]:
+          - generic [ref=e46]: "0"
+          - generic [ref=e47]: Accuracy rate
+      - generic [ref=e48]:
+        - generic [ref=e49]:
+          - img [ref=e50]
+          - generic [ref=e52]: Bank-grade encryption
+        - generic [ref=e53]:
+          - img [ref=e54]
+          - generic [ref=e57]: SOC 2 compliant
+      - generic [ref=e58]: © 2025 FluxGen Technologies Pvt Ltd. All rights reserved.
+  - main [ref=e59]:
+    - generic [ref=e60]:
+      - generic [ref=e61]:
+        - generic [ref=e62]:
+          - img "FluxGen" [ref=e63]
+          - generic [ref=e64]: FluxGen Expense Tracker
+        - heading "Welcome back" [level=1] [ref=e65]
+        - paragraph [ref=e66]: Sign in to your FluxGen account
+      - generic [ref=e67]:
+        - generic [ref=e68]:
+          - generic [ref=e69]: Email address
+          - textbox "Email address" [ref=e70]:
+            - /placeholder: you@fluxgentech.com
+            - text: chaithanya@fluxgentech.com
+        - generic [ref=e71]:
+          - generic [ref=e72]: Password
+          - generic [ref=e73]:
+            - textbox "Password" [ref=e74]:
+              - /placeholder: Enter your password
+              - text: 8187883865C@r
+            - button "Toggle password visibility" [ref=e75] [cursor=pointer]: 👁
+        - link "Forgot password?" [ref=e77] [cursor=pointer]:
+          - /url: "#"
+        - button "Sign in Let's go" [ref=e78] [cursor=pointer]:
+          - generic [ref=e80]:
+            - generic [ref=e81]: Sign in
+            - generic [ref=e82]: Let's go
+          - generic [ref=e83]:
+            - img [ref=e84]
+            - img [ref=e86]
+      - generic [ref=e90]: or
+      - button "Continue with Google Let's go with Google" [ref=e92] [cursor=pointer]:
+        - img [ref=e93]
+        - generic [ref=e99]:
+          - generic [ref=e100]: Continue with Google
+          - generic [ref=e101]: Let's go with Google
+        - generic [ref=e102]:
+          - img [ref=e103]
+          - img [ref=e105]
+      - generic [ref=e107]:
+        - paragraph [ref=e108]: Get the full experience on Android
+        - link "Download APK" [ref=e109] [cursor=pointer]:
+          - /url: https://github.com/YChaithuReddy/expense-tracker/releases/latest/download/expense-tracker.apk
+          - img [ref=e110]
+          - text: Download APK
+      - paragraph [ref=e114]:
+        - text: Don't have an account?
+        - link "Create one" [ref=e115] [cursor=pointer]:
+          - /url: signup.html
