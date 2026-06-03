@@ -1,4 +1,4 @@
-# Graph Report - C:\Users\chath\Documents\Python code\expense tracker  (2026-05-28)
+# Graph Report - C:\Users\chath\Documents\Python code\expense tracker  (2026-05-30)
 
 ## Corpus Check
 - 271 files · ~1,761,931 words
@@ -739,11 +739,11 @@ Nodes (1): Dump full old/new for the later edits to attendance_shell.dart and ma
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `package:flutter/material.dart` connect `Community 0` to `Community 2`, `Community 5`, `Community 6`, `Community 7`, `Community 8`, `Community 10`, `Community 11`, `Community 13`, `Community 14`, `Community 15`, `Community 18`, `Community 19`, `Community 21`, `Community 22`, `Community 23`, `Community 24`, `Community 26`, `Community 28`?**
-  _High betweenness centrality (0.392) - this node is a cross-community bridge._
+  _High betweenness centrality (0.442) - this node is a cross-community bridge._
 - **Why does `Text` connect `Community 3` to `Community 1`, `Community 2`, `Community 12`, `Community 17`, `Community 30`, `Community 31`?**
-  _High betweenness centrality (0.299) - this node is a cross-community bridge._
+  _High betweenness centrality (0.324) - this node is a cross-community bridge._
 - **Why does `package:supabase_flutter/supabase_flutter.dart` connect `Community 5` to `Community 2`, `Community 6`, `Community 7`, `Community 8`, `Community 10`, `Community 11`, `Community 13`, `Community 14`, `Community 15`, `Community 18`, `Community 19`, `Community 21`, `Community 22`, `Community 23`, `Community 28`?**
-  _High betweenness centrality (0.172) - this node is a cross-community bridge._
+  _High betweenness centrality (0.179) - this node is a cross-community bridge._
 - **Are the 37 inferred relationships involving `toString` (e.g. with `doPost()` and `createSheetForUser()`) actually correct?**
   _`toString` has 37 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `Extract images from the Biocon docx file for inspection.`, `Return True if the cell is protected (worksheet protection + cell locked).`, `ExpenseTrackerApp` to the rest of the system?**
