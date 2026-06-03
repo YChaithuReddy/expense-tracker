@@ -4854,9 +4854,11 @@ class ExpenseTracker {
         let currentExpenseImages = 0;
         let orphanedImages = 0;
 
-        // Use selected expenses if any are checked, otherwise fall back to all
+        // Use selected expenses if any are checked, then last exported set, then all
         const selectedExpenses = this.getSelectedExpenses();
-        const expensesToInclude = selectedExpenses.length > 0 ? selectedExpenses : this.expenses;
+        const expensesToInclude = selectedExpenses.length > 0
+            ? selectedExpenses
+            : (this._lastExportedExpenses && this._lastExportedExpenses.length > 0 ? this._lastExportedExpenses : this.expenses);
 
         // Deduplicate images WITHIN each expense by filename.
         // This fixes the case where the same bill was uploaded more than once for the
@@ -5252,6 +5254,8 @@ class ExpenseTracker {
                 this.showNotification(`✅ Exported ${selectedExpenses.length} expenses to Google Sheets`);
                 window.api?.logActivity?.('sheets_exported', `Auto-exported ${selectedExpenses.length} expenses before PDF package`, { count: selectedExpenses.length });
 
+                // Remember which expenses were exported so the PDF includes only those
+                this._lastExportedExpenses = selectedExpenses;
                 // Uncheck after export
                 document.querySelectorAll('.expense-checkbox:checked').forEach(cb => { cb.checked = false; });
                 this.updateExportButton();
@@ -7005,6 +7009,8 @@ This action <strong style="color:#ff4757">CANNOT</strong> be undone.</div>`;
                 window.api?.logActivity?.('sheets_exported', `Exported ${count} expenses (₹${Math.round(totalExported)}) to Google Sheets`, { count, total: totalExported });
                 console.log(`Data exported to rows ${result.startRow} to ${result.endRow}`);
 
+                // Remember which expenses were exported so the PDF includes only those
+                this._lastExportedExpenses = selectedExpenses;
                 // Uncheck all checkboxes after successful export
                 document.querySelectorAll('.expense-checkbox:checked').forEach(cb => cb.checked = false);
                 this.updateExportButton();
