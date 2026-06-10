@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const axios = require('axios');
+const crypto = require('crypto');
 const { protect } = require('../middleware/auth');
 const whatsappService = require('../services/whatsapp');
 const ocrService = require('../services/ocr');
@@ -234,9 +235,48 @@ router.post('/send-summary', protect, async (req, res) => {
     }
 });
 
+// Twilio webhook signature validation (HMAC-SHA1 of URL + sorted params, per
+// https://www.twilio.com/docs/usage/security#validating-requests). Fail-closed:
+// requests are rejected when TWILIO_AUTH_TOKEN is unset so the webhook can never
+// run unauthenticated by misconfiguration.
+function validateTwilioSignature(req, res, next) {
+    const authToken = process.env.TWILIO_AUTH_TOKEN;
+    if (!authToken) {
+        console.error('TWILIO_AUTH_TOKEN not set — rejecting webhook request');
+        return res.status(403).send('Webhook not configured');
+    }
+
+    const signature = req.header('X-Twilio-Signature');
+    if (!signature) {
+        return res.status(403).send('Missing signature');
+    }
+
+    // TWILIO_WEBHOOK_URL must match the URL configured in the Twilio console
+    // exactly; deriving it from req headers breaks behind some proxies.
+    const url = process.env.TWILIO_WEBHOOK_URL
+        || `${req.protocol}://${req.get('host')}${req.originalUrl}`;
+
+    const data = Object.keys(req.body || {})
+        .sort()
+        .reduce((acc, key) => acc + key + req.body[key], url);
+
+    const expected = crypto
+        .createHmac('sha1', authToken)
+        .update(Buffer.from(data, 'utf-8'))
+        .digest('base64');
+
+    const a = Buffer.from(signature);
+    const b = Buffer.from(expected);
+    if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
+        console.error('Invalid Twilio webhook signature from', req.ip);
+        return res.status(403).send('Invalid signature');
+    }
+    next();
+}
+
 // @route   POST /api/whatsapp/webhook
 // Main webhook handler - SIMPLIFIED 3-STEP FLOW
-router.post('/webhook', async (req, res) => {
+router.post('/webhook', validateTwilioSignature, async (req, res) => {
     try {
         const { From, Body, NumMedia, MediaUrl0, MediaContentType0 } = req.body;
         console.log('📱 WhatsApp webhook:', { From, Body, NumMedia });

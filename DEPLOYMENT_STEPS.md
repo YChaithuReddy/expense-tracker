@@ -36,12 +36,12 @@ Go to "Variables" tab and add these:
 ```
 NODE_ENV=production
 PORT=5000
-MONGODB_URI=mongodb+srv://REDACTED_USER:REDACTED@expense-tracker.ygrtsmh.mongodb.net/expense-tracker?retryWrites=true&w=majority
-JWT_SECRET=REDACTED
+MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/expense-tracker?retryWrites=true&w=majority
+JWT_SECRET=<generate-a-64-char-random-hex-string>
 JWT_EXPIRE=7d
-CLOUDINARY_CLOUD_NAME=dqfycr809
-CLOUDINARY_API_KEY=REDACTED
-CLOUDINARY_API_SECRET=REDACTED
+CLOUDINARY_CLOUD_NAME=<your-cloud-name>
+CLOUDINARY_API_KEY=<your-api-key>
+CLOUDINARY_API_SECRET=<your-api-secret>
 FRONTEND_URL=https://your-frontend-url.vercel.app
 RATE_LIMIT_WINDOW_MS=900000
 RATE_LIMIT_MAX_REQUESTS=100

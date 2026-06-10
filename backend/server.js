@@ -69,8 +69,12 @@ app.use(express.json({ limit: '100mb' })); // Increased for batch bill uploads
 app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 
 // Session Configuration (Required for Passport)
+if (process.env.NODE_ENV === 'production' && !process.env.SESSION_SECRET) {
+    console.error('FATAL: SESSION_SECRET must be set in production');
+    process.exit(1);
+}
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'your-secret-key-change-this',
+    secret: process.env.SESSION_SECRET || 'dev-only-secret',
     resave: false,
     saveUninitialized: false,
     cookie: {
