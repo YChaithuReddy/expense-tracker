@@ -167,29 +167,6 @@ class OfflineManager {
     // ==================== Sync Logic ====================
 
     /**
-     * Get a fresh auth token from Supabase session (handles expired tokens)
-     */
-    async getFreshToken() {
-        try {
-            const supabase = window.supabaseClient?.get();
-            if (!supabase) return localStorage.getItem('token');
-
-            const { data: { session }, error } = await supabase.auth.getSession();
-            if (error || !session) {
-                // Try refreshing the session
-                const { data: refreshed } = await supabase.auth.refreshSession();
-                if (refreshed?.session) {
-                    return refreshed.session.access_token;
-                }
-                return null;
-            }
-            return session.access_token;
-        } catch {
-            return localStorage.getItem('token');
-        }
-    }
-
-    /**
      * Backup pending expenses to localStorage as safety net
      */
     async backupPendingToLocalStorage() {
@@ -284,51 +261,47 @@ class OfflineManager {
         // Backup before syncing
         await this.backupPendingToLocalStorage();
 
-        // Get fresh token (handles expired sessions)
-        const freshToken = await this.getFreshToken();
+        // Supabase is the only backend — sync goes through the same
+        // api.createExpense path the live app uses (supabase-api.js)
+        if (typeof api === 'undefined' || typeof api.createExpense !== 'function') {
+            console.error('supabase-api.js not loaded — cannot sync pending expenses');
+            this.syncInProgress = false;
+            return;
+        }
 
         let successCount = 0;
         let failCount = 0;
         const MAX_RETRIES = 10;
 
         for (const item of pending) {
-            const token = freshToken || item.token;
-
             try {
-                const response = await fetch(`${window.API_BASE_URL || ''}/api/expenses`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify(item.data)
-                });
+                const result = await api.createExpense(item.data, []);
 
-                if (response.ok) {
+                if (result && result.offline) {
+                    // Connection dropped mid-sync: createExpense re-queued this
+                    // expense as a new entry, so drop the original to avoid a duplicate
                     await this.deletePendingExpense(item.id);
-                    successCount++;
-                    console.log(`Synced expense ${item.id}`);
-                } else if (response.status === 401) {
-                    // Token expired even after refresh — keep in queue, don't delete
+                    failCount++;
+                    continue;
+                }
+
+                await this.deletePendingExpense(item.id);
+                successCount++;
+                console.log(`Synced expense ${item.id}`);
+            } catch (error) {
+                if (/not authenticated/i.test(error?.message || '')) {
+                    // Session expired — keep in queue, retry after next login
                     console.warn('Auth failed for expense', item.id, '— will retry on next login');
                     failCount++;
-                } else {
-                    // Server error — increment attempts with exponential backoff cap
-                    item.attempts = (item.attempts || 0) + 1;
-                    if (item.attempts >= MAX_RETRIES) {
-                        // Move to failed state but don't delete — warn user
-                        console.error(`Expense ${item.id} failed after ${MAX_RETRIES} attempts — keeping in queue`);
-                        failCount++;
-                    } else {
-                        // Update attempt count in IndexedDB
-                        await this.updatePendingExpenseAttempts(item.id, item.attempts);
-                        failCount++;
-                    }
+                    continue;
                 }
-            } catch (error) {
                 console.error('Sync error for expense:', item.id, error);
                 item.attempts = (item.attempts || 0) + 1;
-                await this.updatePendingExpenseAttempts(item.id, item.attempts);
+                if (item.attempts >= MAX_RETRIES) {
+                    console.error(`Expense ${item.id} failed after ${MAX_RETRIES} attempts — keeping in queue`);
+                } else {
+                    await this.updatePendingExpenseAttempts(item.id, item.attempts);
+                }
                 failCount++;
             }
         }
@@ -616,72 +589,6 @@ class OfflineManager {
         }, 3000);
     }
 
-    // ==================== API Wrapper with Retry ====================
-
-    async fetchWithRetry(url, options = {}, retries = 3) {
-        for (let i = 0; i < retries; i++) {
-            try {
-                if (!this.isOnline) {
-                    throw new Error('No internet connection');
-                }
-
-                const response = await fetch(url, {
-                    ...options,
-                    headers: {
-                        ...options.headers,
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
-
-                if (!response.ok && response.status >= 500) {
-                    throw new Error(`Server error: ${response.status}`);
-                }
-
-                return response;
-            } catch (error) {
-                console.warn(`Fetch attempt ${i + 1} failed:`, error.message);
-
-                if (i === retries - 1) {
-                    throw error;
-                }
-
-                // Wait before retrying (exponential backoff)
-                await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
-            }
-        }
-    }
-
-    // ==================== Helper: Add expense with offline support ====================
-
-    async addExpenseWithOfflineSupport(expenseData) {
-        if (!this.isOnline) {
-            // Save offline
-            await this.savePendingExpense(expenseData);
-            return { success: true, offline: true };
-        }
-
-        try {
-            const response = await this.fetchWithRetry(
-                `${window.API_BASE_URL || ''}/api/expenses`,
-                {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(expenseData)
-                }
-            );
-
-            if (response.ok) {
-                const data = await response.json();
-                return { success: true, data };
-            } else {
-                throw new Error('Failed to save expense');
-            }
-        } catch (error) {
-            console.error('Failed to save expense online, saving offline:', error);
-            await this.savePendingExpense(expenseData);
-            return { success: true, offline: true };
-        }
-    }
 }
 
 // Initialize and export
