@@ -4596,6 +4596,46 @@ class ExpenseTracker {
                 <div class="recent-entries__item-amount">${amt}</div>
             </div>`;
         }).join('');
+        this.updateMiniStats();
+    }
+
+    // One-tap chip on the Enter Manually card: open the form pre-set to a category.
+    quickCategory(category) {
+        this.showManualEntryForm();
+        const catInput = document.getElementById('category');
+        if (catInput) {
+            catInput.value = category;
+            catInput.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+        // Sync the visual category picker if one is rendered.
+        document.querySelectorAll('[data-category]').forEach((el) => {
+            el.classList.toggle('active', el.dataset.category === category);
+        });
+        document.getElementById('description')?.focus();
+    }
+
+    // Fills the month-at-a-glance tiles (Enter Manually card + sidebar).
+    updateMiniStats() {
+        const now = new Date();
+        const monthExpenses = (this.expenses || []).filter((e) => {
+            const d = e.date ? new Date(e.date) : null;
+            return d && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+        });
+        const total = monthExpenses.reduce((s, e) => s + Number(e.amount || 0), 0);
+        const latest = (this.expenses || [])[0];
+        let lastStr = '—';
+        if (latest && latest.date) {
+            const d = new Date(latest.date);
+            lastStr = d.toDateString() === now.toDateString()
+                ? 'Today'
+                : d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+        }
+        const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+        set('manualStatTotal', '₹' + Math.round(total).toLocaleString('en-IN'));
+        set('manualStatCount', String(monthExpenses.length));
+        set('manualStatLast', lastStr);
+        set('sbMonthTotal', '₹' + Math.round(total).toLocaleString('en-IN'));
+        set('sbMonthCount', String(monthExpenses.length));
     }
 
     resetForm() {

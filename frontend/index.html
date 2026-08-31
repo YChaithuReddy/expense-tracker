@@ -144,6 +144,13 @@
                     <span>Settings</span>
                 </button>
             </nav>
+            <!-- Sidebar filler: month-at-a-glance (pinned above the profile block) -->
+            <div class="admin-sidebar__month">
+                <p class="admin-sidebar__month-label">This month</p>
+                <div class="admin-sidebar__month-row"><span>Total</span><b id="sbMonthTotal">₹0</b></div>
+                <div class="admin-sidebar__month-row"><span>Entries</span><b id="sbMonthCount">0</b></div>
+                <p class="admin-sidebar__month-sync"><span class="admin-sidebar__month-sync-dot"></span>Synced to cloud</p>
+            </div>
             <div class="admin-sidebar__footer">
                 <span id="realtimeStatus" class="realtime-dot realtime-dot--disconnected" title="Realtime sync"></span>
                 <div class="admin-sidebar__user-block">
@@ -276,6 +283,14 @@
                         </div>
                     </div>
 
+                    <!-- Card filler: format/security/OCR meta + tip (keeps the card visually full) -->
+                    <div class="exp-scan-meta">
+                        <span class="exp-scan-meta__chip">📄 JPG · PNG · PDF · max 10 MB</span>
+                        <span class="exp-scan-meta__chip">🔒 Encrypted &amp; private</span>
+                        <span class="exp-scan-meta__chip">⚡ Auto amount &amp; GST extract</span>
+                    </div>
+                    <div class="exp-scan-tip">💡 UPI screenshots work too — amount and merchant auto-fill. Keep paper bills flat for best OCR.</div>
+
                     <button type="button" id="scanBills" class="btn-flux" style="display:none;width:100%;">
                         <span class="btn-flux__text">
                             <span class="btn-flux__text-inner">
@@ -337,6 +352,24 @@
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                         </span>
                     </button>
+                    <!-- Card filler: one-tap category entry -->
+                    <div class="quick-cats">
+                        <p class="quick-cats__label">Quick categories</p>
+                        <div class="quick-cats__chips">
+                            <button type="button" class="quick-cat-chip" onclick="expenseTracker.quickCategory('Food')">🍽️ Food</button>
+                            <button type="button" class="quick-cat-chip" onclick="expenseTracker.quickCategory('Transportation')">🚗 Transport</button>
+                            <button type="button" class="quick-cat-chip" onclick="expenseTracker.quickCategory('Fuel')">⛽ Fuel</button>
+                            <button type="button" class="quick-cat-chip" onclick="expenseTracker.quickCategory('Hotel')">🏨 Hotel</button>
+                            <button type="button" class="quick-cat-chip" onclick="expenseTracker.quickCategory('Office Supplies')">📎 Office</button>
+                            <button type="button" class="quick-cat-chip" onclick="expenseTracker.quickCategory('Miscellaneous')">📦 Misc</button>
+                        </div>
+                    </div>
+                    <!-- Card filler: month-at-a-glance (pinned to card bottom) -->
+                    <div class="manual-stats">
+                        <div class="manual-stat"><span class="manual-stat__value" id="manualStatTotal">₹0</span><span class="manual-stat__label">This month</span></div>
+                        <div class="manual-stat"><span class="manual-stat__value" id="manualStatCount">0</span><span class="manual-stat__label">Entries</span></div>
+                        <div class="manual-stat"><span class="manual-stat__value" id="manualStatLast">—</span><span class="manual-stat__label">Last entry</span></div>
+                    </div>
                     <!-- Shown when images are queued in Scan Receipt — full previews live here -->
                     <div id="selectedImagesPanel" class="sel-img-panel" style="display:none;"></div>
                 </div>
