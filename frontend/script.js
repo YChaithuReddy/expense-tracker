@@ -4597,6 +4597,7 @@ class ExpenseTracker {
             </div>`;
         }).join('');
         this.updateMiniStats();
+        this.rotateScanTip();
     }
 
     // One-tap chip on the Enter Manually card: open the form pre-set to a category.
@@ -4612,6 +4613,20 @@ class ExpenseTracker {
             el.classList.toggle('active', el.dataset.category === category);
         });
         document.getElementById('description')?.focus();
+    }
+
+    // Rotates the scan-card tip — one short tip per page load, not a wall of advice.
+    rotateScanTip() {
+        const el = document.getElementById('scanTipText');
+        if (!el) return;
+        const tips = [
+            'UPI screenshots work — amount and merchant auto-fill.',
+            'Keep paper bills flat and well-lit for best OCR accuracy.',
+            'Multiple bills? Drop them together — they batch-scan in one go.',
+        ];
+        const i = Number(localStorage.getItem('scanTipIndex') || 0) % tips.length;
+        el.textContent = tips[i];
+        localStorage.setItem('scanTipIndex', String((i + 1) % tips.length));
     }
 
     // Fills the month-at-a-glance tiles (Enter Manually card + sidebar).

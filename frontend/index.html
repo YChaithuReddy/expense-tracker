@@ -283,13 +283,25 @@
                         </div>
                     </div>
 
-                    <!-- Card filler: format/security/OCR meta + tip (keeps the card visually full) -->
+                    <!-- Card filler: format/security/OCR meta + rotating tip (keeps the card visually full) -->
                     <div class="exp-scan-meta">
-                        <span class="exp-scan-meta__chip">📄 JPG · PNG · PDF · max 10 MB</span>
-                        <span class="exp-scan-meta__chip">🔒 Encrypted &amp; private</span>
-                        <span class="exp-scan-meta__chip">⚡ Auto amount &amp; GST extract</span>
+                        <span class="exp-scan-meta__chip">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+                            JPG · PNG · PDF
+                        </span>
+                        <span class="exp-scan-meta__chip exp-scan-meta__chip--trust">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                            Encrypted &amp; private
+                        </span>
+                        <span class="exp-scan-meta__chip">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                            Auto GST extract
+                        </span>
                     </div>
-                    <div class="exp-scan-tip">💡 UPI screenshots work too — amount and merchant auto-fill. Keep paper bills flat for best OCR.</div>
+                    <div class="exp-scan-tip">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 00-4 12.7c.6.5 1 1.4 1 2.3h6c0-.9.4-1.8 1-2.3A7 7 0 0012 2z"/></svg>
+                        <span id="scanTipText">UPI screenshots work — amount and merchant auto-fill.</span>
+                    </div>
 
                     <button type="button" id="scanBills" class="btn-flux" style="display:none;width:100%;">
                         <span class="btn-flux__text">

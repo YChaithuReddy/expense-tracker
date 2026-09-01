@@ -15631,28 +15631,45 @@ a svg {
     justify-content: center;
 }
 
-/* Meta chips + tip pinned under the dropzone */
+/* Meta chips + tip pinned under the dropzone.
+   Equal-width 3-up grid — the row never wraps ragged. */
 .exp-scan-meta {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     gap: 8px;
     margin-top: 12px;
 }
 .exp-scan-meta__chip {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
-    padding: 6px 12px;
+    padding: 7px 10px;
     border-radius: 999px;
     background: rgba(241, 245, 249, 0.9);
     border: 1px solid rgba(226, 232, 240, 0.8);
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     font-weight: 600;
     color: #475569;
     white-space: nowrap;
+    overflow: hidden;
+}
+.exp-scan-meta__chip svg {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+}
+/* Trust chip reads as a security badge, not another spec pill */
+.exp-scan-meta__chip--trust {
+    color: #047857;
+    background: rgba(236, 253, 245, 0.9);
+    border-color: rgba(167, 243, 208, 0.8);
 }
 .exp-scan-tip {
     margin-top: 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
     padding: 9px 12px;
     border-radius: 10px;
     background: rgba(254, 249, 235, 0.9);
@@ -15660,6 +15677,16 @@ a svg {
     font-size: 0.74rem;
     line-height: 1.45;
     color: #713f12;
+}
+.exp-scan-tip svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    color: #b45309;
+}
+@media (max-width: 640px) {
+    .exp-scan-meta { grid-template-columns: 1fr; }
 }
 
 /* Manual card becomes a column; stats pin to the bottom edge */
